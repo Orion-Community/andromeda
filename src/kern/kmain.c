@@ -10,5 +10,9 @@ void announce()
 int kmain ()
 {
 	announce();
+	paging();
+	// Start decompression
+	// Start initial (kernel) process
 	sched();
+	for (;;);
 }
