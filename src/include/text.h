@@ -1,9 +1,9 @@
 #ifndef __TEXT_H
 #define __TEXT_H
-void println(char*);
-void putc(char);
-void printhex(int);
+void println(unsigned char*);
+void putc(unsigned char);
+void printhex(unsigned int);
 void printdec(int);
-void scroll(int);
+void scroll(unsigned int);
 void textInit();
 #endif
