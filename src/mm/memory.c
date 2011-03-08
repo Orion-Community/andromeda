@@ -4,11 +4,11 @@ void paging ()
 {
 }
 
-void memset(char* offset, char value, int size)
+void memset(int* offset, int value, int size)
 {
-	char *end = offset+size;
-	for (;offset < end; offset++)
+	int i = 0;
+	for (; i <= size; i++)
 	{
-		*offset=value;
+		offset[i] = value;
 	}
 }

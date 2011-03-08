@@ -3,4 +3,11 @@
 #define KEYBUF 0xB8000
 #define WIDTH 80
 #define HEIGHT 25
+
+struct curPos
+{
+	int x;
+	int y;
+};
+
 #endif

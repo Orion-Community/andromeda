@@ -9,6 +9,7 @@ void announce()
 
 int kmain ()
 {
+	textInit();
 	announce();
 	paging();
 	// Start decompression

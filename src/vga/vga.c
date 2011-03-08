@@ -2,16 +2,35 @@
 #include <mm/memory.h>
 #include "include/vga.h"
 
-int curPos = 0;
-char col = 0x70;
+struct curPos cursor;
+char col = 0x07;
 
-void vgaInit()
+void textInit()
 {
-	memset(*(char*)KEYBUF, '\0', WIDTH*2*HEIGHT);
+	scroll(HEIGHT);
+	cursor.x = 0;
+	cursor.y = 0;
 }
 
-void scroll()
+void scroll(int i)
 {
+	int p = 0;
+	int q = 0;
+	short *keybuf = (short *) KEYBUF;
+	for (p=0; p < i; p ++)
+	{
+		for (q=0; q < WIDTH; q++)
+		{
+			keybuf[p*WIDTH+q] = keybuf[(p+i)*WIDTH+q];
+		}
+	}
+	for (;p < HEIGHT; p++)
+	{
+		for (q=0; q < WIDTH; q++)
+		{
+			keybuf[p*WIDTH+q] = 0x07 << 8 | ' ';
+		}
+	}
 }
 
 void println(char *line)
@@ -28,15 +47,20 @@ void putc(char i)
 {
 	if (i == '\n')
 	{
-		int tmp = curPos/WIDTH;
-		tmp++;
-		curPos = curPos%WIDTH+tmp*WIDTH;
+		cursor.y++;
+		cursor.x = 0;
 	}
-	if (curPos/WIDTH >= HEIGHT)
+	cursor.x++;
+	if (cursor.x > WIDTH)
 	{
-		scroll(HEIGHT-curPos/WIDTH);
+		cursor.x %= WIDTH;
+		cursor.y += cursor.x/WIDTH;
 	}
-	*(char *)(KEYBUF+curPos+1) = i;
-	*(char *)(KEYBUF+curPos) = col;
-	curPos+=2;
+	if (cursor.y >= HEIGHT)
+	{
+		scroll(cursor.y % HEIGHT+1);
+	}
+	short *keybuf = (short *)KEYBUF;
+	short chr = (short)(col << 8) | (short)i;
+	keybuf[cursor.x-1+cursor.y*WIDTH] = chr;
 }
