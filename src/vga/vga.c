@@ -53,8 +53,8 @@ void putc(unsigned char i)
 		cursor.x = 0;
 		noPrint = TRUE;
 	}
-	cursor.x++;
-	if (cursor.x > WIDTH)
+
+	if (cursor.x+1 > WIDTH)
 	{
 		cursor.x %= WIDTH;
 		cursor.y += cursor.x/WIDTH;
@@ -65,6 +65,7 @@ void putc(unsigned char i)
 	}
 	if (!noPrint)
 	{
+		cursor.x++;
 		unsigned short *keybuf = (unsigned short *)KEYBUF;
 		unsigned short chr = (unsigned short)(col << 8) | (unsigned short)i;
 		keybuf[cursor.x-1+cursor.y*WIDTH] = chr;

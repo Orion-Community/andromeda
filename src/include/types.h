@@ -1,6 +1,6 @@
 #ifndef __TYPES_H
 #define __TYPES_H
-typedef boolean unsigned char;
+typedef unsigned char boolean;
 #define FALSE 0
 #define TRUE !FALSE
 #endif
