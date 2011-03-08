@@ -4,4 +4,5 @@ all:
 	ld -Tlink.ld -oformat=elf32-i386 -melf_i386 -o kernel *.o boot/*.o
 clean:
 	rm *.o
+	rm boot/*.o
 	rm kernel
