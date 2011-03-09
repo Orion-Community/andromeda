@@ -1,8 +1,9 @@
 #include <error/panic.h>
 #include <text.h>
 
-void panic()
+void panic(char* msg)
 {
 	println("Orion panic");
+	println(msg);
 	for (;;);
 }

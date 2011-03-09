@@ -1,0 +1,7 @@
+include arch/x86/x86
+include make/makeIncl
+
+x86:
+	$(CC) -c */*.c -Iinclude $(CFLAGS) -m32
+	$(MAKE) -C arch/x86 arch
+	$(LD) $(LDFLAGS) -o $(OUT) *.o

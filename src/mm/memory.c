@@ -2,6 +2,7 @@
 
 void paging ()
 {
+	panic("Paging wasn't initialised!");
 }
 
 void memset(int* offset, int value, int size)

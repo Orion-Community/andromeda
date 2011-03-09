@@ -1,8 +1,13 @@
-all:
-	gcc -c */*.c -Iinclude -nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32
-	nasm boot/boot.s -felf
-	ld -Tlink.ld -oformat=elf32-i386 -melf_i386 -o kernel *.o boot/*.o
+include make/makeIncl
+
+all: x86
+
+x86:
+	$(MAKE) -f Makefile.x86 x86
+
+amd64:
+	@echo "Not yet implemented"
 clean:
 	rm *.o
-	rm boot/*.o
+	$(MAKE) -C arch/x86 clean
 	rm kernel

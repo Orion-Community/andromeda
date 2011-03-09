@@ -1,0 +1,4 @@
+CC=gcc
+LD=ld
+MAKE=make
+OUT=kernel

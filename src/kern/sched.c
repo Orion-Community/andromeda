@@ -18,15 +18,15 @@ struct taskHdr
 
 void sched()
 {
-	panic();
+	panic("Could not schedule");
 }
 
 void fork(int pid)
 {
-	panic();
+	panic("Fork wasn't implemented");
 }
 
 void kill (int pid)
 {
-	panic();
+	panic("Kill needs implementation");
 }

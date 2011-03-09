@@ -1,4 +1,4 @@
 #ifndef __PANIC_H
 #define __PANIC_H
-void panic();
+void panic(char *);
 #endif
