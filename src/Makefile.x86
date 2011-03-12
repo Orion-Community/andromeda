@@ -1,9 +1,15 @@
 include arch/x86/x86
 include make/makeIncl
 
-x86:
-	$(CC) -c */*.c -Iinclude $(CFLAGS) -m32
-	$(MAKE) -C arch/x86 arch
+x86: compressed
+#	$(CC) -c */*.c -Iinclude $(CFLAGS)
+#	$(MAKE) -C arch/x86 arch
+#	$(LD) $(LDFLAGS) -o $(OUT) *.o
+
+compressed:
+	$(CC) $(CFLAGS) arch/x86/boot/compressed/*.c
+	$(CC) $(CFLAGS) vga/*.c
+	$(AS) arch/x86/boot/boot.s $(ASFLAGS) -o ./boot.o
 	$(LD) $(LDFLAGS) -o $(OUT) *.o
 
 asm:
