@@ -5,3 +5,6 @@ x86:
 	$(CC) -c */*.c -Iinclude $(CFLAGS) -m32
 	$(MAKE) -C arch/x86 arch
 	$(LD) $(LDFLAGS) -o $(OUT) *.o
+
+asm:
+	$(CC) -c -S -Iinclude $(CFLAGS) -m32 */*.c
