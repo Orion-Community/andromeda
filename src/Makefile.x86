@@ -1,4 +1,4 @@
-include arch/x86/x86
+include make/x86
 include make/makeIncl
 
 x86: compressed

@@ -9,5 +9,4 @@ amd64:
 	@echo "Not yet implemented"
 clean:
 	rm *.o
-	$(MAKE) -C arch/x86 clean
 	rm kernel
