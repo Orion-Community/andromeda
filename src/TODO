@@ -1,4 +1,8 @@
 TODO:
+GENERAL
+*	Name the first real release andromeda.
+	After the nearest galaxy to our own.
+
 COMPRESSED
 *	Develop paged and unpaged memory management.
 	Preferrebly in the same portion of code.
@@ -23,10 +27,12 @@ DECOMPRESSED
 	Needed to load in other processes.
 
 *	Design and implement a scheduler.
-	No explanation needed.
+	Preferrably priority and sleeptime based.
 
 *	Start work on an API.
-	No explanation needed.
+	such as libc (newlibc apparently is a
+	relatively easy port).
 
-*	Make a start on the userland tools.
-	No explanation needed.
+*	Make a start on the basic userland tools.
+	Such as a shell, commands, a compiler,
+	assembler and text editor.
