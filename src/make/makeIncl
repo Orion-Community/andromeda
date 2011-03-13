@@ -1,4 +1,5 @@
 CC=gcc
 LD=ld
 MAKE=make
-OUT=kernel
+OUTC=compressed
+OUTD=kernel

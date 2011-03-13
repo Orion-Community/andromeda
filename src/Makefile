@@ -9,4 +9,4 @@ amd64:
 	@echo "Not yet implemented"
 clean:
 	rm *.o
-	rm kernel
+	rm $(OUTC)
