@@ -9,7 +9,7 @@ x86: compressed
 compressed:
 	$(CC) $(CFLAGS) arch/x86/boot/compressed/*.c
 	$(CC) $(CFLAGS) vga/*.c
-	$(AS) arch/x86/boot/boot.s $(ASFLAGS) -o ./boot.o
+	$(AS) arch/x86/boot/compressed/boot.s $(ASFLAGS) -o ./boot.o
 	$(LD) $(LDFLAGS) -o $(OUT) *.o
 
 asm:

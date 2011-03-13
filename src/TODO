@@ -1,0 +1,32 @@
+TODO:
+COMPRESSED
+*	Develop paged and unpaged memory management.
+	Preferrebly in the same portion of code.
+	Needed for the page tables.
+
+*	Make a start on paging code
+	needed to load the kernel in high memory.
+
+*	Filesystem implementation.
+	Is required to load the decompressed kernel.
+
+*	Make image loading code.
+	To load the decompressed kernel.
+
+*	Start the decompressed kernel.
+
+DECOMPRESSED
+*	Use the code from the above platform.
+	This needs to be in high memory though.
+
+*	Implement interrupts and exceptions.
+	Needed to load in other processes.
+
+*	Design and implement a scheduler.
+	No explanation needed.
+
+*	Start work on an API.
+	No explanation needed.
+
+*	Make a start on the userland tools.
+	No explanation needed.
