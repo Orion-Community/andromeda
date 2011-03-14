@@ -10,3 +10,6 @@ amd64:
 clean:
 	rm *.o
 	rm $(OUTC)
+
+test: all
+	kvm -m 512M -kernel compressed
