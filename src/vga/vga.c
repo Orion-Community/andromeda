@@ -33,22 +33,23 @@ void textInit()
 
 void scroll(unsigned char lines)
 {
-	int i, j;
+	int x, y;
 	unsigned short *keybuf = (unsigned short *)KEYBUF;
-	for (i = 0; i < HEIGHT - lines; i++)
+	for (x = 0; x < HEIGHT - lines; x++)
 	{
-		for (j = 0; j < WIDTH; j++)
+		for (y = 0; y < WIDTH; y++)
 		{
-			keybuf[i+j*WIDTH] = keybuf[i+lines+j*WIDTH];
+			keybuf[y+x*WIDTH] = keybuf[y+lines+x*WIDTH];
 		}
 	}
-	for (; i < HEIGHT; i++)
+	for (; x < HEIGHT; x++)
 	{
-		for (j = 0; j < WIDTH; j++)
+		for (y = 0; y < WIDTH; y++)
 		{
-			keybuf[i+j+WIDTH] = ((col << 8) | ' ');
+			keybuf[x+y+WIDTH] = ((col << 8) | ' ');
 		}
 	}
+	cursor.y-=lines;
 }
 
 void println(unsigned char *line)

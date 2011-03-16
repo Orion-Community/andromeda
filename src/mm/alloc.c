@@ -67,6 +67,7 @@ void initBlockMap ()
 		printhex(i); putc('\n');
 		printhex((int)tmp); printf("\n\n");
 		baseAddr += ALLOC_MAX;
+		int x = 0;
 	 }
 	 
 }

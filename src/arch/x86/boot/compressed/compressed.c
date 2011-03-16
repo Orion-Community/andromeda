@@ -34,14 +34,14 @@
 void announce()
 {
 	textInit();
-	println("Compressed kernel loaded");
-	println("Decompressing the kernel");
+	//println("Compressed kernel loaded");
+	//println("Decompressing the kernel");
 }
 
 int kmain(/* boot data , boot data , gzipped kernel*/)
 {
 	announce();
-	initHeap(K128, K128);
+	//initHeap(K128, K128);
 	//installInterruptVectorTable();
 	//initPaging();
 	//exec(decompress(gzipped kernel));
