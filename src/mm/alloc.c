@@ -34,6 +34,7 @@ void mmapAdd(int index, memNode_t *node)
 
 void initBlockMap ()
 {
+	 printf("Test\n");
 	 int i;
 	 memBlock_t *frame;
 	 int baseAddr = heapBase;
@@ -42,19 +43,25 @@ void initBlockMap ()
 		frame = &memory[i];
 		frame->size=i*4+4;
 	 }
-	 for (i=0; i < heapSize/find_index(ALLOCSIZES); i++)
+	 println("checkpoint 0");
+	 for (i=0; i < heapSize/(find_index(ALLOCSIZES)); i++)
 	 {
+		//println("checkpoint 1");
 		memNode_t* tmp = (memNode_t*)baseAddr;
 		tmp -> used = FALSE;
 		
-		if (tmp = (memNode_t*)heapBase)
+		//println("checkpoint 2");
+		
+		if (tmp == (memNode_t*)heapBase)
 		{
 			frame = &memory[find_index(ALLOC_MAX)];
 			frame -> head = tmp;
+		//	println("checkpoint 3");
 		}
 		else
 		{
 			mmapAdd(ALLOC_MAX, tmp);
+		//	println("checkpoint 4");
 		}
 		printf("index\taddress\n");
 		printhex(i); putc('\n');

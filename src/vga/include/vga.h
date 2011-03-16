@@ -26,6 +26,7 @@ struct curPos
 {
 	int x;
 	int y;
+	int tabwidth;
 };
 
 #endif

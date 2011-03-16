@@ -29,7 +29,7 @@
 #include <text.h>
 #include <mm/memory.h>
 
-#define K128 0x20000
+#define K128 0x8000000
 
 void announce()
 {
@@ -42,7 +42,6 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 {
 	announce();
 	initHeap(K128, K128);
-	
 	//installInterruptVectorTable();
 	//initPaging();
 	//exec(decompress(gzipped kernel));

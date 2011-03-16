@@ -21,7 +21,7 @@
 #include <types.h>
 #include "include/vga.h"
 
-struct curPos cursor = {0,0};
+struct curPos cursor = {0,0,8};
 char col = 0x07;
 
 void textInit()
@@ -31,23 +31,22 @@ void textInit()
 	//cursor.y = 0;
 }
 
-void scroll(unsigned int i)
+void scroll(unsigned char lines)
 {
-	unsigned int p = 0;
-	unsigned int q = 0;
-	unsigned short *keybuf = (unsigned short *) KEYBUF;
-	for (p=0; p < i; p ++)
+	int i, j;
+	unsigned short *keybuf = (unsigned short *)KEYBUF;
+	for (i = 0; i < HEIGHT - lines; i++)
 	{
-		for (q=0; q < WIDTH; q++)
+		for (j = 0; j < WIDTH; j++)
 		{
-			keybuf[p*WIDTH+q] = keybuf[(p+i)*WIDTH+q];
+			keybuf[i+j*WIDTH] = keybuf[i+lines+j*WIDTH];
 		}
 	}
-	for (;p < HEIGHT; p++)
+	for (; i < HEIGHT; i++)
 	{
-		for (q=0; q < WIDTH; q++)
+		for (j = 0; j < WIDTH; j++)
 		{
-			keybuf[p*WIDTH+q] = 0x07 << 8 | ' ';
+			keybuf[i+j+WIDTH] = ((col << 8) | ' ');
 		}
 	}
 }
@@ -95,7 +94,12 @@ void putc(unsigned char i)
 
 	if (i == '\t')
 	{
-		cursor.x = cursor.x+WIDTH%8;
+		int i;
+		for (i = 0; i < cursor.x%cursor.tabwidth; i++)
+		{
+			putc(' ');
+		} 
+		noPrint = TRUE;
 	}
 
 	if (cursor.x+1 > WIDTH)

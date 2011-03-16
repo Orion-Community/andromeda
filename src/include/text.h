@@ -23,6 +23,6 @@ void printf(unsigned char*);
 void putc(unsigned char);
 void printhex(unsigned int);
 void printdec(int);
-void scroll(unsigned int);
+void scroll(unsigned char);
 void textInit();
 #endif
