@@ -35,18 +35,18 @@ void scroll(unsigned char lines)
 {
 	int x, y;
 	unsigned short *keybuf = (unsigned short *)KEYBUF;
-	for (x = 0; x < HEIGHT - lines; x++)
+	for (y = 0; y < HEIGHT-lines; y++)
 	{
-		for (y = 0; y < WIDTH; y++)
+		for (x=0; x < WIDTH; x++)
 		{
-			keybuf[y+x*WIDTH] = keybuf[y+lines+x*WIDTH];
+			keybuf[x+y*WIDTH] = keybuf[x+(y+lines)*WIDTH];
 		}
 	}
-	for (; x < HEIGHT; x++)
+	for (; y < HEIGHT; y++)
 	{
-		for (y = 0; y < WIDTH; y++)
+		for (x = 0; x< WIDTH; x++)
 		{
-			keybuf[x+y+WIDTH] = ((col << 8) | ' ');
+			keybuf[x+y*WIDTH] = ((col << 8) | ' ');
 		}
 	}
 	cursor.y-=lines;
