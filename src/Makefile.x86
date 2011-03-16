@@ -1,16 +1,20 @@
 include make/x86
 include make/makeIncl
 
+COMPRESSED= -D __COMPRESSED $(CFLAGS)
+
 x86: compressed
 #	$(CC) -c */*.c -Iinclude $(CFLAGS)
 #	$(MAKE) -C arch/x86 arch
 #	$(LD) $(LDFLAGS) -o $(OUT) *.o
 
 compressed:
-	$(CC) $(CFLAGS) arch/x86/boot/compressed/*.c
-	$(CC) $(CFLAGS) vga/*.c
+	$(CC) $(COMPRESSED) arch/x86/boot/compressed/*.c
+	$(CC) $(COMPRESSED) vga/*.c
+	$(CC) $(COMPRESSED) mm/*.c
+	$(CC) $(COMPRESSED) error/*.c
 	$(AS) arch/x86/boot/compressed/boot.s $(ASFLAGS) -o ./boot.o
 	$(LD) $(LDFLAGS) -o $(OUTC) *.o
 
 asm:
-	$(CC) -c -S -Iinclude $(CFLAGS) -m32 */*.c
+	$(CC) -c -S -Iinclude $(COMPRESSED) -m32 */*.c

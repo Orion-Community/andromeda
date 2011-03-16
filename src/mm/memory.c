@@ -17,7 +17,24 @@
 */
 
 #include <mm/memory.h>
-#include <types.h>
+#include <mm/heap.h>
+#include <error/panic.h>
+
+int heapBase = 0;
+int heapSize = 0;
+
+int initHeap(int base, int size)
+{
+	heapBase = base;
+	heapSize = size;
+	
+	initBlockMap();
+	
+#ifndef __COMPRESSED
+	initPaging(heapBase, heapSize);
+#endif
+	return base;
+}
 
 int requestPage(int i)
 {
@@ -36,14 +53,4 @@ void memset(int* offset, int value, int size)
 	{
 		offset[i] = value;
 	}
-}
-
-int *alloc (int size, boolean pageAlligned)
-{
-	// Allocates memory from heap.
-}
-
-int free (void* ptr)
-{
-	// Return the memory to the heap.
 }

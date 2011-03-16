@@ -18,6 +18,11 @@
 
 #ifndef __MEMORY_C
 #define __MEMORY_C
+
+#include <mm/heap.h>
+
 void paging();
 void memset(int*, int, int);
+int initHeap(int, int);
+
 #endif

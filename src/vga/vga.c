@@ -54,13 +54,34 @@ void scroll(unsigned int i)
 
 void println(unsigned char *line)
 {
+	printf(line);
+	putc('\n');
+}
+
+void printf(unsigned char *line)
+{
 	int i;
 	for (i = 0; line[i] != '\0'; i++)
 	{
 		putc(line[i]);
 	}
-	putc('\n');
 }
+
+char hex[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+void printhex(unsigned int index)
+{
+	printf("0x");
+	int i = 7;
+	while (( (( index >> 4*i ) & 0xf) == 0x0)&(i>0)) {
+		i--;
+	}
+	while (i>=0) {
+		putc(hex[( index >> 4*i ) & 0xf]);
+		i--;
+	}
+}
+
 
 void putc(unsigned char i)
 {
@@ -70,6 +91,11 @@ void putc(unsigned char i)
 		cursor.y++;
 		cursor.x = 0;
 		noPrint = TRUE;
+	}
+
+	if (i == '\t')
+	{
+		cursor.x = cursor.x+WIDTH%8;
 	}
 
 	if (cursor.x+1 > WIDTH)

@@ -16,38 +16,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __HEAP_H
+#define __HEAP_H
 
-/*
- * This is the inital boot image loaded from
- * grub. Thi
-	initHeap(K128, K128);s will call the actual kernel
- * from where-ever it might be. From disk
- * (hope-not) of from gzip image in memory
- * (would be alot better).
- */
+#include <types.h>
 
-#include <text.h>
-#include <mm/memory.h>
-
-#define K128 0x20000
-
-void announce()
+struct memNode
 {
-	textInit();
-	println("Compressed kernel loaded");
-	println("Decompressing the kernel");
-}
+  int size;
+  boolean used;
+  void* data;
+};
+typedef struct memNode memNode_t;
 
-int kmain(/* boot data , boot data , gzipped kernel*/)
+struct memBlock
 {
-	announce();
-	initHeap(K128, K128);
-	
-	//installInterruptVectorTable();
-	//initPaging();
-	//exec(decompress(gzipped kernel));
+  int size;
+  memNode_t* head;
+};
+typedef struct memBlock memBlock_t;
 
-	for (;;); // Prevent the CPU from
-		  // doing stupid things.
-	return 0;
-}
+void initBlockMap();
+
+extern int heapBase;
+extern int heapSize;
+
+void* alloc (size_t,boolean);
+int free (void* ptr);
+
+#endif
