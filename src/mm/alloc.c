@@ -41,7 +41,7 @@ void initBlockMap ()
 	 for (i = 0; i < ALLOCSIZES; i++)
 	 {
 		frame = &memory[i];
-		frame->size=i*4+4;
+		frame->size=find_index(i)+4;
 	 }
 	 println("checkpoint 0");
 	 for (i=0; i < heapSize/(find_index(ALLOCSIZES)); i++)
@@ -64,8 +64,8 @@ void initBlockMap ()
 		//	println("checkpoint 4");
 		}
 		printf("index\taddress\n");
-		printhex(i); putc('\n');
-		printhex((int)tmp); printf("\n\n");
+		printhex(i); putc('\t');
+		printhex((int)tmp); printf("\n");
 		baseAddr += ALLOC_MAX;
 		int x = 0;
 	 }
@@ -74,14 +74,28 @@ void initBlockMap ()
 
 void* alloc (size_t size, boolean pageAlligned)
 {
-	if (heapBase == 0 || heapSize == 0)
+	if (heapBase == 0 || heapSize == 0 || &memory[1] == NULL)
 	{
 		panic("Heap not initialised");
 	}
 	// Allocates memory from heap.
+	
+	/*
+	 * Step 1: Find a block the right or a multiplication of the right size.
+	 * Step 2: If the block is a multiplication of the right size, devide it into
+	   a right size block and a remnant block.
+	 * Step 3: Correct the linked lists as they have been broken.
+	 * Step 4: Mark the right size block as used and return it's data pointer.
+	 */
 }
 
 int free (void* ptr)
 {
 	// Return the memory to the heap.
+	/*
+	 * Step 1: Mark the block unused.
+	 * Step 2: Find the pre-ceeding and succeeding blocks.
+	 * Step 3: Merge the blocks, if free.
+	 * Step 4: return success.
+	 */
 }

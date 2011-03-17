@@ -27,6 +27,7 @@
  */
 
 #include <text.h>
+#include <types.h>
 #include <mm/memory.h>
 
 #define K128 0x8000000
