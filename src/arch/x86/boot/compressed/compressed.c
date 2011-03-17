@@ -42,6 +42,7 @@ void announce()
 int kmain(/* boot data , boot data , gzipped kernel*/)
 {
 	announce();
+	//setGDT();
 	initHeap(K128, K128);
 	//installInterruptVectorTable();
 	//initPaging();

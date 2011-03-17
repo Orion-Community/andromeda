@@ -13,3 +13,5 @@ clean:
 
 test: all
 	kvm -m 512M -kernel compressed
+
+ctest: clean test

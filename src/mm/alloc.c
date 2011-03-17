@@ -27,6 +27,8 @@
 
 memBlock_t memory[ALLOCSIZES];
 
+boolean dbg = TRUE;
+
 void mmapAdd(int index, memNode_t *node)
 {
 	memNode_t* listIndex = memory[find_index(index)].head;
@@ -44,7 +46,7 @@ void initBlockMap ()
 		frame->size=find_index(i)+4;
 	 }
 	 println("checkpoint 0");
-	 for (i=0; i < heapSize/(find_index(ALLOCSIZES)); i++)
+	 for (i=0; heapSize+heapBase > (baseAddr + ALLOC_MAX + sizeof(memNode_t)); i++)
 	 {
 		//println("checkpoint 1");
 		memNode_t* tmp = (memNode_t*)baseAddr;
@@ -63,10 +65,13 @@ void initBlockMap ()
 			mmapAdd(ALLOC_MAX, tmp);
 		//	println("checkpoint 4");
 		}
-		printf("index\taddress\n");
-		printhex(i); putc('\t');
-		printhex((int)tmp); printf("\n");
-		baseAddr += ALLOC_MAX;
+		if (dbg)
+		{
+			printf("index\taddress\n");
+			printhex(i); putc('\t');
+			printhex((int)tmp); printf("\n");
+		}
+		baseAddr += ALLOC_MAX+sizeof(memNode_t);
 		int x = 0;
 	 }
 	 
