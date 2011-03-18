@@ -35,4 +35,6 @@ usage:
 	@echo "	Show this message."
 	@echo " "
 	@echo "This file supports the following FLAGS"
-	@echo "FLAGS=-D\\ DBG=INITMEM"
+	@echo "	FLAGS=-D\\ DBG=val"
+	@echo "	val is an integer value with the following options:"
+	@echo "		1: memory initialisation"

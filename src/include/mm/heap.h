@@ -26,6 +26,7 @@ struct memNode
   int size;
   boolean used;
   struct memNode* next;
+  struct memNode* previous;
 };
 typedef struct memNode memNode_t;
 
