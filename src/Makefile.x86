@@ -9,10 +9,10 @@ x86: compressed
 #	$(LD) $(LDFLAGS) -o $(OUT) *.o
 
 compressed:
-	$(CC) $(COMPRESSED) arch/x86/boot/compressed/*.c
-	$(CC) $(COMPRESSED) vga/*.c
-	$(CC) $(COMPRESSED) mm/*.c
-	$(CC) $(COMPRESSED) error/*.c
+	$(CC) $(FLAGS) $(COMPRESSED) arch/x86/boot/compressed/*.c
+	$(CC) $(FLAGS) $(COMPRESSED) vga/*.c
+	$(CC) $(FLAGS) $(COMPRESSED) mm/*.c
+	$(CC) $(FLAGS) $(COMPRESSED) error/*.c
 	$(AS) arch/x86/boot/compressed/boot.s $(ASFLAGS) -o ./boot.o
 	$(LD) $(LDFLAGS) -o $(OUTC) *.o
 

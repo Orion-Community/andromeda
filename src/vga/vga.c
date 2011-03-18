@@ -49,6 +49,12 @@ void scroll(unsigned char lines)
 			keybuf[x+y*WIDTH] = ((col << 8) | ' ');
 		}
 	}
+	if (lines >= HEIGHT)
+	{
+		cursor.x=0;
+		cursor.y=0;
+		return;
+	}
 	cursor.y-=lines;
 }
 

@@ -25,7 +25,7 @@ struct memNode
 {
   int size;
   boolean used;
-  void* data;
+  struct memNode* next;
 };
 typedef struct memNode memNode_t;
 

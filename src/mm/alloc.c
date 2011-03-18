@@ -21,13 +21,13 @@
 #include <error/panic.h>
 #include <text.h>
 
-#define ALLOCSIZES 0xFFFFF
-#define ALLOC_MAX ALLOCSIZES*4
-#define find_index(a) (a*4)
+#define ALLOC_MAX 4*1024*1024
+#define ALLOCSIZES ALLOC_MAX/4
+
+#define find_index(a) (a/4)
+#define find_index_size(a) (a*4)
 
 memBlock_t memory[ALLOCSIZES];
-
-boolean dbg = TRUE;
 
 void mmapAdd(int index, memNode_t *node)
 {
@@ -36,16 +36,16 @@ void mmapAdd(int index, memNode_t *node)
 
 void initBlockMap ()
 {
-	 printf("Test\n");
+	// printf("Test\n");
 	 int i;
 	 memBlock_t *frame;
 	 int baseAddr = heapBase;
 	 for (i = 0; i < ALLOCSIZES; i++)
 	 {
 		frame = &memory[i];
-		frame->size=find_index(i)+4;
+		frame->size=find_index_size(i);
 	 }
-	 println("checkpoint 0");
+	//println("checkpoint 0");
 	 for (i=0; heapSize+heapBase > (baseAddr + ALLOC_MAX + sizeof(memNode_t)); i++)
 	 {
 		//println("checkpoint 1");
@@ -65,14 +65,17 @@ void initBlockMap ()
 			mmapAdd(ALLOC_MAX, tmp);
 		//	println("checkpoint 4");
 		}
-		if (dbg)
-		{
+		#if DBG==INITMEM
 			printf("index\taddress\n");
 			printhex(i); putc('\t');
 			printhex((int)tmp); printf("\n");
-		}
+		#endif
 		baseAddr += ALLOC_MAX+sizeof(memNode_t);
 		int x = 0;
+		#if DBG==INITMEM
+			printf("Size of header:\t");
+			printhex(sizeof(memNode_t)); putc('\n');
+		#endif
 	 }
 	 
 }
@@ -92,6 +95,17 @@ void* alloc (size_t size, boolean pageAlligned)
 	 * Step 3: Correct the linked lists as they have been broken.
 	 * Step 4: Mark the right size block as used and return it's data pointer.
 	 */
+	
+	// Step 1:
+	void* ret = NULL;
+	while(ret == NULL)
+	{
+		if (memory[find_index(size)].head == NULL)
+		{
+			
+		}
+	}
+	
 }
 
 int free (void* ptr)
