@@ -25,6 +25,11 @@
 
 memNode_t* blocks = NULL;
 
+int useBlock(memNode_t* block);
+void returnBlock(memNode_t* block);
+memNode_t* split(memNode_t* block, size_t size);
+memNode_t* merge(memNode_t* alpha, memNode_t* beta);
+
 void initHdr(memNode_t* block, size_t size)
 {
 	block->size = size;
@@ -37,13 +42,19 @@ void initBlockMap ()
 {
 	memNode_t* node;
 	memNode_t* lastNode;
-	for (node = heapBase; node < heapBase+heapSize-sizeof(memNode_t); node+=ALLOC_MAX+sizeof(memNode_t))
+// 	#if sizeof(void*) == 4
+	for (node = (memNode_t*)heapBase; node < (memNode_t*)heapBase+heapSize-sizeof(memNode_t); node+=(ALLOC_MAX+sizeof(memNode_t)))
+// 	#endif
 	{
-		node = initHdr(tmp, ALLOC_MAX);
-		if(node != heapBase)
+		initHdr(node, ALLOC_MAX);
+		if(node != (memNode_t*)heapBase)
 		{
 			node->previous = lastNode;
 			lastNode->next = node;
+		}
+		else
+		{
+			blocks=node;
 		}
 		lastNode = node;
 	}
@@ -52,9 +63,90 @@ void initBlockMap ()
 void* alloc (size_t size, boolean pageAlligned)
 {
 	panic ("Memory allocation hasn't been completed");
+	
+	memNode_t* carrige;
+	for(carrige = blocks; carrige->next!=NULL; carrige=carrige->next)
+	{
+		if (carrige->size >= size || carrige->size < 2*size+sizeof(memNode_t))
+		{
+			if (useBlock(carrige) == 1)
+			{
+				continue;
+			}
+			return (void*)(carrige+sizeof(memNode_t));
+		}
+		else if(carrige->size >= 2*size+sizeof(memNode_t))
+		{
+			memNode_t* tmp = split(carrige, size);
+			if(useBlock(tmp) == 1)
+			{
+				continue;
+			}
+			return (void*)(tmp+sizeof(memNode_t));
+		}
+	}
+	
+	return NULL;
 }
 
 int free (void* ptr)
 {
 	panic ("Memory returning hasn't been completed");
+}
+
+int useBlock(memNode_t* block)
+{
+	if(!block->used)
+	{
+		block->used = TRUE;
+		if (block->previous!=NULL)
+		{
+			block->previous->next = block->next;
+		}
+		if (block->next!=NULL)
+		{
+			block->next->previous = block->previous;
+		}
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
+}
+void returnBlock(memNode_t* block)
+{
+	block->used = FALSE;
+	memNode_t* carrige;
+	memNode_t* tmp;
+	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
+	{
+		if (carrige->next == NULL)
+		{
+			block->previous = carrige;
+			block->next = NULL;
+			carrige->next = block;
+			return;
+		}
+		if (carrige > block)
+		{
+			continue;
+		}
+		tmp = carrige->previous;
+		block->next = carrige;
+		carrige->previous=block;
+		tmp->next = block;
+		block->previous=tmp;
+		
+	}
+}
+memNode_t* split(memNode_t* block, size_t size)
+{
+	memNode_t* second = block+size+sizeof(memNode_t);
+	initHdr(second, block->size-size-sizeof(memNode_t));
+	second->previous = block;
+	second->next = block->next;
+	block->next = second;
+	block->size = size;
+	return block;
 }
