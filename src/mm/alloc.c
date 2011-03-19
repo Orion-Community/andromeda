@@ -25,7 +25,7 @@
 
 memNode_t* blocks = NULL;
 
-int useBlock(memNode_t* block);
+boolean useBlock(memNode_t* block);
 void returnBlock(memNode_t* block);
 memNode_t* split(memNode_t* block, size_t size);
 memNode_t* merge(memNode_t* alpha, memNode_t* beta);
@@ -67,7 +67,7 @@ void* alloc (size_t size, boolean pageAlligned)
 	{
 		if (carrige->size >= size && carrige->size < 2*size+sizeof(memNode_t))
 		{
-			if (useBlock(carrige) == -1)
+			if (useBlock(carrige) == TRUE)
 			{
 				continue;
 			}
@@ -76,7 +76,7 @@ void* alloc (size_t size, boolean pageAlligned)
 		else if(carrige->size >= 2*size+sizeof(memNode_t))
 		{
 			memNode_t* tmp = split(carrige, size);
-			if(useBlock(tmp) == 1)
+			if(useBlock(tmp) == TRUE)
 			{
 				continue;
 			}
@@ -92,7 +92,7 @@ int free (void* ptr)
 	panic ("Memory returning hasn't been completed");
 }
 
-int useBlock(memNode_t* block)
+boolean useBlock(memNode_t* block)
 {
 	if(block->used == FALSE)
 	{
@@ -105,11 +105,11 @@ int useBlock(memNode_t* block)
 		{
 			block->next->previous = block->previous;
 		}
-		return 0;
+		return FALSE;
 	}
 	else
 	{
-		return -1;
+		return TRUE;
 	}
 }
 void returnBlock(memNode_t* block)
@@ -135,7 +135,6 @@ void returnBlock(memNode_t* block)
 		carrige->previous=block;
 		tmp->next = block;
 		block->previous=tmp;
-		
 	}
 }
 memNode_t* split(memNode_t* block, size_t size)
@@ -144,7 +143,6 @@ memNode_t* split(memNode_t* block, size_t size)
 	initHdr(second, block->size-size-sizeof(memNode_t));
 	second->previous = block;
 	second->next = block->next;
-	second->used = FALSE;
 	block->next = second;
 	block->size = size;
 	return block;
