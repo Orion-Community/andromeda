@@ -26,11 +26,22 @@
  * (would be alot better).
  */
 
+typedef struct test
+{
+      int a, b, c, d, e, f, g, h, i, j, k, l, m;
+} test_t;
+
 #include <text.h>
 #include <types.h>
 #include <mm/memory.h>
+#include <mm/heap.h>
 
 #define K128 0x8000000
+
+memNode_t* getHdr(void* ptr)
+{
+	return (memNode_t*) ptr-sizeof(memNode_t);
+}
 
 void announce()
 {
@@ -44,6 +55,21 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	announce();
 	//setGDT();
 	initHeap(K128, K128);
+	
+	test_t* a = alloc(sizeof(test_t), FALSE);
+	test_t* b = alloc(sizeof(test_t), FALSE);
+	
+	printf("a\t\tb\t\tsize\n");
+	printhex((int)a); putc('\t');
+	printhex((int)b); putc('\t');
+	printhex(sizeof(test_t)); putc('\n');
+	
+	printf("\na.size\t\tb.size\t\tsize\n");
+	
+	printhex((int)(getHdr(a)->size)); putc('\t');
+	printhex((int)(getHdr(b)->size)); putc('\t');
+	printhex(sizeof(test_t)); putc('\n');
+	
 	//installInterruptVectorTable();
 	//initPaging();
 	//exec(decompress(gzipped kernel));

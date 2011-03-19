@@ -62,14 +62,12 @@ void initBlockMap ()
 
 void* alloc (size_t size, boolean pageAlligned)
 {
-	panic ("Memory allocation hasn't been completed");
-	
 	memNode_t* carrige;
 	for(carrige = blocks; carrige->next!=NULL; carrige=carrige->next)
 	{
-		if (carrige->size >= size || carrige->size < 2*size+sizeof(memNode_t))
+		if (carrige->size >= size && carrige->size < 2*size+sizeof(memNode_t))
 		{
-			if (useBlock(carrige) == 1)
+			if (useBlock(carrige) == -1)
 			{
 				continue;
 			}
@@ -96,7 +94,7 @@ int free (void* ptr)
 
 int useBlock(memNode_t* block)
 {
-	if(!block->used)
+	if(block->used == FALSE)
 	{
 		block->used = TRUE;
 		if (block->previous!=NULL)
@@ -146,6 +144,7 @@ memNode_t* split(memNode_t* block, size_t size)
 	initHdr(second, block->size-size-sizeof(memNode_t));
 	second->previous = block;
 	second->next = block->next;
+	second->used = FALSE;
 	block->next = second;
 	block->size = size;
 	return block;
