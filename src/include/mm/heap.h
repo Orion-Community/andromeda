@@ -27,6 +27,8 @@ struct memNode
   boolean used;
   struct memNode* next;
   struct memNode* previous;
+  struct memNode* nextFree;
+  struct memNode* previousFree;
 };
 typedef struct memNode memNode_t;
 

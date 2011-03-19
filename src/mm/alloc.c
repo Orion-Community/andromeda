@@ -28,6 +28,7 @@
 #define find_index_size(a) (a*4)
 
 memBlock_t memory[ALLOCSIZES];
+memNode_t* firstFree;
 
 void addToList(memNode_t*,memNode_t*);
 
@@ -41,7 +42,9 @@ void initHdr(memNode_t* block, size_t size)
 {
 	block->size = size;
 	block->previous = NULL;
+	block->previousFree = NULL;
 	block->next = NULL;
+	block->nextFree = NULL;
 	block->used = FALSE;
 }
 
@@ -50,6 +53,9 @@ void initBlockMap ()
 	int i;
 	memBlock_t *frame;
 	int baseAddr = heapBase;
+	
+	memNode_t *lastNode;
+	
 	for (i = 0; i < ALLOCSIZES; i++)
 	{
 		frame = &memory[i];
@@ -67,10 +73,13 @@ void initBlockMap ()
 		{
 			frame = &memory[find_index(ALLOC_MAX)];
 			frame -> head = tmp;
+			firstFree = tmp;
 		}
 		else
 		{
 			mmapAdd(ALLOC_MAX, tmp);
+			tmp->previousFree = lastNode;
+			lastNode->nextFree = tmp;
 		}
 		#if DBG==1
 			printf("index\taddress\n");
@@ -78,6 +87,7 @@ void initBlockMap ()
 			printhex((int)tmp); printf("\n");
 		#endif
 		baseAddr += ALLOC_MAX+sizeof(memNode_t);
+		lastNode = tmp;
 	}
 	#if DBG==1
 		printf("Size of header:\t");
@@ -98,6 +108,40 @@ void addToList(memNode_t* head, memNode_t* block)
 			break;
 		}
 	}
+}
+
+void addToFree(memNode_t* block)
+{
+	memNode_t* carrige;
+	for (carrige = firstFree; carrige > block; carrige = carrige->nextFree);
+	block->nextFree = carrige->nextFree;
+	carrige->nextFree = block;
+	block->nextFree->previousFree = block;
+	block->previousFree = carrige;
+}
+
+void useBlock(memNode_t* block)
+{
+	if (block->previousFree != NULL)
+	{
+		block->previousFree->nextFree = block->nextFree;
+	} else {
+		firstFree = block->nextFree;
+	}
+	if (block->nextFree != NULL)
+	{
+		block->nextFree->previousFree = block->previousFree;
+	}
+	block->used = TRUE;
+}
+void returnBlock(memNode_t* block)
+{
+	memNode_t* carrige = firstFree;
+	for (;carrige->nextFree!=NULL; carrige->nextFree);
+	carrige->nextFree = block;
+	block->previousFree = carrige;
+	
+	block->used = FALSE;
 }
 
 memNode_t *split(memNode_t* block, size_t size)
@@ -123,8 +167,12 @@ memNode_t *split(memNode_t* block, size_t size)
 		
 		initHdr(second,tmpSize-size-sizeof(memNode_t));
 		addToList(memory[find_index(second->size)].head, second);
+		
 		return first;
 	}
+}
+memNode_t merge(memNode_t* block)
+{
 }
 
 void* alloc (size_t size, boolean pageAlligned)
@@ -150,6 +198,7 @@ void* alloc (size_t size, boolean pageAlligned)
 		{
 			if (block->used == FALSE)
 			{
+				useBlock(block);
 				return (void*)(block+sizeof(memNode_t));
 			}
 		}
@@ -167,7 +216,9 @@ void* alloc (size_t size, boolean pageAlligned)
 		{
 			if (block->used == FALSE)
 			{
-				return (void*)(split(block, size)+sizeof(memNode_t));
+				memNode_t* tmpBlock = split(block, size);
+				useBlock(tmpBlock);
+				return (void*)(tmpBlock+sizeof(memNode_t));
 			}
 		}
 	}
@@ -182,6 +233,7 @@ void* alloc (size_t size, boolean pageAlligned)
 		{
 			if (block->used == FALSE)
 			{
+				useBlock(block);
 				return (void*)(block+sizeof(memNode_t));
 			}
 		}
@@ -192,6 +244,8 @@ void* alloc (size_t size, boolean pageAlligned)
 
 int free (void* ptr)
 {
+	memNode_t* block = ptr-sizeof(memNode_t);
+	returnBlock(block);
 	// Return the memory to the heap.
 	/*
 	 * Step 1: Mark the block unused.
