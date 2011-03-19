@@ -27,24 +27,15 @@ struct memNode
   boolean used;
   struct memNode* next;
   struct memNode* previous;
-  struct memNode* nextFree;
-  struct memNode* previousFree;
 };
 typedef struct memNode memNode_t;
 
-struct memBlock
-{
-  int size;
-  memNode_t* head;
-};
-typedef struct memBlock memBlock_t;
-
 void initBlockMap();
-
-extern int heapBase;
-extern int heapSize;
 
 void* alloc (size_t,boolean);
 int free (void* ptr);
+
+extern int heapBase;
+extern int heapSize;
 
 #endif
