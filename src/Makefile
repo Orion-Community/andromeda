@@ -37,4 +37,4 @@ usage:
 	@echo "This file supports the following FLAGS"
 	@echo "	FLAGS=-D\\ DBG=val"
 	@echo "	val is an integer value with the following options:"
-	@echo "		1: memory initialisation"
+	@echo "		1: Memory debugging"

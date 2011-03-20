@@ -23,6 +23,8 @@
 
 #define ALLOC_MAX 4*1024*1024
 
+#define HDRMAGIC 0xAF00BEA8
+
 memNode_t* blocks = NULL;
 
 boolean useBlock(memNode_t* block);
@@ -30,12 +32,28 @@ void returnBlock(memNode_t* block);
 memNode_t* split(memNode_t* block, size_t size);
 memNode_t* merge(memNode_t* alpha, memNode_t* beta);
 
+#if DBG==1
+
+void examineHeap()
+{
+	printf("Head\n");
+	printhex(blocks); putc('\n');
+	memNode_t* carrige;
+	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
+	{
+		printf("node: "); printhex((void*)carrige); putc('\n');
+	}
+}
+
+#endif
+
 void initHdr(memNode_t* block, size_t size)
 {
 	block->size = size;
 	block->previous = NULL;
 	block->next = NULL;
 	block->used = FALSE;
+	block->hdrMagic = HDRMAGIC;
 }
 
 void initBlockMap ()
@@ -62,7 +80,11 @@ void* alloc (size_t size, boolean pageAlligned)
 			{
 				continue;
 			}
-			return (void*)(carrige+sizeof(memNode_t));
+			#if DBG==1
+			printf("Size of block\n");
+			printhex(carrige->size); putc('\n');
+			#endif
+			return (void*)carrige+sizeof(memNode_t);
 		}
 		else if(carrige->size >= size+sizeof(memNode_t))
 		{
@@ -71,7 +93,11 @@ void* alloc (size_t size, boolean pageAlligned)
 			{
 				continue;
 			}
-			return (void*)(tmp+sizeof(memNode_t));
+			#if DBG==1
+			printf("Size of block\n");
+			printhex(tmp->size); putc('\n');
+			#endif
+			return (void*)tmp+sizeof(memNode_t);
 		}
 		if (carrige->next == NULL)
 		{
@@ -84,7 +110,36 @@ void* alloc (size_t size, boolean pageAlligned)
 
 int free (void* ptr)
 {
-	panic ("Memory returning hasn't been completed");
+	memNode_t* block = (void*)ptr-sizeof(memNode_t);
+	memNode_t* carrige;
+	if (block->hdrMagic != HDRMAGIC)
+	{
+		return -1;
+	}
+	
+	returnBlock(block);
+	#if DBG==1
+	printf("Before:\n");
+	examineHeap();
+	printf("\n");
+	#endif
+	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
+	{
+		if ((void*)block+block->size+sizeof(memNode_t) == (void*)carrige || (void*)carrige+carrige->size+sizeof(memNode_t) == (void*)block)
+		{
+			if (merge(block, carrige) == NULL)
+			{
+				printf("Merge failed\n");
+			}
+		}
+	}
+	#if DBG==1
+	printf("After\n");
+	examineHeap();
+	printf("\n");
+	#endif
+	
+	// Now return the block to the heap.
 }
 
 boolean useBlock(memNode_t* block)
@@ -95,6 +150,10 @@ boolean useBlock(memNode_t* block)
 		if (block->previous!=NULL)
 		{
 			block->previous->next = block->next;
+		}
+		else
+		{
+			blocks = block->next;
 		}
 		if (block->next!=NULL)
 		{
@@ -114,14 +173,21 @@ void returnBlock(memNode_t* block)
 	memNode_t* tmp;
 	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
 	{
-		if (carrige->next == NULL)
+		if ((void*)block == (void*)heapBase)
+		{
+			block->previous = NULL;
+			block->next = blocks;
+			blocks=block;
+			return;
+		}
+		if ((void*)carrige->next == NULL)
 		{
 			block->previous = carrige;
 			block->next = NULL;
 			carrige->next = block;
 			return;
 		}
-		if (carrige > block)
+		if (carrige < block)
 		{
 			continue;
 		}
@@ -134,12 +200,39 @@ void returnBlock(memNode_t* block)
 }
 memNode_t* split(memNode_t* block, size_t size)
 {
-	memNode_t* second = (int)(block)+size+sizeof(memNode_t);
+	memNode_t* second = (memNode_t*)((void*)(block)+size+sizeof(memNode_t));
 	initHdr(second, block->size-size-sizeof(memNode_t));
 	second->previous = block;
 	second->next = block->next;
 	block->next = second;
 	block->size = size;
-	
 	return block;
+}
+memNode_t* merge(memNode_t* alpha, memNode_t* beta)
+{
+	if (alpha->hdrMagic != HDRMAGIC || beta->hdrMagic != HDRMAGIC)
+	{
+		return NULL;
+	}
+	if ((void*)alpha+alpha->size+sizeof(memNode_t) == (void*)beta)
+	{
+		alpha->size = alpha->size+beta->size+sizeof(memNode_t);
+		alpha->next = beta->next;
+		alpha->used = FALSE;
+		#if DBG==1
+		printf("Alpha\n");
+		#endif
+		return alpha;
+	}
+	else if ((void*)beta+beta->size+sizeof(memNode_t) == (void*)alpha)
+	{
+		beta->size = beta->size+alpha->size+sizeof(memNode_t);
+		beta->next = alpha->next;
+		beta->used = FALSE;
+		#if DBG==1
+		printf("Beta\n");
+		#endif
+		return beta;
+	}
+	return NULL;
 }

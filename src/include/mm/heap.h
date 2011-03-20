@@ -27,6 +27,7 @@ struct memNode
   boolean used;
   struct memNode* next;
   struct memNode* previous;
+  int hdrMagic;
 };
 typedef struct memNode memNode_t;
 
@@ -34,6 +35,14 @@ void initBlockMap();
 
 void* alloc (size_t,boolean);
 int free (void* ptr);
+
+#define kalloc(a) alloc(a,FALSE)
+
+#if DBG==1
+
+void examineHeap();
+
+#endif
 
 extern int heapBase;
 extern int heapSize;
