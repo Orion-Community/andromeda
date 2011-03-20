@@ -102,6 +102,10 @@ void putc(unsigned char i)
 	if (i == '\t')
 	{
 		int i;
+		if (cursor.x % cursor.tabwidth == 0)
+		{
+			putc(' ');
+		}
 		for (i = 0; i < cursor.x%cursor.tabwidth; i++)
 		{
 			putc(' ');

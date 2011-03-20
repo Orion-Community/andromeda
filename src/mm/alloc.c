@@ -40,32 +40,23 @@ void initHdr(memNode_t* block, size_t size)
 
 void initBlockMap ()
 {
-	memNode_t* node;
-	memNode_t* lastNode;
-// 	#if sizeof(void*) == 4
-	for (node = (memNode_t*)heapBase; node < (memNode_t*)heapBase+heapSize-sizeof(memNode_t); node+=(ALLOC_MAX+sizeof(memNode_t)))
-// 	#endif
-	{
-		initHdr(node, ALLOC_MAX);
-		if(node != (memNode_t*)heapBase)
-		{
-			node->previous = lastNode;
-			lastNode->next = node;
-		}
-		else
-		{
-			blocks=node;
-		}
-		lastNode = node;
-	}
+	memNode_t* node = (memNode_t*)heapBase;
+	initHdr(node, heapSize-sizeof(memNode_t));
+	blocks = node;
+// 	printhex(node->size); putc('\n');
+// 	printhex(blocks); putc('\n');
 }
 
 void* alloc (size_t size, boolean pageAlligned)
 {
-	memNode_t* carrige;
-	for(carrige = blocks; carrige->next!=NULL; carrige=carrige->next)
+	if(size > ALLOC_MAX)
 	{
-		if (carrige->size >= size && carrige->size < 2*size+sizeof(memNode_t))
+		return NULL;
+	}
+	memNode_t* carrige;
+	for(carrige = blocks; carrige!=NULL; carrige=carrige->next)
+	{
+		if (carrige->size >= size && carrige->size < size+sizeof(memNode_t))
 		{
 			if (useBlock(carrige) == TRUE)
 			{
@@ -73,7 +64,7 @@ void* alloc (size_t size, boolean pageAlligned)
 			}
 			return (void*)(carrige+sizeof(memNode_t));
 		}
-		else if(carrige->size >= 2*size+sizeof(memNode_t))
+		else if(carrige->size >= size+sizeof(memNode_t))
 		{
 			memNode_t* tmp = split(carrige, size);
 			if(useBlock(tmp) == TRUE)
@@ -81,6 +72,10 @@ void* alloc (size_t size, boolean pageAlligned)
 				continue;
 			}
 			return (void*)(tmp+sizeof(memNode_t));
+		}
+		if (carrige->next == NULL)
+		{
+			break;
 		}
 	}
 	
@@ -139,11 +134,12 @@ void returnBlock(memNode_t* block)
 }
 memNode_t* split(memNode_t* block, size_t size)
 {
-	memNode_t* second = block+size+sizeof(memNode_t);
+	memNode_t* second = (int)(block)+size+sizeof(memNode_t);
 	initHdr(second, block->size-size-sizeof(memNode_t));
 	second->previous = block;
 	second->next = block->next;
 	block->next = second;
 	block->size = size;
+	
 	return block;
 }
