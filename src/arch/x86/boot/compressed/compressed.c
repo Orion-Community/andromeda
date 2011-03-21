@@ -73,17 +73,17 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	test_t* c = kalloc(sizeof(test_t));
 	
 	
-// 	printf("a\t\tb\t\tc\t\tsize\n");
-// 	printhex(a); putc('\t');
-// 	printhex(b); putc('\t');
-// 	printhex(c); putc('\t');
-// 	printhex(sizeof(test_t)); putc('\n');
-// 	
-// 	printf("\na\tb\tc\tsize\n");
-// 	printhex(findHdr(a)->size); putc('\t');
-// 	printhex(findHdr(b)->size); putc('\t');
-// 	printhex(findHdr(c)->size); putc('\t');
-// 	printhex(sizeof(test_t)); putc('\n');
+	printf("a\t\tb\t\tc\t\tsize\n");
+	printhex(a); putc('\t');
+	printhex(b); putc('\t');
+	printhex(c); putc('\t');
+	printhex(sizeof(test_t)); putc('\n');
+	
+	printf("\na\tb\tc\tsize\n");
+	printhex(findHdr(a)->size); putc('\t');
+	printhex(findHdr(b)->size); putc('\t');
+	printhex(findHdr(c)->size); putc('\t');
+	printhex(sizeof(test_t)); putc('\n');
 	free(a);
 	free(b);
 	free(c);

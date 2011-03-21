@@ -24,12 +24,14 @@
 #define ALLOC_MAX 4*1024*1024
 
 #define HDRMAGIC 0xAF00BEA8
+#define PAGEBOUNDARY 0x1000
 
 memNode_t* blocks = NULL;
 
 boolean useBlock(memNode_t* block);
 void returnBlock(memNode_t* block);
 memNode_t* split(memNode_t* block, size_t size);
+memNode_t* splitMiddle(memNode_t* block, size_t size, void* base);
 memNode_t* merge(memNode_t* alpha, memNode_t* beta);
 
 #if DBG==1
@@ -54,6 +56,7 @@ void initHdr(memNode_t* block, size_t size)
 	block->next = NULL;
 	block->used = FALSE;
 	block->hdrMagic = HDRMAGIC;
+	block->offset = 0;
 }
 
 void initBlockMap ()
@@ -74,7 +77,27 @@ void* alloc (size_t size, boolean pageAlligned)
 	memNode_t* carrige;
 	for(carrige = blocks; carrige!=NULL; carrige=carrige->next)
 	{
-		if (carrige->size >= size && carrige->size < size+sizeof(memNode_t))
+		if (pageAlligned == TRUE)
+		{
+			panic("Page alligned allocation hasn't been implemented");
+			if (!carrige->used)
+			{
+				#if DBG==1
+				printf("I get reached!\n");
+				#endif
+				void* ptr = (void*) carrige;
+				#ifdef X86
+				ptr = (void*)((int)ptr%PAGEBOUNDARY);
+				#else
+				ptr = (void*)((long long)ptr%PAGEBOUNDARY);
+				#endif
+				if (carrige->size >= (int)((void*)ptr+size+2*sizeof(memNode_t)))
+				{
+					memNode_t* ret = splitMiddle(carrige, size, ptr);
+				}
+			}
+		}
+		else if (carrige->size >= size && carrige->size < size+sizeof(memNode_t))
 		{
 			if (useBlock(carrige) == TRUE)
 			{
@@ -88,6 +111,10 @@ void* alloc (size_t size, boolean pageAlligned)
 		}
 		else if(carrige->size >= size+sizeof(memNode_t))
 		{
+			if(carrige->used!=FALSE)
+			{
+				continue;
+			}
 			memNode_t* tmp = split(carrige, size);
 			if(useBlock(tmp) == TRUE)
 			{
@@ -146,15 +173,23 @@ boolean useBlock(memNode_t* block)
 {
 	if(block->used == FALSE)
 	{
+		#if DBG==1
+		printf("Head:\t"); printhex(blocks); putc('\n');
+		printf("Block:\t"); printhex(block); putc('\n');
+		#endif
 		block->used = TRUE;
 		if (block->previous!=NULL)
 		{
 			block->previous->next = block->next;
 		}
-		else
+		else if (blocks == block)
 		{
 			blocks = block->next;
 		}
+		#if DBG==1
+		printf("Head:\t"); printhex(blocks); putc('\n');
+		printf("Block:\t"); printhex(block); putc('\n');
+		#endif
 		if (block->next!=NULL)
 		{
 			block->next->previous = block->previous;
@@ -208,31 +243,95 @@ memNode_t* split(memNode_t* block, size_t size)
 	block->size = size;
 	return block;
 }
+memNode_t* splitMiddle(memNode_t* block, size_t size, void* base)
+{
+	memNode_t* first = block;
+	memNode_t* second = NULL;
+	memNode_t* third = NULL;
+	
+	memNode_t* previous = block->previous;
+	memNode_t* next = block->next;
+	
+	if (base-sizeof(memNode_t) == (void*)block)
+	{
+		split(block, size);
+		return block;
+	}
+	else if ((void*)(base-sizeof(memNode_t))>(void*)block && (void*)base-sizeof(memNode_t) <= (void*)block+sizeof(memNode_t))
+	{
+		memNode_t* previous = block->previous;
+		memNode_t* next = block->next;
+		first = base-sizeof(memNode_t);
+		initHdr(first, size);
+		first->offset = base - (void*)block;
+		second = (void*)first+size+sizeof(memNode_t);
+		initHdr(second, (((void*)block+size+sizeof(memNode_t))-((void*)second)));
+		first->next = second;
+		second->previous = first;
+		first->previous = previous;
+		second->next = next;
+		next->previous = second;
+		previous->next = first;
+		return first;
+	}
+	else
+	{
+		int tmpSize = first->size;
+		second = (void*)base-sizeof(memNode_t);
+		first->size = ((void*)first+sizeof(memNode_t))-((void*)second+sizeof(memNode_t));
+		initHdr(second, size);
+		third = (void*)second+size+sizeof(memNode_t);
+		int thirdSize = ((void*)first+tmpSize+sizeof(memNode_t))-((void*)third+sizeof(memNode_t));
+		initHdr(third, thirdSize);
+		
+		first->previous = previous;
+		first->next = second;
+		second->previous = first;
+		second->next = third;
+		third->previous = second;
+		third->next = next;
+		
+		return second;
+	}
+}
 memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 {
 	if (alpha->hdrMagic != HDRMAGIC || beta->hdrMagic != HDRMAGIC)
 	{
 		return NULL;
 	}
-	if ((void*)alpha+alpha->size+sizeof(memNode_t) == (void*)beta)
+	memNode_t* tmp;
+	if ((void*)alpha+alpha->size+sizeof(memNode_t) == (void*)beta-beta->offset)
 	{
-		alpha->size = alpha->size+beta->size+sizeof(memNode_t);
-		alpha->next = beta->next;
-		alpha->used = FALSE;
-		#if DBG==1
-		printf("Alpha\n");
-		#endif
-		return alpha;
+		tmp = alpha;
+		alpha = beta;
+		beta = tmp;
 	}
-	else if ((void*)beta+beta->size+sizeof(memNode_t) == (void*)alpha)
+	if (alpha->offset != 0)
 	{
-		beta->size = beta->size+alpha->size+sizeof(memNode_t);
-		beta->next = alpha->next;
-		beta->used = FALSE;
-		#if DBG==1
-		printf("Beta\n");
-		#endif
-		return beta;
+		memNode_t* previous = alpha->previous;
+		memNode_t* next = alpha->next;
+		tmp = (void*) alpha - alpha->offset;
+		initHdr(tmp, alpha->size+alpha->offset);
+		tmp->previous = previous;
+		tmp->next = next;
+		alpha = tmp;
 	}
-	return NULL;
+	else if(beta->offset != 0)
+	{
+		memNode_t* previous = beta->previous;
+		memNode_t* next = beta->next;
+		tmp = (void*) beta - beta->offset;
+		initHdr(tmp, beta->size+beta->offset);
+		tmp->previous = previous;
+		tmp->next = next;
+		beta = tmp;
+	}
+	beta->size = beta->size+alpha->size+sizeof(memNode_t);
+	beta->next = alpha->next;
+	beta->used = FALSE;
+	#if DBG==1
+	printf("Beta\n");
+	#endif
+	return beta;
 }

@@ -25,6 +25,7 @@ struct memNode
 {
   int size;
   boolean used;
+  unsigned char offset;
   struct memNode* next;
   struct memNode* previous;
   int hdrMagic;
@@ -39,9 +40,7 @@ int free (void* ptr);
 #define kalloc(a) alloc(a,FALSE)
 
 #if DBG==1
-
 void examineHeap();
-
 #endif
 
 extern int heapBase;

@@ -1,4 +1,4 @@
 AS=nasm
-CFLAGS=-nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -Iinclude
+CFLAGS=-nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -Iinclude -D X86
 LDFLAGS=-Tlink.ld -oformat=elf32-i386 -melf_i386
 ASFLAGS=-felf
