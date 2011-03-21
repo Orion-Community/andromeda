@@ -25,11 +25,18 @@
  * (would be alot better).
  */
 
-#if DBG==1
+#ifdef TESTALLOC
 typedef struct
 {
 	int a,b,c,d,e,f,g,h,i,j,k,l,m;
 } test_t;
+#endif
+
+#ifdef TESTALLIGNED
+typedef struct
+{
+	int a[1024];
+} pageDir_t;
 #endif
 
 #include <text.h>
@@ -39,20 +46,13 @@ typedef struct
 
 #define K128 0x8000000
 
-#if DBG==1
+#ifdef TESTALLOC
 memNode_t* findHdr(void* ptr)
 {
 	memNode_t* tmp = (void*)ptr - sizeof(memNode_t);
 	return tmp;
 }
-
-void sleep()
-{
-	int i;
-	for (i = 0; i < 0x0FFFFFFF; i++){}
-}
 #endif
-
 
 void announce()
 {
@@ -66,7 +66,7 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	announce();
 	//setGDT();
 	initHeap(K128, K128);
-#if DBG==1
+#ifdef TESTALLOC
 	examineHeap();
 	test_t* a = kalloc(sizeof(test_t));
 	test_t* b = kalloc(sizeof(test_t));
@@ -74,9 +74,9 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	
 	
 	printf("a\t\tb\t\tc\t\tsize\n");
-	printhex(a); putc('\t');
-	printhex(b); putc('\t');
-	printhex(c); putc('\t');
+	printhex((int)(void*)a); putc('\t');
+	printhex((int)(void*)b); putc('\t');
+	printhex((int)(void*)c); putc('\t');
 	printhex(sizeof(test_t)); putc('\n');
 	
 	printf("\na\tb\tc\tsize\n");
@@ -90,6 +90,30 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	a = kalloc(sizeof(test_t));
 	free (a);
 	
+	
+	examineHeap();
+#endif
+#ifdef TESTALLIGNED
+	pageDir_t* a = alloc(sizeof(pageDir_t), TRUE);
+	pageDir_t* b = alloc(sizeof(pageDir_t), TRUE);
+	pageDir_t* c = alloc(sizeof(pageDir_t), TRUE);
+	
+	examineHeap();
+	
+	printf("a\t\tb\t\tc\t\tsize\n");
+	printhex((int)(void*)a); putc('\t');
+	printhex((int)(void*)b); putc('\t');
+	printhex((int)(void*)c); putc('\t');
+	printhex(sizeof(pageDir_t)); putc('\n');
+	printf("1\n");
+	free(a);
+	printf("2\n");
+	free(b);
+	printf("3\n");
+	free(c);
+	printf("4\n");
+	a = alloc(sizeof(pageDir_t), TRUE);
+	free (a);
 	
 	examineHeap();
 #endif

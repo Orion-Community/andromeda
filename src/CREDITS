@@ -1,6 +1,6 @@
-/*
-    Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+
+    <Name of the project>
+    Copyright (C) <Date> <Author>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -14,44 +14,19 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 
-#ifndef __HEAP_H
-#define __HEAP_H
+The above header should be presented in every source file.
 
-#include <types.h>
 
-struct memNode
-{
-  int size;
-  boolean used;
-  unsigned char offset;
-  struct memNode* next;
-  struct memNode* previous;
-  int hdrMagic;
-};
-typedef struct memNode memNode_t;
+The authors and their works should be noted below in the following form:
+<Author Name> <Author Last-name>
+	<E-mail>
+	<Work>
+	
+Bart Kuivenhoven
+	bemkuivenhoven@gmail.com
+	Just about everything up-to-now, not claimed by others.
 
-void initBlockMap();
-
-void* alloc (size_t,boolean);
-int free (void* ptr);
-
-#define kalloc(a) alloc(a,FALSE)
-
-#ifdef TESTALLOC
-#define TESTA
-#endif
-
-#ifdef TESTALLIGNED
-#define TESTA
-#endif
-
-#ifdef TESTA
-void examineHeap();
-#endif
-
-extern int heapBase;
-extern int heapSize;
-
-#endif
+Steven van der Schoot
+	<E-mail>
+	The printhex function in vga/vga.c
