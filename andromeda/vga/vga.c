@@ -126,7 +126,7 @@ void putc(unsigned char i)
 	{
 		cursor.x++;
 		unsigned short *keybuf = (unsigned short *)KEYBUF;
-		unsigned short chr = (unsigned short)(col << 8) | (unsigned short)i;
+		unsigned short chr = (unsigned short)(col << 8) | (unsigned short)(i & 0x00FF);
 		keybuf[cursor.x-1+cursor.y*WIDTH] = chr;
 	}
 }

@@ -1,9 +1,6 @@
 TODO:
-GENERAL
-*	Name the first real release andromeda.
-	After the nearest galaxy to our own.
 
-COMPRESSED
+ABDROMEDA COMPRESSED
 *	Develop paged and unpaged memory management.
 	Preferrebly in the same portion of code.
 	Needed for the page tables.
@@ -19,7 +16,7 @@ COMPRESSED
 
 *	Start the decompressed kernel.
 
-DECOMPRESSED
+ANDROMEDA DECOMPRESSED
 *	Use the code from the above platform.
 	This needs to be in high memory though.
 
