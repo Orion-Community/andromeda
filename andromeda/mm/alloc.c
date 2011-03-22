@@ -33,7 +33,7 @@ memNode_t* blocks = NULL; // Head pointer of the linked list maintaining the hea
 boolean useBlock(memNode_t* block);
 void returnBlock(memNode_t* block);
 memNode_t* split(memNode_t* block, size_t size);
-memNode_t* splitMul(memNode_t* block, size_t size, int base);
+memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned);
 memNode_t* merge(memNode_t* alpha, memNode_t* beta);
 
 #ifdef TESTA
@@ -121,7 +121,11 @@ void* alloc (size_t size, boolean pageAlligned)
 					printf("Size of block\n");
 					printhex(ret->size); putc('\n');
 					#endif
-					if (((void*)ret+sizeof(memNode_t))%PAGEBOUNDARY != 0)
+					#ifdef X86
+					if (((int)((void*)ret+sizeof(memNode_t)))%PAGEBOUNDARY != 0)
+					#else
+					if (((long long)((void*)ret+sizeof(memNode_t)))%PAGEBOUNDARY != 0)
+					#endif
 					{
 						return NULL;
 					}
@@ -306,60 +310,54 @@ memNode_t* split(memNode_t* block, size_t size)
 	block->size = size;
 	return block;
 }
-memNode_t* splitMul(memNode_t* block, size_t size, int base)
+memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 {
 	// This code needs to be rewritten
-	memNode_t* first = block;
-	memNode_t* second = NULL;
-	memNode_t* third = NULL;
-	
-	memNode_t* previous = block->previous;
-	memNode_t* next = block->next;
-	
-	int offset = 0;
-	int oldSize = block->size;
-	
-	if ((void*)block+base <= (void*)block+sizeof(memNode_t))
+	if (pageAlligned)
 	{
-		offset = (void*)block+sizeof(memNode_t) - (void*)block+base;
-		memNode_t* tmp = (void*)block+offset;
-		initHdr(tmp, size);
-		first = tmp;
-		first->previous = previous;
-		if ((void*)block+oldSize+sizeof(memNode_t)<=(void*)first+size+sizeof(memNode_t))
+		#ifdef X86
+		if (((int)((void*)block+sizeof(memNode_t)))%PAGEBOUNDARY == 0)
+		#else
+		if (((long long)((void*)block+sizeof(memNode_t)))%PAGEBOUNDARY == 0)
+		#endif
 		{
-			second = (void*)first+size+sizeof(memNode_t);
-			initHdr(second, (void*)block+oldSize-(void*)second);
-			first->next = second;
-			second->previous = first;
+			// If this block gets reached the block is at the offset in memory.
+			return split (block, size);
+		}
+		#ifdef X86
+		else if ((int)((void*)block+sizeof(memNode_t))%PAGEBOUNDARY != 0)
+		#else
+		else if ((long long)((void*)block+sizeof(memNode_t))%PAGEBOUNDARY != 0)
+		#endif
+		{
+			// If we get here the base address of the block isn't alligned with the offset.
+			// Split the block and then use split on the higher block so the middle is
+			// pageAlligned.
+			#ifdef X86
+			memNode_t* second = (void*)PAGEBOUNDARY-(((int)(void*)block%PAGEBOUNDARY)+(int)(void*)block);
+			#else
+			memNode_t* second = (void*)PAGEBOUNDARY-(((long long)((void*)block)%PAGEBOUNDARY)+(long long)(void*)block);
+			#endif
+			memNode_t* next = block->next;
+			int secondSize = block->size - ((void*)second - (void*)block);
+			initHdr(second, secondSize);
+			block->size = (void*)second-((void*)block+sizeof(memNode_t));
+			block->next = second;
+			second->previous = block;
 			second->next = next;
+			if (second->size>size+sizeof(memNode_t))
+			{
+				return split(second, size);
+			}
+			else
+			{
+				return second;
+			}
 		}
-		else
-		{
-			first->next = next;
-		}
-		return first;
 	}
 	else
 	{
-		second = (void*)first+base;
-		initHdr(second, size);
-		first->size = (void*)second-((void*)first+sizeof(memNode_t));
-		first->next=second;
-		first->previous = previous;
-		if ((void*)block+oldSize >= (void*)second+second->size+sizeof(memNode_t))
-		{
-			third = (void*)second+second->size+sizeof(memNode_t);
-			initHdr(third, ((void*)block+oldSize+sizeof(memNode_t))-((void*)second+second->size+sizeof(memNode_t)));
-			third->previous = second;
-			second->next = third;
-			third->next = next;
-		}
-		else
-		{
-			second->next = next;
-		}
-		return second;
+		return split(block, size);
 	}
 }
 memNode_t* merge(memNode_t* alpha, memNode_t* beta)
