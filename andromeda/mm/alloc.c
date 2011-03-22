@@ -26,8 +26,10 @@
 #define HDRMAGIC 0xAF00BEA8
 #define PAGEBOUNDARY 0x1000
 
-memNode_t* blocks = NULL;
+memNode_t* blocks = NULL; // Head pointer of the linked list maintaining the heap
 
+
+// Some random headers used later in the code
 boolean useBlock(memNode_t* block);
 void returnBlock(memNode_t* block);
 memNode_t* split(memNode_t* block, size_t size);
@@ -35,7 +37,7 @@ memNode_t* splitMul(memNode_t* block, size_t size, int base);
 memNode_t* merge(memNode_t* alpha, memNode_t* beta);
 
 #ifdef TESTA
-
+// Debugging function used to examine the heap (duh ...)
 void examineHeap()
 {
 	printf("Head\n");
@@ -49,6 +51,9 @@ void examineHeap()
 
 #endif
 
+// This initialises the heap to hold a block of the maximum possible size.
+// In the case of the compressed kernel that's 128 MB, which is huge, since
+// allocmax = 4KB
 void initHdr(memNode_t* block, size_t size)
 {
 	block->size = size;
@@ -68,6 +73,10 @@ void initBlockMap ()
 // 	printhex(blocks); putc('\n');
 }
 
+
+// Finds a block on the heap, which is free and which is large enough.
+// In the case that pageAlligned is enabled the block also has to hold
+// page alligned data (usefull for the page directory).
 void* alloc (size_t size, boolean pageAlligned)
 {
 	if(size > ALLOC_MAX)
@@ -81,6 +90,8 @@ void* alloc (size_t size, boolean pageAlligned)
 		{
 			if (!carrige->used)
 			{
+				// If the pointer should be page alligned, do some magic.
+				// Needs to be rewritten to be readable
 				#ifdef TESTA
 				printf("I get reached1\n");
 				#endif
@@ -110,6 +121,10 @@ void* alloc (size_t size, boolean pageAlligned)
 					printf("Size of block\n");
 					printhex(ret->size); putc('\n');
 					#endif
+					if (((void*)ret+sizeof(memNode_t))%PAGEBOUNDARY != 0)
+					{
+						return NULL;
+					}
 					return (void*)ret+sizeof(memNode_t);
 				}
 				else
@@ -128,6 +143,8 @@ void* alloc (size_t size, boolean pageAlligned)
 			{
 				continue;
 			}
+			// If the block is the right size or too small to hold 2 separate blocks,
+			// In which one of them is the size allocated, then allocate the entire block.
 			#ifdef TESTALLOC
 			printf("Size of block\n");
 			printhex(carrige->size); putc('\n');
@@ -140,6 +157,8 @@ void* alloc (size_t size, boolean pageAlligned)
 			{
 				continue;
 			}
+			
+			// The block is too large, it needs to be split.
 			memNode_t* tmp = split(carrige, size);
 			if(useBlock(tmp) == TRUE)
 			{
@@ -151,12 +170,13 @@ void* alloc (size_t size, boolean pageAlligned)
 			#endif
 			return (void*)tmp+sizeof(memNode_t);
 		}
-		if (carrige->next == NULL)
+		if (carrige->next == NULL || carrige->next == carrige)
 		{
-			break;
+			break; 	// If we haven't found anything but we're at the end of the list
+				// or heap corruption occured we break out of the loop and return
+				// the default pointer (which is NULL).
 		}
 	}
-	
 	return NULL;
 }
 
@@ -168,6 +188,11 @@ int free (void* ptr)
 	{
 		return -1;
 	}
+	
+	// Try to put the block back into the list of free nodes,
+	// Actually claim it's free and then merge it into the others if possible.
+	// This code is littered with debugging code.
+	
 	#ifdef TESTA
 	printf("Before:\n");
 	examineHeap();
@@ -186,6 +211,12 @@ int free (void* ptr)
 			if (merge(block, carrige) == NULL)
 			{
 				printf("Merge failed\n");
+				#ifdef TESTA
+				printf("After\n");
+				examineHeap();
+				printf("\n");
+				#endif
+				return -1;
 			}
 		}
 	}
@@ -200,6 +231,7 @@ int free (void* ptr)
 
 boolean useBlock(memNode_t* block)
 {
+	// This code actually just sets the block to used.
 	if(block->used == FALSE)
 	{
 		block->used = TRUE;
@@ -224,6 +256,7 @@ boolean useBlock(memNode_t* block)
 }
 void returnBlock(memNode_t* block)
 {
+	// This code should set the block to unused, but needs rewriting.
 	block->used = FALSE;
 	memNode_t* carrige;
 	memNode_t* tmp;
@@ -263,6 +296,8 @@ void returnBlock(memNode_t* block)
 }
 memNode_t* split(memNode_t* block, size_t size)
 {
+	// This code splits the block into two parts, the lower of which is returned
+	// to alloc.
 	memNode_t* second = (memNode_t*)((void*)(block)+size+sizeof(memNode_t));
 	initHdr(second, block->size-size-sizeof(memNode_t));
 	second->previous = block;
@@ -273,6 +308,7 @@ memNode_t* split(memNode_t* block, size_t size)
 }
 memNode_t* splitMul(memNode_t* block, size_t size, int base)
 {
+	// This code needs to be rewritten
 	memNode_t* first = block;
 	memNode_t* second = NULL;
 	memNode_t* third = NULL;
@@ -328,6 +364,9 @@ memNode_t* splitMul(memNode_t* block, size_t size, int base)
 }
 memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 {
+	// This code actually merges the blocks together to form a larger block, which is easier when it comes to allocating,
+	// This way the blocks don't need to be merged when allocated, but they can now just be used.
+	// Does some magic and needs more clarification.
 	if (alpha->hdrMagic != HDRMAGIC || beta->hdrMagic != HDRMAGIC)
 	{
 		return NULL;

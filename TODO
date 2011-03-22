@@ -1,5 +1,11 @@
 TODO:
 
+ANDROMEDA GENERAL
+*	Write comments.
+	The reason for this might seem obvious, as
+	it is a piece of software for learning
+	purposes.
+
 ABDROMEDA COMPRESSED
 *	Develop paged and unpaged memory management.
 	Preferrebly in the same portion of code.
