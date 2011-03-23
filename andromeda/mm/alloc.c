@@ -212,7 +212,8 @@ int free (void* ptr)
 	{
 		if ((void*)block+block->size+sizeof(memNode_t) == (void*)carrige || (void*)carrige+carrige->size+sizeof(memNode_t) == (void*)block)
 		{
-			if (merge(block, carrige) == NULL)
+			memNode_t* test = merge(block, carrige);
+			if (test == NULL)
 			{
 				printf("Merge failed\n");
 				#ifdef TESTA
@@ -221,6 +222,11 @@ int free (void* ptr)
 				printf("\n");
 				#endif
 				return -1;
+			}
+			else
+			{
+				block = test;
+				carrige = test;
 			}
 		}
 	}
@@ -263,39 +269,34 @@ void returnBlock(memNode_t* block)
 	// This code should set the block to unused, but needs rewriting.
 	block->used = FALSE;
 	memNode_t* carrige;
-	memNode_t* tmp;
-	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
+	if ((void*)block < (void*)blocks && (void*)block >= (void*)heapBase)
 	{
-		if ((void*)block == (void*)heapBase)
+		block -> next = blocks;
+		block -> previous = NULL;
+		blocks = block;
+	}
+	for (carrige=blocks; carrige!=NULL; carrige=carrige->next)
+	{
+		if ((void*)carrige+sizeof(memNode_t)+carrige->size == block)
 		{
-			#ifdef TESTA
-			printf("Trying to reset head");
-			#endif
-			block->previous = NULL;
-			block->next = blocks;
-			blocks=block;
+			block -> next = carrige -> next;
+			block -> previous = carrige;
+			carrige -> next = block;
 			return;
 		}
-		if ((void*)carrige->next == NULL)
+		else if ((void*)block+sizeof(memNode_t)+block->size == carrige)
 		{
-			#ifdef TESTA
-			printf("Inserted block on end of line");
-			#endif
-			block->previous = carrige;
-			block->next = NULL;
-			carrige->next = block;
+			block -> next = carrige;
+			block -> previous = carrige -> previous;
+			carrige -> previous = block;
 			return;
 		}
-		if (carrige < block)
+		else if (carrige->next == NULL)
 		{
-			continue;
+			carrige -> next = block;
+			block -> previous = carrige;
+			return;
 		}
-		tmp = carrige->previous;
-		block->next = carrige;
-		carrige->previous=block;
-		tmp->next = block;
-		block->previous=tmp;
-		break;
 	}
 }
 memNode_t* split(memNode_t* block, size_t size)

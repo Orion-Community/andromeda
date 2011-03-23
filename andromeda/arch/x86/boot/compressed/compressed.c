@@ -99,7 +99,7 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	a = kalloc(sizeof(test_t));
 	free (a);
 	
-	
+	 l
 	examineHeap();
 #endif
 #ifdef TESTALLIGNED
@@ -113,13 +113,15 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	printhex((int)(void*)c); putc('\t');
 	printhex(sizeof(pageDir_t)); putc('\n');
 	printf("1\n");
-	//wait();
+	wait();
 	free(a);
 	wait();
 	printf("2\n");
 	free(b);
+	wait();
 	printf("3\n");
 	free(c);
+	wait();
 	printf("4\n");
 	a = alloc(sizeof(pageDir_t), TRUE);
 	free (a);
