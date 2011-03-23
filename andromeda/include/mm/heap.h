@@ -48,6 +48,7 @@ int free (void* ptr);
 
 #ifdef TESTA
 void examineHeap();
+void wait();
 #endif
 
 extern int heapBase;

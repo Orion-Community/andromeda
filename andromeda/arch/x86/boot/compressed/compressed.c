@@ -25,6 +25,13 @@
  */
 
 #ifdef TESTALLOC
+#define TESTA
+#endif
+#ifdef TESTALLIGNED
+#define TESTA
+#endif
+
+#ifdef TESTALLOC
 typedef struct
 {
 	int a,b,c,d,e,f,g,h,i,j,k,l,m;
@@ -38,7 +45,7 @@ typedef struct
 } pageDir_t;
 #endif
 
-#ifdef TESTALLIGNED
+#ifdef TESTA
 void wait()
 {
 	int i;
@@ -81,7 +88,6 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	test_t* b = kalloc(sizeof(test_t));
 	test_t* c = kalloc(sizeof(test_t));
 	
-	
 	printf("a\t\tb\t\tc\t\tsize\n");
 	printhex((int)(void*)a); putc('\t');
 	printhex((int)(void*)b); putc('\t');
@@ -93,13 +99,16 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	printhex(findHdr(b)->size); putc('\t');
 	printhex(findHdr(c)->size); putc('\t');
 	printhex(sizeof(test_t)); putc('\n');
+// 	wait();
 	free(a);
+// 	wait();
 	free(b);
+// 	wait();
 	free(c);
 	a = kalloc(sizeof(test_t));
 	free (a);
+	wait();
 	
-	 l
 	examineHeap();
 #endif
 #ifdef TESTALLIGNED

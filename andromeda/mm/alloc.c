@@ -201,12 +201,14 @@ int free (void* ptr)
 	printf("Before:\n");
 	examineHeap();
 	printf("\n");
+// 	wait();
 	#endif
 	returnBlock(block);
 	#ifdef TESTA
 	printf("During:\n");
 	examineHeap();
 	printf("\n");
+// 	wait();
 	#endif
 	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
 	{
@@ -220,6 +222,7 @@ int free (void* ptr)
 				printf("After\n");
 				examineHeap();
 				printf("\n");
+// 				wait();
 				#endif
 				return -1;
 			}
@@ -234,6 +237,7 @@ int free (void* ptr)
 	printf("After\n");
 	examineHeap();
 	printf("\n");
+// 	wait();
 	#endif
 	
 	return 0;
@@ -271,9 +275,11 @@ void returnBlock(memNode_t* block)
 	memNode_t* carrige;
 	if ((void*)block < (void*)blocks && (void*)block >= (void*)heapBase)
 	{
+		blocks -> previous = block;
 		block -> next = blocks;
 		block -> previous = NULL;
 		blocks = block;
+		return;
 	}
 	for (carrige=blocks; carrige!=NULL; carrige=carrige->next)
 	{
@@ -286,6 +292,7 @@ void returnBlock(memNode_t* block)
 		}
 		else if ((void*)block+sizeof(memNode_t)+block->size == carrige)
 		{
+
 			block -> next = carrige;
 			block -> previous = carrige -> previous;
 			carrige -> previous = block;
