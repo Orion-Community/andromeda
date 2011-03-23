@@ -51,9 +51,8 @@ void examineHeap()
 
 #endif
 
-// This initialises the heap to hold a block of the maximum possible size.
-// In the case of the compressed kernel that's 128 MB, which is huge, since
-// allocmax = 4KB
+// This code is called whenever a new block header needs to be created.
+// It initialises the header to a good position and simplifies the code a bit.
 void initHdr(memNode_t* block, size_t size)
 {
 	block->size = size;
@@ -62,7 +61,9 @@ void initHdr(memNode_t* block, size_t size)
 	block->used = FALSE;
 	block->hdrMagic = HDRMAGIC;
 }
-
+// This initialises the heap to hold a block of the maximum possible size.
+// In the case of the compressed kernel that's 128 MB, which is huge, since
+// allocmax = 4KB
 void initBlockMap ()
 {
 	memNode_t* node = (memNode_t*)heapBase;
@@ -89,15 +90,25 @@ void* alloc (size_t size, boolean pageAlligned)
 		{
 			if (!carrige->used)
 			{
-				// If the pointer should be page alligned, do some magic.
-				// Needs to be rewritten to be readable
+				/* 
+				 * If the block isn't used and the block should be alligned with the page boundary
+				 * this block is called. The ifdef below is just to get the syntax right for different
+				 * kind of architectures. X86 reffers to a 32-bits environment, else we'll assume a
+				 * 64 bits environment.
+				 *
+				 * The code figures out the required offset for the block to be able to hold the desired
+				 * block.
+				 */
 				#ifdef X86
 				unsigned int offset = PAGEBOUNDARY-((int)carrige+sizeof(memNode_t))%PAGEBOUNDARY;
 				#else
 				unsigned int offset = PAGEBOUNDARY-(long long)carrige+sizeof(memNode_t)%PAGEBOUNDARY;
 				#endif
+				
 				offset %= PAGEBOUNDARY;
 				unsigned int blockSize = offset+size;
+				
+				// The below code is debugging code
 				#ifdef TESTA
 				printf("BlockSize:\t");
 				printhex(blockSize); putc('\n');
@@ -110,40 +121,36 @@ void* alloc (size_t size, boolean pageAlligned)
 				printf("Ifresult:\t");
 				printhex(carrige->size-blockSize); putc('\n');
 				#endif
-				if (carrige->size >= blockSize)
+				if (carrige->size >= blockSize) // if the size is large enough to be split into
+								// page alligned blocks, then do it.
 				{
-					#ifdef TESTA
-					printf("I get reached2\n");
-					#endif
-					memNode_t* ret = splitMul(carrige, size, TRUE);
-					useBlock(ret);
+					memNode_t* ret = splitMul(carrige, size, TRUE); // Split the block
+					useBlock(ret); // Mark the block as used
+					// Display the block size if debugging is compiled in
 					#ifdef TESTA
 					printf("Size of block\n");
 					printhex(ret->size); putc('\n');
 					#endif
-// 					#ifdef X86
-// 					if (((int)((void*)ret+sizeof(memNode_t)))%PAGEBOUNDARY != 0)
-// 					#else
-// 					if (((long long)((void*)ret+sizeof(memNode_t)))%PAGEBOUNDARY != 0)
-// 					#endif
-// 					{
-// 						return NULL;
-// 					}
+					//return the desired block
 					return (void*)ret+sizeof(memNode_t);
 				}
 				else
 				{
+					// The block isn't the right size so find another one.
 					continue;
 				}
 			}
 			else
 			{
+				// The block is used, which may be the case in multi threaded environments.
+				// This means the other thread isn't done with this block and we need to
+				// leave it alone. This code still isn't thread safe, but it's a start.
 				continue;
 			}
 		}
 		else if (carrige->size >= size && carrige->size < size+sizeof(memNode_t))
 		{
-			if (useBlock(carrige) == TRUE)
+			if (useBlock(carrige) == TRUE) // check the usage of the block
 			{
 				continue;
 			}
@@ -155,16 +162,15 @@ void* alloc (size_t size, boolean pageAlligned)
 			#endif
 			return (void*)carrige+sizeof(memNode_t);
 		}
-		else if(carrige->size >= size+sizeof(memNode_t))
+		else if(carrige->size >= size+sizeof(memNode_t)) // the block is too large
 		{
-			if(carrige->used!=FALSE)
+			if(carrige->used!=FALSE) // assert that the block isn't used
 			{
 				continue;
 			}
 			
-			// The block is too large, it needs to be split.
-			memNode_t* tmp = split(carrige, size);
-			if(useBlock(tmp) == TRUE)
+			memNode_t* tmp = split(carrige, size);  // split the block
+			if(useBlock(tmp) == TRUE) // mark the block used.
 			{
 				continue;
 			}
@@ -197,25 +203,29 @@ int free (void* ptr)
 	// Actually claim it's free and then merge it into the others if possible.
 	// This code is littered with debugging code.
 	
+	// Debugging code
 	#ifdef TESTA
 	printf("Before:\n");
 	examineHeap();
 	printf("\n");
 // 	wait();
 	#endif
-	returnBlock(block);
+	returnBlock(block); // actually mark the block unused.
+	// more debugging code
 	#ifdef TESTA
 	printf("During:\n");
 	examineHeap();
 	printf("\n");
 // 	wait();
 	#endif
-	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
+	// Now find a place for the block to fit into the heap list
+	for (carrige = blocks; carrige!=NULL; carrige=carrige->next) // Loop through the heap list
 	{
+		// if we found the right spot, merge the lot.
 		if ((void*)block+block->size+sizeof(memNode_t) == (void*)carrige || (void*)carrige+carrige->size+sizeof(memNode_t) == (void*)block)
 		{
-			memNode_t* test = merge(block, carrige);
-			if (test == NULL)
+			memNode_t* test = merge(block, carrige); // merging code
+			if (test == NULL) // if the merge failed
 			{
 				printf("Merge failed\n");
 				#ifdef TESTA
@@ -230,9 +240,11 @@ int free (void* ptr)
 			{
 				block = test;
 				carrige = test;
+				// We can now continue trying to merge the rest of the list, which might be possible.
 			}
 		}
 	}
+	// Even more debugging code
 	#ifdef TESTA
 	printf("After\n");
 	examineHeap();
@@ -240,28 +252,29 @@ int free (void* ptr)
 // 	wait();
 	#endif
 	
-	return 0;
+	return 0; // Return success
 }
 
 boolean useBlock(memNode_t* block)
 {
-	// This code actually just sets the block to used.
+	// mark the block as used and remove it from the heap list
 	if(block->used == FALSE)
 	{
 		block->used = TRUE;
-		if (block->previous!=NULL)
+		if (block->previous!=NULL) // if we're not at the top of the list
 		{
-			block->previous->next = block->next;
+			block->previous->next = block->next; // set the previous block to hold the next block
 		}
-		else if (blocks == block)
+		else if (blocks == block) // if we are at the top of the list, move the top of the list to the next block
 		{
 			blocks = block->next;
 		}
-		if (block->next!=NULL)
+		if (block->next!=NULL) // if we're not at the end of the list
 		{
-			block->next->previous = block->previous;
+			block->next->previous = block->previous; // set the next block to hold the previous block
 		}
-		return FALSE;
+		// Over here the block should be removed from the heap lists.
+		return FALSE; // return that the block wasn't used.
 	}
 	else
 	{
@@ -270,65 +283,73 @@ boolean useBlock(memNode_t* block)
 }
 void returnBlock(memNode_t* block)
 {
-	// This code should set the block to unused, but needs rewriting.
+	// This code marks the block as unused and puts it back in the list.
+	if (block->used == FALSE || block->hdrMagic != HDRMAGIC) // Make sure we're not corrupting the heap
+	{
+		#ifdef TESTA
+		printf("WARNING");
+		#endif
+		return;
+	}
 	block->used = FALSE;
 	memNode_t* carrige;
 	if ((void*)block < (void*)blocks && (void*)block >= (void*)heapBase)
-	{
+	{// if we're at the top of the heap list add the block there.
 		blocks -> previous = block;
 		block -> next = blocks;
 		block -> previous = NULL;
 		blocks = block;
 		return;
 	}
-	for (carrige=blocks; carrige!=NULL; carrige=carrige->next)
+	// We're apparently not at the top of the list
+	for (carrige=blocks; carrige!=NULL; carrige=carrige->next) // Loop through the heap list.
 	{
-		if ((void*)carrige+sizeof(memNode_t)+carrige->size == block)
+		if ((void*)carrige+sizeof(memNode_t)+carrige->size == block) // if the carrige connects to the bottom of our block
 		{
 			block -> next = carrige -> next;
 			block -> previous = carrige;
 			carrige -> next = block;
-			return;
+			return; // add the block to the list after the carrige
 		}
-		else if ((void*)block+sizeof(memNode_t)+block->size == carrige)
+		else if ((void*)block+sizeof(memNode_t)+block->size == carrige) // if the block connects to the bottom of the carrige
 		{
-
 			block -> next = carrige;
 			block -> previous = carrige -> previous;
 			carrige -> previous = block;
-			return;
+			return; // add the block to the list before the carrige
 		}
 		else if (carrige->next == NULL)
 		{
 			carrige -> next = block;
 			block -> previous = carrige;
-			return;
+			return; // if we have gotten to the end of the heap we must add the block here
 		}
 	}
 }
 memNode_t* split(memNode_t* block, size_t size)
 {
 	// This code splits the block into two parts, the lower of which is returned
-	// to alloc.
-	memNode_t* second = (memNode_t*)((void*)(block)+size+sizeof(memNode_t));
-	initHdr(second, block->size-size-sizeof(memNode_t));
-	second->previous = block;
+	// to the caller.
+	memNode_t* second = (memNode_t*)((void*)(block)+size+sizeof(memNode_t)); // find out what the address of the upper block should be
+	initHdr(second, block->size-size-sizeof(memNode_t)); // initialise the second block to the right size
+	second->previous = block; // fix the heap lists
 	second->next = block->next;
 	block->next = second;
 	block->size = size;
-	return block;
+	return block; // return the bottom block
 }
 memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 {
-	// This code needs to be rewritten
+	// if the block should be pageAlligned
 	if (pageAlligned)
 	{
+		// figure out whether or not the block is at the right place
 		#ifdef X86
 		if (((int)((void*)block+sizeof(memNode_t)))%PAGEBOUNDARY == 0)
 		#else
 		if (((long long)((void*)block+sizeof(memNode_t)))%PAGEBOUNDARY == 0)
 		#endif
-		{
+		{	// if so we can manage with a simple split
 			#ifdef TESTA
 			printf("Simple split\n");
 			#endif
@@ -340,66 +361,69 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 		#else
 		else if ((long long)((void*)block+sizeof(memNode_t))%PAGEBOUNDARY != 0)
 		#endif
-		{
+		{	// if not we must do a bit more complex
 			#ifdef TESTA
 			printf("Complex split\n");
 			#endif
 			// If we get here the base address of the block isn't alligned with the offset.
 			// Split the block and then use split on the higher block so the middle is
 			// pageAlligned.
+			// Below we figure out where the second block should start using some algorithms
+			// of which it isn't if a shame a beginner doesn't fully get it.
 			#ifdef X86
 			unsigned int secondAddr;
-			unsigned int base = (unsigned int)((void*)block+2*sizeof(memNode_t));
-			unsigned int offset = PAGEBOUNDARY-(base%PAGEBOUNDARY);
-			secondAddr = (unsigned int)((void*)block+sizeof(memNode_t));
-			secondAddr += offset;
-			memNode_t* second = (void*)secondAddr;
+			unsigned int base = (unsigned int)((void*)block+2*sizeof(memNode_t)); // the base address is put in an int with some header
+											      // sizes because the calculation requires them.
+			unsigned int offset = PAGEBOUNDARY-(base%PAGEBOUNDARY); // the addrress is used to figure out the offset to the page boundary
+			secondAddr = (unsigned int)((void*)block+sizeof(memNode_t)); // put the base address into second
+			secondAddr += offset; // add the offset to second
+			memNode_t* second = (void*)secondAddr; // put the actual address in second
 			#else
-			unsigned long long secondAddr;
+			unsigned long long secondAddr; // do the same as above but now for 64-bits machines.
 			unsigned long long base = (unsigned long long)((void*)block+2*sizeof(memNode_t));
 			unsigned long long offset = PAGEBOUNDARY-(base%PAGEBOUNDARY);
 			secondAddr = (unsigned long long)((void*)block+sizeof(memNode_t));
 			secondAddr += offset;
 			memNode_t* second = (void*)secondAddr;
 			#endif
-			memNode_t* next = block->next;
-			int secondSize = block->size - ((void*)second - (void*)block);
-			initHdr(second, secondSize);
-			block->size = (void*)second-((void*)block+sizeof(memNode_t));
-			block->next = second;
+			memNode_t* next = block->next; // Temporarilly store next
+			int secondSize = block->size - ((void*)second - (void*)block); // second's temporary size gets calculated.
+			initHdr(second, secondSize); // init the second block with the temporary size
+			block->size = (void*)second-((void*)block+sizeof(memNode_t)); // fix the original block size as it isn't correct anymore.
+			block->next = second; // fix the heap lists to make a split or return possible
 			second->previous = block;
 			second->next = next;
 			if (second->size>size+sizeof(memNode_t))
 			{
-				return split(second, size);
+				return split(second, size); // if the second block still is too large do a normal split because this will return the
+							    // right address anyways.
 			}
 			else
 			{
-				return second;
+				return second; // the size is right and at the right address, what more could we want.
 			}
 		}
 	}
 	else
 	{
+		// here we can just do a normal block split because there is no address requirement.
 		return split(block, size);
 	}
 }
 memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 {
-	// This code actually merges the blocks together to form a larger block, which is easier when it comes to allocating,
-	// This way the blocks don't need to be merged when allocated, but they can now just be used.
-	// Does some magic and needs more clarification.
+	// First we check for possible corruption
 	if (alpha->hdrMagic != HDRMAGIC || beta->hdrMagic != HDRMAGIC)
 	{
 		#ifdef TESTA
-		printf("HDR error\n");
+		printf("HDR error\n"); // debugging code
 		#endif
-		return NULL;
+		return NULL; // return error
 	}
 	if ((alpha->next != beta) && (beta->next != alpha))
-	{
+	{ // if the pointers don't match, we should not proceed.
 		#ifdef TESTA
-		printf("WARNING!!!\n");
+		printf("WARNING!!!\n"); // more debugging code
 		
 		printf("Alpha->next:\t");
 		printhex((int)(void*)alpha->next); putc('\n');
@@ -410,20 +434,20 @@ memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 		printf("Alpha:\t");
 		printhex((int)(void*)beta); putc('\n');
 		#endif
-		return NULL;
+		return NULL; // return error
 	}
 	memNode_t* tmp;
 	if ((void*)alpha+alpha->size+sizeof(memNode_t) == (void*)beta)
-	{
+	{	// if the blocks are in reversed order, put them in the right order
 		tmp = alpha;
 		alpha = beta;
 		beta = tmp;
 		#ifdef TESTALLOC
-		printf("Alpha\n");
+		printf("Alpha\n"); // even more debugging info
 		#endif
 	}
-	beta->size = beta->size+alpha->size+sizeof(memNode_t);
+	beta->size = beta->size+alpha->size+sizeof(memNode_t); // do the actual merging
 	beta->next = alpha->next;
 	beta->used = FALSE;
-	return beta;
+	return beta; // return success
 }

@@ -99,11 +99,11 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	printhex(findHdr(b)->size); putc('\t');
 	printhex(findHdr(c)->size); putc('\t');
 	printhex(sizeof(test_t)); putc('\n');
-// 	wait();
+	wait();
 	free(a);
-// 	wait();
+	wait();
 	free(b);
-// 	wait();
+	wait();
 	free(c);
 	a = kalloc(sizeof(test_t));
 	free (a);
