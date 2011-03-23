@@ -23,12 +23,11 @@
 
 struct memNode
 {
-  int size;
+  unsigned int size;
   boolean used;
-  unsigned char offset;
   struct memNode* next;
   struct memNode* previous;
-  int hdrMagic;
+  unsigned int hdrMagic;
 };
 typedef struct memNode memNode_t;
 

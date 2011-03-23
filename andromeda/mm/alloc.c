@@ -61,7 +61,6 @@ void initHdr(memNode_t* block, size_t size)
 	block->next = NULL;
 	block->used = FALSE;
 	block->hdrMagic = HDRMAGIC;
-	block->offset = 0;
 }
 
 void initBlockMap ()
@@ -92,16 +91,13 @@ void* alloc (size_t size, boolean pageAlligned)
 			{
 				// If the pointer should be page alligned, do some magic.
 				// Needs to be rewritten to be readable
-				#ifdef TESTA
-				printf("I get reached1\n");
-				#endif
 				#ifdef X86
-				int offset = PAGEBOUNDARY-((int)carrige+sizeof(memNode_t))%PAGEBOUNDARY;
+				unsigned int offset = PAGEBOUNDARY-((int)carrige+sizeof(memNode_t))%PAGEBOUNDARY;
 				#else
-				int offset = PAGEBOUNDARY-(long long)carrige+sizeof(memNode_t)%PAGEBOUNDARY;
+				unsigned int offset = PAGEBOUNDARY-(long long)carrige+sizeof(memNode_t)%PAGEBOUNDARY;
 				#endif
 				offset %= PAGEBOUNDARY;
-				int blockSize = offset+size;
+				unsigned int blockSize = offset+size;
 				#ifdef TESTA
 				printf("BlockSize:\t");
 				printhex(blockSize); putc('\n');
@@ -109,26 +105,30 @@ void* alloc (size_t size, boolean pageAlligned)
 				printhex(offset); putc('\n');
 				printf("Size:\t");
 				printhex(size); putc('\n');
+				printf("Carrige size:\t");
+				printhex(carrige->size); putc('\n');
+				printf("Ifresult:\t");
+				printhex(carrige->size-blockSize); putc('\n');
 				#endif
 				if (carrige->size >= blockSize)
 				{
 					#ifdef TESTA
 					printf("I get reached2\n");
 					#endif
-					memNode_t* ret = splitMul(carrige, size, offset);
+					memNode_t* ret = splitMul(carrige, size, TRUE);
 					useBlock(ret);
 					#ifdef TESTA
 					printf("Size of block\n");
 					printhex(ret->size); putc('\n');
 					#endif
-					#ifdef X86
-					if (((int)((void*)ret+sizeof(memNode_t)))%PAGEBOUNDARY != 0)
-					#else
-					if (((long long)((void*)ret+sizeof(memNode_t)))%PAGEBOUNDARY != 0)
-					#endif
-					{
-						return NULL;
-					}
+// 					#ifdef X86
+// 					if (((int)((void*)ret+sizeof(memNode_t)))%PAGEBOUNDARY != 0)
+// 					#else
+// 					if (((long long)((void*)ret+sizeof(memNode_t)))%PAGEBOUNDARY != 0)
+// 					#endif
+// 					{
+// 						return NULL;
+// 					}
 					return (void*)ret+sizeof(memNode_t);
 				}
 				else
@@ -321,6 +321,9 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 		if (((long long)((void*)block+sizeof(memNode_t)))%PAGEBOUNDARY == 0)
 		#endif
 		{
+			#ifdef TESTA
+			printf("Simple split\n");
+			#endif
 			// If this block gets reached the block is at the offset in memory.
 			return split (block, size);
 		}
@@ -330,13 +333,26 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 		else if ((long long)((void*)block+sizeof(memNode_t))%PAGEBOUNDARY != 0)
 		#endif
 		{
+			#ifdef TESTA
+			printf("Complex split\n");
+			#endif
 			// If we get here the base address of the block isn't alligned with the offset.
 			// Split the block and then use split on the higher block so the middle is
 			// pageAlligned.
 			#ifdef X86
-			memNode_t* second = (void*)PAGEBOUNDARY-(((int)(void*)block%PAGEBOUNDARY)+(int)(void*)block);
+			unsigned int secondAddr;
+			unsigned int base = (unsigned int)((void*)block+2*sizeof(memNode_t));
+			unsigned int offset = PAGEBOUNDARY-(base%PAGEBOUNDARY);
+			secondAddr = (unsigned int)((void*)block+sizeof(memNode_t));
+			secondAddr += offset;
+			memNode_t* second = (void*)secondAddr;
 			#else
-			memNode_t* second = (void*)PAGEBOUNDARY-(((long long)((void*)block)%PAGEBOUNDARY)+(long long)(void*)block);
+			unsigned long long secondAddr;
+			unsigned long long base = (unsigned long long)((void*)block+2*sizeof(memNode_t));
+			unsigned long long offset = PAGEBOUNDARY-(base%PAGEBOUNDARY);
+			secondAddr = (unsigned long long)((void*)block+sizeof(memNode_t));
+			secondAddr += offset;
+			memNode_t* second = (void*)secondAddr;
 			#endif
 			memNode_t* next = block->next;
 			int secondSize = block->size - ((void*)second - (void*)block);
@@ -367,14 +383,29 @@ memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 	// Does some magic and needs more clarification.
 	if (alpha->hdrMagic != HDRMAGIC || beta->hdrMagic != HDRMAGIC)
 	{
+		#ifdef TESTA
+		printf("HDR error\n");
+		#endif
 		return NULL;
 	}
-	if (alpha->next != beta || beta->next != alpha)
+	if ((alpha->next != beta) && (beta->next != alpha))
 	{
+		#ifdef TESTA
+		printf("WARNING!!!\n");
+		
+		printf("Alpha->next:\t");
+		printhex((int)(void*)alpha->next); putc('\n');
+		printf("Beta->next:\t");
+		printhex((int)(void*)beta->next); putc('\n');
+		printf("\nAlpha:\t");
+		printhex((int)(void*)alpha); putc('\n');
+		printf("Alpha:\t");
+		printhex((int)(void*)beta); putc('\n');
+		#endif
 		return NULL;
 	}
 	memNode_t* tmp;
-	if ((void*)alpha+alpha->size+sizeof(memNode_t) == (void*)beta-beta->offset)
+	if ((void*)alpha+alpha->size+sizeof(memNode_t) == (void*)beta)
 	{
 		tmp = alpha;
 		alpha = beta;
@@ -382,26 +413,6 @@ memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 		#ifdef TESTALLOC
 		printf("Alpha\n");
 		#endif
-	}
-	if (alpha->offset != 0)
-	{
-		memNode_t* previous = alpha->previous;
-		memNode_t* next = alpha->next;
-		tmp = (void*) alpha - alpha->offset;
-		initHdr(tmp, alpha->size+alpha->offset);
-		tmp->previous = previous;
-		tmp->next = next;
-		alpha = tmp;
-	}
-	else if(beta->offset != 0)
-	{
-		memNode_t* previous = beta->previous;
-		memNode_t* next = beta->next;
-		tmp = (void*) beta - beta->offset;
-		initHdr(tmp, beta->size+beta->offset);
-		tmp->previous = previous;
-		tmp->next = next;
-		beta = tmp;
 	}
 	beta->size = beta->size+alpha->size+sizeof(memNode_t);
 	beta->next = alpha->next;

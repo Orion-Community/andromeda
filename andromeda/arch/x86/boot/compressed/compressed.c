@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /*
  * This is the inital boot image loaded from
  * grub. This will call the actual kernel
@@ -37,6 +36,16 @@ typedef struct
 {
 	int a[1024];
 } pageDir_t;
+#endif
+
+#ifdef TESTALLIGNED
+void wait()
+{
+	int i;
+	for (i = 0; i < 0x1FFFFFFF; i++)
+	{
+	}
+}
 #endif
 
 #include <text.h>
@@ -97,16 +106,16 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	pageDir_t* a = alloc(sizeof(pageDir_t), TRUE);
 	pageDir_t* b = alloc(sizeof(pageDir_t), TRUE);
 	pageDir_t* c = alloc(sizeof(pageDir_t), TRUE);
-	
 	examineHeap();
-	
 	printf("a\t\tb\t\tc\t\tsize\n");
 	printhex((int)(void*)a); putc('\t');
 	printhex((int)(void*)b); putc('\t');
 	printhex((int)(void*)c); putc('\t');
 	printhex(sizeof(pageDir_t)); putc('\n');
 	printf("1\n");
+	//wait();
 	free(a);
+	wait();
 	printf("2\n");
 	free(b);
 	printf("3\n");

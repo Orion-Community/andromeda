@@ -6,11 +6,12 @@ ANDROMEDA GENERAL
 	it is a piece of software for learning
 	purposes.
 
-ABDROMEDA COMPRESSED
-*	Develop paged and unpaged memory management.
-	Preferrebly in the same portion of code.
-	Needed for the page tables.
+*	Rewrite the block merging code to something:
+	* Readable,
+	* Maintainable and
+	* Working.
 
+ABDROMEDA COMPRESSED
 *	Make a start on paging code
 	needed to load the kernel in high memory.
 
