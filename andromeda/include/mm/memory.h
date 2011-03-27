@@ -25,4 +25,8 @@ void paging();
 void memset(int*, int, int);
 int initHeap(int, int);
 
+#ifdef __INTEL
+void setGDT();
+#endif
+
 #endif

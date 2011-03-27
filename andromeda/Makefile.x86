@@ -10,6 +10,7 @@ x86: compressed
 
 compressed:
 #	$(CC) $(FLAGS) $(COMPRESSED) arch/x86/boot/compressed/*.c
+	$(CC) $(FLAGS) $(COMPRESSED) arch/x86/mm/*.c -Iarch/x86/include
 	$(CC) $(FLAGS) $(COMPRESSED) kern/*.c
 	$(CC) $(FLAGS) $(COMPRESSED) vga/*.c
 	$(CC) $(FLAGS) $(COMPRESSED) mm/*.c

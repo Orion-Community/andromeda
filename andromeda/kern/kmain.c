@@ -92,7 +92,10 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	// If in the compressed image
 	#ifdef __COMPRESSED
 	announce(); // print welcome message
-	//setGDT();
+	#ifdef __INTEL
+	// Intel specific function
+	setGDT();  // Also in decompressed kernel as the compressed image could be overwritten
+	#endif
 	#endif
 	// Initialise the heap
 	initHeap(HEAP, HEAPSIZE);
@@ -160,7 +163,11 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 #endif
 	//installInterruptVectorTable();
 	//initPaging();
-#ifdef __COMPRESSED
+#ifndef __COMPRESSED
+	//startInterrupts(); // Interrupts are allowed again.
+			     // Up untill this point they have
+			     // been disabled.
+#else
 	//exec(decompress(gzipped kernel));
 #endif
 	for (;;) // Infinite loop, to prevent the CPU from executing rubbish
