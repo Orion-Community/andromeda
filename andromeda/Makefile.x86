@@ -16,6 +16,7 @@ compressed:
 	$(CC) $(FLAGS) $(COMPRESSED) mm/*.c
 	$(CC) $(FLAGS) $(COMPRESSED) error/*.c
 	$(AS) arch/x86/boot/compressed/boot.s $(ASFLAGS) -o ./boot.o
+	$(AS) arch/x86/mm/lgdt.s $(ASFLAGS) -o lgdt.o
 	$(LD) $(LDFLAGS) -o $(OUTC) *.o
 
 asm:

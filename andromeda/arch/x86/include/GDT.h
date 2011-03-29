@@ -1,34 +1,48 @@
+/*
+    Orion OS, The educational operatingsystem
+    Copyright (C) 2011  Bart Kuivenhoven
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#ifdef __INTEL
+
 #ifndef __GDT_H
 #define __GDT_H
 
 // Here goes the GDT entry data structure
 struct gdtEntry
 {
-  unsigned int limitLow : 16; // Hold the lower part of the limit
-  unsigned int baseLow : 24; // Holds the lower part of the base address of the segment.
-  
-  unsigned int type : 5; // Indicates the type of segment, code, data, executable, ...
-  unsigned int pl : 2; // Holds the privilige ring, 0 for kernel level, 3 for user level, others aren't implemented.
-  unsigned int present : 1; // Indicates the presence in memory (I think this should always be true in our case).
-  unsigned int limitHigh : 4; //Holds the higher part of the limit.
-  unsigned int attributes : 3; // Don't know what this does.
-  unsigned int granularity : 1; // Indicates the way the limit needs to be read.
-  unsigned int baseHigh : 8; // Holds the higher part of the base address of the segment.
-}__attribute__((packed)); // To tell the compiler that these fields should be packed toggether(1)
+   unsigned int limit_low : 16;           // The lower 16 bits of the limit.
+   unsigned int base_low : 24;           // The lower 24 bits of the base address.
+   unsigned int access : 8;              // Access flags, determine what ring this segment can be used in.
+   unsigned int granularity : 8;
+   unsigned int base_high : 8;           // The last 8 bits of the base.
+} __attribute__((packed));
 typedef struct gdtEntry gdtEntry_t;
 
 // Here comes the GDT pointer structure
 struct gdtPtr
 {
-  unsigned int limit : 8; // Indicate where the table ends
+  unsigned int limit : 16; // Indicate where the table ends in bytes minus 1
   unsigned int baseAddr : 32; // Indicate where the table starts
-}__attribute__((packed)); // To tell the compiler that these fields should be packed together(1)
+} __attribute__((packed)); // To tell the compiler that these fields should be packed together(1)
 typedef struct gdtPtr gdt_t;
 // The load gdt instruction
 extern void lgdt(gdt_t*);
 
 #endif
-
+#endif
 /*
 (1) Compilers often do some form of optimalisation, and this can be done by giving each field it's
     own byte. We don't want this. We want something which is in the form that the CPU know what we

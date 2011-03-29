@@ -89,6 +89,8 @@ void announce()
 // The main function
 int kmain(/* boot data , boot data , gzipped kernel*/)
 {
+	// Initialise the heap
+	initHeap(HEAP, HEAPSIZE);
 	// If in the compressed image
 	#ifdef __COMPRESSED
 	announce(); // print welcome message
@@ -96,10 +98,7 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	// Intel specific function
 	setGDT();  // Also in decompressed kernel as the compressed image could be overwritten
 	#endif
-	#endif
-	// Initialise the heap
-	initHeap(HEAP, HEAPSIZE);
-#ifdef __COMPRESSED
+	
 #ifdef TESTALLOC
 	examineHeap();
 	test_t* a = kalloc(sizeof(test_t)); // Make some values to test with
