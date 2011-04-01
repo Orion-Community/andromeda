@@ -16,6 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// This code still needs improvement.
+/*
+ * Right now the code assumes all of the memory is available, as in reality
+ * it isn't. The memory needs to be limited, to what is available.
+ * This requires growing the heap dynamically to it's maximum size, if possible.
+ * We need the multi-boot-header for that though, and that requires a little
+ * more investigation.
+ */
+
 #include <mm/memory.h>
 #include <mm/heap.h>
 #include <error/panic.h>

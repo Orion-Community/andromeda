@@ -23,20 +23,20 @@
 // Here goes the GDT entry data structure
 struct gdtEntry
 {
-   unsigned int limit_low : 16;           // The lower 16 bits of the limit.
-   unsigned int base_low : 24;           // The lower 24 bits of the base address.
-   unsigned int access : 8;              // Access flags, determine what ring this segment can be used in.
+   unsigned int limit_low   : 16;           // The lower 16 bits of the limit.
+   unsigned int base_low    : 24;           // The lower 24 bits of the base address.
+   unsigned int access      : 8;            // Access flags, determine what ring this segment can be used in.
    unsigned int granularity : 8;
-   unsigned int base_high : 8;           // The last 8 bits of the base.
+   unsigned int base_high   : 8;            // The last 8 bits of the base.
 } __attribute__((packed));
 typedef struct gdtEntry gdtEntry_t;
 
 // Here comes the GDT pointer structure
 struct gdtPtr
 {
-  unsigned int limit : 16; // Indicate where the table ends in bytes minus 1
-  unsigned int baseAddr : 32; // Indicate where the table starts
-} __attribute__((packed)); // To tell the compiler that these fields should be packed together(1)
+  unsigned int limit        : 16; // Indicate where the table ends in bytes minus 1
+  unsigned int baseAddr     : 32; // Indicate where the table starts
+} __attribute__((packed)); 	  // To tell the compiler that these fields should be packed together(1)
 typedef struct gdtPtr gdt_t;
 // The load gdt instruction
 extern void lgdt(gdt_t*);

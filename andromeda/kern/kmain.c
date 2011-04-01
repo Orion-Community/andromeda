@@ -63,7 +63,7 @@ void wait()
 // Define the place of the heap
 #ifdef __COMPRESSED
 #define HEAP 0x8000000
-#define HEAPSIZE HEAP
+#define HEAPSIZE HEAP-0x8000
 #else
 #define HEAP 0xE0000000
 #define HEAPSIZE 10000000
@@ -98,8 +98,7 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	// Intel specific function
 	setGDT();  // Also in decompressed kernel as the compressed image could be overwritten
 	#endif
-	
-#ifdef TESTALLOC
+	#ifdef TESTALLOC
 	examineHeap();
 	test_t* a = kalloc(sizeof(test_t)); // Make some values to test with
 	test_t* b = kalloc(sizeof(test_t));
@@ -117,8 +116,8 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	printhex(findHdr(c)->size); putc('\t');
 	printhex(sizeof(test_t)); putc('\n');
 
-#endif
-#ifdef TESTALLIGNED
+	#endif
+	#ifdef TESTALLIGNED
 	pageDir_t* d = alloc(sizeof(pageDir_t), TRUE); // Make some values to test with, these should be page alligned
 	pageDir_t* e = alloc(sizeof(pageDir_t), TRUE);
 	pageDir_t* f = alloc(sizeof(pageDir_t), TRUE);
@@ -128,8 +127,8 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	printhex((int)(void*)e); putc('\t');
 	printhex((int)(void*)f); putc('\t');
 	printhex(sizeof(pageDir_t)); putc('\n');
-#endif
-#ifdef TESTALLOC
+	#endif
+	#ifdef TESTALLOC
 // 	wait();
 	free(a); // Free the values and see the output
 // 	wait();
@@ -141,8 +140,8 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 // 	wait();
 	
 	examineHeap(); // Show the heap
-#endif
-#ifdef TESTALLIGNED
+	#endif
+	#ifdef TESTALLIGNED
 	printf("1\n"); // Free the values and see the output
 // 	wait();
 	free(d);
@@ -158,17 +157,17 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	free (d);
 	
 	examineHeap(); // Show the heap
-#endif
-#endif
+	#endif
+	#endif
 	//installInterruptVectorTable();
 	//initPaging();
-#ifndef __COMPRESSED
+	#ifndef __COMPRESSED
 	//startInterrupts(); // Interrupts are allowed again.
 			     // Up untill this point they have
 			     // been disabled.
-#else
+	#else
 	//exec(decompress(gzipped kernel));
-#endif
+	#endif
 	for (;;) // Infinite loop, to prevent the CPU from executing rubbish
 	{
 		#ifndef __COMPRESSED
