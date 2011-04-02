@@ -18,8 +18,11 @@
 #include <error/panic.h>
 #include <text.h>
 
+// Claim to have paniced, show the message and enter an infinite loop.
+
 void panic(char* msg)
 {
+	cli();
 	println("Orion panic");
 	println(msg);
 	for (;;);

@@ -17,11 +17,16 @@
 */
 
 /*
- * This is the inital boot image loaded from
- * grub. This will call the actual kernel
- * from where-ever it might be. From disk
- * (hope-not) of from gzip image in memory
- * (would be alot better).
+ * This is the main function for both the compressed and decompressed image.
+ * The compressed image is nothing more than a basic kernel with image loading
+ * code, to load the decompressed image. An approach still has to be chosen on
+ * how to load the decompressed image.
+ *
+ * One angle is to load the decompressed image in from disk.
+ * Another is to get a gzipped image from the bootloader and decompress that
+ * and use that as the decompressed image.
+ * The latter is the most gracefull, however, the former will suffice and is
+ * probably a whole lot easier.
  */
 
 #ifdef TESTALLOC

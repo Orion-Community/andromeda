@@ -20,6 +20,7 @@
 #ifndef __GDT_H
 #define __GDT_H
 
+#ifdef BRANS
 // Here goes the GDT entry data structure
 struct gdtEntry
 {
@@ -30,6 +31,24 @@ struct gdtEntry
    unsigned int base_high   : 8;            // The last 8 bits of the base.
 } __attribute__((packed));
 typedef struct gdtEntry gdtEntry_t;
+#else
+struct gdtEntry
+{
+  unsigned int limit		: 16; // Limit in bytes. Multiplied with 4096 if granularity is set.
+  unsigned int baseLow		: 24; // The lower 24 bytes of the base address
+  unsigned int type		: 4; // Indicates the type of segment.
+  unsigned int s		: 1; // System flag
+  unsigned int dpl		: 2; // Descriptor privilege level
+  unsigned int one		: 1; // Needs to be one
+  unsigned int limitHigh	: 4; // The rest of limit
+  unsigned int avl		: 1; // For OS use.
+  unsigned int zero		: 1; // Needs to be 0
+  unsigned int mode		: 1; // 1 for 32 bits addresses
+  unsigned int granularity	: 1; // 1 for multiplying the limit with 4096, to make it possible to span 4 GB
+  unsigned int baseHigh		: 8; // The higher 8 bits of the base address
+}__attribute__((packed));
+typedef struct gdtEntry gdtEntry_t;
+#endif
 
 // Here comes the GDT pointer structure
 struct gdtPtr
