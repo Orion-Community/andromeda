@@ -45,7 +45,7 @@ memNode_t* split(memNode_t* block, size_t size);
 memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned);
 memNode_t* merge(memNode_t* alpha, memNode_t* beta);
 
-#ifdef TESTA
+#ifdef MMTEST
 // Debugging function used to examine the heap (duh ...)
 void examineHeap()
 {
@@ -80,6 +80,9 @@ void initBlockMap ()
 	blocks = node;
 // 	printhex(node->size); putc('\n');
 // 	printhex(blocks); putc('\n');
+	#ifdef MMTEST
+	testAlloc();
+	#endif
 }
 
 
@@ -118,7 +121,7 @@ void* alloc (size_t size, boolean pageAlligned)
 				unsigned int blockSize = offset+size;
 				
 				// The below code is debugging code
-				#ifdef TESTA
+				#ifdef MMTEST
 				printf("BlockSize:\t");
 				printhex(blockSize); putc('\n');
 				printf("Offset:\t");
@@ -136,7 +139,7 @@ void* alloc (size_t size, boolean pageAlligned)
 					memNode_t* ret = splitMul(carrige, size, TRUE); // Split the block
 					useBlock(ret); // Mark the block as used
 					// Display the block size if debugging is compiled in
-					#ifdef TESTA
+					#ifdef MMTEST
 					printf("Size of block\n");
 					printhex(ret->size); putc('\n');
 					#endif
@@ -165,7 +168,7 @@ void* alloc (size_t size, boolean pageAlligned)
 			}
 			// If the block is the right size or too small to hold 2 separate blocks,
 			// In which one of them is the size allocated, then allocate the entire block.
-			#ifdef TESTALLOC
+			#ifdef MMTEST
 			printf("Size of block\n");
 			printhex(carrige->size); putc('\n');
 			#endif
@@ -183,7 +186,7 @@ void* alloc (size_t size, boolean pageAlligned)
 			{
 				continue;
 			}
-			#ifdef TESTALLOC
+			#ifdef MMTEST
 			printf("Size of block\n");
 			printhex(tmp->size); putc('\n');
 			#endif
@@ -213,7 +216,7 @@ int free (void* ptr)
 	// This code is littered with debugging code.
 	
 	// Debugging code
-	#ifdef TESTA
+	#ifdef MMTEST
 	printf("Before:\n");
 	examineHeap();
 	printf("\n");
@@ -221,7 +224,7 @@ int free (void* ptr)
 	#endif
 	returnBlock(block); // actually mark the block unused.
 	// more debugging code
-	#ifdef TESTA
+	#ifdef MMTEST
 	printf("During:\n");
 	examineHeap();
 	printf("\n");
@@ -237,7 +240,7 @@ int free (void* ptr)
 			if (test == NULL) // if the merge failed
 			{
 				printf("Merge failed\n");
-				#ifdef TESTA
+				#ifdef MMTEST
 				printf("After\n");
 				examineHeap();
 				printf("\n");
@@ -254,7 +257,7 @@ int free (void* ptr)
 		}
 	}
 	// Even more debugging code
-	#ifdef TESTA
+	#ifdef MMTEST
 	printf("After\n");
 	examineHeap();
 	printf("\n");
@@ -295,7 +298,7 @@ void returnBlock(memNode_t* block)
 	// This code marks the block as unused and puts it back in the list.
 	if (block->used == FALSE || block->hdrMagic != HDRMAGIC) // Make sure we're not corrupting the heap
 	{
-		#ifdef TESTA
+		#ifdef MMTEST
 		printf("WARNING");
 		#endif
 		return;
@@ -359,7 +362,7 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 		if (((long long)((void*)block+sizeof(memNode_t)))%PAGEBOUNDARY == 0)
 		#endif
 		{	// if so we can manage with a simple split
-			#ifdef TESTA
+			#ifdef MMTEST
 			printf("Simple split\n");
 			#endif
 			// If this block gets reached the block is at the offset in memory.
@@ -371,7 +374,7 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 		else if ((long long)((void*)block+sizeof(memNode_t))%PAGEBOUNDARY != 0)
 		#endif
 		{	// if not we must do a bit more complex
-			#ifdef TESTA
+			#ifdef MMTEST
 			printf("Complex split\n");
 			#endif
 			// If we get here the base address of the block isn't alligned with the offset.
@@ -424,14 +427,14 @@ memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 	// First we check for possible corruption
 	if (alpha->hdrMagic != HDRMAGIC || beta->hdrMagic != HDRMAGIC)
 	{
-		#ifdef TESTA
+		#ifdef MMTEST
 		printf("HDR error\n"); // debugging code
 		#endif
 		return NULL; // return error
 	}
 	if ((alpha->next != beta) && (beta->next != alpha))
 	{ // if the pointers don't match, we should not proceed.
-		#ifdef TESTA
+		#ifdef MMTEST
 		printf("WARNING!!!\n"); // more debugging code
 		
 		printf("Alpha->next:\t");
@@ -451,7 +454,7 @@ memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 		tmp = alpha;
 		alpha = beta;
 		beta = tmp;
-		#ifdef TESTALLOC
+		#ifdef MMTEST
 		printf("Alpha\n"); // even more debugging info
 		#endif
 	}

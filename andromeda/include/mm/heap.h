@@ -38,17 +38,10 @@ int free (void* ptr);
 
 #define kalloc(a) alloc(a,FALSE)
 
-#ifdef TESTALLOC
-#define TESTA
-#endif
-
-#ifdef TESTALLIGNED
-#define TESTA
-#endif
-
-#ifdef TESTA
+#ifdef MMTEST
 void examineHeap();
 void wait();
+void testAlloc();
 #endif
 
 extern int heapBase;

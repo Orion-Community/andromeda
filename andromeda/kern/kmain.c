@@ -29,37 +29,6 @@
  * probably a whole lot easier.
  */
 
-#ifdef TESTALLOC
-#define TESTA
-#endif
-#ifdef TESTALLIGNED
-#define TESTA
-#endif
-
-#ifdef TESTALLOC
-typedef struct
-{
-	int a,b,c,d,e,f,g,h,i,j,k,l,m;
-} test_t; // This is made to test memory allocation with small pieces of data.
-#endif
-
-#ifdef TESTALLIGNED
-typedef struct
-{
-	int a[1024];
-} pageDir_t; // This is made to test the memory allocation with larger pieces of data
-#endif
-
-#ifdef TESTA
-void wait()
-{
-	int i;
-	for (i = 0; i < 0x1FFFFFFF; i++)
-	{
-	}
-} // Made to make the system wait a few seconds, will be replaced once a timer is in place
-#endif
-
 // Basic includes
 #include <text.h>
 #include <types.h>
@@ -72,15 +41,6 @@ void wait()
 #else
 #define HEAP 0xE0000000
 #define HEAPSIZE 10000000
-#endif
-
-// This is necessary for finding certain pointers in the memory headers
-#ifdef TESTALLOC
-memNode_t* findHdr(void* ptr)
-{
-	memNode_t* tmp = (void*)ptr - sizeof(memNode_t);
-	return tmp;
-}
 #endif
 
 // Print a welcome message
