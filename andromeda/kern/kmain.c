@@ -103,66 +103,6 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	// Intel specific function
 	setGDT();  // Also in decompressed kernel as the compressed image could be overwritten
 	#endif
-	#ifdef TESTALLOC
-	examineHeap();
-	test_t* a = kalloc(sizeof(test_t)); // Make some values to test with
-	test_t* b = kalloc(sizeof(test_t));
-	test_t* c = kalloc(sizeof(test_t));
-	
-	printf("a\t\tb\t\tc\t\tsize\n");
-	printhex((int)(void*)a); putc('\t'); // Print the pointer addresses
-	printhex((int)(void*)b); putc('\t');
-	printhex((int)(void*)c); putc('\t');
-	printhex(sizeof(test_t)); putc('\n');
-	
-	printf("\na\tb\tc\tsize\n");
-	printhex(findHdr(a)->size); putc('\t'); // Print the sizes of the blocks
-	printhex(findHdr(b)->size); putc('\t');
-	printhex(findHdr(c)->size); putc('\t');
-	printhex(sizeof(test_t)); putc('\n');
-
-	#endif
-	#ifdef TESTALLIGNED
-	pageDir_t* d = alloc(sizeof(pageDir_t), TRUE); // Make some values to test with, these should be page alligned
-	pageDir_t* e = alloc(sizeof(pageDir_t), TRUE);
-	pageDir_t* f = alloc(sizeof(pageDir_t), TRUE);
-	examineHeap();
-	printf("a\t\tb\t\tc\t\tsize\n");
-	printhex((int)(void*)d); putc('\t'); // Print the size
-	printhex((int)(void*)e); putc('\t');
-	printhex((int)(void*)f); putc('\t');
-	printhex(sizeof(pageDir_t)); putc('\n');
-	#endif
-	#ifdef TESTALLOC
-// 	wait();
-	free(a); // Free the values and see the output
-// 	wait();
-	free(b);
-// 	wait();
-	free(c);
-	a = kalloc(sizeof(test_t)); // Do a test allocation
-	free (a);
-// 	wait();
-	
-	examineHeap(); // Show the heap
-	#endif
-	#ifdef TESTALLIGNED
-	printf("1\n"); // Free the values and see the output
-// 	wait();
-	free(d);
-// 	wait();
-	printf("2\n");
-	free(e);
-// 	wait();
-	printf("3\n");
-	free(f);
-// 	wait();
-	printf("4\n");
-	d = alloc(sizeof(pageDir_t), TRUE); // Do a test allocation
-	free (d);
-	
-	examineHeap(); // Show the heap
-	#endif
 	#endif
 	//installInterruptVectorTable();
 	//initPaging();

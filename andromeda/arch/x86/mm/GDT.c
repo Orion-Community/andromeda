@@ -34,6 +34,16 @@
 #endif
 
 gdtEntry_t *GDT = NULL;
+
+/*
+ * The code below holds a reference called BRANS. This is because the code that is between those statements
+ * is based on but not the code from Brans kernel development tutorial. Because of the limitations of the
+ * GDT the code is pretty similar though.
+ *
+ * For performance reasons, I'd compile with the BRANS flag enabled, but it's default not to, for the other
+ * code is more readable, as the header specifically defines each field.
+ */
+
 #ifdef BRANS
 void setEntry(int num, unsigned int base, unsigned int limit, unsigned char access, unsigned char gran);
 #else
@@ -161,6 +171,6 @@ void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type
     
     The segment registers hold an index into the GDT.
     
-    For more infon on segmentation, read volume 1 of the basic architevture
+    For more info on segmentation, read volume 1 of the basic architecture
     documentation by intel.
 */
