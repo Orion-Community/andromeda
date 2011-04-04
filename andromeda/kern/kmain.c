@@ -78,7 +78,7 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	    printf("You're using a Genuine Intel\n");
 	    break;
 	  case VENDOR_AMD:
-	    printf("You're using an AMD machine\n");
+	    printf("You're using an authentic AMD\n");
 	    break;
 	  default:
 	    printf("You're using a system not officially supported\n");

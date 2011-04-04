@@ -33,12 +33,12 @@ cli: ; Shut down interrupts from C level code
 DetectAPIC:
   enter
   
-  mov eax, 0
-  cpuid ; Test for genuine intel
-
-  mov eax, "Genu"
-  cmp ebx, eax
-  jnz amd
+  call getVendor
+  cmp eax, 1
+  jnz test
+  cmp eax, 2
+  jnz test
+  jmp err
   
 test:
   mov eax, 1 ; prepare CPUID
@@ -48,19 +48,7 @@ test:
   mov eax, edx ; return value to eax
   
   return
-  
-amd: ; Not genuine intel
-  xor eax, eax
-  cpuid
-  
-  mov eax, 0x68747541
-  cmp ebx, eax
-  jnz err
-  
-  mov eax, 1
-  
-  jmp test
-  
+    
 err: ; invalid CPUID
   xor eax, eax ; return 0
   return
