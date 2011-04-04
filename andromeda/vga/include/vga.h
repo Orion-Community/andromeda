@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VGA_H
-#define __VGA_H
+#ifndef VGA_H
+#define VGA_H
 #define KEYBUF 0xB8000
 #define WIDTH 80
 #define HEIGHT 25

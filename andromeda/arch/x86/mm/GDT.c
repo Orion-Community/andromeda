@@ -16,13 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
- * Ok, I'll be fair with you, I couldn't find any proper documentation on 
- * segmentation, so half of the code you see here is actually nicked
- * from Brans kernel development tutorial.
- * http://www.osdever.net/tutorials/view/brans-kernel-development-tutorial
- */
-
 #ifdef __INTEL
 #include <mm/memory.h>
 #include <mm/heap.h>
@@ -44,7 +37,7 @@ gdtEntry_t *GDT = NULL;
  * code is more readable, as the header specifically defines each field.
  */
 
-#ifdef BRANS
+#ifdef FASTGDT
 void setEntry(int num, unsigned int base, unsigned int limit, unsigned char access, unsigned char gran);
 #else
 void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type, unsigned int dpl);
@@ -67,7 +60,7 @@ void setGDT()
   /*
    * Set up a GDT. (1)
    */
-  #ifdef BRANS
+  #ifdef FASTGDT
   GDT = alloc(sizeof(gdtEntry_t)*ENTRIES, TRUE);
   setEntry(0, 0, 0, 0, 0);                // Null segment
   setEntry(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); // Code segment
@@ -111,7 +104,7 @@ void setGDT()
 }
 
 #ifdef X86
-#ifdef BRANS
+#ifdef FASTGDT
 void setEntry(int num, unsigned int base, unsigned int limit, unsigned char access, unsigned char gran)
 {
    GDT[num].base_low    = (base & 0xFFFFFF);

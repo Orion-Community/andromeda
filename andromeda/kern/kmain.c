@@ -60,6 +60,9 @@ void announce()
 // The main function
 int kmain(/* boot data , boot data , gzipped kernel*/)
 {
+	#ifdef VENDORTELL
+	printf("Hello, world!\n");
+	#endif
 	// Initialise the heap
 	initHeap(HEAP, HEAPSIZE);
 	// If in the compressed image
