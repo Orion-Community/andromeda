@@ -20,12 +20,17 @@
 #include <interrupts/int.h>
 #include <text.h>
 
+void initAPIC()
+{
+  panic("No implementation for the APIC!");
+}
+
 void intInit()
 {
-  printf("Reached!\n");
-  if (DetectAPIC() == 0)
+  if (DetectAPIC())
   {
+    initAPIC();
     return;
   }
-  printf("APIC Detected!\n");
+  initPIC();
 }
