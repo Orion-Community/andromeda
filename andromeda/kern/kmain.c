@@ -33,6 +33,7 @@
 #include <text.h>
 #include <types.h>
 #include <mm/memory.h>
+#include <interrupts/int.h>
 
 // Define the place of the heap
 #ifdef __COMPRESSED
@@ -66,11 +67,10 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	#endif
 	//installInterruptVectorTable();
 	//initPaging();
-	#ifndef __COMPRESSED
-	//startInterrupts(); // Interrupts are allowed again.
+	intInit(); 	     // Interrupts are allowed again.
 			     // Up untill this point they have
 			     // been disabled.
-	#else
+	#ifdef __COMPRESSED
 	//exec(decompress(gzipped kernel));
 	#endif
 	for (;;) // Infinite loop, to prevent the CPU from executing rubbish

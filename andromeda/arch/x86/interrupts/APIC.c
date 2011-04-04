@@ -17,7 +17,15 @@
 */
 
 #include <interrupts.h>
+#include <interrupts/int.h>
+#include <text.h>
 
 void intInit()
 {
+  printf("Reached!\n");
+  if (DetectAPIC() == 0)
+  {
+    return;
+  }
+  printf("APIC Detected!\n");
 }

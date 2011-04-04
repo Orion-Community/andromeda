@@ -20,4 +20,5 @@
 #define __PANIC_H
 void panic(char *);
 extern void sti();
+extern void cli();
 #endif

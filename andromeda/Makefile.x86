@@ -10,7 +10,7 @@ x86: compressed
 #	$(LD) $(LDFLAGS) -o $(OUT) *.o
 
 compressed:
-#	$(CC) $(FLAGS) $(COMPRESSED) arch/x86/boot/compressed/*.c
+	$(CC) $(FLAGS) $(COMPRESSED) arch/x86/interrupts/*.c -Iarch/x86/include
 	$(CC) $(FLAGS) $(COMPRESSED) arch/x86/mm/*.c -Iarch/x86/include
 	$(CC) $(FLAGS) $(COMPRESSED) kern/*.c
 	$(CC) $(FLAGS) $(COMPRESSED) vga/*.c
@@ -22,6 +22,8 @@ compressed:
 	$(LD) $(LDFLAGS) -o $(OUTC) *.o
 
 asm:
+
+	$(CC) $(FLAGS) $(ASM) arch/x86/interrupts/*.c -Iarch/x86/include
 	$(CC) $(FLAGS) $(ASM) arch/x86/mm/*.c -Iarch/x86/include
 	$(CC) $(FLAGS) $(ASM) kern/*.c
 	$(CC) $(FLAGS) $(ASM) vga/*.c
