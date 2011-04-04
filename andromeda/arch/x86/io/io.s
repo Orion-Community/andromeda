@@ -8,8 +8,8 @@ outb: ; outb (char data, short port)
   xor eax, eax
   xor edx, edx
   
-  mov eax, [ebp+8]
-  mov edx, [ebp+12]
+  mov eax, [ebp+12]
+  mov edx, [ebp+8]
   
   out dx, al
   

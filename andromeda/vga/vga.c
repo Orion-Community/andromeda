@@ -19,6 +19,7 @@
 #include <text.h>
 #include <mm/memory.h>
 #include <types.h>
+#include <io.h>
 #include "include/vga.h"
 
 struct curPos cursor = {0,0,8};
@@ -129,4 +130,18 @@ void putc(unsigned char i)
 		unsigned short chr = (unsigned short)(col << 8) | (unsigned short)(i & 0x00FF);
 		keybuf[cursor.x-1+cursor.y*WIDTH] = chr;
 	}
+	reloc(cursor.x, cursor.y);
+}
+
+int reloc(int loc_x, int loc_y)
+{
+        /*
+         * Set the new cursor position
+         */
+        unsigned short location = loc_y * WIDTH + loc_x;
+        outb(0x3D4, 14); 
+        outb(0x3D5, location >> 8);
+        outb(0x3D4, 15);
+        outb(0x3D5, location);
+        return 0;
 }
