@@ -2,6 +2,7 @@ include make/x86
 include make/makeIncl
 
 COMPRESSED= -D __COMPRESSED $(CFLAGS)
+ASM = -S -masm=intel $(COMPRESSED)
 
 x86: compressed
 #	$(CC) -c */*.c -Iinclude $(CFLAGS)
@@ -21,4 +22,8 @@ compressed:
 	$(LD) $(LDFLAGS) -o $(OUTC) *.o
 
 asm:
-	$(CC) -c -S -Iinclude $(COMPRESSED) -m32 */*.c
+	$(CC) $(FLAGS) $(ASM) arch/x86/mm/*.c -Iarch/x86/include
+	$(CC) $(FLAGS) $(ASM) kern/*.c
+	$(CC) $(FLAGS) $(ASM) vga/*.c
+	$(CC) $(FLAGS) $(ASM) mm/*.c
+	$(CC) $(FLAGS) $(ASM) error/*.c

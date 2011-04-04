@@ -78,8 +78,6 @@ void initBlockMap ()
 	memNode_t* node = (memNode_t*)heapBase;
 	initHdr(node, heapSize-sizeof(memNode_t));
 	blocks = node;
-// 	printhex(node->size); putc('\n');
-// 	printhex(blocks); putc('\n');
 	#ifdef MMTEST
 	testAlloc();
 	#endif
@@ -220,7 +218,6 @@ int free (void* ptr)
 	printf("Before:\n");
 	examineHeap();
 	printf("\n");
-// 	wait();
 	#endif
 	returnBlock(block); // actually mark the block unused.
 	// more debugging code
@@ -228,7 +225,6 @@ int free (void* ptr)
 	printf("During:\n");
 	examineHeap();
 	printf("\n");
-// 	wait();
 	#endif
 	// Now find a place for the block to fit into the heap list
 	for (carrige = blocks; carrige!=NULL; carrige=carrige->next) // Loop through the heap list
@@ -244,7 +240,7 @@ int free (void* ptr)
 				printf("After\n");
 				examineHeap();
 				printf("\n");
-// 				wait();
+				wait();
 				#endif
 				return -1;
 			}
@@ -261,7 +257,6 @@ int free (void* ptr)
 	printf("After\n");
 	examineHeap();
 	printf("\n");
-// 	wait();
 	#endif
 	
 	return 0; // Return success
