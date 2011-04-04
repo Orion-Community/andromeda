@@ -3,5 +3,5 @@
 
 void initPIC()
 {
-  panic("No implementation for the PIC yet!");
+  panic("No implementation for the PIC!");
 }

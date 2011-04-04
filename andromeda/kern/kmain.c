@@ -43,6 +43,11 @@
 #define HEAP 0xE0000000
 #define HEAPSIZE 10000000
 #endif
+#define VENDOR_INTEL	1
+#define VENDOR_AMD 	2
+#include <kern/cpu.h>
+
+int vendor = 0;
 
 // Print a welcome message
 void announce()
@@ -65,6 +70,21 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	setGDT();  // Also in decompressed kernel as the compressed image could be overwritten
 	#endif
 	#endif
+	
+	#ifdef VENDORTELL
+	switch(getVendor())
+	{
+	  case VENDOR_INTEL:
+	    printf("You're using a Genuine Intel\n");
+	    break;
+	  case VENDOR_AMD:
+	    printf("You're using an AMD machine\n");
+	    break;
+	  default:
+	    printf("You're using a system not officially supported\n");
+	}
+	#endif
+	
 	//installInterruptVectorTable();
 	//initPaging();
 	intInit(); 	     // Interrupts are allowed again.
