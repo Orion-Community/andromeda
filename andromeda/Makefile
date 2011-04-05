@@ -13,9 +13,14 @@ clean:
 	rm $(OUTC)
 
 test: all
-	kvm -m 512M -kernel compressed
+	kvm -m 512M -kernel compressed -cpu kvm64
+
+testAMD: all
+	kvm -m 512M -kernel compressed -cpu qemu64
 
 ctest: clean test
+
+ctestAMD: clean testAMD
 
 usage:
 	@echo "USAGE"

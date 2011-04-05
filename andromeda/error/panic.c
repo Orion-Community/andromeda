@@ -23,7 +23,7 @@
 void panic(char* msg)
 {
 	cli();
-	println("Orion panic");
+	println("Andromeda panic");
 	println(msg);
 	for (;;);
 }

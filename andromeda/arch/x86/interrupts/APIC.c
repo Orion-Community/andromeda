@@ -27,6 +27,7 @@ void initAPIC()
 
 void intInit()
 {
+  prepareIDT();
   if (DetectAPIC())
   {
     initAPIC();

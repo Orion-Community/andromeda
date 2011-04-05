@@ -2,5 +2,6 @@
 #define __INTERRUPTS_H
 
 extern int DetectAPIC();
+void prepareIDT();
 
 #endif
