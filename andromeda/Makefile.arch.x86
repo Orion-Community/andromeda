@@ -13,6 +13,7 @@ MM_ASM=arch/x86/mm/lgdt.s
 MM_INC=arch/x86/include/GDT.h
 IO_ASM=arch/x86/io/io.s
 
+.PHONY: all
 all: sboot.o sint.o cint.o cmm.o smm.o sio.o
 
 sboot.o: $(BOOT_ASM)

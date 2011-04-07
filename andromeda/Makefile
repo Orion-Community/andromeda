@@ -1,23 +1,29 @@
 include make/makeIncl
 
+.PHONY: all
 all: x86
 
+.PHONY: x86
 x86:
 	$(MAKE) -f Makefile.x86 x86
 
+.PHONY: amd64
 amd64:
 	@echo "Not yet implemented"
 
+.PHONY: clean
 clean:
 	rm *.o
 	rm $(OUTC)
 
+.PHONY: all
 test: all
 	kvm -m 512M -kernel compressed
 
+.PHONY: ctest
 ctest: clean test
 
-
+.PHONY: usage
 usage:
 	@echo "USAGE"
 	@echo "Target all (default target)"
