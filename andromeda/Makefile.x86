@@ -4,22 +4,21 @@ include make/makeIncl
 COMPRESSED= -D __COMPRESSED $(CFLAGS)
 ASM = -S -masm=intel $(COMPRESSED)
 
-x86: compressed
-#	$(CC) -c */*.c -Iinclude $(CFLAGS)
-#	$(MAKE) -C arch/x86 arch
-#	$(LD) $(LDFLAGS) -o $(OUT) *.o
+KERN=kern/kmain.c kern/sched.c
+KERNH=include/kern/cpu.h include/kern/sched.h
+ERROR=error/panic.c
+ERRORH= include/error/panic.h
+MM=mm/alloc.c mm/memory.c mm/test.c
+MMH=include/mm/heap.h include/mm/memory.h
+VGA=vga/vga.c
+VGAH= vga/include/vga.h
 
-compressed:
-	$(CC) $(FLAGS) $(COMPRESSED) arch/x86/interrupts/*.c -Iarch/x86/include
-	$(CC) $(FLAGS) $(COMPRESSED) arch/x86/mm/*.c -Iarch/x86/include
-	$(CC) $(FLAGS) $(COMPRESSED) kern/*.c
-	$(CC) $(FLAGS) $(COMPRESSED) vga/*.c
-	$(CC) $(FLAGS) $(COMPRESSED) mm/*.c
-	$(CC) $(FLAGS) $(COMPRESSED) error/*.c
-	$(AS) arch/x86/boot/compressed/boot.s $(ASFLAGS) -o ./boot.o
-	$(AS) arch/x86/mm/lgdt.s $(ASFLAGS) -o lgdt.o
-	$(AS) arch/x86/interrupts/asm.s $(ASFLAGS) -o interruptHeaders.o
-	$(AS) arch/x86/io/io.s $(ASFLAGS) -o io.o
+DEPS=include/io.h include/types.h include/text.h
+
+x86: compressed
+
+compressed: kern.o error.o mm.o vga.o
+	$(MAKE) -f Makefile.arch.x86
 	$(LD) $(LDFLAGS) -o $(OUTC) *.o
 
 asm:
@@ -30,3 +29,12 @@ asm:
 	$(CC) $(FLAGS) $(ASM) vga/*.c
 	$(CC) $(FLAGS) $(ASM) mm/*.c
 	$(CC) $(FLAGS) $(ASM) error/*.c
+
+kern.o: $(KERN) $(KERNH) $(DEPS)
+	$(CC) $(FLAGS) $(COMPRESSED) -combine $(KERN) -o kern.o
+error.o: $(ERROR) $(ERRORH) $(DEPS)
+	$(CC) $(FLAGS) $(COMPRESSED) -combine $(ERROR) -o error.o
+mm.o: $(MM) $(MMH) $(DEPS)
+	$(CC) $(FLAGS) $(COMPRESSED) -combine $(MM) -o mm.o
+vga.o: $(VGA) $(VGAH) $(DEPS)
+	$(CC) $(FLAGS) $(COMPRESSED) -combine $(VGA) -o vga.o

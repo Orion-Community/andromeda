@@ -60,9 +60,6 @@ void announce()
 // The main function
 int kmain(/* boot data , boot data , gzipped kernel*/)
 {
-	#ifdef VENDORTELL
-	printf("Hello, world!\n");
-	#endif
 	// Initialise the heap
 	initHeap(HEAP, HEAPSIZE);
 	// If in the compressed image
@@ -96,7 +93,7 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	#ifdef __COMPRESSED
 	//exec(decompress(gzipped kernel));
 	#endif
-	for (;;) // Infinite loop, to prevent the CPU from executing rubbish
+	for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
 	{
 		#ifndef __COMPRESSED
 		// If this loop gets reached more than once:

@@ -61,14 +61,14 @@ void setGDT()
    * Set up a GDT. (1)
    */
   #ifdef FASTGDT
-  GDT = alloc(sizeof(gdtEntry_t)*ENTRIES, TRUE);
+  GDT = kalloc(sizeof(gdtEntry_t)*ENTRIES);
   setEntry(0, 0, 0, 0, 0);                // Null segment
   setEntry(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); // Code segment
   setEntry(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data segment
   setEntry(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
   setEntry(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
   #else
-  GDT = alloc(sizeof(gdtEntry_t)*ENTRIES, TRUE);
+  GDT = kalloc(sizeof(gdtEntry_t)*ENTRIES);
   //void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type, unsigned int dpl)
   setEntry (0, 0, 0, 0, 0);
   setEntry (1, 0, 0xFFFFFFFF, 0xA, 0x0);

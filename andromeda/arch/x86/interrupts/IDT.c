@@ -1,4 +1,5 @@
 #include <interrupts.h>
+#include <error/panic.h>
 
 void prepareIDT()
 {
