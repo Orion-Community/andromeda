@@ -84,8 +84,20 @@ void cInvalidTSS(isrVal_t regs)
   panic("Invalid TSS");
 }
 
+void cSnp(isrVal_t regs)
+{
+  panic("Stack not present!");
+}
+void cStackFault(isrVal_t regs)
+{
+  panic("Stack fault!");
+}
+
 void cGenProt(isrVal_t regs)
 {
+  printf("cs\teip\n");
+  printhex(regs.cs); putc('\t');
+  printhex(regs.eip); putc('\n');
   panic("General Protection fault");
 }
 

@@ -27,9 +27,7 @@ typedef unsigned int size_t;
 typedef struct
 {
   unsigned int ds;
-  unsigned int ebp, esp;
-  unsigned int edi, esi;
-  unsigned int eax, ebx, ecx, edx;
+  unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
   unsigned int errCode;
   unsigned int eip, cs, eflags, procesp, ss;
 } isrVal_t;

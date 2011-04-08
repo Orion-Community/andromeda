@@ -22,7 +22,7 @@
 #include <io.h>
 #include "include/vga.h"
 
-struct curPos cursor = {0,0,8};
+struct curPos cursor = {0,0,16};
 char col = 0x07;
 
 void textInit()

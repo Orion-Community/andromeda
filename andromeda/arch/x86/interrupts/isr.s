@@ -61,6 +61,18 @@ invalidTSS:
   isrErr cInvalidTSS
   jmp commonStub
 
+[GLOBAL snp]
+[EXTERN cSnp]
+snp:
+  isrErr cSnp
+  jmp commonStub
+
+[GLOBAL stackFault]
+[EXTERN cStackFault]
+stackFault:
+  isrErr cStackFault
+  jmp commonStub
+
 [GLOBAL genProt]
 [EXTERN cGenProt]
 genProt:
@@ -96,17 +108,20 @@ simd:
   isrNoErr cSimd
   ;jmp commonStub
 
-commonStub
+commonStub:
   xchg eax, [esp]
-  push ebx
-  push ecx
-  push edx
-  
-  push ebp
   push esp
+  xchg ecx, [esp]
+  push edx
+  push ebx
   
-  push edi
+  
+  add ecx, 4
+  push ecx
+  push ebp
+  
   push esi
+  push edi
   
   xor edx, edx
   
@@ -127,17 +142,19 @@ commonStub
   mov fs, dx
   mov gs, dx
   
-  pop esi
-  pop edi
-  
-  pop esp
-  pop ebp
-  
-  pop edx
-  pop ecx
-  pop ebx
-  pop eax
+  popa
   
   add esp, 4
   
   iret
+
+[GLOBAL loadIdt]
+loadIdt:
+  enter
+  
+  mov eax, [ebp+8]
+  lidt [eax]
+  
+  int 3
+  
+  return

@@ -1,6 +1,6 @@
 %macro isrNoErr 1
   cli
-  push 0
+  push eax
   push %1
 %endmacro
 

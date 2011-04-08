@@ -23,6 +23,14 @@ struct idtEntry
 }__attribute__((packed));
 typedef struct idtEntry idtEntry_t;
 
+struct idt
+{
+  unsigned int limit : 16;
+  unsigned int base  : 32;
+}__attribute__((packed));
+typedef struct idt idt_t;
+extern void loadIdt(idt_t*);
+
 extern void divByZero();
 void cDivByZero(isrVal_t);
 
@@ -52,6 +60,12 @@ void ignore(isrVal_t);
 
 extern void invalidTSS();
 void cInvalidTSS(isrVal_t);
+
+extern void snp();
+void cSnp(isrVal_t);
+
+extern void stackFault();
+void cStackFault(isrVal_t);
 
 extern void genProt();
 void cGenProt(isrVal_t);
