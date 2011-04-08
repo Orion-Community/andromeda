@@ -53,6 +53,7 @@ void prepareIDT()
   int cs = getCS();
   #ifdef IDTTEST
   printhex(cs); putc('\n');
+  printhex((int)cbp); putc('\n');
   #endif
   idtEntry_t* table = kalloc(sizeof(idtEntry_t)*SIZE);
   idt_t* idt = kalloc(sizeof(idt_t));

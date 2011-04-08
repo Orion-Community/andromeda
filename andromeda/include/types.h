@@ -28,7 +28,7 @@ typedef struct
 {
   unsigned int ds;
   unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-  unsigned int errCode;
+  unsigned int funcPtr, errCode;
   unsigned int eip, cs, eflags, procesp, ss;
 } isrVal_t;
 

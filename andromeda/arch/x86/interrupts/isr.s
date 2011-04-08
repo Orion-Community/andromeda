@@ -109,21 +109,8 @@ simd:
   ;jmp commonStub
 
 commonStub:
-  xchg eax, [esp]
-  push esp
-  xchg ecx, [esp]
-  push edx
-  push ebx
-  
-  
-  add ecx, 4
-  push ecx
-  push ebp
-  
-  push esi
-  push edi
-  
-  xor edx, edx
+  pushad
+  mov eax, [esp+32]
   
   mov dx, ds
   push edx
@@ -135,16 +122,15 @@ commonStub:
   
   call eax
   
-  xor edx, edx
   pop edx
   mov ds, dx
   mov es, dx
   mov fs, dx
   mov gs, dx
   
-  popa
+  popad
   
-  add esp, 4
+  add esp, 8
   
   iret
 
