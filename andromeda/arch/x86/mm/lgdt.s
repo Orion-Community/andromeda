@@ -18,9 +18,10 @@
 
 [GLOBAL lgdt]
 
+%include "asm/call.mac"
+
 lgdt:
-  push ebp
-  mov ebp, esp
+  enter
   mov eax, [ebp+8]
   lgdt [eax]
   
@@ -34,6 +35,4 @@ lgdt:
   jmp 0x08:flush
 flush:
   
-  mov esp, ebp
-  pop ebp
-  ret
+  return

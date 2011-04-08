@@ -6,8 +6,13 @@
 ENTRY(start)
 SECTIONS
 {
-
-    .text 0x100000 :
+    .boot 0x100000 :
+    {
+	boot = .; _boot = .; __boot = .;
+	*(.boot)
+	. = ALIGN(4096);
+    }
+    .text :
     {
         code = .; _code = .; __code = .;
         *(.text)

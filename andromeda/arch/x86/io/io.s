@@ -1,9 +1,10 @@
+%include "asm/call.mac"
+
 [GLOBAL outb]
 [GLOBAL inb]
 
 outb: ; outb (char data, short port)
-  push ebp
-  mov ebp, esp
+  enter
   
   xor eax, eax
   xor edx, edx
@@ -13,13 +14,10 @@ outb: ; outb (char data, short port)
   
   out dx, al
   
-  mov esp, ebp
-  pop ebp
-  ret
+  return
 
 inb: ; inb (short port)
-  push ebp
-  mov ebp, esp
+  enter
   
   xor eax, eax
   xor edx, edx
@@ -28,6 +26,4 @@ inb: ; inb (short port)
   
   in al, dx
   
-  mov esp, ebp
-  pop ebp
-  ret
+  return

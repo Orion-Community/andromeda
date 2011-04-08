@@ -1,20 +1,11 @@
 ; The assembly headers for the interrupts.
-
 [GLOBAL sti]
 [GLOBAL cli]
 [GLOBAL DetectAPIC]
 [GLOBAL getVendor]
+[GLOBAL getCS]
 
-%macro enter 0
-  push ebp
-  mov ebp, esp
-%endmacro
-
-%macro return 0
-  mov esp, ebp
-  pop ebp
-  ret
-%endmacro
+%include "asm/call.mac"
 
 sti: ; Start interrupts from C level code
   enter
@@ -71,4 +62,10 @@ intel:
   
 amdTest:
   mov eax, 2
+  return
+
+getCS:
+  enter
+  xor eax, eax
+  mov ax, cs
   return

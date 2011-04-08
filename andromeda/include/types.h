@@ -24,5 +24,15 @@ typedef unsigned char boolean;
 
 typedef unsigned int size_t;
 
+typedef struct
+{
+  unsigned int ds;
+  unsigned int ebp, esp;
+  unsigned int edi, esi;
+  unsigned int eax, ebx, ecx, edx;
+  unsigned int errCode;
+  unsigned int eip, cs, eflags, procesp, ss;
+} isrVal_t;
+
 #define NULL (void *)0
 #endif

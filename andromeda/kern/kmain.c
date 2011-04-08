@@ -87,6 +87,9 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	
 	//installInterruptVectorTable();
 	//initPaging();
+	#ifdef MMTEST
+	wait();
+	#endif
 	intInit(); 	     // Interrupts are allowed again.
 			     // Up untill this point they have
 			     // been disabled.
