@@ -113,7 +113,6 @@ void putc(unsigned char i)
 		} 
 		noPrint = TRUE;
 	}
-
 	if (cursor.x+1 > WIDTH)
 	{
 		cursor.x %= WIDTH;

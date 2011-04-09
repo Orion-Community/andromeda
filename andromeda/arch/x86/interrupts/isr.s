@@ -141,6 +141,4 @@ loadIdt:
   mov eax, [ebp+8]
   lidt [eax]
   
-  int 3
-  
   return

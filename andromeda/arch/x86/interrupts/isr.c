@@ -95,10 +95,14 @@ void cStackFault(isrVal_t regs)
 
 void cGenProt(isrVal_t regs)
 {
-  printf("cs\teip\n");
+  printf("eip\teip\teflags\tprocesp\tss\n");
+  printhex(regs.eip); putc('\t');
   printhex(regs.cs); putc('\t');
-  printhex(regs.eip); putc('\n');
+  printhex(regs.eflags); putc('\t');
+  printhex(regs.procesp); putc('\t');
+  printhex(regs.ss); putc('\n');
   panic("General Protection fault");
+    unsigned int eip, cs, eflags, procesp, ss;
 }
 
 void cPageFault(isrVal_t regs)
