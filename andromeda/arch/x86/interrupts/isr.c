@@ -95,7 +95,7 @@ void cStackFault(isrVal_t regs)
 
 void cGenProt(isrVal_t regs)
 {
-  printf("eip\teip\teflags\tprocesp\tss\n");
+  printf("General Protection Fault\neip\tcs\teflags\tprocesp\tss\n");
   printhex(regs.eip); putc('\t');
   printhex(regs.cs); putc('\t');
   printhex(regs.eflags); putc('\t');
