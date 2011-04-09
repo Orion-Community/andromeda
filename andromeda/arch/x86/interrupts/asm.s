@@ -4,6 +4,9 @@
 [GLOBAL DetectAPIC]
 [GLOBAL getVendor]
 [GLOBAL getCS]
+[GLOBAL getDS]
+[GLOBAL getSS]
+[GLOBAL getESP]
 
 %include "asm/call.mac"
 
@@ -68,4 +71,22 @@ getCS:
   enter
   xor eax, eax
   mov ax, cs
+  return
+  
+getDS:
+  enter
+  xor eax, eax
+  mov ax, ds
+  return
+
+getSS:
+  enter
+  xor eax, eax
+  mov ax, ss
+  return
+
+getESP:
+  enter
+  xor eax, eax
+  mov eax, esp
   return

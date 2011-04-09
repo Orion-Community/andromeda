@@ -48,6 +48,13 @@ void cbp(isrVal_t regs)
 
   printf("\nerr_code\n");
   printhex(regs.errCode);	putc('\n');
+  
+  printf("\n\nCurrent:\n");
+  printf("CS\tDS\tSS\tESP\n");
+  printhex(getCS());		putc('\t');
+  printhex(getDS());		putc('\t');
+  printhex(getSS());		putc('\t');
+  printhex(getESP);		putc('\n');
 }
 
 void coverflow(isrVal_t regs)
@@ -101,8 +108,13 @@ void cGenProt(isrVal_t regs)
   printhex(regs.eflags); putc('\t');
   printhex(regs.procesp); putc('\t');
   printhex(regs.ss); putc('\n');
+  printf("\n\nCurrent:\n");
+  printf("CS\tDS\tSS\tESP\n");
+  printhex(getCS());		putc('\t');
+  printhex(getDS());		putc('\t');
+  printhex(getSS());		putc('\t');
+  printhex(getESP);		putc('\n');
   panic("General Protection fault");
-    unsigned int eip, cs, eflags, procesp, ss;
 }
 
 void cPageFault(isrVal_t regs)

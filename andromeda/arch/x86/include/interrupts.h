@@ -5,6 +5,9 @@
 
 extern int DetectAPIC();
 extern unsigned int getCS();
+extern unsigned int getDS();
+extern unsigned int getSS();
+extern unsigned int getESP();
 void prepareIDT();
 
 struct idtEntry
