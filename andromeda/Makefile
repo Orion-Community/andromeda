@@ -18,7 +18,7 @@ clean:
 
 .PHONY: all
 test: all
-	kvm -m 512M -kernel compressed
+	kvm -m 600M -kernel compressed
 
 .PHONY: ctest
 ctest: clean test
