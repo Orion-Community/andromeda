@@ -30,18 +30,12 @@ void prepareIDT();
 
 struct idtEntry
 {
-  unsigned int baseLow : 16;	// Lower address of exception/interrupt handler
-  unsigned int selector : 16;	// Segment selector
-  unsigned int reserved : 5; 	// Just put this to 0
-  unsigned int zero : 3;	// Defined as 0
-  unsigned int IT : 1;		// 0 for interrupt 1 for trap
-  unsigned int three : 2;	// fill with max size (which is three)
-  unsigned int size : 1;	// 1 for 32-bits, else 16
-  unsigned int null : 1;	// put to 0
-  unsigned int dpl : 2;		// Indicates the privilege ring
-  unsigned int present : 1;	// Page is present (always 1)
-  unsigned int baseHigh : 16;	// Higher address of exception/interrupt handler
-}__attribute__((packed));
+   unsigned short base_lo;             // The lower 16 bits of the address to jump to when this interrupt fires.
+   unsigned short sel;                 // Kernel segment selector.
+   unsigned char  always0;             // This must always be zero.
+   unsigned char  flags;               // More flags. See documentation.
+   unsigned short base_hi;             // The upper 16 bits of the address to jump to.
+} __attribute__((packed));
 typedef struct idtEntry idtEntry_t;
 
 struct idt

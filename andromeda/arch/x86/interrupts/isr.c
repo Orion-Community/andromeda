@@ -22,12 +22,12 @@
 
 void checkFrame(isrVal_t* regs)
 {
-  if (regs->cs != 0x8 || regs->cs != 0x18)
+  if (regs->cs != 0x8 && regs->cs != 0x18)
   {
     printhex(regs->cs); putc('\n');
     panic("Incorrect CS!");
   }
-  else if (regs->ds != 0x10 || regs->ds != 0x20)
+  else if (regs->ds != 0x10 && regs->ds != 0x20)
   {
     printhex(regs->ds); putc('\n');
     panic("Incorrect DS!");

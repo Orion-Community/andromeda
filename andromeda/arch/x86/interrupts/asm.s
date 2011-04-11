@@ -27,18 +27,12 @@
 %include "asm/call.mac"
 
 sti: ; Start interrupts from C level code
-  enter
-  
   sti ; Start interrupts
-  
-  return
+  ret
   
 cli: ; Shut down interrupts from C level code
-  enter 
-  
   cli ; Stop interrupts
-  
-  return
+  ret
   
 DetectAPIC:
   enter
@@ -60,7 +54,8 @@ test:
   return
     
 err: ; invalid CPUID
-  xor eax, eax ; return 0
+  xor eax, eax ; return -1
+  sub eax, 1
   return
   
 getVendor:
