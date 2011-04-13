@@ -16,16 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __IO_H_
-#define __IO_H_
+#ifndef __THREAD_H
+#define __THREAD_H
 
-extern unsigned char inb(unsigned short port);
-extern void outb(unsigned short port, unsigned char msg);
+typedef unsigned int mutex_t;
 
-extern unsigned int readCR0();
-extern unsigned int readCR3();
-
-extern void writeCR0(unsigned int);
-extern void writeCR3(unsigned int);
+extern void mutexEnter(mutex_t);
+extern void mutexRelease(mutex_t);
 
 #endif

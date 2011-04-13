@@ -29,6 +29,7 @@
 #include <mm/heap.h>
 #include <error/panic.h>
 #include <text.h>
+#include <thread.h>
 
 #define ALLOC_MAX 4*1024*1024
 
@@ -36,6 +37,8 @@
 #define PAGEBOUNDARY 0x1000
 
 memNode_t* blocks = NULL; // Head pointer of the linked list maintaining the heap
+
+mutex_t prot;
 
 
 // Some random headers used later in the code
@@ -75,9 +78,11 @@ void initHdr(memNode_t* block, size_t size)
 // allocmax = 4KB
 void initBlockMap ()
 {
+	mutexEnter(prot);
 	memNode_t* node = (memNode_t*)heapBase;
 	initHdr(node, heapSize-sizeof(memNode_t));
 	blocks = node;
+	mutexRelease(prot);
 	#ifdef MMTEST
 	testAlloc();
 	#endif
@@ -89,8 +94,10 @@ void initBlockMap ()
 // page alligned data (usefull for the page directory).
 void* alloc (size_t size, boolean pageAlligned)
 {
+	mutexEnter(prot);
 	if(size > ALLOC_MAX)
 	{
+		mutexRelease(prot);
 		return NULL;
 	}
 	memNode_t* carrige;
@@ -142,6 +149,7 @@ void* alloc (size_t size, boolean pageAlligned)
 					printhex(ret->size); putc('\n');
 					#endif
 					//return the desired block
+					mutexRelease(prot);
 					return (void*)ret+sizeof(memNode_t);
 				}
 				else
@@ -170,6 +178,7 @@ void* alloc (size_t size, boolean pageAlligned)
 			printf("Size of block\n");
 			printhex(carrige->size); putc('\n');
 			#endif
+			mutexRelease(prot);
 			return (void*)carrige+sizeof(memNode_t);
 		}
 		else if(carrige->size >= size+sizeof(memNode_t)) // the block is too large
@@ -188,6 +197,7 @@ void* alloc (size_t size, boolean pageAlligned)
 			printf("Size of block\n");
 			printhex(tmp->size); putc('\n');
 			#endif
+			mutexRelease(prot);
 			return (void*)tmp+sizeof(memNode_t);
 		}
 		if (carrige->next == NULL || carrige->next == carrige)
@@ -197,15 +207,18 @@ void* alloc (size_t size, boolean pageAlligned)
 				// the default pointer (which is NULL).
 		}
 	}
+	mutexRelease(prot);
 	return NULL;
 }
 
 int free (void* ptr)
 {
+	mutexEnter(prot);
 	memNode_t* block = (void*)ptr-sizeof(memNode_t);
 	memNode_t* carrige;
 	if (block->hdrMagic != HDRMAGIC)
 	{
+		mutexRelease(prot);
 		return -1;
 	}
 	
@@ -242,6 +255,7 @@ int free (void* ptr)
 				printf("\n");
 				wait();
 				#endif
+				mutexRelease(prot);
 				return -1;
 			}
 			else
@@ -258,7 +272,7 @@ int free (void* ptr)
 	examineHeap();
 	printf("\n");
 	#endif
-	
+	mutexRelease(prot);
 	return 0; // Return success
 }
 

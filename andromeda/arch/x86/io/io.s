@@ -43,3 +43,49 @@ inb: ; inb (short port)
   in al, dx
   
   return
+  
+[GLOBAL readCR0]
+readCR0:
+  mov eax, cr0
+  ret
+
+[GLOBAL writeCR0]
+  enter
+  
+  mov eax, [ebp+8]
+  mov cr0, eax
+  
+  return
+  
+[GLOBAL readCR3]
+readCR3:
+  mov eax, cr3
+  ret
+  
+[GLOBAL writeCR3]
+writeCR3:
+  enter
+  
+  mov eax, [ebp+8]
+  mov cr3, eax
+  
+  return
+  
+[GLOBAL mutexEnter]
+mutexEnter:
+  enter
+
+  mov eax, 1
+spin:
+  xchg [ebp+8], eax
+  test eax, eax
+  jnz spin
+  
+  return
+
+[GLOBAL mutexRelease]
+mutexRelease:
+  enter
+  xor eax, eax
+  mov [ebp+8], eax
+  return
