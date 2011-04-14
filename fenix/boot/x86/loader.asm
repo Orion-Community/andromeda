@@ -16,3 +16,11 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[BITS 16]
+[ORG 0X7C00]
+
+; bootloader will be implemented here
+
+times 512-($-$$)-2 db 0
+dw 0xAA55
+
