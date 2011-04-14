@@ -1,0 +1,14 @@
+What is done:
+
+	* Fixed A20 line on 15th of april..
+
+What should be improved:
+
+	* rewrite a20 code (correct tabs and stuff)
+
+What has to be done:
+
+	* Write the gdt code
+	* Switch to pmode
+	* 32 bits
+	* write kernelmain
