@@ -19,7 +19,35 @@
 [BITS 16]
 [ORG 0X7C00]
 
-; bootloader will be implemented here
+main:
+	jmp $
+
+;
+;  Output routines
+; 
+
+println:
+	xor cx, cx ; strlen
+
+startprint:
+	lodsb
+	or al, al
+	jz newline 			; 0 byte found
+	mov ah, 0x0E 			; teletype output
+	xor bh, bh			; page 0
+	int 0x10
+	inc cx
+
+newline:
+	xor bh, bh
+	mov al, 0x0A
+	mov ah, 0x0E
+	int 0x10
+
+endprintln:
+	xor bh, bh
+	mov al, 0x08
+
 
 times 512-($-$$)-2 db 0
 dw 0xAA55
