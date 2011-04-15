@@ -6,11 +6,6 @@ ANDROMEDA GENERAL
 	it is a piece of software for learning
 	purposes.
 
-*	Rewrite the block merging code to something:
-	* Readable,
-	* Maintainable and
-	* Working.
-
 ABDROMEDA COMPRESSED
 *	Make a start on paging code
 	needed to load the kernel in high memory.
@@ -27,7 +22,7 @@ ANDROMEDA DECOMPRESSED
 *	Use the code from the above platform.
 	This needs to be in high memory though.
 
-*	Implement interrupts and exceptions.
+*	Implement interrupts.
 	Needed to load in other processes.
 
 *	Design and implement a scheduler.
@@ -36,7 +31,3 @@ ANDROMEDA DECOMPRESSED
 *	Start work on an API.
 	such as libc (newlibc apparently is a
 	relatively easy port).
-
-*	Make a start on the basic userland tools.
-	Such as a shell, commands, a compiler,
-	assembler and text editor.

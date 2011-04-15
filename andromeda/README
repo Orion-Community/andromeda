@@ -1,8 +1,7 @@
-This operating system was built for educational purposes.
-It has been licenced according to the third version of the
-GNU General Public Licence. The OS itself is called Orion,
-and the kernel is called Andromeda.
+The andromeda kernel was built for educational purposes and as a part of the Orion
+operating system. The work is licenced as GNU General Public Licence version 3.
 
-The Andromeda kernel is part of the Orion OS.
+Feel free to contribute to the codebase. Read the TODO file for more info on the
+areas where your help is welcome.
 
-(c) Bart Kuivenhoven - Orion - 2011
+(c) 2011 - Bart Kuivenhoven
