@@ -78,6 +78,5 @@ void prepareIDT()
   printEntry(&table[4]);
   #endif
   loadIdt(idt);
-  
-  panic("Not enough IDT code written yet!");
+  printf("Warning, IDT still isn't finished!\n");
 }
