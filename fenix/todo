@@ -13,3 +13,8 @@ What has to be done:
 	* Switch to pmode
 	* 32 bits
 	* write kernelmain
+
+Notes:
+­eerst image loading met interrupts, dan far jump, ­dan GDT
+­opnieuw far jump
+­en dan de pm
