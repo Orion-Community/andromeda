@@ -31,7 +31,7 @@ enable_A20:
 	call .datawait ; sit and wait for it
 
 	xor ax, ax
-	in al, 0x60 ; get the data
+	in al, 0x60 ; get the data (status)
 	push ax ; now save it
 
 	call .commandwait
