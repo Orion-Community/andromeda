@@ -1,5 +1,5 @@
 ;
-;    Golden Eagle bootloader. Loads the fenix kernel.
+;    Text output routines. These can only be used in 16 bit real mode. These are used to display the first messages. Does not print a new line.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,59 +16,23 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[BITS 16]
-[ORG 0X7C00]
+print:
+	lodsb
+	or al, al
+	jz .return
+	mov ah, 0x0E
+	xor bh, bh	; page 0
+	int 0x10
+	jmp print
 
-; EXTERN kernelmain
+.return:
+	mov al, 0x0A
+	mov ah, 0x0E
+	xor bh, bh
+	int 0x10
 
-main:
-	mov si, hello
-	call print
-
-	call enable_A20
-
-; setup GDT, A20 line
-
-	or ax, ax
-	jz loadedA20
-
-panic:
-	mov si, error
-	call print
-	jmp $
-
-loadedA20:
-	mov si, loadGDT
-	call print
-	jmp $
-	
-; switch to protected mode and 32 bits
-;	call kernelmain
-
-
-;
-;  Output routines
-; 
-
-%include '../print.asm'
-
-;
-; enable A20 line
-;
-
-%include 'A20.asm'
-
-;
-; Some sort of data segment
-;
-
-	hello db 'Loading Golden Eagle bootloader', 0x0
-	loadGDT db 'A20 Line enabled... Setting GDT.', 0x0
-	error db 'Failed to load Golden Eagle succesfull...', 0x0
-;
-; End
-;
-
-times 512-($-$$)-2 db 0
-dw 0xAA55
-
+	mov al, 0x0D
+	mov ah, 0x0E
+	xor bh, bh
+	int 0x10
+	ret

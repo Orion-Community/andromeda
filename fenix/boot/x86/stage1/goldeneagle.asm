@@ -20,9 +20,27 @@
 [ORG 0x7C00]
 
 main:
+	mov si, boot
+	call print
+
+
+;
+; Output routines
+;
+
+%include '../print.asm'
+
+;
+; The image loader
+;
+
+%include 'imageloader.asm'
 
 ;
 ; Some sort of data section
 ;
 
-	msg db 'Reading second stage bootloader..', 0x0
+	boot db 'Reading second stage bootloader from disk...', 0x0
+
+times 510 - ($ - $$) db 0
+dw 0xAA55
