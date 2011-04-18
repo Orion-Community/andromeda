@@ -1,5 +1,5 @@
 ;
-;    Text output routines. These can only be used in 16 bit real mode. These are used to display the first messages. Does not print a new line.
+;    Text output routines. These can only be used in 16 bit real mode. These are used to display the first messages.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify

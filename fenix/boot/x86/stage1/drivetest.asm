@@ -1,5 +1,5 @@
 ;
-;    Golden Eagle bootloader. Loads the fenix kernel.
+;    Test the drive. Is it ready to read an image from?
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,50 +16,27 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[BITS 16]
-[ORG 0x7C00]
+;
+; Usage:
+; mov dx, <drive>
+; call resetdrive
+;
+resetdrive:
+	mov cx, 5
 
-main:
-	mov si, boot
-	call print
+.start:
+	xor ah, ah ; function 0 = reset
+	;pop dx ; drive 0 = floppy
+	int 0x13
+	jnc .success
 
-	mov dx, 0x80
-	call resetdrive
-	or al, al
-	jz .success
+	dec cx
+	jmp .start
 
-.fail:
-	mov si, failed
-	call print
-	jmp hang
+.fail: ; failed to load, error code in al
+	mov al, 0x01
+	ret
 
 .success:
-	mov si, read
-	call print
-	jmp hang
-
-hang:
-	cli
-	jmp $
-;
-; Output routines
-;
-
-%include '../print.asm'
-
-;
-; The image loader
-;
-
-%include 'drivetest.asm'
-
-;
-; Some sort of data section
-;
-
-	boot db 'Reading second stage bootloader from disk...', 0x0
-	read db 'Second stage image has succesfully been read from the disk.. Executing', 0x0
-	failed db 'Failed to read image... ready to reboot.', 0x0
-
-times 510 - ($ - $$) db 0
-dw 0xAA55
+	xor ax, ax
+	ret

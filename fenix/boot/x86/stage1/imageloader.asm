@@ -1,5 +1,5 @@
 ;
-;    Golden Eagle bootloader. Loads the fenix kernel.
+;    Read an executable image from the floppy drive or the harddisk.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify

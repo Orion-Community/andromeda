@@ -2,10 +2,14 @@ What is done:
 
 	* Fixed A20 line on 15th of april..
 	* Rewrite of the A20 Line enabling code
+	* device reset
 
 What should be improved:
 
-	-
+	- Usage of stack?
+
+Next item:
+	* Read second stage sector
 
 What has to be done:
 
