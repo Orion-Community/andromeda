@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-The above header should be presented in every source file.
+The above header, or a compatible one should be presented in every source file.
 
 
 The authors and their works should be noted below in the following form:

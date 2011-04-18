@@ -14,22 +14,49 @@
 ;   You should have received a copy of the GNU General Public License
 ;   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%macro isrNoErr 1
-  cli
-  push 0
-  push %1
-%endmacro
+%include "asm/call.mac"
+%include "asm/isr.mac"
 
-%macro isrErr 1
-  cli
-  push %1
-%endmacro
+irq 0
+irq 1
+irq 2
+irq 3
+irq 4
+irq 5
+irq 6
+irq 7
+irq 8
+irq 9
+irq 10
+irq 11
+irq 12
+irq 13
+irq 14
+irq 15
 
-%macro irq $1
-[GLOBAL irq%1]
-irq%1:
-  cli
-  push 0
-  push %1
-  jmp irqStub
-%endmacro
+[EXTERN irqHandle]
+
+irqStub:
+  pusha
+  
+  mov eax, 0x10
+  mov dx, ds
+  push edx
+  mov ds, ax
+  mov es, ax
+  mov fs, ax
+  mov gs, ax
+  
+  call irqHandle
+  
+  pop edx
+  mov ds, dx
+  mov es, dx
+  mov fs, dx
+  mov gs, dx
+  
+  popa
+  
+  add esp, 8
+  
+  iret

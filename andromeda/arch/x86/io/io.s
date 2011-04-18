@@ -18,6 +18,7 @@
 
 [GLOBAL outb]
 [GLOBAL inb]
+[GLOBAL ioWait]
 
 outb: ; outb (char data, short port)
   enter
@@ -36,13 +37,16 @@ inb: ; inb (short port)
   enter
   
   xor eax, eax
-  xor edx, edx
-  
   mov edx, [ebp+8]
   
   in al, dx
   
   return
+  
+ioWait: ; ioWait(void)
+  xor eax, eax
+  out 0x80, al
+  ret
   
 [GLOBAL readCR0]
 readCR0:

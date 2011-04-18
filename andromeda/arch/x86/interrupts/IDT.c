@@ -1,10 +1,13 @@
 #include <interrupts.h>
 #include <error/panic.h>
+#include <irq.h>
 #include <mm/memory.h>
 #include <types.h>
 #include <text.h>
 
 #define SIZE 256
+
+int pic = 0;
 
 #ifdef IDTTEST
 void printEntry(idtEntry_t* gate)
@@ -31,7 +34,7 @@ void setIdtGate(unsigned char num, unsigned int base, unsigned short sel, unsign
     table[num].flags   = flags /* | 0x60 */;
 }
 
-void setGates(idtEntry_t* IDT, int cs)
+void setExceptions(idtEntry_t* IDT, int cs)
 {
   setIdtGate( 0, (unsigned int)divByZero , 0x08, 0x8E);
   setIdtGate( 1, (unsigned int)depricated, 0x08, 0x8E);
@@ -55,7 +58,27 @@ void setGates(idtEntry_t* IDT, int cs)
   setIdtGate(19, (unsigned int)simd, 0x08, 0x8E);
 }
 
-setIDT(idt_t *idt, idtEntry_t* table, unsigned int elements)
+void setIRQ(int offset1, int offset2)
+{
+  setIdtGate(offset1+0, (unsigned int)irq0 , 0x08, 0x8E);
+  setIdtGate(offset1+1, (unsigned int)irq1 , 0x08, 0x8E);
+  setIdtGate(offset1+2, (unsigned int)irq2 , 0x08, 0x8E);
+  setIdtGate(offset1+3, (unsigned int)irq3 , 0x08, 0x8E);
+  setIdtGate(offset1+4, (unsigned int)irq4 , 0x08, 0x8E);
+  setIdtGate(offset1+5, (unsigned int)irq5 , 0x08, 0x8E);
+  setIdtGate(offset1+6, (unsigned int)irq6 , 0x08, 0x8E);
+  setIdtGate(offset1+7, (unsigned int)irq7 , 0x08, 0x8E);
+  setIdtGate(offset1+0, (unsigned int)irq8 , 0x08, 0x8E);
+  setIdtGate(offset2+1, (unsigned int)irq9 , 0x08, 0x8E);
+  setIdtGate(offset2+2, (unsigned int)irq10, 0x08, 0x8E);
+  setIdtGate(offset2+3, (unsigned int)irq11, 0x08, 0x8E);
+  setIdtGate(offset2+4, (unsigned int)irq12, 0x08, 0x8E);
+  setIdtGate(offset2+5, (unsigned int)irq13, 0x08, 0x8E);
+  setIdtGate(offset2+6, (unsigned int)irq14, 0x08, 0x8E);
+  setIdtGate(offset2+7, (unsigned int)irq15, 0x08, 0x8E);
+}
+
+void setIDT(idt_t *idt, idtEntry_t* table, unsigned int elements)
 {
   idt->limit = sizeof(idtEntry_t)*SIZE;
   idt->base  = (int)table;
@@ -72,11 +95,13 @@ void prepareIDT()
   #endif
   table = kalloc(sizeof(idtEntry_t)*SIZE);
   idt_t* idt = kalloc(sizeof(idt_t));
-  setGates(table, cs);
+  setExceptions(table, cs);
   setIDT(idt, table, SIZE);
   #ifdef IDTTEST
   printEntry(&table[4]);
   #endif
   loadIdt(idt);
-  printf("Warning, IDT still isn't finished!\n");
+  #ifdef WARN
+  printf("WARNING: Exceptions need a better implementation!\n");
+  #endif
 }

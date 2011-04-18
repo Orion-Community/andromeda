@@ -21,6 +21,10 @@
 
 #include <types.h>
 
+extern int pic;
+#define PIC 	0x1
+#define APIC	0x2
+
 extern int DetectAPIC();
 extern unsigned int getCS();
 extern unsigned int getDS();

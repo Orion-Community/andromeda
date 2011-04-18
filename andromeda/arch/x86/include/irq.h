@@ -16,31 +16,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <interrupts.h>
-#include <interrupts/int.h>
-#include <text.h>
-#include <error/panic.h>
-#include <PIC/PIC.h>
-#include <APIC/APIC.h>
+#ifndef IRQ_H
+#define IRQ_H
 
-void initAPIC()
-{
-  pic = APIC;
-  panic("No implementation for the APIC!");
-}
+extern void irq0();
+extern void irq1();
+extern void irq2();
+extern void irq3();
+extern void irq4();
+extern void irq5();
+extern void irq6();
+extern void irq7();
+extern void irq8();
+extern void irq9();
+extern void irq10();
+extern void irq11();
+extern void irq12();
+extern void irq13();
+extern void irq14();
+extern void irq15();
 
-void intInit()
-{
-  prepareIDT();
-  if (DetectAPIC())
-  {
-    #ifndef WARN
-    initAPIC();
-    #else
-    printf("WARNING: The APIC hasn't got any implementation!\n");
-    initPIC();
-    #endif
-    return;
-  }
-  initPIC();
-}
+#endif

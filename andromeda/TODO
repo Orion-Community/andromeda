@@ -6,6 +6,14 @@ ANDROMEDA GENERAL
 	it is a piece of software for learning
 	purposes.
 
+*	Improve the memory allocation code.
+	The kernel now just uses all of it's memory.
+	For the sake of memory protection, I'd like
+	to put a cap on that and have it request a
+	block of memory each time it runs out.
+	The allocator also needs to recognise unused
+	blocks and return those to the system.
+
 ABDROMEDA COMPRESSED
 *	Make a start on paging code
 	needed to load the kernel in high memory.

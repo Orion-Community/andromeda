@@ -21,9 +21,10 @@
 
 extern unsigned char inb(unsigned short port);
 extern void outb(unsigned short port, unsigned char msg);
+extern void ioWait(void);
 
-extern unsigned int readCR0();
-extern unsigned int readCR3();
+extern unsigned int readCR0(void);
+extern unsigned int readCR3(void);
 
 extern void writeCR0(unsigned int);
 extern void writeCR3(unsigned int);

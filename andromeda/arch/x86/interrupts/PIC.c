@@ -22,5 +22,6 @@
 
 void initPIC()
 {
+  pic = PIC;
   panic("No implementation for the PIC!");
 }
