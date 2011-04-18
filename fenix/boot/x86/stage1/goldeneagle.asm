@@ -17,58 +17,12 @@
 ;
 
 [BITS 16]
-[ORG 0X7C00]
-
-; EXTERN kernelmain
+[ORG 0x7C00]
 
 main:
-	mov si, hello
-	call println
-
-	call enable_A20
-
-; setup GDT, A20 line
-
-	or ax, ax
-	jz loadedA20
-
-panic:
-	mov si, error
-	call println
-	jmp $
-
-loadedA20:
-	mov si, loadGDT
-	call println
-	jmp $
-	
-; switch to protected mode and 32 bits
-;	call kernelmain
-
 
 ;
-;  Output routines
-; 
-
-%include '../println.asm'
-
-;
-; enable A20 line
+; Some sort of data section
 ;
 
-%include 'A20.asm'
-
-;
-; Some sort of data segment
-;
-
-	hello db 'Loading Golden Eagle bootloader', 0x0
-	loadGDT db 'A20 Line enabled... Setting GDT.', 0x0
-	error db 'Failed to load Golden Eagle succesfull...', 0x0
-;
-; End
-;
-
-times 512-($-$$)-2 db 0
-dw 0xAA55
-
+	msg db 'Reading second stage bootloader..', 0x0
