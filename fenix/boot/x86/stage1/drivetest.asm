@@ -31,7 +31,8 @@ resetdrive:
 	jnc .success
 
 	dec cx
-	jmp .start
+	cmp cx, 0x0
+	jne .start
 
 .fail: ; failed to load, error code in al
 	mov al, 0x01
