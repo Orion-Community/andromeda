@@ -28,7 +28,7 @@ resetdrive:
 	xor ah, ah ; function 0 = reset
 	mov dl, 0x80 ;pop dx ; drive 0 = floppy
 	int 0x13
-	jnc .success
+	jnc .loadimage
 
 	dec cx
 	cmp cx, 0x0
@@ -48,9 +48,4 @@ resetdrive:
 	mov dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
 	int 0x13					; call BIOS - Read the sector
 ;	jc		.loadimage
-
-.fail: ; failed to load, error code in al
-	ret
-
-.success:
 	ret
