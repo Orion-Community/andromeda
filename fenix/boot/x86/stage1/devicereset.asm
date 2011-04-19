@@ -28,28 +28,29 @@ resetdrive:
 	xor ah, ah ; function 0 = reset
 	mov dl, 0x80 ;pop dx ; drive 0 = floppy
 	int 0x13
-	jnc .loadimage
+	jnc .success
 
 	dec cx
 	cmp cx, 0x0
 	jne .start
 
-.fail: ; failed to load, error code in al
-	mov al, 0x01
-	ret
-
 .loadimage:
-	mov ax, 0x1
-	mov es, ax
 	mov bx, 0x1000
+	mov es, bx
+	mov bx, 0x0000
 
 .startload:
-	mov		ah, 0x02				; function 2
-	mov		al, 1					; read 1 sector
-	mov		ch, 1					; we are reading the second sector past us, so its still on track 1
-	mov		cl, 2					; sector to read (The second sector)
-	mov		dh, 0					; head number
-	mov		dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
-	int		0x13					; call BIOS - Read the sector
+	mov ah, 0x2					; function 2
+	mov al, 0x3					; read 1 sector
+	xor ch, ch					; we are reading the second sector past us, so its still on track 1
+	mov cl, 0x2					; sector to read (The second sector)
+	xor dh, dh					; head number
+	mov dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
+	int 0x13					; call BIOS - Read the sector
 ;	jc		.loadimage
+
+.fail: ; failed to load, error code in al
+	ret
+
+.success:
 	ret

@@ -25,13 +25,18 @@ main:
 
 	call resetdrive
 
-	xor al, al
-	push ax
-	mov si, sp
+	mov cl, al
+	shr ax, 8
+
+	mov si, ax
 	call print
 
-.fail:
+	or cl, cl
+	jz .readsector
 
+.fail:
+	mov si,failed
+	call print
 	cli
 	jmp $
 
