@@ -23,19 +23,21 @@ main:
 	mov si, boot
 	call print
 
-	mov dx, 0x80
 	call resetdrive
-	or al, al
-	jz .success
+
+	xor al, al
+	push ax
+	mov si, sp
+	call print
 
 .fail:
-	mov si, failed
-	call print
+
 	cli
 	jmp $
 
-.success:
-	mov si, read
+.readsector:
+;	call loadimage
+	mov si,read
 	call print
 	cli
 	jmp $
@@ -49,7 +51,8 @@ main:
 ; The image loader
 ;
 
-%include 'drivetest.asm'
+;%include 'imageloader.asm'
+%include 'devicereset.asm'
 
 ;
 ; Some sort of data section

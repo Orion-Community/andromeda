@@ -16,3 +16,18 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+loadimage:
+	mov ax, 0x1000
+	mov es, ax
+	xor bx, bx```````````````````
+
+.start:
+	mov		ah, 0x02				; function 2
+	mov		al, 1					; read 1 sector
+	mov		ch, 1					; we are reading the second sector past us, so its still on track 1
+	mov		cl, 2					; sector to read (The second sector)
+	mov		dh, 0					; head number
+	mov		dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
+	int		0x13					; call BIOS - Read the sector
+	jc		loadimage
+	ret
