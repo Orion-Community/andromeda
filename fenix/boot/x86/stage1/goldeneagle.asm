@@ -31,14 +31,12 @@ main:
 .fail:
 	mov si, failed
 	call print
-	jmp hang
+	cli
+	jmp $
 
 .success:
 	mov si, read
 	call print
-	jmp hang
-
-hang:
 	cli
 	jmp $
 ;
