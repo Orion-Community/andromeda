@@ -30,7 +30,7 @@ resetdrive:
 	int 0x13
 	jnc .loadimage
 
-	dec cx
+	;dec cx
 	cmp cx, 0x0
 	jne .start
 
@@ -39,17 +39,17 @@ resetdrive:
 	ret
 
 .loadimage:
-	mov ax, 0x1
-	mov es, ax
 	mov bx, 0x1000
+	mov es, bx
+	xor bx, bx
 
 .startload:
 	mov		ah, 0x02				; function 2
 	mov		al, 1					; read 1 sector
 	mov		ch, 1					; we are reading the second sector past us, so its still on track 1
-	mov		cl, 2					; sector to read (The second sector)
+	mov		cl, 3					; sector to read (The second sector)
 	mov		dh, 0					; head number
 	mov		dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
 	int		0x13					; call BIOS - Read the sector
-;	jc		.loadimage
+	;jc		.loadimage
 	ret

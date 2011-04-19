@@ -29,9 +29,12 @@ main:
 	push ax
 	mov si, sp
 	call print
+	or al, al
+	jz .readsector
 
 .fail:
-
+	mov si,failed
+	call print
 	cli
 	jmp $
 
