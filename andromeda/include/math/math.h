@@ -4,6 +4,7 @@
 #define RANDMAX 0xFFFF
 #define RANDMIN 0x0
 
-int random(int seed);
+void randomise(int seed);
+int random();
 
 #endif

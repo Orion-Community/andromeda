@@ -1,6 +1,8 @@
 #include <math/math.h>
 #include <mm/memory.h>
 
+extern long long timer;
+
 int seedNew = 1; // Store the seeds
 int seedOld = 1;
 
@@ -22,7 +24,7 @@ void randomise(int s) // Create the seed
   }
 }
 
-void random() // Hash the stuff and make it random.
+int random() // Hash the stuff and make it random.
 {
   // Doesn't need to be thread safe for extra randomness.
   #ifndef TEST
