@@ -1,16 +1,19 @@
 #include <math/math.h>
 #include <mm/memory.h>
 
-extern long long timer;
-int seedNew = 1;
+int seedNew = 1; // Store the seeds
 int seedOld = 1;
 
-void randomise(int s)
+void randomise(int s) // Create the seed
 {
   if (s!=0)
   {
     seedNew = s;
-    seedOld = s;
+    seedOld = s/2;
+    if (seedOld == 0)
+    {
+      seedOld = 0x0BADB002;
+    }
   }
   else
   {
@@ -19,8 +22,9 @@ void randomise(int s)
   }
 }
 
-void random()
+void random() // Hash the stuff and make it random.
 {
+  // Doesn't need to be thread safe for extra randomness.
   #ifndef TEST
   if (seedNew == 0)
   {
@@ -45,7 +49,7 @@ void random()
   
   int ret = (seedOld << 16) + seedNew;
   
-  seedOld = seedNew;
+  seedOld = seedNew; // Set the seeding values
   seedNew = ret;
   
   ret %= RANDMAX;

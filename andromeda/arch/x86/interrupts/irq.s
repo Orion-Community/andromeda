@@ -17,6 +17,7 @@
 %include "asm/call.mac"
 %include "asm/isr.mac"
 
+; Define the irq headers
 irq 0
 irq 1
 irq 2
@@ -36,10 +37,11 @@ irq 15
 
 [EXTERN irqHandle]
 
+; All ir1 headers call this stub.
 irqStub:
-  pusha
+  pusha ; Push all registers
   
-  mov eax, 0x10
+  mov eax, 0x10 ; Set the data segments
   mov dx, ds
   push edx
   mov ds, ax
@@ -47,16 +49,16 @@ irqStub:
   mov fs, ax
   mov gs, ax
   
-  call irqHandle
+  call irqHandle ; Call the C function
   
-  pop edx
+  pop edx ; Reset the data segments
   mov ds, dx
   mov es, dx
   mov fs, dx
   mov gs, dx
   
-  popa
+  popa ; Pop all registers
   
-  add esp, 8
+  add esp, 8 ; Fix the stack
   
-  iret
+  iret ; Return

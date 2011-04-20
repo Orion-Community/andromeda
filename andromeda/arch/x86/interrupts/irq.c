@@ -2,8 +2,8 @@
 #include <irq.h>
 #include <types.h>
 
-void timerTick();
-void picIntA(int irqNo);
+void timerTick(); // The timer function
+void picIntA(int irqNo); // Reset the interrupt pin
 
 void irqHandle(isrVal_t regs)
 {

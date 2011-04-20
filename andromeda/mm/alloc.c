@@ -31,7 +31,8 @@
 #include <text.h>
 #include <thread.h>
 
-#define ALLOC_MAX 4*1024*1024
+// Alloc_max = 1 MB
+#define ALLOC_MAX 0x100000
 
 #define HDRMAGIC 0xAF00BEA8
 #define PAGEBOUNDARY 0x1000
@@ -202,6 +203,7 @@ void* alloc (size_t size, boolean pageAlligned)
 		}
 		if (carrige->next == NULL || carrige->next == carrige)
 		{
+			// This should request a larger heap.
 			break; 	// If we haven't found anything but we're at the end of the list
 				// or heap corruption occured we break out of the loop and return
 				// the default pointer (which is NULL).
