@@ -25,13 +25,20 @@ main:
 
 	call resetdrive
 
-	xor al, al
-	push ax
-	mov si, sp
+	mov cl, al
+	shr ax, 8
+
+	mov si, ax
 	call print
 	or al, al
 	jz .readsector
 
+<<<<<<< HEAD
+=======
+	or cl, cl
+	jz .readsector
+
+>>>>>>> 31669f7a68e9720a7e2997adb3f28540296987ba
 .fail:
 	mov si,failed
 	call print

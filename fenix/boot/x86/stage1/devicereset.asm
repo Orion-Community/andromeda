@@ -34,10 +34,6 @@ resetdrive:
 	cmp cx, 0x0
 	jne .start
 
-.fail: ; failed to load, error code in al
-	mov al, 0x01
-	ret
-
 .loadimage:
 	mov bx, 0x1000
 	mov es, bx
@@ -52,4 +48,17 @@ resetdrive:
 	mov		dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
 	int		0x13					; call BIOS - Read the sector
 	;jc		.loadimage
+	ret
+
+	mov bx, 0x0000
+
+.startload:
+	mov ah, 0x2					; function 2
+	mov al, 0x3					; read 1 sector
+	xor ch, ch					; we are reading the second sector past us, so its still on track 1
+	mov cl, 0x2					; sector to read (The second sector)
+	xor dh, dh					; head number
+	mov dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
+	int 0x13					; call BIOS - Read the sector
+;	jc		.loadimage
 	ret
