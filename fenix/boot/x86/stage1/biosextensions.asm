@@ -1,5 +1,5 @@
 ;
-;    Test the drive. Is it ready to read an image from?
+;    Use the 0x13 extensions to read a sector from disk.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -17,36 +17,31 @@
 ;
 
 ;
-; Usage:
-; mov dx, <drive>
-; call resetdrive
+; Reset the drive
 ;
-resetdrive:
-	mov cx, 5
-
-.start:
-	xor ah, ah ; function 0 = reset
-	mov dl, 0x80 ;pop dx ; drive 0 = floppy
+loadimage:
+.reset:
+	mov ah, 0x41
+	mov dl, 0x80
+	mov bx, 0x55AA
 	int 0x13
-	jnc .loadimage
+	jc .reset
 
-	;dec cx
-	cmp cx, 0x0
-	jne .start
-
-.loadimage:
-	mov bx, 0x1000
-	mov es, bx
-	xor bx, bx
-
-.startload:
-	mov ah, 0x2					; function 2
-	mov al, 0x1					; read 1 sector
-	xor ch, ch					; we are reading the second sector past us, so its still on track 1
-	mov cl, 0x2					; sector to read (The second sector)
-	xor dh, dh					; head number
-	mov dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
-	int 0x13					; call BIOS - Read the sector
-	jc		.loadimage
+.read:
+	mov ah,0x42
+	mov dl,0x80
+	lea si,[lbaadr]        
+	int 0x13   
+	jc .reset
 	ret
- 
+
+;
+; Disk address
+;
+lbaadr:
+	db 10h      ; packet size (16 bytes)
+	db 0      ; reserved, must be 0
+	dw 0x1      ; number of sectors to transfer
+	dw 0x0100   ; Buffer's segment
+	dw 0x0000   ; Buffer's offset
+	dq 00002h ; 64-bit starting sector number

@@ -23,22 +23,17 @@ main:
 	mov si, boot
 	call print
 
-	call resetdrive
+	call loadimage
 
-	mov cl, al
-	shr ax, 8
+; 	mov cl, al
+; 	shr ax, 8
+	xor ah, ah
+ 	mov si, ax
+ 	call print
 
-	mov si, ax
-	call print
-	or al, al
-	jz .readsector
+;	or al, al
+;	jz .readsector
 
-<<<<<<< HEAD
-=======
-	or cl, cl
-	jz .readsector
-
->>>>>>> 31669f7a68e9720a7e2997adb3f28540296987ba
 .fail:
 	mov si,failed
 	call print
@@ -62,7 +57,8 @@ main:
 ;
 
 ;%include 'imageloader.asm'
-%include 'devicereset.asm'
+;%include 'devicereset.asm'
+%include 'biosextensions.asm'
 
 ;
 ; Some sort of data section
