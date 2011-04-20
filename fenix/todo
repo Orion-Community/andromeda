@@ -11,6 +11,7 @@ Next item:
 	* Read second stage sector
 	* http://home.teleport.com/~brainy/interrupts.htm
 	* http://forum.osdev.org/viewtopic.php?f=1&t=8784
+	* !!Mount an entire hard disk instead of just an image!!
 
 What has to be done:
 

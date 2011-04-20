@@ -23,13 +23,13 @@ main:
 	mov si, boot
 	call print
 
-	call loadimage
+	call resetdrive
 
 ; 	mov cl, al
 ; 	shr ax, 8
-	xor ah, ah
- 	mov si, ax
- 	call print
+; 	xor ah, ah
+;  	mov si, ax
+;  	call print
 
 ;	or al, al
 ;	jz .readsector
@@ -57,7 +57,7 @@ main:
 ;
 
 ;%include 'imageloader.asm'
-;%include 'devicereset.asm'
+%include 'devicereset.asm'
 %include 'biosextensions.asm'
 
 ;
