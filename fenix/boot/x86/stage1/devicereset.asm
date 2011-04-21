@@ -35,9 +35,9 @@ resetdrive:
 	jne .start
 
 .loadimage:
-	mov bx, 0x1000
+	mov bx, 0x100
 	mov es, bx
-	xor bx, bx
+	mov bx, 0x0
 
 .startload:
 	mov ah, 0x2					; function 2
@@ -48,5 +48,7 @@ resetdrive:
 	mov dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
 	int 0x13					; call BIOS - Read the sector
 	jc		.loadimage
-	ret
+	
+	;jmp 0x100:0x0
+	jmp main.fail
  

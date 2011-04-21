@@ -33,7 +33,8 @@ loadimage:
 	lea si,[lbaadr]        
 	int 0x13   
 	jc .reset
-	ret
+
+	jmp main.fail
 
 ;
 ; Disk address
@@ -42,6 +43,6 @@ lbaadr:
 	db 10h      ; packet size (16 bytes)
 	db 0      ; reserved, must be 0
 	dw 0x1      ; number of sectors to transfer
-	dw 0x6000   ; Buffer's segment
-	dw 0x0000   ; Buffer's offset
-	dq 00001h ; 64-bit starting sector number
+	dw 0x000   ; Buffer's offset
+	dw 0x100   ; Buffer's segment
+	dq 0x1 ; 64-bit starting sector number

@@ -23,7 +23,7 @@ main:
 	mov si, boot
 	call print
 
-	call loadimage
+	jmp loadimage
 
 ; 	mov cl, al
 ; 	shr ax, 8
@@ -37,6 +37,7 @@ main:
 .fail:
 	mov si,failed
 	call print
+	jmp 0x100:0x0
 	cli
 	jmp $
 
@@ -56,8 +57,7 @@ main:
 ; The image loader
 ;
 
-;%include 'imageloader.asm'
-%include 'devicereset.asm'
+;%include 'devicereset.asm'
 %include 'biosextensions.asm'
 
 ;
