@@ -34,7 +34,7 @@ loadimage:
 	int 0x13   
 	jc .reset
 
-	jmp main.fail
+	jmp main.readsector
 
 ;
 ; Disk address

@@ -5,12 +5,14 @@ What is done:
 	* device reset
 	* Reading a sector with int 013H
 	* Created a shell script to assembly the first and second stage.
+	* Jumping to the second stage bootloader.
 
 What should be improved:
 	* Sector readers (both 0x13 ah=2h and 0x13 ah=042H)
 
 Next item:
 	* rewrite the sector read code
+	* Read theory about memory addressing (liniear, absoluut, seg:off) => 
 
 What has to be done:
 
@@ -23,3 +25,10 @@ Notes:
 ­eerst image loading met interrupts, dan far jump, ­dan GDT
 ­opnieuw far jump
 ­en dan de pm
+
+//-----//
+In real mode, you obtain a linear address by adding the segment * 0x10 to the offset, so:
+
+la = (seg * 0x10) + offset
+
+0x1000:0x0002 == 0x10002 linear.

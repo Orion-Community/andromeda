@@ -37,14 +37,14 @@ main:
 .fail:
 	mov si,failed
 	call print
-	jmp 0x100:0x0
 	cli
 	jmp $
 
 .readsector:
 ;	call loadimage
-	mov si,read
+	mov si,loaded
 	call print
+	jmp 0x100:0x0
 	cli
 	jmp $
 ;
@@ -65,7 +65,7 @@ main:
 ;
 
 	boot db 'Reading second stage bootloader from disk...', 0x0
-	read db 'Second stage image has succesfully been read from the disk.. Executing', 0x0
+	loaded db 'Second stage image has succesfully been read and loaded into memory!', 0x0
 	failed db 'Failed to read image... ready to reboot.', 0x0
 
 times 510 - ($ - $$) db 0

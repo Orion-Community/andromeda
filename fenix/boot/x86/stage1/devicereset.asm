@@ -50,5 +50,5 @@ resetdrive:
 	jc		.loadimage
 	
 	;jmp 0x100:0x0
-	jmp main.fail
+	jmp main.readsector
  
