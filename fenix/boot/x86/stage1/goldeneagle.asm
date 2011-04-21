@@ -23,7 +23,7 @@ main:
 	mov si, boot
 	call print
 
-	call resetdrive
+	call loadimage
 
 ; 	mov cl, al
 ; 	shr ax, 8

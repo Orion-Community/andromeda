@@ -3,15 +3,14 @@ What is done:
 	* Fixed A20 line on 15th of april..
 	* Rewrite of the A20 Line enabling code
 	* device reset
+	* Reading a sector with int 013H
+	* Created a shell script to assembly the first and second stage.
 
 What should be improved:
-
+	* Sector readers (both 0x13 ah=2h and 0x13 ah=042H)
 
 Next item:
-	* Read second stage sector
-	* http://home.teleport.com/~brainy/interrupts.htm
-	* http://forum.osdev.org/viewtopic.php?f=1&t=8784
-	* !!Mount an entire hard disk instead of just an image!!
+	* rewrite the sector read code
 
 What has to be done:
 

@@ -42,6 +42,6 @@ lbaadr:
 	db 10h      ; packet size (16 bytes)
 	db 0      ; reserved, must be 0
 	dw 0x1      ; number of sectors to transfer
-	dw 0x0100   ; Buffer's segment
+	dw 0x6000   ; Buffer's segment
 	dw 0x0000   ; Buffer's offset
-	dq 00002h ; 64-bit starting sector number
+	dq 00001h ; 64-bit starting sector number
