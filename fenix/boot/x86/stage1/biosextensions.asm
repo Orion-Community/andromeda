@@ -34,12 +34,6 @@ loadimage:
 	mov dl,0x80
 	lea si,[lbaadr]        
 	int 0x13
-	jnc .return
-
-	dec cx
-	cmp cx, 0x0
-	jne .reset  ; try for 5 times
-		    ; if failed after fith time, bail out anyway but with error in ah -> catched in loader.	
 	
 .return:
 	ret
