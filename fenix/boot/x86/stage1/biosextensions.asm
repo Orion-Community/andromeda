@@ -34,6 +34,9 @@ loadimage:
 	mov dl,0x80
 	lea si,[lbaadr]        
 	int 0x13
+	jnc .return
+
+	loop .read
 	
 .return:
 	ret
