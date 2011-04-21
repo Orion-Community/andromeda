@@ -1,74 +1,45 @@
-;
-;    Golden Eagle bootloader. Loads the fenix kernel.
-;    Copyright (C) 2011 Michel Megens
-;
-;    This program is free software: you can redistribute it and/or modify
-;    it under the terms of the GNU General Public License as published by
-;    the Free Software Foundation, either version 3 of the License, or
-;    (at your option) any later version.
-;
-;    This program is distributed in the hope that it will be useful,
-;    but WITHOUT ANY WARRANTY; without even the implied warranty of
-;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;    GNU General Public License for more details.
-;
-;    You should have received a copy of the GNU General Public License
-;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-;
-
-[BITS 16]
-[ORG 0X7C00]
-
-; EXTERN kernelmain
+[bits 16]
+[org 0x1000]
 
 main:
-	mov si, hello
+	mov si, exec
 	call print
-
-	call enable_A20
-
-; setup GDT, A20 line
-
-	or ax, ax
-	jz loadedA20
-
-panic:
-	mov si, error
-	call print
-	jmp $
-
-loadedA20:
-	mov si, loadGDT
-	call print
-	jmp $
 	
-; switch to protected mode and 32 bits
-;	call kernelmain
+	call enable_A20
+	xor ax, 0001b
+	jnz .a20success
 
+.a20fail:
+	mov si, a20failed
+	call print
+	jmp .bailout
+
+.a20success:
+	mov si, a20ok
+	call print
+
+.bailout:	
+	cli
+	jmp $
 
 ;
-;  Output routines
-; 
-
-%include '../print.asm'
-
-;
-; enable A20 line
+; Output routines
 ;
 
-%include 'A20.asm'
+%include 'print.asm'
 
 ;
-; Some sort of data segment
+; A20 line
 ;
 
-	hello db 'Loading Golden Eagle bootloader', 0x0
-	loadGDT db 'A20 Line enabled... Setting GDT.', 0x0
-	error db 'Failed to load Golden Eagle succesfull...', 0x0
+%include 'stage2/A20.asm'
+
 ;
-; End
+; Data section
 ;
 
-times 512-($-$$)-2 db 0
-dw 0xAA55
+	exec db 'The second stage bootloader has been called and is executing..', 0x0
+	a20ok db 'A20 Line is successfully enabled!', 0x0
+	a20failed db 'Setting up the A20 line failed, ready to reboot...', 0x0
 
+times 512 - ($ - $$) db 0

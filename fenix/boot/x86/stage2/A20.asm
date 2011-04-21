@@ -76,7 +76,7 @@ enable_A20:
 	xor ax, ax
 	in al, 0x60
 	bt ax, 1
-	jc .A20_enabled ; go to
+	jc .A20_enabled
 
 	; failed, try again
 	loop .startAttempt2

@@ -20,6 +20,8 @@
 ; Reset the drive
 ;
 loadimage:
+	mov cx, 5
+
 .reset:
 	mov ah, 0x41
 	mov dl, 0x80
@@ -31,10 +33,16 @@ loadimage:
 	mov ah,0x42
 	mov dl,0x80
 	lea si,[lbaadr]        
-	int 0x13   
-	jc .reset
+	int 0x13
+	jnc .return
 
-	jmp main.readsector
+	dec cx
+	cmp cx, 0x0
+	jne .reset  ; try for 5 times
+		    ; if failed after fith time, bail out anyway but with error in ah -> catched in loader.	
+	
+.return:
+	ret
 
 ;
 ; Disk address

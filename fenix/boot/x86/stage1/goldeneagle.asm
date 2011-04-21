@@ -23,16 +23,12 @@ main:
 	mov si, boot
 	call print
 
-	jmp loadimage
+	call loadimage
 
-; 	mov cl, al
-; 	shr ax, 8
-; 	xor ah, ah
-;  	mov si, ax
-;  	call print
+	shr ax, 8
+	or al, al
+	jz .readsector
 
-;	or al, al
-;	jz .readsector
 
 .fail:
 	mov si,failed
@@ -51,14 +47,14 @@ main:
 ; Output routines
 ;
 
-%include '../print.asm'
+%include 'print.asm'
 
 ;
 ; The image loader
 ;
 
-;%include 'devicereset.asm'
-%include 'biosextensions.asm'
+;%include 'stage1/devicereset.asm'
+%include 'stage1/biosextensions.asm'
 
 ;
 ; Some sort of data section

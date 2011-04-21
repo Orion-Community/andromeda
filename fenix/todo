@@ -6,6 +6,7 @@ What is done:
 	* Reading a sector with int 013H
 	* Created a shell script to assembly the first and second stage.
 	* Jumping to the second stage bootloader.
+	* Shell scripts to build and clean
 
 What should be improved:
 	* Sector readers (both 0x13 ah=2h and 0x13 ah=042H)
