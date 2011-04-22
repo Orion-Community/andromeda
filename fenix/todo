@@ -7,12 +7,12 @@ What is done:
 	* Created a shell script to assembly the first and second stage.
 	* Jumping to the second stage bootloader.
 	* Shell scripts to build and clean
+	* Rewrite of the image loaders
 
 What should be improved:
-	* Sector readers (both 0x13 ah=2h and 0x13 ah=042H)
 
 Next item:
-	* rewrite the sector read code
+	* Write the gdt code
 	* Read theory about memory addressing (liniear, absoluut, seg:off) => 
 
 What has to be done:

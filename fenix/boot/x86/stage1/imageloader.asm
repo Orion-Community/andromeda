@@ -1,5 +1,5 @@
 ;
-;    Read an executable image from the floppy drive or the harddisk.
+;    Read an executable image from the floppy drive or the hard disk.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -17,17 +17,59 @@
 ;
 
 loadimage:
-	mov ax, 0x1000
-	mov es, ax
-	xor bx, bx```````````````````
+	mov cx, 5
 
-.start:
-	mov		ah, 0x02				; function 2
-	mov		al, 1					; read 1 sector
-	mov		ch, 1					; we are reading the second sector past us, so its still on track 1
-	mov		cl, 2					; sector to read (The second sector)
-	mov		dh, 0					; head number
-	mov		dl, 0x80					; drive number. Remember Drive 0 is floppy drive.
-	int		0x13					; call BIOS - Read the sector
-	jc		loadimage
+.extreset:
+	mov ah, 0x41
+	mov dl, 0x80
+	mov bx, 0x55AA
+	int 0x13
+	jc .extreset
+
+.extload:
+	mov ah,0x42
+	mov dl,0x80
+	lea si,[lbaadr]        
+	int 0x13
+	jnc .return
+
+	loop .extload
+
+.oldway:
+	mov cx, 5
+
+.oldreset:
+	xor ah, ah ; function 0 = reset
+	mov dl, 0x80
+	int 0x13
+	jnc .oldload
+
+	loop .oldreset
+
+.oldload:
+	mov bx, 0x100	; segment
+	mov es, bx
+	xor bx, bx	; offset
+
+	mov ah, 0x2					; function 2
+	mov al, 0x1					; read 1 sector
+	xor ch, ch					; track
+	mov cl, 0x2					; sector to read
+	xor dh, dh					; head number
+	mov dl, 0x80					; drive number
+	int 0x13					; call BIOS - Read the sector
+	
+.return:
 	ret
+
+;
+; Logical Block Addressing adress
+;
+
+lbaadr:
+	db 10h      	; packet size (16 bytes)
+	db 0      	; reserved, must be 0
+	dw 0x1      	; sectors to read
+	dw 0x000   	; Buffer's offset
+	dw 0x100   	; Buffer's segment
+	dq 0x1		; starting sector (sector to read)

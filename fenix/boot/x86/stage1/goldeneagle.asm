@@ -54,7 +54,8 @@ main:
 ;
 
 ;%include 'stage1/devicereset.asm'
-%include 'stage1/biosextensions.asm'
+;%include 'stage1/biosextensions.asm'
+%include 'stage1/imageloader.asm'
 
 ;
 ; Some sort of data section
