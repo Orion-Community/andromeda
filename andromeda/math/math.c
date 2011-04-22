@@ -3,59 +3,57 @@
 
 extern long long timer;
 
-int seedNew = 1; // Store the seeds
-int seedOld = 1;
+unsigned int seedTwo = 1; // Store the seeds
+unsigned int seedOne = 1;
 
-void randomise(int s) // Create the seed
+void randomize(unsigned int s) // Create the seed
 {
   if (s!=0)
   {
-    seedNew = s;
-    seedOld = s/2;
-    if (seedOld == 0)
+    seedTwo = s;
+    seedOne = s/2;
+    if (seedOne == 0)
     {
-      seedOld = 0x0BADB002;
+      seedOne = 0x0BADB002;
     }
   }
   else
   {
-    seedNew = timer;
-    seedOld = timer;
+    seedTwo = timer;
+    seedOne = timer;
   }
 }
 
-int random() // Hash the stuff and make it random.
+int randomA() // Hash the stuff and make it random.
 {
   // Doesn't need to be thread safe for extra randomness.
-  #ifndef TEST
-  if (seedNew == 0)
+  if (seedTwo == 0)
   {
-    seedNew = timer;
+    seedTwo = 1;
   }
-  if (seedOld == 0)
+  if (seedOne == 0)
   {
-    seedOld = timer;
+    seedOne = 1;
   }
-  #else
-  if (seedNew == 0)
-  {
-    seedNew = 1;
-  }
-  if (seedOld == 0)
-  {
-    seedOld = 1;
-  }
-  #endif
-  int ret1 = 36969 * (seedOld & 65535) + (seedOld >> 16);
-  int ret2 = 18000 * (seedNew & 65535) + (seedNew >> 16);
+  int ret1 = 36969 * (seedOne & 0xFFFF) + (seedTwo >> 16);
+  int ret2 = 18000 * (seedTwo & 0xFFFF) + (seedOne >> 16);
   
-  int ret = (seedOld << 16) + seedNew;
+  int ret = (ret1 << 16) + ret2;
   
-  seedOld = seedNew; // Set the seeding values
-  seedNew = ret;
+  seedOne = ret1; // Set the seeding values
+  seedTwo = ret2;
   
+  return ret;
+}
+
+int random()
+{
+  int ret = randomA();
   ret %= RANDMAX;
   ret += RANDMIN;
   
-  return ret;
+  if (ret < 0)
+  {
+    ret *= -1;
+  }
 }
