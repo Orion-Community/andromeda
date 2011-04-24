@@ -53,7 +53,7 @@ enable_A20:
 
 	xor ax, ax
 	in al, 0x60
-	bt ax, 00000010b ; bit test ax -> copy bit 1 in CF
+	bt ax, 0x1 ; bit test ax -> copy bit 1 (counting from 0) in CF
 	jc .A20_enabled
 
 	; Loop for max 5 times
@@ -64,7 +64,7 @@ enable_A20:
 .startAttempt2:
 	; On some machine's is this the only way to enable the A20 line
 	call .commandwait
-	mov al, 0xDF
+	mov al, 0xDF ; enable A20
 	out 0x64, al
 
 	; Test the A20 line
@@ -75,7 +75,7 @@ enable_A20:
 
 	xor ax, ax
 	in al, 0x60
-	bt ax, 00000010b
+	bt ax, 0x1
 	jc .A20_enabled
 
 	; failed, try again
