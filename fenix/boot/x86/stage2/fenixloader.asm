@@ -18,7 +18,13 @@ main:
 	mov si, a20ok
 	call print
 
-.bailout:	
+.bailout:
+	mov si, reboot
+	call print
+	xor ah, ah
+	int 0x16 ; wait for char
+	int 0x19 ; this bios loads sector 1 into 0x0:0x7C00 and executes (= reboot)
+	
 	cli
 	jmp $
 
@@ -41,5 +47,6 @@ main:
 	exec db 'The second stage bootloader has been called and is executing..', 0x0
 	a20ok db 'A20 Line is successfully enabled!', 0x0
 	a20failed db 'Setting up the A20 line failed, ready to reboot...', 0x0
+	reboot db 'Press a key to reboot', 0x0
 
 times 512 - ($ - $$) db 0

@@ -53,7 +53,7 @@ enable_A20:
 
 	xor ax, ax
 	in al, 0x60
-	bt ax, 1 ; bit test ax
+	bt ax, 1 ; bit test ax -> copy bit 1 in CF
 	jc .A20_enabled
 
 	; Loop for max 5 times

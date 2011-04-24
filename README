@@ -1,0 +1,4 @@
+This operating system is in development for educational use. There is no guarantee that it functions properly.
+
+Technical Notes:
+	* Run the bootloader ALWAYS in bochs. The bios 'wait for keyboard input' function is malfunctioning.
