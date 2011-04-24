@@ -19,6 +19,7 @@ What has to be done:
 
 	* Write the gdt code
 	* Switch to pmode
+	* Make the bootloader multiboot compatible
 	* 32 bits
 	* write kernelmain
 
