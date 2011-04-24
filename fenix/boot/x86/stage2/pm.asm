@@ -15,3 +15,13 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
+
+enterPM:
+	cli
+	lgdt [gdtr]
+
+	mov eax, cr0
+	or eax, 00000001b
+	mov cr0, eax
+	
+	jmp 0x08:pmodemain
