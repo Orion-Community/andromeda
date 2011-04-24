@@ -53,7 +53,7 @@ enable_A20:
 
 	xor ax, ax
 	in al, 0x60
-	bt ax, 1 ; bit test ax -> copy bit 1 in CF
+	bt ax, 00000010b ; bit test ax -> copy bit 1 in CF
 	jc .A20_enabled
 
 	; Loop for max 5 times
@@ -75,7 +75,7 @@ enable_A20:
 
 	xor ax, ax
 	in al, 0x60
-	bt ax, 1
+	bt ax, 00000010b
 	jc .A20_enabled
 
 	; failed, try again
