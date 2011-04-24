@@ -15,3 +15,35 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
+
+;
+; The GDT table
+;
+
+gdt:
+	db 0
+	db 0
+
+	GDT_CODE_SEL equ $-gdt ; code selector
+		dw 0xFFFF ;limit
+		dw 0	  ; base 15:0
+		db 0	  ; base 23:16
+		db 0x9A   ; type -> ring 0 code and readable
+		db 0xCF   ; page granular, 32 bit
+		db 0	  ; base 31:24
+
+	GDT_DATA_SEL equ $-gdt ; code selector
+		dw 0xFFFF ;limit
+		dw 0	  ; base 15:0
+		db 0	  ; base 23:16
+		db 0x9A   ; type -> ring 0 code and readable
+		db 0xCF   ; page granular, 32 bit
+		db 0	  ; base 31:24
+gdt_end: ; to calc size
+
+gdtr:
+	dw gdt - gdt_end - 1 ; gdt limit = size
+	db gdt ; gdt base address
+
+
+
