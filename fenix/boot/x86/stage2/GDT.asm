@@ -36,7 +36,7 @@ gdt:
 		dw 0xFFFF ;limit
 		dw 0	  ; base 15:0
 		db 0	  ; base 23:16
-		db 0x9A   ; type -> ring 0 code and readable
+		db 0x92   ; type -> ring 0 code and writable
 		db 0xCF   ; page granular, 32 bit
 		db 0	  ; base 31:24
 gdt_end: ; to calc size
