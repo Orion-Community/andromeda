@@ -20,5 +20,13 @@
 #define __CPU_H
 
 extern int getVendor();
+extern void sti();
+extern void cli();
+extern unsigned short getCS();
+extern unsigned short getDS();
+extern unsigned short getFS();
+extern unsigned short getGS();
+extern unsigned short getSS();
+extern unsigned int getESP();
 
 #endif

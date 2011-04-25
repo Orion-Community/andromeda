@@ -9,17 +9,6 @@
 
 int pic = 0;
 
-#ifdef IDTTEST
-void printEntry(idtEntry_t* gate)
-{
-  int *a = ((void*)gate);
-  int *b = ((void*)gate)+4;
-  putc('\n');
-  printhex(*a); putc('\n');
-  printhex(*b); putc('\n');
-} 
-#endif
-
 
 idtEntry_t* table;
 void setIdtGate(unsigned char num, unsigned int base, unsigned short sel, unsigned char flags)
@@ -34,7 +23,7 @@ void setIdtGate(unsigned char num, unsigned int base, unsigned short sel, unsign
     table[num].flags   = flags /* | 0x60 */;
 }
 
-void setExceptions(idtEntry_t* IDT, int cs)
+void setExceptions()
 {
   setIdtGate( 0, (unsigned int)divByZero , 0x08, 0x8E);
   setIdtGate( 1, (unsigned int)depricated, 0x08, 0x8E);
@@ -95,11 +84,9 @@ void prepareIDT()
   #endif
   table = kalloc(sizeof(idtEntry_t)*SIZE);
   idt_t* idt = kalloc(sizeof(idt_t));
-  setExceptions(table, cs);
+  setExceptions();
   setIDT(idt, table, SIZE);
-  #ifdef IDTTEST
-  printEntry(&table[4]);
-  #endif
+  setIRQ(INTBASE, INTBASE+8);
   loadIdt(idt);
   #ifdef WARN
   printf("WARNING: Exceptions need a better implementation!\n");

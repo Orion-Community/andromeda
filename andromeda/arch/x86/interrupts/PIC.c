@@ -19,9 +19,33 @@
 #include <interrupts.h>
 #include <error/panic.h>
 #include <PIC/PIC.h>
+#include <io.h>
+
+void picRemap(int offset1, int offset2)
+{
+  unsigned char a1, a2;
+  a1 = inb(PIC1DATA); // Save masks
+  a2 = inb(PIC2DATA);
+  
+  outb(PIC1COMMAND, ICW1_INIT | ICW1_ICW4); // Tell the master that we will initialise with ICW4
+  outb(PIC2COMMAND, ICW1_INIT | ICW1_ICW4); // Tell the slave that we will initialise with ICW4
+  ioWait();
+  outb(PIC1DATA, offset1); // Map the first set of interrupts
+  outb(PIC2DATA, offset2); // Map the second set of interrupts
+  ioWait();
+  outb(PIC1DATA, 4); // Set the cascading accordingly
+  outb(PIC2DATA, 2);
+  ioWait();
+  outb(PIC1DATA, ICW4_8086); // Make the PIC intel compatible
+  outb(PIC2DATA, ICW4_8086);
+  ioWait();
+  outb(PIC1DATA, a1); // Restore the saved masks
+  outb(PIC2DATA, a2);
+}
 
 void initPIC()
 {
-  pic = PIC;
-  panic("No implementation for the PIC!");
+  pic = PIC; // Tell the rest of the world that the legacy PIC has been chosen
+  picRemap(INTBASE, INTBASE+8);
+  //panic("No implementation for the PIC!");
 }

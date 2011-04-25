@@ -25,6 +25,8 @@ extern int pic;
 #define PIC 	0x1
 #define APIC	0x2
 
+#define INTBASE     0x20
+
 extern int DetectAPIC();
 extern unsigned int getCS();
 extern unsigned int getDS();

@@ -40,7 +40,9 @@ void intInit()
     printf("WARNING: The APIC hasn't got any implementation!\n");
     initPIC();
     #endif
+    sti();
     return;
   }
   initPIC();
+  sti();
 }

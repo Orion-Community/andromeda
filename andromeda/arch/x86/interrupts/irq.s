@@ -60,5 +60,5 @@ irqStub:
   popa ; Pop all registers
   
   add esp, 8 ; Fix the stack
-  
+  sti
   iret ; Return

@@ -1,9 +1,12 @@
 #include <interrupts.h>
 #include <irq.h>
+#include <PIC/PIC.h>
+#include <APIC/APIC.h>
 #include <types.h>
+#include <io.h>
 
 void timerTick(); // The timer function
-void picIntA(int irqNo); // Reset the interrupt pin
+void picEOI(int irqNo); // Reset the interrupt pin
 
 void irqHandle(isrVal_t regs)
 {
@@ -13,6 +16,7 @@ void irqHandle(isrVal_t regs)
       timerTick();
       break;
     case 0x1:
+      printf("Keyboard\n");
       break;
     case 0x2:
       break;
@@ -47,7 +51,7 @@ void irqHandle(isrVal_t regs)
   }
   if (pic == PIC)
   {
-    picIntA(regs.funcPtr);
+    picEOI(regs.funcPtr); // Send end of interrupt signal.
   }
 }
 unsigned long long timer = 0;
@@ -56,11 +60,11 @@ void timerTick()
   timer+=1;
 }
 
-void picIntA(int irqNo)
+void picEOI(int irqNo) // Send end of interrupt
 {
   if (irqNo >= 8)
   {
-    // Send irq acknowledge to slave PIC.
+    outb(PIC2COMMAND, PICEOI);
   }
-  // Send irq acknowledge to master PIC.
+  outb(PIC1COMMAND, PICEOI);
 }
