@@ -1,5 +1,5 @@
 ;
-;    Enable the A20 line. It represents the 21st bit (20 when counting from 0) of any mem address.
+;    Enable the A20 line with the AT Keyboard controller. It represents the 21st bit (20 when counting from 0) of any mem address.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
