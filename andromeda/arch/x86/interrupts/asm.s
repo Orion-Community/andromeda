@@ -17,6 +17,7 @@
 ; The assembly headers for the interrupts.
 [GLOBAL sti]
 [GLOBAL cli]
+[GLOBAL halt]
 [GLOBAL DetectAPIC]
 [GLOBAL getVendor]
 [GLOBAL getCS]
@@ -34,17 +35,29 @@ cli: ; Shut down interrupts from C level code
   cli ; Stop interrupts
   ret
   
+halt:
+  pushfd ; Store the flags register
+  pop eax ; pop it into eax
+  sti ; Start all interrupts
+  hlt ; Stop the CPU untill another interrupt occurs.
+  test eax, 0x200 ; Test for the interrupt bit
+  jnz halt1 ; if enabled stop interrupts again.
+  ret
+halt1:
+  cli ; No interrupts allowed from this point
+  ret
+  
 DetectAPIC:
   enter
   
   call getVendor
   cmp eax, 1
-  jnz test
+  jnz testAPIC
   cmp eax, 2
-  jnz test
+  jnz testAPIC
   jmp err
   
-test:
+testAPIC:
   mov eax, 1 ; prepare CPUID
   cpuid ; Issue CPUID
   

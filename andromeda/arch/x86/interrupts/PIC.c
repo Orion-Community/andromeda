@@ -36,7 +36,7 @@ void picRemap(int offset1, int offset2)
   outb(PIC1DATA, 4); // Set the cascading accordingly
   outb(PIC2DATA, 2);
   ioWait();
-  outb(PIC1DATA, ICW4_8086); // Make the PIC intel compatible
+  outb(PIC1DATA, ICW4_8086); // Make the PIC 8086 compatible
   outb(PIC2DATA, ICW4_8086);
   ioWait();
   outb(PIC1DATA, a1); // Restore the saved masks

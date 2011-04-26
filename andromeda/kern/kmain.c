@@ -100,7 +100,7 @@ int kmain(/* boot data , boot data , gzipped kernel*/)
 	{
 		#ifndef __COMPRESSED
 		// If this loop gets reached more than once:
-		sched();
+		halt();
 		#endif
 	}
 	return 0; // To keep the compiler happy.

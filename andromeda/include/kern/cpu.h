@@ -22,6 +22,7 @@
 extern int getVendor();
 extern void sti();
 extern void cli();
+extern void halt();
 extern unsigned short getCS();
 extern unsigned short getDS();
 extern unsigned short getFS();
