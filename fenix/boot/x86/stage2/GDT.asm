@@ -28,16 +28,16 @@ gdt:
 		dw 0xFFFF ;limit
 		dw 0	  ; base 15:0
 		db 0	  ; base 23:16
-		db 0x9A   ; type -> ring 0 code and readable
-		db 0xCF   ; page granular, 32 bit
+		db 10011010b   ; type -> ring 0 code and readable
+		db 11001111b   ; page granular, 32 bit
 		db 0	  ; base 31:24
 
 	GDT_DATA_SEL equ $-gdt ; code selector
 		dw 0xFFFF ;limit
 		dw 0	  ; base 15:0
 		db 0	  ; base 23:16
-		db 0x92   ; type -> ring 0 code and writable
-		db 0xCF   ; page granular, 32 bit
+		db 10010010b   ; type -> ring 0 code and writable
+		db 11001111b   ; page granular, 32 bit
 		db 0	  ; base 31:24
 gdt_end: ; to calc size
 
