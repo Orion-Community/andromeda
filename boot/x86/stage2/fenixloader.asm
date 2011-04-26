@@ -36,19 +36,15 @@ main:
 	mov si, a20ok
 	call print
 	
+	cli
+	xor ax, ax
+	mov ds, ax
 	lgdt [gdtr]
 
 	mov ax, 0x10
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
-	jmp 0x8:.pm
-
-.pm:
-	mov eax, cr0
-	or eax, 00000001b
-	mov cr0, eax
-	cli
 	jmp 0x8:do_pm
 
 .bailout:
@@ -59,9 +55,6 @@ main:
 	int 0x19 ; this bios loads sector 1 into 0x0:0x7C00 and executes (= reboot)
 	
 	cli
-	jmp $
-
-do_pm:
 	jmp $
 
 ;
@@ -75,6 +68,13 @@ do_pm:
 ;
 
 %include 'stage2/A20.asm'
+
+[BITS 32]
+do_pm:
+	mov eax, cr0
+	or eax, 00000001b
+	mov cr0, eax
+	jmp 0x8:do_pm
 
 ;
 ; Data section
