@@ -49,7 +49,7 @@ main:
 	or eax, 00000001b
 	mov cr0, eax
 	cli
-	jmp 0x8:pm
+	jmp 0x8:do_pm
 
 .bailout:
 	mov si, reboot
