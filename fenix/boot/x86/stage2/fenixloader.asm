@@ -35,6 +35,21 @@ main:
 .a20success:
 	mov si, a20ok
 	call print
+	
+	lgdt [gdtr]
+
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	jmp 0x8:.pm
+
+.pm:
+	mov eax, cr0
+	or eax, 00000001b
+	mov cr0, eax
+	cli
+	jmp 0x8:do_pm
 
 .bailout:
 	mov si, reboot
@@ -44,6 +59,9 @@ main:
 	int 0x19 ; this bios loads sector 1 into 0x0:0x7C00 and executes (= reboot)
 	
 	cli
+	jmp $
+
+do_pm:
 	jmp $
 
 ;
@@ -66,5 +84,27 @@ main:
 	a20ok db 'A20 Line is successfully enabled!', 0x0
 	a20failed db 'Setting up the A20 line failed, ready to reboot...', 0x0
 	reboot db 'Press a key to reboot', 0x0
+
+gdt:
+    times 8 db 0
+    gdt_code:               ; Code segment, read/execute, nonconforming
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x9A
+        db 0xCF
+        db 0
+    gdt_data:               ; Data segment, read/write, expand down
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x92
+        db 0xCF
+        db 0
+gdt_end: ; to calc size
+
+gdtr:
+	dw gdt_end - gdt - 1 ; gdt limit = size
+	dd gdt ; gdt base address
 
 times 512 - ($ - $$) db 0

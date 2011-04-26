@@ -24,4 +24,17 @@ enterPM:
 	or eax, 00000001b
 	mov cr0, eax
 	
-	jmp 0x08:pmodemain
+	jmp GDT_CODE_SEL:pmodemain
+
+[BITS 32]
+pmodemain:
+	mov ax, GDT_DATA_SEL
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	jmp $
+;
+; gdtr
+;
+
+%include 'stage2/GDT.asm'

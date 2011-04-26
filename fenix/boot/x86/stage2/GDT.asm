@@ -42,8 +42,8 @@ gdt:
 gdt_end: ; to calc size
 
 gdtr:
-	dw gdt - gdt_end - 1 ; gdt limit = size
-	db gdt ; gdt base address
+	dw gdt_end - gdt - 1 ; gdt limit = size
+	dd gdt ; gdt base address
 
 
 
