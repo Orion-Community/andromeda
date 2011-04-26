@@ -15,11 +15,12 @@ What should be improved:
 Next item:
 	* Read theory about memory addressing (liniear, absoluut, seg:off) => 
 	* Multiboot compatibility
-
+	* Makefiles
+	* Rewrite of PM entering
 What has to be done:
 
 	* Make the bootloader multiboot compatible
-	* write kernelmain
+	* write a make file
 
 Notes:
 ­eerst image loading met interrupts, dan far jump, ­dan GDT
