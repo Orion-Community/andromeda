@@ -41,7 +41,7 @@ main:
 ;	call loadimage
 	mov si,loaded
 	call print
-	jmp 0x7c0:0x200
+	jmp 0x7C0:0x200
 	cli
 	jmp $
 ;

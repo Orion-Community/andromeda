@@ -49,7 +49,7 @@ main2:
 	mov eax, cr0
 	or eax, 00000001b
 	mov cr0, eax
-	jmp 0x8:do_pm
+	jmp 0x8:pm_main
 	;jmp 0x8:.bailout
 
 .bailout:
@@ -74,14 +74,11 @@ main2:
 
 %include 'stage2/A20.asm'
 
-[BITS 32]
-do_pm:
-	mov si, reboot
-	call print
-	xor ah, ah
-	int 0x16 ; wait for char
-	int 0x19 ; this bios loads sector 1 into 0x0:0x7C00 and executes (= reboot)
-	jmp $
+;
+; Protected mode main
+;
+
+%include 'stage2/pmodemain.asm'
 
 ;
 ; Data section
@@ -114,7 +111,7 @@ gdtr:
 	dw gdt_end - 1; gdt limit = size
 	dd gdt ; gdt base address
 
-times 1534 - ($ - $$) db 0
+;times 1534 - ($ - $$) db 0
 
 ;section .final
 last: ; pointer to the last bytes
