@@ -9,19 +9,17 @@ What is done:
 	* Shell scripts to build and clean
 	* Rewrite of the image loaders
 	* GDT and pm implemented
-
+	* Makefile(s) --> Thank you Bart v. Kuivenhoven for first version.
 What should be improved:
 
 Next item:
 	* Read theory about memory addressing (liniear, absoluut, seg:off) => 
 	* Multiboot compatibility
-	* Makefiles
 	* Link the kernel into the bootloader.
 
 What has to be done:
 
 	* Make the bootloader multiboot compatible
-	* write a make file
 	* Get the kernel working.
 
 Notes:

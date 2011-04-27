@@ -21,3 +21,4 @@ goldeneagle.bin: $(STAGE1) $(STAGE1DEPS)
 
 goldeneaglebl.bin: goldeneagle.bin
 	dd if=$(BIN1) of=$(DISK) seek=0
+	rm $(BIN1)
