@@ -26,17 +26,18 @@ loadimage:
 	int 0x13
 	jc .extreset
 
-.extload:
+.calcsector:
 	mov ax, last
-	sub ax, 510
+	sub ax, 512
 	mov bx, 512
 	idiv bx
 	test dx, dx
-	jz .ifzero
+	jz .extload
 
 	inc ax
-.ifzero:
-	mov [re], ax
+
+.extload:
+	mov [sector], ax
 
 	mov ah,0x42
 	mov dl,0x80
@@ -46,30 +47,30 @@ loadimage:
 
 	loop .extload
 
-.oldway:
-	mov cx, 5
-
-.oldreset:
-	xor ah, ah ; function 0 = reset
-	mov dl, 0x80
-	int 0x13
-	jnc .oldload
-
-	loop .oldreset
-
-.oldload:
-	mov bx, 0x7C0	; segment
-	mov es, bx
-	mov bx, 0x200	; offset
-
-	mov ah, 0x2					; function 2
-	mov al, 0x1					; read 1 sector
-	xor ch, ch					; track
-	mov cl, 0x2					; sector to read
-	xor dh, dh					; head number
-	mov dl, 0x80					; drive number
-	int 0x13					; call BIOS - Read the sector
-	
+; .oldway:
+; 	mov cx, 5
+; 
+; .oldreset:
+; 	xor ah, ah ; function 0 = reset
+; 	mov dl, 0x80
+; 	int 0x13
+; 	jnc .oldload
+; 
+; 	loop .oldreset
+; 
+; .oldload:
+; 	mov bx, 0x7C0	; segment
+; 	mov es, bx
+; 	mov bx, 0x200	; offset
+; 
+; 	mov ah, 0x2					; function 2
+; 	mov al, 0x1					; read 1 sector
+; 	xor ch, ch					; track
+; 	mov cl, 0x2					; sector to read
+; 	xor dh, dh					; head number
+; 	mov dl, 0x80					; drive number
+; 	int 0x13					; call BIOS - Read the sector
+; 	
 .return:
 	ret
 
@@ -80,7 +81,7 @@ loadimage:
 lbaadr:
 	db 10h      	; packet size (16 bytes)
 	db 0      	; reserved, must be 0
-re:	dw 0	 	; sectors to read
+ sector resw 1	 	; sectors to read
 	dw 0x200   	; Buffer's offset
 	dw 0x7c0   	; Buffer's segment
 	dq 0x1		; starting sector (sector to read)

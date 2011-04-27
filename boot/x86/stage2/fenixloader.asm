@@ -115,6 +115,7 @@ gdtr:
 	dd gdt ; gdt base address
 
 times 1022 - ($ - $$) db 0
-section .final
-last:
+
+;section .final
+last: ; pointer to the last bytes
 	dw 0x8899
