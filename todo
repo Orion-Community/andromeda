@@ -16,11 +16,13 @@ Next item:
 	* Read theory about memory addressing (liniear, absoluut, seg:off) => 
 	* Multiboot compatibility
 	* Makefiles
-	* Rewrite of PM entering
+	* Link the kernel into the bootloader.
+
 What has to be done:
 
 	* Make the bootloader multiboot compatible
 	* write a make file
+	* Get the kernel working.
 
 Notes:
 ­eerst image loading met interrupts, dan far jump, ­dan GDT

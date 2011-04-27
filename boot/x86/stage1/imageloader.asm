@@ -27,16 +27,15 @@ loadimage:
 	jc .extreset
 
 .calcsector:
-	xor ax, ax
-	xor dx, dx
+	xor dx, dx  ; The modulo
 
-	lea ax, [last]
-	sub ax, 0x7C00
-	sub ax, 510
-	mov bx, 512
+	lea ax, [last] ; pointer to the last word
+	sub ax, 0x7C00 ; offset
+	sub ax, 510    ; own size
+	mov bx, 512  ; sector size
 	idiv bx
-	cmp dx, 0x0
-	je .extload
+	and dx, dx
+	jz .extload
 
 	inc ax
 
@@ -87,5 +86,5 @@ lbaadr:
 	db 0      	; reserved, must be 0
 sector  resw 1		; sectors to read
 	dw 0x200   	; Buffer's offset
-	dw 0x7c0   	; Buffer's segment
+	dw 0x7C0   	; Buffer's segment
 	dq 0x1		; starting sector (sector to read)
