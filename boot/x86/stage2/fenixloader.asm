@@ -115,5 +115,6 @@ gdtr:
 	dd gdt ; gdt base address
 
 times 1022 - ($ - $$) db 0
+section .final
 last:
 	dw 0x8899
