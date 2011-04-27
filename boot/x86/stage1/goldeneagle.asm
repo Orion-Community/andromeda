@@ -18,7 +18,7 @@
 
 [BITS 16]
 [ORG 0x7C00]
-
+;
 ;section .asm
 main:
 	mov si, boot
