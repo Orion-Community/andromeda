@@ -84,7 +84,7 @@ loadimage:
 lbaadr:
 	db 10h      	; packet size (16 bytes)
 	db 0      	; reserved, must be 0
-sector  resw 1		; sectors to read
+sector  dw 1		; sectors to read
 	dw 0x200   	; Buffer's offset
 	dw 0x7C0   	; Buffer's segment
 	dq 0x1		; starting sector (sector to read)
