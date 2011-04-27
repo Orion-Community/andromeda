@@ -20,5 +20,5 @@ goldeneagle.bin: $(STAGE1) $(STAGE1DEPS)
 	$(AS) $(ASFLAGS) $(STAGE1) -o $(BIN1)
 
 goldeneaglebl.bin: goldeneagle.bin
-	dd if=$(BIN1) of=$(DISK) seek=0
+	dd if=$(BIN1) of=$(DISK) conv=sync ibs=512
 	rm $(BIN1)
