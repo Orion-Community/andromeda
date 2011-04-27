@@ -27,12 +27,16 @@ loadimage:
 	jc .extreset
 
 .calcsector:
-	mov ax, last
-	sub ax, 512
+	xor ax, ax
+	xor dx, dx
+
+	lea ax, [last]
+	sub ax, 0x7C00
+	sub ax, 510
 	mov bx, 512
 	idiv bx
-	test dx, dx
-	jz .extload
+	cmp dx, 0x0
+	je .extload
 
 	inc ax
 
@@ -81,7 +85,7 @@ loadimage:
 lbaadr:
 	db 10h      	; packet size (16 bytes)
 	db 0      	; reserved, must be 0
- sector resw 1	 	; sectors to read
+sector  resw 1		; sectors to read
 	dw 0x200   	; Buffer's offset
 	dw 0x7c0   	; Buffer's segment
 	dq 0x1		; starting sector (sector to read)

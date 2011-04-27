@@ -114,8 +114,8 @@ gdtr:
 	dw gdt_end - 1; gdt limit = size
 	dd gdt ; gdt base address
 
-times 1022 - ($ - $$) db 0
+times 1534 - ($ - $$) db 0
 
 ;section .final
 last: ; pointer to the last bytes
-	dw 0x8899
+	dw 0x44AA
