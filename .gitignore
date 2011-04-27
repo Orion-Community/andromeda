@@ -1,0 +1,2 @@
+boot/x86/*.bin
+boot/x86/*/*.bin

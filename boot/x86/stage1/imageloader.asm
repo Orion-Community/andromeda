@@ -31,6 +31,11 @@ loadimage:
 	sub ax, 510
 	mov bx, 512
 	idiv bx
+	test dx, dx
+	jz .ifzero
+
+	inc ax
+.ifzero:
 	mov [re], ax
 
 	mov ah,0x42
