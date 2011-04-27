@@ -15,13 +15,3 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef MATH_H
-#define MATH_H
-
-#define RANDMAX 0xFFFF
-#define RANDMIN 0x0
-
-void randomize(unsigned int seed);
-int random();
-
-#endif

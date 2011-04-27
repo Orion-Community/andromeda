@@ -116,7 +116,7 @@ void putc(unsigned char i)
 	if (cursor.x+1 > WIDTH)
 	{
 		cursor.x %= WIDTH;
-		cursor.y += cursor.x/WIDTH;
+		cursor.y += 1;
 	}
 	if (cursor.y >= HEIGHT)
 	{
