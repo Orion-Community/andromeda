@@ -17,9 +17,9 @@
 ;
 
 [bits 16]
-[org 0x1000]
+;[org 0x1000]
 
-main:
+main2:
 	mov si, exec
 	call print
 	
@@ -45,7 +45,12 @@ main:
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
+
+	mov eax, cr0
+	or eax, 00000001b
+	mov cr0, eax
 	jmp 0x8:do_pm
+	;jmp 0x8:.bailout
 
 .bailout:
 	mov si, reboot
@@ -61,7 +66,7 @@ main:
 ; Output routines
 ;
 
-%include 'print.asm'
+;%include 'print.asm'
 
 ;
 ; A20 line
@@ -71,10 +76,12 @@ main:
 
 [BITS 32]
 do_pm:
-	mov eax, cr0
-	or eax, 00000001b
-	mov cr0, eax
-	jmp 0x8:do_pm
+	mov si, reboot
+	call print
+	xor ah, ah
+	int 0x16 ; wait for char
+	int 0x19 ; this bios loads sector 1 into 0x0:0x7C00 and executes (= reboot)
+	jmp $
 
 ;
 ; Data section
@@ -101,10 +108,12 @@ gdt:
         db 0x92
         db 0xCF
         db 0
-gdt_end: ; to calc size
+gdt_end equ $ - gdt
 
 gdtr:
-	dw gdt_end - gdt - 1 ; gdt limit = size
+	dw gdt_end - 1; gdt limit = size
 	dd gdt ; gdt base address
 
-times 512 - ($ - $$) db 0
+times 1022 - ($ - $$) db 0
+last:
+	dw 0x8899

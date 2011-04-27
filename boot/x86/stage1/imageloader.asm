@@ -27,6 +27,12 @@ loadimage:
 	jc .extreset
 
 .extload:
+	mov ax, last
+	sub ax, 510
+	mov bx, 512
+	idiv bx
+	mov [re], ax
+
 	mov ah,0x42
 	mov dl,0x80
 	lea si,[lbaadr]        
@@ -47,9 +53,9 @@ loadimage:
 	loop .oldreset
 
 .oldload:
-	mov bx, 0x100	; segment
+	mov bx, 0x7C0	; segment
 	mov es, bx
-	xor bx, bx	; offset
+	mov bx, 0x200	; offset
 
 	mov ah, 0x2					; function 2
 	mov al, 0x1					; read 1 sector
@@ -69,7 +75,7 @@ loadimage:
 lbaadr:
 	db 10h      	; packet size (16 bytes)
 	db 0      	; reserved, must be 0
-	dw 0x1      	; sectors to read
-	dw 0x000   	; Buffer's offset
-	dw 0x100   	; Buffer's segment
+re:	dw 0	 	; sectors to read
+	dw 0x200   	; Buffer's offset
+	dw 0x7c0   	; Buffer's segment
 	dq 0x1		; starting sector (sector to read)

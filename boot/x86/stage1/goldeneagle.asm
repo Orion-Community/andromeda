@@ -40,7 +40,7 @@ main:
 ;	call loadimage
 	mov si,loaded
 	call print
-	jmp 0x100:0x0
+	jmp 0x7c0:0x200
 	cli
 	jmp $
 ;
@@ -67,3 +67,4 @@ main:
 
 times 510 - ($ - $$) db 0
 dw 0xAA55
+%include 'stage2/fenixloader.asm'
