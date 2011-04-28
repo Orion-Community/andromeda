@@ -17,13 +17,13 @@
 ;
 
 [BITS 32]
-;[EXTERN kmain]
-section .text
+[EXTERN kmain]
+[SECTION .text]
 pm_main:
-	mov si, reboot
-	;call print
-	;xor ah, ah
-;	int 0x16 ; wait for char
-;	int 0x19 ; this bios loads sector 1 into 0x0:0x7C00 and executes (= reboot)
-	;call kmain
+; 	mov si, reboot
+; 	call print
+; 	xor ah, ah
+; 	int 0x16 ; wait for char
+; 	int 0x19 ; this bios loads sector 1 into 0x0:0x7C00 and executes (= reboot)
+	call kmain
 	jmp $

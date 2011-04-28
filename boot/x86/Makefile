@@ -1,12 +1,29 @@
 AS=nasm
 LD=ld
-LDFLAGS=-Tlink.ld -b binary
-ASFLAGS=-f bin -o goldeneagle.bin
+CC=gcc
+
+# AS flags
+ASFLAGS=-f elf32
+
+# LD flags
+LDFLAGS=-Tlink.ld --oformat binary
+
+# CC flags
+CCFLAGS=-c -e kmain
+
+# src files
 STAGE1=stage1/goldeneagle.asm
-STAGE1DEPS=print.asm stage1/imageloader.asm stage2/A20.asm stage2/fenixloader.asm stage2/GDT.asm stage2/kmain.c stage2/pm.asm stage2/pmodemain.asm
+KMAIN=stage2/kmain.c
+
+# Deps
+STAGE1_DEPS=print.asm stage1/imageloader.asm stage2/A20.asm stage2/fenixloader.asm stage2/GDT.asm stage2/pm.asm stage2/pmodemain.asm
+KERN_DEPS=stage2/kmain.c
+
+# Image's
 DISK=./goldeneaglebl.bin
-BIN1=./goldeneagle.bin
-BIN0=./bin0.bin
+TEMP=./temp.bin
+LOADER=./loader.o
+KERN=kern.o
 
 .PHONY: all
 all: goldeneaglebl.bin
@@ -17,13 +34,15 @@ test: all
 
 .PHONY: clean
 clean:
+	rm *.o
 	rm *.bin
 
-bin0.bin:$(STAGE1) $(STAGE1DEPS)
-	$(AS) $(ASFLAGS) $(STAGE1) -o $(BIN0)
+kern.o: $(KERN_DEPS)
+	$(CC) $(CCFLAGS) -o $(KERN) $(KMAIN)
 
-goldeneagle.bin: bin0.bin
-	$(LD) $(LDFLAGS) -o $(BIN1) $(BIN0)
+loader.o:$(STAGE1) $(STAGE1_DEPS)
+	$(AS) $(ASFLAGS) -o $(LOADER) $(STAGE1)
 
-goldeneaglebl.bin: goldeneagle.bin
-	dd if=$(BIN1) of=$(DISK) conv=sync ibs=512
+goldeneaglebl.bin: $(LOADER) $(KERN)
+	$(LD) $(LDFLAGS) -o $(TEMP) $(LOADER) $(KERN)
+	dd if=$(TEMP) of=$(DISK) conv=sync ibs=512

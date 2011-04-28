@@ -19,7 +19,7 @@
 [BITS 16]
 ;[ORG 0x7C00]
 ;
-section .asm
+[SECTION .boot]
 main:
 	mov si, boot
 	call print
