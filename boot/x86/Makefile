@@ -1,7 +1,7 @@
 AS=nasm
 LD=ld
-LDFLAGS=-Tlink.ld -oformat=elf32-i386 -melf_i386
-ASFLAGS=-f elf -o goldeneagle.bin
+LDFLAGS=-Tlink.ld -b binary
+ASFLAGS=-f bin -o goldeneagle.bin
 STAGE1=stage1/goldeneagle.asm
 STAGE1DEPS=print.asm stage1/imageloader.asm stage2/A20.asm stage2/fenixloader.asm stage2/GDT.asm stage2/kmain.c stage2/pm.asm stage2/pmodemain.asm
 DISK=./goldeneaglebl.bin
@@ -26,4 +26,4 @@ goldeneagle.bin: bin0.bin
 	$(LD) $(LDFLAGS) -o $(BIN1) $(BIN0)
 
 goldeneaglebl.bin: goldeneagle.bin
-	dd if=$(BIN1) of=$(DISK) conv=sync ibs=512 count=4
+	dd if=$(BIN1) of=$(DISK) conv=sync ibs=512
