@@ -49,6 +49,8 @@
 #include <kern/cpu.h>
 
 int vendor = 0;
+multiboot_memory_map_t* mmap;
+size_t mmap_size;
 
 // Print a welcome message
 void announce()
@@ -73,17 +75,21 @@ int kmain()
 	  putc('\n');
 	  for (;;);
 	}
+	if (hdr->flags & 0x6)
+	{
+	  mmap = (multiboot_memory_map_t*)hdr->mmap_addr;
+	  
+	}
 	#endif
 	// Initialise the heap
 	initHeap(HEAP, HEAPSIZE);
 	// If in the compressed image
 	#ifdef __COMPRESSED
 	announce(); // print welcome message
+	#endif
 	#ifdef __INTEL
 	// Intel specific function
 	setGDT();  // Also in decompressed kernel as the compressed image could be overwritten
-	#endif
-	#endif
 	
 	#ifdef VENDORTELL
 	switch(getVendor())
@@ -97,6 +103,32 @@ int kmain()
 	  default:
 	    printf("You're using a system not officially supported\n");
 	}
+	#endif
+	#endif
+	
+	#ifdef DBG
+	if (hdr->flags & 1 << 6)
+         {
+           printf ("mmap_addr = "); printhex((unsigned) hdr->mmap_addr);
+	   printf(", mmap_length = ");printhex((unsigned) hdr->mmap_length); putc('\n');
+           for (mmap = (multiboot_memory_map_t *) hdr->mmap_addr;
+                (unsigned long) mmap < hdr->mmap_addr + hdr->mmap_length;
+                mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
+                                         + mmap->size + sizeof (mmap->size)))
+           {
+             printf (" size = ");
+             printhex((unsigned) mmap->size);
+	     printf(", base_addr = ");
+	     printhex(mmap->addr >> 32);
+	     printhex(mmap->addr & 0xffffffff);
+             printf (" length = ");
+	     printhex(mmap->len >> 32);
+	     printhex(mmap->len & 0xffffffff);
+	     printf(", type = ");
+	     printhex((unsigned) mmap->type);
+	     putc('\n');
+	   }
+         }
 	#endif
 	
 	//installInterruptVectorTable();

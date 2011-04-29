@@ -22,7 +22,7 @@ typedef unsigned char boolean;
 #define FALSE 0
 #define TRUE !FALSE
 
-typedef unsigned int size_t;
+typedef unsigned long size_t;
 
 typedef struct
 {

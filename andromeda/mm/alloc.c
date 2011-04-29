@@ -111,20 +111,14 @@ void* alloc (size_t size, boolean pageAlligned)
 				/* 
 				 * If the block isn't used and the block should be alligned with the page boundary
 				 * this block is called. The ifdef below is just to get the syntax right for different
-				 * kind of architectures. X86 reffers to a 32-bits environment, else we'll assume a
-				 * 64 bits environment.
+				 * kind of architectures.
 				 *
 				 * The code figures out the required offset for the block to be able to hold the desired
 				 * block.
 				 */
-				#ifdef X86
-				unsigned int offset = PAGEBOUNDARY-((int)carrige+sizeof(memNode_t))%PAGEBOUNDARY;
-				#else
-				unsigned int offset = PAGEBOUNDARY-(long long)carrige+sizeof(memNode_t)%PAGEBOUNDARY;
-				#endif
-				
+				unsigned long offset = PAGEBOUNDARY-((long)carrige+sizeof(memNode_t))%PAGEBOUNDARY;
 				offset %= PAGEBOUNDARY;
-				unsigned int blockSize = offset+size;
+				unsigned long blockSize = offset+size;
 				
 				// The below code is debugging code
 				#ifdef MMTEST
@@ -367,11 +361,7 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 	if (pageAlligned)
 	{
 		// figure out whether or not the block is at the right place
-		#ifdef X86
-		if (((int)((void*)block+sizeof(memNode_t)))%PAGEBOUNDARY == 0)
-		#else
-		if (((long long)((void*)block+sizeof(memNode_t)))%PAGEBOUNDARY == 0)
-		#endif
+		if (((long)((void*)block+sizeof(memNode_t)))%PAGEBOUNDARY == 0)
 		{	// if so we can manage with a simple split
 			#ifdef MMTEST
 			printf("Simple split\n");
@@ -379,11 +369,7 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 			// If this block gets reached the block is at the offset in memory.
 			return split (block, size);
 		}
-		#ifdef X86
-		else if ((int)((void*)block+sizeof(memNode_t))%PAGEBOUNDARY != 0)
-		#else
-		else if ((long long)((void*)block+sizeof(memNode_t))%PAGEBOUNDARY != 0)
-		#endif
+		else if ((long)((void*)block+sizeof(memNode_t))%PAGEBOUNDARY != 0)
 		{	// if not we must do a bit more complex
 			#ifdef MMTEST
 			printf("Complex split\n");
@@ -393,23 +379,15 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 			// pageAlligned.
 			// Below we figure out where the second block should start using some algorithms
 			// of which it isn't if a shame a beginner doesn't fully get it.
-			#ifdef X86
-			unsigned int secondAddr;
-			unsigned int base = (unsigned int)((void*)block+2*sizeof(memNode_t)); // the base address is put in an int with some header
+			unsigned long secondAddr;
+			unsigned long base = (unsigned int)((void*)block+2*sizeof(memNode_t)); // the base address is put in an int with some header
 											      // sizes because the calculation requires them.
-			unsigned int offset = PAGEBOUNDARY-(base%PAGEBOUNDARY); // the addrress is used to figure out the offset to the page boundary
-			secondAddr = (unsigned int)((void*)block+sizeof(memNode_t)); // put the base address into second
+			unsigned long offset = PAGEBOUNDARY-(base%PAGEBOUNDARY); // the addrress is used to figure out the offset to the page boundary
+			secondAddr = (unsigned long)((void*)block+sizeof(memNode_t)); // put the base address into second
 			secondAddr += offset; // add the offset to second
 			memNode_t* second = (void*)secondAddr; // put the actual address in second
-			#else
-			unsigned long long secondAddr; // do the same as above but now for 64-bits machines.
-			unsigned long long base = (unsigned long long)((void*)block+2*sizeof(memNode_t));
-			unsigned long long offset = PAGEBOUNDARY-(base%PAGEBOUNDARY);
-			secondAddr = (unsigned long long)((void*)block+sizeof(memNode_t));
-			secondAddr += offset;
-			memNode_t* second = (void*)secondAddr;
-			#endif
 			memNode_t* next = block->next; // Temporarilly store next
+			
 			int secondSize = block->size - ((void*)second - (void*)block); // second's temporary size gets calculated.
 			initHdr(second, secondSize); // init the second block with the temporary size
 			block->size = (void*)second-((void*)block+sizeof(memNode_t)); // fix the original block size as it isn't correct anymore.

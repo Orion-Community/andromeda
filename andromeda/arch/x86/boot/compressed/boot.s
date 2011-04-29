@@ -17,6 +17,7 @@
 ;
 ;	The multiboot header file, calls the C-level entry point
 ;
+%ifdef __COMPRESSED
 [section .boot]
 MBOOT_PAGE_ALIGN    equ 1<<0    ; Load kernel and modules on a page boundary
 MBOOT_MEM_INFO      equ 1<<1    ; Provide your kernel with memory info
@@ -66,3 +67,4 @@ start:
     jmp $                       ; Enter an infinite loop, to stop the processor
                                 ; executing whatever rubbish is in the memory
                                 ; after our kernel!
+%endif
