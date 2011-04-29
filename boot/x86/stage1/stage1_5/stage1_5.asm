@@ -28,6 +28,8 @@ main:
 	or al, al
 	jnz .bailout
 
+	jmp 0x7E0:0x400
+
 	cli
 	jmp $
 

@@ -28,6 +28,7 @@ all: $(GEBL)
 .PHONY: clean
 clean:
 	rm boot/x86/*/*/*.o
+	rm boot/x86/stage2/*.o
 	rm build/*.bin
 
 $(STAGE1_5): $(STAGE15_DEPS)

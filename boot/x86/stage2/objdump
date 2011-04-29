@@ -1,0 +1,72 @@
+
+stage2.o:     file format elf32-i386
+stage2.o
+architecture: i386, flags 0x00000011:
+HAS_RELOC, HAS_SYMS
+start address 0x00000000
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .stage2       0000003f  00000000  00000000  00000160  2**0
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
+  1 .end          00000002  00000000  00000000  000001a0  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+SYMBOL TABLE:
+00000000 l    df *ABS*	00000000 boot/x86/stage2/stage2.asm
+00000000 l    d  .stage2	00000000 .stage2
+00000000 l    d  .end	00000000 .end
+00000000 l       .stage2	00000000 stage2main
+0000000a l       .stage2	00000000 println
+00000018 l       .stage2	00000000 println.return
+00000029 l       .stage2	00000000 stage2
+00000000 g       .end	00000000 endptr
+
+
+
+Disassembly of section .stage2:
+
+00000000 <stage2main>:
+   0:	be 29 00 e8 04       	mov    $0x4e80029,%esi
+			1: R_386_16	.stage2
+   5:	00 fa                	add    %bh,%dl
+   7:	e9 fd ff ac 08       	jmp    8ad0009 <stage2+0x8acffe0>
+
+0000000a <println>:
+   a:	ac                   	lods   %ds:(%esi),%al
+   b:	08 c0                	or     %al,%al
+   d:	74 09                	je     18 <println.return>
+   f:	b4 0e                	mov    $0xe,%ah
+  11:	30 ff                	xor    %bh,%bh
+  13:	cd 10                	int    $0x10
+  15:	e9 f2 ff b0 0a       	jmp    ab1000c <stage2+0xab0ffe3>
+
+00000018 <println.return>:
+  18:	b0 0a                	mov    $0xa,%al
+  1a:	b4 0e                	mov    $0xe,%ah
+  1c:	30 ff                	xor    %bh,%bh
+  1e:	cd 10                	int    $0x10
+  20:	b0 0d                	mov    $0xd,%al
+  22:	b4 0e                	mov    $0xe,%ah
+  24:	30 ff                	xor    %bh,%bh
+  26:	cd 10                	int    $0x10
+  28:	c3                   	ret    
+
+00000029 <stage2>:
+  29:	53                   	push   %ebx
+  2a:	65 63 6f 6e          	arpl   %bp,%gs:0x6e(%edi)
+  2e:	64 20 73 74          	and    %dh,%fs:0x74(%ebx)
+  32:	61                   	popa   
+  33:	67 65 20 6c 6f       	addr16 and %ch,%gs:0x6f(%si)
+  38:	61                   	popa   
+  39:	64                   	fs
+  3a:	65                   	gs
+  3b:	64                   	fs
+  3c:	2e                   	cs
+  3d:	2e                   	cs
+	...
+
+Disassembly of section .end:
+
+00000000 <endptr>:
+   0:	ef                   	out    %eax,(%dx)
+   1:	be                   	.byte 0xbe

@@ -5,7 +5,6 @@ SECTIONS
 		*(.stage1)
 		*(.stage2)
 	}
-
 	.end :
 	{
 		*(.end)

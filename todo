@@ -1,0 +1,40 @@
+What is done:
+
+	* Fixed A20 line on 15th of april..
+	* Rewrite of the A20 Line enabling code
+	* device reset
+	* Reading a sector with int 013H
+	* Created a shell script to assembly the first and second stage.
+	* Jumping to the second stage bootloader.
+	* Shell scripts to build and clean
+	* Rewrite of the image loaders
+	* GDT and pm implemented
+	* Makefile(s) --> Thank you Bart v. Kuivenhoven for first version.
+What should be improved:
+
+Next item:
+	* Read theory about memory addressing (liniear, absoluut, seg:off) => 
+	* Multiboot compatibility
+	* Mega rewrite, see section below.
+
+What has to be done:
+
+	* Make the bootloader multiboot compatible
+	* Get the kernel working.
+
+Notes:
+­eerst image loading met interrupts, dan far jump, ­dan GDT
+­opnieuw far jump
+­en dan de pm
+
+//-----//
+In real mode, you obtain a linear address by adding the segment * 0x10 to the offset, so:
+
+la = (seg * 0x10) + offset
+
+0x1000:0x0002 == 0x10002 linear.
+
+[SECTION .below]
+Ontwerp van de bootloader:
+
+Stage 1 word ingeladen door de bios op 0x7C00. Deze stage zal zichzelf verder inladen ('stage 1.5'). Hierin zal de A20 bit worden enabled en dynamisch stage 2 worden in geladen. Deze zal recht achter stage 1.5 komen. Dan zal stage 2 worden uitgevoerd. Deze zal PE op 1 zetten en een GDT implementeren. Tot slot zal er een hele simpele kernel worden uitgevoerd (welke in stage 2 zit ingelinkt). Deze kernel zal een file system implementeren die het echte OS kan laden. Stage 1 kan direct tot flat binary worden gecompiled, maar stage 1.5, stage 2 en de kernel worden in elkaar gelinkt zodat stage 1.5 de end pointer in stage 2 kan zien.

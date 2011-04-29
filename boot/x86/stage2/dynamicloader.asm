@@ -30,8 +30,7 @@ dynamicloader:
 .calcsectors:
 	xor dx, dx
 	lea ax, [endptr]
-	sub ax, 0x7E00 ; mbr offset
-	sub ax, 0x400 ; stage 1.5 size
+	sub ax, 0x8200 ; stage 1.5 offset + its file size
 	mov bx, 0x200 ; sector size
 	idiv bx ; divide size by sector size
 	and dx, dx
@@ -40,7 +39,7 @@ dynamicloader:
 	inc ax
 
 .extread:
-	mov [sectors], ax
+	mov [lbar+2], ax
 	mov ah,0x42
 	mov dl,0x80
 	lea si,[lbar]        
@@ -53,7 +52,7 @@ dynamicloader:
 lbar:
 	db 0x10
 	db 0x0
-sectors	resw 1    ; ptr to amount of sectors to read
+	dw 0x01   ; ptr to amount of sectors to read
 	dw 0x400	; offset
 	dw 0x7E0	; segment
-	dq 0x2
+	dq 0x3
