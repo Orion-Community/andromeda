@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __COMPRESSED
 #ifndef IRQ_H
 #define IRQ_H
 
@@ -36,4 +37,5 @@ extern void irq13();
 extern void irq14();
 extern void irq15();
 
+#endif
 #endif

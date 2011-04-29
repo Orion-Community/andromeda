@@ -1,0 +1,47 @@
+include make/x86
+include make/makeIncl
+
+ARCH=-Iarch/x86/include $(CFLAGS)
+COMPRESSED= -D __COMPRESSED $(ARCH)
+
+BOOT_ASM=arch/x86/boot/compressed/boot.s
+INTERRUPTS=arch/x86/interrupts/APIC.c arch/x86/interrupts/IDT.c arch/x86/interrupts/PIC.c arch/x86/interrupts/isr.c
+INTERRUPTS_ASM=arch/x86/interrupts/asm.s
+INTERRUPTS_INC=arch/x86/include/PIC/PIC.h arch/x86/include/APIC/APIC.h arch/x86/include/interrupts.h
+ISR_ASM=arch/x86/interrupts/isr.s
+MM=arch/x86/mm/GDT.c
+MM_ASM=arch/x86/mm/lgdt.s
+MM_INC=arch/x86/include/GDT.h
+IO_ASM=arch/x86/io/io.s
+HWINT=arch/x86/interrupts/irq.c
+HWINT_ASM=arch/x86/interrupts/irq.s
+HWINT_INC=arch/x86/include/irq.h
+INCL_ASM=include/asm/call.mac include/asm/isr.mac
+
+.PHONY: all
+all: sboot.o sint.o cint.o cmm.o smm.o sio.o sisr.o shwint.o hwint.o
+
+sboot.o: $(BOOT_ASM) $(INCL_ASM)
+	$(AS) $(BOOT_ASM) $(ASFLAGS) -o sboot.o
+	
+sint.o: $(INTERRUPTS_ASM) $(INCL_ASM)
+	$(AS) $(INTERRUPTS_ASM) $(ASFLAGS) -o sint.o
+	
+cint.o: $(INTERRUPTS) $(INTERRUPTS_INC)
+	$(CC) $(FLAGS) $(COMPRESSED) -combine $(INTERRUPTS) -o cint.o
+	
+sisr.o: $(ISR_ASM) $(INCL_ASM)
+	$(AS) $(ISR_ASM) $(ASFLAGS) -o sisr.o
+	
+smm.o: $(MM_ASM) $(INCL_ASM)
+	$(AS) $(MM_ASM) $(ASFLAGS) -o smm.o
+	
+cmm.o: $(MM) $(MM_INC)
+	$(CC) $(FLAGS) $(COMPRESSED) -combine $(MM) -o cmm.o
+	
+sio.o: $(IO_ASM) $(INCL_ASM)
+	$(AS) $(IO_ASM) $(ASFLAGS) -o sio.o
+shwint.o: $(HWINT_ASM) $(INCL_ASM)
+	$(AS) $(HWINT_ASM) $(ASFLAGS) -o shwint.o
+hwint.o: $(HWINT) $(HWINT_INC)
+	$(CC) $(FLAGS) $(COMPRESSED) -combine $(HWINT) -o hwint.o

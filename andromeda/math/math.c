@@ -18,7 +18,9 @@
 #include <math/math.h>
 #include <mm/memory.h>
 
+#ifndef __COMPRESSED
 extern long long timer;
+#endif
 
 unsigned int seedTwo = 1; // Store the seeds
 unsigned int seedOne = 1;
@@ -36,8 +38,13 @@ void randomize(unsigned int s) // Create the seed
   }
   else
   {
+    #ifndef __COMPRESSED
     seedTwo = timer;
     seedOne = timer;
+    #else
+    seedTwo = 0xDEADBEEF;
+    seedOne = 0xCAFEBABE;
+    #endif
   }
 }
 

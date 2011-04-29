@@ -63,7 +63,7 @@ void setExceptions()
   setIdtGate(18, (unsigned int)machine, 0x08, 0x8E);
   setIdtGate(19, (unsigned int)simd, 0x08, 0x8E);
 }
-
+#ifndef __COMPRESSED
 void setIRQ(int offset1, int offset2)
 {
   setIdtGate(offset1+0, (unsigned int)irq0 , 0x08, 0x8E);
@@ -83,6 +83,7 @@ void setIRQ(int offset1, int offset2)
   setIdtGate(offset2+6, (unsigned int)irq14, 0x08, 0x8E);
   setIdtGate(offset2+7, (unsigned int)irq15, 0x08, 0x8E);
 }
+#endif
 
 void setIDT(idt_t *idt, idtEntry_t* table, unsigned int elements)
 {
@@ -102,8 +103,10 @@ void prepareIDT()
   table = kalloc(sizeof(idtEntry_t)*SIZE);
   idt_t* idt = kalloc(sizeof(idt_t));
   setExceptions();
+  #ifndef __COMPRESSED
   setIDT(idt, table, SIZE);
   setIRQ(INTBASE, INTBASE+8);
+  #endif
   loadIdt(idt);
   #ifdef WARN
   printf("WARNING: Exceptions need a better implementation!\n");

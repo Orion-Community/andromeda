@@ -5,7 +5,7 @@ all: x86
 
 .PHONY: x86
 x86:
-	$(MAKE) -f Makefile.x86 x86
+	$(MAKE) -f Makefile.comp x86
 
 .PHONY: amd64
 amd64:

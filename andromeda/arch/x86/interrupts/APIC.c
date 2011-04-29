@@ -32,6 +32,7 @@ void initAPIC()
 void intInit()
 {
   prepareIDT();
+  #ifndef __COMPRESSED
   if (DetectAPIC())
   {
     #ifndef WARN
@@ -45,4 +46,5 @@ void intInit()
   }
   initPIC();
   sti();
+  #endif
 }

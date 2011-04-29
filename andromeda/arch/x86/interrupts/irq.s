@@ -13,7 +13,7 @@
 
 ;   You should have received a copy of the GNU General Public License
 ;   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+%ifndef __COMPRESSED
 %include "asm/call.mac"
 %include "asm/isr.mac"
 
@@ -62,3 +62,4 @@ irqStub:
   add esp, 8 ; Fix the stack
   sti
   iret ; Return
+%endif
