@@ -28,18 +28,8 @@ dynamicloader:
 	int 0x13
 	jc .checkextensions
 
-.calcsectors:
-	xor dx, dx
-	lea ax, [endptr]
-	sub ax, 0x8200 ; stage 1.5 offset + its file size
-	mov bx, 0x200 ; sector size
-	idiv bx ; divide size by sector size
-	or dx, dx
-	jz .extread
-	
-	inc ax
-
 .extread:
+	call .calcsectors
 	mov [lbar+2], ax
 	mov ah,0x42
 	mov dl,0x80
@@ -49,34 +39,38 @@ dynamicloader:
 
 	loop .extread
 
-; .oldreset:
-; 	xor ah, ah ; function 0 = reset
-; 	mov dl, 0x80
-; 	int 0x13
-; 	jc .oldreset
+.oldreset:
+	xor ah, ah ; function 0 = reset
+	mov dl, 0x80
+	int 0x13
+	jc .oldreset
 
-; .oldload:
-; 	call .calcsectors
-; 
-; 	mov  bx, 0x7E0
-; 	mov es, bx
-; 	mov bx, 0x400
-; 
-; 	mov ah, 0x02 ; func 2
-; 	; mov al, sectorcount -> done by calcsectors
-; 	xor ch, ch ; track
-; 	mov cl, 0x4 ; sector to start
-; 	xor dh, dh ; head
-; 	mov dl, 0x80 ; drive
-; 	int 0x13
+.oldload:
+	mov  bx, 0x7E0 ; segment
+	mov es, bx
+	mov bx, 0x400  ; offset
+
+	call .calcsectors
+	mov ah, 0x02 ; func 2
+	; mov al, sectorcount -> done by calcsectors
+	xor ch, ch ; track
+	mov cl, 0x4 ; sector to start
+	xor dh, dh ; head
+	mov dl, 0x80 ; drive
+	int 0x13
 
 .return:
 	ret
 
-lbar:
-	db 0x10
-	db 0x0
-	dw 0x01   ; ptr to amount of sectors to read
-	dw 0x400	; offset
-	dw 0x7E0	; segment
-	dq 0x3
+.calcsectors:
+	lea ax, [endptr] ; adress of the end
+	sub ax, 0x8200 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
+	test ax, 0x1FF ; ax % 512
+	jz .powof2
+	
+	shr ax, 9 ; ax / 512 = amount of sectors
+	inc ax
+	ret
+.powof2:
+	shr ax, 9 
+	ret

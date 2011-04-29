@@ -7,62 +7,93 @@ start address 0x00000000
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .stage2       0000003f  00000000  00000000  00000160  2**0
+  0 .bss          00000018  00000000  00000000  00000180  2**2
+                  ALLOC
+  1 .stage2       00000599  00000000  00000000  00000180  2**0
                   CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
-  1 .end          00000002  00000000  00000000  000001a0  2**0
+  2 .end          00000002  00000000  00000000  00000720  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
 SYMBOL TABLE:
 00000000 l    df *ABS*	00000000 boot/x86/stage2/stage2.asm
+00000000 l    d  .bss	00000000 .bss
 00000000 l    d  .stage2	00000000 .stage2
 00000000 l    d  .end	00000000 .end
+00000000 l       .bss	00000000 gdt
+00000008 l       *ABS*	00000000 GDT_CODE_SEL
+00000010 l       *ABS*	00000000 GDT_DATA_SEL
+00000018 l       .bss	00000000 gdt_end
 00000000 l       .stage2	00000000 stage2main
-0000000a l       .stage2	00000000 println
-00000018 l       .stage2	00000000 println.return
-00000029 l       .stage2	00000000 stage2
+0000053f l       .stage2	00000000 println
+0000054d l       .stage2	00000000 println.return
+0000055e l       .stage2	00000000 stage2
+0000057c l       .stage2	00000000 pmode
 00000000 g       .end	00000000 endptr
 
 
 
+Disassembly of section .bss:
+
+00000000 <gdt>:
+	...
+
 Disassembly of section .stage2:
 
 00000000 <stage2main>:
-   0:	be 29 00 e8 04       	mov    $0x4e80029,%esi
+   0:	be 5e 05 e8 39       	mov    $0x39e8055e,%esi
 			1: R_386_16	.stage2
-   5:	00 fa                	add    %bh,%dl
-   7:	e9 fd ff ac 08       	jmp    8ad0009 <stage2+0x8acffe0>
+   5:	05 fa e9 fd ff       	add    $0xfffde9fa,%eax
+	...
 
-0000000a <println>:
-   a:	ac                   	lods   %ds:(%esi),%al
-   b:	08 c0                	or     %al,%al
-   d:	74 09                	je     18 <println.return>
-   f:	b4 0e                	mov    $0xe,%ah
-  11:	30 ff                	xor    %bh,%bh
-  13:	cd 10                	int    $0x10
-  15:	e9 f2 ff b0 0a       	jmp    ab1000c <stage2+0xab0ffe3>
+0000053f <println>:
+ 53f:	ac                   	lods   %ds:(%esi),%al
+ 540:	08 c0                	or     %al,%al
+ 542:	74 09                	je     54d <println.return>
+ 544:	b4 0e                	mov    $0xe,%ah
+ 546:	30 ff                	xor    %bh,%bh
+ 548:	cd 10                	int    $0x10
+ 54a:	e9 f2 ff b0 0a       	jmp    ab10541 <pmode+0xab0ffc5>
 
-00000018 <println.return>:
-  18:	b0 0a                	mov    $0xa,%al
-  1a:	b4 0e                	mov    $0xe,%ah
-  1c:	30 ff                	xor    %bh,%bh
-  1e:	cd 10                	int    $0x10
-  20:	b0 0d                	mov    $0xd,%al
-  22:	b4 0e                	mov    $0xe,%ah
-  24:	30 ff                	xor    %bh,%bh
-  26:	cd 10                	int    $0x10
-  28:	c3                   	ret    
+0000054d <println.return>:
+ 54d:	b0 0a                	mov    $0xa,%al
+ 54f:	b4 0e                	mov    $0xe,%ah
+ 551:	30 ff                	xor    %bh,%bh
+ 553:	cd 10                	int    $0x10
+ 555:	b0 0d                	mov    $0xd,%al
+ 557:	b4 0e                	mov    $0xe,%ah
+ 559:	30 ff                	xor    %bh,%bh
+ 55b:	cd 10                	int    $0x10
+ 55d:	c3                   	ret    
 
-00000029 <stage2>:
-  29:	53                   	push   %ebx
-  2a:	65 63 6f 6e          	arpl   %bp,%gs:0x6e(%edi)
-  2e:	64 20 73 74          	and    %dh,%fs:0x74(%ebx)
-  32:	61                   	popa   
-  33:	67 65 20 6c 6f       	addr16 and %ch,%gs:0x6f(%si)
-  38:	61                   	popa   
-  39:	64                   	fs
-  3a:	65                   	gs
-  3b:	64                   	fs
-  3c:	2e                   	cs
-  3d:	2e                   	cs
+0000055e <stage2>:
+ 55e:	53                   	push   %ebx
+ 55f:	65 63 6f 6e          	arpl   %bp,%gs:0x6e(%edi)
+ 563:	64 20 73 74          	and    %dh,%fs:0x74(%ebx)
+ 567:	61                   	popa   
+ 568:	67 65 20 68 61       	addr16 and %ch,%gs:0x61(%bx,%si)
+ 56d:	73 20                	jae    58f <pmode+0x13>
+ 56f:	62 65 65             	bound  %esp,0x65(%ebp)
+ 572:	6e                   	outsb  %ds:(%esi),(%dx)
+ 573:	20 6c 6f 61          	and    %ch,0x61(%edi,%ebp,2)
+ 577:	64 65 64 2e 00 49 6d 	add    %cl,%cs:%fs:%gs:0x6d(%ecx)
+
+0000057c <pmode>:
+ 57c:	49                   	dec    %ecx
+ 57d:	6d                   	insl   (%dx),%es:(%edi)
+ 57e:	70 6c                	jo     5ec <pmode+0x70>
+ 580:	65                   	gs
+ 581:	6d                   	insl   (%dx),%es:(%edi)
+ 582:	65 6e                	outsb  %gs:(%esi),(%dx)
+ 584:	74 69                	je     5ef <pmode+0x73>
+ 586:	6e                   	outsb  %ds:(%esi),(%dx)
+ 587:	67 20 61 20          	addr16 and %ah,0x20(%bx,%di)
+ 58b:	47                   	inc    %edi
+ 58c:	44                   	inc    %esp
+ 58d:	54                   	push   %esp
+ 58e:	20 61 6e             	and    %ah,0x6e(%ecx)
+ 591:	64 20 50 4d          	and    %dl,%fs:0x4d(%eax)
+ 595:	6f                   	outsl  %ds:(%esi),(%dx)
+ 596:	64                   	fs
+ 597:	65                   	gs
 	...
 
 Disassembly of section .end:

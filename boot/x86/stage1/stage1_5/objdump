@@ -1,0 +1,260 @@
+
+stage1_5.o:     file format elf32-i386
+stage1_5.o
+architecture: i386, flags 0x00000011:
+HAS_RELOC, HAS_SYMS
+start address 0x00000000
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .bss          00000010  00000000  00000000  00000160  2**2
+                  ALLOC
+  1 .stage1       00000400  00000000  00000000  00000160  2**0
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
+SYMBOL TABLE:
+00000000 l    df *ABS*	00000000 boot/x86/stage1/stage1_5/stage1_5.asm
+00000000 l    d  .bss	00000000 .bss
+00000000 l    d  .stage1	00000000 .stage1
+00000000 l       .bss	00000000 lbar
+00000000 l       .stage1	00000000 main
+0000000f l       .stage1	00000000 main.bailout
+0000001f l       .stage1	00000000 main.loadstage2
+00000038 l       .stage1	00000000 dynamicloader
+0000003b l       .stage1	00000000 dynamicloader.checkextensions
+00000046 l       .stage1	00000000 dynamicloader.extread
+0000005a l       .stage1	00000000 dynamicloader.oldreset
+00000062 l       .stage1	00000000 dynamicloader.oldload
+00000079 l       .stage1	00000000 dynamicloader.return
+0000007a l       .stage1	00000000 dynamicloader.calcsectors
+0000008b l       .stage1	00000000 dynamicloader.powof2
+0000008f l       .stage1	00000000 enable_A20
+00000094 l       .stage1	00000000 enable_A20.startAttempt
+000000cb l       .stage1	00000000 enable_A20.startAttempt2
+000000eb l       .stage1	00000000 enable_A20.commandwait
+000000f6 l       .stage1	00000000 enable_A20.datawait
+00000101 l       .stage1	00000000 enable_A20.A20_enabled
+00000106 l       .stage1	00000000 enable_A20.failed
+0000010c l       .stage1	00000000 println
+0000011a l       .stage1	00000000 println.return
+0000012b l       .stage1	00000000 a20
+00000141 l       .stage1	00000000 a20ok
+00000160 l       .stage1	00000000 a20fail
+00000000         *UND*	00000000 endptr
+
+
+
+Disassembly of section .bss:
+
+00000000 <lbar>:
+	...
+
+Disassembly of section .stage1:
+
+00000000 <main>:
+   0:	be 2b 01 e8 06       	mov    $0x6e8012b,%esi
+			1: R_386_16	.stage1
+   5:	01 e8                	add    %ebp,%eax
+   7:	86 00                	xchg   %al,(%eax)
+   9:	0f ba e0 00          	bt     $0x0,%eax
+   d:	73 10                	jae    1f <main.loadstage2>
+
+0000000f <main.bailout>:
+   f:	be 60 01 e8 f7       	mov    $0xf7e80160,%esi
+			10: R_386_16	.stage1
+  14:	00 30                	add    %dh,(%eax)
+  16:	e4 cd                	in     $0xcd,%al
+  18:	16                   	push   %ss
+  19:	cd 19                	int    $0x19
+  1b:	fa                   	cli    
+  1c:	e9 fd ff be 41       	jmp    41bf001e <a20fail+0x41befebe>
+			20: R_386_16	.stage1
+
+0000001f <main.loadstage2>:
+  1f:	be 41 01 e8 e7       	mov    $0xe7e80141,%esi
+  24:	00 e8                	add    %ch,%al
+  26:	10 00                	adc    %al,(%eax)
+  28:	c1 e8 08             	shr    $0x8,%eax
+  2b:	08 c0                	or     %al,%al
+  2d:	75 e0                	jne    f <main.bailout>
+  2f:	ea 00 04 e0 07 fa e9 	ljmp   $0xe9fa,$0x7e00400
+  36:	fd                   	std    
+  37:	ff                   	(bad)  
+
+00000038 <dynamicloader>:
+  38:	b9 05 00 b4 41       	mov    $0x41b40005,%ecx
+
+0000003b <dynamicloader.checkextensions>:
+  3b:	b4 41                	mov    $0x41,%ah
+  3d:	b2 80                	mov    $0x80,%dl
+  3f:	bb aa 55 cd 13       	mov    $0x13cd55aa,%ebx
+  44:	72 f5                	jb     3b <dynamicloader.checkextensions>
+
+00000046 <dynamicloader.extread>:
+  46:	e8 31 00 a3 02       	call   2a3007c <a20fail+0x2a2ff1c>
+			4a: R_386_16	.bss
+  4b:	00 b4 42 b2 80 8d 36 	add    %dh,0x368d80b2(%edx,%eax,2)
+  52:	00 00                	add    %al,(%eax)
+			52: R_386_16	.bss
+  54:	cd 13                	int    $0x13
+  56:	73 21                	jae    79 <dynamicloader.return>
+  58:	e2 ec                	loop   46 <dynamicloader.extread>
+
+0000005a <dynamicloader.oldreset>:
+  5a:	30 e4                	xor    %ah,%ah
+  5c:	b2 80                	mov    $0x80,%dl
+  5e:	cd 13                	int    $0x13
+  60:	72 f8                	jb     5a <dynamicloader.oldreset>
+
+00000062 <dynamicloader.oldload>:
+  62:	bb e0 07 8e c3       	mov    $0xc38e07e0,%ebx
+  67:	bb 00 04 e8 0d       	mov    $0xde80400,%ebx
+  6c:	00 b4 02 30 ed b1 04 	add    %dh,0x4b1ed30(%edx,%eax,1)
+  73:	30 f6                	xor    %dh,%dh
+  75:	b2 80                	mov    $0x80,%dl
+  77:	cd 13                	int    $0x13
+
+00000079 <dynamicloader.return>:
+  79:	c3                   	ret    
+
+0000007a <dynamicloader.calcsectors>:
+  7a:	8d 06                	lea    (%esi),%eax
+  7c:	00 00                	add    %al,(%eax)
+			7c: R_386_16	endptr
+  7e:	2d 00 82 a9 ff       	sub    $0xffa98200,%eax
+  83:	01 74 05 c1          	add    %esi,-0x3f(%ebp,%eax,1)
+  87:	e8 09 40 c3 c1       	call   c1c34095 <a20fail+0xc1c33f35>
+
+0000008b <dynamicloader.powof2>:
+  8b:	c1 e8 09             	shr    $0x9,%eax
+  8e:	c3                   	ret    
+
+0000008f <enable_A20>:
+  8f:	fa                   	cli    
+  90:	60                   	pusha  
+  91:	b9 05 00 e8 54       	mov    $0x54e80005,%ecx
+
+00000094 <enable_A20.startAttempt>:
+  94:	e8 54 00 b0 d0       	call   d0b000ed <a20fail+0xd0afff8d>
+  99:	e6 64                	out    %al,$0x64
+  9b:	e8 58 00 31 c0       	call   c03100f8 <a20fail+0xc030ff98>
+  a0:	e4 60                	in     $0x60,%al
+  a2:	50                   	push   %eax
+  a3:	e8 45 00 b0 d1       	call   d1b000ed <a20fail+0xd1afff8d>
+  a8:	e6 64                	out    %al,$0x64
+  aa:	e8 3e 00 58 0c       	call   c5800ed <a20fail+0xc57ff8d>
+  af:	02 e6                	add    %dh,%ah
+  b1:	60                   	pusha  
+  b2:	e8 36 00 b0 d0       	call   d0b000ed <a20fail+0xd0afff8d>
+  b7:	e6 64                	out    %al,$0x64
+  b9:	e8 3a 00 31 c0       	call   c03100f8 <a20fail+0xc030ff98>
+  be:	e4 60                	in     $0x60,%al
+  c0:	0f ba e0 01          	bt     $0x1,%eax
+  c4:	72 3b                	jb     101 <enable_A20.A20_enabled>
+  c6:	e2 cc                	loop   94 <enable_A20.startAttempt>
+  c8:	b9 05 00 e8 1d       	mov    $0x1de80005,%ecx
+
+000000cb <enable_A20.startAttempt2>:
+  cb:	e8 1d 00 b0 df       	call   dfb000ed <a20fail+0xdfafff8d>
+  d0:	e6 64                	out    %al,$0x64
+  d2:	e8 16 00 b0 d0       	call   d0b000ed <a20fail+0xd0afff8d>
+  d7:	e6 64                	out    %al,$0x64
+  d9:	e8 1a 00 31 c0       	call   c03100f8 <a20fail+0xc030ff98>
+  de:	e4 60                	in     $0x60,%al
+  e0:	0f ba e0 01          	bt     $0x1,%eax
+  e4:	72 1b                	jb     101 <enable_A20.A20_enabled>
+  e6:	e2 e3                	loop   cb <enable_A20.startAttempt2>
+  e8:	e9 1b 00 31 c0       	jmp    c0310108 <a20fail+0xc030ffa8>
+
+000000eb <enable_A20.commandwait>:
+  eb:	31 c0                	xor    %eax,%eax
+  ed:	e4 64                	in     $0x64,%al
+  ef:	0f ba e0 01          	bt     $0x1,%eax
+  f3:	72 f6                	jb     eb <enable_A20.commandwait>
+  f5:	c3                   	ret    
+
+000000f6 <enable_A20.datawait>:
+  f6:	31 c0                	xor    %eax,%eax
+  f8:	e4 64                	in     $0x64,%al
+  fa:	0f ba e0 00          	bt     $0x0,%eax
+  fe:	73 f6                	jae    f6 <enable_A20.datawait>
+ 100:	c3                   	ret    
+
+00000101 <enable_A20.A20_enabled>:
+ 101:	61                   	popa   
+ 102:	31 c0                	xor    %eax,%eax
+ 104:	fb                   	sti    
+ 105:	c3                   	ret    
+
+00000106 <enable_A20.failed>:
+ 106:	61                   	popa   
+ 107:	b8 01 00 fb c3       	mov    $0xc3fb0001,%eax
+
+0000010c <println>:
+ 10c:	ac                   	lods   %ds:(%esi),%al
+ 10d:	08 c0                	or     %al,%al
+ 10f:	74 09                	je     11a <println.return>
+ 111:	b4 0e                	mov    $0xe,%ah
+ 113:	30 ff                	xor    %bh,%bh
+ 115:	cd 10                	int    $0x10
+ 117:	e9 f2 ff b0 0a       	jmp    ab1010e <a20fail+0xab0ffae>
+
+0000011a <println.return>:
+ 11a:	b0 0a                	mov    $0xa,%al
+ 11c:	b4 0e                	mov    $0xe,%ah
+ 11e:	30 ff                	xor    %bh,%bh
+ 120:	cd 10                	int    $0x10
+ 122:	b0 0d                	mov    $0xd,%al
+ 124:	b4 0e                	mov    $0xe,%ah
+ 126:	30 ff                	xor    %bh,%bh
+ 128:	cd 10                	int    $0x10
+ 12a:	c3                   	ret    
+
+0000012b <a20>:
+ 12b:	4f                   	dec    %edi
+ 12c:	70 65                	jo     193 <a20fail+0x33>
+ 12e:	6e                   	outsb  %ds:(%esi),(%dx)
+ 12f:	69 6e 67 20 74 68 65 	imul   $0x65687420,0x67(%esi),%ebp
+ 136:	20 41 32             	and    %al,0x32(%ecx)
+ 139:	30 20                	xor    %ah,(%eax)
+ 13b:	67 61                	addr16 popa 
+ 13d:	74 65                	je     1a4 <a20fail+0x44>
+ 13f:	2e 00 54 68 65       	add    %dl,%cs:0x65(%eax,%ebp,2)
+
+00000141 <a20ok>:
+ 141:	54                   	push   %esp
+ 142:	68 65 20 41 32       	push   $0x32412065
+ 147:	30 20                	xor    %ah,(%eax)
+ 149:	6c                   	insb   (%dx),%es:(%edi)
+ 14a:	69 6e 65 20 68 61 73 	imul   $0x73616820,0x65(%esi),%ebp
+ 151:	20 62 65             	and    %ah,0x65(%edx)
+ 154:	65 6e                	outsb  %gs:(%esi),(%dx)
+ 156:	20 65 6e             	and    %ah,0x6e(%ebp)
+ 159:	61                   	popa   
+ 15a:	62 6c 65 64          	bound  %ebp,0x64(%ebp,%eiz,2)
+ 15e:	2e 00 54 68 65       	add    %dl,%cs:0x65(%eax,%ebp,2)
+
+00000160 <a20fail>:
+ 160:	54                   	push   %esp
+ 161:	68 65 20 41 32       	push   $0x32412065
+ 166:	30 20                	xor    %ah,(%eax)
+ 168:	67 61                	addr16 popa 
+ 16a:	74 65                	je     1d1 <a20fail+0x71>
+ 16c:	20 63 6f             	and    %ah,0x6f(%ebx)
+ 16f:	75 6c                	jne    1dd <a20fail+0x7d>
+ 171:	64 6e                	outsb  %fs:(%esi),(%dx)
+ 173:	60                   	pusha  
+ 174:	74 20                	je     196 <a20fail+0x36>
+ 176:	62 65 20             	bound  %esp,0x20(%ebp)
+ 179:	6f                   	outsl  %ds:(%esi),(%dx)
+ 17a:	70 65                	jo     1e1 <a20fail+0x81>
+ 17c:	6e                   	outsb  %ds:(%esi),(%dx)
+ 17d:	65 64 2e 20 50 72    	and    %dl,%cs:%fs:%gs:0x72(%eax)
+ 183:	65                   	gs
+ 184:	73 73                	jae    1f9 <a20fail+0x99>
+ 186:	20 61 20             	and    %ah,0x20(%ecx)
+ 189:	6b 65 79 20          	imul   $0x20,0x79(%ebp),%esp
+ 18d:	74 6f                	je     1fe <a20fail+0x9e>
+ 18f:	20 72 65             	and    %dh,0x65(%edx)
+ 192:	62 6f 6f             	bound  %ebp,0x6f(%edi)
+ 195:	74 2e                	je     1c5 <a20fail+0x65>
+	...

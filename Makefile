@@ -6,7 +6,7 @@ LD=ld
 ASFLAGS=-f elf32
 BINARYASFLAGS=-f bin
 
-LDFLAGS=-Tlink.ld --oformat binary
+LDFLAGS=-Tlink.ld --oformat binary -melf_i386
 
 # Deps
 STAGE1_DEPS=boot/x86/stage1/stage1.asm
@@ -45,4 +45,4 @@ $(BIN15): $(STAGE1_5) $(STAGE2)
 
 $(GEBL): $(BIN1) $(BIN15)
 	dd if=$(BIN1) of=$(GEBL) seek=0
-	dd if=$(BIN15) of=$(GEBL) ibs=512 seek=1 conv=sync
+	dd if=$(BIN15) of=$(GEBL) seek=1
