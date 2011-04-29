@@ -36,7 +36,7 @@ void checkFrame(isrVal_t* regs)
 void cDivByZero(isrVal_t regs)
 {
   checkFrame(&regs);
-  if (regs.cs == 0x18)
+  if (regs.cs != 0x8)
   {
     panic("No process killing code yet");
   }

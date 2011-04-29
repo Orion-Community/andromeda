@@ -104,9 +104,9 @@ void prepareIDT()
   idt_t* idt = kalloc(sizeof(idt_t));
   setExceptions();
   #ifndef __COMPRESSED
-  setIDT(idt, table, SIZE);
   setIRQ(INTBASE, INTBASE+8);
   #endif
+  setIDT(idt, table, SIZE);
   loadIdt(idt);
   #ifdef WARN
   printf("WARNING: Exceptions need a better implementation!\n");

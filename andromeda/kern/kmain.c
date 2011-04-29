@@ -34,6 +34,7 @@
 #include <types.h>
 #include <mm/memory.h>
 #include <interrupts/int.h>
+#include <boot/mboot.h>
 
 // Define the place of the heap
 #ifdef __COMPRESSED
@@ -58,8 +59,21 @@ void announce()
 }
 
 // The main function
-int kmain(/* boot data , boot data , gzipped kernel*/)
+#ifdef __COMPRESSED
+int kmain(unsigned long magic, multiboot_info_t* hdr)
+#else
+int kmain()
+#endif
 {
+	#ifdef __COMPRESSED
+	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
+	{
+	  printf("\nInvalid magic word: ");
+	  printhex(magic);
+	  putc('\n');
+	  for (;;);
+	}
+	#endif
 	// Initialise the heap
 	initHeap(HEAP, HEAPSIZE);
 	// If in the compressed image

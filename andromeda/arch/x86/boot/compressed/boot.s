@@ -52,12 +52,13 @@ mboot:
 
 start:
     ; Load multiboot information:
-    mov eax, 0x10
-    mov ss, eax
-    mov eax, 0x10000000		; Set the new stack frame
-    mov esp, eax		; Stack grows down in memory and we're at the
+    mov ecx, 0x10
+    mov ss, ecx
+    mov ecx, 0x10000000		; Set the new stack frame
+    mov esp, ecx		; Stack grows down in memory and we're at the
     push esp			; top of the minimum required memory
     push ebx
+    push eax
 
     ; Execute the kernel:
     cli                         ; Forbidden for interrupts.
