@@ -19,7 +19,8 @@
 ;
 
 dynamicloader:
-	
+	mov cx, 5
+
 .checkextensions:
 	mov ah, 0x41	; check ext
 	mov dl, 0x80	; HDD0
@@ -33,7 +34,7 @@ dynamicloader:
 	sub ax, 0x8200 ; stage 1.5 offset + its file size
 	mov bx, 0x200 ; sector size
 	idiv bx ; divide size by sector size
-	and dx, dx
+	or dx, dx
 	jz .extread
 	
 	inc ax
@@ -45,6 +46,29 @@ dynamicloader:
 	lea si,[lbar]        
 	int 0x13
 	jnc .return
+
+	loop .extread
+
+; .oldreset:
+; 	xor ah, ah ; function 0 = reset
+; 	mov dl, 0x80
+; 	int 0x13
+; 	jc .oldreset
+
+; .oldload:
+; 	call .calcsectors
+; 
+; 	mov  bx, 0x7E0
+; 	mov es, bx
+; 	mov bx, 0x400
+; 
+; 	mov ah, 0x02 ; func 2
+; 	; mov al, sectorcount -> done by calcsectors
+; 	xor ch, ch ; track
+; 	mov cl, 0x4 ; sector to start
+; 	xor dh, dh ; head
+; 	mov dl, 0x80 ; drive
+; 	int 0x13
 
 .return:
 	ret
