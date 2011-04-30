@@ -44,8 +44,6 @@
 #define HEAP 0xE0000000
 #define HEAPSIZE 10000000
 #endif
-#define VENDOR_INTEL	1
-#define VENDOR_AMD 	2
 #include <kern/cpu.h>
 
 int vendor = 0;

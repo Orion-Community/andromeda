@@ -23,11 +23,14 @@ extern int getVendor();
 extern void sti();
 extern void cli();
 extern void halt();
+#ifdef __INTEL
 extern unsigned short getCS();
 extern unsigned short getDS();
 extern unsigned short getFS();
 extern unsigned short getGS();
 extern unsigned short getSS();
 extern unsigned int getESP();
-
+#define VENDOR_INTEL	1
+#define VENDOR_AMD	2
+#endif
 #endif
