@@ -7,7 +7,7 @@ CC=gcc
 ASFLAGS=-f elf32
 BINARYASFLAGS=-f bin
 
-CCFLAGS=-c -m32 -nostdlib
+CCFLAGS=-c -m32 -nostdlib -e kmain -nodefaultlibs
 
 LDFLAGS=-Tlink.ld --oformat binary -melf_i386
 
@@ -29,6 +29,10 @@ KERN=kern/kmain.o
 
 .PHONY: all
 all: $(GEBL)
+
+.PHONY: test
+test: all
+	bochs -f bochsrc
 
 .PHONY: clean
 clean:

@@ -1,6 +1,5 @@
 [BITS 16]
 [SECTION .data]
-
 ;
 ; GLOBAL DESCRIPTOR TABLE
 ;
@@ -20,10 +19,10 @@ gdt:
         db 0x92
         db 0xCF
         db 0
-gdt_end equ $ - gdt ; pointer to the end of the gdt
+gdt_end: ; pointer to the end of the gdt
 
 gdtr:
-	dw gdt_end - 1; gdt limit = size
+	dw gdt_end - gdt - 1; gdt limit = size
 	dd gdt ; gdt base address
 
 	; Status messages
@@ -37,32 +36,20 @@ main:
 	call println
 
 	cli
-	xor ax, ax
-	mov ds, ax
-
 	lgdt [gdtr]
-
-.flushdataseg:
-	mov ax, 0x10
-	mov ds, ax
-	mov ss, ax
-	mov es, ax
-
-.enterpmode:
 	mov eax, cr0
-	or eax, 00000001b
+	or eax, 1
 	mov cr0, eax
 
-.flushcodeseg:
-	jmp 0x8:pmodemain	
+	mov ax, DATA_SEG
+	mov ds, ax
+	mov ss, ax
+	jmp CODE_SEG:pmodemain
 
-.hang:
-	jmp $
+
 ;
 ; Print routines
 ;
-
-times 1333 db 0
 
 %include 'boot/x86/println.asm'
 %include 'boot/x86/stage2/pmodemain.asm'

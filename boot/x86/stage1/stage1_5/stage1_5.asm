@@ -1,14 +1,6 @@
 [BITS 16]
+[GLOBAL main]
 [EXTERN endptr] ; pointer to the end of stage 2
-[SECTION .bss]
-lbar:
-	db 0x10
-	db 0x0
-	resw 1  ; ptr to amount of sectors to read
-	dw 0x400	; offset
-	dw 0x7E0	; segment
-	dq 0x3
-
 [SECTION .stage1]
 
 main:

@@ -74,3 +74,11 @@ dynamicloader:
 .powof2:
 	shr ax, 9 
 	ret
+
+lbar:
+	db 0x10
+	db 0x0
+	dw 0  ; ptr to amount of sectors to read
+	dw 0x400	; offset
+	dw 0x7E0	; segment
+	dq 0x3
