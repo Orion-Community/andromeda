@@ -1,6 +1,5 @@
-<<<<<<< HEAD
 ;
-;    Executed after that the GDT is loaded and pe is set to 1.
+;    Text output using the bios. WARNING: DO NOT USE IF YOU IMPLEMENTED A GDT!
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -17,25 +16,23 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[BITS 32]
-[EXTERN kmain]
-[SECTION .text]
-pm_main:
-; 	mov si, reboot
-; 	call print
-; 	xor ah, ah
-; 	int 0x16 ; wait for char
-; 	int 0x19 ; this bios loads sector 1 into 0x0:0x7C00 and executes (= reboot)
-	call kmain
-=======
-[BITS 32]
-[EXTERN kmain]
-[SECTION .text]
+println:
+	lodsb
+	or al, al
+	jz .return	; null byte found
+	mov ah, 0x0E
+	xor bh, bh	; page 0
+	int 0x10
+	jmp println
 
-pmodemain:
-; 	mov byte [ds:0xB8002], 'P'      ; Move the ASCII-code of 'P' into first video memory
-;         mov byte [ds:0xB8003], 1Bh      ; Assign a color code
-	int 0x19
-	;call kmain
->>>>>>> 304c20b9f06b2d576b00f09fc2d0f29e9067c950
-	jmp $
+.return:
+	mov al, 0x0A 	; new line
+	mov ah, 0x0E
+	xor bh, bh
+	int 0x10
+
+	mov al, 0x0D	; carrage return
+	mov ah, 0x0E
+	xor bh, bh
+	int 0x10
+	ret
