@@ -39,13 +39,13 @@ main:
 ; Dynamic disk reader
 ;
 
-%include 'boot/x86/stage2/dynamicloader.asm'
+%include 'boot/x86/stage1/stage1_5/dynamicloader.asm'
 
 ;
 ; A20 Gate
 ;
 
-%include 'boot/x86/stage2/enable_A20.asm'
+%include 'boot/x86/stage1/stage1_5/enable_A20.asm'
 
 ;
 ; Print routines

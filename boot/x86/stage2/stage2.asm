@@ -44,7 +44,7 @@ main:
 	mov ax, DATA_SEG
 	mov ds, ax
 	mov ss, ax
-	jmp CODE_SEG:pmodemain
+	jmp CODE_SEG:start
 
 
 ;
