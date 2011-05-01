@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-boot/x86/*.bin
-boot/x86/*/*.bin
-=======
 boot/*/*.o
 boot/*/*.bin
 build/*/*.bin
->>>>>>> 304c20b9f06b2d576b00f09fc2d0f29e9067c950
+
