@@ -1,34 +1,63 @@
 [BITS 16]
-[SECTION .bss]
+[SECTION .data]
+
+;
+; GLOBAL DESCRIPTOR TABLE
+;
 gdt:
-	times 8 db 0 ; null descriptor
+    times 8 db 0
+    CODE_SEG equ $ - gdt	; Code segment, read/execute, nonconforming
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x9A
+        db 0xCF
+        db 0
+    DATA_SEG equ $ - gdt	; Data segment, read/write, expand down
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x92
+        db 0xCF
+        db 0
+gdt_end equ $ - gdt ; pointer to the end of the gdt
 
-	GDT_CODE_SEL equ $-gdt ; code selector
-		dw 0xFFFF ;limit
-		dw 0	  ; base 15:0
-		db 0	  ; base 23:16
-		db 0x9A   ; type -> ring 0 code and readable
-		db 0xCF   ; page granular, 32 bit
-		db 0	  ; base 31:24
+gdtr:
+	dw gdt_end - 1; gdt limit = size
+	dd gdt ; gdt base address
 
-	GDT_DATA_SEL equ $-gdt ; code selector
-		dw 0xFFFF ;limit
-		dw 0	  ; base 15:0
-		db 0	  ; base 23:16
-		db 0x92  ; type -> ring 0 code and writable
-		db 0xCF   ; page granular, 32 bit
-		db 0	  ; base 31:24
-gdt_end: ; to calc size
+	; Status messages
+	pmode db 'Implementing a GDT and PMode', 0x0
 
 [SECTION .stage2]
 [GLOBAL endptr]
 
-stage2main:
-	mov si, stage2
+main:
+	mov si, pmode
 	call println
-	cli
-	jmp $
 
+	cli
+	xor ax, ax
+	mov ds, ax
+
+	lgdt [gdtr]
+
+.flushdataseg:
+	mov ax, 0x10
+	mov ds, ax
+	mov ss, ax
+	mov es, ax
+
+.enterpmode:
+	mov eax, cr0
+	or eax, 00000001b
+	mov cr0, eax
+
+.flushcodeseg:
+	jmp 0x8:pmodemain	
+
+.hang:
+	jmp $
 ;
 ; Print routines
 ;
@@ -36,10 +65,7 @@ stage2main:
 times 1333 db 0
 
 %include 'boot/x86/println.asm'
-
-	stage2 db 'Second stage has been loaded.', 0x0
-	pmode db 'Implementing a GDT and PMode', 0x0
-
+%include 'boot/x86/stage2/pmodemain.asm'
 
 [SECTION .end]
 endptr:

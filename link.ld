@@ -8,13 +8,18 @@ SECTIONS
 	{
 		*(.stage1)
 		*(.stage2)
-
+		*(.pmode)
 	}
-
-	.end :
+	.text :
 	{
-		. = ALIGN(2);
+		*(.text)
+	}
+	.data :
+	{
+		*(.data)
+	}
+	.end ALIGN(2) :
+	{
 		*(.end)
-		. = ALIGN(512);
 	}
 }

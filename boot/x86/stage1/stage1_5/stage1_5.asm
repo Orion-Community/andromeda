@@ -1,5 +1,5 @@
 [BITS 16]
-
+[EXTERN endptr] ; pointer to the end of stage 2
 [SECTION .bss]
 lbar:
 	db 0x10
@@ -9,7 +9,6 @@ lbar:
 	dw 0x7E0	; segment
 	dq 0x3
 
-[EXTERN endptr] ; pointer to the end of stage 2
 [SECTION .stage1]
 
 main:
