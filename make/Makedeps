@@ -1,0 +1,34 @@
+# Deps
+STAGE15_DEPS=boot/x86/stage1/stage1.5/stage15.asm
+STAGE2_DEPS=boot/x86/stage2/stage2.asm
+KERN_DEPS=kern/kmain.c
+VGA_DEPS=video/vga.c
+STDLIB_DEPS=sys/stdlib.asm
+
+# Object files
+STAGE1.5=stage15.o
+STAGE2=stage2.o
+KERN=kmain.o
+VGA=vga.o
+STDLIB=stdlib.o
+
+DEPS=$(STAGE1.5) $(STAGE2) $(VGA) $(STDLIB) $(KERN)
+HEADERS=include/textio.h include/sys/stdlib.h
+
+.PHONY: all
+all: $(DEPS)
+
+$(STAGE1.5): $(STAGE15_DEPS)
+	$(AS) $(ASFLAGS) -o $(STAGE1.5) $(STAGE15_DEPS)
+
+$(STAGE2): $(STAGE2_DEPS)
+	$(AS) $(ASFLAGS) -o $(STAGE2) $(STAGE2_DEPS)
+
+$(VGA): $(VGA_DEPS) $(HEADERS)
+	$(CC) $(CCFLAGS) -o $(VGA) $(VGA_DEPS)
+
+$(STDLIB): $(STDLIB_DEPS) $(HEADERS)
+	$(AS) $(ASFLAGS) -o $(STDLIB) $(STDLIB_DEPS)
+
+$(KERN): $(KERN_DEPS) $(HEADERS)
+	$(CC) $(CCFLAGS) -o $(KERN) $(KERN_DEPS)

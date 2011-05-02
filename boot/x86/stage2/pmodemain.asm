@@ -22,4 +22,5 @@
 
 pmodemain:
 	call kmain
+	cli
 	jmp $
