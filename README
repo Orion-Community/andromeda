@@ -1,4 +1,6 @@
-This operating system is in development for educational use. There is no guarantee that it functions properly.
+This bootloader is in development for educational use. There is no guarantee that it functions properly.
+
+If you are trying to run it with bochs and it 'tripples' with the error that you are trying to read a sector which is out of bounds, you should edit the bochsrc file and set the amout of sectors to the correct value.
 
 Error table
 0x0 -> Stage 1 failed to load stage 1.5
