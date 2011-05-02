@@ -19,7 +19,7 @@
 #include "include/vga.h"
 #include <textio.h>
 
-struct cursorPos currentline = {0};
+struct cursorPos currentline;
 
 void textinit()
 {

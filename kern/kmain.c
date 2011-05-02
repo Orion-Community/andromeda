@@ -25,13 +25,13 @@ void kmain(void)
 	textinit();
 	clearscreen();
 	
-	print("Kernel loaded!");
+	print("GoldenEagle kernel is executing.\n");
 
 	char status = inb(0x60);
 	
 	if((status & 2) == 2)
 	{
-		print("The A20 gate is opened.");
+		print("The A20 gate is open.");
 	}
 	halt();
 }
