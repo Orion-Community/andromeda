@@ -5,7 +5,9 @@ all: x86
 
 .PHONY: x86
 x86:
-	$(MAKE) -f Makefile.comp x86
+	$(MAKE) -f Makefile.x86 compressed EFLAGS="$(COMPRESSED)"
+	rm *.o
+	$(MAKE) -f Makefile.x86 decompressed
 
 .PHONY: amd64
 amd64:
@@ -18,8 +20,7 @@ clean:
 
 .PHONY: all
 test: all
-	kvm -m 600M -kernel compressed
-
+	qemu -m 600M -kernel $(OUTC) -initrd $(OUTD)
 .PHONY: ctest
 ctest: clean test
 

@@ -1,9 +1,8 @@
 include make/x86
 include make/makeIncl
 
-ARCH=-Iarch/x86/include $(CFLAGS)
-COMPRESSED= -D __COMPRESSED $(ARCH)
-ASCOMP=-D __COMPRESSED $(ASFLAGS)
+NEWFLAGS=$(EFLAGS) -Iarch/x86/include $(CFLAGS)
+SFLAGS=$(EFLAGS) $(ASFLAGS)
 
 BOOT_ASM=arch/x86/boot/compressed/boot.s
 INTERRUPTS=arch/x86/interrupts/APIC.c arch/x86/interrupts/IDT.c arch/x86/interrupts/PIC.c arch/x86/interrupts/isr.c
@@ -23,26 +22,26 @@ INCL_ASM=include/asm/call.mac include/asm/isr.mac
 all: sboot.o sint.o cint.o cmm.o smm.o sio.o sisr.o shwint.o hwint.o
 
 sboot.o: $(BOOT_ASM) $(INCL_ASM)
-	$(AS) $(BOOT_ASM) $(ASCOMP) -o sboot.o
+	$(AS) $(BOOT_ASM) $(SFLAGS) -o sboot.o
 	
 sint.o: $(INTERRUPTS_ASM) $(INCL_ASM)
-	$(AS) $(INTERRUPTS_ASM) $(ASCOMP) -o sint.o
+	$(AS) $(INTERRUPTS_ASM) $(SFLAGS) -o sint.o
 	
 cint.o: $(INTERRUPTS) $(INTERRUPTS_INC)
-	$(CC) $(FLAGS) $(COMPRESSED) -combine $(INTERRUPTS) -o cint.o
+	$(CC) $(FLAGS) $(NEWFLAGS) -combine $(INTERRUPTS) -o cint.o
 	
 sisr.o: $(ISR_ASM) $(INCL_ASM)
-	$(AS) $(ISR_ASM) $(ASCOMP) -o sisr.o
+	$(AS) $(ISR_ASM) $(SFLAGS) -o sisr.o
 	
 smm.o: $(MM_ASM) $(INCL_ASM)
-	$(AS) $(MM_ASM) $(ASCOMP) -o smm.o
+	$(AS) $(MM_ASM) $(SFLAGS) -o smm.o
 	
 cmm.o: $(MM) $(MM_INC)
-	$(CC) $(FLAGS) $(COMPRESSED) -combine $(MM) -o cmm.o
+	$(CC) $(FLAGS) $(NEWFLAGS) -combine $(MM) -o cmm.o
 	
 sio.o: $(IO_ASM) $(INCL_ASM)
-	$(AS) $(IO_ASM) $(ASCOMP) -o sio.o
+	$(AS) $(IO_ASM) $(SFLAGS) -o sio.o
 shwint.o: $(HWINT_ASM) $(INCL_ASM)
-	$(AS) $(HWINT_ASM) $(ASCOMP) -o shwint.o
+	$(AS) $(HWINT_ASM) $(SFLAGS) -o shwint.o
 hwint.o: $(HWINT) $(HWINT_INC)
-	$(CC) $(FLAGS) $(COMPRESSED) -combine $(HWINT) -o hwint.o
+	$(CC) $(FLAGS) $(NEWFLAGS) -combine $(HWINT) -o hwint.o

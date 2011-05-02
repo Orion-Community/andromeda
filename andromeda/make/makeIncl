@@ -2,4 +2,5 @@ CC=gcc
 LD=ld
 MAKE=make
 OUTC=compressed
-OUTD=kernel
+OUTD=core
+COMPRESSED=-D\ __COMPRESSED
