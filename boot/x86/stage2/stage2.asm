@@ -37,7 +37,6 @@ main:
 	mov esp, 0x9000 ; setup the stack
 	jmp CODE_SEG:pmodemain
 
-
 ;
 ; Print routines
 ;

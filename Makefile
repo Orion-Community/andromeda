@@ -10,6 +10,7 @@ BINARYASFLAGS=-f bin
 CCFLAGS=-c -m32 -nostdlib -e kmain -nodefaultlibs
 
 LDFLAGS=-Tlink.ld --oformat binary -melf_i386
+WINLDFLAGS=-Tlink.ld -melf_i386
 
 # Deps
 STAGE1_DEPS=boot/x86/stage1/stage1.asm
@@ -21,6 +22,7 @@ KERN_DEPS=kern/kmain.c
 BIN1=build/stage1.bin
 BIN2=build/stage1_5.bin
 GEBL=build/goldeneaglebl.bin
+TEMP=build/temp.bin
 
 # Object files
 STAGE1_5=boot/x86/stage1/stage1_5/stage1_5.o
@@ -54,7 +56,8 @@ $(BIN1): $(STAGE1_DEPS)
 	$(AS) $(BINARYASFLAGS) -o $(BIN1) $(STAGE1_DEPS)
 
 $(BIN2): $(STAGE1_5) $(STAGE2) $(KERN)
-	$(LD) $(LDFLAGS) -o $(BIN2) $(STAGE1_5) $(STAGE2) $(KERN)
+	$(LD) $(WINLDFLAGS) -o $(TEMP) $(STAGE1_5) $(STAGE2) $(KERN)
+	$(LD) $(LDFLAGS) -o $(BIN2) $(TEMP)
 
 $(GEBL): $(BIN1) $(BIN2)
 	dd if=$(BIN1) of=$(GEBL) seek=0
