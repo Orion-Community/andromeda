@@ -1,5 +1,3 @@
-ENTRY(main)
-
 SECTIONS
 {	
 	.boot 0x7E00:

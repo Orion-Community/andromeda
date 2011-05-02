@@ -1,5 +1,5 @@
 ;
-;    The first stage is loaded by the bios at 0x0:0x7C00.
+;    Golden Eagle Boot loader. The first stage is loaded by the bios at 0x0:0x7C00.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -62,7 +62,7 @@ main: ; entry point
 
 	booted db 'GEBL has been loaded by the bios! Executing...', 0x0
 	stage15 db 'Loaded stage 1.5 into memory, jumping ...', 0x0
-	failed db 'Failed to load the next stage.. ready to reboot. Press any key.', 0x0
+	failed db '(0x0) Failed to load the next stage.. ready to reboot. Press any key.', 0x0
 
 times 510 - ($ - $$) db 0
 dw 0xAA55

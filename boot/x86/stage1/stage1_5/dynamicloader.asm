@@ -81,4 +81,4 @@ lbar:
 	dw 0  ; ptr to amount of sectors to read
 	dw 0x400	; offset
 	dw 0x7E0	; segment
-	dq 0x3
+	dq 0x3		; start to read at sector 4

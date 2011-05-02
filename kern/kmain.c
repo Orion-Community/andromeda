@@ -2,12 +2,12 @@
 
 void clearscreen();
 unsigned int print(char *message, unsigned int line);
+void hlt();
 
 kmain()
 {
-	char * h = "hallo";
-	//clearscreen();
-	//print("This is a test message", 1);
+	clearscreen();
+	print("Kernel loaded!", 1);
 	hlt();
 };
 

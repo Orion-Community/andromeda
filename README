@@ -1,4 +1,6 @@
 This operating system is in development for educational use. There is no guarantee that it functions properly.
 
-Technical Notes:
-	* Run the bootloader ALWAYS in bochs. The bios 'wait for keyboard input' function is malfunctioning.
+Error table
+0x0 -> Stage 1 failed to load stage 1.5
+0x1 -> Could not open the A20 gate.
+0x2 -> Dynamic sector loader in stage 1.5 failed to load stage 2 and the kernel.

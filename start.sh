@@ -1,3 +1,3 @@
 #!/bin/bash
 
-screen kate boot/x86/*.asm boot/x86/*/*.asm boot/x86/*/*/*.asm
+screen -d -m kate boot/x86/*.asm boot/x86/*/*.asm boot/x86/*/*/*.asm

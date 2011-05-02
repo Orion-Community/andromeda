@@ -1,5 +1,5 @@
 ;
-;    Text output using the bios. WARNING: DO NOT USE IF YOU IMPLEMENTED A GDT!
+;    Text output using the bios. WARNING: DO NOT USE IF YOU ARE NOT IN REAL MODE.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify

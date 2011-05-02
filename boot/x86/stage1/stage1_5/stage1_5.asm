@@ -1,5 +1,22 @@
+;
+;    Entry point for stage 1.5. This sector will use a dynamic sector loader to load the second stage and the micro kernel.
+;    Copyright (C) 2011 Michel Megens
+;
+;    This program is free software: you can redistribute it and/or modify
+;    it under the terms of the GNU General Public License as published by
+;    the Free Software Foundation, either version 3 of the License, or
+;    (at your option) any later version.
+;
+;    This program is distributed in the hope that it will be useful,
+;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;    GNU General Public License for more details.
+;
+;    You should have received a copy of the GNU General Public License
+;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;
+
 [BITS 16]
-[GLOBAL main]
 [EXTERN endptr] ; pointer to the end of stage 2
 [SECTION .stage1]
 
@@ -10,9 +27,9 @@ main:
 	call enable_A20
 	bt ax, 0
 	jnc  .loadstage2
+	mov si, a20fail
 
 .bailout:
-	mov si, a20fail
 	call println
 	xor ah, ah
 	int 0x16
@@ -27,6 +44,7 @@ main:
 	call dynamicloader
 	shr ax, 8
 	or al, al
+	mov si, nostage2
 	jnz .bailout
 
 	jmp 0x7E0:0x400
@@ -55,6 +73,7 @@ main:
 
 	a20 db 'Opening the A20 gate.', 0x0
 	a20ok db 'The A20 line has been enabled.', 0x0
-	a20fail db 'The A20 gate couldn`t be opened. Press a key to reboot.', 0x0
+	a20fail db '(0x1) The A20 gate couldn`t be opened. Press a key to reboot.', 0x0
+	nostage2 db '(0x2) Failed to load the second stage.. Press a key to reboot.', 0x0
 
 times 1024 - ($ - $$) db 0
