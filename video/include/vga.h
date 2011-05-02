@@ -22,4 +22,9 @@
 #define WIDTH 80
 #define HEIGHT 25
 #define WHITE_TXT 0x07
+
+struct cursorPos
+{
+	int line;
+};
 #endif

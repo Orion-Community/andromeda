@@ -19,8 +19,17 @@
 #include "include/vga.h"
 #include <textio.h>
 
-int print(char * txt, int line)
+struct cursorPos currentline = {0};
+
+void textinit()
 {
+	currentline.line = 0;
+}
+
+int print(char * txt)
+{
+	int line = currentline.line;
+	line++;
 	char *vidmem = (char *) 0xB8000;
 	int i = 0;
 
@@ -43,6 +52,7 @@ int print(char * txt, int line)
 			i++;
 		}
 	}
+	currentline.line = line;
 	return(0);
 }
 
