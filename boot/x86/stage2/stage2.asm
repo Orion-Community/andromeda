@@ -27,12 +27,14 @@ main:
 	cli
 	lgdt [gdtr]
 	mov eax, cr0
-	or eax, 1
+	or eax, 1 	; enable pe bit
 	mov cr0, eax
 
-	mov ax, DATA_SEG
+.flush:
+	mov ax, DATA_SEG	; flush segments
 	mov ds, ax
 	mov ss, ax
+	mov esp, 0x9000 ; setup the stack
 	jmp CODE_SEG:pmodemain
 
 
