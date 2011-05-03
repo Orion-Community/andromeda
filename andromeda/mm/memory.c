@@ -23,7 +23,7 @@
 long heapBase = 0;
 long heapSize = 0;
 
-void initPaging(long, long);
+void initPaging (long *heapPtr, long size);
 
 
 int initHeap(long base, long size)
