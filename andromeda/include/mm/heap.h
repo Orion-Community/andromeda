@@ -35,6 +35,8 @@ void initBlockMap();
 
 void* alloc (size_t,boolean);
 int free (void* ptr);
+int growHeap();
+void initHdr(memNode_t* block, size_t size);
 
 #define kalloc(a) alloc(a,FALSE)
 
@@ -44,7 +46,7 @@ void wait();
 void testAlloc();
 #endif
 
-extern int heapBase;
-extern int heapSize;
+extern long heapBase;
+extern long heapSize;
 
 #endif

@@ -1,3 +1,5 @@
 *.o
 andromeda/compressed
 andromeda/core
+*floppy.sh
+*.img

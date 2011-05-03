@@ -74,21 +74,6 @@ void initHdr(memNode_t* block, size_t size)
 	block->used = FALSE;
 	block->hdrMagic = HDRMAGIC;
 }
-// This initialises the heap to hold a block of the maximum possible size.
-// In the case of the compressed kernel that's 128 MB, which is huge, since
-// allocmax = 4KB
-void initBlockMap ()
-{
-	mutexEnter(prot);
-	memNode_t* node = (memNode_t*)heapBase;
-	initHdr(node, heapSize-sizeof(memNode_t));
-	blocks = node;
-	mutexRelease(prot);
-	#ifdef MMTEST
-	testAlloc();
-	#endif
-}
-
 
 // Finds a block on the heap, which is free and which is large enough.
 // In the case that pageAlligned is enabled the block also has to hold

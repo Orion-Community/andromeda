@@ -23,7 +23,7 @@
 
 void paging();
 void memset(int*, int, int);
-int initHeap(int, int);
+int initHeap(long, long);
 
 #ifdef __INTEL
 void setGDT();

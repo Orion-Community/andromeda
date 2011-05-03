@@ -19,41 +19,26 @@
 #include <mm/memory.h>
 #include <mm/heap.h>
 #include <error/panic.h>
+#include <text.h>
+#include <thread.h>
 
-long heapBase = 0;
-long heapSize = 0;
-
-void initPaging(long, long);
-
-
-int initHeap(long base, long size)
+extern memNode_t* blocks;
+extern mutex_t prot;
+int growHeap()
 {
-	heapBase = base;
-	heapSize = size;
-	
-	initBlockMap();
-	
-#ifndef __COMPRESSED
-	initPaging(heapBase, heapSize);
-#endif
-	return base;
 }
 
-int requestPage(int i)
+// This initialises the heap to hold a block of the maximum possible size.
+// In the case of the compressed kernel that's 128 MB, which is huge, since
+// allocmax = 4KB
+void initBlockMap ()
 {
-	return -1;
-}
-
-void initPaging (long *heapPtr, long size)
-{
-	panic("Paging wasn't initialised!");
-}
-
-void memset(int* offset, int value, int size)
-{
-	int i = 0;
-	for (; i <= size; i++)
-	{
-		offset[i] = value;
-	}
+	mutexEnter(prot);
+	memNode_t* node = (memNode_t*)heapBase;
+	initHdr(node, heapSize-sizeof(memNode_t));
+	blocks = node;
+	mutexRelease(prot);
+	#ifdef MMTEST
+	testAlloc();
+	#endif
 }

@@ -103,9 +103,9 @@ int kmain()
 	}
 	#endif
 	#endif
-	
+	#ifdef __COMPRESSED
 	#ifdef DBG
-	if (hdr->flags & 1 << 6)
+	if (hdr->flags && MULTIBOOT_INFO_MODS)
          {
            printf ("mmap_addr = "); printhex((unsigned) hdr->mmap_addr);
 	   printf(", mmap_length = ");printhex((unsigned) hdr->mmap_length); putc('\n');
@@ -127,6 +127,17 @@ int kmain()
 	     putc('\n');
 	   }
          }
+         
+         if (hdr->flags & 1 << 4)
+	 {
+	   printf("Module addr: "); printhex(hdr->mods_addr); putc('\n');
+	 }
+	 else
+	 {
+	   printf("No modules found!\n");
+	 }
+         
+	#endif
 	#endif
 	
 	//installInterruptVectorTable();
