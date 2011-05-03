@@ -5,7 +5,6 @@ all: x86
 
 .PHONY: x86
 x86:
-	rm *.o
 	$(MAKE) -f Makefile.x86 compressed EFLAGS="$(COMPRESSED)"
 	rm *.o
 	$(MAKE) -f Makefile.x86 decompressed
