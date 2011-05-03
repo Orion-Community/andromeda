@@ -5,9 +5,16 @@ all: x86
 
 .PHONY: x86
 x86:
+	@echo "Pass one"
+	@echo
+	@echo
 	$(MAKE) -f Makefile.x86 compressed EFLAGS="$(COMPRESSED)"
 	rm *.o
+	@echo "Pass two"
+	@echo
+	@echo
 	$(MAKE) -f Makefile.x86 decompressed
+	rm *.o
 
 .PHONY: amd64
 amd64:
@@ -15,7 +22,6 @@ amd64:
 
 .PHONY: clean
 clean:
-	rm *.o
 	rm $(OUTC)
 
 .PHONY: all
