@@ -48,8 +48,8 @@ mboot:
     dd  start                   ; Kernel entry point (initial EIP).
 
 [section .text]
-[GLOBAL start]                  ; Kernel entry point.
-[EXTERN kmain]                  ; This is the entry point of our C code
+[GLOBAL  start]                  ; Kernel entry point.
+[EXTERN  kmain]                  ; This is the entry point of our C code
 
 start:
     ; Load multiboot information:
@@ -67,4 +67,12 @@ start:
     jmp $                       ; Enter an infinite loop, to stop the processor
                                 ; executing whatever rubbish is in the memory
                                 ; after our kernel!
+%else
+[section .text]
+[GLOBAL  start]
+[EXTERN  kmain]
+start:
+  cli
+  call kmain
+  jmp $
 %endif
