@@ -35,19 +35,23 @@ getmemorymap:
 	je .failed
 	
 .getentry:
-; get another entry with int 0x15
-
-
-.checkentry:
-; is the entry ok?
+	mov di, 24
+	mov eax, 0xE820
+	mov ecx, 24
+	mov [es:di + 20], dword 1
+	int 0x15
+	jc .finished ; list is at its end
 
 .addentry:
-;
+	inc bp
+	;mov [buffer+bp], [es:di]
+	jmp .getentry
+
 .skipentry:
 	test ebx, ebx ; ebx = 0 means that we're at the end
 	jne .getentry
 
-.success:
+.finished:
 	mov [mmr], bp
 	clc	; clear carry flag
 	ret
