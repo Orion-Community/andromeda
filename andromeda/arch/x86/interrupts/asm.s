@@ -24,6 +24,13 @@
 [GLOBAL getDS]
 [GLOBAL getSS]
 [GLOBAL getESP]
+[GLOBAL getCR3]
+[GLOBAL setCR3]
+[GLOBAL toglePEbit]
+[GLOBAL pebit]
+
+pebit	db	0 ;Paging is disabled per default
+		  ;Booleans have been typedefed as unsigned char
 
 %include "asm/call.mac"
 
@@ -92,25 +99,45 @@ amdTest:
   return
 
 getCS:
-  enter
   xor eax, eax
   mov ax, cs
-  return
+  ret
   
 getDS:
-  enter
   xor eax, eax
   mov ax, ds
-  return
+  ret
 
 getSS:
-  enter
   xor eax, eax
   mov ax, ss
-  return
+  ret
 
 getESP:
-  enter
   xor eax, eax
   mov eax, esp
+  ret
+  
+getCR3:
+  %ifdef X86
+  mov eax, cr3
+  %else
+  mov rax, cr3
+  ret
+
+
+setCR3:
+  enter
+  %ifdef X86
+  mov eax, [ebp+8]
+  mov cr3, eax
+  %else
+  mov rax, [ebp+16]
+  mov cr3, rax
+  %endif
   return
+  
+toglePEbit:
+  mov eax, cr0
+  xor eax, 0x80000000
+  mov cr0, eax

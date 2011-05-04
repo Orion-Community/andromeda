@@ -30,6 +30,12 @@ extern unsigned short getFS();
 extern unsigned short getGS();
 extern unsigned short getSS();
 extern unsigned int getESP();
+extern unsigned long getCR3();
+extern unsigned void setCR3(long);
+extern unsigned void toglePEbit();
+
+extern boolean pebit;
+
 #define VENDOR_INTEL	1
 #define VENDOR_AMD	2
 #endif

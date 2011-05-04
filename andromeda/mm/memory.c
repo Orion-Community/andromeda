@@ -33,9 +33,8 @@ int initHeap(long base, long size)
 	
 	initBlockMap();
 	
-#ifndef __COMPRESSED
 	initPaging(heapBase, heapSize);
-#endif
+	
 	return base;
 }
 
