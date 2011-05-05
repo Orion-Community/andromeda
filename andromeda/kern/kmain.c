@@ -126,6 +126,8 @@ int kmain()
 	     printhex((unsigned) mmap->type);
 	     putc('\n');
 	   }
+	   extern int end;
+	   printf("End pointer = "); printhex((int)&end); putc('\n');
          }
          
          if (hdr->flags && MULTIBOOT_INFO_MODS)
