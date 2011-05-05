@@ -27,9 +27,9 @@
 [GLOBAL getCR3]
 [GLOBAL setCR3]
 [GLOBAL toglePEbit]
-[GLOBAL pebit]
+[GLOBAL pgbit]
 
-pebit	db	0 ;Paging is disabled per default
+pgbit	db	0 ;Paging is disabled per default
 		  ;Booleans have been typedefed as unsigned char
 
 %include "asm/call.mac"
@@ -138,11 +138,11 @@ setCR3:
   %endif
   return
   
-toglePEbit:
+toglePGbit:
   mov eax, cr0
   xor eax, 0x80000000
   mov cr0, eax
-  mov eax, [pebit]
+  mov eax, [pgbit]
   not eax
-  mov [pebit], eax
+  mov [pgbit], eax
   ret

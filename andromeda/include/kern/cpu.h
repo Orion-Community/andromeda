@@ -32,9 +32,9 @@ extern unsigned short 	getSS();
 extern unsigned int 	getESP();
 extern unsigned long 	getCR3();
 extern void 		setCR3(long);
-extern void 		toglePEbit();
+extern void 		toglePGbit();
 
-extern boolean pebit;
+extern boolean pgbit;
 
 #define VENDOR_INTEL	1
 #define VENDOR_AMD	2
