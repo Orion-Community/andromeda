@@ -16,27 +16,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __CPU_H
-#define __CPU_H
+#include <mm/paging.h>
+#include <error/panic.h>
+#include <text.h>
 
-extern int getVendor();
-extern void sti();
-extern void cli();
-extern void halt();
-#ifdef __INTEL
-extern unsigned short 	getCS();
-extern unsigned short 	getDS();
-extern unsigned short 	getFS();
-extern unsigned short 	getGS();
-extern unsigned short 	getSS();
-extern unsigned int 	getESP();
-extern unsigned long 	getCR3();
-extern void 		setCR3(long);
-extern void 		toglePEbit();
-
-extern boolean pebit;
-
-#define VENDOR_INTEL	1
-#define VENDOR_AMD	2
-#endif
-#endif
+void initPaging ()
+{
+  #ifdef WARN
+  printf("Warning! The paging code hasn't been written yet\n");
+  int i = 0;
+  for (; i < 0x1FFFFFFF; i++);
+  #else
+  panic("Paging wasn't initialised!");
+  #endif
+  
+  
+}

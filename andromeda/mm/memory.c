@@ -19,12 +19,10 @@
 #include <mm/memory.h>
 #include <mm/heap.h>
 #include <error/panic.h>
+#include <mm/paging.h>
 
 long heapBase = 0;
 long heapSize = 0;
-
-void initPaging (long *heapPtr, long size);
-
 
 int initHeap(long base, long size)
 {
@@ -43,10 +41,6 @@ int requestPage(int i)
 	return -1;
 }
 
-void initPaging (long *heapPtr, long size)
-{
-	panic("Paging wasn't initialised!");
-}
 
 void memset(int* offset, int value, int size)
 {

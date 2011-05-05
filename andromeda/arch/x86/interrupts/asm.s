@@ -122,7 +122,8 @@ getCR3:
   %ifdef X86
   mov eax, cr3
   %else
-  mov rax, cr3
+  mov rax, cr3 ; Hope this returns CR3
+  %endif
   ret
 
 
@@ -132,7 +133,7 @@ setCR3:
   mov eax, [ebp+8]
   mov cr3, eax
   %else
-  mov rax, [ebp+16]
+  mov rax, [ebp+16] ; Hope this gets the right value
   mov cr3, rax
   %endif
   return
@@ -141,3 +142,7 @@ toglePEbit:
   mov eax, cr0
   xor eax, 0x80000000
   mov cr0, eax
+  mov eax, [pebit]
+  not eax
+  mov [pebit], eax
+  ret

@@ -23,6 +23,7 @@ amd64:
 .PHONY: clean
 clean:
 	rm $(OUTC)
+	rm $(OUTD)
 
 .PHONY: all
 test: all
