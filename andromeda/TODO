@@ -18,9 +18,6 @@ ABDROMEDA COMPRESSED
 *	Make a start on paging code
 	needed to load the kernel in high memory.
 
-*	Filesystem implementation.
-	Is required to load the decompressed kernel.
-
 *	Make image loading code.
 	To load the decompressed kernel.
 
@@ -36,6 +33,21 @@ ANDROMEDA DECOMPRESSED
 *	Design and implement a scheduler.
 	Preferrably priority and sleeptime based.
 
+*	Start work on Usermode
+
+*	Start work on the driver subsystem
+
 *	Start work on an API.
 	such as libc (newlibc apparently is a
 	relatively easy port).
+
+USERMODE
+*	Start work on a virtual file system and
+	File system deamon.
+
+DRIVERSUBSYSTEM
+*	Start work on the disk drivers
+
+*	Start work on tty's
+
+*	Resume work on the IRQ's
