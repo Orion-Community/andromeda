@@ -18,7 +18,7 @@
 ;	The multiboot header file, calls the C-level entry point
 ;
 %ifdef __COMPRESSED
-[section .boot]
+[SECTION .boot]
 MBOOT_PAGE_ALIGN    equ 1<<0    ; Load kernel and modules on a page boundary
 MBOOT_MEM_INFO      equ 1<<1    ; Provide your kernel with memory info
 MBOOT_HEADER_MAGIC  equ 0x1BADB002 ; Multiboot Magic value
@@ -47,7 +47,7 @@ mboot:
     dd  end                     ; End of kernel.
     dd  start                   ; Kernel entry point (initial EIP).
 
-[section .text]
+[SECTION .text]
 [GLOBAL  start]                  ; Kernel entry point.
 [EXTERN  kmain]                  ; This is the entry point of our C code
 
@@ -68,7 +68,15 @@ start:
                                 ; executing whatever rubbish is in the memory
                                 ; after our kernel!
 %else
-[section .text]
+CORE_MAGIC	equ	0xCAFEC0DE
+
+[SECTION .boot]
+[EXTERN  code]                   ; Start of the '.text' section.
+[EXTERN  bss]                    ; Start of the .bss section.
+[EXTERN  end]
+  dd CORE_MAGIC
+
+[SECTION .text]
 [GLOBAL  start]
 [EXTERN  kmain]
 start:

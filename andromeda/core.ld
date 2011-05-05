@@ -2,7 +2,13 @@ OUTPUT_FORMAT(elf32-i386)
 ENTRY(start)
 SECTIONS
 {
-    .text 0xC0000000 :
+    .boot 0xC0000000 :
+    {
+      boot = .; _boot = .; __boot = .;
+      *(.boot)
+      . = ALIGN (0x1000);
+    }
+    .text :
     {
         code = .; _code = .; __code = .;
         *(.text)

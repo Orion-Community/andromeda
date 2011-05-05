@@ -73,7 +73,7 @@ int kmain()
 	  putc('\n');
 	  for (;;);
 	}
-	if (hdr->flags & 0x6)
+	if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
 	{
 	  mmap = (multiboot_memory_map_t*)hdr->mmap_addr;
 	  
@@ -105,7 +105,7 @@ int kmain()
 	#endif
 	#ifdef __COMPRESSED
 	#ifdef DBG
-	if (hdr->flags && MULTIBOOT_INFO_MODS)
+	if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
          {
            printf ("mmap_addr = "); printhex((unsigned) hdr->mmap_addr);
 	   printf(", mmap_length = ");printhex((unsigned) hdr->mmap_length); putc('\n');
@@ -126,11 +126,22 @@ int kmain()
 	     printhex((unsigned) mmap->type);
 	     putc('\n');
 	   }
+	   extern int end;
+	   printf("End pointer = "); printhex((int)&end); putc('\n');
          }
          
-         if (hdr->flags & 1 << 4)
+         if (hdr->flags && MULTIBOOT_INFO_MODS)
 	 {
-	   printf("Module addr: "); printhex(hdr->mods_addr); putc('\n');
+	   int mods = hdr->mods_count;
+	   multiboot_module_t* modules = (multiboot_module_t*)hdr->mods_addr;
+	   printf("No. modules: "); printhex(mods); putc('\n');
+	   int i = 0;
+	   for (; i < mods; i++)
+	   {
+	     printf("Base addr = "); printhex(modules[i].mod_start); putc('\n');
+	     printf("End  addr = "); printhex(modules[i].mod_end);   putc('\n');
+	     printf("CMD  line = "); printf(modules[i].cmdline); putc('\n');
+	   }
 	 }
 	 else
 	 {
