@@ -41,7 +41,7 @@ main:
 .loadstage2:
 	mov si, a20ok
 	call println
-
+	
 	call getmemorymap
 	jc .bailout
 
@@ -53,9 +53,7 @@ main:
 
 	jmp 0x7E0:0x400
 
-	cli
-	jmp $
-
+	jmp .bailout
 
 ;
 ; Dynamic disk reader
