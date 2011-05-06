@@ -1,5 +1,5 @@
 ;
-;    Get the system memory map from the bios and store it in a global constant.
+;    THIS IS PURE FOR TESTNG PURPOSES.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -15,45 +15,29 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
-getmemorymap:
-	xor bp, bp ; counter
-	xor ebx, ebx ; must be 0
-	xor eax, eax
-
+pointertest:
 	push word 0x50
 	pop es
-	mov di, 0x0
-	
-	mov [mmr], es	; store segment
-	mov [mmr+2], di ; store offset
-	
-	mov eax, 0xE820 ; interrupt function number
-	mov ecx, 24
-	mov edx, 0x534D4150
-	mov [es:di + 20], dword 1
-	int 0x15
-	jc .failed
+	xor di, di
 
-	cmp eax, edx
+	mov [mmr], es
+	mov [mmr+2], di
+
+	mov [es:di], dword 0x4587458621365884
+	add di, 8
+	mov [es:di], dword 0x123
+
+	mov ax, word [mmr]
+	mov es, ax
+	mov di, [mmr+2]
+
+	cmp [es:di], dword 0x4587458621365884
 	jne .failed
 
-	test ebx, ebx
-	je .failed
+	cmp [es:di+8], dword 0x123
+	jne .failed
 	
-.getentry:
-	test ebx, ebx
-	je .success ; ebx = 0 -> done
-	mov eax, 0xE820
-	mov ecx, 24
-	mov edx, 0x534D4150
-
-.checkentry:
-; is the entry ok?
-
-.addentry:
-
 .success:
-	mov [mmr+1], bp
 	clc	; clear carry flag
 	ret
 .failed:

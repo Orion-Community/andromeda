@@ -41,7 +41,10 @@ main:
 .loadstage2:
 	mov si, a20ok
 	call println
-	
+
+	call getmemorymap
+	jc .bailout
+
 	call dynamicloader
 	shr ax, 8
 	or al, al
