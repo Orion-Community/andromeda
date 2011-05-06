@@ -70,6 +70,7 @@ getmemorymap:
 
 
 mmr:
-	dd 0 ; segment : offset
+	dd 0 		; dw 0 -> segment
+			; dw 0 -> offset
 	dw 0 ;entry count
 	db 24 ; entry size
