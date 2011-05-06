@@ -42,6 +42,9 @@ main:
 	mov si, a20ok
 	call println
 	
+	call getmemorymap
+	jc .bailout
+
 	call dynamicloader
 	shr ax, 8
 	or al, al
@@ -50,9 +53,7 @@ main:
 
 	jmp 0x7E0:0x400
 
-	cli
-	jmp $
-
+	jmp .bailout
 
 ;
 ; Dynamic disk reader

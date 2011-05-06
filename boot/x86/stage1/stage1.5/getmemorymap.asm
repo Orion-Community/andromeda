@@ -16,44 +16,29 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 getmemorymap:
-	xor bp, bp ; counter
-	xor ebx, ebx ; must be 0
-	xor eax, eax
-
 	push word 0x50
 	pop es
-	mov di, 0x0
-	
-	mov [mmr], es	; store segment
-	mov [mmr+2], di ; store offset
-	
-	mov eax, 0xE820 ; interrupt function number
-	mov ecx, 24
-	mov edx, 0x534D4150
-	mov [es:di + 20], dword 1
-	int 0x15
-	jc .failed
+	xor di, di	; destination pointer
 
+	mov [mmr], es
+	mov [mmr+2], di
+
+	xor bp, bp ; entry counter
+	mov eax, 0xE820
+	xor ebx, ebx
+	mov ecx, 0x18
+	mov edx, 0x534D4150
+	mov [es:di+20], dword 1
+	int 0x15
+
+	jc .failed
 	cmp eax, edx
 	jne .failed
-
-	test ebx, ebx
+	cmp ebx, 0
 	je .failed
-	
-.getentry:
-	test ebx, ebx
-	je .success ; ebx = 0 -> done
-	mov eax, 0xE820
-	mov ecx, 24
-	mov edx, 0x534D4150
-
-.checkentry:
-; is the entry ok?
-
-.addentry:
 
 .success:
-	mov [mmr+1], bp
+	mov [mmr+4], byte 0x5
 	clc	; clear carry flag
 	ret
 .failed:
