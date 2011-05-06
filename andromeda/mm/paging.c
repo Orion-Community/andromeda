@@ -20,6 +20,8 @@
 #include <error/panic.h>
 #include <text.h>
 
+
+#ifdef X86
 void initPaging ()
 {
   #ifdef WARN
@@ -32,3 +34,5 @@ void initPaging ()
   
   
 }
+
+#endif
