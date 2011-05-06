@@ -23,7 +23,7 @@ pointertest:
 	mov [mmr], es
 	mov [mmr+2], di
 
-	mov [es:di], dword 0x4587458621365884
+	mov [es:di], dword 0x458745862
 	add di, 8
 	mov [es:di], dword 0x123
 
@@ -31,7 +31,7 @@ pointertest:
 	mov es, ax
 	mov di, [mmr+2]
 
-	cmp [es:di], dword 0x4587458621365884
+	cmp [es:di], dword 0x458745862
 	jne .failed
 
 	cmp [es:di+8], dword 0x123
@@ -46,7 +46,6 @@ pointertest:
 
 
 mmr:
-	dw 0 ; segment
-	dw 0 ; offset
+	dd 0
 	db 0 ;entry count
 	db 24 ; entry size

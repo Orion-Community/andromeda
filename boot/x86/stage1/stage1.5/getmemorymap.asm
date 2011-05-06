@@ -61,7 +61,7 @@ getmemorymap:
 	jnz .getentry
 
 .done:
-	mov [mmr+4], byte bp
+	mov [mmr+4], word bp
 	clc	; clear carry flag
 	ret
 .failed:
@@ -70,7 +70,6 @@ getmemorymap:
 
 
 mmr:
-	dw 0 ; segment
-	dw 0 ; offset
-	db 0 ;entry count
+	dd 0 ; segment : offset
+	dw 0 ;entry count
 	db 24 ; entry size
