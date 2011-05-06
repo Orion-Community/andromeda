@@ -28,17 +28,40 @@ getmemorymap:
 	xor ebx, ebx
 	mov ecx, 0x18
 	mov edx, 0x534D4150
-	mov [es:di+20], dword 1
+	mov [es:di+20], dword 1 ; acpi 3.x compatibility
 	int 0x15
+	mov edx, 0x534D4150 ; if your bios is fat and ugly it will trash the magic word
 
 	jc .failed
+	cmp eax, edx ; magic word should also be in eax after interrupt
+	jne .failed
+	cmp ebx, 0 ; ebx = 0 means the list is only 1 entry long = worthless
+	je .failed
+	jmp .addentry
+
+.getentry:
+	mov eax, 0xE820
+	mov ecx, 0x18
+	mov edx, 0x534D4150
+	mov [es:di+20], dword 1
+	int 0x15
+	mov edx, 0x534D4150
+
+	jc .done ; carriage means end of list
 	cmp eax, edx
 	jne .failed
-	cmp ebx, 0
-	je .failed
 
-.success:
-	mov [mmr+4], byte 0x5
+.addentry:
+	jcxz .skipentry ; entries with length 0 are compleet bullshit
+	add di, 24
+	inc bp
+
+.skipentry:
+	or ebx, ebx ;
+	jnz .getentry
+
+.done:
+	mov [mmr+4], byte bp
 	clc	; clear carry flag
 	ret
 .failed:

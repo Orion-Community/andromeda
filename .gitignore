@@ -1,4 +1,2 @@
-boot/*/*.o
-boot/*/*.bin
-build/*/*.bin
-
+*.o
+build/*.bin

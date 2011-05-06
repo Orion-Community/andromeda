@@ -43,7 +43,12 @@ main:
 	call println
 	
 	call getmemorymap
+	mov si, a20fail
 	jc .bailout
+
+	mov al, byte [mmr+4]
+	or al, al
+	jz .bailout		; we are not here to bully our user with al zero-length memory map.
 
 	call dynamicloader
 	shr ax, 8
