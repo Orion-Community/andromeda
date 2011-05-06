@@ -75,6 +75,7 @@ CORE_MAGIC	equ	0xCAFEC0DE
 [EXTERN  bss]                    ; Start of the .bss section.
 [EXTERN  end]
   dd CORE_MAGIC
+  dd end
 
 [SECTION .text]
 [GLOBAL  start]

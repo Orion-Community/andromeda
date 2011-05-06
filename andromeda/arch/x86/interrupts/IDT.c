@@ -16,11 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <interrupts.h>
-#include <error/panic.h>
 #include <irq.h>
-#include <mm/memory.h>
-#include <types.h>
-#include <text.h>
+#include <stdlib.h>
 
 #define SIZE 256
 

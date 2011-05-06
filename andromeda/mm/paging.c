@@ -17,11 +17,17 @@
 */
 
 #include <mm/paging.h>
-#include <error/panic.h>
-#include <text.h>
+#include <stdlib.h>
 
 
-#ifdef X86
+#ifdef __INTEL
+
+pageDir_t* setupPageDir()
+{
+  pageDir_t* pageDir = alloc(sizeof(pageDir_t), TRUE);
+  return pageDir;
+}
+
 void initPaging ()
 {
   #ifdef WARN
@@ -32,6 +38,7 @@ void initPaging ()
   panic("Paging wasn't initialised!");
   #endif
   
+  pageDir_t* kernDir = setupPageDir();
   
 }
 

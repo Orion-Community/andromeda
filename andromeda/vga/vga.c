@@ -16,9 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <text.h>
-#include <mm/memory.h>
-#include <types.h>
+#include <stdlib.h>
 #include <io.h>
 #include "include/vga.h"
 

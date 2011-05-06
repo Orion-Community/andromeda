@@ -17,14 +17,8 @@
 */
 
 #ifdef __INTEL
-#include <mm/memory.h>
-#include <mm/heap.h>
 #include <GDT.h>
-#include <types.h>
-
-#ifdef GDTTEST
-#include <text.h>
-#endif
+#include <stdlib.h>
 
 gdtEntry_t *GDT = NULL;
 

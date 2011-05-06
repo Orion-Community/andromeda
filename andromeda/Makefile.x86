@@ -15,7 +15,7 @@ MATHH=include/math/math.h
 VGA=vga/vga.c
 VGAH= vga/include/vga.h
 
-DEPS=include/io.h include/types.h include/text.h include/thread.h
+DEPS=include/io.h include/types.h include/text.h include/thread.h include/stdlib.h
 
 .PHONY: compressed
 compressed: kern.o error.o mm.o vga.o math.o

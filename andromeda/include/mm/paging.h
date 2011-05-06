@@ -35,7 +35,7 @@ struct pageDir
   unsigned int ignored	: 3; // Ignored
   unsigned int pageIdx	: 20; // Pointer to either page in 4MB pages or page table in 4 KB pages
 } __attribute__((packed));
-typedef pageDir pageDir_t;
+typedef struct pageDir pageDir_t;
 
 struct pageTable
 {
@@ -51,4 +51,5 @@ struct pageTable
   unsigned int ignored	: 3; // Ignored
   unsigned int pageIdx	: 20; // Pointer to page
 } __attribute__((packed));
+typedef struct pageTable pageTable_t;
 #endif

@@ -17,9 +17,9 @@
 */
 #ifndef __COMPRESSED
 #include <interrupts.h>
-#include <error/panic.h>
 #include <PIC/PIC.h>
 #include <io.h>
+#include <stdlib.h>
 
 void picRemap(int offset1, int offset2)
 {

@@ -17,7 +17,7 @@
 */
 
 #ifdef MMTEST
-#include <mm/heap.h>
+#include <stdlib.h>
 
 struct small
 {

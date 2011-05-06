@@ -15,14 +15,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdlib.h>
 
-// Claim to have paniced, show the message and enter an infinite loop.
+#ifndef STDLIB_H
+#define STDLIB_H
 
-void panic(char* msg)
-{
-	cli();
-	println("Andromeda panic");
-	println(msg);
-	for (;;);
-}
+#include <text.h>
+#include <types.h>
+#include <error/panic.h>
+#include <mm/memory.h>
+#include <kern/timer.h>
+#include <math/math.h>
+
+#endif

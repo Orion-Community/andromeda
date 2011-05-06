@@ -17,8 +17,7 @@
 */
 
 #include <interrupts.h>
-#include <error/panic.h>
-#include <text.h>
+#include <stdlib.h>
 
 void checkFrame(isrVal_t* regs)
 {

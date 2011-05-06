@@ -30,9 +30,7 @@
  */
 
 // Basic includes
-#include <text.h>
-#include <types.h>
-#include <mm/memory.h>
+#include <stdlib.h>
 #include <interrupts/int.h>
 #include <boot/mboot.h>
 

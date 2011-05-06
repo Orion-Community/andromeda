@@ -16,10 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <mm/memory.h>
-#include <mm/heap.h>
-#include <error/panic.h>
-#include <text.h>
+#include <stdlib.h>
 #include <thread.h>
 
 extern memNode_t* blocks;

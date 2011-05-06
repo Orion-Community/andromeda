@@ -21,8 +21,7 @@
 #include <irq.h>
 #include <PIC/PIC.h>
 #include <APIC/APIC.h>
-#include <types.h>
-#include <io.h>
+#include <stdlib.h>
 
 void timerTick(); // The timer function
 void picEOI(int irqNo); // Reset the interrupt pin

@@ -25,10 +25,7 @@
  * more investigation.
  */
 
-#include <mm/memory.h>
-#include <mm/heap.h>
-#include <error/panic.h>
-#include <text.h>
+#include <stdlib.h>
 #include <thread.h>
 
 // Alloc_max = 1 MB

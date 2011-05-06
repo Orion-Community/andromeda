@@ -16,10 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 #include <interrupts.h>
 #include <interrupts/int.h>
-#include <text.h>
-#include <error/panic.h>
 #include <PIC/PIC.h>
 #include <APIC/APIC.h>
 
