@@ -18,6 +18,7 @@
 
 [BITS 16]
 [EXTERN endptr] ; pointer to the end of stage 2
+[GLOBAL sectorcount]
 [SECTION .stage1]
 
 main:
@@ -58,6 +59,12 @@ main:
 ;
 
 %include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
+
+;
+; Memory map
+;
+
+%include 'boot/x86/stage1/stage1.5/getmemorymap.asm'
 
 ;
 ; A20 Gate

@@ -18,9 +18,16 @@
 
 [BITS 32]
 [EXTERN kmain]
+[EXTERN sectorcount] ; mount of sectors loaded
 [SECTION .pmode]
 
 pmodemain:
+	xor ax, ax
+	mov ax, [sectorcount]
+	cmp ax, 0x2
+	jne .end
 	call kmain
+
+.end:
 	cli
 	jmp $

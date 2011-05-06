@@ -70,9 +70,11 @@ dynamicloader:
 	
 	shr ax, 9 ; ax / 512 = amount of sectors
 	inc ax
+	mov [sectorcount], ax
 	ret
 .powof2:
 	shr ax, 9 
+	mov [sectorcount], ax
 	ret
 
 lbar:
@@ -82,3 +84,5 @@ lbar:
 	dw 0x400	; offset
 	dw 0x7E0	; segment
 	dq 0x3		; start to read at sector 4
+
+sectorcount dw 1

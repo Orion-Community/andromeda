@@ -16,11 +16,20 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[GLOBAL mmr]
+
 getmemorymap:
 	xor bp, bp ; counter
 	xor ebx, ebx ; must be 0
 	xor eax, eax
 
+	push word 0x50
+	pop es
+	mov di, 0x0
+	
+	mov [mmr], es	; store segment
+	mov [mmr+2], di ; store offset
+	
 	mov eax, 0xE820 ; interrupt function number
 	mov ecx, 24
 	mov edx, 0x534D4150
@@ -35,20 +44,19 @@ getmemorymap:
 	je .failed
 	
 .getentry:
-; get another entry with int 0x15
-
+	test ebx, ebx
+	je .success ; ebx = 0 -> done
+	mov eax, 0xE820
+	mov ecx, 24
+	mov edx, 0x534D4150
 
 .checkentry:
 ; is the entry ok?
 
 .addentry:
-;
-.skipentry:
-	test ebx, ebx ; ebx = 0 means that we're at the end
-	jne .getentry
 
 .success:
-	mov [mmr], bp
+	mov [mmr+1], bp
 	clc	; clear carry flag
 	ret
 .failed:
@@ -57,4 +65,7 @@ getmemorymap:
 
 
 mmr:
-	dd 0
+	dw 0 ; segment
+	dw 0 ; offset
+	db 0 ;entry count
+	db 24 ; entry size
