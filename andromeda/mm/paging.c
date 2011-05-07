@@ -21,11 +21,6 @@
 
 #ifdef __INTEL
 
-#ifdef __COMPRESSED
-extern unsigned int mboot;
-extern unsigned int end;
-#endif
-
 pageDir_t* setupPageDir()
 {
   pageDir_t* pageDir = alloc(sizeof(pageDir_t), TRUE);

@@ -51,7 +51,7 @@ size_t mmap_size;
 // Print a welcome message
 void announce()
 {
-	textInit();
+// 	textInit();
 	println("Compressed kernel loaded");
 	println("Decompressing the kernel");
 }
@@ -63,6 +63,7 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
 int kmain()
 #endif
 {
+	textInit();
 	#ifdef __COMPRESSED
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
 	{
@@ -124,7 +125,6 @@ int kmain()
 	     printhex((unsigned) mmap->type);
 	     putc('\n');
 	   }
-	   extern int end;
 	   printf("End pointer = "); printhex((int)&end); putc('\n');
          }
          

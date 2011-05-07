@@ -19,14 +19,14 @@
 #include <stdlib.h>
 
 #ifdef X86
-#define PAGES     0x100000
-#define PAGESIZE  0x1000
+#define PAGES      0x100000
+#define PAGESIZE   0x1000
 #endif
 
-#define FREE	  0x0000
-#define COMPRESSED0x0001
-#define MODULE	  0x0002
-#define NOTUSABLE 0xFFFF
+#define FREE	   0x0000
+#define COMPRESSED 0x0001
+#define MODULE	   0x0002
+#define NOTUSABLE  0xFFFF
 
 unsigned short mmap[PAGES];
 
@@ -48,20 +48,21 @@ void addModules(multiboot_module_t* mods, int count)
   long i, j;
   for (i = 0; i < count; i++)
   {
-    for(j = mods[i].mod_start; j < mod_end; j+=PAGESIZE)
+    for(j = mods[i].mod_start; j < mods[i].mod_end; j+=PAGESIZE)
     {
       mmap[j/PAGESIZE] = MODULE;
     }
   }
 }
-extern int mboot;
-extern int end;
+#ifdef __COMPRESSED
+
 void addCompressed()
 {
   long i;
   
-  for (i = (long)(&mboot)%PAGESIZE; i < (long)(&end))%PAGESIZE+(long)(&end); i++)
+  for (i = ((long)(&mboot)%PAGESIZE+(long)(&mboot)); i < ((long)(&end)%PAGESIZE+(long)(&end)); i++)
   {
     mmap[i] = COMPRESSED;
   }
 }
+#endif

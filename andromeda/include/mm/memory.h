@@ -29,4 +29,9 @@ int initHeap(long, long);
 void setGDT();
 #endif
 
+#ifdef __COMPRESSED
+extern unsigned int mboot;
+extern unsigned int end;
+#endif
+
 #endif
