@@ -18,6 +18,8 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[GLOBAL sectorcount]
+[EXTERN endptr] ; pointer to the end of stage 2
 dynamicloader:
 	mov cx, 5
 

@@ -1,5 +1,5 @@
 /*
- *   Port input/output functions.
+ *   Memory map header file.
  *   Copyright (C) 2011  Michel Megens
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,13 +16,22 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * inb reads from a given port and returns the read data.
- */
-extern char inb(short port);
+#ifndef __MM_H
+#define __MM_H
 
+struct mmap_entry
+{
+	uint64_t addr;
+	uint64_t len;
+	uint32_t type
+}
+typedef struct mmap_entry gebl_mmap_entry;
 
-/*
- * outb writes given data to a given port.
- */
-extern void outb(char data, short port);
+struct mmr
+{
+	uint32_t address; // segment:offset address
+	uint16_t entrie_count;
+	uint8_t entry_size;
+}
+typedef struct mmr mmap_register_t;
+#endif

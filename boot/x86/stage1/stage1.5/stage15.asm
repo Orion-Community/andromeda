@@ -17,8 +17,6 @@
 ;
 
 [BITS 16]
-[EXTERN endptr] ; pointer to the end of stage 2
-[GLOBAL sectorcount]
 [SECTION .stage1]
 
 main:

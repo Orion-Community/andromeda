@@ -15,6 +15,8 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
+
+[GLOBAL mmr]
 getmemorymap:
 	push word 0x50
 	pop es

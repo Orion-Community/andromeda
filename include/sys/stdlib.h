@@ -16,6 +16,16 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __STDLIB_H
+#define __STDLIB_H
+
+#define NULL 0
+
+#endif
+
+typedef unsigned long long uint64_t;
+typedef unsigned int uint32_t;
+
 /*
  * Halt the system until it is interrupted.
  */
