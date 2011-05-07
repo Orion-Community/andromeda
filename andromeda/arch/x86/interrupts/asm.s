@@ -48,9 +48,9 @@ halt:
   sti ; Start all interrupts
   hlt ; Stop the CPU untill another interrupt occurs.
   test eax, 0x200 ; Test for the interrupt bit
-  jnz halt1 ; if enabled stop interrupts again.
+  jnz .resetInts ; if enabled stop interrupts again.
   ret
-halt1:
+.resetInts:
   cli ; No interrupts allowed from this point
   ret
   
@@ -59,12 +59,12 @@ DetectAPIC:
   
   call getVendor
   cmp eax, 1
-  jnz testAPIC
+  jnz .testAPIC
   cmp eax, 2
-  jnz testAPIC
-  jmp err
+  jnz .testAPIC
+  jmp .err
   
-testAPIC:
+.testAPIC:
   mov eax, 1 ; prepare CPUID
   cpuid ; Issue CPUID
   
@@ -73,7 +73,7 @@ testAPIC:
   
   return
     
-err: ; invalid CPUID
+.err: ; invalid CPUID
   xor eax, eax ; return -1
   sub eax, 1
   return
@@ -84,17 +84,17 @@ getVendor:
   cpuid
   
   cmp ebx, "Genu"
-  jz intel
+  jz .intel
   cmp ebx, 0x68747541
-  jz amdTest
+  jz .amdTest
   xor eax, eax
   return
   
-intel:
+.intel:
   mov eax, 1
   return
   
-amdTest:
+.amdTest:
   mov eax, 2
   return
 
