@@ -68,7 +68,7 @@ start:
                                 ; executing whatever rubbish is in the memory
                                 ; after our kernel!
 %else
-CORE_MAGIC	equ	0xCAFEC0DE
+CORE_MAGIC	equ	0xC0DEBABE	; Lolz
 
 [SECTION .boot]
 [EXTERN  code]                   ; Start of the '.text' section.

@@ -22,7 +22,7 @@
 #include <mm/heap.h>
 
 void paging();
-void memset(int*, int, int);
+void memset(void*, int, int);
 int initHeap(long, long);
 
 #ifdef __INTEL

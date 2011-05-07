@@ -40,9 +40,10 @@ int requestPage(int i)
 }
 
 
-void memset(int* offset, int value, int size)
+void memset(void* location, int value, int size)
 {
 	int i = 0;
+	int* offset = (int*)location;
 	for (; i <= size; i++)
 	{
 		offset[i] = value;

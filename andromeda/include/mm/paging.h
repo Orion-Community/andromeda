@@ -29,7 +29,7 @@ struct pageDir
   unsigned int pwt	: 1; // Page level write through, whatever that may be
   unsigned int pcd	: 1; // Page level cache disable bit
   unsigned int accessed : 1; // True if accessed
-  unsigned int dirty	: 1; // Ignored when page size = 4 KB (true if written to
+  unsigned int dirty	: 1; // Ignored when page size = 4 KB (true if written to)
   unsigned int pageSize : 1; // True for 1 MB, false for accessing pagetable
   unsigned int global	: 1; // For use in 4 MB pages only
   unsigned int ignored	: 3; // Ignored

@@ -16,42 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <mm/paging.h>
-#include <stdlib.h>
+#ifndef MAP_H
+#define MAP_H
 
-#ifdef __INTEL
+#include <boot/mboot.h>
 
-#ifdef __COMPRESSED
-extern unsigned int mboot;
-extern unsigned int end;
-#endif
+extern unsigned short mmap[];
 
-pageDir_t* setupPageDir()
-{
-  pageDir_t* pageDir = alloc(sizeof(pageDir_t), TRUE);
-  #ifdef __COMPRESSED
-  #ifdef DBG
-  printf("Start pointer: "); printhex((int)&mboot); putc('\n');
-  printf("End pointer"); printhex((int)&end); putc('\n');
-  int j = 0;
-  for (; j < 0x1FFFFFFF; j++);
-  #endif
-  #endif
-  return pageDir;
-}
-
-void initPaging ()
-{
-  #ifdef WARN
-  printf("Warning! The paging code hasn't been written yet\n");
-  int i = 0;
-  for (; i < 0x1FFFFFFF; i++);
-  #else
-  panic("Paging wasn't initialised!");
-  #endif
-  
-  pageDir_t* kernDir = setupPageDir();
-  
-}
+void buildMap(multiboot_memory_map_t*, int);
 
 #endif
