@@ -7,12 +7,12 @@ ANDROMEDA GENERAL
 	purposes.
 
 *	Improve the memory allocation code.
-	The kernel now just uses all of it's memory.
-	For the sake of memory protection, I'd like
-	to put a cap on that and have it request a
-	block of memory each time it runs out.
-	The allocator also needs to recognise unused
-	blocks and return those to the system.
+	The kernel now just uses an awful lot of memory
+	in a region which can't be guarranteed.
+	The new system has to dynamically add blocks to
+	the list taking into account where the
+	compressed, core and module images are.
+	In other words it needs to use the memory bitmap.
 
 ABDROMEDA COMPRESSED
 *	Make a start on paging code
