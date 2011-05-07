@@ -24,14 +24,18 @@ struct mmap_entry
 	uint64_t addr;
 	uint64_t len;
 	uint32_t type
-}
+} __attribute__((packed));
 typedef struct mmap_entry gebl_mmap_entry;
 
-struct mmr
+struct mmapregister
 {
 	uint32_t address; // segment:offset address
 	uint16_t entrie_count;
 	uint8_t entry_size;
-}
+} __attribute__((packed));
 typedef struct mmr mmap_register_t;
 #endif
+
+extern uint32_t mmr;
+
+struct mmap_register_t * getmmr();

@@ -1,5 +1,5 @@
 /*
- *   GoldenEagle Bootloader C entry point.
+ *   Functions under the chapter memory map.
  *   Copyright (C) 2011  Michel Megens
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,26 +16,9 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <textio.h>
-#include <sys/stdlib.h>
-#include <sys/io.h>
+#include "include/mmap.h"
 
-void kmain(void)
+struct mmap_register_t * getmmr()
 {
-	textinit();
-	clearscreen();
 	
-	print("GoldenEagle kernel is executing.\n");
-	print(25);
-
-	char status = inb(0x60);
-	
-	if((status & 2) == 2)
-	{
-		print("The A20 gate is open.");
-	}
-	halt();
 }
-
-
-

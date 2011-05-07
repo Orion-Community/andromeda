@@ -82,7 +82,6 @@ enable_A20:
 	; failed
 	jmp .failed
 	
-
 .commandwait:
 	; wait for the controller to be ready
 	xor ax, ax
