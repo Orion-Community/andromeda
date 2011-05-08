@@ -100,12 +100,12 @@ enable_A20:
 
 .A20_enabled:
 	popa
-	xor ax, ax
+	clc
 	sti
 	ret
 
 .failed:
 	popa
-	mov ax, 00000001b
+	stc
 	sti
 	ret

@@ -26,7 +26,6 @@ void kmain(void)
 	clearscreen();
 	
 	print("GoldenEagle kernel is executing.\n");
-	print(25);
 
 	char status = inb(0x60);
 	

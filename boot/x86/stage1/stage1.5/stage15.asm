@@ -20,11 +20,9 @@
 [SECTION .stage1]
 
 main:
-	mov si, a20
-	call println
+	mov [diskid], dl
 
 	call enable_A20
-	bt ax, 0
 	jnc  .loadstage2
 	mov si, a20fail
 
@@ -81,8 +79,8 @@ main:
 ;
 
 %include 'boot/x86/println.asm'
-
-	a20 db 'Opening the A20 gate.', 0x0
+	
+	diskid db 0
 	a20ok db 'The A20 line has been enabled.', 0x0
 	a20fail db '(0x1) The A20 gate couldn`t be opened. Press a key to reboot.', 0x0
 	nostage2 db '(0x2) Failed to load the second stage.. Press a key to reboot.', 0x0

@@ -42,6 +42,11 @@ main:
 ;
 
 %include 'boot/x86/println.asm'
+
+;
+; Protected mode main line
+;
+
 %include 'boot/x86/stage2/pmodemain.asm'
 
 ;
@@ -70,7 +75,7 @@ gdtr:
 	dd gdt ; gdt base address
 
 	; Status messages
-	pmode db 'Implementing a GDT and PMode', 0x0
+	pmode db 'Implementing a GDT and PMode.', 0x0
 
 [SECTION .end]
 endptr:

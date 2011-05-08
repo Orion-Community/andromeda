@@ -20,21 +20,21 @@ loadimage:
 	
 .checkextensions:
 	mov ah, 0x41	; check ext
-	mov dl, 0x80	; HDD0
+	mov dl, [bootdisk]	; HDD0
 	mov bx, 0x55AA
 	int 0x13
 	jc .checkextensions
 
 .extread:
 	mov ah,0x42
-	mov dl,0x80
+	mov dl,[bootdisk]
 	lea si,[lbar]        
 	int 0x13
 	jnc .return
 
 .oldway:
 	xor ah, ah ; function 0 = reset
-	mov dl, 0x80
+	mov dl, [bootdisk]
 	int 0x13
 	jc .oldway
 
@@ -48,7 +48,7 @@ loadimage:
 	xor ch, ch					; track
 	mov cl, 0x2					; sector to read
 	xor dh, dh					; head number
-	mov dl, 0x80					; drive number
+	mov dl, [bootdisk]					; drive number
 	int 0x13					; call BIOS - Read the sector
 
 .return:

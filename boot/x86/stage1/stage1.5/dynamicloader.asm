@@ -25,7 +25,7 @@ dynamicloader:
 
 .checkextensions:
 	mov ah, 0x41	; check ext
-	mov dl, 0x80	; HDD0
+	mov dl, [diskid]	; HDD0
 	mov bx, 0x55AA
 	int 0x13
 	jc .checkextensions
@@ -34,7 +34,7 @@ dynamicloader:
 	call .calcsectors
 	mov [lbar+2], ax
 	mov ah,0x42
-	mov dl,0x80
+	mov dl,[diskid]
 	lea si,[lbar]        
 	int 0x13
 	jnc .return
@@ -43,7 +43,7 @@ dynamicloader:
 
 .oldreset:
 	xor ah, ah ; function 0 = reset
-	mov dl, 0x80
+	mov dl, [diskid]
 	int 0x13
 	jc .oldreset
 
@@ -58,7 +58,7 @@ dynamicloader:
 	xor ch, ch ; track
 	mov cl, 0x4 ; sector to start
 	xor dh, dh ; head
-	mov dl, 0x80 ; drive
+	mov dl, [diskid] ; drive
 	int 0x13
 
 .return:

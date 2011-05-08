@@ -26,7 +26,7 @@ pmodemain:
 	mov ax, [sectorcount]
 	cmp ax, 0x2
 	jne .end
-	call kmain
+; 	call kmain
 
 .end:
 	cli

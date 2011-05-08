@@ -18,8 +18,8 @@
 
 [BITS 16]
 [ORG 0x7C00]
-
 main: ; entry point
+	mov [bootdisk], dl
 	mov si, booted
 	call println
 
@@ -38,9 +38,10 @@ main: ; entry point
 	jmp $
 
 .loaded:
-	mov si, stage15
-	call println
+	mov dl, [bootdisk]
 	jmp 0x7C0:0x200
+	mov si, failed
+	call println
 	cli
 	jmp $
 
@@ -60,8 +61,8 @@ main: ; entry point
 ; Since flat binary is one big heap of code without sections, is the code below some sort of data section.
 ;
 
+	bootdisk db 0
 	booted db 'GEBL has been loaded by the bios! Executing...', 0x0
-	stage15 db 'Loaded stage 1.5 into memory, jumping ...', 0x0
 	failed db '(0x0) Failed to load the next stage.. ready to reboot. Press any key.', 0x0
 
 times 510 - ($ - $$) db 0
