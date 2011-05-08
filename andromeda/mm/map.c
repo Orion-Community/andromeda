@@ -28,17 +28,21 @@
 #define MODULE	   0x0002
 #define NOTUSABLE  0xFFFF
 
-unsigned short mmap[PAGES];
+#ifdef __COMPRESSED
+unsigned short bitmap[PAGES];
 
 void buildMap(multiboot_memory_map_t* map, int size)
 {
-  memset(mmap, NOTUSABLE, PAGES*sizeof(short));
   long i, j;
+  for(i = 0; i < PAGES; i++)
+  {
+    bitmap[i] = NOTUSABLE;
+  }
   for(i = 0; i < size; i++)
   {
     for (j = map[i].addr; j < map[i].addr + map[i].len; j+=PAGESIZE)
     {
-      mmap[j/PAGESIZE] = (map[i].type == 1) ? FREE : NOTUSABLE;
+      bitmap[j/PAGESIZE] = (map[i].type == 1) ? FREE : NOTUSABLE;
     }
   }
 }
@@ -50,11 +54,10 @@ void addModules(multiboot_module_t* mods, int count)
   {
     for(j = mods[i].mod_start; j < mods[i].mod_end; j+=PAGESIZE)
     {
-      mmap[j/PAGESIZE] = MODULE;
+      bitmap[j/PAGESIZE] = MODULE;
     }
   }
 }
-#ifdef __COMPRESSED
 
 void addCompressed()
 {
@@ -62,7 +65,7 @@ void addCompressed()
   
   for (i = ((long)(&mboot)%PAGESIZE+(long)(&mboot)); i < ((long)(&end)%PAGESIZE+(long)(&end)); i++)
   {
-    mmap[i] = COMPRESSED;
+    bitmap[i] = COMPRESSED;
   }
 }
 #endif

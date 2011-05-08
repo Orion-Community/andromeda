@@ -2,4 +2,5 @@
 andromeda/compressed
 andromeda/core
 *floppy.sh
+compile.sh
 *.img

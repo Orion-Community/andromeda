@@ -19,10 +19,12 @@
 #ifndef MAP_H
 #define MAP_H
 
+#ifdef __COMPRESSED
 #include <boot/mboot.h>
 
-extern unsigned short mmap[];
+extern unsigned short bitmap[];
 
 void buildMap(multiboot_memory_map_t*, int);
 
+#endif
 #endif

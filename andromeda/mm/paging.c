@@ -27,7 +27,7 @@ pageDir_t* setupPageDir()
   #ifdef __COMPRESSED
   #ifdef DBG
   printf("Start pointer: "); printhex((int)&mboot); putc('\n');
-  printf("End pointer"); printhex((int)&end); putc('\n');
+  printf("End pointer: "); printhex((int)&end); putc('\n');
   int j = 0;
   for (; j < 0x1FFFFFFF; j++);
   #endif
