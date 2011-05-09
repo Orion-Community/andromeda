@@ -28,9 +28,6 @@
 #include <stdlib.h>
 #include <thread.h>
 
-// Alloc_max = 1 MB
-#define ALLOC_MAX 0x100000
-
 #define HDRMAGIC 0xAF00BEA8
 #define PAGEBOUNDARY 0x1000
 
@@ -213,7 +210,7 @@ int free (void* ptr)
 	returnBlock(block); // actually mark the block unused.
 	// more debugging code
 	#ifdef MMTEST
-	printf("During:\n");
+	printf("During:");
 	examineHeap();
 	printf("\n");
 	#endif
@@ -292,7 +289,7 @@ void returnBlock(memNode_t* block)
 	}
 	block->used = FALSE;
 	memNode_t* carrige;
-	if ((void*)block < (void*)blocks && (void*)block >= (void*)heapBase)
+	if ((void*)block < (void*)blocks)
 	{// if we're at the top of the heap list add the block there.
 		blocks -> previous = block;
 		block -> next = blocks;

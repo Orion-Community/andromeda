@@ -18,24 +18,35 @@
 
 #include <stdlib.h>
 #include <thread.h>
+#define SIZE (size*PAGESIZE <= ALLOC_MAX) ? size*PAGESIZE : ALLOC_MAX
 
 extern memNode_t* blocks;
 extern mutex_t prot;
-int growHeap()
-{
-}
 
-// This initialises the heap to hold a block of the maximum possible size.
-// In the case of the compressed kernel that's 128 MB, which is huge, since
-// allocmax = 4KB
-void initBlockMap ()
+//Makes use of the memory bitmap to select the pages that are usable.
+//Since the heap has only limited allocation space, there also needs
+//to be a regeon that's used for memory mapping.
+void heapAddBlocks(void* base, int size)
 {
-	mutexEnter(prot);
-	memNode_t* node = (memNode_t*)heapBase;
-	initHdr(node, heapSize-sizeof(memNode_t));
-	blocks = node;
-	mutexRelease(prot);
-	#ifdef MMTEST
-	testAlloc();
-	#endif
+  mutexEnter(prot);
+  while (size > 0)
+  {
+    initHdr(base, SIZE);
+    size -= SIZE;
+    if (blocks == NULL)
+    {
+      blocks = base;
+    }
+    else
+    {
+      mutexRelease(prot); // To prevent the mutex from conflicting with itself basically
+      free(base+sizeof(memNode_t));
+      mutexEnter(prot);
+    }
+    base += SIZE;
+  }
+  mutexRelease(prot);
+  #ifdef MMTEST
+  testAlloc();
+  #endif
 }

@@ -31,14 +31,16 @@ struct memNode
 };
 typedef struct memNode memNode_t;
 
-void initBlockMap();
+void heapAddBlocks(void*, int);
 
 void* alloc (size_t,boolean);
 int free (void* ptr);
-int growHeap();
 void initHdr(memNode_t* block, size_t size);
 
 #define kalloc(a) alloc(a,FALSE)
+
+// Alloc_max = 1 MB
+#define ALLOC_MAX 0x100000
 
 #ifdef MMTEST
 void examineHeap();

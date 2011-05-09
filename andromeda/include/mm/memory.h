@@ -23,7 +23,7 @@
 
 void paging();
 void memset(void*, int, int);
-int initHeap(long, long);
+int initHeap(long);
 
 #ifdef __INTEL
 void setGDT();
@@ -32,6 +32,10 @@ void setGDT();
 #ifdef __COMPRESSED
 extern unsigned int mboot;
 extern unsigned int end;
+#endif
+
+#ifdef X86
+#define PAGESIZE 0x1000
 #endif
 
 #endif

@@ -18,18 +18,9 @@
 #include <mm/map.h>
 #include <stdlib.h>
 
-#ifdef X86
-#define PAGES      0x100000
-#define PAGESIZE   0x1000
-#endif
-
-#define FREE	   0x0000
-#define MODULE	   0x0001
-#define COMPRESSED 0x0002
-#define NOTUSABLE  0xFFFF
+unsigned short bitmap[PAGES];
 
 #ifdef __COMPRESSED
-unsigned short bitmap[PAGES];
 
 void buildMap(multiboot_memory_map_t* map, int size)
 {

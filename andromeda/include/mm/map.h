@@ -19,10 +19,20 @@
 #ifndef MAP_H
 #define MAP_H
 
-#ifdef __COMPRESSED
-#include <boot/mboot.h>
+#define FREE	   0x0000
+#define MODULE	   0x0001
+#define COMPRESSED 0x0002
+#define NOTUSABLE  0xFFFF
+
+#ifdef X86
+#define PAGES      0x100000
+#define PAGESIZE   0x1000
+#endif
 
 extern unsigned short bitmap[];
+
+#ifdef __COMPRESSED
+#include <boot/mboot.h>
 
 void buildMap(multiboot_memory_map_t*, int);
 

@@ -18,34 +18,48 @@
 
 #include <stdlib.h>
 #include <mm/paging.h>
+#include <mm/map.h>
 
-long heapBase = 0;
-long heapSize = 0;
-
-int initHeap(long base, long size)
+int initHeap(long size)
 {
-	heapBase = base;
-	heapSize = size;
-	
-	initBlockMap();
-	
-	initPaging(heapBase, heapSize);
-	
-	return base;
-}
+  void* base = NULL;
+  int addSize = 0;
+  long done = 0;
+  int i = 0;
+  for (; i < PAGES; i++)
+  {
+    if (bitmap[i] == FREE)
+    {
+      if (base == NULL)
+      {
+	base = i*PAGESIZE;
+      }
+      size += 1;
+      done +=PAGESIZE;
+      if (done >= size)
+      {
+	heapAddBlocks(base, addSize);
+	break;
+      }
+    }
+    else if(base != NULL && size != 0)
+    {
+      heapAddBlocks(base, addSize);
+      base = NULL;
+    }
+  }
+  
+  initPaging();
 
-int requestPage(int i)
-{
-	return -1;
+  return 0;
 }
-
 
 void memset(void* location, int value, int size)
 {
-	int i = 0;
-	int* offset = (int*)location;
-	for (; i <= size; i++)
-	{
-		offset[i] = value;
-	}
+  int i = 0;
+  int* offset = (int*)location;
+  for (; i <= size; i++)
+  {
+    offset[i] = value;
+  }
 }

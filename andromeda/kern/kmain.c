@@ -59,7 +59,7 @@ int vendor = 0;
 // Print a welcome message
 void announce()
 {
-  textInit();
+//   textInit();
   println("Compressed kernel loaded");
   println("Decompressing the kernel");
 }
@@ -71,6 +71,7 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
 int kmain()
 #endif
 {
+  textInit();
   #ifdef __COMPRESSED
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
@@ -99,7 +100,7 @@ int kmain()
   }
   #endif
   // Initialise the heap
-  initHeap(HEAP, HEAPSIZE);
+  initHeap(HEAPSIZE);
   // If in the compressed image
   #ifdef __COMPRESSED
   announce(); // print welcome message
@@ -158,7 +159,7 @@ int kmain()
     {
       printf("Base addr = "); printhex(modules[i].mod_start); putc('\n');
       printf("End  addr = "); printhex(modules[i].mod_end);   putc('\n');
-      printf("CMD  line = "); printf(modules[i].cmdline); putc('\n');
+      printf("CMD  line = "); printf((char*)modules[i].cmdline); putc('\n');
     }
   }
   else
