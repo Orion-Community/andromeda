@@ -24,8 +24,8 @@
 #endif
 
 #define FREE	   0x0000
-#define COMPRESSED 0x0001
-#define MODULE	   0x0002
+#define MODULE	   0x0001
+#define COMPRESSED 0x0002
 #define NOTUSABLE  0xFFFF
 
 #ifdef __COMPRESSED

@@ -77,12 +77,25 @@ int kmain()
     printf("\nInvalid magic word: ");
     printhex(magic);
     putc('\n');
-    for (;;);
+    panic("");
   }
   if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
   {
     mmap = (multiboot_memory_map_t*)hdr->mmap_addr;
     buildMap(mmap, (int)hdr->mmap_length);
+  }
+  else
+  {
+    panic("Invalid memory map");
+  }
+  if (hdr->flags && MULTIBOOT_INFO_MODS)
+  {
+    addModules((multiboot_module_t*)hdr->mods_addr, (int)hdr->mods_count);
+    addCompressed();
+  }
+  else
+  {
+    panic("Invalid modules");
   }
   #endif
   // Initialise the heap
