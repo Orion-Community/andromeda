@@ -18,19 +18,19 @@
 
 loadimage:
 	
-.checkextensions:
-	mov ah, 0x41	; check ext
-	mov dl, [bootdisk]	; HDD0
-	mov bx, 0x55AA
-	int 0x13
-	jc .checkextensions
-
-.extread:
-	mov ah,0x42
-	mov dl,[bootdisk]
-	lea si,[lbar]        
-	int 0x13
-	jnc .return
+; .checkextensions:
+; 	mov ah, 0x41	; check ext
+; 	mov dl, [bootdisk]	; HDD0
+; 	mov bx, 0x55AA
+; 	int 0x13
+; 	jc .checkextensions
+; 
+; .extread:
+; 	mov ah,0x42
+; 	mov dl,[bootdisk]
+; 	lea si,[lbar]        
+; 	int 0x13
+; 	jnc .return
 
 .oldway:
 	xor ah, ah ; function 0 = reset

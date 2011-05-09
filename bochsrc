@@ -5,7 +5,8 @@ megs: 32
 vgaromimage: file=/usr/share/vgabios/vgabios.bin
 ata0: enabled=1
 ata0-master: type=disk, path="build/goldeneaglebl.bin", mode=flat, cylinders=1, heads=1, spt=5
-ata1: enabled=0
+ata1: enabled=1
+ata1-master: type=disk, path="build/goldeneaglebl.bin", mode=flat, cylinders=1, heads=1, spt=5
 boot: disk
 #gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
 #keyboard_mapping: enabled=1, map=/usr/share/bochs/keymaps/x11-pc-us.map

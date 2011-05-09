@@ -20,6 +20,14 @@
 [ORG 0x7C00]
 main: ; entry point
 	mov [bootdisk], dl
+	cli
+	xor ax, ax
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	mov sp, 0x7BFE
+	sti
+
 	mov si, booted
 	call println
 
@@ -38,7 +46,6 @@ main: ; entry point
 	jmp $
 
 .loaded:
-	mov dl, [bootdisk]
 	jmp 0x7C0:0x200
 	mov si, failed
 	call println
