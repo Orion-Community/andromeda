@@ -52,7 +52,8 @@ void examineHeap()
 	memNode_t* carrige;
 	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
 	{
-		printf("node: "); printhex((int)carrige); putc('\n');
+		printf("node: "); printhex((int)carrige); putc('\t');
+		printf("size: "); printhex(carrige->size); putc('\n');
 	}
 }
 

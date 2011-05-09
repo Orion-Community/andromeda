@@ -34,7 +34,7 @@ int initHeap(long size)
       {
 	base = i*PAGESIZE;
       }
-      size += 1;
+      addSize += 1;
       done +=PAGESIZE;
       if (done >= size)
       {
