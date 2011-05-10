@@ -18,16 +18,39 @@
 
 [BITS 16]
 [ORG 0x7C00]
+jmp main
+nop
+	bpbBytesPerSector:  	DW 512
+	bpbSectorsPerCluster: 	DB 1
+	bpbReservedSectors: 	DW 1
+	bpbNumberOfFATs: 	DB 2
+	bpbRootEntries: 	DW 224
+	bpbTotalSectors: 	DW 2880
+	bpbMedia: 	        DB 0xF8
+	bpbSectorsPerFAT: 	DW 9
+	bpbSectorsPerTrack: 	DW 18
+	bpbHeadsPerCylinder: 	DW 2
+	bpbHiddenSectors: 	DD 0
+	bpbTotalSectorsBig:     DD 0
+	bsDriveNumber: 	        DB 0x81
+	bsUnused: 	        DB 0
+	bsExtBootSignature: 	DB 0x29
+	bsSerialNumber:	        DD 0xa0a1a2a3
+	bsVolumeLabel: 	        DB "MOS FLOPPY "
+	bsFileSystem: 	        DB "FAT12   "
+
 main: ; entry point
-	mov [bootdisk], dl
 	cli
-	xor ax, ax
+	jmp 0x0:.main
+.main:
+	mov ax, 0x0
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
 	mov sp, 0x7BFE
 	sti
 
+	mov byte [bootdisk], dl
 	mov si, booted
 	call println
 
@@ -46,6 +69,7 @@ main: ; entry point
 	jmp $
 
 .loaded:
+	mov dl, byte [bootdisk]
 	jmp 0x7C0:0x200
 	mov si, failed
 	call println
@@ -68,7 +92,6 @@ main: ; entry point
 ; Since flat binary is one big heap of code without sections, is the code below some sort of data section.
 ;
 
-	bootdisk db 0
 	booted db 'GEBL has been loaded by the bios! Executing...', 0x0
 	failed db '(0x0) Failed to load the next stage.. ready to reboot. Press any key.', 0x0
 

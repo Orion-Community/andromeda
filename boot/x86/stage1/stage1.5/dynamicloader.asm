@@ -21,29 +21,29 @@
 [GLOBAL sectorcount]
 [EXTERN endptr] ; pointer to the end of stage 2
 dynamicloader:
-	mov cx, 5
-
-.checkextensions:
-	mov ah, 0x41	; check ext
-	mov dl, [diskid]	; HDD0
-	mov bx, 0x55AA
-	int 0x13
-	jc .checkextensions
-
-.extread:
-	call .calcsectors
-	mov [lbar+2], ax
-	mov ah,0x42
-	mov dl,[diskid]
-	lea si,[lbar]        
-	int 0x13
-	jnc .return
-
-	loop .extread
+; 	mov cx, 5
+; 
+; .checkextensions:
+; 	mov ah, 0x41	; check ext
+; 	mov dl, [bootdisk]	; HDD0
+; 	mov bx, 0x55AA
+; 	int 0x13
+; 	jc .checkextensions
+; 
+; .extread:
+; 	call .calcsectors
+; 	mov [lbar+2], ax
+; 	mov ah,0x42
+; 	mov dl,[bootdisk]
+; 	lea si,[lbar]        
+; 	int 0x13
+; 	jnc .return
+; 
+; 	loop .extread
 
 .oldreset:
 	xor ah, ah ; function 0 = reset
-	mov dl, [diskid]
+	mov dl, [bootdisk]
 	int 0x13
 	jc .oldreset
 
@@ -58,7 +58,7 @@ dynamicloader:
 	xor ch, ch ; track
 	mov cl, 0x4 ; sector to start
 	xor dh, dh ; head
-	mov dl, [diskid] ; drive
+	mov dl, [bootdisk] ; drive
 	int 0x13
 
 .return:
