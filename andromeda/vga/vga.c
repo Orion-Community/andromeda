@@ -26,8 +26,6 @@ char col = 0x07;
 void textInit()
 {
 	scroll(HEIGHT);
-	//cursor.x = 0;
-	//cursor.y = 0;
 }
 
 void scroll(unsigned char lines)

@@ -56,6 +56,10 @@ void setGDT()
    */
   #ifdef FASTGDT
   GDT = kalloc(sizeof(gdtEntry_t)*ENTRIES);
+  if (GDT == NULL)
+  {
+    panic("Aiee, NULL pointer!!!");
+  }
   setEntry(0, 0, 0, 0, 0);                // Null segment
   setEntry(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); // Code segment
   setEntry(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data segment
@@ -63,6 +67,10 @@ void setGDT()
   setEntry(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
   #else
   GDT = kalloc(sizeof(gdtEntry_t)*ENTRIES);
+  if (GDT == NULL)
+  {
+    panic("Aiee, NULL pointer!!!");
+  }
   //void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type, unsigned int dpl)
   setEntry (0, 0, 0, 0, 0);
   setEntry (1, 0, 0xFFFFFFFF, 0xA, 0x0);

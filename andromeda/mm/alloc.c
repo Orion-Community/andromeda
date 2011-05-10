@@ -75,6 +75,9 @@ void initHdr(memNode_t* block, size_t size)
 // page alligned data (usefull for the page directory).
 void* alloc (size_t size, boolean pageAlligned)
 {
+	#ifdef MMTEST
+	printf("Alloc!!!\n");
+	#endif
 	mutexEnter(prot);
 	if(size > ALLOC_MAX)
 	{
@@ -177,7 +180,6 @@ void* alloc (size_t size, boolean pageAlligned)
 		}
 		if (carrige->next == NULL || carrige->next == carrige)
 		{
-			// This should request a larger heap.
 			break; 	// If we haven't found anything but we're at the end of the list
 				// or heap corruption occured we break out of the loop and return
 				// the default pointer (which is NULL).
@@ -189,6 +191,9 @@ void* alloc (size_t size, boolean pageAlligned)
 
 int free (void* ptr)
 {
+	#ifdef MMTEST
+	printf("Free!!!\n");
+	#endif
 	mutexEnter(prot);
 	memNode_t* block = (void*)ptr-sizeof(memNode_t);
 	memNode_t* carrige;

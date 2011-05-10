@@ -25,14 +25,14 @@ int initHeap(long size)
   void* base = NULL;
   int addSize = 0;
   long done = 0;
-  int i = 0;
+  int i = 0x100;
   for (; i < PAGES; i++)
   {
     if (bitmap[i] == FREE)
     {
       if (base == NULL)
       {
-	base = i*PAGESIZE;
+	base = (void*)(i*PAGESIZE);
       }
       addSize += 1;
       done +=PAGESIZE;
@@ -49,6 +49,9 @@ int initHeap(long size)
     }
   }
   
+  #ifdef MMTEST
+  testAlloc();
+  #endif
   initPaging();
 
   return 0;

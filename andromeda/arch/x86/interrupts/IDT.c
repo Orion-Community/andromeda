@@ -99,6 +99,10 @@ void prepareIDT()
   #endif
   table = kalloc(sizeof(idtEntry_t)*SIZE);
   idt_t* idt = kalloc(sizeof(idt_t));
+  if (table == NULL || idt == NULL)
+  {
+     panic ("Aiee, NULL pointer!!!");
+  }
   setExceptions();
   #ifndef __COMPRESSED
   setIRQ(INTBASE, INTBASE+8);

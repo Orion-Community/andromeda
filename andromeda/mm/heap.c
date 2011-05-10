@@ -46,7 +46,4 @@ void heapAddBlocks(void* base, int size)
     base += SIZE;
   }
   mutexRelease(prot);
-  #ifdef MMTEST
-  testAlloc();
-  #endif
 }
