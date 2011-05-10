@@ -41,7 +41,7 @@ jmp 0x0:main
 
 main: ; entry point
 	cli
-	mov ax, cs
+	xor ax, ax
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
