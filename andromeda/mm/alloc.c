@@ -56,18 +56,31 @@ void examineHeap()
 		printf("size: "); printhex(carrige->size); putc('\n');
 	}
 }
-
 #endif
 
 // This code is called whenever a new block header needs to be created.
 // It initialises the header to a good position and simplifies the code a bit.
 void initHdr(memNode_t* block, size_t size)
 {
+	
+	#ifdef MMTEST
+	printf("Checkpoint 1\n");
+	printf("Block addr: "); printhex((int)block); putc('\n');
+	#endif
 	block->size = size;
 	block->previous = NULL;
+	#ifdef MMTEST
+	printf("Checkpoint 2\n");
+	#endif
 	block->next = NULL;
 	block->used = FALSE;
+	#ifdef MMTEST
+	printf("Checkpoint 3\n");
+	#endif
 	block->hdrMagic = HDRMAGIC;
+	#ifdef MMTEST
+	printf("Checkpoint 4\n");
+	#endif
 }
 
 // Finds a block on the heap, which is free and which is large enough.
@@ -286,10 +299,10 @@ boolean useBlock(memNode_t* block)
 void returnBlock(memNode_t* block)
 {
 	// This code marks the block as unused and puts it back in the list.
-	if (block->used == FALSE || block->hdrMagic != HDRMAGIC) // Make sure we're not corrupting the heap
+	if (block->hdrMagic != HDRMAGIC) // Make sure we're not corrupting the heap
 	{
 		#ifdef MMTEST
-		printf("WARNING");
+		printf("WARNING\n");
 		#endif
 		return;
 	}
@@ -332,10 +345,14 @@ memNode_t* split(memNode_t* block, size_t size)
 {
 	// This code splits the block into two parts, the lower of which is returned
 	// to the caller.
+
 	memNode_t* second = (memNode_t*)((void*)(block)+size+sizeof(memNode_t)); // find out what the address of the upper block should be
+
 	initHdr(second, block->size-size-sizeof(memNode_t)); // initialise the second block to the right size
+
 	second->previous = block; // fix the heap lists
 	second->next = block->next;
+
 	block->next = second;
 	block->size = size;
 	return block; // return the bottom block
@@ -381,11 +398,21 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 			second->next = next;
 			if (second->size>size+sizeof(memNode_t))
 			{
-				return split(second, size); // if the second block still is too large do a normal split because this will return the
+				#ifdef MMTEST
+				printf("Split in three\n");
+				#endif
+				memNode_t *ret = split(second, size);
+				#ifdef MMTEST
+				printf("Split successful\n");
+				#endif
+				return ret; // if the second block still is too large do a normal split because this will return the
 							    // right address anyways.
 			}
 			else
 			{
+				#ifdef MMTEST
+				printf("Split in two\n");
+				#endif
 				return second; // the size is right and at the right address, what more could we want.
 			}
 		}

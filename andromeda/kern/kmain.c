@@ -177,6 +177,12 @@ int kmain()
   intInit(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
 		     // been disabled.
+  
+  
+  #ifdef MMTEST
+  testAlloc();
+  printf("End test\n");
+  #endif
   #ifdef __COMPRESSED
   //exec(decompress(gzipped kernel));
   #endif

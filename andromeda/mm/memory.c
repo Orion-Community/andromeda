@@ -35,7 +35,7 @@ int initHeap(long size)
 	base = (void*)(i*PAGESIZE);
       }
       addSize += 1;
-      done +=PAGESIZE;
+      done += PAGESIZE;
       if (done >= size)
       {
 	heapAddBlocks(base, addSize);
@@ -48,10 +48,6 @@ int initHeap(long size)
       base = NULL;
     }
   }
-  
-  #ifdef MMTEST
-  testAlloc();
-  #endif
   initPaging();
 
   return 0;

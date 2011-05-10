@@ -41,11 +41,16 @@ void wait()
 
 void testAlloc()
 {
+  printf("Heap test suite!\n\n");
   large_t* a = alloc(sizeof(large_t), FALSE);
+  printf("Addr of A: "); printhex((int)a); putc('\n');
   large_t* b = alloc(sizeof(large_t), TRUE);
+  printf("Addr of B: "); printhex((int)a); putc('\n');
   
   small_t* c = alloc(sizeof(small_t), FALSE);
+  printf("Addr of C: "); printhex((int)a); putc('\n');
   small_t* d = alloc(sizeof(small_t), TRUE);
+  printf("Addr of D: "); printhex((int)a); putc('\n');
   
   examineHeap();
   wait();
@@ -57,7 +62,9 @@ void testAlloc()
   wait();
   
   a = alloc(sizeof(large_t), TRUE);
+  printf("Addr of A: "); printhex((int)a); putc('\n');
   c = alloc(sizeof(small_t), TRUE);
+  printf("Addr of C: "); printhex((int)a); putc('\n');
   
   examineHeap();
   wait();

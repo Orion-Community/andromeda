@@ -54,7 +54,7 @@ void addCompressed()
 {
   long i;
   
-  for (i = ((long)(&mboot)%PAGESIZE+(long)(&mboot)); i < ((long)(&end)%PAGESIZE+(long)(&end)); i++)
+  for (i = ((long)(&mboot)/PAGESIZE); i < ((long)(&end)/PAGESIZE); i++)
   {
     bitmap[i] = COMPRESSED;
   }
