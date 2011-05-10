@@ -90,6 +90,11 @@ void* alloc (size_t size, boolean pageAlligned)
 {
 	#ifdef MMTEST
 	printf("Alloc!!!\n");
+	if (blocks == NULL)
+	{
+	  printf("Working with empty memory!\n");
+	  return NULL;
+	}
 	#endif
 	mutexEnter(prot);
 	if(size > ALLOC_MAX)
@@ -199,6 +204,9 @@ void* alloc (size_t size, boolean pageAlligned)
 		}
 	}
 	mutexRelease(prot);
+	#ifdef MMTEST
+	printf("Something went horribly wrong!\n");
+	#endif
 	return NULL;
 }
 

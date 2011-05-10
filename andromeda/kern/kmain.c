@@ -83,7 +83,7 @@ int kmain()
   if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
   {
     mmap = (multiboot_memory_map_t*)hdr->mmap_addr;
-    buildMap(mmap, (int)hdr->mmap_length);
+    buildMap(mmap, (int)hdr->mmap_length/sizeof(multiboot_memory_map_t));
   }
   else
   {
@@ -123,6 +123,15 @@ int kmain()
   }
   #endif
   #endif
+  
+  //installInterruptVectorTable();
+  //initPaging();
+  #ifdef MMTEST
+  wait();
+  #endif
+  intInit(); 	     // Interrupts are allowed again.
+		     // Up untill this point they have
+		     // been disabled.
   #ifdef __COMPRESSED
   #ifdef DBG
   if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
@@ -166,18 +175,8 @@ int kmain()
   {
     printf("No modules found!\n");
   }
-      
   #endif
   #endif
-  //installInterruptVectorTable();
-  //initPaging();
-  #ifdef MMTEST
-  wait();
-  #endif
-  intInit(); 	     // Interrupts are allowed again.
-		     // Up untill this point they have
-		     // been disabled.
-  
   
   #ifdef MMTEST
   testAlloc();

@@ -26,7 +26,7 @@ pageDir_t* setupPageDir()
   pageDir_t* pageDir = alloc(sizeof(pageDir_t), TRUE);
   if(pageDir == NULL)
   {
-    panic("Aieee, Null pointer!!!");
+    panic("Aieee, Null pointer!!! Paging");
   }
   #ifdef __COMPRESSED
   #ifdef DBG

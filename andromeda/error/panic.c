@@ -24,5 +24,8 @@ void panic(char* msg)
 	cli();
 	println("Andromeda panic");
 	println(msg);
-	for (;;);
+	for (;;)
+	{
+	  halt();
+	}
 }
