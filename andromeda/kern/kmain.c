@@ -83,7 +83,7 @@ int kmain()
   if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
   {
     mmap = (multiboot_memory_map_t*)hdr->mmap_addr;
-    buildMap(mmap, (int)hdr->mmap_length/sizeof(multiboot_memory_map_t));
+    buildMap(mmap, (int)hdr->mmap_length/*/sizeof(multiboot_memory_map_t)*/);
   }
   else
   {

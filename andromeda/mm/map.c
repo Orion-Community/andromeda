@@ -24,17 +24,19 @@ unsigned short bitmap[PAGES];
 
 void buildMap(multiboot_memory_map_t* map, int size)
 {
-  long i, j;
+  long i, j, end;
   for(i = 0; i < PAGES; i++)
   {
     bitmap[i] = NOTUSABLE;
   }
-  for(i = 0; i < size; i++)
+  end = (long)map + (long)size;
+  while ((long)map < end)
   {
-    for (j = map[i].addr; j < map[i].addr + map[i].len; j+=PAGESIZE)
+    for (j = map->addr; j < map->addr + map->len; j+=PAGESIZE)
     {
-      bitmap[j/PAGESIZE] = (map[i].type == 1) ? FREE : NOTUSABLE;
+      bitmap[j/PAGESIZE] = (map->type == 1) ? FREE : NOTUSABLE;
     }
+    map = (multiboot_memory_map_t*)((long)map+(long)map->size+sizeof(map->size));
   }
 }
 
