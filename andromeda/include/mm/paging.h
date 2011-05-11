@@ -19,6 +19,8 @@
 #ifndef PAGING_H
 #define PAGING_H
 
+#include <kern/cpu.h>
+
 void initPaging ();
 
 struct pageDir

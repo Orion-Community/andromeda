@@ -26,9 +26,12 @@
 [GLOBAL getESP]
 [GLOBAL getCR3]
 [GLOBAL setCR3]
-[GLOBAL toglePEbit]
+[GLOBAL toglePGbit]
 [GLOBAL pgbit]
+[EXTERN mutexEnter]
+[EXTERN mutexRelease]
 
+mutex   dd	0 ;The mutex variable
 pgbit	db	0 ;Paging is disabled per default
 		  ;Booleans have been typedefed as unsigned char
 
@@ -129,6 +132,10 @@ getCR3:
 
 setCR3:
   enter
+  mov eax, [mutex]
+  push eax
+  call mutexEnter
+  add esp, 4
   %ifdef X86
   mov eax, [ebp+8]
   mov cr3, eax
@@ -136,13 +143,25 @@ setCR3:
   mov rax, [ebp+16] ; Hope this gets the right value
   mov cr3, rax
   %endif
+  mov eax, [mutex]
+  push eax
+  call mutexRelease
+  add esp, 4
   return
   
 toglePGbit:
+  mov eax, [mutex]
+  push eax
+  call mutexEnter
+  add esp, 4
   mov eax, cr0
   xor eax, 0x80000000
   mov cr0, eax
   mov eax, [pgbit]
   not eax
   mov [pgbit], eax
+  mov eax, [mutex]
+  push eax
+  call mutexRelease
+  add esp, 4
   ret

@@ -80,10 +80,10 @@ mutexEnter:
   enter
 
   mov eax, 1
-spin:
+.spin:
   xchg [ebp+8], eax
   test eax, eax
-  jnz spin
+  jnz .spin
   
   return
 

@@ -32,12 +32,6 @@ pageDir_t* setupPageDir()
   return pageDir;
 }
 
-void configurePaging(pageDir_t* pageDir)
-{
-  // Here the page tables get entered into the pagedir
-  // Also the page tables will be built to contain the paging data.
-}
-
 void initPaging ()
 {
   #ifdef WARN
@@ -47,8 +41,11 @@ void initPaging ()
   #endif
   
   pageDir_t* kernDir = setupPageDir();
-  configurePaging(kernDir);
-  
+  setCR3((unsigned long)kernDir);
+  if (pgbit)
+  {
+//     toglePGbit();
+  }
 }
 
 #endif
