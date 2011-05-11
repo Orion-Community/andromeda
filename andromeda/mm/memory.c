@@ -56,9 +56,9 @@ int initHeap(long size)
 void memset(void* location, int value, int size)
 {
   int i = 0;
-  int* offset = (int*)location;
+  unsigned char* offset = (unsigned char*)location;
   for (; i <= size; i++)
   {
-    offset[i] = value;
+    offset[i] = (unsigned char)value;
   }
 }

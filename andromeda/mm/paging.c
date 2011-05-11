@@ -28,28 +28,26 @@ pageDir_t* setupPageDir()
   {
     panic("Aieee, Null pointer!!! Paging");
   }
-  #ifdef __COMPRESSED
-  #ifdef DBG
-  printf("Start pointer: "); printhex((int)&mboot); putc('\n');
-  printf("End pointer: "); printhex((int)&end); putc('\n');
-  int j = 0;
-  for (; j < 0x1FFFFFFF; j++);
-  #endif
-  #endif
+  memset(pageDir, 0, sizeof(pageDir_t));
   return pageDir;
+}
+
+void configurePaging(pageDir_t* pageDir)
+{
+  // Here the page tables get entered into the pagedir
+  // Also the page tables will be built to contain the paging data.
 }
 
 void initPaging ()
 {
   #ifdef WARN
   printf("Warning! The paging code hasn't been written yet\n");
-  int i = 0;
-  for (; i < 0x1FFFFFFF; i++);
   #else
   panic("Paging wasn't initialised!");
   #endif
   
   pageDir_t* kernDir = setupPageDir();
+  configurePaging(kernDir);
   
 }
 
