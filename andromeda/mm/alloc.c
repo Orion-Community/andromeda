@@ -57,6 +57,20 @@ void examineHeap()
 	}
 }
 #endif
+#ifdef DBG
+// Debugging function used to examine the heap (duh ...)
+void examineHeap()
+{
+	printf("Head\n");
+	printhex((int)blocks); putc('\n');
+	memNode_t* carrige;
+	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
+	{
+		printf("node: "); printhex((int)carrige); putc('\t');
+		printf("size: "); printhex(carrige->size); putc('\n');
+	}
+}
+#endif
 
 // This code is called whenever a new block header needs to be created.
 // It initialises the header to a good position and simplifies the code a bit.

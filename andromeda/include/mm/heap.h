@@ -47,6 +47,9 @@ void examineHeap();
 void wait();
 void testAlloc();
 #endif
+#ifdef DBG
+void examineHeap();
+#endif
 
 extern long heapBase;
 extern long heapSize;

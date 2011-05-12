@@ -42,8 +42,7 @@
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-#define HEAP 0x8000000
-#define HEAPSIZE HEAP-0x8000
+#define HEAPSIZE 0x1000000
 
 #else
 

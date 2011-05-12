@@ -19,15 +19,12 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <mm/paging.h>
+
 #define FREE	   0x0000
 #define MODULE	   0x0001
 #define COMPRESSED 0x0002
 #define NOTUSABLE  0xFFFF
-
-#ifdef X86
-#define PAGES      0x100000
-#define PAGESIZE   0x1000
-#endif
 
 extern unsigned short bitmap[];
 

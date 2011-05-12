@@ -17,18 +17,49 @@
 */
 
 #include <mm/paging.h>
+#include <mm/map.h>
 #include <stdlib.h>
 
 #ifdef __INTEL
 
+void addPageTable(pageDir_t* pd, pageTable_t* pt, int idx)
+{
+  pd[idx].pageIdx = (unsigned int)&pt >> 0xC;
+}
+
 pageDir_t* setupPageDir()
 {
-  pageDir_t* pageDir = alloc(sizeof(pageDir_t), TRUE);
+  pageDir_t* pageDir = alloc(sizeof(pageDir_t)*PAGEDIRS, TRUE);
   if(pageDir == NULL)
   {
     panic("Aieee, Null pointer!!! Paging");
   }
-  memset(pageDir, 0, sizeof(pageDir_t));
+  memset(pageDir, 0, sizeof(pageDir_t)*PAGEDIRS);
+  int i, j;
+  for(i = 0; i < PAGETABLES; i++)
+  {
+    pageTable_t* pt = alloc(sizeof(pageTable_t)*PAGETABLES, TRUE);
+    if (pt == NULL)
+    {
+      printf("Itteration "); printhex(i); putc('\n');
+      panic("Aiee, Null pointer!!! PageTable");
+    }
+    memset(pt, 0, sizeof(pageTable_t)*PAGETABLES);
+    for (j = 0; j < PAGES/PAGETABLES; j++)
+    {
+      switch(bitmap[i*PAGETABLES+j])
+      {
+	case FREE:
+	  break;
+	case COMPRESSED:
+	  break;
+	case MODULE:
+	  break;
+	case NOTUSABLE:
+	  break;
+      }
+    }
+  }
   return pageDir;
 }
 
@@ -42,9 +73,9 @@ void initPaging ()
   
   pageDir_t* kernDir = setupPageDir();
   setCR3((unsigned long)kernDir);
-  if (pgbit)
+  if (!pgbit)
   {
-//     toglePGbit();
+//      toglePGbit();
   }
 }
 

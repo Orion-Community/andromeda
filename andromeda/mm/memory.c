@@ -22,32 +22,24 @@
 
 int initHeap(long size)
 {
-  void* base = NULL;
-  int addSize = 0;
   long done = 0;
   int i = 0x100;
   for (; i < PAGES; i++)
   {
     if (bitmap[i] == FREE)
     {
-      if (base == NULL)
-      {
-	base = (void*)(i*PAGESIZE);
-      }
-      addSize += 1;
+      heapAddBlocks(i*PAGESIZE, PAGESIZE);
       done += PAGESIZE;
-      if (done >= size)
+//       #ifdef DBG
+//       printf("Added "); printhex(done); printf(" to heap\n");
+//       #endif
+      if (size <= done)
       {
-	heapAddBlocks(base, addSize);
 	break;
       }
     }
-    else if(base != NULL && size != 0)
-    {
-      heapAddBlocks(base, addSize);
-      base = NULL;
-    }
   }
+  examineHeap();
   initPaging();
 
   return 0;
