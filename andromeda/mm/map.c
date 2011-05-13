@@ -19,6 +19,26 @@
 #include <stdlib.h>
 
 unsigned short bitmap[PAGES];
+boolean claimPage(unsigned long page, unsigned short owner)
+{
+  if (bitmap[page] != FREE)
+  {
+    return FALSE;
+  }
+  
+  bitmap[page] = owner;
+  
+  return TRUE;
+}
+
+void freePage(unsigned long page, unsigned short owner)
+{
+  if (bitmap[page] != owner)
+  {
+    return;
+  }
+  bitmap[page] = FREE;
+}
 
 #ifdef __COMPRESSED
 

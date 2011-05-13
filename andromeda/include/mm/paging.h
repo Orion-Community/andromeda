@@ -28,6 +28,7 @@
 #define PAGEDIRS   PAGETABLES
 #endif
 
+void* getPhysAddr(void* addr);
 void initPaging ();
 
 struct pageDir

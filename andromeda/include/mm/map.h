@@ -20,6 +20,7 @@
 #define MAP_H
 
 #include <mm/paging.h>
+#include <types.h>
 
 #define FREE	   0x0000
 #define MODULE	   0x0001
@@ -27,6 +28,8 @@
 #define NOTUSABLE  0xFFFF
 
 extern unsigned short bitmap[];
+boolean claimPage(unsigned long page, unsigned short owner);
+void freePage(unsigned long page, unsigned short owner);
 
 #ifdef __COMPRESSED
 #include <boot/mboot.h>

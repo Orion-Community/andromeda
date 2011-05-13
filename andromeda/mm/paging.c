@@ -21,6 +21,36 @@
 #include <stdlib.h>
 
 #ifdef __INTEL
+void* getPhysAddr(void* addr)
+{
+  void* ret = NULL;
+  #ifdef X86
+  unsigned long pdIdx = ((unsigned long)addr >> 22);
+  unsigned long ptIdx = ((unsigned long)addr >> 12) - (pdIdx << 10);
+  unsigned long offset = (unsigned long)addr%PAGESIZE;
+  
+  unsigned long CR3 = (unsigned long)getCR3();
+  pageDir_t* pd = (pageDir_t*) (CR3 - (CR3 % PAGESIZE)); // Get the address of the page directory.
+  unsigned long ptAddr = (unsigned long)pd[pdIdx].pageIdx*PAGESIZE; // Get the address of the page table.
+  pageTable_t* pt = (pageTable_t*) ptAddr;
+  
+  unsigned long tmpRet = (unsigned long)pt[ptIdx].pageIdx*PAGESIZE; // Get the page address
+  tmpRet += offset; // Add the offset
+  
+  ret = (void *)tmpRet; // return the variable
+  
+  #ifdef DBG
+  printf("CR3\t"); printhex((int)CR3); putc('\n');
+  printf("PD\t"); printhex((int)pd); putc('\n');
+  printf("PD idx\t"); printhex((int)pdIdx); putc('\n');
+  printf("PT\t"); printhex((int)pt); putc('\n');
+  printf("PT idx\t"); printhex((int)ptIdx); putc('\n');
+  #endif
+  
+  #endif
+  
+  return ret;
+}
 
 void addPageTable(pageDir_t* pd, pageTable_t* pt, int idx)
 {
@@ -50,15 +80,20 @@ pageDir_t* setupPageDir()
       switch(bitmap[i*PAGETABLES+j])
       {
 	case FREE:
+	  // Do nothing, the 0 page is fine
 	  break;
 	case COMPRESSED:
-	  break;
 	case MODULE:
+	  pt[j].pageIdx = (i*PAGETABLES+j);
+	  // Map the page to physical memory
 	  break;
 	case NOTUSABLE:
+	  // Keep it 0, as it is still not usable
 	  break;
       }
     }
+    pageDir[i].pageIdx = (int)pt >> 0xC;
+    // Add the page directory here.
   }
   return pageDir;
 }

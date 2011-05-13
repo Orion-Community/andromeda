@@ -23,14 +23,14 @@
  * how to load the decompressed image.
  *
  * One angle is to load the decompressed image in from disk.
- * Another is to get a gzipped image from the bootloader and decompress that
- * and use that as the decompressed image.
+ * Another is to get a module from GRUB which we can put into place our selves.
  * The latter is the most gracefull, however, the former will suffice and is
  * probably a whole lot easier.
  */
 
 // Basic includes
 #include <stdlib.h>
+#include <mm/paging.h>
 #include <interrupts/int.h>
 
 // Define the place of the heap
@@ -42,7 +42,7 @@
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-#define HEAPSIZE 0x1000000
+#define HEAPSIZE 0xA00000
 
 #else
 
@@ -176,6 +176,10 @@ int kmain()
   }
   #endif
   #endif
+  
+  int *a = kalloc(sizeof(int));
+  printf("Phys addr of: "); printhex((int)a);
+  printf(" = "); printhex((int)getPhysAddr(a));
   
   #ifdef MMTEST
   testAlloc();
