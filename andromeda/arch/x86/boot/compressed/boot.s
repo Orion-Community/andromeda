@@ -50,12 +50,15 @@ mboot:
 [SECTION .text]
 [GLOBAL  start]                  ; Kernel entry point.
 [EXTERN  kmain]                  ; This is the entry point of our C code
+[EXTERN  stack]
 
 start:
     ; Load multiboot information:
     mov ecx, 0x10
     mov ss, ecx
-    mov ecx, 0x10000000		; Set the new stack frame
+    mov ecx, stack		; Set the new stack frame
+    add ecx, 0x2000		; Add the size of the stack to the pointer
+    mov ebp, ecx
     mov esp, ecx		; Stack grows down in memory and we're at the
     push esp			; top of the minimum required memory
     push ebx

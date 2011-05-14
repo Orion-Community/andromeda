@@ -42,7 +42,7 @@
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-#define HEAPSIZE 0xA00000
+#define HEAPSIZE 0x1000000
 
 #else
 
@@ -197,3 +197,5 @@ int kmain()
   }
   return 0; // To keep the compiler happy.
 }
+
+unsigned char stack[0x2000];
