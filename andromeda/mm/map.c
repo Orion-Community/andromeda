@@ -58,6 +58,8 @@ void buildMap(multiboot_memory_map_t* map, int size)
     }
     map = (multiboot_memory_map_t*)((long)map+(long)map->size+sizeof(map->size));
   }
+  bitmap[0xB8] = MAPPEDIO;
+  bitmap[0xB0] = MAPPEDIO;
 }
 
 void addModules(multiboot_module_t* mods, int count)

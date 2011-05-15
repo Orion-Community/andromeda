@@ -18,6 +18,7 @@
 
 #include <interrupts.h>
 #include <stdlib.h>
+#include <mm/paging.h>
 
 void checkFrame(isrVal_t* regs)
 {
@@ -171,6 +172,10 @@ void cGenProt(isrVal_t regs)
 
 void cPageFault(isrVal_t regs)
 {
+  if (pgbit)
+  {
+    toglePGbit();
+  }
   checkFrame(&regs);
   panic("Paging isn't finished yet");
 }

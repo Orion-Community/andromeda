@@ -39,7 +39,7 @@ void* getPhysAddr(void* addr)
   
   ret = (void *)tmpRet; // return the variable
   
-  #ifdef DBG
+  #ifdef TESTPAGES
   printf("CR3\t"); printhex((int)CR3); putc('\n');
   printf("PD\t"); printhex((int)pd); putc('\n');
   printf("PD idx\t"); printhex((int)pdIdx); putc('\n');
@@ -84,15 +84,47 @@ pageDir_t* setupPageDir()
 	  break;
 	case COMPRESSED:
 	case MODULE:
+	case MAPPEDIO:
 	  pt[j].pageIdx = (i*PAGETABLES+j);
+	  pt[j].pcd = 0;
+	  pt[j].pwt = 0;
+	  pt[j].present = 1;
+	  pt[j].accessed = 0;
+	  pt[j].dirty = 0;
+	  pt[j].rw = 1;
+	  pt[j].userMode = 0;
+	  pt[j].global = 0;
+	  pt[j].pat = 0;
 	  // Map the page to physical memory
 	  break;
 	case NOTUSABLE:
 	  // Keep it 0, as it is still not usable
 	  break;
       }
+      if (i*PAGETABLES+j == 0xB8000)
+      {
+	pt[j].pageIdx = (i*PAGETABLES+j);
+	pt[j].pcd = 0;
+	pt[j].pwt = 0;
+	pt[j].present = 1;
+	pt[j].accessed = 0;
+	pt[j].dirty = 0;
+	pt[j].rw = 1;
+	pt[j].userMode = 0;
+	pt[j].global = 0;
+	pt[j].pat = 0;
+      }
     }
     pageDir[i].pageIdx = (int)pt >> 0xC;
+    pageDir[i].pcd = 0;
+    pageDir[i].pwt = 0;
+    pageDir[i].accessed = 0;
+    pageDir[i].dirty = 0;
+    pageDir[i].present = 1;
+    pageDir[i].rw = 1;
+    pageDir[i].pageSize = 0;
+    pageDir[i].userMode = 0;
+    pageDir[i].global = 0;
     // Add the page directory here.
   }
   return pageDir;
@@ -107,11 +139,12 @@ void initPaging ()
   #endif
   
   pageDir_t* kernDir = setupPageDir();
-  setCR3((unsigned long)kernDir);
-  if (!pgbit)
-  {
-//      toglePGbit();
-  }
+  
+  unsigned long cr3 = (unsigned long)kernDir;
+  cr3 -= (cr3 % 0x1000);
+  setCR3(cr3);
+  
+  toglePGbit();
 }
 
 #endif

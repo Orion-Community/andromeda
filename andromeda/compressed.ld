@@ -20,6 +20,7 @@ SECTIONS
         *(.data)
         *(.rodata)
         . = ALIGN(0x1000);
+	stack = ALIGN(0x1000);
     }
     .bss :
     {

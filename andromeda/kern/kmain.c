@@ -33,6 +33,8 @@
 #include <mm/paging.h>
 #include <interrupts/int.h>
 
+unsigned char stack[0x2000];
+
 // Define the place of the heap
 #ifdef __COMPRESSED
 
@@ -82,7 +84,7 @@ int kmain()
   if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
   {
     mmap = (multiboot_memory_map_t*)hdr->mmap_addr;
-    buildMap(mmap, (int)hdr->mmap_length/*/sizeof(multiboot_memory_map_t)*/);
+    buildMap(mmap, (int)hdr->mmap_length);
   }
   else
   {
@@ -98,6 +100,11 @@ int kmain()
     panic("Invalid modules");
   }
   #endif
+  
+  #ifdef DBG
+  printf("Addr of stackbase: "); printhex((int)&stack); putc('\n');
+  #endif
+  
   // Initialise the heap
   initHeap(HEAPSIZE);
   // If in the compressed image
@@ -197,5 +204,3 @@ int kmain()
   }
   return 0; // To keep the compiler happy.
 }
-
-unsigned char stack[0x2000];

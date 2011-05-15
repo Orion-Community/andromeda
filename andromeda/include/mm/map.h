@@ -25,6 +25,7 @@
 #define FREE	   0x0000
 #define MODULE	   0x0001
 #define COMPRESSED 0x0002
+#define MAPPEDIO   0x0003
 #define NOTUSABLE  0xFFFF
 
 extern unsigned short bitmap[];

@@ -20,19 +20,13 @@
 #define __INTERRUPTS_H
 
 #include <types.h>
+#include <kern/cpu.h>
 
 extern int pic;
 #define PIC 	0x1
 #define APIC	0x2
 
 #define INTBASE     0x20
-
-extern int DetectAPIC();
-extern unsigned int getCS();
-extern unsigned int getDS();
-extern unsigned int getSS();
-extern unsigned int getESP();
-void prepareIDT();
 
 struct idtEntry
 {
