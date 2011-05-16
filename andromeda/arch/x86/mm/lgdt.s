@@ -32,7 +32,7 @@ lgdt:
   mov gs, ax
   mov ss, ax
   
-  jmp 0x08:flush
-flush:
+  jmp 0x08:.flush
+.flush:
   
   return

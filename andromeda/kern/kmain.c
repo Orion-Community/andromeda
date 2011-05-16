@@ -30,6 +30,7 @@
 
 // Basic includes
 #include <stdlib.h>
+#include <kern/cpu.h>
 #include <mm/paging.h>
 #include <interrupts/int.h>
 
@@ -107,6 +108,10 @@ int kmain()
   
   // Initialise the heap
   initHeap(HEAPSIZE);
+  intInit(); 	     // Interrupts are allowed again.
+		     // Up untill this point they have
+		     // been disabled.
+		     
   // If in the compressed image
   #ifdef __COMPRESSED
   announce(); // print welcome message
@@ -130,16 +135,13 @@ int kmain()
   #endif
   #endif
   
-  //installInterruptVectorTable();
-  //initPaging();
   #ifdef MMTEST
   wait();
   #endif
-  intInit(); 	     // Interrupts are allowed again.
-		     // Up untill this point they have
-		     // been disabled.
+
   #ifdef __COMPRESSED
   #ifdef DBG
+  printf("Addr of hdr: "); printhex((int)hdr); putc('\n');
   if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
   {
     printf ("mmap_addr = "); printhex((unsigned) hdr->mmap_addr);
@@ -193,7 +195,7 @@ int kmain()
   printf("End test\n");
   #endif
   #ifdef __COMPRESSED
-  //exec(decompress(gzipped kernel));
+  //exec(coreImg);
   #endif
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {

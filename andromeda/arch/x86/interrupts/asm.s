@@ -18,6 +18,7 @@
 [GLOBAL sti]
 [GLOBAL cli]
 [GLOBAL halt]
+[GLOBAL endProg]
 [GLOBAL DetectAPIC]
 [GLOBAL getVendor]
 [GLOBAL getCS]
@@ -165,3 +166,13 @@ toglePGbit:
   call mutexRelease
   add esp, 4
   ret
+  
+[GLOBAL intdbg]
+intdbg:
+  int3
+  ret
+  
+endProg:
+  cli
+  hlt
+  jmp endProg

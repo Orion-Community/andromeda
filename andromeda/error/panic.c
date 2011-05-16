@@ -26,6 +26,6 @@ void panic(char* msg)
 	println(msg);
 	for (;;)
 	{
-	  halt();
+	  endProg(); // Halt and catch fire!
 	}
 }
