@@ -33,7 +33,8 @@ void kmain(void)
 	{
 		print("The A20 gate is open.");
 	}
-	halt();
+	
+	while(1) halt();
 }
 
 

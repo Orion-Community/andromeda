@@ -19,5 +19,7 @@
 [GLOBAL halt]
 [SECTION .text]
 halt:
+	cli
 	hlt
+	jmp halt
 	ret

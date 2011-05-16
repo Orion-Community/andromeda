@@ -17,25 +17,25 @@
 ;
 loadimage:
 	
-.checkextensions:
-	mov ah, 0x41	; check ext
-	mov dl, [bootdisk]	; HDD0
-	mov bx, 0x55AA
-	int 0x13
-	jc .checkextensions
-
-.extread:
-	mov ah,0x42
-	mov dl, [bootdisk]
-	lea si,[lbar]        
-	int 0x13
-	jnc .return
+; .checkextensions:
+; 	mov ah, 0x41	; check ext
+; 	mov dl, [bootdisk]	; HDD0
+; 	mov bx, 0x55AA
+; 	int 0x13
+; 	jc .checkextensions
+; 
+; .extread:
+; 	mov ah,0x42
+; 	mov dl, [bootdisk]
+; 	lea si,[lbar]        
+; 	int 0x13
+; 	jnc .return
 
 .oldway:
 	xor ah, ah ; function 0 = reset
 	mov dl, [bootdisk]
 	int 0x13
-	;jc .oldway
+	jc .oldway
 
 .oldload:
 	mov bx, 0x00	; segment
@@ -49,6 +49,12 @@ loadimage:
 	xor dh, dh					; head number
 	mov dl, [bootdisk]				; drive number
 	int 0x13					; call BIOS - Read the sector
+	jc .oldload
+	
+	test ah, ah
+	jnz .oldway
+	cmp al, 0x1
+	jne .oldload
 
 .return:
 	ret
@@ -58,11 +64,10 @@ loadimage:
 ; Loading a sector with this seg:off will place it right after the mbr
 ;
 
-bootdisk db 0
-lbar:
-	db 0x10      	; register size
-	db 0      	; reserved, must be 0
-	dw 0x1      	; sectors to read
-	dw 0x7E00   	; memory offset
-	dw 0x0   	; memory segment
-	dq 0x1		; starting sector (sector to read, s1 = 0)
+; lbar:
+; 	db 0x10      	; register size
+; 	db 0      	; reserved, must be 0
+; 	dw 0x1      	; sectors to read
+; 	dw 0x7E00   	; memory offset
+; 	dw 0x0   	; memory segment
+; 	dq 0x1		; starting sector (sector to read, s1 = 0)

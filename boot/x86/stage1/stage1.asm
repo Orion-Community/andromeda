@@ -18,34 +18,38 @@
 
 [BITS 16]
 [ORG 0x7C00]
-jmp 0x0:main
-; nop
-; 	bpbBytesPerSector:  	DW 512
-; 	bpbSectorsPerCluster: 	DB 1
-; 	bpbReservedSectors: 	DW 1
-; 	bpbNumberOfFATs: 	DB 2
-; 	bpbRootEntries: 	DW 224
-; 	bpbTotalSectors: 	DW 2880
-; 	bpbMedia: 	        DB 0xF8
-; 	bpbSectorsPerFAT: 	DW 9
-; 	bpbSectorsPerTrack: 	DW 18
-; 	bpbHeadsPerCylinder: 	DW 2
-; 	bpbHiddenSectors: 	DD 0
-; 	bpbTotalSectorsBig:     DD 0
-; 	bsDriveNumber: 	        DB 0x81
-; 	bsUnused: 	        DB 0
-; 	bsExtBootSignature: 	DB 0x29
-; 	bsSerialNumber:	        DD 0xa0a1a2a3
-; 	bsVolumeLabel: 	        DB "MOS FLOPPY "
-; 	bsFileSystem: 	        DB "FAT12   "
+
+jmp short main
+nop
+  db '        ' 
+  dw 512                        ; bytes per sector 
+  db 1                          ; sectors per cluster 
+  dw 2                         ; reserved sector count 
+  db 2                          ; number of FATs 
+  dw 16*14                      ; root directory entries 
+  dw 18*2*80                    ; sector count 
+  db 0F0h                       ; media byte 
+  dw 9                          ; sectors per fat 
+  dw 18                         ; sectors per track 
+  dw 2                          ; number of heads 
+  dd 0                          ; hidden sector count 
+  dd 0                          ; number of sectors huge 
+bootdisk  db 0                          ; drive number 
+  db 0                          ; reserved 
+  db 29h                        ; signature 
+  dd 0                          ; volume ID 
+  db '           '              ; volume label 
+  db 'FAT12   '                 ; file system type 
 
 main: ; entry point
+	jmp 0x0:.flush
+.flush:
 	cli
 	xor ax, ax
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
-	mov sp, 0x7BFE
+	mov sp, 0x7c00
 	sti
 
 	mov byte [bootdisk], dl
