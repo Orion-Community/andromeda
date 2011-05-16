@@ -21,25 +21,46 @@
 [GLOBAL sectorcount]
 [EXTERN endptr] ; pointer to the end of stage 2
 dynamicloader:
-; 	mov cx, 5
-; 
-; .checkextensions:
-; 	mov ah, 0x41	; check ext
-; 	mov dl, [bootdisk]	; HDD0
-; 	mov bx, 0x55AA
-; 	int 0x13
-; 	jc .checkextensions
-; 
-; .extread:
-; 	call .calcsectors
-; 	mov [lbar+2], ax
-; 	mov ah,0x42
-; 	mov dl,[bootdisk]
-; 	lea si,[lbar]        
-; 	int 0x13
-; 	jnc .return
-; 
-; 	loop .extread
+	call calcsectors
+	push word 0x2
+	mov cx, 5
+
+.checkextensions:
+	mov ah, 0x41	; check ext
+	mov dl, [bootdisk]	; HDD0
+	mov bx, 0x55AA
+	int 0x13
+	jc .checkextensions
+
+.extread:
+	mov ah,0x42
+	mov dl,[bootdisk]
+	lea si,[lbar]        
+	int 0x13
+
+; read the following sector
+	jnc .loopback
+; go back on error
+	loop .extread
+	jmp .return
+
+.loopback:
+; get amount of sectors to read
+	pop ax
+	dec ax
+; are we at the end?
+	cmp ax, 0
+	jbe .return
+; continue if ax > 0
+	push ax
+
+;
+; Now we have to increase the sector to be read in the next cycle and add 512 bytes/sector to the offset.
+;
+	add [lbar+4], word 0x200
+	inc dword [lbar+8]
+	jmp .extread
+
 
 .oldreset:
 	xor ah, ah ; function 0 = reset
@@ -52,7 +73,6 @@ dynamicloader:
 	mov es, bx
 	mov bx, 0x400  ; offset
 
-	call .calcsectors
 	mov ah, 0x02 ; func 2
 	; mov al, sectorcount -> done by calcsectors
 	xor ch, ch ; track
@@ -64,7 +84,7 @@ dynamicloader:
 .return:
 	ret
 
-.calcsectors:
+calcsectors:
 	lea ax, [endptr] ; adress of the end
 	sub ax, 0x8200 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
 	test ax, 0x1FF ; ax % 512

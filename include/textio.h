@@ -27,7 +27,7 @@ void textinit();
 void clearscreen();
 
 /*
- * Write a line with the text 'txt' at line 'n'.
+ * Write a line with the text 'txt' at the current line
  * Returns 0 on success.
  */
 int print(char * txt);
