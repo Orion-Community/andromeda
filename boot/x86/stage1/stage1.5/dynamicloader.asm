@@ -22,6 +22,9 @@
 [EXTERN endptr] ; pointer to the end of stage 2
 dynamicloader:
 	call calcsectors
+
+; there is some work around for buggy bioses which have bugs in int 0x13 which causes that
+; the amount of sectors does not work properly. fixed by reading one sector at a time.
 	push word 0x2
 	mov cx, 5
 
