@@ -47,55 +47,21 @@ typedef struct idt idt_t;
 extern void loadIdt(idt_t*);
 
 extern void divByZero();
-void cDivByZero(isrVal_t);
-
 extern void nmi();
-void cNmi(isrVal_t);
-
 extern void breakp();
-void cbp(isrVal_t);
-
 extern void overflow();
-void coverflow(isrVal_t);
-
 extern void bound();
-void cBound(isrVal_t);
-
 extern void invalOp();
-void cInvalOp(isrVal_t);
-
 extern void noMath();
-void cNoMath(isrVal_t);
-
 extern void doubleFault();
-void cDoubleFault(isrVal_t);
-
 extern void depricated();
-void ignore(isrVal_t);
-
 extern void invalidTSS();
-void cInvalidTSS(isrVal_t);
-
 extern void snp();
-void cSnp(isrVal_t);
-
 extern void stackFault();
-void cStackFault(isrVal_t);
-
 extern void genProt();
-void cGenProt(isrVal_t);
-
 extern void pageFault();
-void cPageFault(isrVal_t);
-
 extern void fpu();
-void cFpu(isrVal_t);
-
 extern void alligned();
-void cAlligned(isrVal_t);
-
 extern void machine();
-
 extern void simd();
-void cSimd(isrVal_t);
 #endif

@@ -199,10 +199,8 @@ int kmain()
   #endif
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
-    #ifndef __COMPRESSED
     // If this loop gets reached more than once:
     halt();
-    #endif
   }
   return 0; // To keep the compiler happy.
 }

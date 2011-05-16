@@ -194,25 +194,6 @@ void cGenProt(isrVal_t regs)
 //   panic("General Protection fault");
 }
 
-void cPageFault(isrVal_t regs)
-{
-  printf("PG\n");
-  boolean PG = FALSE;
-  if (pgbit)
-  {
-    PG = TRUE;
-    toglePGbit();
-  }
-  checkFrame(&regs);
-  panic("Paging isn't finished yet");
-  
-  if (PG)
-  {
-    toglePGbit();
-    PG = FALSE;
-  }
-}
-
 void cFpu(isrVal_t regs)
 {
   printf("FP\n");

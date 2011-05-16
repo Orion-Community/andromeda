@@ -20,7 +20,69 @@
 #include <mm/map.h>
 #include <stdlib.h>
 
+#define PRESENTBIT 0x01
+#define WRITEBIT   0x02
+#define USERBIT    0x04
+
 #ifdef __INTEL
+
+void cPageFault(isrVal_t regs)
+{
+  printf("PG\n");
+  if (regs.cs != 0x8 && regs.cs != 0x18)
+  {
+    panic("Incorrect frame");
+  }
+  unsigned char err = (unsigned char) (regs.errCode & 0x7);
+  boolean present = (err && PRESENTBIT) ? TRUE : FALSE;
+  boolean write   = (err && WRITEBIT)   ? TRUE : FALSE;
+  boolean user    = (err && USERBIT)    ? TRUE : FALSE;
+  
+  if (user)
+  {
+    panic("User mode not allowed yet!\n");
+  }
+  else if (!present && write)
+  {
+    // Allocate page here!
+  }
+  else if (!present && !write)
+  {
+    panic("Page non existent!");
+  }
+  else if (present && write)
+  {
+    panic("Illegal writing operation");
+  }
+  printf("Err code: "); printhex(err); putc('\n');
+  panic("Paging isn't finished yet");
+}
+
+boolean setPage(void* virtAddr, void* physAddr)
+{
+  #ifdef X86
+  if (!CHECKALLIGN((unsigned long)virtAddr) || !CHECKALLIGN((unsigned long)physAddr))
+  {
+    return FALSE;
+  }
+  unsigned long pdIdx = ((unsigned long)virtAddr >> 22);
+  unsigned long ptIdx = ((unsigned long)virtAddr >> 12) - (pdIdx << 10);
+  unsigned long offset = (unsigned long)virtAddr%PAGESIZE;
+  
+  unsigned long CR3 = (unsigned long)getCR3();
+  pageDir_t* pd = (pageDir_t*) (CR3 - (CR3 % PAGESIZE)); // Get the address of the page directory.
+  unsigned long ptAddr = (unsigned long)pd[pdIdx].pageIdx*PAGESIZE; // Get the address of the page table.
+  if (ptAddr == 0)
+  {
+    return FALSE;
+  }
+  pageTable_t* pt = (pageTable_t*) ptAddr;
+  
+  pt[ptIdx].pageIdx = (unsigned long)physAddr/PAGESIZE;
+  return TRUE;
+  #endif
+}
+
 void* getPhysAddr(void* addr)
 {
   void* ret = NULL;

@@ -28,6 +28,8 @@
 #define PAGEDIRS   PAGETABLES
 #endif
 
+#define CHECKALLIGN(a) ((a%PAGESIZE) ? TRUE : FALSE)
+
 void* getPhysAddr(void* addr);
 void initPaging ();
 
