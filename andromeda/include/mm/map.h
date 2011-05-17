@@ -29,6 +29,7 @@
 #define NOTUSABLE  0xFFFF
 
 extern unsigned short bitmap[];
+void* allocPage(unsigned short owner);
 boolean claimPage(unsigned long page, unsigned short owner);
 void freePage(unsigned long page, unsigned short owner);
 

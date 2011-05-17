@@ -29,7 +29,7 @@
 #endif
 
 #define CHECKALLIGN(a) ((a%PAGESIZE) ? TRUE : FALSE)
-
+boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode);
 void* getPhysAddr(void* addr);
 void initPaging ();
 

@@ -25,6 +25,7 @@
 [GLOBAL getDS]
 [GLOBAL getSS]
 [GLOBAL getESP]
+[GLOBAL getCR2]
 [GLOBAL getCR3]
 [GLOBAL setCR3]
 [GLOBAL toglePGbit]
@@ -45,17 +46,12 @@ sti: ; Start interrupts from C level code
 cli: ; Shut down interrupts from C level code
   cli ; Stop interrupts
   ret
-  
+
 halt:
-  pushfd ; Store the flags register
-  pop eax ; pop it into eax
-  sti ; Start all interrupts
-  hlt ; Stop the CPU untill another interrupt occurs.
-  test eax, 0x200 ; Test for the interrupt bit
-  jnz .resetInts ; if enabled stop interrupts again.
-  ret
-.resetInts:
-  cli ; No interrupts allowed from this point
+  pushfd
+  sti
+  hlt
+  popfd
   ret
   
 DetectAPIC:
@@ -122,14 +118,23 @@ getESP:
   mov eax, esp
   ret
   
+getCR2:
+  %ifdef X86
+  mov eax, cr2
+  %else
+  mov rax, cr3
+  %endif
+  ret
+  
 getCR3:
   %ifdef X86
   mov eax, cr3
   %else
-  mov rax, cr3 ; Hope this returns CR3
+  mov rax, cr3
   %endif
   ret
 
+msg db "NOT YET IMPLEMEMENTED!", 0
 
 setCR3:
   enter
@@ -141,8 +146,8 @@ setCR3:
   mov eax, [ebp+8]
   mov cr3, eax
   %else
-  mov rax, [ebp+16] ; Hope this gets the right value
-  mov cr3, rax
+  mov rdi, msg
+  call panic
   %endif
   mov eax, [mutex]
   push eax

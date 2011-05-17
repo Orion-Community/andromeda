@@ -49,7 +49,7 @@ void* allocPage(unsigned short owner)
 
 void freePage(unsigned long page, unsigned short owner)
 {
-  if (bitmap[page] != owner)
+  if (bitmap[(page>>0xC)] != owner)
   {
     return;
   }

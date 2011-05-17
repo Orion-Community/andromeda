@@ -140,8 +140,7 @@ int kmain()
   #endif
 
   #ifdef __COMPRESSED
-  #ifdef DBG
-  printf("Addr of hdr: "); printhex((int)hdr); putc('\n');
+  #ifdef DBG1
   if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
   {
     printf ("mmap_addr = "); printhex((unsigned) hdr->mmap_addr);
@@ -200,7 +199,8 @@ int kmain()
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
     // If this loop gets reached more than once:
-    halt();
+   // asm volatile ("int3");
+    //halt();
   }
   return 0; // To keep the compiler happy.
 }

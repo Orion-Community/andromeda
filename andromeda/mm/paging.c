@@ -23,6 +23,8 @@
 #define PRESENTBIT 0x01
 #define WRITEBIT   0x02
 #define USERBIT    0x04
+#define RESERVED   0x08
+#define DATABIT    0x10
 
 #ifdef __INTEL
 
@@ -37,28 +39,46 @@ void cPageFault(isrVal_t regs)
   boolean present = (err && PRESENTBIT) ? TRUE : FALSE;
   boolean write   = (err && WRITEBIT)   ? TRUE : FALSE;
   boolean user    = (err && USERBIT)    ? TRUE : FALSE;
+  boolean reserved= (err && RESERVED)   ? TRUE : FALSE;
+  boolean data    = (err && DATABIT)    ? TRUE : FALSE;
+  
+  printf("The pagefault was caused by: "); printhex((unsigned int)getCR2()); putc('\n');
   
   if (user)
   {
-    panic("User mode not allowed yet!\n");
+    panic("User mode not allowed yet!");
   }
   else if (!present && write)
   {
+    panic("Can not allocate pages yet!");
     // Allocate page here!
+    unsigned long page = getCR2() << 0xC;
+    unsigned long phys = allocPage(COMPRESSED);
+    if (phys == (unsigned long)NULL)
+    {
+      panic("No more free memory!");
+    }
+    if (!setPage((void*)phys, (void*)getCR2(), FALSE, TRUE))
+    {
+      freePage((void*)phys, COMPRESSED);
+      panic("Setting the page failed dramatically!");
+    }
   }
   else if (!present && !write)
   {
     panic("Page non existent!");
+    // Read the page from image
   }
-  else if (present && write)
+  else if (present)
   {
-    panic("Illegal writing operation");
+    panic("Accessing illicit content!");
+    // Kill process trying to access this page!
   }
   printf("Err code: "); printhex(err); putc('\n');
   panic("Paging isn't finished yet");
 }
 
-boolean setPage(void* virtAddr, void* physAddr)
+boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode)
 {
   #ifdef X86
   if (!CHECKALLIGN((unsigned long)virtAddr) || !CHECKALLIGN((unsigned long)physAddr))
@@ -79,6 +99,16 @@ boolean setPage(void* virtAddr, void* physAddr)
   pageTable_t* pt = (pageTable_t*) ptAddr;
   
   pt[ptIdx].pageIdx = (unsigned long)physAddr/PAGESIZE;
+  pt[ptIdx].pcd = 0;
+  pt[ptIdx].pwt = 0;
+  pt[ptIdx].present = 1;
+  pt[ptIdx].accessed = 0;
+  pt[ptIdx].dirty = 0;
+  pt[ptIdx].rw = (ro) ? 0 : 1; // Read only data?
+  pt[ptIdx].userMode = (usermode) ? 0 : 1; // Usermode?
+  pt[ptIdx].global = 0;
+  pt[ptIdx].pat = 0;
+
   return TRUE;
   #endif
 }
