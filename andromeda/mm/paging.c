@@ -44,7 +44,7 @@ void cPageFault(isrVal_t regs)
   
   printf("The pagefault was caused by: "); printhex((unsigned int)getCR2()); putc('\n');
   
-  if (user)
+  if (!user)
   {
     panic("User mode not allowed yet!");
   }
@@ -157,9 +157,10 @@ pageDir_t* setupPageDir()
     panic("Aieee, Null pointer!!! Paging");
   }
   memset(pageDir, 0, sizeof(pageDir_t)*PAGEDIRS);
-  int i, j;
+  int i, j, k;
   for(i = 0; i < PAGETABLES; i++)
   {
+    k = 0;
     pageTable_t* pt = alloc(sizeof(pageTable_t)*PAGETABLES, TRUE);
     if (pt == NULL)
     {
@@ -187,6 +188,7 @@ pageDir_t* setupPageDir()
 	  pt[j].userMode = 0;
 	  pt[j].global = 0;
 	  pt[j].pat = 0;
+	  k++;
 	  // Map the page to physical memory
 	  break;
 	case NOTUSABLE:
@@ -212,7 +214,7 @@ pageDir_t* setupPageDir()
     pageDir[i].pwt = 0;
     pageDir[i].accessed = 0;
     pageDir[i].dirty = 0;
-    pageDir[i].present = 1;
+    pageDir[i].present = (k > 0) ? 1 : 0;
     pageDir[i].rw = 1;
     pageDir[i].pageSize = 0;
     pageDir[i].userMode = 0;

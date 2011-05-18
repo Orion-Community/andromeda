@@ -187,7 +187,11 @@ int kmain()
   
   int *a = kalloc(sizeof(int));
   printf("Phys addr of: "); printhex((int)a);
-  printf(" = "); printhex((int)getPhysAddr(a));
+  printf(" = "); printhex((int)getPhysAddr(a)); putc('\n');
+  
+  int* test = 0xC0000000;
+  *test = *a;
+  free(a);
   
   #ifdef MMTEST
   testAlloc();
@@ -199,8 +203,9 @@ int kmain()
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
     // If this loop gets reached more than once:
-   // asm volatile ("int3");
-    //halt();
+    // asm volatile ("int3");
+    printf("You can now shutdown your PC\n");
+    halt();
   }
   return 0; // To keep the compiler happy.
 }
