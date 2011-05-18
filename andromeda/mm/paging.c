@@ -20,7 +20,99 @@
 #include <mm/map.h>
 #include <stdlib.h>
 
+#define PRESENTBIT 0x01
+#define WRITEBIT   0x02
+#define USERBIT    0x04
+#define RESERVED   0x08
+#define DATABIT    0x10
+
 #ifdef __INTEL
+
+void cPageFault(isrVal_t regs)
+{
+  printf("PG\n");
+  if (regs.cs != 0x8 && regs.cs != 0x18)
+  {
+    panic("Incorrect frame");
+  }
+  unsigned char err = (unsigned char) (regs.errCode & 0x7);
+  boolean present = (err && PRESENTBIT) ? TRUE : FALSE;
+  boolean write   = (err && WRITEBIT)   ? TRUE : FALSE;
+  boolean user    = (err && USERBIT)    ? TRUE : FALSE;
+  boolean reserved= (err && RESERVED)   ? TRUE : FALSE;
+  boolean data    = (err && DATABIT)    ? TRUE : FALSE;
+  
+  printf("The pagefault was caused by: "); printhex((unsigned int)getCR2()); putc('\n');
+  
+  if (!user)
+  {
+    panic("User mode not allowed yet!");
+  }
+  else if (!present && write)
+  {
+    panic("Can not allocate pages yet!");
+    // Allocate page here!
+    unsigned long page = getCR2() << 0xC;
+    unsigned long phys = allocPage(COMPRESSED);
+    if (phys == (unsigned long)NULL)
+    {
+      panic("No more free memory!");
+    }
+    if (!setPage((void*)phys, (void*)getCR2(), FALSE, TRUE))
+    {
+      freePage((void*)phys, COMPRESSED);
+      panic("Setting the page failed dramatically!");
+    }
+  }
+  else if (!present && !write)
+  {
+    panic("Page non existent!");
+    // Read the page from image
+  }
+  else if (present)
+  {
+    panic("Accessing illicit content!");
+    // Kill process trying to access this page!
+  }
+  printf("Err code: "); printhex(err); putc('\n');
+  panic("Paging isn't finished yet");
+}
+
+boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode)
+{
+  #ifdef X86
+  if (!CHECKALLIGN((unsigned long)virtAddr) || !CHECKALLIGN((unsigned long)physAddr))
+  {
+    return FALSE;
+  }
+  unsigned long pdIdx = ((unsigned long)virtAddr >> 22);
+  unsigned long ptIdx = ((unsigned long)virtAddr >> 12) - (pdIdx << 10);
+  unsigned long offset = (unsigned long)virtAddr%PAGESIZE;
+  
+  unsigned long CR3 = (unsigned long)getCR3();
+  pageDir_t* pd = (pageDir_t*) (CR3 - (CR3 % PAGESIZE)); // Get the address of the page directory.
+  unsigned long ptAddr = (unsigned long)pd[pdIdx].pageIdx*PAGESIZE; // Get the address of the page table.
+  if (ptAddr == 0)
+  {
+    return FALSE;
+  }
+  pageTable_t* pt = (pageTable_t*) ptAddr;
+  
+  pt[ptIdx].pageIdx = (unsigned long)physAddr/PAGESIZE;
+  pt[ptIdx].pcd = 0;
+  pt[ptIdx].pwt = 0;
+  pt[ptIdx].present = 1;
+  pt[ptIdx].accessed = 0;
+  pt[ptIdx].dirty = 0;
+  pt[ptIdx].rw = (ro) ? 0 : 1; // Read only data?
+  pt[ptIdx].userMode = (usermode) ? 0 : 1; // Usermode?
+  pt[ptIdx].global = 0;
+  pt[ptIdx].pat = 0;
+
+  return TRUE;
+  #endif
+}
+
 void* getPhysAddr(void* addr)
 {
   void* ret = NULL;
@@ -65,9 +157,10 @@ pageDir_t* setupPageDir()
     panic("Aieee, Null pointer!!! Paging");
   }
   memset(pageDir, 0, sizeof(pageDir_t)*PAGEDIRS);
-  int i, j;
+  int i, j, k;
   for(i = 0; i < PAGETABLES; i++)
   {
+    k = 0;
     pageTable_t* pt = alloc(sizeof(pageTable_t)*PAGETABLES, TRUE);
     if (pt == NULL)
     {
@@ -95,6 +188,7 @@ pageDir_t* setupPageDir()
 	  pt[j].userMode = 0;
 	  pt[j].global = 0;
 	  pt[j].pat = 0;
+	  k++;
 	  // Map the page to physical memory
 	  break;
 	case NOTUSABLE:
@@ -120,7 +214,7 @@ pageDir_t* setupPageDir()
     pageDir[i].pwt = 0;
     pageDir[i].accessed = 0;
     pageDir[i].dirty = 0;
-    pageDir[i].present = 1;
+    pageDir[i].present = (k > 0) ? 1 : 0;
     pageDir[i].rw = 1;
     pageDir[i].pageSize = 0;
     pageDir[i].userMode = 0;

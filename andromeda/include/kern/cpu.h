@@ -25,6 +25,7 @@ extern int getVendor();
 extern void sti();
 extern void cli();
 extern void halt();
+extern void endProg();
 #ifdef __INTEL
 extern unsigned short 	getCS();
 extern unsigned short 	getDS();
@@ -32,9 +33,13 @@ extern unsigned short 	getFS();
 extern unsigned short 	getGS();
 extern unsigned short 	getSS();
 extern unsigned int 	getESP();
+extern unsigned long	getCR2();
 extern unsigned long 	getCR3();
 extern void 		setCR3(long);
 extern void 		toglePGbit();
+#ifdef DBG
+extern void 		intdbg();
+#endif
 
 extern boolean pgbit;
 

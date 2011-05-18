@@ -35,6 +35,7 @@ void checkFrame(isrVal_t* regs)
 }
 void cDivByZero(isrVal_t regs)
 {
+  printf("D0\n");
   checkFrame(&regs);
   if (regs.cs != 0x8)
   {
@@ -50,12 +51,20 @@ void cDivByZero(isrVal_t regs)
 
 void cNmi(isrVal_t regs)
 {
+  printf("NMI\n");
   checkFrame(&regs);
   panic("Don't know what a non-maskable interrupt does!!!");
 }
 
 void cbp(isrVal_t regs)
 {
+  printf("BP\n");
+  boolean PG = FALSE;
+  if (pgbit)
+  {
+    PG = TRUE;
+    toglePGbit();
+  }
   checkFrame(&regs);
   printf("Debug:\n");
 
@@ -91,34 +100,45 @@ void cbp(isrVal_t regs)
   printhex(getDS());		putc('\t');
   printhex(getSS());		putc('\t');
   printhex(getESP());		putc('\n');
+  
+  if (PG)
+  {
+    toglePGbit();
+    PG = FALSE;
+  }
 }
 
 void coverflow(isrVal_t regs)
 {
+  printf("OF\n");
   checkFrame(&regs);
   panic("Overflow");
 }
 
 void cBound(isrVal_t regs)
 {
+  printf("BD\n");
   checkFrame(&regs);
   panic("Bounds");
 }
 
 void cInvalOp(isrVal_t regs)
 {
+  printf("IV\n");
   checkFrame(&regs);
   panic("Invalid Opcode!");
 }
 
 void cNoMath(isrVal_t regs)
 {
+  printf("NM\n");
   checkFrame(&regs);
   panic("No math coprocessor");
 }
 
 void cDoubleFault(isrVal_t regs)
 {
+  printf("DF\n");
   checkFrame(&regs);
   panic("Double fault");
 }
@@ -130,23 +150,27 @@ void ignore(isrVal_t regs)
 
 void cInvalidTSS(isrVal_t regs)
 {
+  printf("IT\n");
   checkFrame(&regs);
   panic("Invalid TSS");
 }
 
 void cSnp(isrVal_t regs)
 {
+  printf("FF\n");
   checkFrame(&regs);
   panic("Stack not present!");
 }
 void cStackFault(isrVal_t regs)
 {
+  printf("SF\n");
   checkFrame(&regs);
   panic("Stack fault!");
 }
 
 void cGenProt(isrVal_t regs)
 {
+  printf("GP\n");
   checkFrame(&regs);
   printf("\nGeneral Protection Fault\neip\tcs\teflags\tprocesp\tss\n");
   printf("\nDiv by 0\neip\tcs\teflags\tprocesp\tss\n");
@@ -159,30 +183,23 @@ void cGenProt(isrVal_t regs)
 //   panic("General Protection fault");
 }
 
-void cPageFault(isrVal_t regs)
-{
-  if (pgbit)
-  {
-    toglePGbit();
-  }
-  checkFrame(&regs);
-  panic("Paging isn't finished yet");
-}
-
 void cFpu(isrVal_t regs)
 {
+  printf("FP\n");
   checkFrame(&regs);
   panic("Floating point exception");
 }
 
 void cAlligned(isrVal_t regs)
 {
+  printf("AL\n");
   checkFrame(&regs);
   panic("Alligned exception");
 }
 
 void cSimd(isrVal_t regs)
 {
+  printf("SIMD\n");
   checkFrame(&regs);
   panic("SSE exception");
 }

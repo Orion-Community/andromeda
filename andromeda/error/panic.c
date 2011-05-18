@@ -21,11 +21,7 @@
 
 void panic(char* msg)
 {
-	cli();
 	println("Andromeda panic");
 	println(msg);
-	for (;;)
-	{
-	  halt();
-	}
+	endProg(); // Halt and catch fire!
 }

@@ -31,9 +31,25 @@ boolean claimPage(unsigned long page, unsigned short owner)
   return TRUE;
 }
 
+void* allocPage(unsigned short owner)
+{
+  unsigned long i;
+  for (i = 0; i < PAGES; i++)
+  {
+    if (bitmap[i] == FREE)
+    {
+      if (claimPage(i, owner))
+      {
+	return (void*) (i*PAGESIZE);
+      }
+    }
+  }
+  return NULL;
+}
+
 void freePage(unsigned long page, unsigned short owner)
 {
-  if (bitmap[page] != owner)
+  if (bitmap[(page>>0xC)] != owner)
   {
     return;
   }
