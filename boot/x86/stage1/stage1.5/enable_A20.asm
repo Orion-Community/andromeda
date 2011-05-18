@@ -21,6 +21,8 @@ enable_A20:
 	pusha
 	mov cx, 5 ; 5 attemps
 
+; bytes sent to port 0x64 are seen as command bytes and bytes sent to port 0x60 are seen as data bytes.
+
 .startAttempt:
 	call .commandwait
 
