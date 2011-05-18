@@ -53,7 +53,7 @@ void cPageFault(isrVal_t regs)
     panic("Can not allocate pages yet!");
     // Allocate page here!
     unsigned long page = getCR2() << 0xC;
-    unsigned long phys = allocPage(COMPRESSED);
+    unsigned long phys = (unsigned long)allocPage(COMPRESSED);
     if (phys == (unsigned long)NULL)
     {
       panic("No more free memory!");

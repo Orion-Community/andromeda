@@ -47,13 +47,13 @@ void* allocPage(unsigned short owner)
   return NULL;
 }
 
-void freePage(unsigned long page, unsigned short owner)
+void freePage(void* page, unsigned short owner)
 {
-  if (bitmap[(page>>0xC)] != owner)
+  if (bitmap[((unsigned long)page>>0xC)] != owner)
   {
     return;
   }
-  bitmap[page] = FREE;
+  bitmap[(unsigned long)page] = FREE;
 }
 
 #ifdef __COMPRESSED

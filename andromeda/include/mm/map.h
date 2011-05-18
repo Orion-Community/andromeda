@@ -31,7 +31,7 @@
 extern unsigned short bitmap[];
 void* allocPage(unsigned short owner);
 boolean claimPage(unsigned long page, unsigned short owner);
-void freePage(unsigned long page, unsigned short owner);
+void freePage(void* page, unsigned short owner);
 
 #ifdef __COMPRESSED
 #include <boot/mboot.h>

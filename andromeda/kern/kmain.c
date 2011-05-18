@@ -42,6 +42,8 @@ unsigned char stack[0x2000];
 #include <boot/mboot.h>
 #include <mm/map.h>
 
+void testMMap(multiboot_info_t* hdr);
+
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
@@ -106,6 +108,12 @@ int kmain()
   printf("Addr of stackbase: "); printhex((int)&stack); putc('\n');
   #endif
   
+  #ifdef __COMPRESSED
+  #ifdef DBG
+  testMMap(hdr);
+  #endif
+  #endif
+  
   // Initialise the heap
   initHeap(HEAPSIZE);
   intInit(); 	     // Interrupts are allowed again.
@@ -137,52 +145,6 @@ int kmain()
   
   #ifdef MMTEST
   wait();
-  #endif
-
-  #ifdef __COMPRESSED
-  #ifdef DBG1
-  if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
-  {
-    printf ("mmap_addr = "); printhex((unsigned) hdr->mmap_addr);
-    printf(", mmap_length = ");printhex((unsigned) hdr->mmap_length); putc('\n');
-    for (mmap = (multiboot_memory_map_t *) hdr->mmap_addr;
-             (unsigned long) mmap < hdr->mmap_addr + hdr->mmap_length;
-             mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
-                                      + mmap->size + sizeof (mmap->size)))
-    {
-      printf (" size = ");
-      printhex((unsigned) mmap->size);
-      printf(", base_addr = ");
-      printhex(mmap->addr >> 32);
-      printhex(mmap->addr & 0xffffffff);
-      printf (" length = ");
-      printhex(mmap->len >> 32);
-      printhex(mmap->len & 0xffffffff);
-      printf(", type = ");
-      printhex((unsigned) mmap->type);
-      putc('\n');
-    }
-    printf("End pointer = "); printhex((int)&end); putc('\n');
-  }
-       
-  if (hdr->flags && MULTIBOOT_INFO_MODS)
-  {
-    int mods = hdr->mods_count;
-    multiboot_module_t* modules = (multiboot_module_t*)hdr->mods_addr;
-    printf("No. modules: "); printhex(mods); putc('\n');
-    int i = 0;
-    for (; i < mods; i++)
-    {
-      printf("Base addr = "); printhex(modules[i].mod_start); putc('\n');
-      printf("End  addr = "); printhex(modules[i].mod_end);   putc('\n');
-      printf("CMD  line = "); printf((char*)modules[i].cmdline); putc('\n');
-    }
-  }
-  else
-  {
-    printf("No modules found!\n");
-  }
-  #endif
   #endif
   
   int *a = kalloc(sizeof(int));

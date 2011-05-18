@@ -42,10 +42,10 @@ void cDivByZero(isrVal_t regs)
     panic("No process killing code yet");
   }
   printf("\nDiv by 0\neip\tcs\teflags\tprocesp\tss\n");
-  printf("%x\t%x\t%x\t%x\t%x\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs,ss);
+  printf("%x\t%x\t%x\t%x\t%x\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
   printf("\nCurrent:\n");
   printf("CS\tDS\tSS\tESP\n");
-  printf("%x\t%x\t%x\t%x\n", getCS(), getDS(), getSS(). getESP());
+  printf("%x\t%x\t%x\t%x\n", getCS(), getDS(), getSS(), getESP());
   panic ("Devide by zero");
 }
 
@@ -174,12 +174,10 @@ void cGenProt(isrVal_t regs)
   checkFrame(&regs);
   printf("\nGeneral Protection Fault\neip\tcs\teflags\tprocesp\tss\n");
   printf("\nDiv by 0\neip\tcs\teflags\tprocesp\tss\n");
-  printf("%x\t%x\t%x\t%x\t%x\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs,ss);
+  printf("%x\t%x\t%x\t%x\t%x\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
   printf("\nCurrent:\n");
   printf("CS\tDS\tSS\tESP\n");
-  printf("%x\t%x\t%x\t%x\n", getCS(), getDS(), getSS(). getESP());
-  panic ("Devide by zero");
-}
+  printf("%x\t%x\t%x\t%x\n", getCS(), getDS(), getSS(), getESP());
 //   panic("General Protection fault");
 }
 

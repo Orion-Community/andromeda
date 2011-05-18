@@ -16,6 +16,57 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
+
+#ifdef DBG
+#include <boot/mboot.h>
+
+multiboot_memory_map_t* mmap;
+size_t mmap_size;
+extern unsigned int end;
+
+void testMMap(multiboot_info_t* hdr)
+{
+  if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
+  {
+    printf ("mmap_addr = 0x%x\n", (unsigned int)hdr->mmap_addr);
+    printf(", mmap_length = 0x%x\n", (unsigned int)hdr->mmap_length);
+    for (mmap = (multiboot_memory_map_t *) hdr->mmap_addr;
+             (unsigned long) mmap < hdr->mmap_addr + hdr->mmap_length;
+             mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
+                                      + mmap->size + sizeof (mmap->size)))
+    {
+      printf (" size = 0x%x, base_addr = 0x%x%x length = 0x%x%x, type = 0x%x\n",
+	      (int)mmap->size,
+	      mmap->addr>>32,
+	      mmap->addr & 0xFFFFFFFF,
+	      mmap->len >> 32,
+	      mmap->len&0xFFFFFFFF,
+	      mmap->type);
+    }
+    printf("End pointer = "); printhex((int)&end); putc('\n');
+  }
+       
+  if (hdr->flags && MULTIBOOT_INFO_MODS)
+  {
+    int mods = hdr->mods_count;
+    multiboot_module_t* modules = (multiboot_module_t*)hdr->mods_addr;
+    printf("No. modules: "); printhex(mods); putc('\n');
+    int i = 0;
+    for (; i < mods; i++)
+    {
+      printf("Base addr = "); printhex(modules[i].mod_start); putc('\n');
+      printf("End  addr = "); printhex(modules[i].mod_end);   putc('\n');
+      printf("CMD  line = "); printf((char*)modules[i].cmdline); putc('\n');
+    }
+  }
+  else
+  {
+    printf("No modules found!\n");
+  }
+}
+#endif
+
 #ifdef MMTEST
 #include <stdlib.h>
 
