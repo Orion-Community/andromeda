@@ -61,20 +61,47 @@ void println(unsigned char *line)
 	putc('\n');
 }
 
-void printf(unsigned char *line)
+void printf(unsigned char *line, ...)
 {
-	int i;
-	for (i = 0; line[i] != '\0'; i++)
-	{
-		putc(line[i]);
-	}
+  int i;
+  va_list list;
+  for (i = 0; line[i] != '\0'; i++)
+  {
+    va_start(list, line);
+    if (line[i] != '%')
+    {
+      putc(line[i]);
+    }
+    else
+    {
+      i++;
+      if (line[i+1] == '\0')
+      {
+	putc(line[i]);
+	break;
+      }
+      switch(line[i])
+      {
+	case 'd':
+	case 'i':
+	case 'x':
+	case 'X':
+	  printhex(va_arg(list,int));
+	  break;
+	default:
+	  putc('%');
+	  putc(line[i]);
+	  break;
+      }
+    }
+    va_end(list);
+  }
 }
 
 char hex[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
 void printhex(unsigned int index)
 {
-	printf("0x");
 	int i = 7;
 	while (( (( index >> 4*i ) & 0xf) == 0x0)&(i>0)) {
 		i--;

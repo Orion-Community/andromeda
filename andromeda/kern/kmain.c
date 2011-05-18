@@ -185,8 +185,7 @@ int kmain()
   #endif
   
   int *a = kalloc(sizeof(int));
-  printf("Phys addr of: "); printhex((int)a);
-  printf(" = "); printhex((int)getPhysAddr(a));
+  printf("Phys addr of: %x = %x\n", (int)a, (int)getPhysAddr(a));
   
   #ifdef MMTEST
   testAlloc();

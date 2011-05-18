@@ -22,12 +22,12 @@
 
 void checkFrame(isrVal_t* regs)
 {
-  if (regs->cs != 0x8 && regs->cs != 0x18)
+  if ((regs->cs&0xFFFF) != 0x8 && (regs->cs&0xFFFF) != 0x18)
   {
     printhex(regs->cs); putc('\n');
     panic("Incorrect CS!");
   }
-  else if (regs->ds != 0x10 && regs->ds != 0x20)
+  else if ((regs->ds&0xFFFF) != 0x10 && (regs->ds&0xFFFF) != 0x20)
   {
     printhex(regs->ds); putc('\n');
     panic("Incorrect DS!");
@@ -41,18 +41,11 @@ void cDivByZero(isrVal_t regs)
     panic("No process killing code yet");
   }
   printf("\nDiv by 0\neip\tcs\teflags\tprocesp\tss\n");
-  printhex(regs.eip); putc('\t');
-  printhex(regs.cs); putc('\t');
-  printhex(regs.eflags); putc('\t');
-  printhex(regs.procesp); putc('\t');
-  printhex(regs.ss); putc('\n');
+  printf("%x\t%x\t%x\t%x\t%x\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs,ss);
   printf("\nCurrent:\n");
   printf("CS\tDS\tSS\tESP\n");
-  printhex(getCS());		putc('\t');
-  printhex(getDS());		putc('\t');
-  printhex(getSS());		putc('\t');
-  printhex(getESP());		putc('\n');
-//   panic ("Devide by zero");
+  printf("%x\t%x\t%x\t%x\n", getCS(), getDS(), getSS(). getESP());
+  panic ("Devide by zero");
 }
 
 void cNmi(isrVal_t regs)
@@ -156,17 +149,13 @@ void cGenProt(isrVal_t regs)
 {
   checkFrame(&regs);
   printf("\nGeneral Protection Fault\neip\tcs\teflags\tprocesp\tss\n");
-  printhex(regs.eip); putc('\t');
-  printhex(regs.cs); putc('\t');
-  printhex(regs.eflags); putc('\t');
-  printhex(regs.procesp); putc('\t');
-  printhex(regs.ss); putc('\n');
+  printf("\nDiv by 0\neip\tcs\teflags\tprocesp\tss\n");
+  printf("%x\t%x\t%x\t%x\t%x\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs,ss);
   printf("\nCurrent:\n");
   printf("CS\tDS\tSS\tESP\n");
-  printhex(getCS());		putc('\t');
-  printhex(getDS());		putc('\t');
-  printhex(getSS());		putc('\t');
-  printhex(getESP());		putc('\n');
+  printf("%x\t%x\t%x\t%x\n", getCS(), getDS(), getSS(). getESP());
+  panic ("Devide by zero");
+}
 //   panic("General Protection fault");
 }
 

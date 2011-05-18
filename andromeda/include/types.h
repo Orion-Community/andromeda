@@ -22,6 +22,11 @@ typedef unsigned char boolean;
 #define FALSE 0
 #define TRUE !FALSE
 
+typedef int* va_list;
+#define va_start(ptr, arg)	(ptr=(va_list)&arg+1)
+#define va_arg(ptr, type)	(* (((type*) (ptr= (va_list) ((type*) ptr) +1))-1))
+#define va_end(ptr)		(ptr=NULL)
+
 typedef unsigned long size_t;
 
 typedef struct
