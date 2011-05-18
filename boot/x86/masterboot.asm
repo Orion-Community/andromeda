@@ -69,8 +69,22 @@ _start:
 	mov sp, LOADOFF
 	sti
 main:
+; 	es is already set to 0
 
-jmp $
+	mov di, BUFOFF
+	mov si, migrate ; beginning of the source
+	mov cx, 512
+	cld
+	rep movsb
+	
+	jmp BUFSEG:BUFOFF
+migrate:
+	mov al, 0x41 	; new line
+	mov ah, 0x0E
+	xor bh, bh
+	int 0x10
+
+	jmp $
 
 times 510 - ($-$$) db 0
 dw 0xaa55
