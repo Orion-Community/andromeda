@@ -59,10 +59,6 @@ dap:
 	dw 0x0   	; memory segment
 	dq 0x1		; starting sector (sector to read, s1 = 0)
 
-ptable:
-	dq 0
-	dq 0
-
 %endif
 
 _start:
@@ -79,18 +75,18 @@ _start:
 	mov fs, ax
 
 	mov ss, ax	; stack segment
-	mov sp, LOADOFF
+	mov sp, GEBL_LOADOFF
 	sti
 main:
 ; 	es is already set to 0
 	mov byte [bootdisk], dl
-	mov di, BUFOFF
+	mov di, GEBL_BUFOFF
 	mov si, migrate ; beginning of the source
 	mov cx, 512
 	cld
 	rep movsb
 	
-	jmp BUFSEG:BUFOFF
+	jmp GEBL_BUFSEG:GEBL_BUFOFF
 migrate:
 ; here we should use the partition table to indicate what offset we should use to load the first sector
 ; of the active (bootable) partition. Keep in mind that we moved our ass to here in a wicked way.
