@@ -92,6 +92,9 @@ main:
 	
 	jmp BUFSEG:BUFOFF
 migrate:
+; here we should use the partition table to indicate what offset we should use to load the first sector
+; of the active (bootable) partition. Keep in mind that we moved our ass to here in a wicked way.
+
 	xor ax, ax
 	mov dl, byte [bootdisk]
 	int 0x13
