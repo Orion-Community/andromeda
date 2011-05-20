@@ -50,6 +50,15 @@ nop
 	db 'FAT12   '                 ; file system type
 %else
 	bootdisk db 0
+
+dap:
+	db 0x10      	; register size
+	db 0      	; reserved, must be 0
+	dw 0x1      	; sectors to read
+	dw 0x7c00   	; memory offset
+	dw 0x0   	; memory segment
+	dq 0x1		; starting sector (sector to read, s1 = 0)
+
 %endif
 
 _start:
@@ -70,7 +79,7 @@ _start:
 	sti
 main:
 ; 	es is already set to 0
-
+	mov byte [bootdisk], dl
 	mov di, BUFOFF
 	mov si, migrate ; beginning of the source
 	mov cx, 512
@@ -79,6 +88,34 @@ main:
 	
 	jmp BUFSEG:BUFOFF
 migrate:
+	xor ax, ax
+	mov dl, byte [bootdisk]
+	int 0x13
+%ifdef __FLOPPY
+	; read 1 sector
+	; int 13h function 0x2
+	mov ax, 0x201
+	
+	; track 0 and read at sector 2
+	xor ch, ch
+	mov cl, 0x2
+
+	; head 0 and the drive number
+	xor dh, dh
+	mov dl, byte [bootdisk]
+%elifdef __HDD
+	mov ax, 0x41
+	mov dl, byte [bootdisk]
+	mov bx, 0x55aa
+	int 0x13
+
+%else
+; nothing is defined about FDD's and HDD's, could be usb. Use CHS to be sure.
+%endif
+; 	issue an bios interrupt to read the sectors from the disk as defined above depending 
+; 	on how it is compiled
+	int 0x13
+
 	mov al, 0x41 	; new line
 	mov ah, 0x0E
 	xor bh, bh

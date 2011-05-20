@@ -41,7 +41,7 @@ nop
 	db 29h 				; signature 
 	dd 0 				; volume ID 
 	times 11 db 0	 		; volume label 
-	db 'FAT12   '                 ; file system type
+	db 'FAT12   '			; file system type
 %else
 	bootdisk db 0
 %endif
