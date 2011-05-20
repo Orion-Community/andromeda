@@ -23,6 +23,9 @@
 %define LOADOFF 0x7c00
 
 ; the mbr will migrate itself to this segment:offset address
-%define BUFSEG 0x0
-%define BUFOFF 0x500
+%define GEBL_BUFSEG 0x0
+%define GEBL_BUFOFF 0x500
+
+%define GEBL_PART_TABLE 0x1be
+%define GEBL_PART_TABLE_ENTRY_SIZE 0x10
 %endif

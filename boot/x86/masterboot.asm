@@ -59,13 +59,17 @@ dap:
 	dw 0x0   	; memory segment
 	dq 0x1		; starting sector (sector to read, s1 = 0)
 
+ptable:
+	dq 0
+	dq 0
+
 %endif
 
 _start:
 	cli
 ; 	we are not safe here
 	jmp 0x0:.flush
-; 	there are buggy bioses which load you in at 0x0:0x7c00
+; 	there are buggy bioses which load you in at 0x7c0:0x0
 .flush:
 	xor ax, ax
 	mov ds, ax 	; tiny memory model
@@ -125,4 +129,3 @@ migrate:
 
 times 510 - ($-$$) db 0
 dw 0xaa55
-	
