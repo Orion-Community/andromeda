@@ -20,11 +20,17 @@
 #include <mm/map.h>
 #include <stdlib.h>
 
-#define PRESENTBIT 0x01
-#define WRITEBIT   0x02
-#define USERBIT    0x04
-#define RESERVED   0x08
-#define DATABIT    0x10
+#define PRESENTBIT    0x01
+#define WRITEBIT      0x02
+#define USERBIT       0x04
+#define RESERVEDBIT   0x08
+#define DATABIT       0x10
+
+#define PRESENT  ((err && PRESENTBIT)  ? TRUE : FALSE)
+#define WRITE    ((err && WRITEBIT)    ? TRUE : FALSE)
+#define USER	 ((err && USERBIT)     ? TRUE : FALSE)
+#define RESERVED ((err && RESERVEDBIT) ? TRUE : FALSE)
+#define DATA     ((err && DATATBIT)    ? TRUE : FALSE)
 
 #ifdef __INTEL
 
@@ -36,19 +42,14 @@ void cPageFault(isrVal_t regs)
     panic("Incorrect frame");
   }
   unsigned char err = (unsigned char) (regs.errCode & 0x7);
-  boolean present = (err && PRESENTBIT) ? TRUE : FALSE;
-  boolean write   = (err && WRITEBIT)   ? TRUE : FALSE;
-  boolean user    = (err && USERBIT)    ? TRUE : FALSE;
-  boolean reserved= (err && RESERVED)   ? TRUE : FALSE;
-  boolean data    = (err && DATABIT)    ? TRUE : FALSE;
   
   printf("The pagefault was caused by: "); printhex((unsigned int)getCR2()); putc('\n');
   
-  if (!user)
+  if (!USER)
   {
     panic("User mode not allowed yet!");
   }
-  else if (!present && write)
+  else if (!PRESENT && WRITE)
   {
     panic("Can not allocate pages yet!");
     // Allocate page here!
@@ -64,12 +65,12 @@ void cPageFault(isrVal_t regs)
       panic("Setting the page failed dramatically!");
     }
   }
-  else if (!present && !write)
+  else if (!PRESENT && !WRITE)
   {
     panic("Page non existent!");
     // Read the page from image
   }
-  else if (present)
+  else if (PRESENT)
   {
     panic("Accessing illicit content!");
     // Kill process trying to access this page!
@@ -226,12 +227,6 @@ pageDir_t* setupPageDir()
 
 void initPaging ()
 {
-  #ifdef WARN
-  printf("Warning! The paging code hasn't been written yet\n");
-  #else
-  panic("Paging wasn't initialised!");
-  #endif
-  
   pageDir_t* kernDir = setupPageDir();
   
   unsigned long cr3 = (unsigned long)kernDir;

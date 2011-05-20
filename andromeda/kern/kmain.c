@@ -150,6 +150,8 @@ int kmain()
   int *a = kalloc(sizeof(int));
   printf("Phys addr of: %x = %x\n", (int)a, (int)getPhysAddr(a));
   free(a);
+  a = (int*)(0xC << 28);
+  *a = 0xDEADBEEF;
   
   #ifdef MMTEST
   testAlloc();
