@@ -28,4 +28,5 @@
 
 %define GEBL_PART_TABLE 0x1be
 %define GEBL_PART_TABLE_ENTRY_SIZE 0x10
+%define GEBL_JUMPOFF  GEBL_BUFOFF + (migrate - _start)
 %endif

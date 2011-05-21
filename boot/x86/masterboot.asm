@@ -25,7 +25,8 @@
 ; The code will migrate itself to address 0x50:0x0. From there it will load the first sector of the active partition
 ; to address 0x0:0x7c00.
 
-jmp short _start
+_start:
+jmp short start
 nop
 ; The bios parameter block, in the case it is a floppy
 %ifdef __FLOPPY
@@ -61,7 +62,7 @@ dap:
 
 %endif
 
-_start:
+start:
 	cli
 ; 	we are not safe here
 	jmp 0x0:.flush
@@ -81,12 +82,12 @@ main:
 ; 	es is already set to 0
 	mov byte [bootdisk], dl
 	mov di, GEBL_BUFOFF
-	mov si, migrate ; beginning of the source
+	mov si, _start ; beginning of the source
 	mov cx, 512
 	cld
 	rep movsb
 	
-	jmp GEBL_BUFSEG:GEBL_BUFOFF
+	jmp GEBL_BUFSEG:GEBL_JUMPOFF
 migrate:
 ; here we should use the partition table to indicate what offset we should use to load the first sector
 ; of the active (bootable) partition. Keep in mind that we moved our ass to here in a wicked way.
@@ -118,13 +119,36 @@ migrate:
 ; 	issue an bios interrupt to read the sectors from the disk as defined above depending 
 ; 	on how it is compiled
 	int 0x13
+	jc .error
+
+	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+	test byte [si], 0x80
+	jz .error
 
 	mov al, 0x41 	; new line
+	call print
+	jmp end
+
+.error:
+	mov al, 0x42
+	call print
+
+end:
+	cli
+	hlt
+	jmp end
+
+; -- print routine
+;   character is expected in al
+
+print:
 	mov ah, 0x0E
 	xor bh, bh
 	int 0x10
+	ret
 
-	jmp $
+times 446 - ($-$$) db 0
+db 0x80
 
 times 510 - ($-$$) db 0
 dw 0xaa55
