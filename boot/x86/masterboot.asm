@@ -83,11 +83,17 @@ main:
 	mov byte [bootdisk], dl
 	mov di, GEBL_BUFOFF
 	mov si, _start ; beginning of the source
-	mov cx, 512
+	mov cx, 512/2
+	; we will move 2 bytes (words) at ones
 	cld
-	rep movsb
+	rep movsw
 	
 	jmp GEBL_BUFSEG:GEBL_JUMPOFF
+;
+; GEBL_JUMPOFF gets us to the offset of migrate in the new seg:offset address. It is defined as: 
+; (0x7c00 - addressof(migrate)) + 0x500 (0x500 = buffer offeset)
+;
+
 migrate:
 ; here we should use the partition table to indicate what offset we should use to load the first sector
 ; of the active (bootable) partition. Keep in mind that we moved our ass to here in a wicked way.
