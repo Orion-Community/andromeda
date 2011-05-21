@@ -26,11 +26,11 @@
 #define RESERVEDBIT   0x08
 #define DATABIT       0x10
 
-#define PRESENT  ((err && PRESENTBIT)  ? TRUE : FALSE)
-#define WRITE    ((err && WRITEBIT)    ? TRUE : FALSE)
-#define USER	 ((err && USERBIT)     ? TRUE : FALSE)
-#define RESERVED ((err && RESERVEDBIT) ? TRUE : FALSE)
-#define DATA     ((err && DATATBIT)    ? TRUE : FALSE)
+#define PRESENT  ((err & PRESENTBIT)  ? TRUE : FALSE)
+#define WRITE    ((err & WRITEBIT)    ? TRUE : FALSE)
+#define USER	 ((err & USERBIT)     ? TRUE : FALSE)
+#define RESERVED ((err & RESERVEDBIT) ? TRUE : FALSE)
+#define DATA     ((err & DATATBIT)    ? TRUE : FALSE)
 
 #ifdef __INTEL
 
@@ -45,13 +45,17 @@ void cPageFault(isrVal_t regs)
   
   printf("The pagefault was caused by: "); printhex((unsigned int)getCR2()); putc('\n');
   
-  if (!USER)
+  if (RESERVED)
+  {
+    panic("A reserved bit was set!");
+  }
+  
+  if (USER)
   {
     panic("User mode not allowed yet!");
   }
   else if (!PRESENT && WRITE)
   {
-    panic("Can not allocate pages yet!");
     // Allocate page here!
     unsigned long page = getCR2() << 0xC;
     unsigned long phys = (unsigned long)allocPage(COMPRESSED);
@@ -64,6 +68,7 @@ void cPageFault(isrVal_t regs)
       freePage((void*)phys, COMPRESSED);
       panic("Setting the page failed dramatically!");
     }
+    printf("Success!\n");
   }
   else if (!PRESENT && !WRITE)
   {
@@ -157,7 +162,7 @@ pageDir_t* setupPageDir()
   {
     panic("Aieee, Null pointer!!! Paging");
   }
-  memset(pageDir, 0, sizeof(pageDir_t)*PAGEDIRS);
+  memset(pageDir, 0x0, 0x1000);
   int i, j, k;
   for(i = 0; i < PAGETABLES; i++)
   {
@@ -168,7 +173,7 @@ pageDir_t* setupPageDir()
       printf("Itteration "); printhex(i); putc('\n');
       panic("Aiee, Null pointer!!! PageTable");
     }
-    memset(pt, 0, sizeof(pageTable_t)*PAGETABLES);
+    memset(pt, 0, 0x1000);
     for (j = 0; j < PAGES/PAGETABLES; j++)
     {
       switch(bitmap[i*PAGETABLES+j])
