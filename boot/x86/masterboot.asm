@@ -16,7 +16,7 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-%include "masterboot.h"
+%include "boot/x86/include/masterboot.h"
 
 [BITS 16]
 [ORG 0x7c00]
@@ -51,15 +51,6 @@ nop
 	db 'FAT12   '                 ; file system type
 %else
 	bootdisk db 0
-
-dap:
-	db 0x10      	; register size
-	db 0      	; reserved, must be 0
-	dw 0x1      	; sectors to read
-	dw 0x7c00   	; memory offset
-	dw 0x0   	; memory segment
-	dq 0x1		; starting sector (sector to read, s1 = 0)
-
 %endif
 
 start:
@@ -113,12 +104,19 @@ migrate:
 	; head 0 and the drive number
 	xor dh, dh
 	mov dl, byte [bootdisk]
+	mov bx, 0x7c0
+	mov es, bx
+	xor bx, bx
 %elifdef __HDD
-	mov ax, 0x41
+	mov ah, 0x41
 	mov dl, byte [bootdisk]
 	mov bx, 0x55aa
 	int 0x13
+	jc .error
 
+	mov ah, 0x42
+	mov dl, byte [bootdisk]
+	lea si, [dap]
 %else
 ; nothing is defined about FDD's and HDD's, could be usb. Use CHS to be sure.
 %endif
@@ -138,8 +136,10 @@ migrate:
 .error:
 	mov al, 0x42
 	call print
+	jmp $
 
 end:
+	jmp GEBL_LOADSEG:GEBL_LOADOFF
 	cli
 	hlt
 	jmp end
@@ -153,8 +153,18 @@ print:
 	int 0x10
 	ret
 
-times 446 - ($-$$) db 0
-db 0x80
+%ifdef __HDD
+dap:
+	db 0x10      	; register size
+	db 0      	; reserved, must be 0
+	dw 0x4      	; sectors to read
+	dw 0x7c00   	; memory offset
+	dw 0x0   	; memory segment
+	dq 0x1		; starting sector (sector to read, s1 = 0)
+%endif
+
+; times 446 - ($-$$) db 0
+; db 0x80
 
 times 510 - ($-$$) db 0
 dw 0xaa55

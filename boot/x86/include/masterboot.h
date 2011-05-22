@@ -20,6 +20,7 @@
 %define __H_MASTERBOOT
 
 ; here is the mbr loaded into by the bios
+%define GEBL_LOADSEG 0x0
 %define GEBL_LOADOFF 0x7c00
 
 ; the mbr will migrate itself to this segment:offset address

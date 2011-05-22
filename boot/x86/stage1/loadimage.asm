@@ -43,7 +43,7 @@ loadimage:
 	mov bx, 0x7E00	; offset
 
 	mov ah, 0x2					; function 2
-	mov al, 0x1					; read 1 sector
+	mov al, 0x2					; read 1 sector
 	xor ch, ch					; track
 	mov cl, 0x2					; sector to read
 	xor dh, dh					; head number
@@ -67,7 +67,7 @@ loadimage:
 lbar:
 	db 0x10      	; register size
 	db 0      	; reserved, must be 0
-	dw 0x1      	; sectors to read
+	dw 0x2      	; sectors to read
 	dw 0x7E00   	; memory offset
 	dw 0x0   	; memory segment
-	dq 0x1		; starting sector (sector to read, s1 = 0)
+	dq 0x2		; starting sector (sector to read, s1 = 0)
