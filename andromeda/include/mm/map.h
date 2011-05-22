@@ -28,10 +28,18 @@
 #define MAPPEDIO   0x0003
 #define NOTUSABLE  0xFFFF
 
+
+typedef struct
+{
+  unsigned long addr;
+  boolean usable;
+} pageState_t;
+
 extern unsigned short bitmap[];
-void* allocPage(unsigned short owner);
 boolean claimPage(unsigned long page, unsigned short owner);
+pageState_t* allocPage(unsigned short owner);
 void freePage(void* page, unsigned short owner);
+
 
 #ifdef __COMPRESSED
 #include <boot/mboot.h>

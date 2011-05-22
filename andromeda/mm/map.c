@@ -16,7 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <mm/map.h>
+#include <thread.h>
 #include <stdlib.h>
+
+mutex_t pageLock = 0;
 
 unsigned short bitmap[PAGES];
 boolean claimPage(unsigned long page, unsigned short owner)
@@ -25,26 +28,37 @@ boolean claimPage(unsigned long page, unsigned short owner)
   {
     return FALSE;
   }
-  
   bitmap[page] = owner;
   
   return TRUE;
 }
 
-void* allocPage(unsigned short owner)
+pageState_t* allocPage(unsigned short owner)
 {
+  mutexEnter(pageLock);
   unsigned long i;
+  pageState_t* addr = kalloc(sizeof(pageState_t));
+  if (addr == NULL)
+  {
+    panic("AIEE, OUT OF MEMORY!\n");
+  }
   for (i = 0; i < PAGES; i++)
   {
     if (bitmap[i] == FREE)
     {
       if (claimPage(i, owner))
       {
-	return (void*) (i*PAGESIZE);
+	addr->addr = i*PAGESIZE;
+	addr->usable = TRUE;
+	mutexRelease(pageLock);
+	return addr;
       }
     }
   }
-  return NULL;
+  addr->addr = 0;
+  addr->usable = FALSE;
+  mutexRelease(pageLock);
+  return addr;
 }
 
 void freePage(void* page, unsigned short owner)

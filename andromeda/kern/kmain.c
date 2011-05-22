@@ -147,11 +147,13 @@ int kmain()
   wait();
   #endif
   
+  #ifdef DBG
   int *a = kalloc(sizeof(int));
   printf("Phys addr of: %x = %x\n", (int)a, (int)getPhysAddr(a));
   free(a);
-  a = (int*)(0xC << 28);
+  a = (int*)0xC0000000;
   *a = 0xDEADBEEF;
+  #endif
   
   #ifdef MMTEST
   testAlloc();

@@ -46,8 +46,13 @@ USERMODE
 	File system deamon.
 
 DRIVERSUBSYSTEM
+*	Start work on a virtual filesystem, using drivers to sync up.
 *	Start work on the disk drivers
 
-*	Start work on tty's
+*	Start work on framebuffer
+*	Start work on the TTY's using the framebuffer
 
 *	Resume work on the IRQ's
+
+BUGS
+*	When using the va_list, the arguments don't get traversed

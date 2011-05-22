@@ -36,15 +36,17 @@
 
 void cPageFault(isrVal_t regs)
 {
+  #ifdef DBG
   printf("PG\n");
+  #endif
   if (regs.cs != 0x8 && regs.cs != 0x18)
   {
     panic("Incorrect frame");
   }
   unsigned char err = (unsigned char) (regs.errCode & 0x7);
-  
+  #ifdef DBG
   printf("The pagefault was caused by: "); printhex((unsigned int)getCR2()); putc('\n');
-  
+  #endif
   if (RESERVED)
   {
     panic("A reserved bit was set!");
@@ -57,18 +59,21 @@ void cPageFault(isrVal_t regs)
   else if (!PRESENT && WRITE)
   {
     // Allocate page here!
-    unsigned long page = getCR2() << 0xC;
-    unsigned long phys = (unsigned long)allocPage(COMPRESSED);
-    if (phys == (unsigned long)NULL)
+    unsigned long page = getCR2();
+    pageState_t* phys = allocPage(COMPRESSED);
+    if (phys->usable == FALSE)
     {
       panic("No more free memory!");
     }
-    if (!setPage((void*)phys, (void*)getCR2(), FALSE, TRUE))
+    boolean test = setPage((void*)(page), (void*)phys->addr, FALSE, TRUE);
+    if (!test)
     {
-      freePage((void*)phys, COMPRESSED);
+      freePage((void*)phys->addr, COMPRESSED);
       panic("Setting the page failed dramatically!");
     }
+    #ifdef DBG
     printf("Success!\n");
+    #endif
   }
   else if (!PRESENT && !WRITE)
   {
@@ -80,8 +85,12 @@ void cPageFault(isrVal_t regs)
     panic("Accessing illicit content!");
     // Kill process trying to access this page!
   }
+  #ifdef DBG
   printf("Err code: "); printhex(err); putc('\n');
-  panic("Paging isn't finished yet");
+  #endif
+  #ifdef WARN
+  printf("WARNING:\tPaging isn't finished yet!\n");
+  #endif
 }
 
 boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode)
@@ -89,22 +98,27 @@ boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode)
   #ifdef X86
   if (!CHECKALLIGN((unsigned long)virtAddr) || !CHECKALLIGN((unsigned long)physAddr))
   {
+    #ifdef DBG
+    printf("Argument allignement\n");
+    #endif
     return FALSE;
   }
   unsigned long pdIdx = ((unsigned long)virtAddr >> 22);
   unsigned long ptIdx = ((unsigned long)virtAddr >> 12) - (pdIdx << 10);
-  unsigned long offset = (unsigned long)virtAddr%PAGESIZE;
   
   unsigned long CR3 = (unsigned long)getCR3();
   pageDir_t* pd = (pageDir_t*) (CR3 - (CR3 % PAGESIZE)); // Get the address of the page directory.
   unsigned long ptAddr = (unsigned long)pd[pdIdx].pageIdx*PAGESIZE; // Get the address of the page table.
   if (ptAddr == 0)
   {
+    #ifdef DBG
+    printf("Illegal Page Table\n");
+    #endif
     return FALSE;
   }
   pageTable_t* pt = (pageTable_t*) ptAddr;
   
-  pt[ptIdx].pageIdx = (unsigned long)physAddr/PAGESIZE;
+  pt[ptIdx].pageIdx = (unsigned int)physAddr/PAGESIZE;
   pt[ptIdx].pcd = 0;
   pt[ptIdx].pwt = 0;
   pt[ptIdx].present = 1;
@@ -114,6 +128,8 @@ boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode)
   pt[ptIdx].userMode = (usermode) ? 0 : 1; // Usermode?
   pt[ptIdx].global = 0;
   pt[ptIdx].pat = 0;
+  
+  pd[pdIdx].present = 1;
 
   return TRUE;
   #endif
