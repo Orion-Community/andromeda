@@ -125,9 +125,11 @@ migrate:
 	int 0x13
 	jc .error
 
+%ifdef __HDD
 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	test byte [si], 0x80
 	jz .error
+%endif
 
 	mov al, 0x41 	; new line
 	call print
