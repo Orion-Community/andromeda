@@ -16,44 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MAP_H
-#define MAP_H
+#include <kern/elf.h>
+#define ELF_IDENTIFY 0x7f454c46
 
-#include <mm/paging.h>
-#include <types.h>
-
-#define FREE	   0x0000
-#define MODULE	   0x0001
-#define COMPRESSED 0x0002
-#define MAPPEDIO   0x0003
-#define NOTUSABLE  0xFFFF
-
-
-typedef struct
+boolean checkHdr(Elf32_Ehdr* hdr)
 {
-  unsigned long addr;
-  boolean usable;
-} pageState_t;
-
-struct module_s
-{
-  unsigned long addr;
-  unsigned long length;
-  struct module_s* next;
-};
-
-typedef struct module_s module_t;
-
-extern unsigned short bitmap[];
-boolean claimPage(unsigned long page, unsigned short owner);
-pageState_t* allocPage(unsigned short owner);
-void freePage(void* page, unsigned short owner);
-
-
-#ifdef __COMPRESSED
-#include <boot/mboot.h>
-
-void buildMap(multiboot_memory_map_t*, int);
-
-#endif
-#endif
+  if (*((int*)hdr->e_ident) != ELF_IDENTIFY)
+  {
+    return FALSE;
+  }
+  return TRUE;
+}

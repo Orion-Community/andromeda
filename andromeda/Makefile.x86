@@ -4,8 +4,8 @@ include make/makeIncl
 NEWFLAGS=$(EFLAGS) $(CFLAGS)
 ASM = -S -masm=intel $(NEWFLAGS)
 
-KERN=kern/kmain.c kern/sched.c
-KERNH=include/kern/cpu.h include/kern/sched.h
+KERN=kern/kmain.c kern/sched.c kern/elf.c
+KERNH=include/kern/cpu.h include/kern/sched.h include/kern/elf.h
 ERROR=error/panic.c
 ERRORH= include/error/panic.h
 MM=mm/alloc.c mm/memory.c mm/test.c mm/heap.c mm/paging.c mm/map.c
