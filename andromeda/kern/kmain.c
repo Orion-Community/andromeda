@@ -31,7 +31,9 @@
 // Basic includes
 #include <stdlib.h>
 #include <kern/cpu.h>
+#include <kern/elf.h>
 #include <mm/paging.h>
+#include <mm/map.h>
 #include <interrupts/int.h>
 
 unsigned char stack[0x2000];
@@ -153,7 +155,7 @@ int kmain()
   free(a);
   a = (int*)0xC0000000;
   *a = 0xDEADBEEF;
-  printf("1) 0x%X\n2) 0x%X\n", *a, 0xC0DEBABE);
+  printf("module located at: 0x%X\n", (checkHdr(((void* )modules[0].addr))) ? 0xC0DEBABE : 0xDEADBEEF);
   #endif
   
   #ifdef MMTEST

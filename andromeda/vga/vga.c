@@ -89,6 +89,12 @@ void printf(unsigned char *line, ...)
 	case 'X':
 	  printhex(va_arg(list, unsigned int));
 	  break;
+	case 'c':
+	  putc((char)va_arg(list, unsigned int));
+	  break;
+	case 's':
+	  printf(va_arg(list, char*));
+	  break;
 	default:
 	  putc('%');
 	  putc(line[i]);

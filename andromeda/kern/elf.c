@@ -17,11 +17,14 @@
 */
 
 #include <kern/elf.h>
-#define ELF_IDENTIFY 0x7f454c46
 
 boolean checkHdr(Elf32_Ehdr* hdr)
 {
-  if (*((int*)hdr->e_ident) != ELF_IDENTIFY)
+  unsigned char* e_ident = hdr->e_ident;
+  #ifdef DBG
+  printf("ELF magic: %x%c%c%c\n",e_ident[EI_MAG0], e_ident[ELFMAG0], e_ident[ELFMAG1], e_ident[ELFMAG2], e_ident[ELFMAG3]);
+  #endif
+  if (e_ident[EI_MAG0]!= ELFMAG0 || e_ident[EI_MAG1] != ELFMAG1 || e_ident[EI_MAG2] != ELFMAG2 || e_ident[EI_MAG3] != ELFMAG3)
   {
     return FALSE;
   }

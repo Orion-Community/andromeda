@@ -37,14 +37,14 @@ typedef struct
 
 struct module_s
 {
-  unsigned long addr;
+  void* addr;
   unsigned long length;
-  struct module_s* next;
 };
 
 typedef struct module_s module_t;
 
 extern unsigned short bitmap[];
+extern module_t modules[];
 boolean claimPage(unsigned long page, unsigned short owner);
 pageState_t* allocPage(unsigned short owner);
 void freePage(void* page, unsigned short owner);

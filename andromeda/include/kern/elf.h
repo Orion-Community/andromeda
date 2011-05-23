@@ -57,6 +57,19 @@ typedef unsigned int    Elf32_Word;
 #define EI_PAD		0x7
 #define EI_NIDENT 	0x10
 
+#define ELFCLASSNONE	0x0
+#define ELFCLASS32	0x1
+#define ELFCLASS64	0x2
+
+#define ELFDATANONE	0x0
+#define ELFDATA2LSB	0x1
+#define ELFDATA2MSB	0x2
+
+#define ELFMAG0		0x7f
+#define ELFMAG1		'E'
+#define ELFMAG2		'L'
+#define ELFMAG3		'F'
+
 typedef struct
 {
   unsigned char e_ident[EI_NIDENT];
@@ -74,5 +87,7 @@ typedef struct
   Elf32_Half	e_shnum;
   Elf32_Half	e_shstrndx;
 } Elf32_Ehdr;
+
+boolean checkHdr(Elf32_Ehdr* hdr);
 
 #endif

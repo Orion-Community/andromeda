@@ -22,8 +22,7 @@
 mutex_t pageLock = 0;
 
 unsigned short bitmap[PAGES];
-module_t* modules = NULL;
-module_t* modules_tail = NULL;
+module_t modules[32];
 boolean claimPage(unsigned long page, unsigned short owner)
 {
   if (bitmap[page] != FREE)
@@ -99,20 +98,8 @@ void addModules(multiboot_module_t* mods, int count)
   long i, j;
   for (i = 0; i < count; i++)
   {
-    module_t* m = kalloc(sizeof(module_t));
-    m->addr = mods[i].mod_start;
-    m->length = mods[i].mod_end - mods[i].mod_start;
-    m->next = NULL;
-    if (modules == NULL)
-    {
-      modules = m;
-      modules_tail = m;
-    }
-    else
-    {
-      modules_tail->next = m;
-      modules_tail = m;
-    }
+    modules[i].addr = mods[i].mod_start;
+    modules[i].length = mods[i].mod_end - mods[i].mod_start;
     for(j = mods[i].mod_start; j < mods[i].mod_end; j+=PAGESIZE)
     {
       bitmap[j/PAGESIZE] = MODULE;
