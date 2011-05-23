@@ -65,9 +65,10 @@ void printf(unsigned char *line, ...)
 {
   int i;
   va_list list;
+  unsigned int tmp;
+  va_start(list, line);
   for (i = 0; line[i] != '\0'; i++)
   {
-    va_start(list, line);
     if (line[i] != '%')
     {
       putc(line[i]);
@@ -86,7 +87,7 @@ void printf(unsigned char *line, ...)
 	case 'i':
 	case 'x':
 	case 'X':
-	  printhex(va_arg(list,int));
+	  printhex(va_arg(list, unsigned int));
 	  break;
 	default:
 	  putc('%');

@@ -153,6 +153,7 @@ int kmain()
   free(a);
   a = (int*)0xC0000000;
   *a = 0xDEADBEEF;
+  printf("1) 0x%X\n2) 0x%X\n", *a, 0xC0DEBABE);
   #endif
   
   #ifdef MMTEST
