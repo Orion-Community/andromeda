@@ -108,15 +108,21 @@ migrate:
 	mov es, bx
 	xor bx, bx
 %elifdef __HDD
-	mov ah, 0x41
-	mov dl, byte [bootdisk]
-	mov bx, 0x55aa
-	int 0x13
-	jc .error
+	; read 1 sector
+	; int 13h function 0x2
+	mov ax, 0x201
+	
+	; track 0 and read at sector 2
+	mov ch, byte [si+3]
+	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+	mov cl, byte [si+2]
 
-	mov ah, 0x42
+	; head 0 and the drive number
+	mov dh, byte [si+1]
 	mov dl, byte [bootdisk]
-	lea si, [dap]
+	mov bx, 0x7c0
+	mov es, bx
+	xor bx, bx
 %else
 ; nothing is defined about FDD's and HDD's, could be usb. Use CHS to be sure.
 %endif
@@ -165,8 +171,10 @@ dap:
 	dq 0x1		; starting sector (sector to read, s1 = 0)
 %endif
 
-; times 446 - ($-$$) db 0
-; db 0x80
+times 446 - ($-$$) db 0
+	db 0x80
+	db 0x0
+	dw 0x21
 
 times 510 - ($-$$) db 0
 dw 0xaa55
