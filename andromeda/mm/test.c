@@ -50,14 +50,14 @@ void testMMap(multiboot_info_t* hdr)
   if (hdr->flags && MULTIBOOT_INFO_MODS)
   {
     int mods = hdr->mods_count;
-    multiboot_module_t* modules = (multiboot_module_t*)hdr->mods_addr;
+    multiboot_module_t* mbootModules = (multiboot_module_t*)hdr->mods_addr;
     printf("No. modules: "); printhex(mods); putc('\n');
     int i = 0;
     for (; i < mods; i++)
     {
-      printf("Base addr = "); printhex(modules[i].mod_start); putc('\n');
-      printf("End  addr = "); printhex(modules[i].mod_end);   putc('\n');
-      printf("CMD  line = "); printf((char*)modules[i].cmdline); putc('\n');
+      printf("Base addr = "); printhex(mbootModules[i].mod_start); putc('\n');
+      printf("End  addr = "); printhex(mbootModules[i].mod_end);   putc('\n');
+      printf("CMD  line = "); printf((char*)mbootModules[i].cmdline); putc('\n');
     }
   }
   else

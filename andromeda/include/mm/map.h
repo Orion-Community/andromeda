@@ -37,8 +37,8 @@ typedef struct
 
 struct module_s
 {
-  void* addr;
-  unsigned long length;
+  unsigned long addr;
+  unsigned long end;
 };
 
 typedef struct module_s module_t;

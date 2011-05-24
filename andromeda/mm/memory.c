@@ -30,9 +30,6 @@ int initHeap(long size)
     {
       heapAddBlocks((void*)(i*PAGESIZE), PAGESIZE);
       done += PAGESIZE;
-//       #ifdef DBG
-//       printf("Added "); printhex(done); printf(" to heap\n");
-//       #endif
       claimPage((long)i, COMPRESSED);
       if (size <= done)
       {

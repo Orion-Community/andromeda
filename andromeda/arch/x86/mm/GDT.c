@@ -99,7 +99,7 @@ void setGDT()
   }
   
   #endif
-  lgdt(gdt);
+  lgdt(gdt);  
   #ifdef GDTTEST
   printf("checkpoint 2\n");
   #endif
