@@ -101,11 +101,6 @@ void addModules(multiboot_module_t* mods, int count)
   {
     modules[i].addr = mods[i].mod_start;
     modules[i].end = mods[i].mod_end;
-    #ifdef MODS
-    printf("Grub modules: 0x%x\nMy modules: 0x%x\nMy idx: 0x%x\n", mods[i].mod_start, (unsigned int)modules[i].addr, i);
-    printf("Phys addr of modules = 0x%x\n", &modules);
-    printf("Addr of addr: 0x%x\n", &modules[i].addr);
-    #endif
     for(j = mods[i].mod_start; j < mods[i].mod_end; j+=PAGESIZE)
     {
       bitmap[j/PAGESIZE] = MODULE;
@@ -121,7 +116,6 @@ void addCompressed()
   {
     final += PAGESIZE;
   }
-  printf("Final: 0x%x\n", (unsigned int)final);
   for (i = ((long)(&mboot)/PAGESIZE); i < ((long)final/PAGESIZE); i++)
   {
     bitmap[i] = COMPRESSED;

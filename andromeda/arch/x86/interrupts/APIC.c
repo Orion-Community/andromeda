@@ -21,7 +21,6 @@
 #include <interrupts/int.h>
 #include <PIC/PIC.h>
 #include <APIC/APIC.h>
-#include <mm/map.h>
 
 void initAPIC()
 {

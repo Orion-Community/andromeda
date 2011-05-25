@@ -106,10 +106,6 @@ int kmain()
   }
   #endif
   
-  #ifdef MODS
-  printf("Addr of mod: %x\n", modules[0].addr);
-  #endif
-  
   #ifdef DBG
   printf("Addr of stackbase: "); printhex((int)&stack); putc('\n');
   #endif
@@ -127,16 +123,9 @@ int kmain()
   intInit(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
 		     // been disabled.
-  #ifdef MODS
-  printf("Addr of mod: %x\n", modules[0].addr);
-  #endif
-		     
   // If in the compressed image
   #ifdef __COMPRESSED
   announce(); // print welcome message
-  #endif
-  #ifdef MODS
-  printf("Addr of mod: %x\n", modules[0].addr);
   #endif
   #ifdef __INTEL
   // Intel specific function
@@ -169,9 +158,6 @@ int kmain()
   *a = 0xDEADBEEF;
   #endif
   #ifdef MODS
-  printf("Phys addr of modules = 0x%x\n", (unsigned int)getPhysAddr(&modules));
-  printf("Addr of addr: 0x%x\n", &modules[0].addr);
-  printf("My modules: 0x%X\n", (unsigned int)modules[0].addr);
   #endif
   
   #ifdef MMTEST

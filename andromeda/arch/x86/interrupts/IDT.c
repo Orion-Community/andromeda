@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <interrupts.h>
-#include <mm/map.h>
 #include <irq.h>
 #include <stdlib.h>
 
@@ -28,37 +27,17 @@ extern memNode_t* blocks;
 idtEntry_t* table;
 void setIdtGate(unsigned char num, unsigned int base, unsigned short sel, unsigned char flags)
 {
-    #ifdef MODS
-    if (num == 13)
-    printf("1) Addr of mod: %x\n", modules[0].addr);
-    #endif
     table[num].base_lo = base & 0xFFFF;
     table[num].base_hi = (base >> 16) & 0xFFFF;
-    #ifdef MODS
-    if (num == 13)
-    printf("2) Addr of mod: %x\n", modules[0].addr);
-    #endif
-
     table[num].sel     = sel;
     table[num].always0 = 0;
     // We must uncomment the OR below when we get to using user-mode.
     // It sets the interrupt gate's privilege level to 3.
-    #ifdef MODS
-    if (num == 13)
-    printf("3) Addr of mod: %x\n", modules[0].addr);
-    #endif
     table[num].flags   = flags /* | 0x60 */;
-    #ifdef MODS
-    if (num == 13)
-    printf("4) Addr of mod: %x\n", modules[0].addr);
-    #endif
 }
 
 void setExceptions()
 {
-  #ifdef MODS
-  printf("1) Addr of mod: %x\n", modules[0].addr);
-  #endif
   setIdtGate( 0, (unsigned int)divByZero , 0x08, 0x8E);
   setIdtGate( 1, (unsigned int)depricated, 0x08, 0x8E);
   setIdtGate( 2, (unsigned int)nmi , 0x08, 0x8E);
@@ -79,9 +58,6 @@ void setExceptions()
   setIdtGate(17, (unsigned int)alligned, 0x08, 0x8E);
   setIdtGate(18, (unsigned int)machine, 0x08, 0x8E);
   setIdtGate(19, (unsigned int)simd, 0x08, 0x8E);
-  #ifdef MODS
-  printf("4) Addr of mod: %x\n", modules[0].addr);
-  #endif
 }
 #ifndef __COMPRESSED
 void setIRQ(int offset1, int offset2)
@@ -115,7 +91,6 @@ char* testStr = "Checkpoint\n";
 
 void prepareIDT()
 {
-  printf("Heap base 0x%x\n", blocks);
   int cs = getCS();
   #ifdef IDTTEST
   printhex(cs); putc('\n');
@@ -123,9 +98,6 @@ void prepareIDT()
   #endif
   table = kalloc(sizeof(idtEntry_t)*SIZE);
   idt_t* idt = kalloc(sizeof(idt_t));
-  
-  printf("Table: 0x%x\npointer: 0x%x\n", table, idt);
-  
   if (table == NULL || idt == NULL)
   {
      panic ("Aiee, NULL pointer!!!");
