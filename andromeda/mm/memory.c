@@ -49,8 +49,8 @@ void memset(void* location, int value, int size)
 {
   int i = 0;
   unsigned char* offset = (unsigned char*)location;
-  for (; i <= size; i++)
+  for (; i < size; i++)
   {
-    offset[i] = (unsigned char)value;
+    *(offset+i) = (unsigned char)value;
   }
 }

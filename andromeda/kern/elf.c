@@ -21,9 +21,10 @@
 boolean checkHdr(Elf32_Ehdr* hdr)
 {
   unsigned char* e_ident = hdr->e_ident;
+  int i;
   #ifdef MODS
   printf("Addr: 0x%x\n", (int)hdr);
-  printf("ELF magic: %x%c%c%c\n",e_ident[EI_MAG0], e_ident[EI_MAG0], e_ident[EI_MAG1], e_ident[EI_MAG2], e_ident[EI_MAG3]);
+  printf("ELF magic: 0x%x%c%c%c\n", (unsigned int)e_ident[EI_MAG0], e_ident[EI_MAG1], e_ident[EI_MAG2], e_ident[EI_MAG3]);
   #endif
   if (e_ident[EI_MAG0]!= ELFMAG0 || e_ident[EI_MAG1] != ELFMAG1 || e_ident[EI_MAG2] != ELFMAG2 || e_ident[EI_MAG3] != ELFMAG3)
   {

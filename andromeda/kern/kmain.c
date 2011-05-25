@@ -158,6 +158,14 @@ int kmain()
   *a = 0xDEADBEEF;
   #endif
   #ifdef MODS
+  if(checkHdr(modules[0].addr))
+  {
+    printf("ELF success!\n");
+  }
+  else
+  {
+    printf("ELF fail!!!!\n");
+  }
   #endif
   
   #ifdef MMTEST

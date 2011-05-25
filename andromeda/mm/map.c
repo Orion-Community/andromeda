@@ -111,11 +111,7 @@ void addModules(multiboot_module_t* mods, int count)
 void addCompressed()
 {
   long i;
-  unsigned long final = (unsigned long)&end;
-  if ((int)&end % PAGESIZE)
-  {
-    final += PAGESIZE;
-  }
+  unsigned long final = ((unsigned long)&end) + (((int)&end % PAGESIZE) ? PAGESIZE : 0x0);
   for (i = ((long)(&mboot)/PAGESIZE); i < ((long)final/PAGESIZE); i++)
   {
     bitmap[i] = COMPRESSED;

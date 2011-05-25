@@ -249,11 +249,9 @@ pageDir_t* setupPageDir()
 void initPaging ()
 {
   pageDir_t* kernDir = setupPageDir();
-  
   unsigned long cr3 = (unsigned long)kernDir;
   cr3 -= (cr3 % 0x1000);
   setCR3(cr3);
-  
   toglePGbit();
 }
 
