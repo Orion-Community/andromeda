@@ -30,5 +30,31 @@ boolean checkHdr(Elf32_Ehdr* hdr)
   {
     return FALSE;
   }
+  if (e_ident[EI_CLASS]!=ELFCLASS32)
+  {
+    #ifdef MODS
+    printf("ELF class: 0x%x\n", e_ident[EI_CLASS]);
+    #endif
+    return FALSE;
+  }
+  if (e_ident[EI_DATA] != ELFDATA2LSB)
+  {
+    #ifdef MODS
+    printf("ELF data: 0x%x\n", e_ident[EI_DATA]);
+    #endif
+    return FALSE;
+  }
+  if (hdr->e_machine != EM_386)
+  {
+    #ifdef MODS
+    printf("Machine type: 0x%x\n", hdr->e_machine);
+    #endif
+  }
+  #ifdef WARN
+  if (hdr->e_flags != 0x0)
+  {
+    printf("WARNING! The elf flags aren't 0\n");
+  }
+  #endif
   return TRUE;
 }
