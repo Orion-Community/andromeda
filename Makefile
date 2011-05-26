@@ -21,12 +21,14 @@ MBR_IMG=build/masterboot.bin
 BIN1=build/stage1.bin
 BIN2=build/stage15.bin
 GEBL=build/goldeneaglebl.bin
+BOOTBLOCK=build/bootlbock.bin
 
 
 
 .PHONY: all
 all: $(GEBL)
 
+.PHONY: masterboot
 masterboot: $(MBR_IMG)
 	@echo "CAUTION: The mbr is still highly expirimental!"
 
@@ -51,7 +53,10 @@ $(BIN1): $(STAGE1_DEPS)
 $(BIN2): $(DEPS)
 	$(LD) $(LDFLAGS) -o $(BIN2) $(DEPS)
 
-$(GEBL): $(MBR_IMG) $(BIN1) $(BIN2)
+$(BOOTBLOCK): $(BIN1) $(BIN2)
+	dd if=$(BIN1) of=$(BOOTBLOCK) seek=0
+	dd if=$(BIN2) of=$(BOOTBLOCK) seek=1 ibs=512 conv=sync
+
+$(GEBL): $(MBR_IMG) $(BOOTBLOCK)
 	dd if=$(MBR_IMG) of=$(GEBL) seek=0
-	dd if=$(BIN1) of=$(GEBL) seek=1
-	dd if=$(BIN2) of=$(GEBL) seek=2 ibs=512 conv=sync
+	dd if=$(BOOTBLOCK) of=$(GEBL) seek=2048

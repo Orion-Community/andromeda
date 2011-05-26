@@ -30,9 +30,10 @@ getmemorymap:
 	xor ebx, ebx
 	mov ecx, 0x18
 	mov edx, 0x534D4150
+	push edx
 	mov [es:di+20], dword 1 ; acpi 3.x compatibility
 	int 0x15
-	mov edx, 0x534D4150 ; if your bios is fat and ugly it will trash the magic word
+	pop edx
 
 	jc .failed
 	cmp eax, edx ; magic word should also be in eax after interrupt
@@ -45,9 +46,10 @@ getmemorymap:
 	mov eax, 0xE820
 	mov ecx, 0x18
 	mov edx, 0x534D4150
+	push edx
 	mov [es:di+20], dword 1
 	int 0x15
-	mov edx, 0x534D4150
+	pop edx
 
 	jc .done ; carriage means end of list
 	cmp eax, edx

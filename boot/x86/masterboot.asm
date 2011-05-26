@@ -49,8 +49,6 @@ nop
 	dd 0 				; volume ID 
 	times 11 db 0	 		; volume label 
 	db 'FAT12   '                 ; file system type
-%else
-	bootdisk dw 0
 %endif
 
 start:
@@ -71,10 +69,10 @@ start:
 	sti
 main:
 ; 	es is already set to 0
-	mov byte [bootdisk], dl
 	mov di, GEBL_BUFOFF
 	mov si, _start ; beginning of the source
 	push si
+	push dx
 	mov cx, 512/2
 	; we will move 2 bytes (words) at ones
 	cld
@@ -91,7 +89,8 @@ migrate:
 ; of the active (bootable) partition. Keep in mind that we moved our ass to here in a wicked way.
 
 	xor ax, ax
-	mov dl, byte [bootdisk]
+	pop dx
+	push dx		; store drive parameter
 	int 0x13
 %ifdef __FLOPPY
 	; read 1 sector
@@ -104,21 +103,26 @@ migrate:
 
 	; head 0 and the drive number
 	xor dh, dh
-	mov dl, byte [bootdisk]
+	pop dx
+	push dx
 	mov bx, 0x7c0
 	mov es, bx
 	xor bx, bx
 %elifdef __HDD
-	push word [bootdisk]
 	mov ah, 0x41
 	mov bx, 0x55aa
-	mov dl, [bootdisk]
+	pop dx		; restore drive parameter
+	push dx		; store it again.
+
 	int 0x13
 	jc .error
 
 	mov ah, 0x42
-	mov dl, [bootdisk]
+	pop dx
+	push dx
+
 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+	push si
 	mov cx, word [si+8]
 	mov si, dap
  	mov [si+8], cx
@@ -128,15 +132,15 @@ migrate:
 ; 	issue an bios interrupt to read the sectors from the disk as defined above depending 
 ; 	on how it is compiled
 	int 0x13
+	pop si		; restore the partition table
 	jc .error2
 
 %ifdef __HDD
-	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	test byte [si], 0x80
 	jz .error3
 %endif
 
-	mov al, 0x41 	; new line
+	mov al, 0x47 	; new line
 	call print
 	jmp end
 
@@ -156,7 +160,6 @@ migrate:
 	jmp $
 
 end:
-	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	pop dx
 	ret
 	;jmp GEBL_LOADSEG:GEBL_LOADOFF
@@ -194,6 +197,6 @@ dap:
 ; 	dw 0x0
 ; 	dw 0xb800
 ; 	dw 0x3b
-; 
-; times 510 - ($-$$) db 0
-; dw 0xaa55
+
+times 510 - ($-$$) db 0
+dw 0xaa55

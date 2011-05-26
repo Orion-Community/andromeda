@@ -70,4 +70,4 @@ lbar:
 	dw 0x2      	; sectors to read
 	dw 0x7E00   	; memory offset
 	dw 0x0   	; memory segment
-	dq 0x2		; starting sector (sector to read, s1 = 0)
+	dq 0x1		; starting sector (sector to read, s1 = 0)

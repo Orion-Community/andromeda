@@ -4,7 +4,7 @@ romimage: file=/usr/share/bochs/BIOS-bochs-latest
 megs: 32
 vgaromimage: file=/usr/share/vgabios/vgabios.bin
 ata0: enabled=1
-ata0-master: type=disk, path="build/goldeneaglebl.bin", mode=flat, cylinders=1, heads=1, spt=6
+ata0-master: type=disk, path="build/masterboot.bin", mode=flat, cylinders=1850, heads=2, spt=63
 ata1: enabled=1
 ata1-master: type=disk, path="build/goldeneaglebl.bin", mode=flat, cylinders=1, heads=1, spt=6
 boot: disk

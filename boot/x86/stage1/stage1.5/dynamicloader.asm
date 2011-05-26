@@ -56,7 +56,7 @@ dynamicloader:
 	mov ah, 0x02 ; func 2
 	; mov al, sectorcount -> done by calcsectors
 	xor ch, ch ; track
-	mov cl, 0x5 ; sector to start
+	mov cl, 0x4 ; sector to start
 	xor dh, dh ; head
 	mov dl, [bootdisk] ; drive
 	int 0x13
@@ -85,6 +85,6 @@ lbar:
 	dw 0  ; ptr to amount of sectors to read
 	dw 0x400	; offset
 	dw 0x7E0	; segment
-	dq 0x4		; start to read at sector 4
+	dq 0x3		; start to read at sector 4
 
 sectorcount dw 1

@@ -21,51 +21,26 @@
 
 jmp short main
 nop
-; The bios parameter block, in the case it is a floppy
-%ifdef __FLOPPY
-	times 8 db 0			; fill up 
-	dw 512				; bytes per sector 
-	db 1 				; sectors per cluster 
-	dw 2 				; reserved sector count 
-	db 2 				;number of FATs 
-	dw 16*14 			; root directory entries 
-	dw 18*2*80 			; 18 sector/track * 2 heads * 80 (density) 
-	db 0F0h 			; media byte 
-	dw 9 				; sectors per fat 
-	dw 18 				; sectors per track 
-	dw 2 				; number of heads 
-	dd 0 				; hidden sector count 
-	dd 0 				; number of sectors huge 
-	bootdisk db 0 			; drive number 
-	db 0 				; reserved 
-	db 29h 				; signature 
-	dd 0 				; volume ID 
-	times 11 db 0	 		; volume label 
-	db 'FAT12   '			; file system type
-%else
-	bootdisk db 0
-%endif
 
 main: ; entry point
 	jmp 0x0:.flush
 .flush:
-; 	cli
-; 	xor ax, ax
-; 	mov ds, ax
-; 	mov es, ax
-; 	mov ss, ax
-; 	mov sp, 0x7c00
-; 	sti
+	cli
+	xor ax, ax
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	mov sp, 0x7c00
+	sti
 
 	mov byte [bootdisk], dl
-	test dl, byte 0x80
+
+	test byte [si], 0x80
 	jz .bailout
 
-	call loadimage
-	shr ax, 8
-	or al, al
-	jz .loaded
+	;call loadimage
 
+	jmp .loaded
 .bailout:
 	mov si, failed
 	call println
@@ -81,8 +56,6 @@ main: ; entry point
 
 	mov dl, byte [bootdisk]
 	jmp 0x0:0x7E00
-	mov si, failed
-	call println
 	cli
 	jmp $
 
@@ -101,8 +74,10 @@ main: ; entry point
 ;
 ; Since flat binary is one big heap of code without sections, is the code below some sort of data section.
 ;
-	part_table dw 0
-	booted db 'GEBL has been loaded by the bios! Executing...', 0x0
+	part_table 	dq 0x0
+			dq 0x0
+	bootdisk db 0x0
+	booted db 'EBL has been loaded by the bios! Executing...', 0x0
 	failed db '(0x0) Failed to load the next stage.. ready to reboot. Press any key.', 0x0
 
 times 510 - ($ - $$) db 0
