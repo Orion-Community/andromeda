@@ -49,15 +49,18 @@ nop
 main: ; entry point
 	jmp 0x0:.flush
 .flush:
-	cli
-	xor ax, ax
-	mov ds, ax
-	mov es, ax
-	mov ss, ax
-	mov sp, 0x7c00
-	sti
+; 	cli
+; 	xor ax, ax
+; 	mov ds, ax
+; 	mov es, ax
+; 	mov ss, ax
+; 	mov sp, 0x7c00
+; 	sti
 
 	mov byte [bootdisk], dl
+	test dl, byte 0x80
+	jz .bailout
+
 	call loadimage
 	shr ax, 8
 	or al, al
@@ -98,7 +101,7 @@ main: ; entry point
 ;
 ; Since flat binary is one big heap of code without sections, is the code below some sort of data section.
 ;
-
+	part_table dw 0
 	booted db 'GEBL has been loaded by the bios! Executing...', 0x0
 	failed db '(0x0) Failed to load the next stage.. ready to reboot. Press any key.', 0x0
 

@@ -50,7 +50,7 @@ nop
 	times 11 db 0	 		; volume label 
 	db 'FAT12   '                 ; file system type
 %else
-	bootdisk db 0
+	bootdisk dw 0
 %endif
 
 start:
@@ -74,6 +74,7 @@ main:
 	mov byte [bootdisk], dl
 	mov di, GEBL_BUFOFF
 	mov si, _start ; beginning of the source
+	push si
 	mov cx, 512/2
 	; we will move 2 bytes (words) at ones
 	cld
@@ -108,6 +109,7 @@ migrate:
 	mov es, bx
 	xor bx, bx
 %elifdef __HDD
+	push word [bootdisk]
 	mov ah, 0x41
 	mov bx, 0x55aa
 	mov dl, [bootdisk]
@@ -154,7 +156,10 @@ migrate:
 	jmp $
 
 end:
-	jmp GEBL_LOADSEG:GEBL_LOADOFF
+	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+	pop dx
+	ret
+	;jmp GEBL_LOADSEG:GEBL_LOADOFF
 	cli
 	hlt
 	jmp end
@@ -178,17 +183,17 @@ dap:
 	dq 0x0		; starting sector (sector to read, s1 = 0)
 %endif
 
-times 446 - ($-$$) db 0
-	db 0x80
-	db 0x0
-	dw 0x21
-	dw 0xbe83
-	dw 0x3f0b
-	db 0x0
-	db 0x08
-	dw 0x0
-	dw 0xb800
-	dw 0x3b
-
-times 510 - ($-$$) db 0
-dw 0xaa55
+; times 446 - ($-$$) db 0
+; 	db 0x80
+; 	db 0x0
+; 	dw 0x21
+; 	dw 0xbe83
+; 	dw 0x3f0b
+; 	db 0x0
+; 	db 0x08
+; 	dw 0x0
+; 	dw 0xb800
+; 	dw 0x3b
+; 
+; times 510 - ($-$$) db 0
+; dw 0xaa55
