@@ -108,19 +108,18 @@ migrate:
 	mov es, bx
 	xor bx, bx
 %elifdef __HDD
-	; read 1 sector
-	; int 13h function 0x2
-	mov ax, 0x201
-	
-	; track 0 and read at sector 2
-	mov ch, 0x2
-	mov cl, 0x21
+	mov ah, 0x41
+	mov bx, 0x55aa
+	mov dl, [bootdisk]
+	int 0x13
+	jc .error
 
-	xor dh, dh
-	mov dl, byte [bootdisk]
-	xor bx, bx
-	mov es, bx
-	mov bx, 0x7c00
+	mov ah, 0x42
+	mov dl, [bootdisk]
+	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+	mov cx, word [si+8]
+	mov si, dap
+ 	mov [si+8], cx
 %else
 ; nothing is defined about FDD's and HDD's, could be usb. Use CHS to be sure.
 %endif
@@ -132,7 +131,7 @@ migrate:
 %ifdef __HDD
 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	test byte [si], 0x80
-	jz .error
+	jz .error3
 %endif
 
 	mov al, 0x41 	; new line
@@ -146,6 +145,11 @@ migrate:
 
 .error2:
 	mov al, 0x43
+	call print
+	jmp $
+
+.error3:
+	mov al, 0x44
 	call print
 	jmp $
 
@@ -171,7 +175,7 @@ dap:
 	dw 0x4      	; sectors to read
 	dw 0x7c00   	; memory offset
 	dw 0x0   	; memory segment
-	dq 0x1		; starting sector (sector to read, s1 = 0)
+	dq 0x0		; starting sector (sector to read, s1 = 0)
 %endif
 
 times 446 - ($-$$) db 0
