@@ -58,3 +58,8 @@ boolean checkHdr(Elf32_Ehdr* hdr)
   #endif
   return TRUE;
 }
+
+int elfExec(void* image)
+{
+  return (checkHdr(image)) ? 0: -1;
+}

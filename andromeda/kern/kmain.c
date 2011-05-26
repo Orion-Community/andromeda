@@ -30,6 +30,7 @@
 
 // Basic includes
 #include <stdlib.h>
+#include <unistd.h>
 #include <kern/cpu.h>
 #include <kern/elf.h>
 #include <mm/paging.h>
@@ -158,7 +159,7 @@ int kmain()
   *a = 0xDEADBEEF;
   #endif
   #ifdef MODS
-  if(checkHdr(modules[0].addr))
+  if(!elfExec((void*)modules[0].addr))
   {
     printf("ELF success!\n");
   }

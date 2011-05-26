@@ -21,6 +21,14 @@
 
 #include <stdlib.h>
 
+/*
+ * Comments disclaimer:
+ * If you want to know what all these variables mean.
+ * They have been specified in the ELF32 specification.
+ *
+ * http://www.skyfree.org/linux/references/ELF_Format.pdf
+ */
+
 typedef unsigned int    Elf32_Addr;
 typedef unsigned short  Elf32_Half;
 typedef unsigned int    Elf32_Off;
@@ -88,6 +96,29 @@ typedef struct
   Elf32_Half	e_shstrndx;
 } Elf32_Ehdr;
 
+#define SHN_UNDEF	0x0
+#define SHN_LORESERVE	0xff00
+#define SHNLOPROC	0xff00
+#define SHN_HIPROC	0xff1f
+#define SHN_ABS		0xfff1
+#define SHN_COMMON	0xfff2
+#define SHN HIRESERVE	0xffff
+
+typedef struct
+{
+  Elf32_Word sh_name;
+  Elf32_Word sh_type;
+  Elf32_Word sh_flags;
+  Elf32_Addr sh_addr;
+  Elf32_Off  sh_offset;
+  Elf32_Word sh_size;
+  Elf32_Word sh_link;
+  Elf32_Word sh_info;
+  Elf32_Word sh_addralign;
+  Elf32_Word sh_entsize;
+} Elf32_Shdr;
+
 boolean checkHdr(Elf32_Ehdr* hdr);
+int elfExec(void* image);
 
 #endif
