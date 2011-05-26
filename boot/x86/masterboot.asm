@@ -113,23 +113,21 @@ migrate:
 	mov ax, 0x201
 	
 	; track 0 and read at sector 2
-	mov ch, byte [si+3]
-	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
-	mov cl, byte [si+2]
+	mov ch, 0x2
+	mov cl, 0x21
 
-	; head 0 and the drive number
-	mov dh, byte [si+1]
+	xor dh, dh
 	mov dl, byte [bootdisk]
-	mov bx, 0x7c0
-	mov es, bx
 	xor bx, bx
+	mov es, bx
+	mov bx, 0x7c00
 %else
 ; nothing is defined about FDD's and HDD's, could be usb. Use CHS to be sure.
 %endif
 ; 	issue an bios interrupt to read the sectors from the disk as defined above depending 
 ; 	on how it is compiled
 	int 0x13
-	jc .error
+	jc .error2
 
 %ifdef __HDD
 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
@@ -143,6 +141,11 @@ migrate:
 
 .error:
 	mov al, 0x42
+	call print
+	jmp $
+
+.error2:
+	mov al, 0x43
 	call print
 	jmp $
 
@@ -175,6 +178,13 @@ times 446 - ($-$$) db 0
 	db 0x80
 	db 0x0
 	dw 0x21
+	dw 0xbe83
+	dw 0x3f0b
+	db 0x0
+	db 0x08
+	dw 0x0
+	dw 0xb800
+	dw 0x3b
 
 times 510 - ($-$$) db 0
 dw 0xaa55
