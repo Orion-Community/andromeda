@@ -13,15 +13,13 @@ What is done:
 What should be improved:
 
 Next item:
-	* Read theory about memory addressing (liniear, absoluut, seg:off) 
 	* Multiboot compatibility
-	* Link the kernel into the bootloader.
-	* Mega rewrite, see section below.
-
+	* implement CHS with the partition table
 What has to be done:
 
 	* Make the bootloader multiboot compatible
 	* Get the kernel working.
+	* memory map pointer in C
 
 Notes:
 ­eerst image loading met interrupts, dan far jump, ­dan GDT
