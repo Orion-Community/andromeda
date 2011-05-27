@@ -72,7 +72,7 @@ main:
 	mov di, GEBL_BUFOFF
 	mov si, _start ; beginning of the source
 	push si
-	push dx
+	push dx ; drive number
 	mov cx, 512/2
 	; we will move 2 bytes (words) at ones
 	cld
@@ -186,17 +186,17 @@ dap:
 	dq 0x0		; starting sector (sector to read, s1 = 0)
 %endif
 
-times 446 - ($-$$) db 0
-	db 0x80
-	db 0x0
-	dw 0x21
-	dw 0xbe83
-	dw 0x3f0b
-	db 0x0
-	db 0x08
-	dw 0x0
-	dw 0xb800
-	dw 0x3b
+; times 446 - ($-$$) db 0
+; 	db 0x80
+; 	db 0x0
+; 	dw 0x21
+; 	dw 0xbe83
+; 	dw 0x3f0b
+; 	db 0x0
+; 	db 0x08
+; 	dw 0x0
+; 	dw 0xb800
+; 	dw 0x3b
 
 times 510 - ($-$$) db 0
 dw 0xaa55

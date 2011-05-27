@@ -21,7 +21,12 @@
 
 main:
 	mov [bootdisk], dl
-	push si
+	
+	mov di, 0x7c00
+	push di
+	mov cx, 0x8
+	cld
+	rep movsw
 
 	call enable_A20
 	jnc .loadstage2

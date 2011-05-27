@@ -34,9 +34,13 @@ dynamicloader:
  	mov [lbar+2], ax
 	mov ah,0x42
 
-; 	pop si
-	mov cx, 0x800
+	pop bx	; address pushed on the stack by 'call mem16'
+	pop si	; address to the partition table
+
+	mov cx, word [si+8]
 	add cx, 0x3
+	push si
+	push bx
 
 	mov [lbar+8],cx
 	lea si, [lbar]

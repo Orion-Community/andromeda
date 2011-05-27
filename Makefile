@@ -21,7 +21,7 @@ MBR_IMG=build/masterboot.bin
 BIN1=build/stage1.bin
 BIN2=build/stage15.bin
 GEBL=build/goldeneaglebl.bin
-BOOTBLOCK=build/bootlbock.bin
+BOOTBLOCK=build/bootblock.bin
 
 
 
