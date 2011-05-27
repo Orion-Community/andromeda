@@ -34,6 +34,7 @@ main: ; entry point
 	sti
 
 	mov byte [bootdisk], dl
+	push si
 
 	test byte [si], 0x80
 	jz .bailout
@@ -68,6 +69,7 @@ main: ; entry point
 	call println
 
 	mov dl, byte [bootdisk]
+	pop si
 	jmp 0x0:0x7E00
 	cli
 	jmp $
@@ -91,7 +93,7 @@ main: ; entry point
 dap:
 	db 0x10      	; register size
 	db 0      	; reserved, must be 0
-	dw 0x1      	; sectors to read
+	dw 0x2      	; sectors to read
 	dw 0x7e00   	; memory offset
 	dw 0x0   	; memory segment
 	dq 0x0		; starting sector (sector to read, s1 = 0)

@@ -31,8 +31,8 @@ dynamicloader:
 	jc .checkextensions
 
 .extread:
-	call .calcsectors
-	mov [lbar+2], ax
+ 	call .calcsectors
+ 	mov [lbar+2], ax
 	mov ah,0x42
 	mov dl,[bootdisk]
 	lea si,[lbar]        
@@ -41,25 +41,25 @@ dynamicloader:
 
 	loop .extread
 
-.oldreset:
-	xor ah, ah ; function 0 = reset
-	mov dl, [bootdisk]
-	int 0x13
-	jc .oldreset
-
-.oldload:
-	mov  bx, 0x7E0 ; segment
-	mov es, bx
-	mov bx, 0x400  ; offset
-
-	call .calcsectors
-	mov ah, 0x02 ; func 2
-	; mov al, sectorcount -> done by calcsectors
-	xor ch, ch ; track
-	mov cl, 0x4 ; sector to start
-	xor dh, dh ; head
-	mov dl, [bootdisk] ; drive
-	int 0x13
+; .oldreset:
+; 	xor ah, ah ; function 0 = reset
+; 	mov dl, [bootdisk]
+; 	int 0x13
+; 	jc .oldreset
+; 
+; .oldload:
+; 	mov  bx, 0x7E0 ; segment
+; 	mov es, bx
+; 	mov bx, 0x400  ; offset
+; 
+; 	call .calcsectors
+; 	mov ah, 0x02 ; func 2
+; 	; mov al, sectorcount -> done by calcsectors
+; 	xor ch, ch ; track
+; 	mov cl, 0x4 ; sector to start
+; 	xor dh, dh ; head
+; 	mov dl, [bootdisk] ; drive
+; 	int 0x13
 
 .return:
 	ret
@@ -82,9 +82,9 @@ dynamicloader:
 lbar:
 	db 0x10
 	db 0x0
-	dw 0  ; ptr to amount of sectors to read
+	dw 0x0		; amount of sectors to read
 	dw 0x400	; offset
 	dw 0x7E0	; segment
-	dq 0x3		; start to read at sector 4
+	dq 0x803		; start to read at sector 4
 
 sectorcount dw 1

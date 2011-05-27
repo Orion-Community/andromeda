@@ -21,6 +21,7 @@
 
 main:
 	mov [bootdisk], dl
+	push si
 
 	call enable_A20
 	jnc  .loadstage2
