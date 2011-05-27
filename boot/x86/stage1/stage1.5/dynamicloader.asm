@@ -21,7 +21,6 @@
 [GLOBAL sectorcount]
 [EXTERN endptr] ; pointer to the end of stage 2
 dynamicloader:
-	mov cx, 5
 
 .checkextensions:
 	mov ah, 0x41	; check ext
@@ -34,12 +33,18 @@ dynamicloader:
  	call .calcsectors
  	mov [lbar+2], ax
 	mov ah,0x42
+
+; 	pop si
+	mov cx, 0x800
+	add cx, 0x3
+
+	mov [lbar+8],cx
+	lea si, [lbar]
+
 	mov dl,[bootdisk]
 	lea si,[lbar]        
 	int 0x13
 	jnc .return
-
-	loop .extread
 
 ; .oldreset:
 ; 	xor ah, ah ; function 0 = reset
@@ -85,6 +90,6 @@ lbar:
 	dw 0x0		; amount of sectors to read
 	dw 0x400	; offset
 	dw 0x7E0	; segment
-	dq 0x803		; start to read at sector 4
+	dq 0x0		; start to read at sector 4
 
 sectorcount dw 1

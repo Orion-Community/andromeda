@@ -24,14 +24,11 @@ main:
 	push si
 
 	call enable_A20
-	jnc  .loadstage2
+	jnc .loadstage2
 	mov si, a20fail
 
 .bailout:
 	call println
-	xor ah, ah
-	int 0x16
-	int 0x19
 	cli
 	jmp $
 
