@@ -38,7 +38,20 @@ main: ; entry point
 	test byte [si], 0x80
 	jz .bailout
 
-	;call loadimage
+	mov cx, word [si+8]
+	inc cx
+	mov si, dap
+	mov [si+8], cx
+
+	mov ah, 0x41
+	mov bx, 0x55aa
+	mov dl, [bootdisk]
+	int 0x13
+	jc .bailout
+
+	mov ah, 0x41
+	mov dl, [bootdisk]
+	int 0x13
 
 	jmp .loaded
 .bailout:
@@ -63,7 +76,7 @@ main: ; entry point
 ; Image loader
 ;
 
-%include 'boot/x86/stage1/loadimage.asm'
+;%include 'boot/x86/stage1/loadimage.asm'
 
 ;
 ; Print routines
@@ -74,8 +87,15 @@ main: ; entry point
 ;
 ; Since flat binary is one big heap of code without sections, is the code below some sort of data section.
 ;
-	part_table 	dq 0x0
-			dq 0x0
+
+dap:
+	db 0x10      	; register size
+	db 0      	; reserved, must be 0
+	dw 0x1      	; sectors to read
+	dw 0x7e00   	; memory offset
+	dw 0x0   	; memory segment
+	dq 0x0		; starting sector (sector to read, s1 = 0)
+
 	bootdisk db 0x0
 	booted db 'EBL has been loaded by the bios! Executing...', 0x0
 	failed db '(0x0) Failed to load the next stage.. ready to reboot. Press any key.', 0x0
