@@ -109,6 +109,19 @@ migrate:
 	mov es, bx
 	xor bx, bx
 %elifdef __HDD
+	mov ah, 0x8
+	pop dx
+	push dx
+	mov di, 0x0
+	mov es, di
+	int 0x13
+	
+	and cl, 0011111b
+	cmp cl, 35
+	ja .error
+
+	jmp $
+
 	mov ah, 0x41
 	mov bx, 0x55aa
 	pop dx		; restore drive parameter
@@ -140,7 +153,7 @@ migrate:
 	jz .error3
 %endif
 
-	mov al, 0x47 	; new line
+	mov al, 0x47
 	call print
 	jmp end
 
@@ -198,5 +211,5 @@ dap:
 ; 	dw 0xb800
 ; 	dw 0x3b
 
-times 510 - ($-$$) db 0
-dw 0xaa55
+; times 510 - ($-$$) db 0
+; dw 0xaa55
