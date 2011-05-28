@@ -118,14 +118,15 @@ migrate:
 	int 0x13
 	jc .error	; now you're fucked..
 	
-	and cl, 0111111b
-	
-	cmp cl, 0x3f
-	jne .error4
+	and cl, 00111111b ; bytes 0 - 5 of cl (cl = sectors (base 1)
+	inc dh ; dh = heads (1 based)
 
-	inc dh
-	cmp dh, 0xff
- 	jne .error5
+; 	cmp cl, 0x3f
+; 	jne .error4
+; 
+; 	inc dh
+; 	cmp dh, 0xff
+;  	jne .error5
 
 	mov ah, 0x41
 	mov bx, 0x55aa
