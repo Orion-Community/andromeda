@@ -109,18 +109,23 @@ migrate:
 	mov es, bx
 	xor bx, bx
 %elifdef __HDD
+.chs:
 	mov ah, 0x8
 	pop dx
 	push dx
-	mov di, 0x0
+	xor di, di
 	mov es, di
 	int 0x13
+	jc .error	; now you're fucked..
 	
-	and cl, 0011111b
-	cmp cl, 35
-	ja .error
+	and cl, 0111111b
+	
+	cmp cl, 0x3f
+	jne .error4
 
-	jmp $
+	inc dh
+	cmp dh, 0xff
+ 	jne .error5
 
 	mov ah, 0x41
 	mov bx, 0x55aa
@@ -128,7 +133,7 @@ migrate:
 	push dx		; store it again.
 
 	int 0x13
-	jc .error
+	jc .chs
 
 	mov ah, 0x42
 	pop dx
@@ -137,8 +142,12 @@ migrate:
 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	push si
 	mov cx, word [si+8]
+	mov bx, word [si+10]
 	mov si, dap
  	mov [si+8], cx
+	mov [si+10], bx
+
+
 %else
 ; nothing is defined about FDD's and HDD's, could be usb. Use CHS to be sure.
 %endif
@@ -169,6 +178,16 @@ migrate:
 
 .error3:
 	mov al, 0x44
+	call print
+	jmp $
+
+.error4:
+	mov al, 0x45
+	call print
+	jmp $
+
+.error5:
+	mov al, 0x46
 	call print
 	jmp $
 
