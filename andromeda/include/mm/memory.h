@@ -23,7 +23,10 @@
 
 void paging();
 void memset(void*, int, int);
+void memcpy(void* destination, void* source, int num);
 int initHeap(long);
+
+size_t strlen(char* string);
 
 #ifdef __INTEL
 void setGDT();

@@ -54,3 +54,21 @@ void memset(void* location, int value, int size)
     *(offset+i) = (unsigned char)value;
   }
 }
+
+void memcpy(void *destination, void* source, int num)
+{
+  int i = 0;
+  unsigned char* src = source;
+  unsigned char* dst = destination;
+  for (; i < num; i++)
+  {
+    *(dst+i) = *(src+i);
+  }
+}
+
+size_t strlen(char* string)
+{
+  int i = 0;
+  for (; *(string+i) != '\0'; i++);
+  return i;
+}
