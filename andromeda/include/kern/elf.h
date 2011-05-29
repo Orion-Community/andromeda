@@ -104,6 +104,23 @@ typedef struct
 #define SHN_COMMON	0xfff2
 #define SHN HIRESERVE	0xffff
 
+#define SHT_NULL	0x0
+#define SHT_PRGBITS	0x1
+#define SHT_SYMTAB	0x2
+#define SHT_STRTAB	0x3
+#define SHT_RELA	0x4
+#define SHT_HASH	0x5
+#define SHT_DYNAMIC	0x6
+#define SHT_NOTE	0x7
+#define SHT_NOBITS	0x8
+#define SHT_REL 	0x9
+#define SHT_SHLIB	0xA
+#define SHT_DYNSYM	0xB
+#define SHT_LOPROC	0x70000000
+#define SHT_HIPROC	0x7fffffff
+#define SHT_LOUSER	0x80000000
+#define SHT_HIUSER	0x8fffffff
+
 typedef struct
 {
   Elf32_Word sh_name;
