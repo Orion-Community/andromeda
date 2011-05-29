@@ -119,34 +119,64 @@ migrate:
 	jc .error	; now you're fucked..
 	
 	and cl, 00111111b ; bytes 0 - 5 of cl (cl = sectors (base 1)
-	inc dh ; dh = heads (1 based)
-
-; 	cmp cl, 0x3f
-; 	jne .error4
-; 
-; 	inc dh
-; 	cmp dh, 0xff
-;  	jne .error5
-
-	mov ah, 0x41
-	mov bx, 0x55aa
-	pop dx		; restore drive parameter
-	push dx		; store it again.
-
-	int 0x13
-	jc .chs
-
-	mov ah, 0x42
-	pop dx
-	push dx
-
+ 	inc dh ; dh = heads (1 based)
+	mov al, cl
+	mul dh
+	mov bx, ax
+	
 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	push si
-	mov cx, word [si+8]
-	mov bx, word [si+10]
-	mov si, dap
- 	mov [si+8], cx
-	mov [si+10], bx
+	
+	mov ax, [si+8]
+	mov dx, [si+10]
+
+	div bx
+	xchg ax, dx
+	mov ch, dl
+	div cl
+	xor dl, dl
+	shr dx, 1
+	shr dx, 1		
+	or dl, ah
+	mov cl, dl
+	inc cl
+
+	pop si
+	pop dx
+	push dx
+	push si
+
+	mov dh, al
+	
+	xor bx, bx
+	mov es, bx
+	mov bx, GEBL_LOADOFF
+	mov ax, 0x201
+
+	jmp .rdeval
+
+; 	mov ah, 0x41
+; 	mov bx, 0x55aa
+; 
+; 	pop si		; ptable off first
+; 	pop dx		; then the drive number
+; 	push dx		; push everyting back up again
+; 	push si
+; 
+; 	int 0x13
+; 	jc .chs
+; 
+; 	mov ah, 0x42
+; 	pop dx
+; 	push dx
+; 
+; 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+; 	push si
+; 	mov cx, word [si+8]
+; 	mov bx, word [si+10]
+; 	mov si, dap
+;  	mov [si+8], cx
+; 	mov [si+10], bx
 
 
 %else
@@ -154,8 +184,8 @@ migrate:
 %endif
 ; 	issue an bios interrupt to read the sectors from the disk as defined above depending 
 ; 	on how it is compiled
+.rdeval:
 	int 0x13
-	pop si		; restore the partition table
 	jc .error2
 
 %ifdef __HDD
@@ -193,6 +223,7 @@ migrate:
 	jmp $
 
 end:
+	pop si	; partition table back on its place
 	pop dx
 	ret
 	;jmp GEBL_LOADSEG:GEBL_LOADOFF
@@ -230,6 +261,6 @@ dap:
 ; 	dw 0x0
 ; 	dw 0xb800
 ; 	dw 0x3b
-
-; times 510 - ($-$$) db 0
-; dw 0xaa55
+; 
+times 510 - ($-$$) db 0
+dw 0xaa55

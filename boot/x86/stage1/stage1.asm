@@ -50,9 +50,10 @@ main: ; entry point
 	int 0x13
 	jc .bailout
 
-	mov ah, 0x41
+	mov ah, 0x42
 	mov dl, [bootdisk]
 	int 0x13
+	jc .bailout
 
 	jmp .loaded
 .bailout:
