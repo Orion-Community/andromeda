@@ -66,19 +66,21 @@ start:
 
 	mov ss, ax	; stack segment
 	mov sp, GEBL_LOADOFF
+	mov bp, sp
 	sti
 main:
 ; 	es is already set to 0
 	mov di, GEBL_BUFOFF
 	mov si, _start ; beginning of the source
 	push si
-	xor dh, dh
-	push dx ; drive number
 	mov cx, 512/2
 	; we will move 2 bytes (words) at ones
 	cld
 	rep movsw
 	
+	xor dh, dh
+	push dx ; drive number
+
 	jmp GEBL_BUFSEG:GEBL_JUMPOFF
 ;
 ; GEBL_JUMPOFF gets us to the offset of migrate in the new seg:offset address. It is defined as: 
@@ -90,8 +92,7 @@ migrate:
 ; of the active (bootable) partition. Keep in mind that we moved our ass to here in a wicked way.
 
 	xor ax, ax
-	pop dx
-	push dx		; store drive parameter
+	mov dx, [bp-4]
 	int 0x13
 %ifdef __FLOPPY
 	; read 1 sector
@@ -110,9 +111,9 @@ migrate:
 	mov es, bx
 	xor bx, bx
 %elifdef __HDD
+.chs:
 	mov ax, 0x800	; get drive params
-	pop dx		; drive number
-	push dx
+	mov dx, [bp-4]
 	xor di, di	; workaround for buggy bioses..
 	mov es, di
 	int 0x13
@@ -135,16 +136,16 @@ migrate:
 
 	xor dx, dx
 	div bx	; ax = cylinder		dx = head
-	mov ch, al	; low 8 bits of cylinder
-	xor al, al
 
+	mov ch, al	; low 8 bits of cylinder
+	xor al, al	; prepare to shift high cylinder bits into al
 	shr ax, 2	; shift 2 high bits of cylinder into al
 	pop bx	; get our sectors back
 	or al, bl
 	mov cl, al
 
-	shl dx, 8
-	pop bx
+	shl dx, 8	; get dl (head into dh)
+	pop bx		; restore drive num
 	push bx
 	mov dl, bl
 
@@ -152,32 +153,32 @@ migrate:
 	xor bx, bx
 	mov es, bx
 	mov bx, 0x7c00
+	int 0x13
+	jnc .checkboot
 
-	
-	jmp .rdeval
+.lba:
+	mov ah, 0x41
+	mov bx, 0x55aa
 
-; 	mov ah, 0x41
-; 	mov bx, 0x55aa
-; 
-; 	pop si		; ptable off first
-; 	pop dx		; then the drive number
-; 	push dx		; push everyting back up again
-; 	push si
-; 
-; 	int 0x13
-; 	jc .chs
-; 
-; 	mov ah, 0x42
-; 	pop dx
-; 	push dx
-; 
-; 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
-; 	push si
-; 	mov cx, word [si+8]
-; 	mov bx, word [si+10]
-; 	mov si, dap
-;  	mov [si+8], cx
-; 	mov [si+10], bx
+	pop si		; ptable off first
+	pop dx		; then the drive number
+	push dx		; push everyting back up again
+	push si
+
+	int 0x13
+	jc .chs
+
+	mov ah, 0x42
+	pop dx
+	push dx
+
+	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+	push si
+	mov cx, word [si+8]
+	mov bx, word [si+10]
+	mov si, dap
+ 	mov [si+8], cx
+	mov [si+10], bx
 
 
 %else
@@ -190,6 +191,7 @@ migrate:
 	jc .error2
 
 %ifdef __HDD
+.checkboot:
 	test byte [si], 0x80
 	jz .error3
 %endif
@@ -224,8 +226,7 @@ migrate:
 	jmp $
 
 end:
-	;pop si	; partition table back on its place
-	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+; 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	pop dx
 	ret
 	;jmp GEBL_LOADSEG:GEBL_LOADOFF

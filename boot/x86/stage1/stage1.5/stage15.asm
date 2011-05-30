@@ -19,9 +19,8 @@
 [BITS 16]
 [SECTION .stage1]
 
-main:
-	mov [bootdisk], dl
-	
+main:	
+	mov byte [bootdisk], dl
 	mov di, 0x7c00
 	push di
 	mov cx, 0x8
@@ -50,11 +49,12 @@ main:
 	jz .bailout		; we are not here to bully our user with al zero-length memory map.
 
 	call dynamicloader
-	shr ax, 8
-	or al, al
+	test ah, ah
 	mov si, nostage2
 	jnz .bailout
 
+	pop dx
+	pop si
 	jmp 0x7E0:0x400
 
 	jmp .bailout

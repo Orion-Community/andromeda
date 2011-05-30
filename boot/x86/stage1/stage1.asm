@@ -34,50 +34,78 @@ main: ; entry point
 	mov bp, sp
 	sti
 
-	mov byte [bootdisk], dl
+	mov [bootdisk], dl
 	push si
 	push dx
 
 	test byte [si], 0x80
 	jz .bailout
+.reset:
+	xor ax, ax
+	int 0x13
+	jc .reset
+
 .chs:
 	mov ax, 0x800
-	pop dx
-	push dx
-	xor di, di
+	mov dx, [bp-4]	; drive number
+	xor di, di	; work around for some buggy bioses
 	mov es, di
 	int 0x13
+	jc .bailout
 
-	and cl, 00111111b
-	inc dh
+	and cl, 00111111b	; max sector number is 0x3f
+	inc dh		; make head 1-based
 	xor bx, bx
-	mov bl, dh
+	mov bl, dh	; store head
 
-	mov 
-	xor dx, dx
-	xor ch, ch
-	mov ax, [si+8]
+	xor dx, dx	; clean modulo storage place
+	xor ch, ch	; get all the crap out of ch
+	mov ax, word [si+8]	; the pt
 	div cx		; ax = temp value 	dx = sector (0-based)
-	inc dx
-	push dx
+	add dx, 2	; make sector 1-based and read second sector
+	push dx		; save the sector num for a while
 
-	xor dx, dx
+	xor dx, dx	; clean modulo
 	div bx		; ax = cylinder		dx = head
+
+	mov ch, al	; low bits of the cylinder
+	xor al, al
+	shr ax, 2	; shift the 2 high bits of the cylinder into al
+	pop bx		; get the sector
+	or al, bl	; store sector in al together with high cyl
+	mov cl, al
+
+	shl dx, 8	; move dh, dl
+	pop bx		; drive number
+	mov dl, bl
+	push bx		; store drive num again
+	
+	xor bx, bx	; segment 0
+	mov es, bx
+	mov bx, 0x7e00	; buffer
+	mov ax, 0x201
+	int 0x13
+	jc .lba
+	jmp .loaded
 
 .lba:
 	mov cx, word [si+8]
+	mov dx, word [si+10]
 	inc cx
 	mov si, dap
 	mov [si+8], cx
+	mov [si+10], dx
 
 	mov ah, 0x41
 	mov bx, 0x55aa
-	mov dl, [bootdisk]
+	pop dx
+	push dx
 	int 0x13
 	jc .bailout
 
 	mov ah, 0x42
-	mov dl, [bootdisk]
+	pop dx
+	push dx
 	int 0x13
 	jc .bailout
 
@@ -95,7 +123,6 @@ main: ; entry point
 	mov si, booted
 	call println
 
-	mov dl, byte [bootdisk]
 	pop dx
 	pop si
 	jmp 0x0:0x7E00

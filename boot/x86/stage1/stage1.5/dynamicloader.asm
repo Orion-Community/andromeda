@@ -52,22 +52,49 @@ dynamicloader:
 
 ; .oldreset:
 ; 	xor ah, ah ; function 0 = reset
-; 	mov dl, [bootdisk]
+; 	mov dl, byte [bootdisk]
 ; 	int 0x13
 ; 	jc .oldreset
 ; 
-; .oldload:
-; 	mov  bx, 0x7E0 ; segment
-; 	mov es, bx
-; 	mov bx, 0x400  ; offset
+; .chs:
+; 	mov ax, 0x800
+; 	mov dl, byte [bootdisk]
+; 	xor di, di	; work around for some buggy bioses
+; 	mov es, di
+; 	int 0x13
+; 	jc .return
 ; 
+; 	and cl, 00111111b	; max sector number is 0x3f
+; 	inc dh		; make head 1-based
+; 	xor bx, bx
+; 	mov bl, dh	; store head
+; 
+; 	xor dx, dx	; clean modulo storage place
+; 	xor ch, ch	; get all the crap out of ch
+; 	mov ax, word [si+8]	; the pt
+; 	div cx		; ax = temp value 	dx = sector (0-based)
+; 	add dx, 5	; make sector 1-based and read second sector
+; 	push dx		; save the sector num for a while
+; 
+; 	xor dx, dx	; clean modulo
+; 	div bx		; ax = cylinder		dx = head
+; 
+; 	mov ch, al	; low bits of the cylinder
+; 	xor al, al
+; 	shr ax, 2	; shift the 2 high bits of the cylinder into al
+; 	pop bx		; get the sector
+; 	or al, bl	; store sector in al together with high cyl
+; 	mov cl, al
+; 
+; 	shl dx, 8	; move dh, dl
+; 	mov dl, byte [bootdisk]
+; 	
+; 	xor bx, bx	; segment 0
+; 	mov es, bx
+; 	mov bx, 0x7e00	; buffer
+; 	
 ; 	call .calcsectors
-; 	mov ah, 0x02 ; func 2
-; 	; mov al, sectorcount -> done by calcsectors
-; 	xor ch, ch ; track
-; 	mov cl, 0x4 ; sector to start
-; 	xor dh, dh ; head
-; 	mov dl, [bootdisk] ; drive
+; 	mov ah, 0x2
 ; 	int 0x13
 
 .return:
