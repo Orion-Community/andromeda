@@ -181,6 +181,10 @@ typedef struct
   Elf32_Sword	r_addend;
 } Elf32_Rela;
 
+#define ELF32_R_SYM (i) ((i)>>8)
+#define ELF32_R_TYPE(i) ((unsigned char)(i))
+#define ELF32_R_INFO(s,t) ((s)<<8+(unsigned char)(t))
+
 
 
 boolean checkHdr(Elf32_Ehdr* hdr);
