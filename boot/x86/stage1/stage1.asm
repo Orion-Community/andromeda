@@ -31,14 +31,40 @@ main: ; entry point
 	mov es, ax
 	mov ss, ax
 	mov sp, 0x7c00
+	mov bp, sp
 	sti
 
 	mov byte [bootdisk], dl
 	push si
+	push dx
 
 	test byte [si], 0x80
 	jz .bailout
+.chs:
+	mov ax, 0x800
+	pop dx
+	push dx
+	xor di, di
+	mov es, di
+	int 0x13
 
+	and cl, 00111111b
+	inc dh
+	xor bx, bx
+	mov bl, dh
+
+	mov 
+	xor dx, dx
+	xor ch, ch
+	mov ax, [si+8]
+	div cx		; ax = temp value 	dx = sector (0-based)
+	inc dx
+	push dx
+
+	xor dx, dx
+	div bx		; ax = cylinder		dx = head
+
+.lba:
 	mov cx, word [si+8]
 	inc cx
 	mov si, dap
@@ -70,6 +96,7 @@ main: ; entry point
 	call println
 
 	mov dl, byte [bootdisk]
+	pop dx
 	pop si
 	jmp 0x0:0x7E00
 	cli

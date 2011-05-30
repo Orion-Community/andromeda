@@ -72,6 +72,7 @@ main:
 	mov di, GEBL_BUFOFF
 	mov si, _start ; beginning of the source
 	push si
+	xor dh, dh
 	push dx ; drive number
 	mov cx, 512/2
 	; we will move 2 bytes (words) at ones
@@ -109,50 +110,50 @@ migrate:
 	mov es, bx
 	xor bx, bx
 %elifdef __HDD
-.chs:
-	mov ah, 0x8
-	pop dx
+	mov ax, 0x800	; get drive params
+	pop dx		; drive number
 	push dx
-	xor di, di
+	xor di, di	; workaround for buggy bioses..
 	mov es, di
 	int 0x13
-	jc .error	; now you're fucked..
-	
-	and cl, 00111111b ; bytes 0 - 5 of cl (cl = sectors (base 1)
- 	inc dh ; dh = heads (1 based)
-	mov al, cl
-	mul dh
-	mov bx, ax
-	
+	jc .error	; fail..
+
+	and cl, 00111111b
+	inc dh
+	xor ch, ch
+
+	xor bx, bx	; high word should be empty to
+	mov bl, dh	; save the head temporary
+
 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
-	push si
-	
 	mov ax, [si+8]
-	mov dx, [si+10]
 
-	div bx
-	xchg ax, dx
-	mov ch, dl
-	div cl
-	xor dl, dl
-	shr dx, 1
-	shr dx, 1		
-	or dl, ah
-	mov cl, dl
-	inc cl
-
-	pop si
-	pop dx
+	xor dx, dx	; modulo empty before div
+	div cx		; ax = temp value	dx = sectors
+	add dx, 1
 	push dx
-	push si
 
-	mov dh, al
-	
+	xor dx, dx
+	div bx	; ax = cylinder		dx = head
+	mov ch, al	; low 8 bits of cylinder
+	xor al, al
+
+	shr ax, 2	; shift 2 high bits of cylinder into al
+	pop bx	; get our sectors back
+	or al, bl
+	mov cl, al
+
+	shl dx, 8
+	pop bx
+	push bx
+	mov dl, bl
+
+	mov ax, 0x201
 	xor bx, bx
 	mov es, bx
-	mov bx, GEBL_LOADOFF
-	mov ax, 0x201
+	mov bx, 0x7c00
 
+	
 	jmp .rdeval
 
 ; 	mov ah, 0x41
@@ -223,7 +224,8 @@ migrate:
 	jmp $
 
 end:
-	pop si	; partition table back on its place
+	;pop si	; partition table back on its place
+	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	pop dx
 	ret
 	;jmp GEBL_LOADSEG:GEBL_LOADOFF
@@ -241,6 +243,9 @@ print:
 	ret
 
 %ifdef __HDD
+sectors dw 0
+maxHead dw 0
+
 dap:
 	db 0x10      	; register size
 	db 0      	; reserved, must be 0
@@ -250,17 +255,17 @@ dap:
 	dq 0x0		; starting sector (sector to read, s1 = 0)
 %endif
 
-; times 446 - ($-$$) db 0
-; 	db 0x80
-; 	db 0x0
-; 	dw 0x21
-; 	dw 0xbe83
-; 	dw 0x3f0b
-; 	db 0x0
-; 	db 0x08
-; 	dw 0x0
-; 	dw 0xb800
-; 	dw 0x3b
-; 
+times 446 - ($-$$) db 0
+	db 0x80
+	db 0x0
+	dw 0x21
+	dw 0xbe83
+	dw 0x3f0b
+	db 0x0
+	db 0x08
+	dw 0x0
+	dw 0xb800
+	dw 0x3b
+
 times 510 - ($-$$) db 0
 dw 0xaa55
