@@ -112,47 +112,45 @@ migrate:
 	xor bx, bx
 %elifdef __HDD
 .chs:
-	mov ax, 0x800	; get drive params
-	mov dx, [bp-4]
-	xor di, di	; workaround for buggy bioses..
+	mov ax, 0x800
+	mov dx, [bp-4]	; drive number
+	xor di, di	; work around for some buggy bioses
 	mov es, di
 	int 0x13
-	jc .error	; fail..
+	jc .error
 
-	and cl, 00111111b
-	inc dh
-	xor ch, ch
+	and cl, 00111111b	; max sector number is 0x3f
+	inc dh		; make head 1-based
+	xor bx, bx
+	mov bl, dh	; store head
 
-	xor bx, bx	; high word should be empty to
-	mov bl, dh	; save the head temporary
-
+	xor dx, dx	; clean modulo storage place
+	xor ch, ch	; get all the crap out of ch
 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
-	mov ax, [si+8]
+	mov ax, word [si+8]	; the pt
+	div cx		; ax = temp value 	dx = sector (0-based)
+	add dx, 1	; make sector 1-based
+	push dx		; save the sector num for a while
 
-	xor dx, dx	; modulo empty before div
-	div cx		; ax = temp value	dx = sectors
-	add dx, 1
-	push dx
+	xor dx, dx	; clean modulo
+	div bx		; ax = cylinder		dx = head
 
-	xor dx, dx
-	div bx	; ax = cylinder		dx = head
-
-	mov ch, al	; low 8 bits of cylinder
-	xor al, al	; prepare to shift high cylinder bits into al
-	shr ax, 2	; shift 2 high bits of cylinder into al
-	pop bx	; get our sectors back
-	or al, bl
+	mov ch, al	; low bits of the cylinder
+	xor al, al
+	shr ax, 2	; shift the 2 high bits of the cylinder into al
+	pop bx		; get the sector
+	or al, bl	; store sector in al together with high cyl
 	mov cl, al
 
-	shl dx, 8	; get dl (head into dh)
-	pop bx		; restore drive num
-	push bx
+	shl dx, 8	; move dh, dl
+	pop bx		; drive number
 	mov dl, bl
-
-	mov ax, 0x201
-	xor bx, bx
+	push bx		; store drive num again
+	
+	xor bx, bx	; segment 0
 	mov es, bx
-	mov bx, 0x7c00
+	mov bx, 0x7c00	; buffer
+	mov ax, 0x201
 	int 0x13
 	jnc .checkboot
 
@@ -226,7 +224,6 @@ migrate:
 	jmp $
 
 end:
-; 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	pop dx
 	ret
 	;jmp GEBL_LOADSEG:GEBL_LOADOFF
