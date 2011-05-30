@@ -185,6 +185,18 @@ typedef struct
 #define ELF32_R_TYPE(i) ((unsigned char)(i))
 #define ELF32_R_INFO(s,t) ((s)<<8+(unsigned char)(t))
 
+#define R_386_NONE	0x0
+#define R_386_32	0x1
+#define R_386_PC32	0x2
+#define R_386_GOT32	0x3
+#define R_386_PLT32	0x4
+#define R_386_COPY	0x5
+#define R_386_GLOB_DAT	0x6
+#define R_386_JMP_SLOT	0x7
+#define R_386_RELATIVE	0x8
+#define R_386_GOTOFF	0x9
+#define R_386_GOTPC	0xA
+
 
 
 boolean checkHdr(Elf32_Ehdr* hdr);
