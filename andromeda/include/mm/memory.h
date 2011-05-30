@@ -22,8 +22,9 @@
 #include <mm/heap.h>
 
 void paging();
-void memset(void*, int, int);
-void memcpy(void* destination, void* source, int num);
+void memset(void*, int, size_t);
+void memcpy(void*, void*, size_t);
+int memcmp(void*, void*, size_t);
 int initHeap(long);
 
 size_t strlen(char* string);

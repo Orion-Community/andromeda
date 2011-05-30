@@ -45,7 +45,7 @@ int initHeap(long size)
   return 0;
 }
 
-void memset(void* location, int value, int size)
+void memset(void* location, int value, size_t size)
 {
   int i = 0;
   unsigned char* offset = (unsigned char*)location;
@@ -55,7 +55,7 @@ void memset(void* location, int value, int size)
   }
 }
 
-void memcpy(void *destination, void* source, int num)
+void memcpy(void *destination, void* source, size_t num)
 {
   int i = 0;
   unsigned char* src = source;
@@ -64,6 +64,17 @@ void memcpy(void *destination, void* source, int num)
   {
     *(dst+i) = *(src+i);
   }
+}
+
+int memcmp(void *ptr1, void* ptr2, size_t num)
+{
+  int ret = 0;
+  int i = 0;
+  for (; i < num && ret == 0; i++)
+  {
+    ret = *((unsigned char*)ptr1+i) - *((unsigned char*)ptr2+i);
+  }
+  return ret;
 }
 
 size_t strlen(char* string)
