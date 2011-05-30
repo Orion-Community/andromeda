@@ -121,19 +121,67 @@ typedef struct
 #define SHT_LOUSER	0x80000000
 #define SHT_HIUSER	0x8fffffff
 
+#define SHF_WRITE	0x1
+#define SHF_ALLOC	0x2
+#define SHF_EXECINSTR	0x4
+#define SHF_MASKPROC	0xf0000000
+
 typedef struct
 {
-  Elf32_Word sh_name;
-  Elf32_Word sh_type;
-  Elf32_Word sh_flags;
-  Elf32_Addr sh_addr;
-  Elf32_Off  sh_offset;
-  Elf32_Word sh_size;
-  Elf32_Word sh_link;
-  Elf32_Word sh_info;
-  Elf32_Word sh_addralign;
-  Elf32_Word sh_entsize;
+  Elf32_Word 	sh_name;
+  Elf32_Word 	sh_type;
+  Elf32_Word 	sh_flags;
+  Elf32_Addr 	sh_addr;
+  Elf32_Off  	sh_offset;
+  Elf32_Word 	sh_size;
+  Elf32_Word 	sh_link;
+  Elf32_Word 	sh_info;
+  Elf32_Word 	sh_addralign;
+  Elf32_Word	sh_entsize;
 } Elf32_Shdr;
+
+typedef struct
+{
+  Elf32_Word	st_name;
+  Elf32_Addr	st_value;
+  Elf32_Word	st_size;
+  unsigned char st_info;
+  unsigned char st_other;
+  Elf32_Half	st_shndx;
+} Elf32_Sym;
+
+#define ELF32_ST_BIND(i) ((i)>>4)
+#define ELF32_ST_TYPE(i) ((i)&0xf)
+#define ELF32_ST_INFO(b,t) (((b)<<4+(t)&0xf))
+
+#define STB_LOCAL	0x0
+#define STB_GLOBAL	0x1
+#define STB_WEAK	0x2
+#define STB_LOPROC	0xD
+#define STB_HIPROC	0xF
+
+#define STT_NOTYPE	0x0
+#define STT_OBJECT	0x1
+#define STT_FUNC	0x2
+#define STT_SECTION	0x3
+#define STT_FILE	0x4
+#define STT_LOPROC	0xD
+#define STT_HIPROC	0xF
+
+typedef struct
+{
+  Elf32_Addr	r_offset;
+  Elf32_Word	r_info;
+} Elf32_Rel;
+
+typedef struct
+{
+  Elf32_Addr	r_offset;
+  Elf32_Word	r_info;
+  Elf32_Sword	r_addend;
+} Elf32_Rela;
+
+
 
 boolean checkHdr(Elf32_Ehdr* hdr);
 int elfExec(void* image);
