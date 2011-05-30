@@ -197,6 +197,63 @@ typedef struct
 #define R_386_GOTOFF	0x9
 #define R_386_GOTPC	0xA
 
+typedef struct
+{
+  Elf32_Word	p_type;
+  Elf32_Off	p_offset;
+  Elf32_Addr	p_vaddr;
+  Elf32_Addr	p_paddr;
+  Elf32_Word	p_filesz;
+  Elf32_Word	p_memsz;
+  Elf32_Word	p_flags;
+  elf32_Word	p_align;
+} Elf32_Phdr;
+
+#define PT_NULL		0x0
+#define PT_LOAD		0x1
+#define PT_DYNAMIC	0x2
+#define PT_INTERP	0x3
+#define PT_NOTE		0x4
+#define PT_SHLIB	0x5
+#define PT_PHDR		0x6
+#define PT_LOPROC	0x70000000
+#define PT_HIPROC	0x7fffffff
+
+#define DT_NULL		0x0
+#define DT_NEEDED	0x1
+#define DT_PLTRELSZ	0x2
+#define DT_PLTGOT	0x3
+#define DT_HASH		0x4
+#define DT_STRTAB	0x5
+#define DT_SYMTAB	0x6
+#define DT_RELA		0x7
+#define DT_RELASZ	0x8
+#define DT_RELAENT	0x9
+#define DT_STRSZ	0xA
+#define DT_SYMENT	0xB
+#define DT_INIT		0xC
+#define DT_FINI		0xD
+#define DT_SONAME	0xE
+#define DT_RPATH	0xF
+#define DT_SYMBOLIC	0x10
+#define DT_REL		0x11
+#define DT_RELSZ	0x12
+#define DT_RELENT	0x13
+#define DT_PLTREL	0x14
+#define DT_DEBUG	0x15
+#define DT_TEXTREL	0x16
+#define DT_JMPREL	0x17
+#define DT_LOPROC	0x70000000
+#define DT_HIPROC	0x7fffffff
+
+typedef struct {
+  Elf32_Sword
+  d_tag;
+  union {
+    Elf32_Word
+    Elf32_Addr
+  } d_un;
+} Elf32_Dyn;
 
 
 boolean checkHdr(Elf32_Ehdr* hdr);
