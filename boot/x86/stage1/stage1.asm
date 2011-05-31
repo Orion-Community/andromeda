@@ -70,9 +70,9 @@ main: ; entry point
 
 	mov ch, al	; low bits of the cylinder
 	xor al, al
-	shr ax, 2	; shift the 2 high bits of the cylinder into al
+	shr ax, 2	; [6 ... 7] high bits of the cylinder
 	pop bx		; get the sector
-	or al, bl	; store sector in al together with high cyl
+	or al, bl	; [0 ... 5] bits of the sector number
 	mov cl, al
 
 	shl dx, 8	; move dh, dl

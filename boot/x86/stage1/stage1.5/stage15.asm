@@ -20,38 +20,30 @@
 [SECTION .stage1]
 
 main:	
-	mov byte [bootdisk], dl
 	mov di, 0x7c00
 	push di
 	mov cx, 0x8
 	cld
 	rep movsw
+	push dx
 
-	call enable_A20
-	jnc .loadstage2
-	mov si, a20fail
+	jmp .loadstage2
 
 .bailout:
+	mov si, stage15error
 	call println
 	cli
 	jmp $
 
 .loadstage2:
-	mov si, a20ok
-	call println
-	
-	call getmemorymap
-	mov si, a20fail
+	call enable_A20
 	jc .bailout
 
-	mov ax, word [mmr+4]
-	or ax, ax
-	jz .bailout		; we are not here to bully our user with al zero-length memory map.
+	call getmemorymap
+	jc .bailout
 
 	call dynamicloader
-	test ah, ah
-	mov si, nostage2
-	jnz .bailout
+	jc .bailout
 
 	pop dx
 	pop si
@@ -83,9 +75,6 @@ main:
 
 %include 'boot/x86/println.asm'
 	
-	bootdisk db 0
-	a20ok db 'The A20 line has been enabled.', 0x0
-	a20fail db '(0x1) The A20 gate couldn`t be opened. Press a key to reboot.', 0x0
-	nostage2 db '(0x2) Failed to load the second stage.. Press a key to reboot.', 0x0
+	stage15error db '0x2', 0x0
 
 times 1024 - ($ - $$) db 0

@@ -18,12 +18,13 @@
 
 [GLOBAL mmr]
 getmemorymap:
+	push bp
 	push word 0x50
 	pop es
 	xor di, di	; destination pointer
 
-	mov [mmr], es
-	mov [mmr+2], di
+	mov [mmr], es		; store the segment
+	mov [mmr+2], di		; store the offset
 
 	xor bp, bp ; entry counter
 	mov eax, 0xE820
@@ -38,8 +39,8 @@ getmemorymap:
 	jc .failed
 	cmp eax, edx ; magic word should also be in eax after interrupt
 	jne .failed
-	cmp ebx, 0 ; ebx = 0 means the list is only 1 entry long = worthless
-	je .failed
+	test ebx, ebx ; ebx = 0 means the list is only 1 entry long = worthless
+	jz .failed
 	jmp .addentry
 
 .getentry:
@@ -66,12 +67,13 @@ getmemorymap:
 
 .done:
 	mov [mmr+4], word bp
+	pop bp
 	clc	; clear carry flag
 	ret
 .failed:
+	pop bp
 	stc 	; set the carry flag
 	ret
-
 
 mmr:
 	dd 0 		; dw 0 -> segment

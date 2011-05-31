@@ -21,83 +21,105 @@
 [GLOBAL sectorcount]
 [EXTERN endptr] ; pointer to the end of stage 2
 dynamicloader:
-
-.checkextensions:
-	mov ah, 0x41	; check ext
-	mov dl, [bootdisk]	; HDD0
-	mov bx, 0x55AA
-	int 0x13
-	jc .checkextensions
-
-.extread:
- 	call .calcsectors
- 	mov [lbar+2], ax
-	mov ah,0x42
-
-	pop bx	; address pushed on the stack by 'call mem16'
-	pop si	; address to the partition table
-
-	mov cx, word [si+8]
-	add cx, 0x3
+	pop word [returnaddr]
+	pop dx
+	pop si
 	push si
-	push bx
+	push dx
 
-	mov [lbar+8],cx
-	lea si, [lbar]
+; .checkextensions:
+; 	mov ah, 0x41	; check ext
+; 	mov dl, [bootdisk]	; HDD0
+; 	mov bx, 0x55AA
+; 	int 0x13
+; 	jc .checkextensions
+; 
+; .extread:
+;  	call .calcsectors
+;  	mov [lbar+2], ax
+; 	mov ah,0x42
+; 
+; 	pop bx	; address pushed on the stack by 'call mem16'
+; 	pop si	; address to the partition table
+; 
+; 	mov cx, word [si+8]
+; 	add cx, 0x3
+; 	push si
+; 	push bx
+; 
+; 	mov [lbar+8],cx
+; 	lea si, [lbar]
+; 
+; 	mov dl,[bootdisk]
+; 	lea si,[lbar]        
+; 	int 0x13
+; 	jnc .return
 
-	mov dl,[bootdisk]
-	lea si,[lbar]        
+.reset:
+	mov cx, 3
+	xor ah, ah ; function 0 = reset
+	pop dx
+	push dx
 	int 0x13
-	jnc .return
+	jnc .chs
+	loop .reset
+	
+	stc		; trying for 3 times didn't help
+	jmp .return
 
-; .oldreset:
-; 	xor ah, ah ; function 0 = reset
-; 	mov dl, byte [bootdisk]
-; 	int 0x13
-; 	jc .oldreset
-; 
-; .chs:
-; 	mov ax, 0x800
-; 	mov dl, byte [bootdisk]
-; 	xor di, di	; work around for some buggy bioses
-; 	mov es, di
-; 	int 0x13
-; 	jc .return
-; 
-; 	and cl, 00111111b	; max sector number is 0x3f
-; 	inc dh		; make head 1-based
-; 	xor bx, bx
-; 	mov bl, dh	; store head
-; 
-; 	xor dx, dx	; clean modulo storage place
-; 	xor ch, ch	; get all the crap out of ch
-; 	mov ax, word [si+8]	; the pt
-; 	div cx		; ax = temp value 	dx = sector (0-based)
-; 	add dx, 5	; make sector 1-based and read second sector
-; 	push dx		; save the sector num for a while
-; 
-; 	xor dx, dx	; clean modulo
-; 	div bx		; ax = cylinder		dx = head
-; 
-; 	mov ch, al	; low bits of the cylinder
-; 	xor al, al
-; 	shr ax, 2	; shift the 2 high bits of the cylinder into al
-; 	pop bx		; get the sector
-; 	or al, bl	; store sector in al together with high cyl
-; 	mov cl, al
-; 
-; 	shl dx, 8	; move dh, dl
-; 	mov dl, byte [bootdisk]
-; 	
-; 	xor bx, bx	; segment 0
-; 	mov es, bx
-; 	mov bx, 0x7e00	; buffer
-; 	
-; 	call .calcsectors
-; 	mov ah, 0x2
-; 	int 0x13
+.chs:
+	mov ax, 0x800
+	pop dx
+	push dx
+	xor di, di	; work around for some buggy bioses
+	mov es, di
+	int 0x13
+	jc .error
+
+	and cl, 00111111b	; max sector number is 0x3f
+	inc dh		; make head 1-based
+	xor bx, bx
+	mov bl, dh	; store head
+
+	xor dx, dx	; clean modulo storage place
+	xor ch, ch	; get all the crap out of ch
+	mov ax, word [si+8]	; the pt
+	div cx		; ax = temp value 	dx = sector (0-based)
+	add dx, 4	; make sector 1-based and read second sector
+	push dx		; save the sector num for a while
+
+	xor dx, dx	; clean modulo
+	div bx		; ax = cylinder		dx = head
+
+	mov ch, al	; low bits of the cylinder
+	xor al, al
+	shr ax, 2	; [6 ... 7] high bits of the cylinder
+	pop bx		; get the sector
+	or al, bl	; [0 ... 5] bits of the sector number
+	mov cl, al
+
+	shl dx, 8	; move dh, dl
+	pop dx
+	push dx
+	
+	mov bx, 0x7e0	; segment 0
+	mov es, bx
+	mov bx, 0x400	; buffer
+	
+	call .calcsectors
+	mov ah, 0x2
+	int 0x13
+	jc .error
+	test ah, ah
+	jnz .error
 
 .return:
+	push word [returnaddr]
+	ret
+
+.error:
+	stc
+	push word [returnaddr]
 	ret
 
 .calcsectors:
@@ -123,4 +145,5 @@ lbar:
 	dw 0x7E0	; segment
 	dq 0x0		; start to read at sector 4
 
-sectorcount dw 1
+returnaddr dw 0
+sectorcount dw 0
