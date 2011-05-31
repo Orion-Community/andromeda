@@ -59,7 +59,27 @@ boolean checkHdr(Elf32_Ehdr* hdr)
   return TRUE;
 }
 
+Elf32_Phdr* getPhdr(Elf32_Ehdr *elfHeader)
+{
+  Elf32_Off address = elfHeader->e_phoff;
+  if (address == 0)
+  {
+    return NULL;
+  }
+  Elf32_Phdr *programHeader = (Elf32_Phdr*)(((int)elfHeader) + ((int)address));
+  return programHeader;
+}
+
 int elfExec(void* image)
 {
-  return (checkHdr(image)) ? 0: -1;
+  if (checkHdr(image))
+  {
+    Elf32_Phdr *header = getPhdr(image);
+    if (header == NULL)
+    {
+      return 1;
+    }
+    return 0;
+  }
+  return 1;
 }

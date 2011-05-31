@@ -206,7 +206,7 @@ typedef struct
   Elf32_Word	p_filesz;
   Elf32_Word	p_memsz;
   Elf32_Word	p_flags;
-  elf32_Word	p_align;
+  Elf32_Word	p_align;
 } Elf32_Phdr;
 
 #define PT_NULL		0x0
