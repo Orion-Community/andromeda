@@ -27,54 +27,52 @@ dynamicloader:
 	push si
 	push dx
 
-; .checkextensions:
-; 	mov ah, 0x41	; check ext
-; 	mov dl, [bootdisk]	; HDD0
-; 	mov bx, 0x55AA
-; 	int 0x13
-; 	jc .checkextensions
-; 
-; .extread:
-;  	call .calcsectors
-;  	mov [lbar+2], ax
-; 	mov ah,0x42
-; 
-; 	pop bx	; address pushed on the stack by 'call mem16'
-; 	pop si	; address to the partition table
-; 
-; 	mov cx, word [si+8]
-; 	add cx, 0x3
-; 	push si
-; 	push bx
-; 
-; 	mov [lbar+8],cx
-; 	lea si, [lbar]
-; 
-; 	mov dl,[bootdisk]
-; 	lea si,[lbar]        
-; 	int 0x13
-; 	jnc .return
-
 .reset:
-	mov cx, 3
 	xor ah, ah ; function 0 = reset
 	pop dx
 	push dx
 	int 0x13
-	jnc .chs
-	loop .reset
-	
-	stc		; trying for 3 times didn't help
-	jmp .return
+	jc .return
+
+.checkextensions:
+	mov ah, 0x41	; check ext
+	pop dx
+	push dx
+	mov bx, 0x55AA
+	int 0x13
+	stc
+	jc .chs
+
+; .extread:
+; 	call .calcsectors
+; 	mov [dap+2], ax
+; 
+; 	mov cx, word [si+8]
+; 	mov dx, word [si+10]
+; 	add cx, 0x3
+; 
+; 	mov [dap+8],cx
+; 	mov [dap+10], dx
+; 	lea si, [dap]
+; 
+; 	pop dx
+; 	push dx 
+; 	mov ax, 0x4200
+; 	int 0x13
+; 	jnc .return
+
+; If int 0x13 extensions are not supported, use CHS to read the sectors..
 
 .chs:
 	mov ax, 0x800
 	pop dx
+	pop si		; restore si to the ptable for later..
+	push si
 	push dx
 	xor di, di	; work around for some buggy bioses
 	mov es, di
 	int 0x13
-	jc .error
+	jc .return
 
 	and cl, 00111111b	; max sector number is 0x3f
 	inc dh		; make head 1-based
@@ -109,16 +107,9 @@ dynamicloader:
 	call .calcsectors
 	mov ah, 0x2
 	int 0x13
-	jc .error
-	test ah, ah
-	jnz .error
+	jc .return
 
 .return:
-	push word [returnaddr]
-	ret
-
-.error:
-	stc
 	push word [returnaddr]
 	ret
 
@@ -137,13 +128,13 @@ dynamicloader:
 	mov [sectorcount], ax
 	ret
 
-lbar:
+dap:
 	db 0x10
 	db 0x0
 	dw 0x0		; amount of sectors to read
 	dw 0x400	; offset
 	dw 0x7E0	; segment
-	dq 0x0		; start to read at sector 4
+	dq 0x0		; sector to start at
 
 returnaddr dw 0
 sectorcount dw 0

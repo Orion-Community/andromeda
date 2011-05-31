@@ -154,29 +154,29 @@ migrate:
 	int 0x13
 	jnc .checkboot
 
-.lba:
-	mov ah, 0x41
-	mov bx, 0x55aa
-
-	pop si		; ptable off first
-	pop dx		; then the drive number
-	push dx		; push everyting back up again
-	push si
-
-	int 0x13
-	jc .chs
-
-	mov ah, 0x42
-	pop dx
-	push dx
-
-	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
-	push si
-	mov cx, word [si+8]
-	mov bx, word [si+10]
-	mov si, dap
- 	mov [si+8], cx
-	mov [si+10], bx
+; .lba:
+; 	mov ah, 0x41
+; 	mov bx, 0x55aa
+; 
+; 	pop si		; ptable off first
+; 	pop dx		; then the drive number
+; 	push dx		; push everyting back up again
+; 	push si
+; 
+; 	int 0x13
+; 	jc .chs
+; 
+; 	mov ah, 0x42
+; 	pop dx
+; 	push dx
+; 
+; 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+; 	push si
+; 	mov cx, word [si+8]
+; 	mov bx, word [si+10]
+; 	mov si, dap
+;  	mov [si+8], cx
+; 	mov [si+10], bx
 
 
 %else

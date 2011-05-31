@@ -34,7 +34,6 @@ main: ; entry point
 	mov bp, sp
 	sti
 
-	mov [bootdisk], dl
 	push si
 	push dx
 
@@ -153,7 +152,6 @@ dap:
 	dw 0x0   	; memory segment
 	dq 0x0		; starting sector (sector to read, s1 = 0)
 
-	bootdisk db 0x0
 	booted db 'EBL has been loaded by the bios! Executing...', 0x0
 	failed db '(0x0) Failed to load the next stage.. ready to reboot. Press any key.', 0x0
 
