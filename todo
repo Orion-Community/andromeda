@@ -10,16 +10,20 @@ What is done:
 	* Rewrite of the image loaders
 	* GDT and pm implemented
 	* Makefile(s) --> Thank you Bart v. Kuivenhoven for first version.
+	* implemented chs + partition table
+
 What should be improved:
 
 Next item:
 	* Multiboot compatibility
-	* implement CHS with the partition table
+	* test the memory map pointer in c
+	* update the floppy drive support
 What has to be done:
 
 	* Make the bootloader multiboot compatible
 	* Get the kernel working.
-	* memory map pointer in C
+	* add support for more than one partition
+	* update the floppy drive support
 
 Notes:
 ­eerst image loading met interrupts, dan far jump, ­dan GDT
