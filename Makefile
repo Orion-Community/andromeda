@@ -6,7 +6,7 @@ LD=ld
 CC=gcc
 
 # Flags
-ASFLAGS=-f elf32
+ASFLAGS=-f elf32 -D__HDD
 BINARYASFLAGS=-f bin
 CCFLAGS=-c -m32 -nostdlib -e kmain -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc -Iinclude
 LDFLAGS=-Tlink.ld --oformat binary -melf_i386

@@ -39,10 +39,33 @@ main: ; entry point
 
 	test byte [si], 0x80
 	jz .bailout
+
 .reset:
 	xor ax, ax
 	int 0x13
 	jc .reset
+
+.lba:
+	mov ax, 0x4100
+	mov bx, 0x55aa
+	pop dx
+	push dx
+	int 0x13
+	jc .chs
+
+	pop dx
+	push dx
+	mov ax, word [si+8]	; low word of the lba
+	mov cx, word [si+10]	; high word of the lba
+	push si
+	inc ax
+	mov si, dap
+	mov word [si+8], ax	; store lba
+	mov word [si+10], cx	
+	mov ax, 0x4200
+	int 0x13
+	pop si
+	jnc .loaded
 
 .chs:
 	mov ax, 0x800
@@ -70,7 +93,7 @@ main: ; entry point
 
 	mov ch, al	; low bits of the cylinder
 	xor al, al
-	shr ax, 2	; [6 ... 7] high bits of the cylinder
+	shr ax, 2	; [6 ... 7] high bits of the cylinder - shift them in al
 	pop bx		; get the sector
 	or al, bl	; [0 ... 5] bits of the sector number
 	mov cl, al
@@ -88,28 +111,6 @@ main: ; entry point
 	jc .bailout
 	jmp .loaded
 
-; .lba:
-; 	mov cx, word [si+8]
-; 	mov dx, word [si+10]
-; 	inc cx
-; 	mov si, dap
-; 	mov [si+8], cx
-; 	mov [si+10], dx
-; 
-; 	mov ah, 0x41
-; 	mov bx, 0x55aa
-; 	pop dx
-; 	push dx
-; 	int 0x13
-; 	jc .bailout
-; 
-; 	mov ah, 0x42
-; 	pop dx
-; 	push dx
-; 	int 0x13
-; 	jc .bailout
-
-	jmp .loaded
 .bailout:
 	mov si, failed
 	call println
@@ -120,9 +121,6 @@ main: ; entry point
 	jmp $
 
 .loaded:
-	mov si, booted
-	call println
-
 	pop dx
 	pop si
 	jmp 0x0:0x7E00
@@ -153,8 +151,7 @@ dap:
 	dw 0x0   	; memory segment
 	dq 0x0		; starting sector (sector to read, s1 = 0)
 
-	booted db 'EBL has been loaded by the bios! Executing...', 0x0
-	failed db '(0x0) Failed to load the next stage.. ready to reboot. Press any key.', 0x0
+	failed db '0x1', 0x0
 
 times 510 - ($ - $$) db 0
 dw 0xAA55

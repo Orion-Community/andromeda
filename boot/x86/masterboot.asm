@@ -94,23 +94,34 @@ migrate:
 	pop dx
 	push dx
 	int 0x13
-%ifdef __FLOPPY
-	; read 1 sector
-	; int 13h function 0x2
-	mov ax, 0x201
-	
-	; track 0 and read at sector 2
-	xor ch, ch
-	mov cl, 0x2
+%ifdef __HDD
+.lba:
+	mov ah, 0x41
+	mov bx, 0x55aa
 
-	; head 0 and the drive number
-	xor dh, dh
+	pop dx		; then the drive number
+	push dx		; push everyting back up again
+
+	int 0x13
+	jc .chs
+
 	pop dx
 	push dx
-	mov bx, 0x7c0
-	mov es, bx
-	xor bx, bx
-%elifdef __HDD
+
+	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+	push si
+	mov ax, word [si+8]
+	mov cx, word [si+10]
+
+	mov si, dap
+ 	mov word [si+8], ax
+	mov word [si+10], cx
+
+	mov ax, 0x4200
+	int 0x13
+	pop si	; restore the partition table
+	jnc .checkboot
+
 .chs:
 	mov ax, 0x800
 	pop dx
@@ -127,7 +138,6 @@ migrate:
 
 	xor dx, dx	; clean modulo storage place
 	xor ch, ch	; get all the crap out of ch
-	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	mov ax, word [si+8]	; the pt
 	div cx		; ax = temp value 	dx = sector (0-based)
 	add dx, 1	; make sector 1-based
@@ -153,84 +163,48 @@ migrate:
 	mov bx, 0x7c00	; buffer
 	mov ax, 0x201
 	int 0x13
-	jnc .checkboot
 
-; .lba:
-; 	mov ah, 0x41
-; 	mov bx, 0x55aa
-; 
-; 	pop si		; ptable off first
-; 	pop dx		; then the drive number
-; 	push dx		; push everyting back up again
-; 	push si
-; 
-; 	int 0x13
-; 	jc .chs
-; 
-; 	mov ah, 0x42
-; 	pop dx
-; 	push dx
-; 
-; 	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
-; 	push si
-; 	mov cx, word [si+8]
-; 	mov bx, word [si+10]
-; 	mov si, dap
-;  	mov [si+8], cx
-; 	mov [si+10], bx
+%elifdef __FLOPPY
+	; read 1 sector
+	; int 13h function 0x2
+	mov ax, 0x201
+	
+	; track 0 and read at sector 2
+	xor ch, ch
+	mov cl, 0x2
 
+	; head 0 and the drive number
+	xor dh, dh
+	pop dx
+	push dx
+	xor bx, bx
+	mov es, bx
+	mov bx, 0x7c00
+	int 0x13
+	jc .error
 
-%else
-; nothing is defined about FDD's and HDD's, could be usb. Use CHS to be sure.
 %endif
 ; 	issue an bios interrupt to read the sectors from the disk as defined above depending 
 ; 	on how it is compiled
-.rdeval:
-	int 0x13
-	jc .error2
-
 %ifdef __HDD
 .checkboot:
 	test byte [si], 0x80
-	jz .error3
+	jz .error
 %endif
-
-	mov al, 0x47
-	call print
-	jmp end
+	jmp .end
 
 .error:
-	mov al, 0x42
+	mov al, 0x30
 	call print
 	jmp $
 
-.error2:
-	mov al, 0x43
-	call print
-	jmp $
-
-.error3:
-	mov al, 0x44
-	call print
-	jmp $
-
-.error4:
-	mov al, 0x45
-	call print
-	jmp $
-
-.error5:
-	mov al, 0x46
-	call print
-	jmp $
-
-end:
+.end:
 	pop dx
 	ret
 	;jmp GEBL_LOADSEG:GEBL_LOADOFF
 	cli
 	hlt
-	jmp end
+	jmp .end
 
 ; -- print routine
 ;   character is expected in al
@@ -254,17 +228,17 @@ dap:
 	dq 0x0		; starting sector (sector to read, s1 = 0)
 %endif
 
-times 446 - ($-$$) db 0
-	db 0x80
-	db 0x0
-	dw 0x21
-	dw 0xbe83
-	dw 0x3f0b
-	db 0x0
-	db 0x08
-	dw 0x0
-	dw 0xb800
-	dw 0x3b
+; times 446 - ($-$$) db 0
+; 	db 0x80
+; 	db 0x0
+; 	dw 0x21
+; 	dw 0xbe83
+; 	dw 0x3f0b
+; 	db 0x0
+; 	db 0x08
+; 	dw 0x0
+; 	dw 0xb800
+; 	dw 0x3b
 
 times 510 - ($-$$) db 0
 dw 0xaa55

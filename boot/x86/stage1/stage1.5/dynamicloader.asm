@@ -20,7 +20,9 @@
 
 [GLOBAL sectorcount]
 [EXTERN endptr] ; pointer to the end of stage 2
+
 dynamicloader:
+%ifdef __HDD
 	pop word [returnaddr]
 	pop dx
 	pop si
@@ -34,31 +36,31 @@ dynamicloader:
 	int 0x13
 	jc .return
 
-; .checkextensions:
-; 	mov ah, 0x41	; check ext
-; 	pop dx
-; 	push dx
-; 	mov bx, 0x55AA
-; 	int 0x13
-; 	jc .return
-; 
-; .extread:
-; 	call .calcsectors
-; 	mov [dap+2], ax
-; 
-; 	mov cx, word [si+8]
-; 	mov dx, word [si+10]
-; 	add cx, 0x3
-; 
-; 	mov [dap+8],cx
-; 	mov [dap+10], dx
-; 	lea si, [dap]
-; 
-; 	pop dx
-; 	push dx 
-; 	mov ax, 0x4200
-; 	int 0x13
-; 	jnc .return
+.checkextensions:
+	mov ax, 0x4100	; check ext
+	pop dx
+	push dx
+	mov bx, 0x55AA
+	int 0x13
+	jc .chs
+
+.extread:
+	call .calcsectors
+	mov [dap+2], ax
+
+	pop dx
+	push dx			; restore drive num
+	mov ax, word [si+8]	; low word of lba
+	mov cx, word [si+10]	; high word of lba
+	add ax, 3
+	push si			; temp save pt
+	mov si, dap
+	mov [si+8], ax
+	mov [si+10], cx
+	mov ax, 0x4200
+	int 0x13
+	pop si
+	jnc .return
 
 ; If int 0x13 extensions are not supported, use CHS to read the sectors..
 
@@ -73,15 +75,14 @@ dynamicloader:
 
 	and cl, 00111111b	; max sector number is 0x3f
 	inc dh		; make head 1-based
-	xor bx, bx
+	xor bx, bx	
 	mov bl, dh	; store head
 
 	xor dx, dx	; clean modulo storage place
 	xor ch, ch	; get all the crap out of ch
-
 	mov ax, word [si+8]	; the pt
 	div cx		; ax = temp value 	dx = sector (0-based)
-	add dx, 4	; make sector 1-based
+	add dx, 4	; make sector 1-based and read second sector
 	push dx		; save the sector num for a while
 
 	xor dx, dx	; clean modulo
@@ -95,13 +96,14 @@ dynamicloader:
 	mov cl, al
 
 	shl dx, 8	; move dh, dl
-	pop bx		; drive number
-	mov dl, bl
-	push bx		; store drive num again
+	pop bx		; pop bios drive num off
+	mov dl, bl	; push bios drive num
+	push bx
 	
-	mov ax, 0x7e0
-	mov es, ax
+	mov bx, 0x7e0	; segment 0
+	mov es, bx
 	mov bx, 0x400	; buffer
+	
 	call .calcsectors
 	mov ah, 0x2
 	int 0x13
@@ -135,3 +137,4 @@ dap:
 
 returnaddr dw 0
 sectorcount dw 0
+%endif
