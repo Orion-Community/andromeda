@@ -6,8 +6,8 @@ LD=ld
 CC=gcc
 
 # Flags
-ASFLAGS=-f elf32 -D__HDD
-BINARYASFLAGS=-f bin
+ASFLAGS=-f elf32 -D __$(BUILD_TARGET)
+BINARYASFLAGS=-f bin -D __$(BUILD_TARGET)
 CCFLAGS=-c -m32 -nostdlib -e kmain -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc -Iinclude
 LDFLAGS=-Tlink.ld --oformat binary -melf_i386
 BUILD_TARGET=HDD
@@ -45,7 +45,7 @@ clean:
 	rm build/*.bin
 
 $(MBR_IMG): $(MBR)
-	$(AS) $(BINARYASFLAGS) -D __$(BUILD_TARGET) -o $(MBR_IMG) $(MBR)
+	$(AS) $(BINARYASFLAGS) -o $(MBR_IMG) $(MBR)
 
 $(BIN1): $(STAGE1_DEPS)
 	$(AS) $(BINARYASFLAGS) -o $(BIN1) $(STAGE1_DEPS)

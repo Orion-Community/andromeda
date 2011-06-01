@@ -22,6 +22,16 @@
 jmp short main
 nop
 
+booted db 'GEBL is booted. (C) Michel Megens, 2011', 0x0
+failed db '0x1', 0x0
+dap:
+	db 0x10      	; register size
+	db 0      	; reserved, must be 0
+	dw 0x2      	; sectors to read
+	dw 0x7e00   	; memory offset
+	dw 0x0   	; memory segment
+	dq 0x0		; starting sector (sector to read, s1 = 0)
+
 main: ; entry point
 	jmp 0x0:.flush
 .flush:
@@ -45,6 +55,7 @@ main: ; entry point
 	int 0x13
 	jc .reset
 
+%ifdef __HDD
 .lba:
 	mov ax, 0x4100
 	mov bx, 0x55aa
@@ -66,6 +77,7 @@ main: ; entry point
 	int 0x13
 	pop si
 	jnc .loaded
+	jmp .bailout
 
 .chs:
 	mov ax, 0x800
@@ -110,6 +122,7 @@ main: ; entry point
 	int 0x13
 	jc .bailout
 	jmp .loaded
+%endif
 
 .bailout:
 	mov si, failed
@@ -118,6 +131,8 @@ main: ; entry point
 	jmp $
 
 .loaded:
+	mov si, booted
+	call println
 	pop dx
 	pop si
 	jmp 0x0:0x7E00
@@ -135,20 +150,6 @@ main: ; entry point
 ;
 
 %include 'boot/x86/println.asm'
-
-;
-; Since flat binary is one big heap of code without sections, is the code below some sort of data section.
-;
-
-dap:
-	db 0x10      	; register size
-	db 0      	; reserved, must be 0
-	dw 0x2      	; sectors to read
-	dw 0x7e00   	; memory offset
-	dw 0x0   	; memory segment
-	dq 0x0		; starting sector (sector to read, s1 = 0)
-
-	failed db '0x1', 0x0
 
 times 510 - ($ - $$) db 0
 dw 0xAA55
