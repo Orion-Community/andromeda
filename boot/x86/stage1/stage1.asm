@@ -33,7 +33,7 @@ main: ; entry point
 	mov sp, 0x7c00
 	mov bp, sp
 	sti
-
+	
 	push si
 	push dx
 
@@ -46,7 +46,8 @@ main: ; entry point
 
 .chs:
 	mov ax, 0x800
-	mov dx, [bp-4]	; drive number
+	pop dx
+	push dx
 	xor di, di	; work around for some buggy bioses
 	mov es, di
 	int 0x13
@@ -84,29 +85,29 @@ main: ; entry point
 	mov bx, 0x7e00	; buffer
 	mov ax, 0x201
 	int 0x13
-	jc .lba
+	jc .bailout
 	jmp .loaded
 
-.lba:
-	mov cx, word [si+8]
-	mov dx, word [si+10]
-	inc cx
-	mov si, dap
-	mov [si+8], cx
-	mov [si+10], dx
-
-	mov ah, 0x41
-	mov bx, 0x55aa
-	pop dx
-	push dx
-	int 0x13
-	jc .bailout
-
-	mov ah, 0x42
-	pop dx
-	push dx
-	int 0x13
-	jc .bailout
+; .lba:
+; 	mov cx, word [si+8]
+; 	mov dx, word [si+10]
+; 	inc cx
+; 	mov si, dap
+; 	mov [si+8], cx
+; 	mov [si+10], dx
+; 
+; 	mov ah, 0x41
+; 	mov bx, 0x55aa
+; 	pop dx
+; 	push dx
+; 	int 0x13
+; 	jc .bailout
+; 
+; 	mov ah, 0x42
+; 	pop dx
+; 	push dx
+; 	int 0x13
+; 	jc .bailout
 
 	jmp .loaded
 .bailout:

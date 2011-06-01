@@ -78,7 +78,6 @@ main:
 	cld
 	rep movsw
 	
-	xor dh, dh
 	push dx ; drive number
 
 	jmp GEBL_BUFSEG:GEBL_JUMPOFF
@@ -92,7 +91,8 @@ migrate:
 ; of the active (bootable) partition. Keep in mind that we moved our ass to here in a wicked way.
 
 	xor ax, ax
-	mov dx, [bp-4]
+	pop dx
+	push dx
 	int 0x13
 %ifdef __FLOPPY
 	; read 1 sector
@@ -113,7 +113,8 @@ migrate:
 %elifdef __HDD
 .chs:
 	mov ax, 0x800
-	mov dx, [bp-4]	; drive number
+	pop dx
+	push dx
 	xor di, di	; work around for some buggy bioses
 	mov es, di
 	int 0x13

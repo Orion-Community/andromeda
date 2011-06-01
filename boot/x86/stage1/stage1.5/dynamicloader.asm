@@ -40,8 +40,7 @@ dynamicloader:
 	push dx
 	mov bx, 0x55AA
 	int 0x13
-	stc
-	jc .chs
+	jc .return
 
 ; .extread:
 ; 	call .calcsectors
@@ -66,8 +65,6 @@ dynamicloader:
 .chs:
 	mov ax, 0x800
 	pop dx
-	pop si		; restore si to the ptable for later..
-	push si
 	push dx
 	xor di, di	; work around for some buggy bioses
 	mov es, di
@@ -76,14 +73,14 @@ dynamicloader:
 
 	and cl, 00111111b	; max sector number is 0x3f
 	inc dh		; make head 1-based
-	xor bx, bx
+	xor bx, bx	
 	mov bl, dh	; store head
 
 	xor dx, dx	; clean modulo storage place
 	xor ch, ch	; get all the crap out of ch
 	mov ax, word [si+8]	; the pt
 	div cx		; ax = temp value 	dx = sector (0-based)
-	add dx, 4	; make sector 1-based and read second sector
+	add dx, 1	; make sector 1-based and read second sector
 	push dx		; save the sector num for a while
 
 	xor dx, dx	; clean modulo
@@ -104,10 +101,9 @@ dynamicloader:
 	mov es, bx
 	mov bx, 0x400	; buffer
 	
-	call .calcsectors
+	mov al, 0x3
 	mov ah, 0x2
 	int 0x13
-	jc .return
 
 .return:
 	push word [returnaddr]

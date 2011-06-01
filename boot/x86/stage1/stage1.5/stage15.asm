@@ -19,6 +19,9 @@
 [BITS 16]
 [SECTION .stage1]
 
+jmp short main
+nop
+
 main:	
 	mov di, 0x7c00
 	push di
@@ -39,8 +42,8 @@ main:
 	call enable_A20
 	jc .bailout
 
-	call getmemorymap
-	jc .bailout
+; 	call getmemorymap
+; 	jc .bailout
 
 	call dynamicloader
 	jc .bailout
@@ -60,8 +63,8 @@ main:
 ;
 ; Memory map
 ;
-
-%include 'boot/x86/stage1/stage1.5/getmemorymap.asm'
+; 
+; %include 'boot/x86/stage1/stage1.5/getmemorymap.asm'
 
 ;
 ; A20 Gate
