@@ -34,14 +34,14 @@ dynamicloader:
 	int 0x13
 	jc .return
 
-.checkextensions:
-	mov ah, 0x41	; check ext
-	pop dx
-	push dx
-	mov bx, 0x55AA
-	int 0x13
-	jc .return
-
+; .checkextensions:
+; 	mov ah, 0x41	; check ext
+; 	pop dx
+; 	push dx
+; 	mov bx, 0x55AA
+; 	int 0x13
+; 	jc .return
+; 
 ; .extread:
 ; 	call .calcsectors
 ; 	mov [dap+2], ax
@@ -73,14 +73,15 @@ dynamicloader:
 
 	and cl, 00111111b	; max sector number is 0x3f
 	inc dh		; make head 1-based
-	xor bx, bx	
+	xor bx, bx
 	mov bl, dh	; store head
 
 	xor dx, dx	; clean modulo storage place
 	xor ch, ch	; get all the crap out of ch
+
 	mov ax, word [si+8]	; the pt
 	div cx		; ax = temp value 	dx = sector (0-based)
-	add dx, 1	; make sector 1-based and read second sector
+	add dx, 4	; make sector 1-based
 	push dx		; save the sector num for a while
 
 	xor dx, dx	; clean modulo
@@ -94,14 +95,14 @@ dynamicloader:
 	mov cl, al
 
 	shl dx, 8	; move dh, dl
-	pop dx
-	push dx
+	pop bx		; drive number
+	mov dl, bl
+	push bx		; store drive num again
 	
-	mov bx, 0x7e0	; segment 0
-	mov es, bx
+	mov ax, 0x7e0
+	mov es, ax
 	mov bx, 0x400	; buffer
-	
-	mov al, 0x3
+	call .calcsectors
 	mov ah, 0x2
 	int 0x13
 
