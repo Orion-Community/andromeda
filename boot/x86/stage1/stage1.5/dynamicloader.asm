@@ -97,12 +97,12 @@ dynamicloader:
 
 	shl dx, 8	; move dh, dl
 	pop bx		; pop bios drive num off
-	mov dl, bl	; push bios drive num
-	push bx
+	mov dl, bl
+	push bx		; push bios drive num
 	
-	mov bx, 0x7e0	; segment 0
+	mov bx, 0x7e0	; segment 0x7e0
 	mov es, bx
-	mov bx, 0x400	; buffer
+	mov bx, 0x400	; buffer offset
 	
 	call .calcsectors
 	mov ah, 0x2

@@ -33,7 +33,7 @@ main:
 	jmp .loadstage2
 
 .bailout:
-	mov si, stage15error
+	mov si, failed
 	call println
 	cli
 	jmp $
@@ -42,8 +42,8 @@ main:
 	call enable_A20
 	jc .bailout
 
-; 	call getmemorymap
-; 	jc .bailout
+	call getmemorymap
+	jc .bailout
 
 	call dynamicloader
 	jc .bailout
@@ -64,7 +64,7 @@ main:
 ; Memory map
 ;
 ; 
-; %include 'boot/x86/stage1/stage1.5/getmemorymap.asm'
+%include 'boot/x86/stage1/stage1.5/getmemorymap.asm'
 
 ;
 ; A20 Gate
@@ -78,6 +78,6 @@ main:
 
 %include 'boot/x86/println.asm'
 	
-	stage15error db '0x2', 0x0
+	failed db '0x2', 0x0
 
 times 1024 - ($ - $$) db 0

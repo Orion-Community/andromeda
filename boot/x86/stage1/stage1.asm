@@ -114,9 +114,6 @@ main: ; entry point
 .bailout:
 	mov si, failed
 	call println
-	xor ax, ax
-	int 0x16
-	int 0x19
 	cli
 	jmp $
 

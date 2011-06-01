@@ -160,7 +160,7 @@ migrate:
 	
 	xor bx, bx	; segment 0
 	mov es, bx
-	mov bx, 0x7c00	; buffer
+	mov bx, GEBL_LOADOFF	; buffer
 	mov ax, 0x201
 	int 0x13
 
