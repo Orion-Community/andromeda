@@ -88,8 +88,22 @@ main:
 
 migrate:
 ; here we should use the partition table to indicate what offset we should use to load the first sector
-; of the active (bootable) partition. Keep in mind that we moved our ass to here in a wicked way.
+; of the active (bootable) partition.
+%ifdef __HDD
+	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+	xor cx, cx
+toploop:
+	test cx, 100b ; cmp cx, 0x4
+	jnz .error
 
+	test byte [si], 0x80	; if not zero, partition is active => boot
+	jnz .start_read
+	add si, 0x10
+	add cx, 1
+	jmp toploop
+%endif
+
+.start_read:
 	xor ax, ax
 	pop dx
 	push dx
@@ -108,7 +122,6 @@ migrate:
 	pop dx
 	push dx
 
-	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
 	push si
 	mov ax, word [si+8]
 	mov cx, word [si+10]
@@ -120,7 +133,7 @@ migrate:
 	mov ax, 0x4200
 	int 0x13
 	pop si	; restore the partition table
-	jnc .checkboot
+	jnc .end
 
 .chs:
 	mov ax, 0x800
@@ -184,13 +197,6 @@ migrate:
 	jc .error
 
 %endif
-; 	issue an bios interrupt to read the sectors from the disk as defined above depending 
-; 	on how it is compiled
-%ifdef __HDD
-.checkboot:
-	test byte [si], 0x80
-	jz .error
-%endif
 	jmp .end
 
 .error:
@@ -228,17 +234,29 @@ dap:
 	dq 0x0		; starting sector (sector to read, s1 = 0)
 %endif
 
-; times 446 - ($-$$) db 0
-; 	db 0x80
-; 	db 0x0
-; 	dw 0x21
-; 	dw 0xbe83
-; 	dw 0x3f0b
-; 	db 0x0
-; 	db 0x08
-; 	dw 0x0
-; 	dw 0xb800
-; 	dw 0x3b
+times 446 - ($-$$) db 0
+; first partition table
+	db 0x0
+	db 0x0
+	dw 0x21
+	dw 0xbe83
+	dw 0x3f0b
+	db 0x0
+	db 0x08
+	dw 0x0
+	dw 0xb800
+	dw 0x3b
+; second partition table
+	db 0x80
+	db 0x0
+	dw 0x21
+	dw 0xbe83
+	dw 0x3f0b
+	db 0x0
+	db 0x08
+	dw 0x0
+	dw 0xb800
+	dw 0x3b
 
 times 510 - ($-$$) db 0
 dw 0xaa55
