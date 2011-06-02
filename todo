@@ -10,11 +10,13 @@ What is done:
 	* Rewrite of the image loaders
 	* GDT and pm implemented
 	* Makefile(s) --> Thank you Bart v. Kuivenhoven for first version.
+	* Masterboot can handle more then one partition now.
+
 What should be improved:
 
 Next item:
-	* Multiboot compatibility
-	* implement CHS with the partition table
+	* Memory map with other interrupts.
+
 What has to be done:
 
 	* Make the bootloader multiboot compatible
