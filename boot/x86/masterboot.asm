@@ -88,8 +88,17 @@ main:
 
 migrate:
 ; here we should use the partition table to indicate what offset we should use to load the first sector
-; of the active (bootable) partition. Keep in mind that we moved our ass to here in a wicked way.
+; of the active (bootable) partition.
 
+	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+toploop:
+	test byte [si], 0x80
+	jnz .start_read:
+	add si, 0x10
+	jmp toploop
+
+
+.start_read:
 	xor ax, ax
 	pop dx
 	push dx
