@@ -10,23 +10,17 @@ What is done:
 	* Rewrite of the image loaders
 	* GDT and pm implemented
 	* Makefile(s) --> Thank you Bart v. Kuivenhoven for first version.
-<<<<<<< HEAD
 	* implemented chs + partition table
-=======
 	* Masterboot can handle more then one partition now.
->>>>>>> c1fba3057f5175717e83552fb7889b7a9438f4a9
 
 What should be improved:
 
 Next item:
-<<<<<<< HEAD
 	* Multiboot compatibility
 	* test the memory map pointer in c
 	* update the floppy drive support
-=======
 	* Memory map with other interrupts.
 
->>>>>>> c1fba3057f5175717e83552fb7889b7a9438f4a9
 What has to be done:
 
 	* Make the bootloader multiboot compatible
