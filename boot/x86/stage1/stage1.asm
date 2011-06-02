@@ -140,12 +140,6 @@ main: ; entry point
 	jmp $
 
 ;
-; Image loader
-;
-
-;%include 'boot/x86/stage1/loadimage.asm'
-
-;
 ; Print routines
 ;
 
