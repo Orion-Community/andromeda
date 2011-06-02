@@ -18,6 +18,8 @@
 
 [GLOBAL mmr]
 getmemorymap:
+
+e820:
 	push bp
 	push word 0x50
 	pop es
@@ -74,6 +76,9 @@ getmemorymap:
 	pop bp
 	stc 	; set the carry flag
 	ret
+
+e801:
+; make a mmap with interrupt 0x15/0xe801
 
 mmr:
 	dd 0 		; dw 0 -> segment
