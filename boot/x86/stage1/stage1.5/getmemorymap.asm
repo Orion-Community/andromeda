@@ -78,7 +78,32 @@ e820:
 	ret
 
 e801:
-; make a mmap with interrupt 0x15/0xe801
+	mov ax, 0x50
+	mov es, ax
+	xor di, di
+	mov word [mmr], ax
+	mov word [mmr+2], di
+
+.make_empty_entry:	; this subroutine copies an emty memory map to the location specified by es:di
+	cld	; just to be sure that di gets incremented
+	mov si, mmap_entry
+	mov cx, 0xc
+	rep movsw
+
+.failed:
+	stc
+	ret
+
+.done:
+	clc
+	ret
+
+mmap_entry:	; 0x18-byte mmap entry
+	base dq 0	; base address
+	length dq 0	; length (top_addr - base_addr)
+	type dd 0	; entry type
+	acpi3 dd 0	; acpi 3.0 compatibility => should be 1
+	mmap_size equ $ - mmap_entry
 
 mmr:
 	dd 0 		; dw 0 -> segment
