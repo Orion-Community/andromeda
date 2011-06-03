@@ -18,7 +18,7 @@
 
 [GLOBAL mmr]
 getmemorymap:
-
+jmp e801
 e820:
 	push bp
 	push word 0x50
@@ -83,12 +83,50 @@ e801:
 	xor di, di
 	mov word [mmr], ax
 	mov word [mmr+2], di
+	mov dx, .lowmem
 
-.make_empty_entry:	; this subroutine copies an emty memory map to the location specified by es:di
+.copy_empty_entry:	; this subroutine copies an emty memory map to the location specified by es:di
 	cld	; just to be sure that di gets incremented
 	mov si, mmap_entry
 	mov cx, 0xc
 	rep movsw
+	sub di, 0x18
+	jmp dx
+; now there is an empty entry at [es:di]
+
+.lowmem:
+	xor ax, ax
+	int 0x12	; get low memory size
+	jc .failed	; if interrupt 0x12 is not support, its really really over..
+	push ax
+	mov [es:di], dword 0x0
+	mov [es:di+8], ax
+	mov [es:di+16], dword 0x1
+	mov [es:di+20], dword 0x1	; acpi 3.0 compatible entry
+	mov dx, .lowres
+	jmp .next
+
+.lowres:
+	pop ax
+	mov [es:di], ax
+	mov dx, (1 << 20)
+	sub dx, ax
+	mov [es:di+8], dx
+	mov [es:di+16], dword 0x2	; reserverd memory
+	mov [es:di], dword 0x1
+	mov dx, .midmem
+	jmp .next
+
+.midmem:
+; 	mov ax, 0xe801
+; 	int 0x15
+	jmp .done
+
+.highmem:
+
+.next:
+	add di, 0x18
+	jmp .copy_empty_entry
 
 .failed:
 	stc

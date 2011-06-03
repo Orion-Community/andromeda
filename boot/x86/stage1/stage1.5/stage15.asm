@@ -44,6 +44,12 @@ main:
 
 	call getmemorymap
 	jc .bailout
+%ifdef __DEBUG
+	push word 0x50
+	pop es
+	cmp [es:0x28], dword 0x2	; this mem entry should be reserved memory
+	jne .bailout
+%endif
 
 	call dynamicloader
 	jc .bailout
