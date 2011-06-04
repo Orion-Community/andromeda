@@ -18,16 +18,14 @@
 
 [GLOBAL mmr]
 getmemorymap:
+	mov ax, 0x50
+	mov es, ax
+	xor di, di
+	mov word [mmr], ax
+	mov word [mmr+2], di
 jmp e801
 e820:
 	push bp
-	push word 0x50
-	pop es
-	xor di, di	; destination pointer
-
-	mov [mmr], es		; store the segment
-	mov [mmr+2], di		; store the offset
-
 	xor bp, bp ; entry counter
 	mov eax, 0xE820
 	xor ebx, ebx
@@ -64,7 +62,7 @@ e820:
 	inc bp
 
 .skipentry:
-	or ebx, ebx ;
+	test ebx, ebx ;
 	jnz .getentry
 
 .done:
@@ -77,56 +75,72 @@ e820:
 	stc 	; set the carry flag
 	ret
 
-e801:
-	mov ax, 0x50
-	mov es, ax
-	xor di, di
-	mov word [mmr], ax
-	mov word [mmr+2], di
-	mov dx, .lowmem
+;
+; This memory map will contain 4 entries. See doc/mmap.txt for more information.
+;
 
-.copy_empty_entry:	; this subroutine copies an emty memory map to the location specified by es:di
-	cld	; just to be sure that di gets incremented
-	mov si, mmap_entry
-	mov cx, 0xc
-	rep movsw
-	sub di, 0x18
-	jmp dx
-; now there is an empty entry at [es:di]
+e801:
+	push .lowmem
+	jmp copy_empty_entry
 
 .lowmem:
 	xor ax, ax
 	int 0x12	; get low memory size
 	jc .failed	; if interrupt 0x12 is not support, its really really over..
 	push ax
+	and eax, 0xffff
+	shl eax, 10	; convert to bytes
 	mov [es:di], dword 0x0
-	mov [es:di+8], ax
+	mov [es:di+8], eax
 	mov [es:di+16], dword 0x1
 	mov [es:di+20], dword 0x1	; acpi 3.0 compatible entry
-	mov dx, .lowres
+	push .lowres
 	jmp .next
 
 .lowres:
 	pop ax
 	mov [es:di], ax
-	mov dx, (1 << 20)
+	mov dx, (1 << 10)
 	sub dx, ax
-	mov [es:di+8], dx
+	and dx, 0xffff
+	shl edx, 10		; convert to bytes
+	mov [es:di+8], edx	; length (in bytes)
 	mov [es:di+16], dword 0x2	; reserverd memory
-	mov [es:di], dword 0x1
-	mov dx, .midmem
+	mov [es:di+20], dword 0x1		; also this entry is acpi 3.0 compatible
+	push .midmem
 	jmp .next
 
 .midmem:
-; 	mov ax, 0xe801
-; 	int 0x15
-	jmp .done
+	mov ax, 0xe801
+	int 0x15
+	jc .failed
+	push bx		; save bx and dx for the high mem entry
+	push dx
+	xor ecx, ecx
+
+	and ecx, 0xffff	; clear upper 16 bits
+	shl ecx, 10
+	mov [es:di], dword 0x10000
+	mov [es:di+8], ecx		;dword (0x3c00<<10)
+	mov [es:di+16], byte 0x1
+	mov [es:di+20], byte 0x1
+	jcxz .useax
+	push .highmem
+	jmp .next
+.useax:
+	and eax, 0xffff
+	shl eax, 10
+	mov [es:di+8], eax
+	push .highmem
+	jmp .next
 
 .highmem:
-
+	pop dx
+	pop bx
+	ret
 .next:
 	add di, 0x18
-	jmp .copy_empty_entry
+	jmp copy_empty_entry
 
 .failed:
 	stc
@@ -135,6 +149,15 @@ e801:
 .done:
 	clc
 	ret
+
+copy_empty_entry:	; this subroutine copies an emty memory map to the location specified by es:di
+	cld	; just to be sure that di gets incremented
+	mov si, mmap_entry
+	mov cx, 0xc
+	rep movsw
+	sub di, 0x18
+	ret
+; now there is an empty entry at [es:di]
 
 mmap_entry:	; 0x18-byte mmap entry
 	base dq 0	; base address
