@@ -23,12 +23,12 @@ getmemorymap:
 	xor di, di
 	mov word [mmr], ax
 	mov word [mmr+2], di
-jmp e801
+jmp mm_e801
 
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ; 
-e820:
+mm_e820:
 	push bp
 	xor bp, bp ; entry counter
 	mov eax, 0xE820
@@ -83,7 +83,7 @@ e820:
 ; This memory map will contain 4 entries. See doc/mmap.txt for more information.
 ;
 
-e801:
+mm_e801:
 	xor di, di
 	mov ax, 0x50
 	mov es, ax
@@ -149,7 +149,12 @@ e801:
 	clc
 	ret
 
-
+; 
+; This is a function from the dinosaur time, it it used on verry old PC's when all other methods to get a memory map fail. If this
+; fails to, the bootloader will cry to the user, and tell him to buy a new pc.
+; 
+mm_88:
+	ret
 
 ;
 ; This routine makes a memory map of the low memory (memory < 1M)
