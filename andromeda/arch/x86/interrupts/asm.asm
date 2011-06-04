@@ -186,3 +186,9 @@ endProg:
   cli
   hlt
   jmp endProg
+
+[EXTERN testStr]
+[EXTERN printf]
+[GLOBAL asmRun]
+asmRun:
+  jmp [esp]

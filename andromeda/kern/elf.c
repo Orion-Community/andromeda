@@ -66,20 +66,36 @@ Elf32_Phdr* getPhdr(Elf32_Ehdr *elfHeader)
   {
     return NULL;
   }
-  Elf32_Phdr *programHeader = (Elf32_Phdr*)(((int)elfHeader) + ((int)address));
+  Elf32_Phdr *programHeader = (Elf32_Phdr*)(((unsigned int)elfHeader) + ((unsigned int)address));
   return programHeader;
+}
+
+Elf32_Shdr *getShdr(Elf32_Ehdr *elfHeader)
+{
+  Elf32_Off address = elfHeader->e_shoff;
+  if (address == 0)
+  {
+    return NULL;
+  }
+  Elf32_Shdr *sectionHeader = (Elf32_Shdr*)(((unsigned int)elfHeader) + ((unsigned int)address));
+  return sectionHeader;
 }
 
 int elfExec(void* image)
 {
   if (checkHdr(image))
   {
-    Elf32_Phdr *header = getPhdr(image);
-    if (header == NULL)
+    Elf32_Phdr *program = getPhdr(image);
+    if (program == NULL)
     {
       return 1;
     }
     return 0;
+    Elf32_Shdr *sections = getShdr(image);
+    #ifdef WARN
+    if (sections == NULL)
+      printf("No section header found!\n");
+    #endif
   }
   return 1;
 }

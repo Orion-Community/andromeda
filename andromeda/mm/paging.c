@@ -44,7 +44,7 @@ void cPageFault(isrVal_t regs)
     panic("Incorrect frame");
   }
   unsigned char err = (unsigned char) (regs.errCode & 0x7);
-  #ifdef DBG
+  #ifdef MODS
   printf("The pagefault was caused by: "); printhex((unsigned int)getCR2()); putc('\n');
   #endif
   if (RESERVED)
@@ -61,13 +61,22 @@ void cPageFault(isrVal_t regs)
     // Allocate page here!
     unsigned long page = getCR2();
     pageState_t* phys = allocPage(COMPRESSED);
+    #ifdef MODS
+    printf("Virt: 0x%x\n", page);
+    #endif
     if (phys->usable == FALSE)
     {
       panic("No more free memory!");
     }
+    #ifdef MODS
+    printf("Virt: 0x%x\n", page);
+    #endif
     boolean test = setPage((void*)(page), (void*)phys->addr, FALSE, TRUE);
     if (!test)
     {
+      #ifdef MODS
+      printf("Virt: 0x%x\n", page);
+      #endif
       freePage((void*)phys->addr, COMPRESSED);
       panic("Setting the page failed dramatically!");
     }
@@ -100,6 +109,9 @@ boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode)
   {
     #ifdef DBG
     printf("Argument allignement\n");
+    #endif
+    #ifdef MODS
+    printf("virt: 0x%x\nphys: 0x%x\n", virtAddr, physAddr);
     #endif
     return FALSE;
   }
