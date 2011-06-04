@@ -47,8 +47,8 @@ main:
 %ifdef __DEBUG
 	push word 0x50
 	pop es
-	cmp [es:56], dword 0xf00000	; this mem entry should be reserved memor
-	je .bailout
+	cmp [es:80], dword 0x3fffffff
+	ja .bailout
 %endif
 
 	call dynamicloader

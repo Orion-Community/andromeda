@@ -24,6 +24,10 @@ getmemorymap:
 	mov word [mmr], ax
 	mov word [mmr+2], di
 jmp e801
+
+; 
+; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
+; 
 e820:
 	push bp
 	xor bp, bp ; entry counter
@@ -80,33 +84,11 @@ e820:
 ;
 
 e801:
-	push .lowmem
-	jmp copy_empty_entry
-
-.lowmem:
-	xor ax, ax
-	int 0x12	; get low memory size
-	jc .failed	; if interrupt 0x12 is not support, its really really over..
-	push ax
-	and eax, 0xffff
-	shl eax, 10	; convert to bytes
-	mov [es:di], dword 0x0
-	mov [es:di+8], eax
-	mov [es:di+16], dword 0x1
-	mov [es:di+20], dword 0x1	; acpi 3.0 compatible entry
-	push .lowres
-	jmp .next
-
-.lowres:
-	pop ax
-	mov [es:di], ax
-	mov dx, (1 << 10)
-	sub dx, ax
-	and dx, 0xffff
-	shl edx, 10		; convert to bytes
-	mov [es:di+8], edx	; length (in bytes)
-	mov [es:di+16], dword 0x2	; reserverd memory
-	mov [es:di+20], dword 0x1		; also this entry is acpi 3.0 compatible
+	xor di, di
+	mov ax, 0x50
+	mov es, ax
+	call lowmmap
+	jc .failed
 	push .midmem
 	jmp .next
 
@@ -116,7 +98,6 @@ e801:
 	jc .failed
 	push bx		; save bx and dx for the high mem entry
 	push dx
-	xor ecx, ecx
 
 	and ecx, 0xffff	; clear upper 16 bits
 	shl ecx, 10
@@ -124,7 +105,7 @@ e801:
 	mov [es:di+8], ecx		;dword (0x3c00<<10)
 	mov [es:di+16], byte 0x1
 	mov [es:di+20], byte 0x1
-	jcxz .useax
+	jecxz .useax
 	push .highmem
 	jmp .next
 .useax:
@@ -137,7 +118,25 @@ e801:
 .highmem:
 	pop dx
 	pop bx
-	ret
+
+	and edx, 0xffff
+	shl edx, 16	; edx * 1024 * 64
+	mov [es:di], dword 0x1000000
+	mov [es:di+8], edx
+	mov [es:di+16],	byte 0x1	; type -> usable
+	mov [es:di+20], byte 0x1	; acpi 3.0 compatible
+
+	test edx, edx	
+	jz .usebx
+	jmp .done
+
+.usebx:
+	and ebx, 0xffff
+	shl ebx, 16
+	test ebx, ebx
+	jz .failed
+	mov [es:di+8], ebx
+	jmp .done
 .next:
 	add di, 0x18
 	jmp copy_empty_entry
@@ -150,12 +149,57 @@ e801:
 	clc
 	ret
 
+
+
+;
+; This routine makes a memory map of the low memory (memory < 1M)
+;
+lowmmap:
+; low available memory
+	call copy_empty_entry
+	xor ax, ax
+	int 0x12	; get low memory size
+	jc .failed	; if interrupt 0x12 is not support, its really really over..
+	push ax
+	and eax, 0xffff	; clear upper 16  bits
+	shl eax, 10	; convert to bytes
+	mov [es:di], dword 0x0
+	mov [es:di+8], eax
+	mov [es:di+16], dword 0x1
+	mov [es:di+20], dword 0x1	; acpi 3.0 compatible entry
+	push .lowres
+	add di, 0x18
+	jmp copy_empty_entry
+
+.lowres:
+; low reserver memory
+	pop ax
+	mov [es:di], ax
+	mov dx, (1 << 10)
+	sub dx, ax
+	and dx, 0xffff
+	shl edx, 10		; convert to bytes
+	mov [es:di+8], edx	; length (in bytes)
+	mov [es:di+16], dword 0x2	; reserverd memory
+	mov [es:di+20], dword 0x1		; also this entry is acpi 3.0 compatible
+	jmp .done
+
+.failed:
+	stc
+	ret
+.done:
+	clc
+	ret
+
+; 
+; This routine copies an empty memory map to the location specified by es:di
+; 
 copy_empty_entry:	; this subroutine copies an emty memory map to the location specified by es:di
 	cld	; just to be sure that di gets incremented
 	mov si, mmap_entry
 	mov cx, 0xc
-	rep movsw
-	sub di, 0x18
+	rep movsw	; copy copy copy!
+	sub di, 0x18	; just to make addressing esier
 	ret
 ; now there is an empty entry at [es:di]
 
