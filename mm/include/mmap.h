@@ -46,6 +46,6 @@ struct mmapregister
 typedef struct mmr mmap_register_t;
 #endif
 
-extern uint32_t * mmr;
+extern unsigned char * getmmr();
 
 // struct mmap_register_t * getmmr();

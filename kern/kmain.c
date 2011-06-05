@@ -28,9 +28,6 @@ void kmain(void)
 	
 	print("GoldenEagle kernel is executing.\n");
 
-#ifdef __DEBUG
-	testmmr();
-#endif
 	char status = inb(0x60);
 	
 	if((status & 2) == 2)

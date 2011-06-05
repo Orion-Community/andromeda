@@ -42,17 +42,3 @@ outb:
 
 	pop ebp
 	ret
-
-%ifdef __DEBUG
-testmmr:
-	push ebp
-	mov ebp, esp
-	
-	cmp [mmr+4], word 0x6
-	je .end
-	jmp $
-
-.end:	
-	pop ebp
-	ret
-%endif

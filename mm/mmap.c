@@ -18,7 +18,9 @@
 
 #include "include/mmap.h"
 
-uint16_t getentrycount()
+struct mmap_entry * getmmapentries()
 {
-	return (uint16_t) *mmr;
+	unsigned char * mmr = getmmr();
+	
+	struct mmap_entry entries[6];
 }

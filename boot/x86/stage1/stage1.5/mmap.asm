@@ -16,7 +16,7 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[GLOBAL mmr]
+[GLOBAL getmmr]
 getmemorymap:
 	mov ax, 0x50
 	mov es, ax
@@ -227,6 +227,10 @@ lowmmap:
 	ret
 .done:
 	clc
+	ret
+
+getmmr:
+	mov eax, mmr
 	ret
 
 ; 
