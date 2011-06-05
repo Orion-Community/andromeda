@@ -31,3 +31,8 @@ void clearscreen();
  * Returns 0 on success.
  */
 int print(char * txt);
+
+/*
+ * Print a number in hex.
+ */
+void printhex(unsigned int idx);

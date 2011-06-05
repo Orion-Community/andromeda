@@ -19,6 +19,7 @@
 #include <textio.h>
 #include <sys/stdlib.h>
 #include <sys/io.h>
+#include <mm/mmap.h>
 
 void kmain(void)
 {
@@ -27,11 +28,14 @@ void kmain(void)
 	
 	print("GoldenEagle kernel is executing.\n");
 
+#ifdef __DEBUG
+	testmmr();
+#endif
 	char status = inb(0x60);
 	
 	if((status & 2) == 2)
 	{
-		print("The A20 gate is open.");
+		print("The A20 gate is open.\n");
 	}
 	
 	while(1) halt();

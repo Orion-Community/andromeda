@@ -16,6 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sys/stdlib.h>
 #ifndef __MM_H
 #define __MM_H
 
@@ -23,9 +24,18 @@ struct mmap_entry
 {
 	uint64_t addr;
 	uint64_t len;
-	uint32_t type
+	uint32_t type;
 } __attribute__((packed));
 typedef struct mmap_entry gebl_mmap_entry;
+
+struct gebl_mboot_mmap_entry
+{
+	uint32_t size;
+	uint64_t addr;
+	uint64_t len;
+	uint32_t type;
+} __attribute__((packed));
+typedef struct gebl_mboot_mmap_entry mboot_entry;
 
 struct mmapregister
 {
@@ -36,6 +46,6 @@ struct mmapregister
 typedef struct mmr mmap_register_t;
 #endif
 
-extern uint32_t mmr;
+extern uint32_t * mmr;
 
-struct mmap_register_t * getmmr();
+// struct mmap_register_t * getmmr();

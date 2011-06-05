@@ -82,7 +82,6 @@ mm_e820:
 ;
 ; This memory map will contain 4 entries. See doc/mmap.txt for more information.
 ;
-
 mm_e801:
 	xor di, di
 	mov ax, 0x50
