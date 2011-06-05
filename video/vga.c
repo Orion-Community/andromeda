@@ -29,7 +29,7 @@ void textinit()
 int print(char * txt)
 {
 	int line = currentline.line;
-// 	line++;
+	line++;
 	char *vidmem = (char *) 0xB8000;
 	int i = 0;
 
@@ -54,19 +54,6 @@ int print(char * txt)
 	}
 	currentline.line = line;
 	return(0);
-}
-
-char hex[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-void printhex(unsigned int index)
-{
-	int i = 7;
-	while (( (( index >> 4*i ) & 0xf) == 0x0)&(i>0)) {
-		i--;
-	}
-	while (i>=0) {
-		print(hex[( index >> 4*i ) & 0xf]);
-		i--;
-	}
 }
 
 void clearscreen() // clear the entire text screen

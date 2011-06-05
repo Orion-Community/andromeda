@@ -18,6 +18,10 @@
 
 #include "include/mmap.h"
 
+unsigned short getentrycount()
+{
+	return *(getmmr()+4);
+}
 struct mmap_entry * getmmapentries()
 {
 	unsigned char * mmr = getmmr();

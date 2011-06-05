@@ -229,10 +229,6 @@ lowmmap:
 	clc
 	ret
 
-getmmr:
-	mov eax, mmr
-	ret
-
 ; 
 ; This routine copies an empty memory map to the location specified by es:di
 ; 
@@ -244,6 +240,13 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 	sub di, 0x18	; just to make addressing esier
 	ret
 ; now there is an empty entry at [es:di]
+
+; 
+; This will return the mmr in eax. Used in mmap.c to get the mmr.
+; 
+getmmr:
+	mov eax, mmr
+	ret
 
 mmap_entry:	; 0x18-byte mmap entry
 	base dq 0	; base address
