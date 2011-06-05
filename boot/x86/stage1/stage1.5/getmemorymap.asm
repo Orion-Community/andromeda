@@ -23,7 +23,7 @@ getmemorymap:
 	xor di, di
 	mov word [mmr], ax
 	mov word [mmr+2], di
-jmp mm_e801
+jmp mm_88
 
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
@@ -101,7 +101,7 @@ mm_e801:
 
 	and ecx, 0xffff	; clear upper 16 bits
 	shl ecx, 10
-	mov [es:di], dword 0x10000
+	mov [es:di], dword 0x100000
 	mov [es:di+8], ecx		;dword (0x3c00<<10)
 	mov [es:di+16], byte 0x1
 	mov [es:di+20], byte 0x1
@@ -154,6 +154,34 @@ mm_e801:
 ; fails to, the bootloader will cry to the user, and tell him to buy a new pc.
 ; 
 mm_88:
+	xor di, di	; set segment:offset of the buffer, just to be sure
+	mov ax, 0x50
+	mov es, ax
+
+	call lowmmap	; get a lowmmap
+	jc .failed
+	push .highmem
+	jmp .nxtentry
+.highmem:
+	mov ax, 0x8800
+	int 0x15
+	jc .failed
+
+	mov [es:di], dword 0x00100000	; base
+	mov [es:di+8], ax
+	mov [es:di+16], dword 0x1	; free memory
+	mov [es:di+20], dword 0x1	; acpi 3.0
+	jmp .done
+
+.nxtentry:
+	add di, 0x18
+	jmp copy_empty_entry
+
+.failed:
+	stc
+	ret
+.done:
+	clc
 	ret
 
 ;
@@ -182,7 +210,7 @@ lowmmap:
 	mov [es:di], ax
 	mov dx, (1 << 10)
 	sub dx, ax
-	and dx, 0xffff
+	and edx, 0xffff
 	shl edx, 10		; convert to bytes
 	mov [es:di+8], edx	; length (in bytes)
 	mov [es:di+16], dword 0x2	; reserverd memory

@@ -47,7 +47,7 @@ main:
 %ifdef __DEBUG
 	push word 0x50
 	pop es
-	cmp [es:80], dword 0x3fffffff
+	cmp [es:56], dword 65535
 	ja .bailout
 %endif
 
