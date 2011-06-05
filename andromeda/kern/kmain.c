@@ -166,7 +166,6 @@ int kmain()
   else
   {
     printf("ELF fail!!!!\n");
-    execMem(0xC0000000, (void*)modules[0].addr, modules[0].end - modules[0].addr);
   }
   #endif
   

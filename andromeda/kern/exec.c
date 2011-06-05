@@ -26,17 +26,3 @@ int exec(char* path)
   panic("Aieee! File system not implemented!");
   return 0;
 }
-
-int execMem(void* dst, void* ptr, size_t size)
-{
-  memcpy(dst, ptr, size);
-  #ifdef MODS
-  printf("DEBUG!\n");
-  #endif
-  asmRun(dst);
-  #ifdef MODS
-  printf("DEBUG!\n");
-  #endif
-  panic("Aieee, This shouldn't have returned!");
-  return 0;
-}
