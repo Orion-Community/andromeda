@@ -44,12 +44,6 @@ main:
 
 	call getmemorymap
 	jc .bailout
-%ifdef __DEBUG
-	push word 0x50
-	pop es
-	cmp [es:56], dword 65535
-	ja .bailout
-%endif
 
 	call dynamicloader
 	jc .bailout
@@ -70,7 +64,7 @@ main:
 ; Memory map
 ;
 ; 
-%include 'boot/x86/stage1/stage1.5/getmemorymap.asm'
+%include 'boot/x86/stage1/stage1.5/mmap.asm'
 
 ;
 ; A20 Gate

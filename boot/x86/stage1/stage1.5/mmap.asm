@@ -23,7 +23,6 @@ getmemorymap:
 	xor di, di
 	mov word [mmr], ax
 	mov word [mmr+2], di
-jmp mm_88
 
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
@@ -38,7 +37,7 @@ mm_e820:
 	push edx
 	mov [es:di+20], dword 1 ; acpi 3.x compatibility
 	int 0x15
-	pop edx
+	pop edx	; restore magic number
 
 	jc .failed
 	cmp eax, edx ; magic word should also be in eax after interrupt
@@ -76,7 +75,8 @@ mm_e820:
 	ret
 .failed:
 	pop bp
-	stc 	; set the carry flag
+	jmp mm_e801
+	stc
 	ret
 
 ;
@@ -142,10 +142,12 @@ mm_e801:
 	jmp copy_empty_entry
 
 .failed:
+	jmp mm_88
 	stc
 	ret
 
 .done:
+	mov [mmr+4], word 0x4	; 2x low mem + mid mem + high mem = 4 entries
 	clc
 	ret
 
@@ -166,9 +168,11 @@ mm_88:
 	mov ax, 0x8800
 	int 0x15
 	jc .failed
+	and eax, 0xffff
+	shl eax, 10
 
 	mov [es:di], dword 0x00100000	; base
-	mov [es:di+8], ax
+	mov [es:di+8], eax
 	mov [es:di+16], dword 0x1	; free memory
 	mov [es:di+20], dword 0x1	; acpi 3.0
 	jmp .done
@@ -181,6 +185,7 @@ mm_88:
 	stc
 	ret
 .done:
+	mov [mmr+4], word 0x3
 	clc
 	ret
 
@@ -192,6 +197,7 @@ lowmmap:
 	call copy_empty_entry
 	xor ax, ax
 	int 0x12	; get low memory size
+
 	jc .failed	; if interrupt 0x12 is not support, its really really over..
 	push ax
 	and eax, 0xffff	; clear upper 16  bits
