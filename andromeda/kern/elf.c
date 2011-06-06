@@ -18,6 +18,8 @@
 
 #include <kern/elf.h>
 
+#define ELFMAGIC 0x7F454C46
+
 boolean checkHdr(Elf32_Ehdr* hdr)
 {
   unsigned char* e_ident = hdr->e_ident;
@@ -26,7 +28,7 @@ boolean checkHdr(Elf32_Ehdr* hdr)
   printf("Addr: 0x%x\n", (int)hdr);
   printf("ELF magic: 0x%x%c%c%c\n", (unsigned int)e_ident[EI_MAG0], e_ident[EI_MAG1], e_ident[EI_MAG2], e_ident[EI_MAG3]);
   #endif
-  if (e_ident[EI_MAG0]!= ELFMAG0 || e_ident[EI_MAG1] != ELFMAG1 || e_ident[EI_MAG2] != ELFMAG2 || e_ident[EI_MAG3] != ELFMAG3)
+  if (*((unsigned int*)e_ident)==ELFMAGIC/*e_ident[EI_MAG0]!= ELFMAG0 || e_ident[EI_MAG1] != ELFMAG1 || e_ident[EI_MAG2] != ELFMAG2 || e_ident[EI_MAG3] != ELFMAG3*/)
   {
     return FALSE;
   }
