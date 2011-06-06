@@ -15,37 +15,5 @@
 ;    You should have received a copy of the GNU General Public License
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
+[GLOBAL getmmr]
 pointertest:
-	push word 0x50
-	pop es
-	xor di, di
-
-	mov [mmr], es
-	mov [mmr+2], di
-
-	mov [es:di], dword 0x458745862
-	add di, 8
-	mov [es:di], dword 0x123
-
-	mov ax, word [mmr]
-	mov es, ax
-	mov di, [mmr+2]
-
-	cmp [es:di], dword 0x458745862
-	jne .failed
-
-	cmp [es:di+8], dword 0x123
-	jne .failed
-	
-.success:
-	clc	; clear carry flag
-	ret
-.failed:
-	stc 	; set the carry flag
-	ret
-
-
-mmr:
-	dd 0
-	db 0 ;entry count
-	db 24 ; entry size

@@ -30,15 +30,15 @@ struct GEBL_ENTRY
 // typedef struct GEBL_ENTRY ENTRY_T
 
 #pragma pack(push,1)
-struct MMR_T {
-  struct MMR_ENTRY * entry;
-  uint32_t count;
-  uint32_t entry_size;
+struct GEBL_MMR 
+{
+	struct GEBL_ENTRY * entry;
+	unsigned int count;
+	unsigned int entry_size;
 } __attribute__ ((packed));
 #pragma pack(pop)
-// typedef struct GEBL_MMR MMR_T
 
-extern unsigned char * getmmr();
+extern unsigned int * getmmr();
 #endif
 
 // struct mmap_register_t * getmmr();
