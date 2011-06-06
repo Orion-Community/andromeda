@@ -20,32 +20,25 @@
 #ifndef __MM_H
 #define __MM_H
 
-struct mmap_entry
+struct GEBL_ENTRY
 {
-	uint64_t addr;
+	uint64_t base;
 	uint64_t len;
 	uint32_t type;
+	uint32_t acpi;
 } __attribute__((packed));
-typedef struct mmap_entry gebl_mmap_entry;
+// typedef struct GEBL_ENTRY ENTRY_T
 
-struct gebl_mboot_mmap_entry
-{
-	uint32_t size;
-	uint64_t addr;
-	uint64_t len;
-	uint32_t type;
-} __attribute__((packed));
-typedef struct gebl_mboot_mmap_entry mboot_entry;
-
-struct mmapregister
-{
-	uint32_t address; // segment:offset address
-	uint16_t entrie_count;
-	uint8_t entry_size;
-} __attribute__((packed));
-typedef struct mmr mmap_register_t;
-#endif
+#pragma pack(push,1)
+struct MMR_T {
+  struct MMR_ENTRY * entry;
+  uint32_t count;
+  uint32_t entry_size;
+} __attribute__ ((packed));
+#pragma pack(pop)
+// typedef struct GEBL_MMR MMR_T
 
 extern unsigned char * getmmr();
+#endif
 
 // struct mmap_register_t * getmmr();

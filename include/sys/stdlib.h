@@ -20,8 +20,8 @@
 #define __STDLIB_H
 
 #define NULL 0
-
-#endif
+#define FALSE 0
+#define TRUE !FALSE
 
 typedef unsigned long long uint64_t;
 typedef unsigned int uint32_t;
@@ -32,3 +32,5 @@ typedef unsigned char uint8_t;
  * Halt the system until it is interrupted.
  */
 extern void halt();
+
+#endif

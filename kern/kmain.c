@@ -30,11 +30,11 @@ void kmain(void)
 
 	char status = inb(0x60);
 	
-	if(getentrycount() != 6)
+	if(getmmapentries() == 1)
 	{
 		print("mmap error");
 	}
-	
+
 	if((status & 2) == 2)
 	{
 		print("The A20 gate is open.");

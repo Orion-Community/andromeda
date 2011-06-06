@@ -18,8 +18,6 @@
 
 [GLOBAL inb]
 [GLOBAL outb]
-[GLOBAL testmmr]
-[EXTERN mmr]
 [SECTION .text]
 inb:
 	push ebp

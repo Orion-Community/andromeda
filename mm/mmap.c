@@ -17,14 +17,15 @@
  */
 
 #include "include/mmap.h"
+#include <sys/stdlib.h>
 
-unsigned short getentrycount()
+// unsigned short getentrycount()
+// {
+// 	return *(getmmr()+4);
+// }
+unsigned int getmmapentries()
 {
-	return *(getmmr()+4);
-}
-struct mmap_entry * getmmapentries()
-{
-	unsigned char * mmr = getmmr();
-	
-	struct mmap_entry entries[6];
+	struct GEBL_MMR * mmr = (struct GEBL_MMR *) getmmr();
+	struct GEBL_ENTRY * entry = mmr->entry;
+	return entry->acpi;
 }

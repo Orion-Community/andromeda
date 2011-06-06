@@ -17,13 +17,15 @@
 ;
 
 [GLOBAL getmmr]
+[GLOBAL getentry]
 getmemorymap:
 	mov ax, 0x50
 	mov es, ax
 	xor di, di
-	mov word [mmr], ax
-	mov word [mmr+2], di
 
+; 	xor edx, edx
+	movzx edx, di
+	mov [mmr], edx 
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ; 
@@ -258,5 +260,5 @@ mmap_entry:	; 0x18-byte mmap entry
 mmr:
 	dd 0 		; dw 0 -> segment
 			; dw 0 -> offset
-	dw 0 ;entry count
-	db 24 ; entry size
+	dd 0 ;entry count
+	dd 24 ; entry size
