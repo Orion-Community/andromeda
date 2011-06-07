@@ -26,7 +26,7 @@
 unsigned int getmmapentries()
 {
 	unsigned int * mmr = getmmr();
-	unsigned int * entryp = (unsigned int *) *(mmr+2);
+	unsigned int * entryp = (unsigned int *) *(mmr);
 	unsigned int ret = *(entryp+5);
 	return ret;
 // 	struct GEBL_MMR * mmr = (struct GEBL_MMR *) getmmr();

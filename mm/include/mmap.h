@@ -38,7 +38,7 @@ struct GEBL_MMR
 } __attribute__ ((packed));
 #pragma pack(pop)
 
-extern unsigned int * getmmr();
+extern unsigned char * getmmr();
 #endif
 
 // struct mmap_register_t * getmmr();

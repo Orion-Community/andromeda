@@ -16,8 +16,7 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[GLOBAL getmmr]
-[GLOBAL getentry]
+[GLOBAL mmr]
 getmemorymap:
 	mov ax, 0x50
 	mov es, ax
@@ -244,13 +243,6 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 	ret
 ; now there is an empty entry at [es:di]
 
-; 
-; This will return the mmr in eax. Used in mmap.c to get the mmr.
-; 
-getmmr:
-	mov eax, mmr
-	ret
-
 mmap_entry:	; 0x18-byte mmap entry
 	base dq 0	; base address
 	length dq 0	; length (top_addr - base_addr)
@@ -260,5 +252,5 @@ mmap_entry:	; 0x18-byte mmap entry
 mmr:
 	dd 0x500 		; dw 0 -> segment
 			; dw 0 -> offset
-	dd 0 ;entry count
-	dd 0x500 ; entry size
+	dw 0 ;entry count
+	db 0x24 ; entry size

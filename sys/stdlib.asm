@@ -17,9 +17,19 @@
 ;
 
 [GLOBAL halt]
+[GLOBAL getmmr]
+
+[EXTERN mmr]
 [SECTION .text]
 halt:
 	cli
 	hlt
 	jmp halt
+	ret
+; 
+; This will return the mmr in eax. Used in mmap.c to get the mmr.
+; 
+getmmr:
+	xor eax, eax
+	mov eax, mmr
 	ret
