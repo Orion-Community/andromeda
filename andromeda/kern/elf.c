@@ -92,12 +92,12 @@ int elfExec(void* image)
     {
       return 1;
     }
-    return 0;
     Elf32_Shdr *sections = getShdr(image);
     #ifdef WARN
     if (sections == NULL)
       printf("No section header found!\n");
     #endif
+    return 0;
   }
   return 1;
 }
