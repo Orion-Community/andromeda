@@ -26,5 +26,3 @@ extern char inb(short port);
  * outb writes given data to a given port.
  */
 extern void outb(char data, short port);
-
-extern unsigned short testmmr();
