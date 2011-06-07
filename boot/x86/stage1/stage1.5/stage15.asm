@@ -39,7 +39,7 @@ main:
 	jmp $
 
 .loadstage2:
-	call enable_A20
+	call openA20
 	jc .bailout
 
 	call getmemorymap
@@ -70,7 +70,7 @@ main:
 ; A20 Gate
 ;
 
-%include 'boot/x86/stage1/stage1.5/enable_A20.asm'
+%include 'boot/x86/stage1/stage1.5/openA20.asm'
 
 ;
 ; Print routines
