@@ -82,9 +82,7 @@ int kmain()
   #ifdef __COMPRESSED
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
-    printf("\nInvalid magic word: ");
-    printhex(magic);
-    putc('\n');
+    printf("\nInvalid magic word: %X\n", magic);
     panic("");
   }
   if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
@@ -167,6 +165,7 @@ int kmain()
   {
     printf("ELF fail!!!!\n");
   }
+  printf("%i\n", 12345);
   #endif
   
   #ifdef MMTEST

@@ -45,7 +45,7 @@ void cPageFault(isrVal_t regs)
   }
   unsigned char err = (unsigned char) (regs.errCode & 0x7);
   #ifdef MODS
-  printf("The pagefault was caused by: "); printhex((unsigned int)getCR2()); putc('\n');
+  printf("The pagefault was caused by: %X\n", (unsigned int)getCR2());
   #endif
   if (RESERVED)
   {
@@ -198,7 +198,7 @@ pageDir_t* setupPageDir()
     pageTable_t* pt = alloc(sizeof(pageTable_t)*PAGETABLES, TRUE);
     if (pt == NULL)
     {
-      printf("Itteration "); printhex(i); putc('\n');
+      printf("Itteration %X\n", i);
       panic("Aiee, Null pointer!!! PageTable");
     }
     memset(pt, 0, 0x1000);

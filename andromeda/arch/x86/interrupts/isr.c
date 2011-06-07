@@ -24,12 +24,12 @@ void checkFrame(isrVal_t* regs)
 {
   if ((regs->cs&0xFFFF) != 0x8 && (regs->cs&0xFFFF) != 0x18)
   {
-    printhex(regs->cs); putc('\n');
+    printf("%X\n", regs->cs);
     panic("Incorrect CS!");
   }
   else if ((regs->ds&0xFFFF) != 0x10 && (regs->ds&0xFFFF) != 0x20)
   {
-    printhex(regs->ds); putc('\n');
+    printf("%X\n", regs->ds);
     panic("Incorrect DS!");
   }
 }
@@ -42,10 +42,10 @@ void cDivByZero(isrVal_t regs)
     panic("No process killing code yet");
   }
   printf("\nDiv by 0\neip\tcs\teflags\tprocesp\tss\n");
-  printf("%x\t%x\t%x\t%x\t%x\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
+  printf("%X\t%X\t%X\t%X\t%X\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
   printf("\nCurrent:\n");
   printf("CS\tDS\tSS\tESP\n");
-  printf("%x\t%x\t%x\t%x\n", getCS(), getDS(), getSS(), getESP());
+  printf("%X\t%X\t%X\t%X\n", getCS(), getDS(), getSS(), getESP());
   panic ("Devide by zero");
 }
 
@@ -68,39 +68,13 @@ void cbp(isrVal_t regs)
   checkFrame(&regs);
   printf("Debug:\n");
 
-  printf("eax\tebx\tecx\tedx\n");
-  printhex(regs.eax);	putc('\t');
-  printhex(regs.ebx);	putc('\t');
-  printhex(regs.ecx);	putc('\t');
-  printhex(regs.edx);	putc('\n');
-
-  printf("\nds\n");
-  printhex(regs.ds);	putc('\t');
-
-  printf("\nedi\tesi\tebp\tesp\n");
-  printhex(regs.edi);	putc('\t');
-  printhex(regs.esi);	putc('\t');
-  printhex(regs.ebp);	putc('\t');
-  printhex(regs.esp);	putc('\n');
-
-  printf("\neip\tcs\teflags\tuseresp\tss\n");
-  printhex(regs.eip);		putc('\t');
-  printhex(regs.cs);		putc('\t');
-  printhex(regs.eflags);	putc('\t');
-  printhex(regs.procesp);	putc('\t');
-  printhex(regs.ss);		putc('\n');
-
-  printf("\nerr_code\tfunc_ptr\n");
-  printhex(regs.errCode);	putc('\t');
-  printhex(regs.funcPtr);	putc('\n');
-  
+  printf("eax\tebx\tecx\tedx\n%X\t%X\t%X\t%X\n", regs.eax, regs.ebx, regs.ecx, regs.edx);
+  printf("\nds\n%X\n", regs.ds);
+  printf("\nedi\tesi\tebp\tesp\n%X\t%X\t%X\t%X\n", regs.edi, regs.esi, regs.ebp, regs.esp);
+  printf("\neip\tcs\teflags\tuseresp\tss\n%X\t%X\t%X\t%X\t%X\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
+  printf("\nerr_code\tfunc_ptr\n%X\t%X\n", regs.errCode, regs.funcPtr);
   printf("\n\nCurrent:\n");
-  printf("CS\tDS\tSS\tESP\n");
-  printhex(getCS());		putc('\t');
-  printhex(getDS());		putc('\t');
-  printhex(getSS());		putc('\t');
-  printhex(getESP());		putc('\n');
-  
+  printf("CS\tDS\tSS\tESP\n%X\t%X\t%X\t%X\n", getCS(), getDS(), getSS(), getESP());
   if (PG)
   {
     toglePGbit();
@@ -174,10 +148,10 @@ void cGenProt(isrVal_t regs)
   checkFrame(&regs);
   printf("\nGeneral Protection Fault\neip\tcs\teflags\tprocesp\tss\n");
   printf("\nDiv by 0\neip\tcs\teflags\tprocesp\tss\n");
-  printf("%x\t%x\t%x\t%x\t%x\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
+  printf("%X\t%X\t%X\t%X\t%X\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
   printf("\nCurrent:\n");
   printf("CS\tDS\tSS\tESP\n");
-  printf("%x\t%x\t%x\t%x\n", getCS(), getDS(), getSS(), getESP());
+  printf("%X\t%X\t%X\t%X\n", getCS(), getDS(), getSS(), getESP());
 //   panic("General Protection fault");
 }
 
