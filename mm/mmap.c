@@ -23,13 +23,9 @@
 // {
 // 	return *(getmmr()+4);
 // }
-unsigned int getmmapentries()
+uint64_t getmmapentries()
 {
-	unsigned int * mmr = getmmr();
-	unsigned int * entryp = (unsigned int *) *(mmr);
-	unsigned int ret = *(entryp+5);
-	return ret;
-// 	struct GEBL_MMR * mmr = (struct GEBL_MMR *) getmmr();
-// 	struct GEBL_ENTRY * entry = mmr->entry;
-// 	return entry->acpi;
+	struct GEBL_MMR * mmr = getmmr();
+	struct GEBL_ENTRY * entry = mmr->entry+2; // third entry
+	return entry->base;
 }

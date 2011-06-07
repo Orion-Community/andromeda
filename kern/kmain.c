@@ -30,7 +30,7 @@ void kmain(void)
 
 	char status = inb(0x60);
 	
-	if(getmmapentries() == 1)
+	if(getmmapentries() == 0x100000)
 	{
 		print("mmap error");
 	}
@@ -42,6 +42,3 @@ void kmain(void)
 	
 	while(1) halt();
 }
-
-
-

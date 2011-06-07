@@ -16,27 +16,9 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stdlib.h>
-#ifndef __MM_H
-#define __MM_H
+#ifndef __MMAP_H
+#define __MMAP_H
 
-struct GEBL_ENTRY
-{
-	uint64_t base;
-	uint64_t len;
-	uint32_t type;
-	uint32_t acpi;
-} __attribute__((packed));
-// typedef struct GEBL_ENTRY ENTRY_T
-
-#pragma pack(push,1)
-struct GEBL_MMR 
-{
-	struct GEBL_ENTRY * entry;
-	unsigned short count;
-	unsigned char entry_size;
-} __attribute__ ((packed));
-#pragma pack(pop)
-
-extern struct GEBL_MMR * getmmr();
+unsigned short getentrycount();
+uint64_t getmmapentries();
 #endif

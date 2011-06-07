@@ -22,10 +22,12 @@ getmemorymap:
 	mov es, ax
 	xor di, di
 
-; ; 	xor edx, edx
-; 	movzx edx, di
-; 	mov [mmr], edx 
-; 
+	and eax, 0xffff
+	shl eax, 4
+	movzx ebx, di
+	add eax, ebx
+	mov [mmr], eax
+; 	
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ; 
 mm_e820:
@@ -38,7 +40,7 @@ mm_e820:
 	push edx
 	mov [es:di+20], dword 1 ; acpi 3.x compatibility
 	int 0x15
-stc
+stc ; for debugging
 	pop edx	; restore magic number
 
 	jc .failed
@@ -250,7 +252,7 @@ mmap_entry:	; 0x18-byte mmap entry
 	acpi3 dd 0	; acpi 3.0 compatibility => should be 1
 
 mmr:
-	dd 0x500 		; dw 0 -> segment
+	dd 0	; dw 0 -> segment
 			; dw 0 -> offset
 	dw 0 ;entry count
 	db 0x24 ; entry size

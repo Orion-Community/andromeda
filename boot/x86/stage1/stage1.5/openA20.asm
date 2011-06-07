@@ -1,7 +1,38 @@
+;
+;    Enable the A20 line with the AT Keyboard controller. It represents the 21st bit (20 when counting from 0) of any mem address.
+;    Copyright (C) 2011 Michel Megens
+;
+;    This program is free software: you can redistribute it and/or modify
+;    it under the terms of the GNU General Public License as published by
+;    the Free Software Foundation, either version 3 of the License, or
+;    (at your option) any later version.
+;
+;    This program is distributed in the hope that it will be useful,
+;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;    GNU General Public License for more details.
+;
+;    You should have received a copy of the GNU General Public License
+;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;
+
+; 
+; Command:
+; 	0xad - Disable keyboard, anykeyboard command will enable the keyboard again
+; 	0xd0 - Request to read from the output port
+; 	0xd1 - Reqest to write to output port
+; 	0xdf - Enable A20 gate.
+; 
+; 	If you write data to port 0x64 the cpu inteprents it as a command byte. To sent a data byte sent to port 0x60.
+; 
 openA20:
 	cli
 	pusha
-; If you write data to port 0x64 the cpu inteprents it as a command byte. To sent a data byte sent to port 0x60.
+
+	call .writewait
+	mov al, 0xad
+	out 0x64, al
+
 	mov cx, 0x5	; 5 attempts
 .atkeyboard1:
 	call .writewait	; check if we can write before we write a command
@@ -11,11 +42,11 @@ openA20:
 
 	xor ax, ax
 	in al, 0x60	; read output port from the buffer
-	or al, 0x2	; enable a20 bit
+	or al, 0x2	; enable a20 bit - or al, 00000010b
 	push ax		; save the data temp
 
 	call .writewait
-	mov al, 0xd1	; output write output port command
+	mov al, 0xd1	; write to output port command
 	out 0x64, al
 	call .writewait
 
@@ -36,6 +67,18 @@ openA20:
 	call .testA20
 
 	loop .atkeyboard2
+
+.biosenable:
+	mov ax, 0x2401
+	int 0x15
+	jnc .done
+
+.fastA20:
+	in al, 0x92
+	or al, 0x2	; or al, 00000010b - enable a20 bit
+	out 0x92, al
+
+	call .testA20
 	jmp .failed
 
 ;
@@ -66,7 +109,7 @@ openA20:
 	in al, 0x60	; read output port
 	bt ax, 1	; test the second bit
 	pop dx	; return address
-	jnc .done
+	jc .done
 	jmp dx
 
 .done:
