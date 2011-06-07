@@ -18,11 +18,11 @@
 
 #ifndef __TEXT_H
 #define __TEXT_H
+#include <types.h>
 void println(unsigned char*);
 void printf(unsigned char*, ...);
 void putc(unsigned char);
-void printhex(unsigned int);
-void printdec(int);
+void printNum(unsigned int index, unsigned int base, boolean capital);
 void scroll(unsigned char);
 void textInit();
 #endif

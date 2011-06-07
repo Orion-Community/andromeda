@@ -85,9 +85,13 @@ void printf(unsigned char *line, ...)
       {
 	case 'd':
 	case 'i':
+	  printNum(va_arg(list, unsigned int), 10, FALSE);
+	  break;
 	case 'x':
+	  printNum(va_arg(list, unsigned int), 16, FALSE);
+	  break;
 	case 'X':
-	  printhex(va_arg(list, unsigned int));
+	  printNum(va_arg(list, unsigned int), 16, TRUE);
 	  break;
 	case 'c':
 	  putc((char)va_arg(list, unsigned int));
@@ -105,20 +109,28 @@ void printf(unsigned char *line, ...)
   }
 }
 
-char hex[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+char hex[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+char HEX[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
-void printhex(unsigned int index)
+void printNum(unsigned int index, unsigned int base, boolean capital)
 {
-	int i = 7;
-	while (( (( index >> 4*i ) & 0xf) == 0x0)&(i>0)) {
-		i--;
-	}
-	while (i>=0) {
-		putc(hex[( index >> 4*i ) & 0xf]);
-		i--;
-	}
+  char* buf[32];
+  memset(buf, '\0', 32);
+  int i = 0;
+  
+  if (base > 16)
+    return;
+  
+  for (; index > 0; i++)
+  {
+    buf[31-i] = (capital) ? hex[index%base] : HEX[index%base];
+    index /=base;
+  }
+  for (i--; i >= 0; i--)
+  {
+    putc(buf[31-i]);
+  }
 }
-
 
 void putc(unsigned char i)
 {
