@@ -30,12 +30,8 @@ void kmain(void)
 
 	char status = inb(0x60);
 	
-	if(getmmapentries() == 0x100000)
-	{
-		println("Memory map seems to be OK.");
-	}
-	printnum(0x20, 10, 1, 1);
-	writeat('a', 24);
+	gebl_test_mmap();
+
 	putc(0xa);
 
 	if((status & 2) == 2)

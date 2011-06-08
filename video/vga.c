@@ -36,32 +36,51 @@ void println(uint8_t * txt)
 	putc(0xa);
 }
 
+void print(uint8_t * txt)
+{
+	uint32_t i = 0;
+	for(; txt[i] != 0; i++) putc(txt[i]);
+}
+
 char hex[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 char HEX[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
 void printnum(int index, uint32_t base, bool sInt, bool capital)
 {
-  char* buf[32];
-  int i = 0;
-  
-  if (base > 16)
-    return;
-  
-  if (index < 0 && sInt)
-  {
-    putc('-');
-    index *= -1;
-  } 
-  unsigned int uIndex = (unsigned int) index;
-  for (; uIndex != 0; i++)
-  {
-    buf[31-i] = (capital) ? HEX[uIndex%base] : hex[uIndex%base];
-    uIndex /=base;
-  }
-  for (i--; i >= 0; i--)
-  {
-    putc(buf[31-i]);
-  }
+	if(base == 16)
+	{ // I like a 0x prefix on hex numbers
+		putc(0x30);
+		putc(0x78);
+	}
+	
+	if(index == 0)
+	{ // hack fix for not printing zero's
+		putc(0x30);
+		return;
+	}
+	char* buf[32];
+	int i = 0;
+
+	if (base > 16)
+	return;
+
+	if (index < 0 && sInt)
+	{
+		putc('-');
+		index *= -1;
+	}
+	
+	unsigned int uIndex = (unsigned int) index;
+	for (; uIndex != 0; i++)
+	{
+		buf[31-i] = (capital) ? HEX[uIndex%base] : hex[uIndex%base];
+		uIndex /=base;
+	}
+	
+	for (i--; i >= 0; i--)
+	{
+		putc(buf[31-i]);
+	}
 }
 
 void putc(uint8_t c)

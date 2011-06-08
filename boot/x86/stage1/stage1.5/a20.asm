@@ -61,15 +61,14 @@ openA20:
 
 	loop .atkeyboard2
 
-%ifndef __OLDBIOS
 .biosenable:
 	sti
 	mov ax, 0x2401
 	int 0x15
 	cli
 	jnc .done
-%endif
 
+%ifndef __OLDPC
 .fastA20:
 	in al, A20_PORT
 	or al, 0x2	; or al, 00000010b - enable a20 bit
@@ -77,6 +76,7 @@ openA20:
 
 	call .testA20
 	jmp .failed
+%endif
 
 ;
 ; Co-routines which help the main routine

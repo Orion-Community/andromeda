@@ -20,23 +20,22 @@
 #ifndef __MM_H
 #define __MM_H
 
-struct GEBL_ENTRY
+struct gebl_mmap_entry
 {
 	uint64_t base;
 	uint64_t len;
 	uint32_t type;
 	uint32_t acpi;
 } __attribute__((packed));
-// typedef struct GEBL_ENTRY ENTRY_T
+// typedef struct gebl_mmap_entry gebl_mmap_entry_t
 
-#pragma pack(push,1)
-struct GEBL_MMR 
+struct gebl_mmap_register 
 {
-	struct GEBL_ENTRY * entry;
-	unsigned short count;
-	unsigned char entry_size;
+	struct gebl_mmap_entry * entry;
+	uint16_t ecount;
+	uint8_t entry_size;
 } __attribute__ ((packed));
-#pragma pack(pop)
+// typedef struct gebl_mmap_register gebl_mmap_register_t
 
-extern struct GEBL_MMR * getmmr();
+extern struct gebl_mmap_register * getmmr();
 #endif

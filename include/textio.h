@@ -34,6 +34,11 @@ void clearscreen();
 void println(uint8_t *);
 
 /*
+ * Print a string on the current line.
+ */
+void print(uint8_t *);
+
+/*
  * Print a number.
  */
 void printnum(int index, unsigned int base, bool sInt, bool capital);

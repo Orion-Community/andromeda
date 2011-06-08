@@ -18,14 +18,46 @@
 
 #include "include/mmap.h"
 #include <sys/stdlib.h>
+#include <textio.h>
 
-// unsigned short getentrycount()
-// {
-// 	return *(getmmr()+4);
-// }
-uint64_t getmmapentries()
+struct gebl_mmap_entry * getmmapentry(int idx)
 {
-	struct GEBL_MMR * mmr = getmmr();
-	struct GEBL_ENTRY * entry = mmr->entry+2; // third entry
-	return entry->base;
+	struct gebl_mmap_register * mmr = getmmr();
+	return mmr->entry+idx;
+}
+
+void gebl_test_mmap()
+{
+	struct gebl_mmap_entry * entry;
+	
+	int i = 0;
+	uint32_t count = getmmr()->ecount;
+	print("Base address");
+	writeat('|', 30);
+	putc(0x20);
+	print("Length");
+	writeat('|', 60);
+	putc(0x20);
+	print("Type");
+	writeat('|', 80);
+	putc(0x20);
+	print("ACPI");
+	writeat('|', 100);
+	putc(0xa);
+	for(; i < count; i++)
+	{
+		entry = getmmapentry(i);
+		printnum((int)entry->base, 16, FALSE, FALSE);
+		writeat('|', 30);
+		putc(0x20);
+		printnum((int)entry->len, 16, FALSE, FALSE);
+		writeat('|', 60);
+		putc(0x20);
+		printnum(entry->type, 16, FALSE, FALSE);
+		writeat('|', 80);
+		putc(0x20);
+		printnum(entry->acpi, 16, FALSE, FALSE);
+		writeat('|', 100);
+		putc(0xa);
+	}
 }

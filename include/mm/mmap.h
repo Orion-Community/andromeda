@@ -19,6 +19,6 @@
 #ifndef __MMAP_H
 #define __MMAP_H
 
-unsigned short getentrycount();
+void gebl_test_mmap();
 uint64_t getmmapentries();
 #endif

@@ -24,7 +24,7 @@
 pmodemain:
 	xor ax, ax
 	mov ax, [sectorcount]
-	cmp ax, 0x3
+	cmp ax, 0x4
 	jne .end
 	call kmain
 

@@ -40,7 +40,9 @@ mm_e820:
 	push edx
 	mov [es:di+20], dword 1 ; acpi 3.x compatibility
 	int 0x15
-stc ; for debugging
+%ifdef __DEBUG
+	stc
+%endif
 	pop edx	; restore magic number
 
 	jc .failed
@@ -216,11 +218,13 @@ lowmmap:
 .lowres:
 ; low reserver memory
 	pop ax
-	mov [es:di], ax
 	mov dx, (1 << 10)
 	sub dx, ax
 	and edx, 0xffff
 	shl edx, 10		; convert to bytes
+	and eax, 0xffff
+	shl eax, 10
+	mov [es:di], eax
 	mov [es:di+8], edx	; length (in bytes)
 	mov [es:di+16], dword 0x2	; reserverd memory
 	mov [es:di+20], dword 0x1		; also this entry is acpi 3.0 compatible
