@@ -13,19 +13,19 @@ What is done:
 	* implemented chs + partition table
 	* Masterboot can handle more then one partition now.
 	* Obtain a mmap in differt ways.
+	* Test the mmap pointer
+	* added support for more then one partition.
 
 What should be improved:
 
 Next item:
 	* Multiboot compatibility
-	* test the memory map pointer in c
+	* get rid of magic cookies
 	* update the floppy drive support
 
 What has to be done:
 
 	* Make the bootloader multiboot compatible
-	* Get the kernel working.
-	* add support for more than one partition
 	* update the floppy drive support
 
 Notes:

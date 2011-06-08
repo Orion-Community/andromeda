@@ -26,7 +26,7 @@ struct gebl_mmap_entry * getmmapentry(int idx)
 	return mmr->entry+idx;
 }
 
-void gebl_test_mmap()
+void gebl_display_mmap()
 {
 	struct gebl_mmap_entry * entry;
 	

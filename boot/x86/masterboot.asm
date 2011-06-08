@@ -234,6 +234,7 @@ dap:
 	dq 0x0		; starting sector (sector to read, s1 = 0)
 %endif
 
+%ifdef __DEBUG
 times 446 - ($-$$) db 0
 ; first partition table
 	db 0x0
@@ -257,6 +258,7 @@ times 446 - ($-$$) db 0
 	dw 0x0
 	dw 0xb800
 	dw 0x3b
+%endif
 
 times 510 - ($-$$) db 0
 dw 0xaa55

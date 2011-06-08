@@ -30,7 +30,8 @@ void kmain(void)
 
 	char status = inb(0x60);
 	
-	gebl_test_mmap();
+	println("Multiboot memory map:\n");
+	gebl_display_mmap();
 
 	putc(0xa);
 
