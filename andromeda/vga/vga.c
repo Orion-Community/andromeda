@@ -133,7 +133,7 @@ void printNum(int index, unsigned int base, boolean sInt, boolean capital)
   unsigned int uIndex = (unsigned int) index;
   for (; uIndex != 0; i++)
   {
-    buf[31-i] = (capital) ? hex[uIndex%base] : HEX[uIndex%base];
+    buf[31-i] = (capital) ? HEX[uIndex%base] : hex[uIndex%base];
     uIndex /=base;
   }
   for (i--; i >= 0; i--)
