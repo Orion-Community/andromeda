@@ -1,5 +1,5 @@
 ;
-;    Low level functions of the GoldenEagle Bootloader standard library.
+;    Low level memory map functions.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,11 +16,14 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[GLOBAL halt]
-
 [SECTION .text]
-halt:
-	cli
-	hlt
-	jmp halt
+
+[GLOBAL getmmr]
+[EXTERN mmr]
+; 
+; This will return the mmr in eax. Used in mmap.c to get the mmr.
+; 
+getmmr:
+	xor eax, eax
+	mov eax, mmr
 	ret

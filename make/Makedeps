@@ -6,6 +6,7 @@ VGA_DEPS=video/vga.c
 STDLIB_DEPS=sys/stdlib.asm
 IO_DEPS=sys/io.asm
 MMAP_DEPS=mm/mmap.c
+MMAP_ASM_DEPS=mm/mmap.asm
 
 # Object files
 STAGE15=stage15.o
@@ -16,8 +17,9 @@ STDLIB=stdlib.o
 IO=io.o
 PRINT=println.o
 MMAP=mmap.o
+MMAP_ASM=mmap2.o
 
-DEPS=$(STAGE15) $(STAGE2) $(VGA) $(STDLIB) $(IO) $(KERN) $(MMAP)
+DEPS=$(STAGE15) $(STAGE2) $(VGA) $(STDLIB) $(IO) $(KERN) $(MMAP) $(MMAP_ASM)
 HEADERS=include/*.h include/*/*.h
 
 .PHONY: all
@@ -43,3 +45,6 @@ $(KERN): $(KERN_DEPS) $(HEADERS)
 
 $(MMAP): $(MMAP_DEPS) $(HEADERS)
 	$(CC) $(CCFLAGS) -o $(MMAP) $(MMAP_DEPS)
+
+$(MMAP_ASM): $(MMAP_ASM_DEPS)
+	$(AS) $(ASFLAGS) -o $(MMAP_ASM) $(MMAP_ASM_DEPS)
