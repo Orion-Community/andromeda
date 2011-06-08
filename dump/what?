@@ -1,1 +1,0 @@
-In this folder are dumps placed. Think of hexdumps, object dumps etc. In case of an hexdump, state clearly WHERE the hexdump is comming from + at what offset (in hex) we can find interresting data.

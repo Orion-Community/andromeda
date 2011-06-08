@@ -18,17 +18,19 @@
 
 #include "include/vga.h"
 #include <textio.h>
+#include <sys/stdlib.h>
 
-struct cursorPos currentline;
+GEBL_VGA cursor;
 
 void textinit()
 {
-	currentline.line = 0;
+	cursor.line = 0;
+	cursor.x = 0;
 }
 
 int print(char * txt)
 {
-	int line = currentline.line;
+	int line = cursor.line;
 	line++;
 	char *vidmem = (char *) 0xB8000;
 	int i = 0;
@@ -54,6 +56,19 @@ int print(char * txt)
 	}
 	currentline.line = line;
 	return(0);
+}
+
+void putc(uint8_t c)
+{
+	if(c == '\n')
+	{
+		cursor.x = 0;
+		cursor.line++;
+		uint8_t nop = FALSE;
+	}
+	cursor.vidmem[cursor.x] = GEBL_WHITE_TXT;
+	cursor.vidmem[cursor.x+1] = c;
+	cursor.x += 2;
 }
 
 void clearscreen() // clear the entire text screen

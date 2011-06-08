@@ -16,15 +16,21 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef VGA_HEADER
-#define VGA_HEADER
-#define VGAMEMORY 0xB8000
-#define WIDTH 80
-#define HEIGHT 25
-#define WHITE_TXT 0x07
+#include <sys/stdlib.h> 
 
-struct cursorPos
+#ifndef __VGA_H
+#define __VGA_H
+
+#define GEBL_VGA_HEADER
+#define GEBL_VGAMEMORY 0xB8000
+#define GEBL_WIDTH 80
+#define GEBL_HEIGHT 25
+#define GEBL_WHITE_TXT 0x07
+
+typedef struct vgaProperty
 {
 	int line;
-};
+	uint32_t x;
+	char * vidmem = (char *)GEBL_VGAMEMORY;
+} GEBL_VGA;
 #endif
