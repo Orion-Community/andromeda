@@ -70,7 +70,7 @@ main:
 ; A20 Gate
 ;
 
-%include 'boot/x86/stage1/stage1.5/openA20.asm'
+%include 'boot/x86/stage1/stage1.5/a20.asm'
 
 ;
 ; Print routines

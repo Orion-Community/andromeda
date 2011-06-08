@@ -16,42 +16,35 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-; 
-; Command:
-; 	0xad - Disable keyboard, anykeyboard command will enable the keyboard again
-; 	0xd0 - Request to read from the output port
-; 	0xd1 - Reqest to write to output port
-; 	0xdf - Enable A20 gate.
-; 
-; 	If you write data to port 0x64 the cpu inteprents it as a command byte. To sent a data byte sent to port 0x60.
-; 
+%include "boot/a20.h"
+
 openA20:
 	cli
 	pusha
 
 	call .writewait
-	mov al, 0xad
-	out 0x64, al
+	mov al, GEBL_DISABLE_KEYBOARD
+	out GEBL_COMMAND_PORT, al
 
 	mov cx, 0x5	; 5 attempts
 .atkeyboard1:
 	call .writewait	; check if we can write before we write a command
-	mov al, 0xd0
-	out 0x64, al	; write command 0xd0 (read output port)
+	mov al, GEBL_READ_OUTPUT_PORT
+	out GEBL_COMMAND_PORT, al	; write command 0xd0 (read output port)
 	call .readwait
 
 	xor ax, ax
-	in al, 0x60	; read output port from the buffer
+	in al, GEBL_OUTPUTBUFFER_PORT	; read output port from the buffer
 	or al, 0x2	; enable a20 bit - or al, 00000010b
 	push ax		; save the data temp
 
 	call .writewait
-	mov al, 0xd1	; write to output port command
-	out 0x64, al
+	mov al, GEBL_WRITE_OUTPUT_PORT	; write to output port command (0xd1)
+	out GEBL_COMMAND_PORT, al
 	call .writewait
 
 	pop ax
-	out 0x60, al	; sent the output register with the enable a20 bit
+	out GEBL_DATA_PORT, al	; sent the output register with the enable a20 bit
 
 	call .testA20
 
@@ -61,16 +54,18 @@ openA20:
 
 .atkeyboard2:
 	call .writewait
-	mov al, 0xdf
-	out 0x64, al	; 0xdf command -> enable a20 gate
+	mov al, GEBL_ENABLE_A20_GATE
+	out GEBL_COMMAND_PORT, al	; 0xdf command -> enable a20 gate
 
 	call .testA20
 
 	loop .atkeyboard2
 
 .biosenable:
+	sti
 	mov ax, 0x2401
 	int 0x15
+	cli
 	jnc .done
 
 .fastA20:
@@ -87,26 +82,26 @@ openA20:
 
 .readwait:
 	xor ax, ax
-	in al, 0x64	; read status register
+	in al, GEBL_STATUS_PORT	; read status register
 	bt ax, 0
 	jnc .readwait
 	ret
 
 .writewait:
 	xor ax, ax
-	in al, 0x64	; read status register
+	in al, GEBL_STATUS_PORT	; read status register
 	bt ax, 1
 	jc .writewait
 	ret
 
 .testA20:
 	call .writewait
-	mov al, 0xd0	; read output port
-	out 0x64, al
+	mov al, GEBL_READ_OUTPUT_PORT	; read output port
+	out GEBL_COMMAND_PORT, al
 	call .readwait
 
 	xor ax, ax
-	in al, 0x60	; read output port
+	in al, GEBL_OUTPUTBUFFER_PORT	; read output port
 	bt ax, 1	; test the second bit
 	pop dx	; return address
 	jc .done
