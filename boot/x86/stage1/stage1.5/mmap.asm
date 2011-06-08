@@ -16,14 +16,16 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+%include "boot/mmap.h"
+
 [GLOBAL mmr]
 getmemorymap:
-	mov ax, 0x50
+	mov ax, GEBL_MMAP_SEG
 	mov es, ax
 	xor di, di
 
 	and eax, 0xffff
-	shl eax, 4
+	shl eax, 4 ; eax * 16
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
@@ -90,7 +92,7 @@ mm_e820:
 ;
 mm_e801:
 	xor di, di
-	mov ax, 0x50
+	mov ax, GEBL_MMAP_SEG
 	mov es, ax
 	call lowmmap
 	jc .failed
@@ -106,10 +108,10 @@ mm_e801:
 
 	and ecx, 0xffff	; clear upper 16 bits
 	shl ecx, 10
-	mov [es:di], dword 0x100000
+	mov [es:di], dword GEBL_EXT_BASE
 	mov [es:di+8], ecx		;dword (0x3c00<<10)
-	mov [es:di+16], byte 0x1
-	mov [es:di+20], byte 0x1
+	mov [es:di+16], byte GEBL_USABLE_MEM
+	mov [es:di+20], byte GEBL_ACPI
 	jecxz .useax
 	push .highmem
 	jmp .next
@@ -126,10 +128,10 @@ mm_e801:
 
 	and edx, 0xffff
 	shl edx, 16	; edx * 1024 * 64
-	mov [es:di], dword 0x1000000
+	mov [es:di], dword GEBL_HIGH_BASE
 	mov [es:di+8], edx
-	mov [es:di+16],	byte 0x1	; type -> usable
-	mov [es:di+20], byte 0x1	; acpi 3.0 compatible
+	mov [es:di+16],	byte GEBL_USABLE_MEM	; type -> usable
+	mov [es:di+20], byte GEBL_ACPI	; acpi 3.0 compatible
 
 	test edx, edx	
 	jz .usebx
@@ -162,7 +164,7 @@ mm_e801:
 ; 
 mm_88:
 	xor di, di	; set segment:offset of the buffer, just to be sure
-	mov ax, 0x50
+	mov ax, GEBL_MMAP_SEG
 	mov es, ax
 
 	call lowmmap	; get a lowmmap
@@ -178,8 +180,8 @@ mm_88:
 
 	mov [es:di], dword 0x00100000	; base
 	mov [es:di+8], eax
-	mov [es:di+16], dword 0x1	; free memory
-	mov [es:di+20], dword 0x1	; acpi 3.0
+	mov [es:di+16], dword GEBL_USABLE_MEM	; free memory
+	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
 	jmp .done
 
 .nxtentry:
@@ -207,10 +209,10 @@ lowmmap:
 	push ax
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
-	mov [es:di], dword 0x0
+	mov [es:di], dword GEBL_LOW_BASE
 	mov [es:di+8], eax
-	mov [es:di+16], dword 0x1
-	mov [es:di+20], dword 0x1	; acpi 3.0 compatible entry
+	mov [es:di+16], dword GEBL_USABLE_MEM
+	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
 	push .lowres
 	add di, 0x18
 	jmp copy_empty_entry
@@ -226,8 +228,8 @@ lowmmap:
 	shl eax, 10
 	mov [es:di], eax
 	mov [es:di+8], edx	; length (in bytes)
-	mov [es:di+16], dword 0x2	; reserverd memory
-	mov [es:di+20], dword 0x1		; also this entry is acpi 3.0 compatible
+	mov [es:di+16], dword GEBL_RESERVED_MEM	; reserverd memory
+	mov [es:di+20], dword GEBL_ACPI		; also this entry is acpi 3.0 compatible
 	jmp .done
 
 .failed:
@@ -248,15 +250,3 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 	sub di, 0x18	; just to make addressing esier
 	ret
 ; now there is an empty entry at [es:di]
-
-mmap_entry:	; 0x18-byte mmap entry
-	base dq 0	; base address
-	length dq 0	; length (top_addr - base_addr)
-	type dd 0	; entry type
-	acpi3 dd 0	; acpi 3.0 compatibility => should be 1
-
-mmr:
-	dd 0	; dw 0 -> segment
-			; dw 0 -> offset
-	dw 0 ;entry count
-	db 0x24 ; entry size
