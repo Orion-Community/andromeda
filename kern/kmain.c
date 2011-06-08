@@ -32,7 +32,7 @@ void kmain(void)
 	
 	if(getmmapentries() == 0x100000)
 	{
-		print("mmap error");
+		print("Memory map seems to be OK.");
 	}
 
 	if((status & 2) == 2)
