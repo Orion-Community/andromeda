@@ -22,7 +22,7 @@
 void println(unsigned char*);
 void printf(unsigned char*, ...);
 void putc(unsigned char);
-void printNum(unsigned int index, unsigned int base, boolean capital);
+void printNum(int index, unsigned int base, boolean sInt, boolean capital);
 void scroll(unsigned char);
 void textInit();
 #endif
