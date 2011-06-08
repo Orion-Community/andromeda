@@ -26,60 +26,43 @@ void textinit()
 {
 	cursor.line = 0;
 	cursor.x = 0;
+	cursor.vidmem = (char *)GEBL_VGAMEMORY;
 }
 
-int print(char * txt)
+void println(uint8_t * txt)
 {
-	int line = cursor.line;
-	line++;
-	char *vidmem = (char *) 0xB8000;
-	int i = 0;
-
-	i = (line * 80 * 2);
-
-	while(*txt != 0)
-	{
-		if(*txt == '\n') // check for a new line
-		{
-			line++;
-			i=(line * 80 * 2);
-			*txt++;
-		} 
-		else 
-		{
-			vidmem[i] = *txt;
-			*txt++;
-			i++;
-			vidmem[i] = WHITE_TXT;
-			i++;
-		}
-	}
-	currentline.line = line;
-	return(0);
+	uint32_t i = 0;
+	for(; txt[i] != 0; i++) putc(txt[i]);
+	putc(0xa);
 }
 
 void putc(uint8_t c)
 {
-	if(c == '\n')
+	uint32_t i = (cursor.line * 80 * 2) + cursor.x;
+	switch(c)
 	{
-		cursor.x = 0;
-		cursor.line++;
-		uint8_t nop = FALSE;
+		case '\n':
+			
+			cursor.x = 0;
+			cursor.line++;
+			break;
+		default:
+			cursor.vidmem[i] = c;
+			cursor.vidmem[i+1] = GEBL_WHITE_TXT;
+			cursor.x += 2;
+			break;
 	}
-	cursor.vidmem[cursor.x] = GEBL_WHITE_TXT;
-	cursor.vidmem[cursor.x+1] = c;
-	cursor.x += 2;
 }
 
 void clearscreen() // clear the entire text screen
 {
 	char *vidmem = (char *) 0xb8000;
 	unsigned int i = 0;
-	while(i < (WIDTH * HEIGHT * 2))
+	while(i < (GEBL_WIDTH * GEBL_HEIGHT * 2))
 	{
 		vidmem[i]=' ';
 		i++;
-		vidmem[i] = WHITE_TXT;
+		vidmem[i] = GEBL_WHITE_TXT;
 		i++;
 	}
 }

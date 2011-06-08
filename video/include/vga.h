@@ -31,6 +31,6 @@ typedef struct vgaProperty
 {
 	int line;
 	uint32_t x;
-	char * vidmem = (char *)GEBL_VGAMEMORY;
+	char * vidmem;
 } GEBL_VGA;
 #endif

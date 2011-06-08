@@ -26,18 +26,20 @@ void kmain(void)
 	textinit();
 	clearscreen();
 	
-	print("GoldenEagle kernel is executing.\n");
+	println("GoldenEagle kernel is executing. \n");
 
 	char status = inb(0x60);
 	
 	if(getmmapentries() == 0x100000)
 	{
-		print("Memory map seems to be OK.");
+		println("Memory map seems to be OK.");
 	}
+	putc('a');
+	putc(0xa);
 
 	if((status & 2) == 2)
 	{
-		print("The A20 gate is open.");
+		println("The A20 gate is open.");
 	}
 	
 	while(1) halt();

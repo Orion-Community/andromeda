@@ -35,5 +35,6 @@
 %define GEBL_DATA_PORT 0x60
 %define GEBL_OUTPUTBUFFER_PORT 0x60
 %define GEBL_COMMAND_PORT 0x64
+%define A20_PORT 0x92
 
 %endif

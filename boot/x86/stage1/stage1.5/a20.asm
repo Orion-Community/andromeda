@@ -69,9 +69,9 @@ openA20:
 	jnc .done
 
 .fastA20:
-	in al, 0x92
+	in al, A20_PORT
 	or al, 0x2	; or al, 00000010b - enable a20 bit
-	out 0x92, al
+	out A20_PORT, al
 
 	call .testA20
 	jmp .failed

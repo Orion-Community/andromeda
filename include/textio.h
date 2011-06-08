@@ -16,6 +16,8 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sys/stdlib.h>
+
 /*
  * Initialize text i/o.
  */
@@ -31,6 +33,11 @@ void clearscreen();
  * Returns 0 on success.
  */
 int print(char * txt);
+
+/*
+ * Print a string on a new line.
+ */
+void println(uint8_t *);
 
 /*
  * Print a number in hex.
