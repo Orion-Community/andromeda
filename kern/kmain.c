@@ -34,7 +34,8 @@ void kmain(void)
 	{
 		println("Memory map seems to be OK.");
 	}
-	putc('a');
+	printnum(0x20, 10, 1, 1);
+	writeat('a', 24);
 	putc(0xa);
 
 	if((status & 2) == 2)

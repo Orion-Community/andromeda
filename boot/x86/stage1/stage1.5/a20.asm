@@ -61,12 +61,14 @@ openA20:
 
 	loop .atkeyboard2
 
+%ifndef __OLDBIOS
 .biosenable:
 	sti
 	mov ax, 0x2401
 	int 0x15
 	cli
 	jnc .done
+%endif
 
 .fastA20:
 	in al, A20_PORT

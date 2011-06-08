@@ -29,17 +29,21 @@ void textinit();
 void clearscreen();
 
 /*
- * Write a line with the text 'txt' at the current line
- * Returns 0 on success.
- */
-int print(char * txt);
-
-/*
  * Print a string on a new line.
  */
 void println(uint8_t *);
 
 /*
- * Print a number in hex.
+ * Print a number.
  */
-void printhex(unsigned int idx);
+void printnum(int index, unsigned int base, bool sInt, bool capital);
+
+/*
+ * Put a character at the current cursor location.
+ */
+void putc(uint8_t c);
+
+/* 
+ * Writte a character on the current line at location x.
+ */
+void writeat(uint8_t c, uint32_t x);
