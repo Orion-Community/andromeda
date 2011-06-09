@@ -42,9 +42,7 @@ mm_e820:
 	push edx
 	mov [es:di+20], dword GEBL_ACPI ; acpi 3.x compatibility
 	int 0x15
-%ifdef __DEBUG
-	stc
-%endif
+stc
 	pop edx	; restore magic number
 
 	jc .failed
@@ -206,9 +204,9 @@ lowmmap:
 	int 0x12	; get low memory size
 
 	jc .failed	; if interrupt 0x12 is not support, its really really over..
-	push ax
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
+	push eax	; save for later
 	mov [es:di], dword GEBL_LOW_BASE
 	mov [es:di+8], eax
 	mov [es:di+16], dword GEBL_USABLE_MEM
@@ -219,13 +217,10 @@ lowmmap:
 
 .lowres:
 ; low reserver memory
-	pop ax
-	mov dx, (1 << 10)
-	sub dx, ax
+	pop eax
 	and edx, 0xffff
-	shl edx, 10		; convert to bytes
-	and eax, 0xffff
-	shl eax, 10
+	mov edx, (1 << 20)
+	sub edx, eax
 
 	mov [es:di], eax
 	mov [es:di+8], edx	; length (in bytes)

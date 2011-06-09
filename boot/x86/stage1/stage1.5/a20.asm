@@ -75,8 +75,8 @@ openA20:
 	out A20_PORT, al
 
 	call .testA20
-	jmp .failed
 %endif
+	jmp .failed
 
 ;
 ; Co-routines which help the main routine

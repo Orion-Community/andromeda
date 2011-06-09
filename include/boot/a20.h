@@ -1,6 +1,5 @@
 ;
-;    Calculate how many sectors the second stage is, and load enough sectors. Algorith used:
-;	sectors to read = (endptr - (stage15Offset + stage15Size)) / sectorSize
+;    Header for the a20 implementation.
 ;
 ;    Copyright (C) 2011 Michel Megens
 ;
