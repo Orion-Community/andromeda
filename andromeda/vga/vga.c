@@ -113,8 +113,8 @@ void printf(unsigned char *line, ...)
   }
 }
 
-char hex[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-char HEX[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+char hex[36] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 
 void printNum(int index, unsigned int base, boolean sInt, boolean capital)
 {
@@ -122,8 +122,10 @@ void printNum(int index, unsigned int base, boolean sInt, boolean capital)
   memset(buf, '\0', 32);
   int i = 0;
   
-  if (base > 16)
+  if (base > 36 || base < 2 )
     return;
+  if (index == 0)
+    putc('0');
   
   if (index < 0 && sInt)
   {

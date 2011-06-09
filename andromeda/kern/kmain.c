@@ -165,7 +165,7 @@ int kmain()
   {
     printf("ELF fail!!!!\n");
   }
-  printf("%X\n", 0x8fffffff);
+  printNum(0, 16, FALSE, FALSE); putc('\n');
   #endif
   
   #ifdef MMTEST
