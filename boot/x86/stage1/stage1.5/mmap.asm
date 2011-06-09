@@ -35,12 +35,12 @@ getmemorymap:
 mm_e820:
 	push bp
 	xor bp, bp ; entry counter
-	mov eax, 0xE820
+	mov eax, 0xe820
 	xor ebx, ebx
 	mov ecx, 0x18
-	mov edx, 0x534D4150
+	mov edx, GEBL_SMAP
 	push edx
-	mov [es:di+20], dword 1 ; acpi 3.x compatibility
+	mov [es:di+20], dword GEBL_ACPI ; acpi 3.x compatibility
 	int 0x15
 %ifdef __DEBUG
 	stc
@@ -55,11 +55,11 @@ mm_e820:
 	jmp .addentry
 
 .getentry:
-	mov eax, 0xE820
+	mov eax, 0xe820
 	mov ecx, 0x18
-	mov edx, 0x534D4150
+	mov edx, GEBL_SMAP
 	push edx
-	mov [es:di+20], dword 1
+	mov [es:di+20], dword GEBL_ACPI
 	int 0x15
 	pop edx
 
@@ -226,6 +226,7 @@ lowmmap:
 	shl edx, 10		; convert to bytes
 	and eax, 0xffff
 	shl eax, 10
+
 	mov [es:di], eax
 	mov [es:di+8], edx	; length (in bytes)
 	mov [es:di+16], dword GEBL_RESERVED_MEM	; reserverd memory
