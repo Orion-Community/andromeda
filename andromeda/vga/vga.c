@@ -122,7 +122,7 @@ void printNum(int index, unsigned int base, boolean sInt, boolean capital)
   memset(buf, '\0', 32);
   int i = 0;
   
-  if (base > 36 || base < 2 )
+  if (base > 36 && base < 2 )
     return;
   if (index == 0)
     putc('0');
