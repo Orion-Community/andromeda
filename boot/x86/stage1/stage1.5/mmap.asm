@@ -28,7 +28,7 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-
+jmp mm_cmos
 ; 	
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -148,50 +148,12 @@ mm_e801:
 	jmp copy_empty_entry
 
 .failed:
-	jmp mm_88
+	jmp mm_cmos
 	stc
 	ret
 
 .done:
 	mov [mmr+4], word 0x4	; 2x low mem + mid mem + high mem = 4 entries
-	clc
-	ret
-
-; 
-; This is a function from the dinosaur time, it it used on verry old PC's when all other methods to get a memory map fail. If this
-; fails to, the bootloader will cry to the user, and tell him to buy a new pc.
-; 
-mm_88:
-	xor di, di	; set segment:offset of the buffer, just to be sure
-	mov ax, GEBL_MMAP_SEG
-	mov es, ax
-
-	call lowmmap	; get a lowmmap
-	jc .failed
-	push .highmem
-	jmp .nxtentry
-.highmem:
-	mov ax, 0x8800
-	int 0x15
-	jc .failed
-	and eax, 0xffff
-	shl eax, 10
-
-	call addmemoryhole
-
-	jmp .done
-
-.nxtentry:
-	add di, 0x18
-	jmp copy_empty_entry
-
-.failed:
-	jmp mm_cmos
-	stc
-	ret
-.done:
-	add cx, 2	; low entries
-	mov [mmr+4], cx
 	clc
 	ret
 
@@ -289,10 +251,48 @@ mm_cmos:
 	ret
 
 .failed:
+	jmp mm_88
 	stc
 	ret
 .done:
 	add cx, 2	; lowmmap entries
+	mov [mmr+4], cx
+	clc
+	ret
+
+; 
+; This is a function from the dinosaur time, it it used on verry old PC's when all other methods to get a memory map fail. If this
+; fails to, the bootloader will cry to the user, and tell him to buy a new pc.
+; 
+mm_88:
+	xor di, di	; set segment:offset of the buffer, just to be sure
+	mov ax, GEBL_MMAP_SEG
+	mov es, ax
+
+	call lowmmap	; get a lowmmap
+	jc .failed
+	push .highmem
+	jmp .nxtentry
+.highmem:
+	mov ax, 0x8800
+	int 0x15
+	jc .failed
+	and eax, 0xffff
+	shl eax, 10
+
+	call addmemoryhole
+
+	jmp .done
+
+.nxtentry:
+	add di, 0x18
+	jmp copy_empty_entry
+
+.failed:
+	stc
+	ret
+.done:
+	add cx, 2	; low entries
 	mov [mmr+4], cx
 	clc
 	ret
