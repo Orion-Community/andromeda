@@ -200,36 +200,39 @@ mm_cmos:
 	mov ax, GEBL_MMAP_SEG
 	mov es, ax
 
-call copy_empty_entry
+	call copy_empty_entry
 
 .lowmem:
 	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER
 	out GEBL_CMOS_OUTPUT, al
-	call .delay		; wait for data
+	call .delay
+
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT
 	push ax	 ; sava data temp
 	
 	mov al, GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER
 	out GEBL_CMOS_OUTPUT, al
-	call .delay	; sit and wait for it
+	call .delay
+
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT
 	
 	pop dx
+	shl ax, 8
 	or ax, dx ; ax is the most significant byte, dx the least significant
 	
 	and eax, 0xffff
 	shl eax, 10
-	push eax
+	push eax	; save for the low reserved mmap
 	
 	mov [es:di], dword GEBL_LOW_BASE
 	mov [es:di+8], eax
 	mov [es:di+16], dword GEBL_USABLE_MEM
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
-	
+
 	push .lowres
-	jmp copy_empty_entry
+	jmp .next
 
 .lowres:
 ; low reserver memory
@@ -244,12 +247,13 @@ call copy_empty_entry
 	mov [es:di+20], dword GEBL_ACPI		; also this entry is acpi 3.0 compatible
 
 	push .highmem
-	jmp copy_empty_entry
+	jmp .next
 
 .highmem:
 	mov al, GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER
 	out GEBL_CMOS_OUTPUT, al	; tell the cmos we want to read the high memory
 	call .delay
+
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT ; get the low bytes
 	push ax
@@ -257,7 +261,7 @@ call copy_empty_entry
 	mov al, GEBL_CMOS_EXT_MEM_HIGH_ORDER_REGISTER
 	out GEBL_CMOS_OUTPUT, al
 	call .delay
-	
+
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT
 
@@ -275,16 +279,16 @@ call copy_empty_entry
 .next:
 	add di, 0x18
 	jmp copy_empty_entry
-	
-.delay
+
+.delay:
 	times 10 nop
 	ret
-	
+
 .failed:
 	stc
 	ret
 .done:
-	add cx, 2	; low mem entries
+	add cx, 2	; lowmmap entries
 	mov [mmr+4], cx
 	clc
 	ret
