@@ -206,6 +206,7 @@ mm_cmos:
 	call copy_empty_entry
 
 .lowmem:
+; This subroutine will create the first two entries, the low memory (mem < 1mb)
 	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
 	out GEBL_CMOS_OUTPUT, al
 	call .delay	; wait
@@ -222,7 +223,7 @@ mm_cmos:
 	in al, GEBL_CMOS_INPUT	; collect data
 	
 	pop dx
-	shl ax, 8
+	shl ax, 8	; put al in ah
 	or ax, dx ; ax is the most significant byte, dx the least significant
 	
 	and eax, 0xffff
