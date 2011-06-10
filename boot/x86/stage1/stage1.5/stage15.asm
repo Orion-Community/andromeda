@@ -22,7 +22,7 @@
 jmp short main
 nop
 
-main:	
+main:
 	mov di, 0x7c00
 	push di
 	mov cx, 0x8
@@ -50,7 +50,7 @@ main:
 
 	pop dx
 	pop si
-	jmp 0x7E0:0x400
+	jmp 0x7E0:0x800
 
 	jmp .bailout
 
@@ -80,4 +80,4 @@ main:
 	
 	failed db '0x2', 0x0
 
-times 1024 - ($ - $$) db 0
+times 2048 - ($ - $$) db 0

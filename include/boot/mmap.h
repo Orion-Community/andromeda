@@ -30,6 +30,13 @@
 %define GEBL_LOW_BASE 0x00
 %define GEBL_ACPI 0x01
 
+; CMOS i/o ports
+
+%define GEBL_CMOS_OUTPUT 0x70
+%define GEBL_CMOS_INPUT 0x71
+%define GEBL_CMOS_LOW_ORDER_REGISTER 0x30
+%define GEBL_CMOS_HIGH_ORDER_REGISTER 0x31
+
 
 ; ram types
 %define GEBL_USABLE_MEM 0x1
@@ -44,6 +51,7 @@ mmap_entry:	; 0x18-byte mmap entry
 	type dd 0	; entry type
 	acpi3 dd 0	; acpi 3.0 compatibility => should be 1
 
+[GLOBAL mmr]
 mmr:
 	dd 0	; dw 0 -> segment
 			; dw 0 -> offset

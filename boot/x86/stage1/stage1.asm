@@ -27,7 +27,7 @@ failed db '0x1', 0x0
 dap:
 	db 0x10      	; register size
 	db 0      	; reserved, must be 0
-	dw 0x2      	; sectors to read
+	dw 0x4      	; sectors to read
 	dw 0x7e00   	; memory offset
 	dw 0x0   	; memory segment
 	dq 0x0		; starting sector (sector to read, s1 = 0)
@@ -118,7 +118,7 @@ main: ; entry point
 	xor bx, bx	; segment 0
 	mov es, bx
 	mov bx, 0x7e00	; buffer
-	mov ax, 0x201
+	mov ax, 0x204
 	int 0x13
 	jc .bailout
 	jmp .loaded

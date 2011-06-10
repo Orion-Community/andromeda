@@ -18,7 +18,6 @@
 
 %include "boot/mmap.h"
 
-[GLOBAL mmr]
 getmemorymap:
 	mov ax, GEBL_MMAP_SEG
 	mov es, ax
@@ -29,6 +28,7 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
+jmp cmos
 ; 	
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ; 
@@ -42,7 +42,6 @@ mm_e820:
 	push edx
 	mov [es:di+20], dword GEBL_ACPI ; acpi 3.x compatibility
 	int 0x15
-stc
 	pop edx	; restore magic number
 
 	jc .failed
@@ -183,6 +182,53 @@ mm_88:
 	jmp .done
 
 .nxtentry:
+	add di, 0x18
+	jmp copy_empty_entry
+
+.failed:
+	stc
+	ret
+.done:
+	mov [mmr+4], word 0x3
+	clc
+	ret
+
+cmos:
+	xor di, di
+	mov ax, GEBL_MMAP_SEG
+	mov es, ax
+
+	call lowmmap
+	jc .failed
+	push .highmem
+	jmp .next
+
+.highmem:
+	mov al, GEBL_CMOS_LOW_ORDER_REGISTER
+	out GEBL_CMOS_OUTPUT, al	; tell the cmos we want to read the high memory
+	xor ax, ax
+	in al, GEBL_CMOS_INPUT ; get the low bytes
+	push ax
+
+	mov al, GEBL_CMOS_HIGH_ORDER_REGISTER
+	out GEBL_CMOS_OUTPUT, al
+	xor ax, ax
+	in al, GEBL_CMOS_INPUT
+
+	pop dx
+	shl ax, 8
+	or ax, dx
+
+	and eax, 0xffff
+	shl eax, 10
+
+	mov [es:di], dword 0x00100000	; base
+	mov [es:di+8], eax
+	mov [es:di+16], dword GEBL_USABLE_MEM	; free memory
+	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	jmp .done
+
+.next:
 	add di, 0x18
 	jmp copy_empty_entry
 
