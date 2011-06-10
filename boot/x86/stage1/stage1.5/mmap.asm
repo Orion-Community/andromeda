@@ -31,7 +31,8 @@ getmemorymap:
 	mov [mmr], eax
 ; 	
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
-; 
+;
+%ifndef __OLDPC 
 mm_e820:
 	push bp
 	xor bp, bp ; entry counter
@@ -84,6 +85,7 @@ stc
 	jmp mm_e801
 	stc
 	ret
+%endif
 
 ;
 ; This memory map will contain 4 entries. See doc/mmap.txt for more information.

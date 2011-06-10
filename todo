@@ -1,4 +1,4 @@
-What is done:
+﻿What is done:
 
 	* Fixed A20 line on 15th of april..
 	* Rewrite of the A20 Line enabling code
@@ -22,6 +22,7 @@ Next item:
 	* Multiboot compatibility
 	* get rid of magic cookies
 	* update the floppy drive support
+	* Get some interrupts working
 
 What has to be done:
 
