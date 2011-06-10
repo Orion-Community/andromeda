@@ -28,7 +28,7 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-jmp cmos
+jmp mm_cmos
 ; 	
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -188,6 +188,7 @@ mm_88:
 	jmp copy_empty_entry
 
 .failed:
+	jmp mm_cmos
 	stc
 	ret
 .done:
@@ -195,7 +196,7 @@ mm_88:
 	clc
 	ret
 
-cmos:
+mm_cmos:
 	xor di, di
 	mov ax, GEBL_MMAP_SEG
 	mov es, ax
