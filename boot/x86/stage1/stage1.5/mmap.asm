@@ -177,10 +177,8 @@ mm_88:
 	and eax, 0xffff
 	shl eax, 10
 
-	mov [es:di], dword 0x00100000	; base
-	mov [es:di+8], eax
-	mov [es:di+16], dword GEBL_USABLE_MEM	; free memory
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	call addmemoryhole
+
 	jmp .done
 
 .nxtentry:
@@ -192,7 +190,8 @@ mm_88:
 	stc
 	ret
 .done:
-	mov [mmr+4], word 0x3
+	add cx, 2	; low entries
+	mov [mmr+4], cx
 	clc
 	ret
 
@@ -227,33 +226,8 @@ mm_cmos:
 	and eax, 0xffff
 	shl eax, 10
 
-	cmp eax, (15 << 20) ; 15 mb in bytes
-	jb .fillremainder
-	
-	; first 14 mb are usable
-	mov [es:di], dword 0x100000	; base - 15mb
-	mov [es:di+8], dword 0x00E00000 ; length = 1mb
-	mov [es:di+16], dword GEBL_USABLE_MEM	; bad memory
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
-	
-	push .addmemhole
-	jmp .next
-	
-.addmemhole:	
-	mov [es:di], dword 0x00F00000	; base - 15mb
-	mov [es:di+8], dword 0x00100000	; length = 1mb
-	mov [es:di+16], dword GEBL_BAD_MEM	; bad memory
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
-	
-	sub eax, (15 << 20)	; substract 15 mb (the reserved mem + the memory already defined as usable) from it
-	push .remainder
-	jmp .next
-	
-.remainder:
-	mov [es:di], dword 0x001000000	; base
-	mov [es:di+8], eax
-	mov [es:di+16], dword GEBL_USABLE_MEM	; free memory
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	call addmemoryhole
+
 	jmp .done
 
 .next:
@@ -264,7 +238,8 @@ mm_cmos:
 	stc
 	ret
 .done:
-	mov [mmr+4], word 0x3
+	add cx, 2	; low mem entries
+	mov [mmr+4], cx
 	clc
 	ret
 
@@ -308,6 +283,58 @@ lowmmap:
 .done:
 	clc
 	ret
+
+addmemoryhole:
+	xor cx, cx
+	pusha
+	push cx	; .next will pop the counter off
+	cmp eax, (15 << 20) ; 15 mb in bytes
+	jb .remainder
+	
+	; first 14 mb are usable
+	mov [es:di], dword 0x100000	; base - 15mb
+	mov [es:di+8], dword 0x00E00000 ; length = 1mb
+	mov [es:di+16], dword GEBL_USABLE_MEM	; bad memory
+	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	
+	push .addmemhole
+	jmp .next
+	
+.addmemhole:	
+	mov [es:di], dword 0x00F00000	; base - 15mb
+	mov [es:di+8], dword 0x00100000	; length = 1mb
+	mov [es:di+16], dword GEBL_BAD_MEM	; bad memory
+	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	
+	sub eax, (15 << 20)	; substract 15 mb (the reserved mem + the memory already defined as usable) from it
+	push .remainder
+	jmp .next
+	
+.remainder:
+	mov [es:di], dword 0x001000000	; base
+	mov [es:di+8], eax
+	mov [es:di+16], dword GEBL_USABLE_MEM	; free memory
+	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	pop cx
+	inc cx
+
+	pop di
+	pop si
+	pop bp
+	pop bx
+	pop dx
+	add sp, 4
+	pop ax
+	ret
+
+.next:
+	add di, 0x18
+	pop dx
+	pop cx
+	inc cx
+	push cx
+	push dx
+	jmp copy_empty_entry
 
 ; 
 ; This routine copies an empty memory map to the location specified by es:di
