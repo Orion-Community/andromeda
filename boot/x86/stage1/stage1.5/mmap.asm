@@ -195,6 +195,9 @@ mm_88:
 	clc
 	ret
 
+; 
+; This memory map route does not use the bios to create one, but the cmos.
+; 
 mm_cmos:
 	xor di, di
 	mov ax, GEBL_MMAP_SEG
@@ -203,20 +206,20 @@ mm_cmos:
 	call copy_empty_entry
 
 .lowmem:
-	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER
+	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
 	out GEBL_CMOS_OUTPUT, al
-	call .delay
+	call .delay	; wait
 
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT
 	push ax	 ; sava data temp
 	
-	mov al, GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER
+	mov al, GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; most sig byte
 	out GEBL_CMOS_OUTPUT, al
 	call .delay
 
 	xor ax, ax
-	in al, GEBL_CMOS_INPUT
+	in al, GEBL_CMOS_INPUT	; collect data
 	
 	pop dx
 	shl ax, 8
@@ -379,9 +382,9 @@ addmemoryhole:
 
 .next:
 	add di, 0x18
-	pop dx
+	pop dx	; return addr
 	pop cx
-	inc cx
+	inc cx	; entry counter
 	push cx
 	push dx
 	jmp copy_empty_entry
