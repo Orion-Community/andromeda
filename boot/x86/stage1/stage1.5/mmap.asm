@@ -28,7 +28,7 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-jmp mm_cmos
+
 ; 	
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -202,7 +202,7 @@ mm_cmos:
 
 .lowres:
 ; low reserver memory
-	pop eax
+	pop eax	; get saved value
 	and edx, 0xffff
 	mov edx, (1 << 20)
 	sub edx, eax
