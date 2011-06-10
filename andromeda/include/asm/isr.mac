@@ -15,13 +15,11 @@
 ;   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %macro isrNoErr 1
-  cli
   push 0
   push %1
 %endmacro
 
 %macro isrErr 1
-  cli
   push %1
 %endmacro
 
