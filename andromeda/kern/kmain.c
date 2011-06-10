@@ -157,7 +157,7 @@ int kmain()
   *a = 0xDEADBEEF;
   #endif
   #ifdef MODS
-  if(!elfExec((void*)modules[0].addr))
+  if(elfExec((void*)modules[0].addr) == 1)
   {
     printf("ELF success!\n");
   }
@@ -165,7 +165,6 @@ int kmain()
   {
     printf("ELF fail!!!!\n");
   }
-  printNum(0, 16, FALSE, FALSE); putc('\n');
   #endif
   
   #ifdef MMTEST
