@@ -215,17 +215,42 @@ mm_cmos:
 
 	mov al, GEBL_CMOS_HIGH_ORDER_REGISTER
 	out GEBL_CMOS_OUTPUT, al
+	times 10 nop	; little delay
+	
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT
 
 	pop dx
 	shl ax, 8
-	or ax, dx
+	or ax, dx	; ax is the most significant byte, dx the least significant
 
 	and eax, 0xffff
 	shl eax, 10
 
-	mov [es:di], dword 0x00100000	; base
+	cmp eax, (15 << 20) ; 15 mb in bytes
+	jb .fillremainder
+	
+	; first 14 mb are usable
+	mov [es:di], dword 0x100000	; base - 15mb
+	mov [es:di+8], dword 0x00E00000 ; length = 1mb
+	mov [es:di+16], dword GEBL_USABLE_MEM	; bad memory
+	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	
+	push .addmemhole
+	jmp .next
+	
+.addmemhole:	
+	mov [es:di], dword 0x00F00000	; base - 15mb
+	mov [es:di+8], dword 0x00100000	; length = 1mb
+	mov [es:di+16], dword GEBL_BAD_MEM	; bad memory
+	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	
+	sub eax, (15 << 20)	; substract 15 mb (the reserved mem + the memory already defined as usable) from it
+	push .remainder
+	jmp .next
+	
+.remainder:
+	mov [es:di], dword 0x001000000	; base
 	mov [es:di+8], eax
 	mov [es:di+16], dword GEBL_USABLE_MEM	; free memory
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0

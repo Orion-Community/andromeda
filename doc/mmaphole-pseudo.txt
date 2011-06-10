@@ -1,0 +1,21 @@
+tmem = total extended memory
+
+if(tmem > 15mb)
+{
+	entry[0].base = 0x00100000	// 1mb
+	entry[1].len = 0x00E00000 // 14 mb
+		
+	entry[1].base = 0x00F00000
+	entry[1].len = 0x00100000 
+	tmem -= 1mb
+	tmem -= 14mb
+	
+	entry[2].base = 0x01000000
+	entry[2].len  = tmem
+}
+
+else
+{
+	entry[0].base = 0x00100000
+	entry[1].len = tmem
+}
