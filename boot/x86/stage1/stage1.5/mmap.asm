@@ -353,6 +353,7 @@ cmoslowmem:
 	ret
 
 .done:
+	clc
 	ret
 
 addmemoryhole:

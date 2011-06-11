@@ -34,6 +34,8 @@
 
 %define GEBL_CMOS_OUTPUT 0x70
 %define GEBL_CMOS_INPUT 0x71
+
+; CMOS data registers
 %define GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER 0x30
 %define GEBL_CMOS_EXT_MEM_HIGH_ORDER_REGISTER 0x31
 %define GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER 0x15
@@ -55,8 +57,7 @@ mmap_entry:	; 0x18-byte mmap entry
 
 [GLOBAL mmr]
 mmr:
-	dd 0	; dw 0 -> segment
-			; dw 0 -> offset
+	dd 0	; pointer to the memory map
 	dw 0 ;entry count
 	db 0x24 ; entry size
 
