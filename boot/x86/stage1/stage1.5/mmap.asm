@@ -167,50 +167,8 @@ mm_cmos:
 
 	call copy_empty_entry
 
-.lowmem:
-; This subroutine will create the first two entries, the low memory (mem < 1mb)
-	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
-	out GEBL_CMOS_OUTPUT, al
-	call .delay	; wait
-
-	xor ax, ax
-	in al, GEBL_CMOS_INPUT
-	push ax	 ; sava data temp
-	
-	mov al, GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; most sig byte
-	out GEBL_CMOS_OUTPUT, al
-	call .delay
-
-	xor ax, ax
-	in al, GEBL_CMOS_INPUT	; collect data
-	
-	pop dx
-	shl ax, 8	; put al in ah
-	or ax, dx ; ax is the most significant byte, dx the least significant
-	
-	and eax, 0xffff
-	shl eax, 10
-	push eax	; save for the low reserved mmap
-	
-	mov [es:di], dword GEBL_LOW_BASE
-	mov [es:di+8], eax
-	mov [es:di+16], dword GEBL_USABLE_MEM
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
-
-	push .lowres
-	jmp .next
-
-.lowres:
-; low reserver memory
-	pop eax	; get saved value
-	and edx, 0xffff
-	mov edx, (1 << 20)
-	sub edx, eax
-
-	mov [es:di], eax
-	mov [es:di+8], edx	; length (in bytes)
-	mov [es:di+16], dword GEBL_RESERVED_MEM	; reserverd memory
-	mov [es:di+20], dword GEBL_ACPI		; also this entry is acpi 3.0 compatible
+	call lowmmap
+	jc .failed
 
 	push .highmem
 	jmp .next
@@ -225,7 +183,7 @@ mm_cmos:
 	push ax
 
 	mov al, GEBL_CMOS_EXT_MEM_HIGH_ORDER_REGISTER
-	out GEBL_CMOS_OUTPUT, al
+	out GEBL_CMOS_OUTPUT, al	; get most significant byte
 	call .delay
 
 	xor ax, ax
@@ -306,7 +264,7 @@ lowmmap:
 	xor ax, ax
 	int 0x12	; get low memory size
 
-	jc .failed	; if interrupt 0x12 is not support, its really really over..
+	jc cmoslowmem	; if interrupt 0x12 is not support, its really really over..
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
 	push eax	; save for later
@@ -338,6 +296,65 @@ lowmmap:
 	clc
 	ret
 
+; 
+; This subroutine will create the first two entries, the low memory (mem < 1mb)
+; 
+cmoslowmem:
+	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
+	out GEBL_CMOS_OUTPUT, al
+	call .delay	; wait
+
+	xor ax, ax
+	in al, GEBL_CMOS_INPUT
+	push ax	 ; sava data temp
+	
+	mov al, GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; most sig byte
+	out GEBL_CMOS_OUTPUT, al
+	call .delay
+
+	xor ax, ax
+	in al, GEBL_CMOS_INPUT	; collect data
+	
+	pop dx
+	shl ax, 8	; put al in ah
+	or ax, dx ; ax is the most significant byte, dx the least significant
+	
+	and eax, 0xffff
+	shl eax, 10
+	push eax	; save for the low reserved mmap
+	
+	mov [es:di], dword GEBL_LOW_BASE
+	mov [es:di+8], eax
+	mov [es:di+16], dword GEBL_USABLE_MEM
+	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
+
+	push .lowres
+	jmp .next
+
+.lowres:
+; low reserver memory
+	pop eax	; get saved value
+	and edx, 0xffff
+	mov edx, (1 << 20)
+	sub edx, eax
+
+	mov [es:di], eax
+	mov [es:di+8], edx	; length (in bytes)
+	mov [es:di+16], dword GEBL_RESERVED_MEM	; reserverd memory
+	mov [es:di+20], dword GEBL_ACPI		; also this entry is acpi 3.0 compatible
+	jmp .done
+
+.next:
+	add di, 0x18
+	jmp copy_empty_entry
+
+.delay:
+	times 8 nop
+	ret
+
+.done:
+	ret
+
 addmemoryhole:
 	xor cx, cx
 	pusha
@@ -347,8 +364,8 @@ addmemoryhole:
 	
 	; first 14 mb are usable
 	mov [es:di], dword 0x100000	; base - 15mb
-	mov [es:di+8], dword 0x00E00000 ; length = 1mb
-	mov [es:di+16], dword GEBL_USABLE_MEM	; bad memory
+	mov [es:di+8], dword 0x00E00000 ; length = 14 mb
+	mov [es:di+16], dword GEBL_USABLE_MEM	; usable memory
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
 	
 	push .addmemhole
