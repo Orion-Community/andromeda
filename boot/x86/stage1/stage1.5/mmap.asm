@@ -16,8 +16,6 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-%include "boot/mmap.h"
-
 ; Create a multiboot memory map. It is not multiboot compatible in the way it rolls out of this function. The size still has to be added into the entry.
 ; The entry size is given in the mmr.
 getmemorymap:
@@ -30,7 +28,8 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-; 	
+
+; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
 %ifndef __OLDPC 
@@ -232,6 +231,7 @@ mm_88:
 	jc .failed
 	push .highmem
 	jmp .nxtentry
+
 .highmem:
 	mov ax, 0x8800
 	int 0x15

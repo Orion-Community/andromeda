@@ -34,6 +34,10 @@ void kmain(void)
 	gebl_display_mmap();
 
 	putc(0xa);
+	
+	struct gebl_register_pack * regs = getregs();
+	printnum(regs->esp, 16, FALSE, FALSE);
+	putc(0xa);
 
 	if((status & 2) == 2)
 	{

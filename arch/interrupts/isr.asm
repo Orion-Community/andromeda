@@ -18,6 +18,112 @@
 
 [SECTION .text]
 
+[GLOBAL divByZero]
+[EXTERN cDivByZero]
+divByZero:
+	isrNoErr cDivByZero
+	jmp isrStub
+
+[GLOBAL nmi]
+[EXTERN cNmi]
+nmi:
+	isrNoErr cNmi
+	jmp isrStub
+
+[GLOBAL breakp]
+[EXTERN cbp]
+breakp:
+	isrNoErr cbp
+	jmp isrStub
+
+[GLOBAL overflow]
+[EXTERN coverflow]
+overflow:
+	isrNoErr coverflow
+	jmp isrStub
+
+[GLOBAL bound]
+[EXTERN cBound]
+bound:
+	isrNoErr cBound
+	jmp isrStub
+
+[GLOBAL invalOp]
+[extern cInvalOp]
+invalOp:
+	isrNoErr cInvalOp
+	jmp isrStub
+
+[GLOBAL noMath]
+[EXTERN cNoMath]
+noMath:
+	isrNoErr cNoMath
+	jmp isrStub
+
+[GLOBAL doubleFault]
+[EXTERN cDoubleFault]
+doubleFault:
+	isrErr cDoubleFault
+	jmp isrStub
+
+[GLOBAL depricated]
+[EXTERN ignore]
+depricated:
+	isrNoErr ignore
+	jmp isrStub
+
+[GLOBAL invalidTSS]
+[EXTERN cInvalidTSS]
+invalidTSS:
+	isrErr cInvalidTSS
+	jmp isrStub
+
+[GLOBAL snp]
+[EXTERN cSnp]
+snp:
+	isrErr cSnp
+	jmp isrStub
+
+[GLOBAL stackFault]
+[EXTERN cStackFault]
+	stackFault:
+	isrErr cStackFault
+	jmp isrStub
+
+[GLOBAL genProt]
+[EXTERN cGenProt]
+	genProt:
+	isrErr cGenProt
+	jmp isrStub
+
+[GLOBAL pageFault]
+[EXTERN cPageFault]
+pageFault:
+	isrErr cPageFault
+	jmp isrStub
+
+[GLOBAL fpu]
+[EXTERN cFpu]
+fpu:
+	isrNoErr cFpu
+	jmp isrStub
+
+[GLOBAL alligned]
+[EXTERN cAlligned]
+alligned:
+	isrNoErr cAlligned
+	jmp isrStub
+
+[GLOBAL df]
+df:
+	isrNoErr cDoubleFault
+	jmp isrStub
+
+[GLOBAL simd]
+[EXTERN cSimd]
+	simd:
+	isrNoErr cSimd
+
 isrStub:
 	pushad
 	mov ebp, esp
@@ -48,5 +154,10 @@ isrStub:
 %macro isrNoError 1
 	cli
 	push 0
+	push %1
+%endmacro
+
+%macro isrError 1
+	cli	; the error code is pushed by the cpu
 	push %1
 %endmacro

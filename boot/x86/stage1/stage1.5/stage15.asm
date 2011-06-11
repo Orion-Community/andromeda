@@ -22,6 +22,8 @@
 jmp short main
 nop
 
+%include "boot/mmap.h"
+
 main:
 	mov di, 0x7c00
 	push di
