@@ -94,12 +94,7 @@ int elfExec(void* image)
 						hdr->p_memsz, hdr->p_align, hdr->p_flags);
       thisHeader+=hdrSize;
     }
-//     for (thisHeader = programHeader; (int)thisHeader <= (int)(programHeader)+(noHdrs*hdrSize); thisHeader=(void*)((long)thisHeader+hdrSize))
-//     {
-//       Elf32_Phdr* hdr = (Elf32_Phdr*)thisHeader;
-//       printf("Type:\t0x%X\nOffset:\t0x%X\nvaddr:\t0x%X\nSize:\t0x%X\n\n", hdr->p_type, hdr->p_offset,
-//       hdr->p_vaddr, hdr->p_memsz);
-//     }
+
   }
   return 1;
 }
