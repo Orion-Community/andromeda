@@ -1,5 +1,5 @@
 /*
- *   GoldenEagle Bootloader C entry point.
+ *   The GEBL standard library.
  *   Copyright (C) 2011  Michel Megens
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,22 +16,5 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
-#include <error/panic.h>
-
-bool inKernelRing()
-{
-	struct gebl_segment_pack * segs = getsegs();
-	uint8_t * error = "Not in kernel ring!";
-	
-	if((segs->cs & 0x8) == 0)
-	{
-		panic(error);
-	}
-	if((segs->ds & 0x10) == 0)
-	{
-		panic(error);
-	}
-	
-	return TRUE;
-}
+#include <sys/stdlib.h>
+void panic(uint8_t * msg);
