@@ -18,6 +18,8 @@
 
 %include "boot/mmap.h"
 
+; Create a multiboot memory map. It is not multiboot compatible in the way it rolls out of this function. The size still has to be added into the entry.
+; The entry size is given in the mmr.
 getmemorymap:
 	mov ax, GEBL_MMAP_SEG
 	mov es, ax
@@ -28,7 +30,6 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-jmp mm_cmos
 ; 	
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -256,14 +257,14 @@ mm_88:
 	ret
 
 ;
-; This routine makes a memory map of the low memory (memory < 1M)
+; This routine makes a memory map of the low memory (memory < 1M). When it returns, es:di will point to the start of the last entry.
 ;
 lowmmap:
 ; low available memory
 	call copy_empty_entry
 	xor ax, ax
 	int 0x12	; get low memory size
-stc
+
 	jc cmoslowmem	; if interrupt 0x12 is not support, its really really over..
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
@@ -297,10 +298,10 @@ stc
 	ret
 
 ; 
-; This subroutine will create the first two entries, the low memory (mem < 1mb)
+; This subroutine will create the first two entries, the low memory (mem < 1mb). When it returns es:di will point to the
+; start of the last entry.
 ; 
 cmoslowmem:
-	pusha
 	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
 	out GEBL_CMOS_OUTPUT, al
 	call .delay	; wait
@@ -354,19 +355,16 @@ cmoslowmem:
 	ret
 
 .done:
-	add sp, 2	; pop di (change in di (mmap offset) should not be reverted)
-	pop si
-	pop bp
-	add sp, 2	; pop sp
-	pop bx
-	pop dx
-	pop cx
-	pop ax
 	clc
 	ret
 
+; 
+; Provide the amount of extended memory in eax (in bytes).
+; 
+; Returns total added entries in cx and es:di points to the start of the last entry.
+; 
 addmemoryhole:
-	pusha
+	pushad	; save all registers
 	xor cx, cx
 	push cx	; .next will pop the counter off
 	cmp eax, (15 << 20) ; 15 mb in bytes
@@ -378,16 +376,19 @@ addmemoryhole:
 	mov [es:di+16], dword GEBL_USABLE_MEM	; usable memory
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
 	
-	push .addmemhole
+	push .hole
 	jmp .next
 	
-.addmemhole:	
+.hole:	
 	mov [es:di], dword 0x00F00000	; base - 15mb
 	mov [es:di+8], dword 0x00100000	; length = 1mb
 	mov [es:di+16], dword GEBL_BAD_MEM	; bad memory
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
 	
 	sub eax, (15 << 20)	; substract 15 mb (the reserved mem + the memory already defined as usable) from it
+	test eax, eax
+	jz .done
+
 	push .remainder
 	jmp .next
 	
@@ -398,16 +399,18 @@ addmemoryhole:
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
 	pop cx
 	inc cx
+	push cx	; to prevent stack corruption
 
 .done:
-	add sp, 2	; pop di (change in di (mmap offset) should not be reverted)
-	pop si
-	pop bp
-	add sp, 2	; pop sp
-	pop bx
-	pop dx
-	add sp, 2	; we kept a counter in cx, should not be reverted
-	pop ax
+	pop cx
+	add esp, 4	; pop edi (change in di (mmap offset) should not be reverted)
+	pop esi
+	pop ebp
+	add esp, 4	; pop esp
+	pop ebx
+	pop edx
+	add esp, 4	; pop ecx - we kept a counter in cx, should not be reverted
+	pop eax
 	ret
 
 .next:
