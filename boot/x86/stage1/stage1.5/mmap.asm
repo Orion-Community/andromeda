@@ -28,7 +28,7 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-
+jmp mm_cmos
 ; 	
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -263,7 +263,7 @@ lowmmap:
 	call copy_empty_entry
 	xor ax, ax
 	int 0x12	; get low memory size
-
+stc
 	jc cmoslowmem	; if interrupt 0x12 is not support, its really really over..
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
@@ -300,6 +300,7 @@ lowmmap:
 ; This subroutine will create the first two entries, the low memory (mem < 1mb)
 ; 
 cmoslowmem:
+	pusha
 	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
 	out GEBL_CMOS_OUTPUT, al
 	call .delay	; wait
@@ -353,12 +354,20 @@ cmoslowmem:
 	ret
 
 .done:
+	add sp, 2	; pop di (change in di (mmap offset) should not be reverted)
+	pop si
+	pop bp
+	add sp, 2	; pop sp
+	pop bx
+	pop dx
+	pop cx
+	pop ax
 	clc
 	ret
 
 addmemoryhole:
-	xor cx, cx
 	pusha
+	xor cx, cx
 	push cx	; .next will pop the counter off
 	cmp eax, (15 << 20) ; 15 mb in bytes
 	jb .remainder
@@ -390,12 +399,14 @@ addmemoryhole:
 	pop cx
 	inc cx
 
-	pop di
+.done:
+	add sp, 2	; pop di (change in di (mmap offset) should not be reverted)
 	pop si
 	pop bp
+	add sp, 2	; pop sp
 	pop bx
 	pop dx
-	add sp, 4
+	add sp, 2	; we kept a counter in cx, should not be reverted
 	pop ax
 	ret
 
