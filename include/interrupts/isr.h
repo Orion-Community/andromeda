@@ -17,21 +17,8 @@
  */
 
 #include <stdlib.h>
-#include <error/panic.h>
 
-bool inKernelRing()
-{
-	struct gebl_segment_pack * segs = getsegs();
-	uint8_t * error = "Not in kernel ring!";
-	
-	if((segs->cs & 0x8) == 0)
-	{
-		panic(error);
-	}
-	if((segs->ds & 0x10) == 0)
-	{
-		panic(error);
-	}
-	
-	return TRUE;
-}
+/*
+ * Check if we are in the kernel segment.
+ */
+bool inKernelRing();
