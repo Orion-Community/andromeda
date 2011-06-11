@@ -33,5 +33,30 @@ typedef unsigned char bool;
  * Halt the system until it is interrupted.
  */
 extern void halt();
+extern struct gebl_register_pack * getregs();
+extern struct gebl_segment_pack * getsegs();
+
+struct gebl_register_pack
+{
+	uint32_t eax;
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
+	uint32_t esi;
+	uint32_t edi;
+	uint32_t ebp;
+	uint32_t esp;
+} __attribute__((packed));
+
+struct gebl_segment_pack
+{
+	uint16_t ds;
+	uint16_t cs;
+	uint16_t es;
+	uint16_t fs;
+	uint16_t gs;
+	uint16_t ss;
+	
+} __attribute__((packed));
 
 #endif

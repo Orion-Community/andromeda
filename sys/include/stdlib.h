@@ -1,5 +1,5 @@
 ;
-;    Low level functions of the GoldenEagle Bootloader standard library.
+;    Get the system memory map from the bios and store it in a global constant.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,39 +16,24 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[SECTION .text]
+%ifndef __STDLIB_H
 
-%include "sys/include/stdlib.h"
+regs:
+	eax_t dd 0
+	ebx_t dd 0
+	ecx_t dd 0
+	edx_t dd 0
+	esi_t dd 0
+	edi_t dd 0
+	ebp_t dd 0
+	esp_t dd 0
+	
+segs:
+	ds_t dw 0
+	cs_t dw 0
+	es_t dw 0
+	fs_t dw 0
+	gs_t dw 0
+	ss_t dw 0
 
-[GLOBAL halt]
-halt:
-	cli
-	hlt
-	jmp halt
-	ret
-
-[GLOBAL getregs]
-getregs:
-	mov [regs], eax
-	mov [regs+4], ebx
-	mov [regs+8], ecx
-	mov [regs+12], edx
-	mov [regs+20], esi
-	mov [regs+24], edi
-	mov [regs+28], ebp
-	mov [regs+32], esp
-
-	mov eax, regs
-	ret
-
-[GLOBAL getsegs]
-getsegs:
-	mov [segs], ds
-	mov [segs+2], cs
-	mov [segs+4], es
-	mov [segs+6], fs
-	mov [segs+8], gs
-	mov [segs+10], ss
-
-	mov eax, regs
-	ret
+%endif
