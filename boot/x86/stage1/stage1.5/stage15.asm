@@ -22,7 +22,8 @@
 jmp short main
 nop
 
-%include "boot/mmap.h"
+%include "boot/x86/include/mmap.h"
+%include "boot/x86/include/a20.h"
 
 main:
 	mov di, 0x7c00

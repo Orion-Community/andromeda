@@ -16,8 +16,6 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-%include "boot/a20.h"
-
 openA20:
 	cli
 	pusha

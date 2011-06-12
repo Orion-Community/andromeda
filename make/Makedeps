@@ -7,6 +7,8 @@ STDLIB_DEPS=sys/stdlib.asm
 IO_DEPS=sys/io.asm
 MMAP_DEPS=mm/mmap.c
 MMAP_ASM_DEPS=mm/mmap.asm
+PIC_DEPS=arch/interrupts/pic.c
+ERROR_DEPS=error/panic.c
 
 # Object files
 STAGE15=stage15.o
@@ -18,14 +20,16 @@ IO=io.o
 PRINT=println.o
 MMAP=mmap.o
 MMAP_ASM=mmap2.o
+PIC=pic.o
+ERROR=error.o
 
-DEPS=$(STAGE15) $(STAGE2) $(VGA) $(STDLIB) $(IO) $(KERN) $(MMAP) $(MMAP_ASM)
-HEADERS=include/*.h include/*/*.h
+
+DEPS=$(STAGE15) $(STAGE2) $(VGA) $(STDLIB) $(IO) $(KERN) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)
 
-$(STAGE15): $(STAGE15_DEPS)
+$(STAGE15): $(STAGE15_DEPS) boot/x86/include/mmap.h boot/x86/include/a20.h
 	$(AS) $(ASFLAGS) -o $(STAGE15) $(STAGE15_DEPS)
 
 $(STAGE2): $(STAGE2_DEPS)
@@ -48,3 +52,9 @@ $(MMAP): $(MMAP_DEPS) $(HEADERS)
 
 $(MMAP_ASM): $(MMAP_ASM_DEPS)
 	$(AS) $(ASFLAGS) -o $(MMAP_ASM) $(MMAP_ASM_DEPS)
+
+$(PIC): $(PIC_DEPS) include/interrupts/pic.h
+	$(CC) $(CCFLAGS) -o $(PIC) $(PIC_DEPS)
+
+$(ERROR): $(ERROR_DEPS) include/error/panic.h
+	$(CC) $(CCFLAGS) -o $(ERROR) $(ERROR_DEPS)
