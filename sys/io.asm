@@ -16,9 +16,9 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[GLOBAL inb]
-[GLOBAL outb]
 [SECTION .text]
+
+[GLOBAL inb]
 inb:
 	push ebp
 	mov ebp, esp
@@ -30,6 +30,7 @@ inb:
 	pop ebp
 	ret
 
+[GLOBAL outb]
 outb:
 	push ebp
 	mov ebp, esp
@@ -39,4 +40,13 @@ outb:
 	out dx, al
 
 	pop ebp
+	ret
+
+[GLOBAL iowait]
+iowait:
+	push ax
+	xor ax, ax
+	out 0x80, ax
+
+	pop ax
 	ret

@@ -26,3 +26,8 @@ extern char inb(short port);
  * outb writes given data to a given port.
  */
 extern void outb(char data, short port);
+
+/*
+ * This function waits for data when there is written to an output port.
+ */
+extern void iowait();

@@ -176,7 +176,7 @@ mm_cmos:
 .highmem:
 	mov al, GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER
 	out GEBL_CMOS_OUTPUT, al	; tell the cmos we want to read the high memory
-	call .delay
+	call .iowait
 
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT ; get the low bytes
@@ -184,7 +184,7 @@ mm_cmos:
 
 	mov al, GEBL_CMOS_EXT_MEM_HIGH_ORDER_REGISTER
 	out GEBL_CMOS_OUTPUT, al	; get most significant byte
-	call .delay
+	call .iowait
 
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT
@@ -204,7 +204,7 @@ mm_cmos:
 	add di, 0x18
 	jmp copy_empty_entry
 
-.delay:
+.iowait:
 	xor ax, ax
 	out GEBL_DELAY_PORT, al
 	ret
@@ -305,7 +305,7 @@ lowmmap:
 cmoslowmem:
 	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
 	out GEBL_CMOS_OUTPUT, al
-	call .delay	; wait
+	call .iowait	; wait
 
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT
@@ -313,7 +313,7 @@ cmoslowmem:
 	
 	mov al, GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; most sig byte
 	out GEBL_CMOS_OUTPUT, al
-	call .delay
+	call .iowait
 
 	xor ax, ax
 	in al, GEBL_CMOS_INPUT	; collect data
@@ -351,7 +351,7 @@ cmoslowmem:
 	add di, 0x18
 	jmp copy_empty_entry
 
-.delay:
+.iowait:
 	xor ax, ax
 	out GEBL_DELAY_PORT, al
 	ret
