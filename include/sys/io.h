@@ -16,6 +16,8 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __IO_H_
+#define __IO_H_
 /*
  * inb reads from a given port and returns the read data.
  */
@@ -31,3 +33,4 @@ extern void outb(char data, short port);
  * This function waits for data when there is written to an output port.
  */
 extern void iowait();
+#endif

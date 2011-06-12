@@ -18,4 +18,13 @@
 
 #include <sys/stdlib.h>
 
+#ifndef __H_PIC
 void pic_remap(uint32_t set1, uint32_t set2);
+void pic_init();
+
+#define GEBL_PIC1_COMMAND 0x20
+#define GEBL_PIC2_COMMAND 0x21
+
+#define GEBL_PIC1_DATA 0xa0
+#define GEBL_PIC2_DATA 0xa1
+#endif

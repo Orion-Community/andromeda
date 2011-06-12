@@ -16,7 +16,10 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __PIC_H_
+#define __PIC_H_
 /*
  * This will initiate the pic. Panics on failure.
  */
 void pic_init();
+#endif
