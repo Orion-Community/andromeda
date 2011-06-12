@@ -205,7 +205,8 @@ mm_cmos:
 	jmp copy_empty_entry
 
 .delay:
-	times 10 nop
+	xor ax, ax
+	out GEBL_DELAY_PORT, al
 	ret
 
 .failed:
@@ -351,7 +352,8 @@ cmoslowmem:
 	jmp copy_empty_entry
 
 .delay:
-	times 8 nop
+	xor ax, ax
+	out GEBL_DELAY_PORT, al
 	ret
 
 .done:

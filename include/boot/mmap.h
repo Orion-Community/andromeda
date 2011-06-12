@@ -34,6 +34,7 @@
 
 %define GEBL_CMOS_OUTPUT 0x70
 %define GEBL_CMOS_INPUT 0x71
+%define GEBL_DELAY_PORT 0x80
 
 ; CMOS data registers
 %define GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER 0x30
