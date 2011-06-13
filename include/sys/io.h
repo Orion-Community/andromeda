@@ -16,18 +16,20 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sys/stdlib.h>
+
 #ifndef __IO_H_
 #define __IO_H_
 /*
  * inb reads from a given port and returns the read data.
  */
-extern char inb(short port);
+extern char inb(uint16_t port);
 
 
 /*
  * outb writes given data to a given port.
  */
-extern void outb(char data, short port);
+extern void outb(char data, uint16_t port);
 
 /*
  * This function waits for data when there is written to an output port.

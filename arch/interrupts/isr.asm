@@ -114,8 +114,9 @@ alligned:
 	isrNoErr cAlligned
 	jmp isrStub
 
-[GLOBAL df]
-df:
+[GLOBAL machine]
+[EXTERN cDoubleFault]
+machine:
 	isrNoErr cDoubleFault
 	jmp isrStub
 

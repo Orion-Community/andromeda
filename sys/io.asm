@@ -35,8 +35,8 @@ outb:
 	push ebp
 	mov ebp, esp
 	
-	mov al, byte [ebp+8] ; data
-	mov dx, word [ebp+12] ; port
+	mov al, byte [ebp+12] ; data
+	mov dx, word [ebp+8] ; port
 	out dx, al
 
 	pop ebp
