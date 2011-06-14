@@ -18,6 +18,7 @@
 
 [BITS 16]
 [GLOBAL endptr]
+[EXTERN pmodemain]
 [SECTION .stage2]
 
 main:
@@ -42,12 +43,6 @@ main:
 ;
 
 %include 'boot/x86/println.asm'
-
-;
-; Protected mode main line
-;
-
-%include 'boot/x86/stage2/pmodemain.asm'
 
 ;
 ; GLOBAL DESCRIPTOR TABLE

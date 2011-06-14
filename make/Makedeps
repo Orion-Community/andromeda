@@ -9,6 +9,7 @@ MMAP_DEPS=mm/mmap.c
 MMAP_ASM_DEPS=mm/mmap.asm
 PIC_DEPS=arch/interrupts/pic.c
 ERROR_DEPS=error/panic.c
+PMODE_DEPS=boot/x86/stage2/pmodemain.asm
 
 # Object files
 STAGE15=stage15.o
@@ -22,9 +23,9 @@ MMAP=mmap.o
 MMAP_ASM=mmap2.o
 PIC=pic.o
 ERROR=error.o
+PMODE=pmode.o
 
-
-DEPS=$(STAGE15) $(STAGE2) $(VGA) $(STDLIB) $(IO) $(KERN) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(STAGE2) $(PMODE) $(VGA) $(STDLIB) $(IO) $(KERN) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)
@@ -58,3 +59,6 @@ $(PIC): $(PIC_DEPS) include/interrupts/pic.h
 
 $(ERROR): $(ERROR_DEPS) include/error/panic.h
 	$(CC) $(CCFLAGS) -o $(ERROR) $(ERROR_DEPS)
+
+$(PMODE): $(PMODE_DEPS)
+	$(AS) $(ASFLAGS) -o $(PMODE) $(PMODE_DEPS)

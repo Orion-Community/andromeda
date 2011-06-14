@@ -18,6 +18,7 @@
 
 [BITS 32]
 [EXTERN kmain]
+[GLOBAL pmodemain]
 [EXTERN sectorcount] ; amount of sectors loaded
 [SECTION .pmode]
 
