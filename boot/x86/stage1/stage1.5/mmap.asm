@@ -16,8 +16,14 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[BITS 16]
+[SECTION .stage1]
+%include "boot/x86/include/mmap.h"
+
 ; Create a multiboot memory map. It is not multiboot compatible in the way it rolls out of this function. The size still has to be added into the entry.
 ; The entry size is given in the mmr.
+[GLOBAL getmemorymap]
+[GLOBAL mm_e801]
 getmemorymap:
 	mov ax, GEBL_MMAP_SEG
 	mov es, ax
@@ -75,14 +81,19 @@ mm_e820:
 	jnz .getentry
 
 .done:
+	mov al, 0x41
+	mov ah, 0x0E
+	xor bh, bh
+	int 0x10
 	mov [mmr+4], bp
 	pop bp
 	clc	; clear carry flag
 	ret
 .failed:
 	pop bp
-	jmp mm_e801
+	call mm_e801
 	stc
+
 	ret
 %endif
 

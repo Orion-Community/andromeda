@@ -18,11 +18,11 @@
 
 [BITS 16]
 [SECTION .stage1]
+[EXTERN getmemorymap]
 
 jmp short main
 nop
 
-%include "boot/x86/include/mmap.h"
 %include "boot/x86/include/a20.h"
 
 main:
@@ -53,7 +53,7 @@ main:
 
 	pop dx
 	pop si
-	jmp 0x7E0:0x800
+	jmp 0x7E0:0x200
 
 	jmp .bailout
 
@@ -67,7 +67,7 @@ main:
 ; Memory map
 ;
 ; 
-%include 'boot/x86/stage1/stage1.5/mmap.asm'
+; %include 'boot/x86/stage1/stage1.5/mmap.asm'
 
 ;
 ; A20 Gate
@@ -83,4 +83,4 @@ main:
 	
 	failed db '0x2', 0x0
 
-times 2048 - ($ - $$) db 0
+times 512 - ($ - $$) db 0

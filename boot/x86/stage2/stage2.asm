@@ -38,7 +38,7 @@ main:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov esp, 0x10000 ; setup the stack
+	mov esp, 0x9f400 ; top of usable memory..
 	jmp CODE_SEG:pmodemain
 
 ;

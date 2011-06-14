@@ -7,6 +7,7 @@ STDLIB_DEPS=sys/stdlib.asm
 IO_DEPS=sys/io.asm
 MMAP_DEPS=mm/mmap.c
 MMAP_ASM_DEPS=mm/mmap.asm
+MMAPI_DEPS=boot/x86/stage1/stage1.5/mmap.asm
 PIC_DEPS=arch/interrupts/pic.c
 ERROR_DEPS=error/panic.c
 PMODE_DEPS=boot/x86/stage2/pmodemain.asm
@@ -21,11 +22,12 @@ IO=io.o
 PRINT=println.o
 MMAP=mmap.o
 MMAP_ASM=mmap2.o
+MMAPI=mmapi.o
 PIC=pic.o
 ERROR=error.o
 PMODE=pmode.o
 
-DEPS=$(STAGE15) $(STAGE2) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO)  $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(MMAPI) $(STAGE2) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO)  $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)
@@ -62,3 +64,6 @@ $(ERROR): $(ERROR_DEPS) include/error/panic.h
 
 $(PMODE): $(PMODE_DEPS)
 	$(AS) $(ASFLAGS) -o $(PMODE) $(PMODE_DEPS)
+
+$(MMAPI): $(MMAPI_DEPS)
+	$(AS) $(ASFLAGS) -o $(MMAPI) $(MMAPI_DEPS)

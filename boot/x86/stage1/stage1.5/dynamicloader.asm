@@ -52,7 +52,7 @@ dynamicloader:
 	push dx			; restore drive num
 	mov ax, word [si+8]	; low word of lba
 	mov cx, word [si+10]	; high word of lba
-	add ax, 5
+	add ax, 2
 	push si			; temp save pt
 	mov si, dap
 	mov [si+8], ax
@@ -82,7 +82,7 @@ dynamicloader:
 	xor ch, ch	; get all the crap out of ch
 	mov ax, word [si+8]	; the pt
 	div cx		; ax = temp value 	dx = sector (0-based)
-	add dx, 6	; make sector 1-based and read second sector
+	add dx, 3	; make sector 1-based and read second sector
 	push dx		; save the sector num for a while
 
 	xor dx, dx	; clean modulo
@@ -102,7 +102,7 @@ dynamicloader:
 	
 	mov bx, 0x7e0	; segment 0x7e0
 	mov es, bx
-	mov bx, 0x800	; buffer offset
+	mov bx, 0x200	; buffer offset
 	
 	call .calcsectors
 	mov ah, 0x2
@@ -131,7 +131,7 @@ dap:
 	db 0x10
 	db 0x0
 	dw 0x0		; amount of sectors to read
-	dw 0x800	; offset
+	dw 0x200	; offset
 	dw 0x7E0	; segment
 	dq 0x0		; sector to start at
 

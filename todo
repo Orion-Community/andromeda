@@ -19,15 +19,14 @@
 What should be improved:
 
 Next item:
-	* Multiboot compatibility
-	* get rid of magic cookies
 	* update the floppy drive support
 	* Get some interrupts working
-
+	* Get rid of all nasty includes.
 What has to be done:
 
 	* Make the bootloader multiboot compatible
 	* update the floppy drive support
+	* Multiboot compatibility
 
 Notes:
 ­eerst image loading met interrupts, dan far jump, ­dan GDT
