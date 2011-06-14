@@ -20,7 +20,7 @@
 [EXTERN kmain]
 [GLOBAL pmodemain]
 [EXTERN sectorcount] ; amount of sectors loaded
-[SECTION .pmode]
+[SECTION .text]
 
 pmodemain:
 	xor ax, ax

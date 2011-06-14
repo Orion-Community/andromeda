@@ -35,7 +35,10 @@ main:
 	mov ax, DATA_SEG	; flush segments
 	mov ds, ax
 	mov ss, ax
-	mov esp, 0x9000 ; setup the stack
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov esp, 0x10000 ; setup the stack
 	jmp CODE_SEG:pmodemain
 
 ;

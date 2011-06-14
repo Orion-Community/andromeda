@@ -25,7 +25,7 @@ PIC=pic.o
 ERROR=error.o
 PMODE=pmode.o
 
-DEPS=$(STAGE15) $(STAGE2) $(PMODE) $(VGA) $(STDLIB) $(IO) $(KERN) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(STAGE2) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO)  $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)

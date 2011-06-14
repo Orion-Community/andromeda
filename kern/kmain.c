@@ -36,6 +36,7 @@ void kmain(void)
 
 	putc(0xa);
 	
+	println("Current stack pointer: ");
 	struct gebl_register_pack * regs = getregs();
 	printnum(regs->esp, 16, FALSE, FALSE);
 	putc(0xa);
