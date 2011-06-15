@@ -123,3 +123,5 @@ openA20:
 	sti
 	stc
 	ret
+
+times 512 - ($-$$) db 0

@@ -445,4 +445,4 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 	sub di, 0x18	; just to make addressing esier
 	ret
 ; now there is an empty entry at [es:di]
-times 2048 - ($ - $$) db 0
+times 1024 - ($ - $$) db 0

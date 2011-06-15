@@ -65,24 +65,8 @@ main:
 
 %include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
 
-;
-; Memory map
-;
-; 
-; %include 'boot/x86/stage1/stage1.5/mmap.asm'
-
-;
-; A20 Gate
-;
-
-; %include 'boot/x86/stage1/stage1.5/a20.asm'
-
-;
-; Print routines
-;
-
 %include 'boot/x86/println.asm'
 	
 	failed db '0x2', 0x0
 
-; times 512 - ($ - $$) db 0
+times 512 - ($ - $$) db 0
