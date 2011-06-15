@@ -1,5 +1,6 @@
 # Deps
 STAGE15_DEPS=boot/x86/stage1/stage1.5/stage15.asm
+A20_DEPS=boot/x86/stage1/stage1.5/a20.asm
 STAGE2_DEPS=boot/x86/stage2/stage2.asm
 KERN_DEPS=kern/kmain.c
 VGA_DEPS=video/vga.c
@@ -14,6 +15,7 @@ PMODE_DEPS=boot/x86/stage2/pmodemain.asm
 
 # Object files
 STAGE15=stage15.o
+A20=a20.o
 STAGE2=stage2.o
 KERN=kmain.o
 VGA=vga.o
@@ -67,3 +69,6 @@ $(PMODE): $(PMODE_DEPS)
 
 $(MMAPI): $(MMAPI_DEPS)
 	$(AS) $(ASFLAGS) -o $(MMAPI) $(MMAPI_DEPS)
+
+$(A20): $(A20_DEPS)
+	$(AS) $(ASFLAGS) -o $(A20) $(A20_DEPS)

@@ -26,17 +26,15 @@ nop
 %include "boot/x86/include/a20.h"
 
 main:
+	mov ax, 0x7e0
+	mov ss, ax
+
 	mov di, 0x7c00
 	push di
 	mov cx, 0x8
 	cld
 	rep movsw
 	push dx
-
-	mov ax, 0x7c0
-	mov ds, ax
-	mov es, ax
-	mov ss, ax
 
 	jmp .loadstage2
 
@@ -58,7 +56,7 @@ main:
 
 	pop dx
 	pop si
-	jmp 0x7E0:0x200
+	jmp 0x7E0:0x800
 
 	jmp .bailout
 
