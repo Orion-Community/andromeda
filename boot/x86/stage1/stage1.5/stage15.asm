@@ -33,6 +33,11 @@ main:
 	rep movsw
 	push dx
 
+	mov ax, 0x7c0
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+
 	jmp .loadstage2
 
 .bailout:
