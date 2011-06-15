@@ -82,7 +82,7 @@ dynamicloader:
 	xor ch, ch	; get all the crap out of ch
 	mov ax, word [si+8]	; the pt
 	div cx		; ax = temp value 	dx = sector (0-based)
-	add dx, 6	; make sector 1-based and read second sector
+	add dx, 6	; make sector 1-based and read third sector
 	push dx		; save the sector num for a while
 
 	xor dx, dx	; clean modulo
@@ -114,16 +114,17 @@ dynamicloader:
 
 .calcsectors:
 	lea ax, [endptr] ; adress of the end
-	sub ax, 0x8200 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
+	sub ax, 0x8600 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
 	test ax, 0x1FF ; ax % 512
 	jz .powof2
+	jmp .powof2
 	
 	shr ax, 9 ; ax / 512 = amount of sectors
 	inc ax
 	mov [sectorcount], ax
 	ret
 .powof2:
-	shr ax, 9 
+	shr ax, 9
 	mov [sectorcount], ax
 	ret
 
