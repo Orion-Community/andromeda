@@ -16,6 +16,12 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[BITS 16]
+[SECTION .stage1]
+
+%include "boot/x86/include/a20.h"
+
+[GLOBAL openA20]
 openA20:
 	cli
 	pusha
