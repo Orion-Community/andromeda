@@ -26,14 +26,12 @@
 ; jmp 0x7e0:main
 
 main:
-	cli
-	mov ax, 0x7e0
-	mov ds, ax
-	mov es, ax
-	mov ss, ax
-	sti
-
-	jmp $
+; 	cli
+; 	mov ax, 0x7e0
+; 	mov ds, ax
+; 	mov es, ax
+; 	mov ss, ax
+; 	sti
 
 	call openA20
 	jc .bailout

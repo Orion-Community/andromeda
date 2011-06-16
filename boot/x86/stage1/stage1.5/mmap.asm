@@ -34,7 +34,7 @@ getmemorymap:
 	add eax, ebx
 	mov [mmr], eax
 
-jmp mm_cmos
+; jmp mm_cmos
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
