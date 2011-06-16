@@ -34,7 +34,7 @@ getmemorymap:
 	add eax, ebx
 	mov [mmr], eax
 
-; jmp mm_cmos
+jmp mm_cmos
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -84,10 +84,6 @@ mm_e820:
 	mov [mmr+4], bp
 	pop bp
 	clc	; clear carry flag
-	mov al, 0x41
-	mov ah, 0x0E
-	xor bh, bh
-	int 0x10
 	ret
 .failed:
 	pop bp
@@ -285,11 +281,16 @@ lowmmap:
 	mov [es:di+8], eax
 	mov [es:di+16], dword GEBL_USABLE_MEM
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
+
 	push .lowres
 	add di, 0x18
 	jmp copy_empty_entry
 
 .lowres:
+	mov al, 0x41
+	mov ah, 0x0E
+	xor bh, bh
+	int 0x10
 ; low reserver memory
 	pop eax
 	and edx, 0xffff
@@ -343,6 +344,7 @@ cmoslowmem:
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
 
 	push .lowres
+
 	jmp .next
 
 .lowres:
@@ -444,6 +446,8 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 	mov cx, 0xc
 	rep movsw	; copy copy copy!
 	sub di, 0x18	; just to make addressing esier
+	pop fs
+	push fs
 	ret
 ; now there is an empty entry at [es:di]
 ; times 1024 - ($ - $$) db 0

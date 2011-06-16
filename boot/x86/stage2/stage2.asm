@@ -23,57 +23,8 @@
 [EXTERN getmemorymap]
 [EXTERN openA20]
 
-; jmp 0x7e0:main
-
-main:
-; 	cli
-; 	mov ax, 0x7e0
-; 	mov ds, ax
-; 	mov es, ax
-; 	mov ss, ax
-; 	sti
-
-	call openA20
-	jc .bailout
-
-	call getmemorymap
-	jc .bailout
-
-	mov si, pmode
-	call println
-
-	cli
-	lgdt [gdtr]
-	mov eax, cr0
-	or eax, 1 	; enable pe bit
-	mov cr0, eax
-.flush:
-	mov ax, DATA_SEG	; flush segments
-	mov ds, ax
-	mov ss, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov esp, 0x9000 ; top of usable memory..
-
-	jmp CODE_SEG:pmodemain
-
-.bailout:
-	cli
-	jmp $
-
-;
-; Print routines
-;
-
-%include 'boot/x86/println.asm'
-
-;
-; Dynamic disk reader
-;
-
-%include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
-
+jmp short main
+nop
 ;
 ; GLOBAL DESCRIPTOR TABLE
 ;
@@ -102,6 +53,57 @@ gdtr:
 	; Status messages
 	pmode db 'Implementing a GDT and PMode.', 0x0
 	failed db '0x2', 0x0
+
+
+main:
+	cli
+	mov ax, 0x7e0
+	mov ds, ax
+	mov es, ax
+; 	mov ss, ax
+	sti
+
+	call openA20
+	jc .bailout
+
+	call getmemorymap
+	jc .bailout
+
+	mov si, pmode
+	call println
+jmp $
+
+	cli
+	lgdt [gdtr]
+	mov eax, cr0
+	or eax, 1 	; enable pe bit
+	mov cr0, eax
+.flush:
+	mov ax, DATA_SEG	; flush segments
+	mov ds, ax
+	mov ss, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	mov esp, 0x10000 ; top of usable memory..
+
+	jmp CODE_SEG:pmodemain
+
+.bailout:
+	cli
+	jmp $
+
+;
+; Print routines
+;
+
+%include 'boot/x86/println.asm'
+
+;
+; Dynamic disk reader
+;
+
+%include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
 
 [SECTION .end]
 endptr:
