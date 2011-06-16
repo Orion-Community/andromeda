@@ -17,7 +17,7 @@
 ;
 
 [BITS 16]
-[SECTION .stage1]
+[SECTION .stage2]
 %include "boot/x86/include/mmap.h"
 
 ; Create a multiboot memory map. It is not multiboot compatible in the way it rolls out of this function. The size still has to be added into the entry.
@@ -33,6 +33,7 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
+
 jmp mm_cmos
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
@@ -445,4 +446,4 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 	sub di, 0x18	; just to make addressing esier
 	ret
 ; now there is an empty entry at [es:di]
-times 1024 - ($ - $$) db 0
+; times 1024 - ($ - $$) db 0

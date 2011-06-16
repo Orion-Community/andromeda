@@ -18,16 +18,12 @@
 
 [BITS 16]
 [SECTION .stage1]
-[EXTERN getmemorymap]
-[EXTERN openA20]
+[EXTERN endptr]
 
 jmp short main
 nop
 
 main:
-	mov ax, 0x7e0
-	mov ss, ax
-
 	mov di, 0x7c00
 	push di
 	mov cx, 0x8
@@ -44,18 +40,12 @@ main:
 	jmp $
 
 .loadstage2:
-	call openA20
-	jc .bailout
-
-	call getmemorymap
-	jc .bailout
-
 	call dynamicloader
 	jc .bailout
 
 	pop dx
 	pop si
-	jmp 0x7E0:0x800
+	jmp 0x7E0:0x200
 
 	jmp .bailout
 

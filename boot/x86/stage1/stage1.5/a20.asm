@@ -17,7 +17,7 @@
 ;
 
 [BITS 16]
-[SECTION .stage1]
+[SECTION .stage2]
 
 %include "boot/x86/include/a20.h"
 
@@ -123,5 +123,3 @@ openA20:
 	sti
 	stc
 	ret
-
-times 512 - ($-$$) db 0

@@ -17,11 +17,30 @@
 ;
 
 [BITS 16]
+[SECTION .stage2]
 [GLOBAL endptr]
 [EXTERN pmodemain]
-[SECTION .stage2]
+[EXTERN getmemorymap]
+[EXTERN openA20]
+
+; jmp 0x7e0:main
 
 main:
+	cli
+	mov ax, 0x7e0
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	sti
+
+	jmp $
+
+	call openA20
+	jc .bailout
+
+	call getmemorymap
+	jc .bailout
+
 	mov si, pmode
 	call println
 
@@ -30,7 +49,6 @@ main:
 	mov eax, cr0
 	or eax, 1 	; enable pe bit
 	mov cr0, eax
-
 .flush:
 	mov ax, DATA_SEG	; flush segments
 	mov ds, ax
@@ -38,14 +56,25 @@ main:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov esp, 0x9f400 ; top of usable memory..
+	mov esp, 0x9000 ; top of usable memory..
+
 	jmp CODE_SEG:pmodemain
+
+.bailout:
+	cli
+	jmp $
 
 ;
 ; Print routines
 ;
 
 %include 'boot/x86/println.asm'
+
+;
+; Dynamic disk reader
+;
+
+%include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
 
 ;
 ; GLOBAL DESCRIPTOR TABLE
@@ -66,14 +95,15 @@ gdt:
         db 0x92
         db 0xCF
         db 0
-gdt_end equ $ - gdt ; pointer to the end of the gdt
+gdt_end:
 
 gdtr:
-	dw gdt_end - 1; gdt limit = size
+	dw gdt_end - gdt - 1; gdt limit = size
 	dd gdt ; gdt base address
 
 	; Status messages
 	pmode db 'Implementing a GDT and PMode.', 0x0
+	failed db '0x2', 0x0
 
 [SECTION .end]
 endptr:

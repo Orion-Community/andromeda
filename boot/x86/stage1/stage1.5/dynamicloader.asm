@@ -18,9 +18,6 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[GLOBAL sectorcount]
-[EXTERN endptr] ; pointer to the end of stage 2
-
 dynamicloader:
 %ifdef __HDD
 	pop word [returnaddr]
@@ -52,7 +49,7 @@ dynamicloader:
 	push dx			; restore drive num
 	mov ax, word [si+8]	; low word of lba
 	mov cx, word [si+10]	; high word of lba
-	add ax, 5
+	add ax, 2		; read the third sector
 	push si			; temp save pt
 	mov si, dap
 	mov [si+8], ax
@@ -82,7 +79,7 @@ dynamicloader:
 	xor ch, ch	; get all the crap out of ch
 	mov ax, word [si+8]	; the pt
 	div cx		; ax = temp value 	dx = sector (0-based)
-	add dx, 6	; make sector 1-based and read third sector
+	add dx, 3	; make sector 1-based and read second sector
 	push dx		; save the sector num for a while
 
 	xor dx, dx	; clean modulo
@@ -102,7 +99,7 @@ dynamicloader:
 	
 	mov bx, 0x7e0	; segment 0x7e0
 	mov es, bx
-	mov bx, 0x800	; buffer offset
+	mov bx, 0x200	; buffer offset
 	
 	call .calcsectors
 	mov ah, 0x2
@@ -114,28 +111,25 @@ dynamicloader:
 
 .calcsectors:
 	lea ax, [endptr] ; adress of the end
-	sub ax, 0x8600 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
+	sub ax, 0x8000 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
 	test ax, 0x1FF ; ax % 512
 	jz .powof2
 	jmp .powof2
 	
 	shr ax, 9 ; ax / 512 = amount of sectors
 	inc ax
-	mov [sectorcount], ax
 	ret
 .powof2:
 	shr ax, 9
-	mov [sectorcount], ax
 	ret
 
 dap:
 	db 0x10
 	db 0x0
 	dw 0x0		; amount of sectors to read
-	dw 0x800	; offset
-	dw 0x7E0	; segment
+	dw 0x200		; offset
+	dw 0x7e0	; segment
 	dq 0x0		; sector to start at
 
 returnaddr dw 0
-sectorcount dw 0
 %endif
