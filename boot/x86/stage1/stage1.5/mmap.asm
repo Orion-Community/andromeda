@@ -34,7 +34,7 @@ getmemorymap:
 	add eax, ebx
 	mov [mmr], eax
 
-; jmp mm_cmos
+jmp mm_cmos
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -176,13 +176,10 @@ mm_cmos:
 	mov ax, GEBL_MMAP_SEG
 	mov es, ax
 
-	call copy_empty_entry
-
 	call lowmmap
 	jc .failed
 
-	push .highmem
-	jmp .next
+	call .next
 
 .highmem:
 	mov al, GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER
@@ -211,14 +208,14 @@ mm_cmos:
 
 	jmp .done
 
-.next:
-	add di, 0x18
-	jmp copy_empty_entry
-
 .iowait:
 	xor ax, ax
 	out GEBL_DELAY_PORT, al
 	ret
+
+.next:
+	add di, 0x18
+	jmp copy_empty_entry
 
 .failed:
 	jmp mm_88
@@ -277,7 +274,7 @@ lowmmap:
 	xor ax, ax
 	int 0x12	; get low memory size
 
-	jc cmoslowmem	; if interrupt 0x12 is not support, its really really over..
+	jc cmoslowmem	; if interrupt 0x12 is not support.
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
 	push eax	; save for later
@@ -285,9 +282,8 @@ lowmmap:
 	mov [es:di+8], eax
 	mov [es:di+16], dword GEBL_USABLE_MEM
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
-	push .lowres
-	add di, 0x18
-	jmp copy_empty_entry
+
+	call .next
 
 .lowres:
 ; low reserver memory
@@ -301,6 +297,10 @@ lowmmap:
 	mov [es:di+16], dword GEBL_RESERVED_MEM	; reserverd memory
 	mov [es:di+20], dword GEBL_ACPI		; also this entry is acpi 3.0 compatible
 	jmp .done
+
+.next:
+	add di, 0x18
+	jmp copy_empty_entry
 
 .failed:
 	stc
@@ -342,8 +342,7 @@ cmoslowmem:
 	mov [es:di+16], dword GEBL_USABLE_MEM
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
 
-	push .lowres
-	jmp .next
+	call copy_empty_entry
 
 .lowres:
 ; low reserver memory
@@ -357,10 +356,6 @@ cmoslowmem:
 	mov [es:di+16], dword GEBL_RESERVED_MEM	; reserverd memory
 	mov [es:di+20], dword GEBL_ACPI		; also this entry is acpi 3.0 compatible
 	jmp .done
-
-.next:
-	add di, 0x18
-	jmp copy_empty_entry
 
 .iowait:
 	xor ax, ax
@@ -389,8 +384,7 @@ addmemoryhole:
 	mov [es:di+16], dword GEBL_USABLE_MEM	; usable memory
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
 	
-	push .hole
-	jmp .next
+	call .next
 	
 .hole:	
 	mov [es:di], dword 0x00F00000	; base - 15mb
@@ -402,8 +396,7 @@ addmemoryhole:
 	test eax, eax
 	jz .done
 
-	push .remainder
-	jmp .next
+	call .next
 	
 .remainder:
 	mov [es:di], dword 0x001000000	; base

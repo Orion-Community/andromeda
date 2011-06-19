@@ -26,13 +26,6 @@
 ; jmp 0x7e0:main
 
 main:
-; 	cli
-; 	mov ax, 0x7e0
-; 	mov ds, ax
-; 	mov es, ax
-; 	mov ss, ax
-; 	sti
-
 	call openA20
 	jc .bailout
 
@@ -41,6 +34,11 @@ main:
 
 	mov si, pmode
 	call println
+
+	mov al, 0x42
+	mov ah, 0x0E
+	xor bh, bh
+	int 0x10
 
 	cli
 	lgdt [gdtr]
@@ -54,7 +52,7 @@ main:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov esp, 0x9000 ; top of usable memory..
+	mov esp, 0x9f000; top of usable memory..
 
 	jmp CODE_SEG:pmodemain
 
@@ -67,12 +65,6 @@ main:
 ;
 
 %include 'boot/x86/println.asm'
-
-;
-; Dynamic disk reader
-;
-
-%include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
 
 ;
 ; GLOBAL DESCRIPTOR TABLE
