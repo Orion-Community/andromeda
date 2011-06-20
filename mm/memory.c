@@ -108,7 +108,6 @@ void memcpy(void *destination, void* source, size_t num)
     *(dst+i) = *(src+i);
   }
 }
-*/
 #endif
 
 int memcmp(void *ptr1, void* ptr2, size_t num)

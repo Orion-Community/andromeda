@@ -31,7 +31,7 @@ gdtEntry_t *GDT = NULL;
  * code is more readable, as the header specifically defines each field.
  */
 
-#ifdef FASTGDT
+#ifdef FAST
 void setEntry(int num, unsigned int base, unsigned int limit, unsigned char access, unsigned char gran);
 #else
 void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type, unsigned int dpl);
@@ -54,7 +54,7 @@ void setGDT()
   /*
    * Set up a GDT. (1)
    */
-  #ifdef FASTGDT
+  #ifdef FAST
   GDT = kalloc(sizeof(gdtEntry_t)*ENTRIES);
   if (GDT == NULL)
   {
@@ -106,7 +106,7 @@ void setGDT()
 }
 
 #ifdef X86
-#ifdef FASTGDT
+#ifdef FAST
 void setEntry(int num, unsigned int base, unsigned int limit, unsigned char access, unsigned char gran)
 {
    GDT[num].base_low    = (base & 0xFFFFFF);
