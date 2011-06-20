@@ -60,7 +60,6 @@ void memset(void *dest, int sval, size_t count)
     val |= (sval << i);
   }
   while(count >= 8){ *(unsigned long long*)dest = (unsigned long long)val; dest += 8; count -= 8; }
-  free(valbuf);
   if(count >= 4){ *(unsigned int*)dest = (unsigned int)val; dest += 4; count -= 4; }
 #else
   unsigned int val = (unsigned int)sval;
@@ -69,7 +68,6 @@ void memset(void *dest, int sval, size_t count)
   {
     val |= (sval << i);
   }
-  long long valbuf = (val | ((val << 32) & & 0xffffffff00000000))
   while(count >= 4){ *(unsigned int*)dest = (unsigned int)val; dest += 4; count -= 4; }
 #endif
   if(count >= 2){ *(unsigned short*)dest = (unsigned short)val; dest += 2; count -= 2; }
