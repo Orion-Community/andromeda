@@ -45,9 +45,7 @@ int initHeap(long size)
   return 0;
 }
 
-/*
- * Fast version:
- */
+#ifdef FAST
 void memset(void *dest, int sval, size_t count)
 {
   if(!count){return;}
@@ -75,23 +73,6 @@ void memset(void *dest, int sval, size_t count)
   return; 
 }
 
-/*
- * Old one:
- *
-void memset(void* location, int value, size_t size)
-{
-  int i = 0;
-  unsigned char* offset = (unsigned char*)location;
-  for (; i < size; i++)
-  {
-    *(offset+i) = (unsigned char)value;
-  }
-}
-*/
-
-/*
- * Fast version:
- */
 void memcpy(void *dest, void *src, size_t count)
 {
   if(!count){return;}
@@ -106,9 +87,17 @@ void memcpy(void *dest, void *src, size_t count)
   return;
 }
 
-/*
- * Old one:
- *
+#else
+void memset(void* location, int value, size_t size)
+{
+  int i = 0;
+  unsigned char* offset = (unsigned char*)location;
+  for (; i < size; i++)
+  {
+    *(offset+i) = (unsigned char)value;
+  }
+}
+
 void memcpy(void *destination, void* source, size_t num)
 {
   int i = 0;
@@ -120,6 +109,7 @@ void memcpy(void *destination, void* source, size_t num)
   }
 }
 */
+#endif
 
 int memcmp(void *ptr1, void* ptr2, size_t num)
 {

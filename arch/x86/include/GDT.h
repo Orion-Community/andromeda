@@ -20,7 +20,7 @@
 #ifndef __GDT_H
 #define __GDT_H
 
-#ifdef FASTGDT
+#ifdef FAST
 // Here goes the GDT entry data structure
 struct gdtEntry
 {
