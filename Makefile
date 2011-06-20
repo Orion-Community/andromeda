@@ -57,5 +57,5 @@ usage:
 	@echo "		Test the GDT. Very simple test suite, just to check if your kernel can continue when the new GDT is installed"
 	@echo "	-D\ WARN"
 	@echo "		Give warnings instead of panics where possible"
-	@echo "	-D\ FASTGDT"
-	@echo "		Use a minor optimalisation in the GDT code"
+	@echo "	-D\ FAST"
+	@echo "		Use some functions which introduce slightly less overhead over the more readable functions"
