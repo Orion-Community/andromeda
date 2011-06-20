@@ -118,15 +118,15 @@ mm_e801:
 	mov [es:di+8], ecx		;dword (0x3c00<<10)
 	mov [es:di+16], byte GEBL_USABLE_MEM
 	mov [es:di+20], byte GEBL_ACPI
-	jecxz .useax
-	call copy_empty_entry
+
+	call .next
 	jmp .highmem
 
 .useax:
 	and eax, 0xffff
 	shl eax, 10
 	mov [es:di+8], eax
-	call copy_empty_entry
+	call .next
 
 .highmem:
 	pop dx
