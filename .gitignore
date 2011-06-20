@@ -1,7 +1,3 @@
 *.o
-andromeda/compressed
-andromeda/core
-*floppy.sh
-compile.sh
-build.sh
-*.img
+compressed
+core
