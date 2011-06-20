@@ -48,15 +48,28 @@ int initHeap(long size)
 /*
  * Fast version:
  */
-void memset(void *dest, int val, size_t count)
+void memset(void *dest, int sval, size_t count)
 {
   if(!count){return;}
 #ifdef X86
-  long long valbuf = (val | ((val << 32) & & 0xffffffff00000000))
+  sval &= 0x000000ff;
+  unsigned long long val = (unsigned long long)sval;
+  char i = 8;
+  for(;i<64;i+=8)
+  {
+    val |= (sval << i);
+  }
   while(count >= 8){ *(unsigned long long*)dest = (unsigned long long)valbuf; dest += 8; count -= 8; }
   free(valbuf);
   if(count >= 4){ *(unsigned int*)dest = (unsigned int)val; dest += 4; count -= 4; }
 #else
+  unsigned int val = (unsigned int)sval;
+  char i = 8;
+  for(;i<32;i+=8)
+  {
+    val |= (sval << i);
+  }
+  long long valbuf = (val | ((val << 32) & & 0xffffffff00000000))
   while(count >= 4){ *(unsigned int*)dest = (unsigned int)val; dest += 4; count -= 4; }
 #endif
   if(count >= 2){ *(unsigned short*)dest = (unsigned short)val; dest += 2; count -= 2; }
