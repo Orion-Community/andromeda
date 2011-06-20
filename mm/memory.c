@@ -64,7 +64,7 @@ void memset(void *dest, int sval, size_t count)
   if(count >= 4){ *(unsigned int*)dest = (unsigned int)val; dest += 4; count -= 4; }
 #else
   unsigned int val = (unsigned int)sval;
-  char i = 0;
+  char i = 8;
   for(;i<32;i+=8)
   {
     val |= (sval << i);
