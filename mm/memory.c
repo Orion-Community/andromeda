@@ -59,7 +59,7 @@ void memset(void *dest, int sval, size_t count)
   {
     val |= (sval << i);
   }
-  while(count >= 8){ *(unsigned long long*)dest = (unsigned long long)valbuf; dest += 8; count -= 8; }
+  while(count >= 8){ *(unsigned long long*)dest = (unsigned long long)val; dest += 8; count -= 8; }
   free(valbuf);
   if(count >= 4){ *(unsigned int*)dest = (unsigned int)val; dest += 4; count -= 4; }
 #else
