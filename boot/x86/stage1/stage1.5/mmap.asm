@@ -34,7 +34,6 @@ getmemorymap:
 	add eax, ebx
 	mov [mmr], eax
 
-jmp mm_cmos
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -84,11 +83,8 @@ mm_e820:
 	mov [mmr+4], bp
 	pop bp
 	clc	; clear carry flag
-	mov al, 0x41
-	mov ah, 0x0E
-	xor bh, bh
-	int 0x10
 	ret
+
 .failed:
 	pop bp
 	call mm_e801
@@ -106,8 +102,8 @@ mm_e801:
 	mov es, ax
 	call lowmmap
 	jc .failed
-	push .midmem
-	jmp .next
+
+	call .next
 
 .midmem:
 	mov ax, 0xe801
@@ -123,14 +119,14 @@ mm_e801:
 	mov [es:di+16], byte GEBL_USABLE_MEM
 	mov [es:di+20], byte GEBL_ACPI
 	jecxz .useax
-	push .highmem
-	jmp .next
+	call copy_empty_entry
+	jmp .highmem
+
 .useax:
 	and eax, 0xffff
 	shl eax, 10
 	mov [es:di+8], eax
-	push .highmem
-	jmp .next
+	call copy_empty_entry
 
 .highmem:
 	pop dx
@@ -238,8 +234,8 @@ mm_88:
 
 	call lowmmap	; get a lowmmap
 	jc .failed
-	push .highmem
-	jmp .nxtentry
+	
+	call .nxtentry
 
 .highmem:
 	mov ax, 0x8800
@@ -270,11 +266,11 @@ mm_88:
 ;
 lowmmap:
 ; low available memory
-	call copy_empty_entry
+	call copy_empty_entry	; copy first entry
 	xor ax, ax
 	int 0x12	; get low memory size
-
 	jc cmoslowmem	; if interrupt 0x12 is not support.
+
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
 	push eax	; save for later
@@ -314,6 +310,8 @@ lowmmap:
 ; start of the last entry.
 ; 
 cmoslowmem:
+	call copy_empty_entry
+
 	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
 	out GEBL_CMOS_OUTPUT, al
 	call .iowait	; wait
@@ -331,10 +329,10 @@ cmoslowmem:
 	
 	pop dx
 	shl ax, 8	; put al in ah
-	or ax, dx ; ax is the most significant byte, dx the least significant
+	or ax, dx ; ah is the most significant byte, dl the least significant
 	
 	and eax, 0xffff
-	shl eax, 10
+	shl eax, 10	; eax*1024 -> convert to bytes
 	push eax	; save for the low reserved mmap
 	
 	mov [es:di], dword GEBL_LOW_BASE
@@ -342,7 +340,7 @@ cmoslowmem:
 	mov [es:di+16], dword GEBL_USABLE_MEM
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
 
-	call copy_empty_entry
+	call .nxtentry
 
 .lowres:
 ; low reserver memory
@@ -362,6 +360,10 @@ cmoslowmem:
 	out GEBL_DELAY_PORT, al
 	ret
 
+.nxtentry:
+	add di, 0x18
+	jmp copy_empty_entry
+
 .done:
 	clc
 	ret
@@ -375,6 +377,8 @@ addmemoryhole:
 	pushad	; save all registers
 	xor cx, cx
 	push cx	; .next will pop the counter off
+
+	call copy_empty_entry
 	cmp eax, (15 << 20) ; 15 mb in bytes
 	jb .remainder
 	
@@ -393,8 +397,6 @@ addmemoryhole:
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
 	
 	sub eax, (15 << 20)	; substract 15 mb (the reserved mem + the memory already defined as usable) from it
-	test eax, eax
-	jz .done
 
 	call .next
 	
