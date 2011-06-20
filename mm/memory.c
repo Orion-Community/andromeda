@@ -45,6 +45,28 @@ int initHeap(long size)
   return 0;
 }
 
+/*
+ * Fast version:
+ */
+void memset(void *dest, int val, size_t count)
+{
+  if(!count){return;}
+#ifdef X86
+  long long valbuf = (val | ((val << 32) & & 0xffffffff00000000))
+  while(count >= 8){ *(unsigned long long*)dest = (unsigned long long)valbuf; dest += 8; count -= 8; }
+  free(valbuf);
+  if(count >= 4){ *(unsigned int*)dest = (unsigned int)val; dest += 4; count -= 4; }
+#else
+  while(count >= 4){ *(unsigned int*)dest = (unsigned int)val; dest += 4; count -= 4; }
+#endif
+  if(count >= 2){ *(unsigned short*)dest = (unsigned short)val; dest += 2; count -= 2; }
+  if(count >= 1){ *(unsigned char*)dest = (unsigned char)val; }
+  return; 
+}
+
+/*
+ * Old one:
+ *
 void memset(void* location, int value, size_t size)
 {
   int i = 0;
@@ -54,6 +76,7 @@ void memset(void* location, int value, size_t size)
     *(offset+i) = (unsigned char)value;
   }
 }
+*/
 
 /*
  * Fast version:
@@ -62,11 +85,13 @@ void memcpy(void *dest, void *src, size_t count)
 {
   if(!count){return;}
 #ifdef X86
-  while(count >= 8){ *(unsigned long long*)dest = *(unsigned long long*)src; memcpy_transfers_64++; dest += 8; src += 8; count -= 8; }
+  while(count >= 8){ *(unsigned long long*)dest = *(unsigned long long*)src; dest += 8; src += 8; count -= 8; }
+  if(count >= 4){ *(unsigned int*)dest = *(unsigned int*)src; dest += 4; src += 4; count -= 4; }
+#else
+  while(count >= 4){ *(unsigned int*)dest = *(unsigned int*)src; dest += 4; src += 4; count -= 4; }
 #endif
-  while(count >= 4){ *(unsigned int*)dest = *(unsigned int*)src; memcpy_transfers_32++; dest += 4; src += 4; count -= 4; }
-  while(count >= 2){ *(unsigned short*)dest = *(unsigned short*)src; memcpy_transfers_16++; dest += 2; src += 2; count -= 2; }
-  while(count >= 1){ *(unsigned char*)dest = *(unsigned char*)src; memcpy_transfers_8++; dest += 1; src += 1; count -= 1; }
+  if(count >= 2){ *(unsigned short*)dest = *(unsigned short*)src; dest += 2; src += 2; count -= 2; }
+  if(count = 1){ *(unsigned char*)dest = *(unsigned char*)src; }
   return;
 }
 
@@ -85,29 +110,6 @@ void memcpy(void *destination, void* source, size_t num)
 }
 */
 
-/*
- * Fast version:
- */
-void memset(void *dest, uint8 sval, size_t count)
-{
-  unsigned long long val = (sval & 0xFF);
-  val |= ((val << 8) & 0xFF00);
-  val |= ((val << 16) & 0xFFFF0000);
-  val |= ((val << 32) & 0xFFFFFFFF00000000);
-    
-  if(!count){return;}
-#ifdef X86
-  while(count >= 8){ *(unsigned long long*)dest = (unsigned long long)val; memset_transfers_64++; dest += 8; count -= 8; }
-#endif
-  while(count >= 4){ *(unsigned int*)dest = (unsigned int)val; memset_transfers_32++; dest += 4; count -= 4; }
-  while(count >= 2){ *(unsigned short*)dest = (unsigned short)val; memset_transfers_16++; dest += 2; count -= 2; }
-  while(count >= 1){ *(unsigned char*)dest = (unsigned char)val; memset_transfers_8++; dest += 1; count -= 1; }
-  return; 
-}
-
-/*
- * Old one:
- *
 int memcmp(void *ptr1, void* ptr2, size_t num)
 {
   int ret = 0;
@@ -118,7 +120,6 @@ int memcmp(void *ptr1, void* ptr2, size_t num)
   }
   return ret;
 }
-*/
 
 size_t strlen(char* string)
 {
