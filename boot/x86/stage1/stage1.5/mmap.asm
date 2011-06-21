@@ -270,7 +270,7 @@ lowmmap:
 	call copy_empty_entry	; copy first entry
 	xor ax, ax
 	int 0x12	; get low memory size
-	jc cmoslowmem	; if interrupt 0x12 is not support.
+	jc cmoslowmmap	; if interrupt 0x12 is not support.
 
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
@@ -314,7 +314,7 @@ lowmmap:
 ; This subroutine will create the first two entries, the low memory (mem < 1mb). When it returns es:di will point to the
 ; start of the last entry.
 ; 
-cmoslowmem:
+cmoslowmmap:
 	call copy_empty_entry
 
 	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
