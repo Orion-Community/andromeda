@@ -22,10 +22,6 @@
 [SECTION .text]
 
 pmodemain:
-; 	xor ax, ax
-; 	mov ax, [sectorcount]
-; 	cmp ax, 0x13
-; 	je .end
 	call kmain
 
 .end:
