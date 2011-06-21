@@ -40,14 +40,14 @@ unsigned int screenHeigth = 200;
 unsigned int screenColorDepth = 1;
 #endif
 
-unsigned char* screenbuf = ...(screenWidth*screenHeigth*screenColorDepth);
+unsigned char* screenbuf = kalloc(screenWidth*screenHeigth*screenColorDepth);
 
 /*
  * Hardcode font. currently only contains fonts for '0' and '1'.
  */
-unsigned long long charData[2] = {
-         0x3c7e666666667e3c,
-         0x18381818181818ff
+unsigned long long int charData[2] = {
+         4359034079331909180,// = 0x3c7e666666667e3c
+         1745171347368581375 // = 0x18381818181818ff
 }
 
 void putPixel(unsigned int x, unsigned int y, unsigned int color)
@@ -78,7 +78,7 @@ void drawBuf(unsigned int x, unsigned int y,unsigned int heigth, unsigned int wi
   if( ((x+width)>screenWidth) | ((y+heigth)>screenHeigth) ) return;
   int ix,iy = 0;
 #ifdef HD
-  char* buf = ...(width*heigth*screenColorDepth);
+  char* buf = kalloc(width*heigth*screenColorDepth);
   memset(buf,0x00,width*heigth*screenColorDepth);
   int i;
   float xScale = width/bufWidth,yScale = heigth/bufHeigth;
@@ -143,7 +143,7 @@ void drawBuf(unsigned int x, unsigned int y,unsigned int heigth, unsigned int wi
 void* getCharBuf(char character)
 {
   if(character>1) return getCharBuf((char)0); // draws '0' if invalide character is asked.
-  char* buf = ...(64*screenColorDepth);
+  char* buf = kalloc(64*screenColorDepth);
   unsigned long long chr = charData[character];
   int i = 0;
   for(;i<64;i++)
