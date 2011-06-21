@@ -402,11 +402,18 @@ addmemoryhole:
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
 	
 	sub eax, (15 << 20)	; substract 15 mb (the reserved mem + the memory already defined as usable) from it
-	call .next
+	pop cx
+	inc cx
+	push cx
 
 	test eax, eax
 	jz .done
-	
+
+	pop cx
+	dec cx
+	push cx
+	call .next
+
 .remainder:
 	mov [es:di], dword 0x001000000	; base
 	mov [es:di+8], eax

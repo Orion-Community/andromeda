@@ -99,6 +99,8 @@ void putc(uint8_t c)
 			cursor.x += 2;
 			break;
 	}
+	
+	reloc_cursor(cursor.x, cursor.line);
 }
 
 void writeat(uint8_t c, uint32_t x)
@@ -125,10 +127,10 @@ void clearscreen() // clear the entire text screen
 
 void reloc_cursor(uint32_t x, uint32_t y)
 {
-	uint16_t loc = x * WIDTH * y;
+	uint16_t loc = (GEBL_WIDTH * y) + x;
 
-	outb(0xe, 0x3d4);
-	outb(location >> 8, 0x3d5);
-	outb(0xf, 0x3d4);
-	outb(location, 0x3d5);
+        outb(0x3d4, 0xe); 
+        outb(0x3d5, loc >> 8);
+        outb(0x3d4, 0xf);
+        outb(0x3d5, loc);
 }
