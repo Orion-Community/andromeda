@@ -155,7 +155,16 @@ void* getCharBuf(char character)
   return buf;
 }
 
-void drawChar(unsigned int x, unsigned int y,char character)
+void drawChar(unsigned int x, unsigned int y,char chr)
 {
-  drawBuf(x,y,8,8,getCharBuf(character));
+  drawBuf(x,y,8,8,getCharBuf(chr));
+}
+
+void drawString(unsigned int x, unsigned int y,char* str)
+{
+  int i = strlen(str);
+  for (;i>0;i--)
+  {
+    drawChar(x+(i*8),y,*(str+i));
+  }
 }
