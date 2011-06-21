@@ -12,7 +12,7 @@ MM=mm/alloc.c mm/memory.c mm/test.c mm/heap.c mm/paging.c mm/map.c
 MMH=include/mm/heap.h include/mm/memory.h include/mm/paging.h include/mm/map.h
 MATH=math/math.c
 MATHH=include/math/math.h
-VGA=vga/vga.c
+VGA=vga/vga.c vga/graphics.c
 VGAH= vga/include/vga.h
 
 DEPS=include/io.h include/types.h include/text.h include/thread.h include/stdlib.h include/unistd.h
