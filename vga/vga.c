@@ -118,7 +118,7 @@ char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F',
 
 void printNum(int index, unsigned int base, boolean sInt, boolean capital)
 {
-  char* buf[32];
+  char buf[32];
   memset(buf, '\0', 32);
   int i = 0;
   
