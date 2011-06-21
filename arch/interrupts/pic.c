@@ -59,10 +59,10 @@ void pic_eoi(uint8_t irq)
 {
 	if(irq >= 8)
 	{
-		outb(GEBL_PIC_EOI, GEBL_PIC2_COMMAND);
+		outb(GEBL_PIC2_COMMAND, GEBL_PIC_EOI);
 		return;
 	}
-	outb(GEBL_PIC_EOI, GEBL_PIC1_COMMAND);
+	outb(GEBL_PIC1_COMMAND, GEBL_PIC_EOI);
 }
 
 void pic_init()
