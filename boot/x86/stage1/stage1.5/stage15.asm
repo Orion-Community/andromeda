@@ -55,6 +55,10 @@ main:
 
 %include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
 
+;
+; Print routine
+;
+
 %include 'boot/x86/println.asm'
 	
 	failed db '0x2', 0x0

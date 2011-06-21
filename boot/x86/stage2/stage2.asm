@@ -56,13 +56,6 @@ gdtr:
 
 
 main:
-	cli
-	mov ax, 0x7e0
-	mov ds, ax
-	mov es, ax
-; 	mov ss, ax
-	sti
-
 	call openA20
 	jc .bailout
 
@@ -72,6 +65,11 @@ main:
 	mov si, pmode
 	call println
 jmp $
+
+	mov al, 0x42
+	mov ah, 0x0E
+	xor bh, bh
+	int 0x10
 
 	cli
 	lgdt [gdtr]
@@ -85,7 +83,7 @@ jmp $
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov esp, 0x10000 ; top of usable memory..
+	mov esp, 0x9f000; top of usable memory..
 
 	jmp CODE_SEG:pmodemain
 
@@ -100,10 +98,34 @@ jmp $
 %include 'boot/x86/println.asm'
 
 ;
-; Dynamic disk reader
+; GLOBAL DESCRIPTOR TABLE
 ;
+gdt:
+    times 8 db 0
+    CODE_SEG equ $ - gdt	; Code segment, read/execute, nonconforming
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x9A
+        db 0xCF
+        db 0
+    DATA_SEG equ $ - gdt	; Data segment, read/write, expand down
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x92
+        db 0xCF
+        db 0
+gdt_end:
 
-%include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
+gdtr:
+	dw gdt_end - gdt - 1; gdt limit = size
+	dd gdt ; gdt base address
+
+	; Status messages
+	pmode db 'Implementing a GDT and PMode.', 0x0
+	failed db '0x2', 0x0
+>>>>>>> 3d5a612ae19808c413882e5bbdd18ac78c8b6ffe
 
 [SECTION .end]
 endptr:
