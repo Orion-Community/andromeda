@@ -1,5 +1,5 @@
 ;
-;    Low level memory map functions.
+;    The interrupt service routine headers.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
