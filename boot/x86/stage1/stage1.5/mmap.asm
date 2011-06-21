@@ -444,8 +444,6 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 	mov cx, 0xc
 	rep movsw	; copy copy copy!
 	sub di, 0x18	; just to make addressing esier
-	pop fs
-	push fs
 	ret
 ; now there is an empty entry at [es:di]
 ; times 1024 - ($ - $$) db 0

@@ -16,6 +16,14 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[GLOBAL installIDT]
+installIDT:
+	push ebp
+	mov ebp, esp
+
+	pop ebp
+	ret
+
 [GLOBAL loadidt]
 loadidt:
 	push ebp
@@ -26,3 +34,24 @@ loadidt:
 
 	pop ebp
 	ret
+
+%macro setEntry 4
+; setEntry number, base, selector, flags
+
+	mov si, idtentry
+	mov di, 0x7800+%1
+	mov cx, 32
+	cld
+	rep movsw
+%endmacro
+
+idtr:
+	dw 0	; limit
+	dd 0	; base
+
+idtentry:
+	dw 0	; low base
+	dw 0	; selector
+	db 0	; should always be 0
+	db 0	; flags
+	dw 0	; high base
