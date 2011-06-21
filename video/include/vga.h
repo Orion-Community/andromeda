@@ -33,4 +33,6 @@ typedef struct vgaProperty
 	uint32_t x;
 	char * vidmem;
 } GEBL_VGA;
+
+void reloc_cursor(uint32_t x, uint32_t y);
 #endif

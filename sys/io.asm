@@ -31,7 +31,7 @@ inb:
 	ret
 
 [GLOBAL outb]
-outb:
+outb:	; void outb(uint8_t data, uint16_t port);
 	push ebp
 	mov ebp, esp
 	
