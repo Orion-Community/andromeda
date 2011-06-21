@@ -29,7 +29,7 @@ extern char inb(uint16_t port);
 /*
  * outb writes given data to a given port.
  */
-extern void outb(char data, uint16_t port);
+extern void outb(uint8_t data, uint16_t port);
 
 /*
  * This function waits for data when there is written to an output port.

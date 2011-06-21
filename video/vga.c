@@ -19,6 +19,7 @@
 #include "include/vga.h"
 #include <textio.h>
 #include <sys/stdlib.h>
+#include <sys/io.h>
 
 GEBL_VGA cursor;
 

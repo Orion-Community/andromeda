@@ -28,30 +28,30 @@ void pic_remap(uint32_t offset1, uint32_t offset2)
 	mask2 = inb(GEBL_PIC2_DATA);
 
 	// sent the initialise commands to the master and slave pic
-	outb(GEBL_ICW1_INIT+GEBL_ICW1_ICW4, GEBL_PIC1_COMMAND);
-	outb(GEBL_ICW1_INIT+GEBL_ICW1_ICW4, GEBL_PIC2_COMMAND);
+	outb(GEBL_PIC1_COMMAND, GEBL_ICW1_INIT+GEBL_ICW1_ICW4);
+	outb(GEBL_PIC2_COMMAND, GEBL_ICW1_INIT+GEBL_ICW1_ICW4);
 	iowait();
 
 	// define the vectors
-	outb(offset1, GEBL_PIC1_DATA);
-	outb(offset2, GEBL_PIC2_DATA);
+	outb(GEBL_PIC1_DATA, offset1);
+	outb(GEBL_PIC2_DATA, offset2);
 	iowait();
 
 	// connect to the slave
-	outb(GEBL_ICW3_MASTER, GEBL_PIC1_DATA);
-	outb(GEBL_ICW3_SLAVE, GEBL_PIC2_DATA);
+	outb(GEBL_PIC1_DATA, GEBL_ICW3_MASTER);
+	outb(GEBL_PIC2_DATA, GEBL_ICW3_SLAVE);
 	iowait();
 	
-	outb(GEBL_ICW4_8086, GEBL_PIC1_DATA);
-	outb(GEBL_ICW4_8086, GEBL_PIC2_DATA);
+	outb(GEBL_PIC1_DATA, GEBL_ICW4_8086);
+	outb(GEBL_PIC2_DATA, GEBL_ICW4_8086);
 	iowait();
 	
-	outb(mask1, GEBL_PIC1_DATA);
-	outb(mask2, GEBL_PIC2_DATA);
+	outb(GEBL_PIC1_DATA, mask1);
+	outb(GEBL_PIC2_DATA, mask2);
 	iowait();
 	
-	outb(0xff, GEBL_PIC1_DATA);	// disable irq's, not yet implemented.
-	outb(0xff, GEBL_PIC2_DATA);
+	outb(GEBL_PIC1_DATA, 0xff);	// disable irq's, not yet implemented.
+	outb(GEBL_PIC2_DATA, 0xff);
 	iowait();
 }
 
@@ -59,10 +59,10 @@ void pic_eoi(uint8_t irq)
 {
 	if(irq >= 8)
 	{
-		outb(GEBL_PIC_EOI, GEBL_PIC2_COMMAND);
+		outb(GEBL_PIC2_COMMAND, GEBL_PIC_EOI);
 		return;
 	}
-	outb(GEBL_PIC_EOI, GEBL_PIC1_COMMAND);
+	outb(GEBL_PIC1_COMMAND, GEBL_PIC_EOI);
 }
 
 void pic_init()
