@@ -21,6 +21,8 @@
 #define RANDMAX 0xFFFF
 #define RANDMIN 0x0
 
+static inline isInteger(f) {int i = f;return (f == static_cast<float>(i));}
+
 void randomize(unsigned int seed);
 int random();
 
