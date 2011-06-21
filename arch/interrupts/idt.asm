@@ -16,10 +16,18 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[GLOBAL installIDT]
-installIDT:
+[GLOBAL installEntry]
+installEntry:
 	push ebp
 	mov ebp, esp
+
+	mov esi, idtentry
+	mov edi, 0x7800
+	add edi, [ebp+8]
+	mov ecx, 0x4
+	rep movsw
+	sub edi, 0x8
+	; edi points to the beginning of the new
 
 	pop ebp
 	ret
@@ -34,16 +42,6 @@ loadidt:
 
 	pop ebp
 	ret
-
-%macro setEntry 4
-; setEntry number, base, selector, flags
-
-	mov si, idtentry
-	mov di, 0x7800+%1
-	mov cx, 32
-	cld
-	rep movsw
-%endmacro
 
 idtr:
 	dw 0	; limit
