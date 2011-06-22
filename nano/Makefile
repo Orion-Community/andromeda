@@ -10,11 +10,6 @@ x86:
 	@echo
 	$(MAKE) -f Makefile.x86 compressed EFLAGS="$(COMPRESSED)"
 	rm *.o
-	@echo "Pass two"
-	@echo
-	@echo
-	$(MAKE) -f Makefile.x86 decompressed
-	rm *.o
 
 .PHONY: amd64
 amd64:
