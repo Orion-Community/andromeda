@@ -16,18 +16,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __TEXT_H
-#define __TEXT_H
-#include <types.h>
-#ifdef GRAPHIC
-char* textBuf;
-void textInit();
-#else
-void println(unsigned char*);
-void printf(unsigned char*, ...);
-void putc(unsigned char);
-void printNum(int index, unsigned int base, boolean sInt, boolean capital);
-void scroll(unsigned char);
-void textInit();
-#endif
-#endif
+/*
+ * 
+ * THIS FILE IS JUST A STUB!
+ * Please don't implement jet.
+ * 
+ */
+
+#include <stdlib.h>
+#include <io.h>
+#include "include/graphics.h"
+
+void textInit()
+{
+  graphicsInit();
+}

@@ -25,22 +25,7 @@
 
 #include <stdlib.h>
 #include <io.h>
-#include "include/vga.h"
-
-#ifdef HD
-/*
- * Note that the code isn't HD ready jet. Only low res. VGA is allowed.
- */
-unsigned int screenWidth = ???;
-unsigned int screenHeigth = ???;
-unsigned int screenColorDepth = ???;
-#else
-unsigned int screenWidth = 320;
-unsigned int screenHeigth = 200;
-unsigned int screenColorDepth = 1;
-#endif
-
-unsigned char* screenbuf = kalloc(screenWidth*screenHeigth*screenColorDepth);
+#include "include/graphics.h"
 
 /*
  * Hardcode font. currently only contains fonts for '0' and '1'.
@@ -48,6 +33,26 @@ unsigned char* screenbuf = kalloc(screenWidth*screenHeigth*screenColorDepth);
 unsigned long long int charData[2] = {
          4359034079331909180,// = 0x3c7e666666667e3c
          1745171347368581375 // = 0x18381818181818ff
+}
+
+void graphicsInit(unsigned int width, unsigned int heigth, unsigned int depth)
+{
+  screenWidth = width;
+  screenHeigth = heigth;
+  screenColorDepth = depth;
+  screenbuf = kalloc(screenWidth*screenHeigth*screenColorDepth);
+}
+
+void graphicsInit()
+{
+#ifdef HD
+  /*
+   * Note that the code isn't HD ready jet. Only low res. VGA is allowed.
+   */
+  graphics_init(???,???,???);
+#else
+  graphics_init(320,200,1);
+#endif
 }
 
 void putPixel(unsigned int x, unsigned int y, unsigned int color)
