@@ -16,8 +16,8 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[GLOBAL installEntry]
-installEntry:	; void installEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
+[GLOBAL setEntry]
+setEntry:	; void installEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
 	push ebp
 	mov ebp, esp
 
@@ -34,12 +34,17 @@ installEntry:	; void installEntry(uint8_t num, uint32_t base, uint16_t sel, uint
 	shr eax, 16	; mov high eax into ax
 	mov [edi+6], ax
 
+	mov eax, dword [ebp+16]
+	mov [edi+2], eax
+
+	mov eax, [ebp+20]
+	mov [edi+5], al
 
 	pop ebp
 	ret
 
-[GLOBAL loadidt]
-loadidt:
+[GLOBAL installIDT]
+installIDT:
 	push ebp
 	mov ebp, esp
 
