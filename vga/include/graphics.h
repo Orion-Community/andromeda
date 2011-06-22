@@ -26,8 +26,9 @@
 #ifndef __GRAPHICS_H
 #define __GRAPHICS_H
 unsigned int screenWidth;
-unsigned int screenHeigth;
+unsigned int screenHeight;
 unsigned int screenColorDepth;
 unsigned char* screenbuf;
-void graphicsInit();
+void graphicsInit(unsigned int width, unsigned int heigth, unsigned int depth);
+void graphicsSetScreen(unsigned int width, unsigned int heigth, unsigned int depth);
 #endif

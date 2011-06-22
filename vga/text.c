@@ -29,5 +29,12 @@
 
 void textInit()
 {
-  graphicsInit();
+#ifdef HD
+  /*
+   * Note that the code isn't HD ready jet. Only low res. VGA is allowed.
+   */
+  graphicsInit(???,???,???);
+#else
+  graphicsInit(320,200,1);
+#endif
 }

@@ -37,32 +37,26 @@ const unsigned int charData[4] = {
          0x18381818,0x181818ff  // 1
 };
 
-void graphicsSetScreen(unsigned int width, unsigned int heigth, unsigned int depth)
+void graphicsInit(unsigned int width, unsigned int heigth, unsigned int depth)
 {
   screenWidth = width;
-  screenHeigth = heigth;
+  screenHeight = heigth;
   screenColorDepth = depth;
-  screenbuf = kalloc(screenWidth*screenHeigth*screenColorDepth);
+  screenbuf = kalloc(screenWidth*screenHeight*screenColorDepth);
 }
 
-void graphicsInit()
+void graphicsSetScreen(unsigned int width, unsigned int heigth, unsigned int depth)
 {
-#ifdef HD
-  /*
-   * Note that the code isn't HD ready jet. Only low res. VGA is allowed.
-   */
-  graphicsSetScreen(???,???,???);
-#else
-  graphicsSetScreen(320,200,1);
-#endif
+  free(screenbuf); // There is no kfree() jet!
+  graphicsInit(width,heigth,depth);
 }
 
 // Copy color into the x and y coordinate
 void putPixel(unsigned int x, unsigned int y, unsigned int color)
 {  
   memcpy(
-    (unsigned int*)color,
-    screenbuf + (x + y * screenWidth) * screenColorDepth,
+    (unsigned int*)color, //is this correct?
+    screenbuf + (x + y * screenWidth) * screenColorDepth, // base addres + ( pixel num. * pixel width )
     screenColorDepth
   );
 }
@@ -73,27 +67,31 @@ unsigned int getPixel(unsigned int x, unsigned int y)
   unsigned int pixel = (x + y * screenWidth);
   pixel *= screenColorDepth;
   pixel += screenbuf;
-  return *((unsigned int *)pixel);
+  return *((unsigned int *)pixel); // is this correct?
 }
 
-void drawBuf(unsigned int x, unsigned int y,unsigned int heigth, unsigned int width, void* buffer)
+void drawBuf(unsigned int x, unsigned int y,unsigned int height, unsigned int width, void* buffer)
 {
   if (((x + width) > screenWidth) || ((y+height) > screenHeight))
     return;
-  int i  = 0; // What's i?
-  int i2 = (x + y * screenWidth) * screenColorDepth; // What's i2??
+  int i  = 0; // counter for loop.
+  int i2 = screenbuf + (x + y * screenWidth) * screenColorDepth; // adres of the first pixel to draw to ( = base addres + ( pixel num. * pixel width ) )
 
-  while(i < y)
+  while(i < height) // loops through each horizontal line of the image buffer.
   {
-    memcpy(buffer + (i * width), screenbuf + i2, width);
+    memcpy(
+      buffer + (i * width),
+      i2,
+      width
+    );
     i++;
-    i2 += screenWidth;
+    i2 += screenWidth * screenColorDepth; // go 1 pixel down
   }
 }
 
 void drawBufScale(unsigned int x, unsigned int y, unsigned int heigth, unsigned int width, unsigned int bufHeigth, unsigned int bufWidth, void* buffer)
 {
-  if(((x + width) > screenWidth) | ((y + heigth) > screenHeigth)) return;
+  if(((x + width) > screenWidth) | ((y + heigth) > screenHeight)) return;
   int ix,iy = 0;
 #ifdef HD
   char* buf = kalloc(width * heigth * screenColorDepth);
