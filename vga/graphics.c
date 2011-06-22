@@ -30,12 +30,14 @@
 /*
  * Hardcode font. currently only contains fonts for '0' and '1'.
  */
-unsigned long long int charData[2] = {
-         4359034079331909180,// = 0x3c7e666666667e3c
-         1745171347368581375 // = 0x18381818181818ff
-}
 
-void graphicsInit(unsigned int width, unsigned int heigth, unsigned int depth)
+
+const unsigned int charData[4] = {
+         0x3c7e6666,0x66667e3c, // 0
+         0x18381818,0x181818ff  // 1
+};
+
+void graphicsSetScreen(unsigned int width, unsigned int heigth, unsigned int depth)
 {
   screenWidth = width;
   screenHeigth = heigth;
@@ -49,15 +51,15 @@ void graphicsInit()
   /*
    * Note that the code isn't HD ready jet. Only low res. VGA is allowed.
    */
-  graphics_init(???,???,???);
+  graphicsSetScreen(???,???,???);
 #else
-  graphics_init(320,200,1);
+  graphicsSetScreen(320,200,1);
 #endif
 }
 
 void putPixel(unsigned int x, unsigned int y, unsigned int color)
 {
-  memcpy((unsigned int*)color,screenbuf+(x+y*screenWidth)*screenColorDepth,screenColorDepth)
+  memcpy((unsigned int*)color,screenbuf+(x+y*screenWidth)*screenColorDepth,screenColorDepth);
 }
 
 unsigned int getPixel(unsigned int x, unsigned int y)
@@ -78,7 +80,7 @@ void drawBuf(unsigned int x, unsigned int y,unsigned int heigth, unsigned int wi
   }
 }
 
-void drawBuf(unsigned int x, unsigned int y,unsigned int heigth, unsigned int width,unsigned int bufHeigth, unsigned int bufWidth, void* buffer)
+void drawBufScale(unsigned int x, unsigned int y,unsigned int heigth, unsigned int width,unsigned int bufHeigth, unsigned int bufWidth, void* buffer)
 {
   if( ((x+width)>screenWidth) | ((y+heigth)>screenHeigth) ) return;
   int ix,iy = 0;
@@ -132,9 +134,9 @@ void drawBuf(unsigned int x, unsigned int y,unsigned int heigth, unsigned int wi
   drawBuf(x,y,width,heigth,buf);
 #else
   float xScale = bufWidth/width,yScale = bufHeigth/heigth;
-  for(;iy<Heigth;iy++)
+  for(;iy<heigth;iy++)
   {
-    for(ix=0;ix<Width;ix++)
+    for(ix=0;ix<width;ix++)
     {
       memcpy(buffer+((((int)(iy*yScale))*width+((int)(ix*xScale)))*screenColorDepth),screenbuf+(((y+iy)*screenWidth+x+ix)*screenColorDepth),screenColorDepth);
     }
@@ -149,13 +151,20 @@ void* getCharBuf(char character)
 {
   if(character>1) return getCharBuf((char)0); // draws '0' if invalide character is asked.
   char* buf = kalloc(64*screenColorDepth);
-  unsigned long long chr = charData[character];
+  unsigned int chr1 = charData[character*2];
+  unsigned int chr2 = charData[character*2+1];
   int i = 0;
-  for(;i<64;i++)
+  for(;i<32;i++)
   {
-    buf[i*3]   = ( (chr << i) & 0x0000000000000001 ) * 0xff;
-    buf[i*3+1] = ( (chr << i) & 0x0000000000000001 ) * 0xff;
-    buf[i*3+2] = ( (chr << i) & 0x0000000000000001 ) * 0xff;
+    buf[i*3]   = ( (chr1 << i) & 0x00000001 ) * 0xff;
+    buf[i*3+1] = ( (chr1 << i) & 0x00000001 ) * 0xff;
+    buf[i*3+2] = ( (chr1 << i) & 0x00000001 ) * 0xff;
+  }
+  for(i=0;i<32;i++)
+  {
+    buf[32+i*3]   = ( (chr2 << i) & 0x00000001 ) * 0xff;
+    buf[32+i*3+1] = ( (chr2 << i) & 0x00000001 ) * 0xff;
+    buf[32+i*3+2] = ( (chr2 << i) & 0x00000001 ) * 0xff;
   }
   return buf;
 }
