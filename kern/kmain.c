@@ -37,7 +37,7 @@
 #include <mm/map.h>
 #include <interrupts/int.h>
 
-unsigned char stack[0x2000];
+unsigned char stack[0x8000];
 
 // Define the place of the heap
 #ifdef __COMPRESSED
