@@ -57,50 +57,61 @@ void graphicsInit()
 #endif
 }
 
+// Copy color into the x and y coordinate
 void putPixel(unsigned int x, unsigned int y, unsigned int color)
-{
-  memcpy((unsigned int*)color,screenbuf+(x+y*screenWidth)*screenColorDepth,screenColorDepth);
+{  
+  memcpy(
+    (unsigned int*)color,
+    screenbuf + (x + y * screenWidth) * screenColorDepth,
+    screenColorDepth
+  );
 }
 
+// Retreive the pixel value
 unsigned int getPixel(unsigned int x, unsigned int y)
 {
-  return *((unsigned int *)(screenbuf+(x+y*screenWidth)*screenColorDepth));
+  unsigned int pixel = (x + y * screenWidth);
+  pixel *= screenColorDepth;
+  pixel += screenbuf;
+  return *((unsigned int *)pixel);
 }
 
 void drawBuf(unsigned int x, unsigned int y,unsigned int heigth, unsigned int width, void* buffer)
 {
-  if( ((x+width)>screenWidth) | ((y+heigth)>screenHeigth) ) return;
-  int i=0,i2=(x+y*screenWidth)*screenColorDepth;
+  if (((x + width) > screenWidth) || ((y+height) > screenHeight))
+    return;
+  int i  = 0; // What's i?
+  int i2 = (x + y * screenWidth) * screenColorDepth; // What's i2??
 
-  while(i<y)
+  while(i < y)
   {
-    memcpy(buffer+(i*width),screenbuf+i2,width);
+    memcpy(buffer + (i * width), screenbuf + i2, width);
     i++;
-    i2+=screenWidth;
+    i2 += screenWidth;
   }
 }
 
-void drawBufScale(unsigned int x, unsigned int y,unsigned int heigth, unsigned int width,unsigned int bufHeigth, unsigned int bufWidth, void* buffer)
+void drawBufScale(unsigned int x, unsigned int y, unsigned int heigth, unsigned int width, unsigned int bufHeigth, unsigned int bufWidth, void* buffer)
 {
-  if( ((x+width)>screenWidth) | ((y+heigth)>screenHeigth) ) return;
+  if(((x + width) > screenWidth) | ((y + heigth) > screenHeigth)) return;
   int ix,iy = 0;
 #ifdef HD
-  char* buf = kalloc(width*heigth*screenColorDepth);
-  memset(buf,0x00,width*heigth*screenColorDepth);
+  char* buf = kalloc(width * heigth * screenColorDepth);
+  memset(buf, 0x00, width * heigth * screenColorDepth);
   int i;
-  float xScale = width/bufWidth,yScale = heigth/bufHeigth;
-  float newX,newY;
-  for(;iy<bufHeigth;iy++)
+  float xScale = width / bufWidth, yScale = heigth / bufHeigth;
+  float newX, newY;
+  for(;iy < bufHeigth; iy++)
   {
-    newY = iy*yScale;
-    for(ix=0;ix<bufWidth;ix++)
+    newY = iy * yScale;
+    for(ix = 0; ix < bufWidth; ix++)
     {
-      newX = ix*xScale;
-      if (ix*xScale = (int)newX)
+      newX = ix * xScale;
+      if (ix * xScale = (int)newX)
       {
-        if (iy*yScale = (int)newY)
+        if (iy * yScale = (int)newY)
         {
-          memcpy(buffer+((newY*width+newX)*screenColorDepth),buf+((newY*width+newX)*screenColorDepth),screenColorDepth);
+          memcpy(buffer + ((newY * width + newX) * screenColorDepth), buf + ((newY * width + newX) * screenColorDepth), screenColorDepth);
         } else {
           /*
            * Didn't test this. Hopefully it works :S
@@ -112,13 +123,13 @@ void drawBufScale(unsigned int x, unsigned int y,unsigned int heigth, unsigned i
            * Note this only works when the color is in RGB format, so it will only work in HD mode.
            * 
            */
-          for(i=0;i<screenColorDepth;i++)
+          for(i = 0; i < screenColorDepth; i++)
           {
-            *(buf+i+((((int)newY)*width+((int)newX))*screenColorDepth))) += (char)((*(buffer+i+((((int)newY)*width+((int)newX))*screenColorDepth)))*(((int)newX)-newX)*(((int)newY)-newY));
+            *(buf + i + ((((int)newY) * width + ((int)newX)) * screenColorDepth))) += (char)((*(buffer + i + ((((int)newY) * width + ((int)newX)) * screenColorDepth))) * (((int)newX) - newX) * (((int)newY) - newY));
           }
-          for(i=0;i<screenColorDepth;i++)
+          for(i = 0; i < screenColorDepth; i++)
           {
-            *(buf+((((int)newY + 1)*width+((int)newX))*screenColorDepth))) += (char)((*(buffer+((((int)newY)*width+((int)newX))*screenColorDepth)))*(((int)newX)-newX)*(newY-((int)newY + 1)));
+            *(buf + ((((int)newY + 1) * width + ((int)newX)) * screenColorDepth))) += (char)((*(buffer + ((((int)newY) * width + ((int)newX)) * screenColorDepth))) * (((int)newX) - newX) * (newY - ((int)newY + 1)));
           }
         }
       } else {
