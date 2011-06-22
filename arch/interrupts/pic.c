@@ -68,5 +68,4 @@ void pic_eoi(uint8_t irq)
 void pic_init()
 {
 	pic_remap(GEBL_INTERRUPT_BASE, GEBL_INTERRUPT_BASE+8);
-	panic("PIC not yet implemented");
 }

@@ -21,6 +21,7 @@
 #include <sys/io.h>
 #include <mm/mmap.h>
 #include <interrupts/pic.h>
+#include <interrupts/idt.h>
 
 void kmain(void)
 {
@@ -48,6 +49,8 @@ void kmain(void)
 
 #ifdef __DEBUG
 	pic_init();
+	setIDT();
+	char x = 5/0;
 #endif
 	while(1) halt();
 }

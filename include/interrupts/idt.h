@@ -1,5 +1,5 @@
 /*
- *   GoldenEagle Bootloader C entry point.
+ *   System idt header.
  *   Copyright (C) 2011  Michel Megens
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,9 +16,13 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
+#include <sys/stdlib.h>
+
+#ifndef _ISR_H_
+#define _ISR_H_
 
 /*
- * Check if we are in the kernel segment.
+ * Set the IDT.
  */
-bool inKernelRing();
+void setIDT();
+#endif

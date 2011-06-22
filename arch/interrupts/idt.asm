@@ -23,7 +23,12 @@ setEntry:	; void installEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t 
 
 	mov esi, idtentry
 	mov edi, 0x7800
-	add edi, [ebp+8]
+
+	mov edx, [ebp+8]
+	and edx, 0xff
+	shl edx, 3 	; edx = edx * 8;
+	add edi, edx
+
 	mov ecx, 0x4
 	rep movsw
 	sub edi, 0x8
