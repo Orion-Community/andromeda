@@ -1,0 +1,47 @@
+include make/x86
+include make/makeIncl
+
+NEWFLAGS=$(EFLAGS) $(CFLAGS)
+ASM = -S -masm=intel $(NEWFLAGS)
+
+KERN=kern/kmain.c kern/sched.c kern/elf.c kern/exec.c
+KERNH=include/kern/cpu.h include/kern/sched.h include/kern/elf.h
+ERROR=error/panic.c
+ERRORH= include/error/panic.h
+MM=mm/alloc.c mm/memory.c mm/test.c mm/heap.c mm/paging.c mm/map.c
+MMH=include/mm/heap.h include/mm/memory.h include/mm/paging.h include/mm/map.h
+VGA=vga/vga.c
+VGAH=vga/include/vga.h
+
+DEPS=include/io.h include/types.h include/text.h include/thread.h include/stdlib.h include/unistd.h
+
+.PHONY: compressed
+compressed: kern.o error.o mm.o vga.o 
+	$(MAKE) -f Makefile.arch EFLAGS="$(EFLAGS) "
+	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
+	
+.PHONY: decompressed
+decompressed: kern.o error.o mm.o vga.o math.o
+	$(MAKE) -f Makefile.arch
+	$(LD) $(LDFLAGS) $(LDCORE) -o $(OUTD) *.o
+
+.PHONY: asm
+asm:
+
+	$(CC) $(FLAGS) $(ASM) arch/x86/interrupts/*.c -Iarch/x86/include
+	$(CC) $(FLAGS) $(ASM) arch/x86/mm/*.c -Iarch/x86/include
+	$(CC) $(FLAGS) $(ASM) kern/*.c
+	$(CC) $(FLAGS) $(ASM) vga/*.c
+	$(CC) $(FLAGS) $(ASM) mm/*.c
+	$(CC) $(FLAGS) $(ASM) error/*.c
+
+kern.o: $(KERN) $(KERNH) $(DEPS)
+	$(CC) $(FLAGS) $(NEWFLAGS) -combine $(KERN) -o kern.o
+error.o: $(ERROR) $(ERRORH) $(DEPS)
+	$(CC) $(FLAGS) $(NEWFLAGS) -combine $(ERROR) -o error.o
+mm.o: $(MM) $(MMH) $(DEPS)
+	$(CC) $(FLAGS) $(NEWFLAGS) -combine $(MM) -o mm.o
+vga.o: $(VGA) $(VGAH) $(DEPS)
+	$(CC) $(FLAGS) $(NEWFLAGS) -combine $(VGA) -o vga.o
+math.o: $(MATH) $(MATHH) $(DEPS)
+	$(CC) $(FLAGS) $(NEWFLAGS) -combine $(MATH) -o math.o
