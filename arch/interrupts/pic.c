@@ -50,8 +50,8 @@ void pic_remap(uint32_t offset1, uint32_t offset2)
 	outb(GEBL_PIC2_DATA, mask2);
 	iowait();
 	
-	outb(GEBL_PIC1_DATA, 0xff);	// disable irq's, not yet implemented.
-	outb(GEBL_PIC2_DATA, 0xff);
+	outb(GEBL_PIC2_DATA, 0xff);	// disable irq's, not yet implemented.
+	outb(GEBL_PIC2_COMMAND, 0xff);
 	iowait();
 }
 
@@ -60,13 +60,13 @@ void pic_eoi(uint8_t irq)
 	if(irq >= 8)
 	{
 		outb(GEBL_PIC2_COMMAND, GEBL_PIC_EOI);
-		return;
+// 		return;
 	}
 	outb(GEBL_PIC1_COMMAND, GEBL_PIC_EOI);
 }
 
 void pic_init()
 {
-// 	pic_remap(GEBL_INTERRUPT_BASE, GEBL_INTERRUPT_BASE+8);
+	pic_remap(GEBL_INTERRUPT_BASE, GEBL_INTERRUPT_BASE+8);
 	panic("PIC not yet implemented");
 }

@@ -17,7 +17,7 @@
 ;
 
 [GLOBAL installEntry]
-installEntry:
+installEntry:	; void installEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
 	push ebp
 	mov ebp, esp
 
@@ -27,7 +27,13 @@ installEntry:
 	mov ecx, 0x4
 	rep movsw
 	sub edi, 0x8
-	; edi points to the beginning of the new
+	; edi points to the beginning of the new entry
+
+	mov eax, dword [ebp+12]	; base
+	mov [edi], ax
+	shr eax, 16	; mov high eax into ax
+	mov [edi+6], ax
+
 
 	pop ebp
 	ret
