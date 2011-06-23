@@ -44,7 +44,7 @@ void cDivByZero()
 }
 void cNmi()
 {
-	panic("Not yet implemented");
+	panic("Unknown interrupt!");
 }
 void cBreakp()
 {
@@ -68,11 +68,11 @@ void cNoMath()
 }
 void cDoubleFault()
 {
-	panic("Not yet implemented");
+	panic("Double fault!");
 }
 void cDepricated()
 {
-	panic("Not yet implemented");
+	println("depricated");
 }
 void cInvalidTSS()
 {
@@ -88,7 +88,7 @@ void cStackFault()
 }
 void cGenProt()
 {
-	panic("Not yet implemented");
+	panic("General protection fault!");
 }
 void cPageFault()
 {

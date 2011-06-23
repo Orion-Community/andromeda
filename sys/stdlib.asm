@@ -52,3 +52,9 @@ getsegs:
 
 	mov eax, regs
 	ret
+
+[GLOBAL testIDT]
+testIDT:
+	sti
+	int 0x80
+	ret

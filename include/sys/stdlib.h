@@ -35,6 +35,7 @@ typedef unsigned char bool;
 extern void halt();
 extern struct gebl_register_pack * getregs();
 extern struct gebl_segment_pack * getsegs();
+extern void testIDT();
 
 struct gebl_register_pack
 {

@@ -46,11 +46,12 @@ void kmain(void)
 	{
 		println("The A20 gate is open.");
 	}
-
-#ifdef __DEBUG
+	
 	pic_init();
 	setIDT();
-	char x = 5/0;
+
+#ifdef __DEBUG
+	testIDT();
 #endif
 	while(1) halt();
 }
