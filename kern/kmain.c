@@ -21,6 +21,7 @@
 #include <sys/io.h>
 #include <mm/mmap.h>
 #include <interrupts/pic.h>
+#include <interrupts/idt.h>
 
 void kmain(void)
 {
@@ -45,9 +46,12 @@ void kmain(void)
 	{
 		println("The A20 gate is open.");
 	}
+	
+	pic_init();
+	setIDT();
 
 #ifdef __DEBUG
-	pic_init();
+	testIDT();
 #endif
 	while(1) halt();
 }

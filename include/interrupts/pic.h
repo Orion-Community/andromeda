@@ -18,9 +18,9 @@
 
 #ifndef __PIC_H_
 #define __PIC_H_
+
 /*
  * This will initiate the pic. Panics on failure.
  */
 void pic_init();
-void pic_remap();
 #endif

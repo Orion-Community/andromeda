@@ -18,112 +18,123 @@
 
 [SECTION .text]
 
+%macro isrNoError 1
+	cli
+	push 0
+	push %1
+%endmacro
+
+%macro isrError 1
+	cli	; the error code is pushed by the cpu
+	push %1
+%endmacro
+
 [GLOBAL divByZero]
 [EXTERN cDivByZero]
 divByZero:
-	isrNoErr cDivByZero
+	isrNoError cDivByZero
 	jmp isrStub
 
 [GLOBAL nmi]
 [EXTERN cNmi]
 nmi:
-	isrNoErr cNmi
+	isrNoError cNmi
 	jmp isrStub
 
 [GLOBAL breakp]
-[EXTERN cbp]
+[EXTERN cBreakp]
 breakp:
-	isrNoErr cbp
+	isrNoError cBreakp
 	jmp isrStub
 
 [GLOBAL overflow]
-[EXTERN coverflow]
+[EXTERN cOverflow]
 overflow:
-	isrNoErr coverflow
+	isrNoError cOverflow
 	jmp isrStub
 
 [GLOBAL bound]
 [EXTERN cBound]
 bound:
-	isrNoErr cBound
+	isrNoError cBound
 	jmp isrStub
 
 [GLOBAL invalOp]
 [extern cInvalOp]
 invalOp:
-	isrNoErr cInvalOp
+	isrNoError cInvalOp
 	jmp isrStub
 
 [GLOBAL noMath]
 [EXTERN cNoMath]
 noMath:
-	isrNoErr cNoMath
+	isrNoError cNoMath
 	jmp isrStub
 
 [GLOBAL doubleFault]
 [EXTERN cDoubleFault]
 doubleFault:
-	isrErr cDoubleFault
+	isrError cDoubleFault
 	jmp isrStub
 
 [GLOBAL depricated]
-[EXTERN ignore]
+[EXTERN cDepricated]
 depricated:
-	isrNoErr ignore
+	isrNoError cDepricated
 	jmp isrStub
 
 [GLOBAL invalidTSS]
 [EXTERN cInvalidTSS]
 invalidTSS:
-	isrErr cInvalidTSS
+	isrError cInvalidTSS
 	jmp isrStub
 
 [GLOBAL snp]
 [EXTERN cSnp]
 snp:
-	isrErr cSnp
+	isrError cSnp
 	jmp isrStub
 
 [GLOBAL stackFault]
 [EXTERN cStackFault]
 	stackFault:
-	isrErr cStackFault
+	isrError cStackFault
 	jmp isrStub
 
 [GLOBAL genProt]
 [EXTERN cGenProt]
 	genProt:
-	isrErr cGenProt
+	isrError cGenProt
 	jmp isrStub
 
 [GLOBAL pageFault]
 [EXTERN cPageFault]
 pageFault:
-	isrErr cPageFault
+	isrError cPageFault
 	jmp isrStub
 
 [GLOBAL fpu]
 [EXTERN cFpu]
 fpu:
-	isrNoErr cFpu
+	isrNoError cFpu
 	jmp isrStub
 
 [GLOBAL alligned]
 [EXTERN cAlligned]
 alligned:
-	isrNoErr cAlligned
+	isrNoError cAlligned
 	jmp isrStub
 
 [GLOBAL machine]
 [EXTERN cDoubleFault]
 machine:
-	isrNoErr cDoubleFault
+	isrNoError cDoubleFault
 	jmp isrStub
 
 [GLOBAL simd]
 [EXTERN cSimd]
 	simd:
-	isrNoErr cSimd
+	isrNoError cSimd
 
 isrStub:
 	pushad
@@ -151,14 +162,3 @@ isrStub:
 	add esp, 8	; pop error num + routine
 	sti
 	iret	; interrupt return
-
-%macro isrNoError 1
-	cli
-	push 0
-	push %1
-%endmacro
-
-%macro isrError 1
-	cli	; the error code is pushed by the cpu
-	push %1
-%endmacro

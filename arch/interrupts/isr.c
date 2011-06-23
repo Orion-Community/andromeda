@@ -16,8 +16,10 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
+#include <sys/stdlib.h>
 #include <error/panic.h>
+#include "include/interrupts.h"
+#include <textio.h>
 
 bool inKernelRing()
 {
@@ -34,4 +36,77 @@ bool inKernelRing()
 	}
 	
 	return TRUE;
+}
+
+void cDivByZero()
+{
+	panic("I define you as idiot. You just tried to divede by zero.");
+}
+void cNmi()
+{
+	panic("Unknown interrupt!");
+}
+void cBreakp()
+{
+	panic("Not yet implemented");
+}
+void cOverflow()
+{
+	panic("Not yet implemented");
+}
+void cBound()
+{
+	panic("Not yet implemented");
+}
+void cInvalOp()
+{
+	panic("Not yet implemented");
+}
+void cNoMath()
+{
+	panic("Not yet implemented");
+}
+void cDoubleFault()
+{
+	panic("Double fault!");
+}
+void cDepricated()
+{
+	println("depricated");
+}
+void cInvalidTSS()
+{
+	panic("Not yet implemented");
+}
+void cSnp()
+{
+	panic("Not yet implemented");
+}
+void cStackFault()
+{
+	panic("Not yet implemented");
+}
+void cGenProt()
+{
+	panic("General protection fault!");
+}
+void cPageFault()
+{
+	panic("Not yet implemented");
+}
+void cFpu()
+{
+	panic("Not yet implemented");
+}
+void cAlligned()
+{
+	panic("Not yet implemented");
+}
+void cMachine()
+{
+	panic("Not yet implemented");
+}
+void cSimd()
+{
+	panic("Not yet implemented");
 }
