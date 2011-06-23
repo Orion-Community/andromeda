@@ -70,4 +70,14 @@ extern void fpu();
 extern void alligned();
 extern void machine();
 extern void simd();
+
+/*
+ * Interrupt headers
+ */
+extern void irq0();
+
+/*
+ * Iterrupt implementation functions
+ */
+extern void proberam();
 #endif

@@ -1,5 +1,5 @@
 ;
-;    Low level functions of the GoldenEagle Bootloader standard library.
+;    The interrupt request header.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,45 +16,62 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[SECTION .text]
+%macro irq 1
+[GLOBAL irq%1]
+[EXTERN cIRQ%1]
+irq%1:
+	cli	; no interrupts while we handle this one
+	push 0
+	push cIRQ%1
+	jmp irqStub
+%endmacro
 
-%include "sys/include/stdlib.h"
-
-[GLOBAL halt]
-halt:
+[GLOBAL irq0]
+[EXTERN proberam]
+irq0:
 	cli
-	hlt
-	jmp halt
-	ret
+	push 0
+	push proberam
+	jmp irqStub
+; irq 1
+; irq 2
+; irq 3
+; irq 4
+; irq 5
+; irq 6
+; irq 7
+; irq 8
+; irq 9
+; irq 10
+; irq 11
+; irq 12
+; irq 13
+; irq 14
+; irq 15
 
-[GLOBAL getregs]
-getregs:
-	mov [regs], eax
-	mov [regs+4], ebx
-	mov [regs+8], ecx
-	mov [regs+12], edx
-	mov [regs+20], esi
-	mov [regs+24], edi
-	mov [regs+28], ebp
-	mov [regs+32], esp
+irqStub:
+	pushad
+	mov ebp, esp
+	mov eax, [ebp+32]
 
-	mov eax, regs
-	ret
+	mov dx, ds
+	push dx
+	mov dx, 0x10	; kernel ring
 
-[GLOBAL getsegs]
-getsegs:
-	mov [segs], ds
-	mov [segs+2], cs
-	mov [segs+4], es
-	mov [segs+6], fs
-	mov [segs+8], gs
-	mov [segs+10], ss
+	mov ds, dx
+	mov es, dx
+	mov fs, dx
+	mov gs, dx
 
-	mov eax, regs
-	ret
+	call eax
 
-[GLOBAL testIDT]
-testIDT:
+	pop dx
+	mov ds, dx
+	mov es, dx
+	mov gs, dx
+	mov es, dx
+
+	popad
+	add esp, 8	; pop error num + routine
 	sti
-	int 0x14
-	ret
+	iret	; interrupt return

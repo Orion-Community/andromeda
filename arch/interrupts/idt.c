@@ -43,10 +43,16 @@ void installExceptions()
 	setEntry(19, (uint32_t)simd, 0x08, 0x8E);
 }
 
+void installInterrupts(int offset1, int offset2)
+{
+	setEntry(offset1+0, (uint32_t)irq0, 0x08, 0x8e);
+}
+
 void setIDT()
 {
 	gebl_idt_t idt;
 	installExceptions();
+	installInterrupts(20,28);
 	
 	idt.limit = sizeof(gebl_idt_entry_t) * 256;
 	idt.baseptr = 0x7800;

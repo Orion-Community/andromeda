@@ -50,9 +50,9 @@ void pic_remap(uint32_t offset1, uint32_t offset2)
 	outb(GEBL_PIC2_DATA, mask2);
 	iowait();
 	
-	outb(GEBL_PIC2_DATA, 0xff);	// disable irq's, not yet implemented.
-	outb(GEBL_PIC2_COMMAND, 0xff);
-	iowait();
+// 	outb(GEBL_PIC2_DATA, 0xff);	// disable irq's, not yet implemented.
+// 	outb(GEBL_PIC2_COMMAND, 0xff);
+// 	iowait();
 }
 
 void pic_eoi(uint8_t irq)

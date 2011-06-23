@@ -1,5 +1,5 @@
 /*
- *   GoldenEagle Bootloader C entry point.
+ *   The interrupts
  *   Copyright (C) 2011  Michel Megens
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -17,43 +17,9 @@
  */
 
 #include <textio.h>
-#include <sys/stdlib.h>
-#include <sys/io.h>
-#include <mm/mmap.h>
-#include <interrupts/pic.h>
-#include <interrupts/idt.h>
+#include "include/interrupts.h"
 
-void kmain(void)
+void cIRQ0(gebl_isr_stack regs)
 {
-	textinit();
-	clearscreen();
-
-	println("GoldenEagle kernel is executing. \n");
-
-	char status = inb(0x60);
-
-	println("Multiboot memory map:\n");
-	gebl_display_mmap();
-
-	putc(0xa);
-	
-	println("Current stack pointer: ");
-	gebl_registers_t * regs = getregs();
-	printnum(regs->esp, 16, FALSE, FALSE);
-	putc(0xa);
-
-	if((status & 2) == 2)
-	{
-		println("The A20 gate is open.");
-		putc(0xa);
-	}
-	
-	pic_init();
-	setIDT();
-
-#ifdef __DEBUG
-	testIDT();
-#endif
-	println("End of program reached!");
-	while(1) halt();
+	println("Interrupt IRQ0 has been fired.");
 }

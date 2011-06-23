@@ -16,6 +16,9 @@ IDT_DEPS=arch/interrupts/idt.c
 IDT_ASM_DEPS=arch/interrupts/idt.asm
 ISR_DEPS=arch/interrupts/isr.asm
 ISRI_DEPS=arch/interrupts/isr.c
+IRQ_DEPS=arch/interrupts/irq.asm
+IRQI_DEPS=arch/interrupts/irq.c
+PROBE_DEPS=arch/mm/proberam.asm
 
 # Object files
 STAGE15=stage15.o
@@ -36,8 +39,11 @@ IDT=idt.o
 IDT_ASM=idt_asm.o
 ISR=isr.o
 ISRI=isri.o
+IRQ=irq.o
+IRQI=irqi.o
+PROBE=proberam.o
 
-DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IDT_ASM) $(ISR) $(ISRI) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(PROBE) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)
@@ -81,6 +87,12 @@ $(ISR): $(ISR_DEPS)
 $(ISRI): $(ISRI_DEPS) arch/interrupts/include/interrupts.h
 	$(CC) $(CCFLAGS) -o $(ISRI) $(ISRI_DEPS)
 
+$(IRQ): $(ISR_DEPS)
+	$(AS) $(ASFLAGS) -o $(IRQ) $(IRQ_DEPS)
+
+$(IRQI): $(ISRI_DEPS) arch/interrupts/include/interrupts.h
+	$(CC) $(CCFLAGS) -o $(IRQI) $(IRQI_DEPS)
+
 $(ERROR): $(ERROR_DEPS) include/error/panic.h
 	$(CC) $(CCFLAGS) -o $(ERROR) $(ERROR_DEPS)
 
@@ -92,3 +104,6 @@ $(MMAPI): $(MMAPI_DEPS)
 
 $(A20): $(A20_DEPS)
 	$(AS) $(ASFLAGS) -o $(A20) $(A20_DEPS)
+
+$(PROBE): $(PROBE_DEPS)
+	$(AS) $(ASFLAGS) -o $(PROBE) $(PROBE_DEPS)
