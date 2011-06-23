@@ -140,7 +140,7 @@ mm_e801:
 	mov [es:di+16],	byte GEBL_USABLE_MEM	; type -> usable
 	mov [es:di+20], byte GEBL_ACPI	; acpi 3.0 compatible
 
-	test edx, edx	
+	test edx, edx
 	jz .usebx
 	jmp .done
 
@@ -166,16 +166,59 @@ mm_e801:
 	ret
 
 ; 
-; This memory map route does not use the bios to create one, but the cmos.
+; This is a function from the dinosaur time, it it used on verry old PC's when all other methods to get a memory map fail. If this
+; fails to, the bootloader will cry to the user, and tell him to buy a new pc.
+; 
+mm_88:
+	xor di, di	; set segment:offset of the buffer, just to be sure
+	mov ax, GEBL_MMAP_SEG
+	mov es, ax
+
+	call lowmmap	; get a lowmmap
+	jc .failed
+	
+	call .nxtentry
+
+.highmem:
+	mov ax, 0x8800
+	int 0x15
+	jc .failed
+	and eax, 0xffff
+	shl eax, 10
+
+	call addmemoryhole
+
+	jmp .done
+
+.nxtentry:
+	add di, 0x18
+	jmp copy_empty_entry
+
+.failed:
+	jmp mm_cmos
+	stc
+	ret
+.done:
+	add cx, 2	; low entries
+	mov [mmr+4], cx
+	clc
+	ret
+
+; 
+; This memory map routine does not use the bios to create one, but the cmos.
 ; 
 mm_cmos:
+	pushfd	; save proc state
+	cli
 	xor di, di
 	mov ax, GEBL_MMAP_SEG
 	mov es, ax
 
+	sti
 	call lowmmap
 	jc .failed
 
+	cli
 	call .next
 
 .highmem:
@@ -215,50 +258,14 @@ mm_cmos:
 	jmp copy_empty_entry
 
 .failed:
-	jmp mm_88
+	popfd
 	stc
 	ret
+
 .done:
 	add cx, 2	; lowmmap entries
 	mov [mmr+4], cx
-	clc
-	ret
-
-; 
-; This is a function from the dinosaur time, it it used on verry old PC's when all other methods to get a memory map fail. If this
-; fails to, the bootloader will cry to the user, and tell him to buy a new pc.
-; 
-mm_88:
-	xor di, di	; set segment:offset of the buffer, just to be sure
-	mov ax, GEBL_MMAP_SEG
-	mov es, ax
-
-	call lowmmap	; get a lowmmap
-	jc .failed
-	
-	call .nxtentry
-
-.highmem:
-	mov ax, 0x8800
-	int 0x15
-	jc .failed
-	and eax, 0xffff
-	shl eax, 10
-
-	call addmemoryhole
-
-	jmp .done
-
-.nxtentry:
-	add di, 0x18
-	jmp copy_empty_entry
-
-.failed:
-	stc
-	ret
-.done:
-	add cx, 2	; low entries
-	mov [mmr+4], cx
+	popfd	
 	clc
 	ret
 
@@ -315,6 +322,8 @@ lowmmap:
 ; start of the last entry.
 ; 
 cmoslowmmap:
+	pushfd
+	cli
 	call copy_empty_entry
 
 	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
@@ -370,6 +379,7 @@ cmoslowmmap:
 	jmp copy_empty_entry
 
 .done:
+	popfd	; restore proc state
 	clc
 	ret
 

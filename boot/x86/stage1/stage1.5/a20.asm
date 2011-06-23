@@ -23,6 +23,7 @@
 
 [GLOBAL openA20]
 openA20:
+	pushfd
 	cli
 	pusha
 
@@ -115,11 +116,11 @@ openA20:
 
 .done:
 	popa
-	sti
+	popfd
 	clc
 	ret
 .failed:
 	popa
-	sti
+	popfd
 	stc
 	ret
