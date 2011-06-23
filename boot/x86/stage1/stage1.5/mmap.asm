@@ -33,7 +33,7 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-
+jmp mm_cmos
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -277,6 +277,7 @@ lowmmap:
 	call copy_empty_entry	; copy first entry
 	xor ax, ax
 	int 0x12	; get low memory size
+stc
 	jc cmoslowmmap	; if interrupt 0x12 is not support.
 
 	and eax, 0xffff	; clear upper 16  bits
