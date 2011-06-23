@@ -38,9 +38,12 @@ bool inKernelRing()
 	return TRUE;
 }
 
-void cDivByZero()
+void cDivByZero(gebl_isr_stack regs)
 {
-	panic("I define you as idiot. You just tried to divede by zero.");
+	print("\nI define you as idiot. You just tried to divede by zero. Code \nfailed at EIP: ");
+	printnum(regs.eip, 16, FALSE, FALSE);
+	putc(0xa);
+	panic("");
 }
 void cNmi()
 {
@@ -86,9 +89,12 @@ void cStackFault()
 {
 	panic("Not yet implemented");
 }
-void cGenProt()
+void cGenProt(gebl_isr_stack regs)
 {
-	panic("General protection fault!");
+	print("General protection fault! Fault occured at: ");
+	printnum(regs.eip, 16, FALSE, FALSE);
+	putc(0xa);
+	panic("");
 }
 void cPageFault()
 {

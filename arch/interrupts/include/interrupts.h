@@ -36,6 +36,16 @@ struct idt
 } __attribute__((packed));
 typedef struct idt gebl_idt_t;
 
+struct isrstack
+{
+	uint16_t ds;
+	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+	uint32_t interruptHandler, errorCode;
+	uint32_t eip, cs, eflags, proc_esp;
+	uint16_t ss;
+} __attribute__((packed));
+typedef struct isrstack gebl_isr_stack;
+
 extern void setEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
 extern void installIDT(gebl_idt_t * idt);
 
