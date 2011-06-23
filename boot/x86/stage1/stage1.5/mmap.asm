@@ -33,7 +33,7 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-
+jmp mm_cmos
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -103,7 +103,7 @@ mm_e801:
 	call lowmmap
 	jc .failed
 
-	call .next
+	nxte .midmem
 
 .midmem:
 	mov ax, 0xe801
@@ -120,14 +120,13 @@ mm_e801:
 	mov [es:di+20], byte GEBL_ACPI
 
 	jecxz .useax
-	call .next
-	jmp .highmem
+	nxte .highmem
 
 .useax:
 	and eax, 0xffff
 	shl eax, 10
 	mov [es:di+8], eax
-	call .next
+	nxte .highmem
 
 .highmem:
 	pop dx
@@ -151,9 +150,6 @@ mm_e801:
 	jz .failed
 	mov [es:di+8], ebx
 	jmp .done
-.next:
-	add di, 0x18
-	jmp copy_empty_entry
 
 .failed:
 	jmp mm_cmos
@@ -177,7 +173,7 @@ mm_88:
 	call lowmmap	; get a lowmmap
 	jc .failed
 	
-	call .nxtentry
+	nxte .highmem
 
 .highmem:
 	mov ax, 0x8800
@@ -189,10 +185,6 @@ mm_88:
 	call addmemoryhole
 
 	jmp .done
-
-.nxtentry:
-	add di, 0x18
-	jmp copy_empty_entry
 
 .failed:
 	jmp mm_cmos
@@ -219,7 +211,7 @@ mm_cmos:
 	jc .failed
 
 	cli
-	call .next
+	nxte .highmem
 
 .highmem:
 	mov al, GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER
@@ -253,10 +245,6 @@ mm_cmos:
 	out GEBL_DELAY_PORT, al
 	ret
 
-.next:
-	add di, 0x18
-	jmp copy_empty_entry
-
 .failed:
 	popfd
 	stc
@@ -277,6 +265,7 @@ lowmmap:
 	call copy_empty_entry	; copy first entry
 	xor ax, ax
 	int 0x12	; get low memory size
+stc
 	jc cmoslowmmap	; if interrupt 0x12 is not support.
 
 	and eax, 0xffff	; clear upper 16  bits
@@ -287,7 +276,7 @@ lowmmap:
 	mov [es:di+16], dword GEBL_USABLE_MEM
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
 
-	call .next
+	nxte .lowres
 
 .lowres:
 	mov al, 0x41
@@ -305,10 +294,6 @@ lowmmap:
 	mov [es:di+16], dword GEBL_RESERVED_MEM	; reserverd memory
 	mov [es:di+20], dword GEBL_ACPI		; also this entry is acpi 3.0 compatible
 	jmp .done
-
-.next:
-	add di, 0x18
-	jmp copy_empty_entry
 
 .failed:
 	stc
@@ -354,7 +339,7 @@ cmoslowmmap:
 	mov [es:di+16], dword GEBL_USABLE_MEM
 	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
 
-	call .nxtentry
+	nxte .lowres
 
 .lowres:
 ; low reserver memory
@@ -373,10 +358,6 @@ cmoslowmmap:
 	xor ax, ax
 	out GEBL_DELAY_PORT, al
 	ret
-
-.nxtentry:
-	add di, 0x18
-	jmp copy_empty_entry
 
 .done:
 	popfd	; restore proc state
@@ -446,13 +427,11 @@ addmemoryhole:
 	ret
 
 .next:
-	add di, 0x18
 	pop dx	; return addr
 	pop cx
 	inc cx	; entry counter
 	push cx
-	push dx
-	jmp copy_empty_entry
+	nxte dx
 
 ; 
 ; This routine copies an empty memory map to the location specified by es:di

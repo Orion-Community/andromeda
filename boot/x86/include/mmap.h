@@ -50,6 +50,17 @@
 %define GEBL_NVS_MEM 0x4
 %define GEBL_BAD_MEM 0x5
 
+%macro nxte 1
+	add di, 0x18
+	cld	; just to be sure that di gets incremented
+	mov si, mmap_entry
+	mov cx, 0xc
+	rep movsw	; copy copy copy!
+	sub di, 0x18	; just to make addressing esier
+
+	jmp %1
+%endmacro
+
 mmap_entry:	; 0x18-byte mmap entry
 	base dq 0	; base address
 	length dq 0	; length (top_addr - base_addr)
