@@ -23,7 +23,7 @@
 
 bool inKernelRing()
 {
-	struct gebl_segment_pack * segs = getsegs();
+	gebl_segments_t * segs = getsegs();
 	uint8_t * error = "Not in kernel ring!";
 	
 	if((segs->cs & 0x8) == 0)

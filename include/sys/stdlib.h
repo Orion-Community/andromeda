@@ -29,15 +29,7 @@ typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
 typedef unsigned char bool;
 
-/*
- * Halt the system until it is interrupted.
- */
-extern void halt();
-extern struct gebl_register_pack * getregs();
-extern struct gebl_segment_pack * getsegs();
-extern void testIDT();
-
-struct gebl_register_pack
+struct registers
 {
 	uint32_t eax;
 	uint32_t ebx;
@@ -48,8 +40,9 @@ struct gebl_register_pack
 	uint32_t ebp;
 	uint32_t esp;
 } __attribute__((packed));
+typedef struct registers gebl_registers_t;
 
-struct gebl_segment_pack
+struct segments
 {
 	uint16_t ds;
 	uint16_t cs;
@@ -59,5 +52,14 @@ struct gebl_segment_pack
 	uint16_t ss;
 	
 } __attribute__((packed));
+typedef struct segments gebl_segments_t;
+
+/*
+ * Halt the system until it is interrupted.
+ */
+extern void halt();
+extern gebl_registers_t * getregs();
+extern gebl_segments_t * getsegs();
+extern void testIDT();
 
 #endif
