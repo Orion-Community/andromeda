@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 #include <io.h>
-#include "include/vga.h"
+#include "include/out.h"
 
 struct curPos cursor = {0,0,16};
 char col = 0x07;
