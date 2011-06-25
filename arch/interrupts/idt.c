@@ -46,16 +46,32 @@ void installExceptions()
 void installInterrupts(int offset1, int offset2)
 {
 	setEntry(offset1+0, (uint32_t)irq0, 0x08, 0x8e);
+	setEntry(offset1+1, (uint32_t)irq1, 0x08, 0x8e);
+	setEntry(offset1+2, (uint32_t)irq2, 0x08, 0x8e);
+	setEntry(offset1+3, (uint32_t)irq3, 0x08, 0x8e);
+	setEntry(offset1+4, (uint32_t)irq4, 0x08, 0x8e);
+	setEntry(offset1+5, (uint32_t)irq5, 0x08, 0x8e);
+	setEntry(offset1+6, (uint32_t)irq6, 0x08, 0x8e);
+	setEntry(offset1+7, (uint32_t)irq7, 0x08, 0x8e);
+	setEntry(offset2+0, (uint32_t)irq8, 0x08, 0x8e);
+	setEntry(offset2+1, (uint32_t)irq9, 0x08, 0x8e);
+	setEntry(offset2+2, (uint32_t)irq10, 0x08, 0x8e);
+	setEntry(offset2+3, (uint32_t)irq11, 0x08, 0x8e);
+	setEntry(offset2+4, (uint32_t)irq12, 0x08, 0x8e);
+	setEntry(offset2+5, (uint32_t)irq13, 0x08, 0x8e);
+	setEntry(offset2+6, (uint32_t)irq14, 0x08, 0x8e);
+	setEntry(offset2+7, (uint32_t)irq15, 0x08, 0x8e);
 }
 
 void setIDT()
 {
 	gebl_idt_t idt;
 	installExceptions();
-	installInterrupts(20,28);
+	installInterrupts(0x20, 0x28);
 	
 	idt.limit = sizeof(gebl_idt_entry_t) * 256;
-	idt.baseptr = 0x7800;
+	idt.baseptr = 0x100000;
 	
 	installIDT(&idt);
+	setInterrupts();
 }

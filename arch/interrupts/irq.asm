@@ -21,41 +21,42 @@
 [EXTERN cIRQ%1]
 irq%1:
 	cli	; no interrupts while we handle this one
-	push 0
 	push cIRQ%1
 	jmp irqStub
 %endmacro
 
-[GLOBAL irq0]
+[GLOBAL irq15]
 [EXTERN proberam]
-irq0:
+irq15:
 	cli
-	push 0
 	push proberam
 	jmp irqStub
-; irq 1
-; irq 2
-; irq 3
-; irq 4
-; irq 5
-; irq 6
-; irq 7
-; irq 8
-; irq 9
-; irq 10
-; irq 11
-; irq 12
-; irq 13
-; irq 14
+
+irq 0
+irq 1
+irq 2
+irq 3
+irq 4
+irq 5
+irq 6
+irq 7
+irq 8
+irq 9
+irq 10
+irq 11
+irq 12
+irq 13
+irq 14
 ; irq 15
 
 irqStub:
 	pushad
+; 	push ebp
 	mov ebp, esp
 	mov eax, [ebp+32]
 
 	mov dx, ds
-	push dx
+	push edx
 	mov dx, 0x10	; kernel ring
 
 	mov ds, dx
@@ -65,13 +66,13 @@ irqStub:
 
 	call eax
 
-	pop dx
+	pop edx
 	mov ds, dx
 	mov es, dx
 	mov gs, dx
 	mov es, dx
 
 	popad
-	add esp, 8	; pop error num + routine
-	sti
+; 	pop ebp
+	add esp, 4	; pop func pointer
 	iret	; interrupt return

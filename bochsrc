@@ -1,7 +1,7 @@
 config_interface: wx
 display_library: wx
 romimage: file=/usr/share/bochs/BIOS-bochs-latest
-megs:	16 
+megs:	512 
 vgaromimage: file=/usr/share/vgabios/vgabios.bin
 ata0: enabled=1
 ata0-master: type=disk, path="build/goldeneaglebl.bin", mode=flat, cylinders=16, heads=16, spt=63

@@ -53,8 +53,12 @@ getsegs:
 	mov eax, regs
 	ret
 
+[GLOBAL setInterrupts]
+setInterrupts:
+	sti
+	ret
+
 [GLOBAL testIDT]
 testIDT:
-	sti
-	int 0x14
+	int 0x2f
 	ret

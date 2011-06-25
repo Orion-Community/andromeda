@@ -50,7 +50,6 @@ void kmain(void)
 	
 	pic_init();
 	setIDT();
-
 #ifdef __DEBUG
 	testIDT();
 #endif

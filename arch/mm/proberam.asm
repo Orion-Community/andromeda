@@ -22,15 +22,14 @@
 
 [SECTION .text]
 [EXTERN printnum]
+[EXTERN pic_eoi]
 
 [GLOBAL proberam]
 proberam:
-	pushfd
-	cli
 	push ebp
 	mov ebp, esp
 
-	mov esi, 0x100000	; begin at address 0x0
+	mov esi, 0x1000000	; begin at address 0x0
 	mov ecx, 0	; 256 blocks to test
 
 .lowmem:
@@ -61,9 +60,7 @@ proberam:
 	push ecx
 	call printnum
 	add esp, 4*4
-	jmp $
 
 .done:
 	pop ebp
-	popfd
 	ret

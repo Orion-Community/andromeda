@@ -61,5 +61,6 @@ extern void halt();
 extern gebl_registers_t * getregs();
 extern gebl_segments_t * getsegs();
 extern void testIDT();
+extern void setInterrupts();
 
 #endif

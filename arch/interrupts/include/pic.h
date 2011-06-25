@@ -19,6 +19,7 @@
 #include <sys/stdlib.h>
 
 #ifndef __H_PIC
+#define __H_PIC
 void pic_remap(uint32_t set1, uint32_t set2);
 void pic_eoi(uint8_t irq);
 void pic_init();
