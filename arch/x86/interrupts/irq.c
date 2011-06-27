@@ -36,7 +36,6 @@ void cIRQ0(gebl_isr_stack regs)
 void cIRQ1(gebl_isr_stack regs)
 {
 char c = inb(0x60);
-	putc('a');
   switch(c)
   {
     case 0x1e:
@@ -189,5 +188,6 @@ void cIRQ14(gebl_isr_stack regs)
 }
 void cIRQ15(gebl_isr_stack regs)
 {
+	pic_eoi(15);
 	return;
 }

@@ -9,16 +9,16 @@ IO_DEPS=sys/io.asm
 MMAP_DEPS=mm/mmap.c
 MMAP_ASM_DEPS=mm/mmap.asm
 MMAPI_DEPS=boot/x86/stage1/stage1.5/mmap.asm
-PIC_DEPS=arch/interrupts/pic.c
+PIC_DEPS=arch/x86/interrupts/pic.c
 ERROR_DEPS=error/panic.c
 PMODE_DEPS=boot/x86/stage2/pmodemain.asm
-IDT_DEPS=arch/interrupts/idt.c
-IDT_ASM_DEPS=arch/interrupts/idt.asm
-ISR_DEPS=arch/interrupts/isr.asm
-ISRI_DEPS=arch/interrupts/isr.c
-IRQ_DEPS=arch/interrupts/irq.asm
-IRQI_DEPS=arch/interrupts/irq.c
-PROBE_DEPS=arch/mm/proberam.asm
+IDT_DEPS=arch/x86/interrupts/idt.c
+IDT_ASM_DEPS=arch/x86/interrupts/idt.asm
+ISR_DEPS=arch/x86/interrupts/isr.asm
+ISRI_DEPS=arch/x86/interrupts/isr.c
+IRQ_DEPS=arch/x86/interrupts/irq.asm
+IRQI_DEPS=arch/x86/interrupts/irq.c
+PROBE_DEPS=arch/x86/mm/proberam.asm
 
 # Object files
 STAGE15=stage15.o
@@ -75,7 +75,7 @@ $(MMAP_ASM): $(MMAP_ASM_DEPS)
 $(PIC): $(PIC_DEPS) include/interrupts/pic.h
 	$(CC) $(CCFLAGS) -o $(PIC) $(PIC_DEPS)
 
-$(IDT): $(IDT_DEPS) arch/interrupts/include/interrupts.h
+$(IDT): $(IDT_DEPS) arch/x86/interrupts/include/interrupts.h
 	$(CC) $(CCFLAGS) -o $(IDT) $(IDT_DEPS)
 
 $(IDT_ASM): $(IDT_ASM_DEPS)
@@ -84,13 +84,13 @@ $(IDT_ASM): $(IDT_ASM_DEPS)
 $(ISR): $(ISR_DEPS)
 	$(AS) $(ASFLAGS) -o $(ISR) $(ISR_DEPS)
 
-$(ISRI): $(ISRI_DEPS) arch/interrupts/include/interrupts.h
+$(ISRI): $(ISRI_DEPS) arch/x86/interrupts/include/interrupts.h
 	$(CC) $(CCFLAGS) -o $(ISRI) $(ISRI_DEPS)
 
 $(IRQ): $(ISR_DEPS)
 	$(AS) $(ASFLAGS) -o $(IRQ) $(IRQ_DEPS)
 
-$(IRQI): $(ISRI_DEPS) arch/interrupts/include/interrupts.h
+$(IRQI): $(ISRI_DEPS) arch/x86/interrupts/include/interrupts.h
 	$(CC) $(CCFLAGS) -o $(IRQI) $(IRQI_DEPS)
 
 $(ERROR): $(ERROR_DEPS) include/error/panic.h

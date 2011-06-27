@@ -20,7 +20,7 @@
 [SECTION .data]
 	dummy dd 0
 
-%include "arch/mm/include/proberam.h"
+%include "arch/x86/mm/include/proberam.h"
 
 [SECTION .text]
 
@@ -43,7 +43,7 @@ proberam:
 	out GEBL_PIC1_DATA, al
 	out GEBL_PIC2_DATA, al
 
-	mov esi, GEBL_HIGH_BASE	; begin at address 0x0
+	mov esi, GEBL_LOW_BASE	; begin at address 0x0
 	xor ecx, ecx	; 256 blocks to test
 	or esi, 0xffc	; last dword of block
 
@@ -60,22 +60,27 @@ proberam:
 	cmp ebx, eax
 	jne .lowend
 
-	add ecx, GEBL_PROBE_BLOCKSIZE
-
 	add esi, GEBL_PROBE_BLOCKSIZE	; add block for next test
 	jmp .lowmem
 
 .lowend:
+	mov edx, ~0xffc	; mov edx, 0xffc
+			; not edx
+	and esi, edx	; round block down (block is rounded up)
 
+%ifdef __DEBUG
 	push dword 0
 	push dword 0
 	push dword 16
-	push ecx
+	push esi
 	call printnum
 	add esp, 4*4
+%endif
+.midmem:
+.highmem:
 
 .done:
-	pop ax
+	pop ax		; re-set the old pic masks
 	out GEBL_PIC2_DATA, al
 	pop ax
 	out GEBL_PIC1_DATA, al
