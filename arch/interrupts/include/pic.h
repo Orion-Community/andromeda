@@ -27,9 +27,9 @@ void pic_init();
 #define GEBL_INTERRUPT_BASE 0x20
 
 #define GEBL_PIC1_COMMAND 0x20
-#define GEBL_PIC2_COMMAND 0x21
+#define GEBL_PIC2_COMMAND 0xa0
 
-#define GEBL_PIC1_DATA 0xa0
+#define GEBL_PIC1_DATA 0x21
 #define GEBL_PIC2_DATA 0xa1
 
 // A few pic commands

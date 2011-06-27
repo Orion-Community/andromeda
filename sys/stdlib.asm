@@ -20,11 +20,16 @@
 
 %include "sys/include/stdlib.h"
 
-[GLOBAL halt]
-halt:
+[GLOBAL endprogram]
+endprogram:
 	cli
 	hlt
 	jmp halt
+	ret
+
+[GLOBAL halt]
+halt:
+	hlt
 	ret
 
 [GLOBAL getregs]
@@ -58,7 +63,12 @@ setInterrupts:
 	sti
 	ret
 
+[GLOBAL clearInterrupts]
+clearInterrupts:
+	cli
+	ret
+
 [GLOBAL testIDT]
 testIDT:
-	int 0x2f
+	int 0x80
 	ret

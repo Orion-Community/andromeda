@@ -53,6 +53,8 @@ void kmain(void)
 #ifdef __DEBUG
 	testIDT();
 #endif
-	println("End of program reached!");
+	println("Waiting for service interrupts..");
 	while(1) halt();
+	println("End of program reached!");
+	endprogram();
 }

@@ -61,6 +61,9 @@ void installInterrupts(int offset1, int offset2)
 	setEntry(offset2+5, (uint32_t)irq13, 0x08, 0x8e);
 	setEntry(offset2+6, (uint32_t)irq14, 0x08, 0x8e);
 	setEntry(offset2+7, (uint32_t)irq15, 0x08, 0x8e);
+
+	// software api interrupts
+	setEntry(0x80, (uint32_t)systemcall, 0x08, 0x8e);
 }
 
 void setIDT()

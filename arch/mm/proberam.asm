@@ -19,8 +19,12 @@
 
 [SECTION .data]
 	dummy dd 0
+	counter dd 0
 
 [SECTION .text]
+
+%include "/home/michel/osdev/goldeneaglebl/arch/mm/include/proberam.h"
+
 [EXTERN printnum]
 [EXTERN pic_eoi]
 
@@ -29,8 +33,11 @@ proberam:
 	push ebp
 	mov ebp, esp
 
+; 	xor ax, ax
+; 	in 
+
 	mov esi, 0x1000000	; begin at address 0x0
-	mov ecx, 0	; 256 blocks to test
+	xor ecx, ecx	; 256 blocks to test
 
 .lowmem:
 	or esi, 0xffc	; last dword of block
@@ -46,13 +53,12 @@ proberam:
 	cmp ebx, eax
 	jne .lowend
 
-	inc ecx
+	add ecx, 0x1000
 
 	add esi, 0x1000	; add block for next test
 	jmp .lowmem
 
 .lowend:
-	shl ecx, 2
 
 	push dword 0
 	push dword 0

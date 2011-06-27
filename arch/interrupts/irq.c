@@ -20,13 +20,99 @@
 #include "include/interrupts.h"
 #include "include/pic.h"
 
+
+uint64_t timer = 0;
 void cIRQ0(gebl_isr_stack regs)
 {
+	timer += 1;
 	pic_eoi(0);
 	return;
 }
 void cIRQ1(gebl_isr_stack regs)
 {
+char c = inb(0x60);
+	putc('a');
+  switch(c)
+  {
+    case 0x1e:
+      putc('a');
+      break;
+    case 0x30:
+      putc('b');
+      break;
+    case 0x2e:
+      putc('c');
+      break;
+    case 0x20:
+      putc('d');
+      break;
+    case 0x12:
+      putc('e');
+      break;
+    case 0x21:
+      putc('f');
+      break;
+    case 0x22:
+      putc('g');
+      break;
+    case 0x23:
+      putc('h');
+      break;
+    case 0x17:
+      putc('i');
+      break;
+    case 0x24:
+      putc('j');
+      break;
+    case 0x25:
+      putc('k');
+      break;
+    case 0x26:
+      putc('l');
+      break;
+    case 0x32:
+      putc('m');
+      break;
+    case 0x31:
+      putc('n');
+      break;
+    case 0x18:
+      putc('o');
+      break;
+    case 0x19:
+      putc('p');
+      break;
+    case 0x10:
+      putc('q');
+      break;
+    case 0x13:
+      putc('r');
+      break;
+    case 0x1f:
+      putc('s');
+      break;
+    case 0x14:
+      putc('t');
+      break;
+    case 0x16:
+      putc('u');
+      break;
+    case 0x2f:
+      putc('v');
+      break;
+    case 0x11:
+      putc('w');
+      break;
+    case 0x2d:
+      putc('x');
+      break;
+    case 0x15:
+      putc('y');
+      break;
+    case 0x2c:
+      putc('z');
+      break;
+  }
 	pic_eoi(1);
 	return;
 }
@@ -58,7 +144,6 @@ void cIRQ6(gebl_isr_stack regs)
 }
 void cIRQ7(gebl_isr_stack regs)
 {
-	pic_eoi(7);
 	return;
 }
 void cIRQ8(gebl_isr_stack regs)
@@ -98,13 +183,5 @@ void cIRQ14(gebl_isr_stack regs)
 }
 void cIRQ15(gebl_isr_stack regs)
 {
-	pic_eoi(15);
-	return;
-}
-
-void cIRQ33(gebl_isr_stack regs)
-{
-	proberam();
-	pic_eoi(33);
 	return;
 }

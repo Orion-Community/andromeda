@@ -25,9 +25,9 @@ irq%1:
 	jmp irqStub
 %endmacro
 
-[GLOBAL irq15]
+[GLOBAL systemcall]
 [EXTERN proberam]
-irq15:
+systemcall:
 	cli
 	push proberam
 	jmp irqStub
@@ -47,7 +47,7 @@ irq 11
 irq 12
 irq 13
 irq 14
-; irq 15
+irq 15
 
 irqStub:
 	pushad
