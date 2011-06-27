@@ -85,7 +85,6 @@
 	
 	cmp eax, ebx	; cf is set if not equal
 
-; if equal:
 	pop edx
 	pop ebx
 	pop eax
