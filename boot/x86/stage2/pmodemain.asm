@@ -25,5 +25,4 @@ pmodemain:
 	call kmain
 
 .end:
-	cli
 	jmp $

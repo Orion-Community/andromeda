@@ -51,23 +51,23 @@ void cNmi()
 }
 void cBreakp()
 {
-	panic("Not yet implemented");
+	panic("Break point!");
 }
 void cOverflow()
 {
-	panic("Not yet implemented");
+	panic("Overflow panic");
 }
 void cBound()
 {
-	panic("Not yet implemented");
+	panic("Out of bounds!");
 }
 void cInvalOp()
 {
-	panic("Not yet implemented");
+	panic("Invalid opcode!");
 }
 void cNoMath()
 {
-	panic("Not yet implemented");
+	panic("NM panic!");
 }
 void cDoubleFault()
 {
@@ -79,15 +79,15 @@ void cDepricated()
 }
 void cInvalidTSS()
 {
-	panic("Not yet implemented");
+	panic("Invalid TSS!");
 }
 void cSnp()
 {
-	panic("Not yet implemented");
+	panic("SNP panic!");
 }
 void cStackFault()
 {
-	panic("Not yet implemented");
+	panic("Stack fault!");
 }
 void cGenProt(gebl_isr_stack regs)
 {
@@ -98,21 +98,25 @@ void cGenProt(gebl_isr_stack regs)
 }
 void cPageFault()
 {
-	panic("Not yet implemented");
+	panic("Page fault");
 }
-void cFpu()
+void cFpu(gebl_isr_stack regs)
 {
-	panic("Not yet implemented");
+	putc(0xa);
+	print("Floating point fault at EIP ");
+	printnum(regs.eip, 16, FALSE, FALSE);
+	putc(0xa);
+	panic("");
 }
 void cAlligned()
 {
-	panic("Not yet implemented");
+	panic("Not alligned!");
 }
 void cMachine()
 {
-	panic("Not yet implemented");
+	panic("Machine error!");
 }
 void cSimd()
 {
-	panic("Not yet implemented");
+	panic("SIMD error!");
 }

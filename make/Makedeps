@@ -9,13 +9,16 @@ IO_DEPS=sys/io.asm
 MMAP_DEPS=mm/mmap.c
 MMAP_ASM_DEPS=mm/mmap.asm
 MMAPI_DEPS=boot/x86/stage1/stage1.5/mmap.asm
-PIC_DEPS=arch/interrupts/pic.c
+PIC_DEPS=arch/x86/interrupts/pic.c
 ERROR_DEPS=error/panic.c
 PMODE_DEPS=boot/x86/stage2/pmodemain.asm
-IDT_DEPS=arch/interrupts/idt.c
-IDT_ASM_DEPS=arch/interrupts/idt.asm
-ISR_DEPS=arch/interrupts/isr.asm
-ISRI_DEPS=arch/interrupts/isr.c
+IDT_DEPS=arch/x86/interrupts/idt.c
+IDT_ASM_DEPS=arch/x86/interrupts/idt.asm
+ISR_DEPS=arch/x86/interrupts/isr.asm
+ISRI_DEPS=arch/x86/interrupts/isr.c
+IRQ_DEPS=arch/x86/interrupts/irq.asm
+IRQI_DEPS=arch/x86/interrupts/irq.c
+PROBE_DEPS=arch/x86/mm/proberam.asm
 
 # Object files
 STAGE15=stage15.o
@@ -36,8 +39,11 @@ IDT=idt.o
 IDT_ASM=idt_asm.o
 ISR=isr.o
 ISRI=isri.o
+IRQ=irq.o
+IRQI=irqi.o
+PROBE=proberam.o
 
-DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IDT_ASM) $(ISR) $(ISRI) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(PROBE) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)
@@ -69,7 +75,7 @@ $(MMAP_ASM): $(MMAP_ASM_DEPS)
 $(PIC): $(PIC_DEPS) include/interrupts/pic.h
 	$(CC) $(CCFLAGS) -o $(PIC) $(PIC_DEPS)
 
-$(IDT): $(IDT_DEPS) arch/interrupts/include/interrupts.h
+$(IDT): $(IDT_DEPS) arch/x86/interrupts/include/interrupts.h
 	$(CC) $(CCFLAGS) -o $(IDT) $(IDT_DEPS)
 
 $(IDT_ASM): $(IDT_ASM_DEPS)
@@ -78,8 +84,14 @@ $(IDT_ASM): $(IDT_ASM_DEPS)
 $(ISR): $(ISR_DEPS)
 	$(AS) $(ASFLAGS) -o $(ISR) $(ISR_DEPS)
 
-$(ISRI): $(ISRI_DEPS) arch/interrupts/include/interrupts.h
+$(ISRI): $(ISRI_DEPS) arch/x86/interrupts/include/interrupts.h
 	$(CC) $(CCFLAGS) -o $(ISRI) $(ISRI_DEPS)
+
+$(IRQ): $(ISR_DEPS)
+	$(AS) $(ASFLAGS) -o $(IRQ) $(IRQ_DEPS)
+
+$(IRQI): $(ISRI_DEPS) arch/x86/interrupts/include/interrupts.h
+	$(CC) $(CCFLAGS) -o $(IRQI) $(IRQI_DEPS)
 
 $(ERROR): $(ERROR_DEPS) include/error/panic.h
 	$(CC) $(CCFLAGS) -o $(ERROR) $(ERROR_DEPS)
@@ -92,3 +104,6 @@ $(MMAPI): $(MMAPI_DEPS)
 
 $(A20): $(A20_DEPS)
 	$(AS) $(ASFLAGS) -o $(A20) $(A20_DEPS)
+
+$(PROBE): $(PROBE_DEPS)
+	$(AS) $(ASFLAGS) -o $(PROBE) $(PROBE_DEPS)

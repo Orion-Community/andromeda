@@ -45,13 +45,16 @@ void kmain(void)
 	if((status & 2) == 2)
 	{
 		println("The A20 gate is open.");
+		putc(0xa);
 	}
 	
 	pic_init();
 	setIDT();
-
 #ifdef __DEBUG
 	testIDT();
 #endif
+	println("Waiting for service interrupts..");
 	while(1) halt();
+	println("End of program reached!");
+	endprogram();
 }

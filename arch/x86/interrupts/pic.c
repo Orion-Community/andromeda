@@ -28,8 +28,8 @@ void pic_remap(uint32_t offset1, uint32_t offset2)
 	mask2 = inb(GEBL_PIC2_DATA);
 
 	// sent the initialise commands to the master and slave pic
-	outb(GEBL_PIC1_COMMAND, GEBL_ICW1_INIT+GEBL_ICW1_ICW4);
-	outb(GEBL_PIC2_COMMAND, GEBL_ICW1_INIT+GEBL_ICW1_ICW4);
+	outb(GEBL_PIC1_COMMAND, GEBL_ICW1_INIT|GEBL_ICW1_ICW4);
+	outb(GEBL_PIC2_COMMAND, GEBL_ICW1_INIT|GEBL_ICW1_ICW4);
 	iowait();
 
 	// define the vectors
@@ -50,9 +50,12 @@ void pic_remap(uint32_t offset1, uint32_t offset2)
 	outb(GEBL_PIC2_DATA, mask2);
 	iowait();
 	
-	outb(GEBL_PIC2_DATA, 0xff);	// disable irq's, not yet implemented.
-	outb(GEBL_PIC2_COMMAND, 0xff);
-	iowait();
+	outb(0x21,0xfc);
+	outb(0xa1,0xff);
+	
+// 	outb(GEBL_PIC2_DATA, 0xff);	// disable irq's, not yet implemented.
+// 	outb(GEBL_PIC2_COMMAND, 0xff);
+// 	iowait();
 }
 
 void pic_eoi(uint8_t irq)
@@ -68,4 +71,5 @@ void pic_eoi(uint8_t irq)
 void pic_init()
 {
 	pic_remap(GEBL_INTERRUPT_BASE, GEBL_INTERRUPT_BASE+8);
+	clearInterrupts();
 }

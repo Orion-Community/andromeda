@@ -19,6 +19,7 @@
 #include <sys/stdlib.h>
 
 #ifndef __H_PIC
+#define __H_PIC
 void pic_remap(uint32_t set1, uint32_t set2);
 void pic_eoi(uint8_t irq);
 void pic_init();
@@ -26,9 +27,9 @@ void pic_init();
 #define GEBL_INTERRUPT_BASE 0x20
 
 #define GEBL_PIC1_COMMAND 0x20
-#define GEBL_PIC2_COMMAND 0x21
+#define GEBL_PIC2_COMMAND 0xa0
 
-#define GEBL_PIC1_DATA 0xa0
+#define GEBL_PIC1_DATA 0x21
 #define GEBL_PIC2_DATA 0xa1
 
 // A few pic commands

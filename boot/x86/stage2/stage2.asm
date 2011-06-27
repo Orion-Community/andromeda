@@ -68,7 +68,7 @@ main:
 	cli
 	lgdt [gdtr]
 	mov eax, cr0
-	or eax, 1 	; enable pe bit
+	or eax, 100001b 	; enable pe bit
 	mov cr0, eax
 .flush:
 	mov ax, DATA_SEG	; flush segments

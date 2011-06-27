@@ -16,25 +16,24 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-%ifndef __MMAP_H
-%define __MMAP_H
+%ifndef __MEMPROBE_H
+%define __MEMPROBE_H
 
 %define GEBL_MMAP_SEG 0x50
 %define GEBL_MMAP_OFFSET 0x00
 
-; Smap used in int 0x15/eax=0xe820
-%define GEBL_SMAP 0x0534D4150
-
 %define GEBL_EXT_BASE 0x00100000
 %define GEBL_HIGH_BASE 0x001000000
 %define GEBL_LOW_BASE 0x00
+%define GEBL_HOLE_BASE 0xf00000
 %define GEBL_ACPI 0x01
+%define GEBL_PROBE_BLOCKSIZE 0x1000
 
 ; CMOS i/o ports
 
 %define GEBL_CMOS_OUTPUT 0x70
 %define GEBL_CMOS_INPUT 0x71
-%define GEBL_DELAY_PORT 0x80
+%define GEBL_CMOS_OVERWRITE GEBL_CMOS_INPUT
 
 ; CMOS data registers
 %define GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER 0x30
@@ -50,6 +49,16 @@
 %define GEBL_NVS_MEM 0x4
 %define GEBL_BAD_MEM 0x5
 
+; pic ports
+%define GEBL_PIC1_COMMAND 0x20
+%define GEBL_PIC2_COMMAND 0xa0
+
+%define GEBL_PIC1_DATA 0x21
+%define GEBL_PIC2_DATA 0xa1
+
+; PIC commands
+%define GEBL_PIC_DISABLE 0xff
+
 %macro nxte 1
 	add di, 0x18
 	cld	; just to be sure that di gets incremented
@@ -61,16 +70,30 @@
 	jmp %1
 %endmacro
 
+%macro memtest 1
+	push eax
+	push ebx
+	push edx
+	mov eax, dword [%1]	; original value at address
+	mov edx, eax		; copy
+	not eax			; invert eax
+	mov dword [%1], eax
+	mov dword [dummy], edx	; dummy write
+	wbinvd	; write back and invalidate the cache
+	mov ebx, dword [%1] ; get value back
+	mov dword [%1], edx
+	
+	cmp eax, ebx	; cf is set if not equal
+
+; if equal:
+	pop edx
+	pop ebx
+	pop eax
+%endmacro
+
 mmap_entry:	; 0x18-byte mmap entry
 	base dq 0	; base address
 	length dq 0	; length (top_addr - base_addr)
 	type dd 0	; entry type
 	acpi3 dd 0	; acpi 3.0 compatibility => should be 1
-
-[GLOBAL mmr]
-mmr:
-	dd 0	; pointer to the memory map
-	dw 0 ;entry count
-	db 0x24 ; entry size
-
 %endif
