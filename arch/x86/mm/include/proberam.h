@@ -83,7 +83,7 @@
 	mov ebx, dword [%1] ; get value back
 	mov dword [%1], edx
 	
-	cmp eax, ebx	; cf is set if not equal
+	cmp eax, ebx	; zf is clear when result is not equal
 
 	pop edx
 	pop ebx

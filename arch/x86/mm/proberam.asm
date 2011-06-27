@@ -49,7 +49,7 @@ proberam:
 
 .lowmem:
 	memtest esi
-	jc .lowend
+	jne .lowend
 
 	add esi, GEBL_PROBE_BLOCKSIZE	; add block for next test
 	jmp .lowmem
@@ -94,7 +94,7 @@ proberam:
 
 .midmem:
 	memtest esi
-	jc .midend
+	jne .midend
 	add esi, GEBL_PROBE_BLOCKSIZE
 	dec cx
 	jz .midend	; we arrived at mem hole if the zf is set
@@ -104,7 +104,30 @@ proberam:
 .midend:
 	mov edx, ~0xffc
 	and esi, edx
-	sub esi, GEBL_EXT_BASE
+; 	sub esi, GEBL_EXT_BASE
+	push esi
+
+; prepare high mem
+	mov ecx, ((1<<20)*496)/0x1000
+	mov esi, GEBL_HIGH_BASE
+	or esi, 0xffc
+
+.highmem:
+	memtest esi
+	jne .highend
+	add esi, GEBL_PROBE_BLOCKSIZE
+	dec ecx
+	jz .highend
+	jmp .highmem
+
+.highend:
+	mov edx, ~0xffc
+	and esi, edx
+	sub esi, GEBL_HIGH_BASE
+	pop edx
+	add esi, edx
+
+; write si to the cmos now
 
 %ifdef __DEBUG
 	push dword 0
@@ -114,10 +137,6 @@ proberam:
 	call printnum
 	add esp, 4*4
 %endif
-
-	; get it in cmos now..
-
-.highmem:
 
 .done:
 	pop ax		; re-set the old pic masks
