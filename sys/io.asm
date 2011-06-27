@@ -46,7 +46,7 @@ outb:	; void outb(uint16_t port, uint16_t data);
 iowait:
 	push ax
 	xor ax, ax
-	out 0x80, ax
+	out 0x80, al
 
 	pop ax
 	ret

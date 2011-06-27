@@ -25,7 +25,7 @@
 [SECTION .text]
 
 [EXTERN printnum]
-[EXTERN pic_eoi]
+[EXTERN iowait]
 
 [GLOBAL proberam]
 proberam:
@@ -48,17 +48,8 @@ proberam:
 	or esi, 0xffc	; last dword of block
 
 .lowmem:
-	mov eax, dword [esi]	; original value at address
-	mov edx, eax		; copy
-	not eax			; invert eax
-	mov dword [esi], eax
-	mov dword [dummy], edx	; dummy write
-	wbinvd	; write back and invalidate the cache
-	mov ebx, dword [esi] ; get value back
-	mov dword [esi], edx
-
-	cmp ebx, eax
-	jne .lowend
+	memtest esi
+	jc .lowend
 
 	add esi, GEBL_PROBE_BLOCKSIZE	; add block for next test
 	jmp .lowmem
@@ -76,6 +67,26 @@ proberam:
 	call printnum
 	add esp, 4*4
 %endif
+	shr esi, 10	; esi /= 1024
+	xor edx, edx
+	or dx, si	; mov ax, si
+
+	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; select the low order register
+	out GEBL_CMOS_OUTPUT, al
+	call iowait
+
+	mov al, dl
+	out GEBL_CMOS_OVERWRITE, al	; overwrite with better value
+	call iowait
+
+	mov al, GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; select the low order register
+	out GEBL_CMOS_OUTPUT, al
+	call iowait
+
+	mov al, dh
+	out GEBL_CMOS_OVERWRITE, al	; overwrite with better value
+	call iowait
+
 .midmem:
 .highmem:
 

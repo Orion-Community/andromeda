@@ -33,7 +33,7 @@
 
 %define GEBL_CMOS_OUTPUT 0x70
 %define GEBL_CMOS_INPUT 0x71
-%define GEBL_DELAY_PORT 0x80
+%define GEBL_CMOS_OVERWRITE GEBL_CMOS_INPUT
 
 ; CMOS data registers
 %define GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER 0x30
@@ -68,6 +68,27 @@
 	sub di, 0x18	; just to make addressing esier
 
 	jmp %1
+%endmacro
+
+%macro memtest 1
+	push eax
+	push ebx
+	push edx
+	mov eax, dword [%1]	; original value at address
+	mov edx, eax		; copy
+	not eax			; invert eax
+	mov dword [%1], eax
+	mov dword [dummy], edx	; dummy write
+	wbinvd	; write back and invalidate the cache
+	mov ebx, dword [%1] ; get value back
+	mov dword [%1], edx
+	
+	cmp eax, ebx	; cf is set if not equal
+
+; if equal:
+	pop edx
+	pop ebx
+	pop eax
 %endmacro
 
 mmap_entry:	; 0x18-byte mmap entry
