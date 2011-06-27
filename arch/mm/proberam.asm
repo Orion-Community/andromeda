@@ -19,11 +19,10 @@
 
 [SECTION .data]
 	dummy dd 0
-	counter dd 0
+
+%include "arch/mm/include/proberam.h"
 
 [SECTION .text]
-
-%include "/home/michel/osdev/goldeneaglebl/arch/mm/include/proberam.h"
 
 [EXTERN printnum]
 [EXTERN pic_eoi]
@@ -33,14 +32,22 @@ proberam:
 	push ebp
 	mov ebp, esp
 
-; 	xor ax, ax
-; 	in 
+	xor ax, ax
+	in al, GEBL_PIC1_DATA
+	push ax
+	xor ax, ax
+	in al, GEBL_PIC2_DATA
+	push ax
 
-	mov esi, 0x1000000	; begin at address 0x0
+	mov al, GEBL_PIC_DISABLE
+	out GEBL_PIC1_DATA, al
+	out GEBL_PIC2_DATA, al
+
+	mov esi, GEBL_HIGH_BASE	; begin at address 0x0
 	xor ecx, ecx	; 256 blocks to test
+	or esi, 0xffc	; last dword of block
 
 .lowmem:
-	or esi, 0xffc	; last dword of block
 	mov eax, dword [esi]	; original value at address
 	mov edx, eax		; copy
 	not eax			; invert eax
@@ -53,9 +60,9 @@ proberam:
 	cmp ebx, eax
 	jne .lowend
 
-	add ecx, 0x1000
+	add ecx, GEBL_PROBE_BLOCKSIZE
 
-	add esi, 0x1000	; add block for next test
+	add esi, GEBL_PROBE_BLOCKSIZE	; add block for next test
 	jmp .lowmem
 
 .lowend:
@@ -68,5 +75,10 @@ proberam:
 	add esp, 4*4
 
 .done:
+	pop ax
+	out GEBL_PIC2_DATA, al
+	pop ax
+	out GEBL_PIC1_DATA, al
+
 	pop ebp
 	ret

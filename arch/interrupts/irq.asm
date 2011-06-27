@@ -70,7 +70,7 @@ irqStub:
 	mov ds, dx
 	mov es, dx
 	mov gs, dx
-	mov es, dx
+	mov gs, dx
 
 	popad
 ; 	pop ebp
