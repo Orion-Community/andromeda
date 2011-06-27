@@ -73,7 +73,7 @@ void setIDT()
 	installInterrupts(0x20, 0x28);
 	
 	idt.limit = sizeof(gebl_idt_entry_t) * 256;
-	idt.baseptr = 0x100000;
+	idt.baseptr = 0x7800;
 	
 	installIDT(&idt);
 	setInterrupts();

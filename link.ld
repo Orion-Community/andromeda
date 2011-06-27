@@ -9,7 +9,6 @@ SECTIONS
 	.text :
 	{
 		*(.text)
-		*(.rodata)
 		. = ALIGN(4096);
 	}
 

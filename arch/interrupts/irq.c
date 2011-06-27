@@ -153,6 +153,7 @@ void cIRQ8(gebl_isr_stack regs)
 }
 void cIRQ9(gebl_isr_stack regs)
 {
+	putc('a');
 	pic_eoi(9);
 	return;
 }
