@@ -94,7 +94,7 @@ int kmain()
   {
     panic("Invalid memory map");
   }
-  if (hdr->flags && MULTIBOOT_INFO_MODS)
+  if (hdr->flags && MULTIBOOT_INFO_MODS && hdr->mods_count > 0)
   {
     addModules((multiboot_module_t*)hdr->mods_addr, (int)hdr->mods_count);
     addCompressed();
