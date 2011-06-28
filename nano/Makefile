@@ -3,20 +3,28 @@ include make/makeIncl
 .PHONY: all
 all: x86
 
-.PHONY: x86
-x86:
-	@echo "Pass one"
-	@echo
-	@echo
-	$(MAKE) -f Makefile.x86 compressed EFLAGS="$(COMPRESSED)"
-	rm *.o
-
 .PHONY: amd64
 amd64:
 	@echo "Not yet implemented"
 
+.PHONY: x86
+x86:
+	$(MAKE) -C error
+	mv -v error/panic.o ./
+	$(MAKE) -C mm
+	mv -v mm/mm.o ./
+	$(MAKE) -C kern
+	mv -v kern/kern.o ./
+	$(MAKE) -C arch
+	mv -v arch/arch.o ./
+
 .PHONY: clean
 clean:
+	$(MAKE) -C error clean
+	$(MAKE) -C mm clean
+	$(MAKE) -C kern clean
+	$(MAKE) -C arch clean
+	rm -v *.o
 	rm $(OUTC)
 	rm $(OUTD)
 

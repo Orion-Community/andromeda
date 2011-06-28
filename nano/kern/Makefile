@@ -8,11 +8,12 @@ TIMER=timer.c
 CORE=kmain.c
 
 .PHONY: all
-all: load.o timer.o core.o
+all: kern.o
 
+kern.o: load.o timer.o core.o
+	$(LD) $(LDFLAGS) *.o -o kern.o
 load.o: $(ELF)
 	$(CC) $(CFLAGS) $(ELF)
-	$(LD) $(LDFLAGS) elf.o exec.o -o load.o
 
 timer.o: $(TIMER)
 	$(CC) $(CFLAGS) $(TIMER)

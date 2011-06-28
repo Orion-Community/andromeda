@@ -7,15 +7,13 @@ IRQ=irq.asm
 ISR=isr.asm
 GDT=lgdt.asm
 ASM=asm.asm
+BOOT=boot.asm
 
 LD=ld
 LDFLAGS=--allow-shlib-undefined -shared -nostdlib --oformat=elf32-i386 -melf_i386
 
 .PHONY: all
-all: assembly.o
-
-assembly.o: io.o irq.o isr.o lgdt.o asm.o
-#	$(LD) -o assembly.o *.o $(LDFLAGS)
+all: io.o irq.o isr.o lgdt.o asm.o
 
 io.o: io.asm
 	$(AS) $(ASFLAGS) $(IO)
@@ -31,6 +29,9 @@ lgdt.o: lgdt.asm
 
 asm.o: asm.asm
 	$(AS) $(ASFLAGS) $(ASM)
+
+boot.o: boot.asm
+	$(AS) $(ASFLAGS) $(BOOT)
 
 .PHONY: clean
 clean:

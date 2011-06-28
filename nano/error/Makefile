@@ -8,3 +8,7 @@ all: panic.o
 
 panic.o: panic.c
 	$(CC) $(CFLAGS) panic.c
+
+.PHONY: clean
+clean:
+#	rm -v *.o
