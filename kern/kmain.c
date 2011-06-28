@@ -32,9 +32,6 @@ void kmain(void)
 
 	char status = inb(0x60);
 
-	println("Multiboot memory map:\n");
-	gebl_display_mmap();
-
 	putc(0xa);
 	
 	println("Current stack pointer: ");
@@ -51,7 +48,8 @@ void kmain(void)
 	pic_init();
 	setIDT();
 #ifdef __DEBUG
-	testIDT();
+	println("Multiboot memory map:\n");
+	gebl_display_mmap();
 #endif
 	println("Waiting for service interrupts..");
 	while(1) halt();

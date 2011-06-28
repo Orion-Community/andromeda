@@ -19,8 +19,7 @@
 %ifndef __MEMPROBE_H
 %define __MEMPROBE_H
 
-%define GEBL_MMAP_SEG 0x50
-%define GEBL_MMAP_OFFSET 0x00
+%define GEBL_MMR_POINTER 0x500
 
 %define GEBL_EXT_BASE 0x00100000
 %define GEBL_HIGH_BASE 0x001000000
@@ -60,14 +59,23 @@
 %define GEBL_PIC_DISABLE 0xff
 
 %macro nxte 1
-	add di, 0x18
+	add edi, 0x18
 	cld	; just to be sure that di gets incremented
-	mov si, mmap_entry
+	mov esi, mmap_entry
 	mov cx, 0xc
 	rep movsw	; copy copy copy!
-	sub di, 0x18	; just to make addressing esier
+	sub edi, 0x18	; just to make addressing esier
 
 	jmp %1
+%endmacro
+
+%macro nxte 0
+	add edi, 0x18
+	cld	; just to be sure that di gets incremented
+	mov esi, mmap_entry
+	mov cx, 0xc
+	rep movsw	; copy copy copy!
+	sub edi, 0x18	; just to make addressing esier
 %endmacro
 
 %macro memtest 1
@@ -95,4 +103,6 @@ mmap_entry:	; 0x18-byte mmap entry
 	length dq 0	; length (top_addr - base_addr)
 	type dd 0	; entry type
 	acpi3 dd 0	; acpi 3.0 compatibility => should be 1
+
+[EXTERN mmr]
 %endif

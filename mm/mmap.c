@@ -28,6 +28,7 @@ struct gebl_mmap_entry * getmmapentry(int idx)
 
 void gebl_display_mmap()
 {
+	cmosmap();
 	struct gebl_mmap_entry * entry;
 	
 	int i = 0;

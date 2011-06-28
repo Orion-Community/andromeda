@@ -68,7 +68,7 @@ clearInterrupts:
 	cli
 	ret
 
-[GLOBAL testIDT]
-testIDT:
+[GLOBAL cmosmap]
+cmosmap:
 	int 0x80
 	ret
