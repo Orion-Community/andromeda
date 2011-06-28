@@ -32,19 +32,19 @@ proberam:
 	push ebp
 	mov ebp, esp
 
-	xor ax, ax
+	xor eax, eax
 	in al, GEBL_PIC1_DATA
-	push ax
-	xor ax, ax
+	push eax
+	xor eax, eax
 	in al, GEBL_PIC2_DATA
-	push ax
+	push eax
 
 	mov al, GEBL_PIC_DISABLE
 	out GEBL_PIC1_DATA, al
 	out GEBL_PIC2_DATA, al
 
 	mov esi, GEBL_LOW_BASE	; begin at address 0x0
-	xor ecx, ecx	; 256 blocks to test
+	xor ecx, ecx
 	or esi, 0xffc	; last dword of block
 
 .lowmem:
@@ -60,8 +60,7 @@ proberam:
 	and esi, edx	; round block down (block is rounded up)
 
 	shr esi, 10	; esi /= 1024
-	xor edx, edx
-	or dx, si	; mov dx, si
+	mov dx, si
 
 	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; select the low order register
 	out GEBL_CMOS_OUTPUT, al
@@ -135,9 +134,9 @@ proberam:
 	call cmosmmap
 
 .done:
-	pop ax		; re-set the old pic masks
+	pop eax		; re-set the old pic masks
 	out GEBL_PIC2_DATA, al
-	pop ax
+	pop eax
 	out GEBL_PIC1_DATA, al
 
 	pop ebp
