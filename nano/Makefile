@@ -1,4 +1,5 @@
 include make/makeIncl
+include make/x86
 
 .PHONY: all
 all: x86
@@ -8,7 +9,9 @@ amd64:
 	@echo "Not yet implemented"
 
 .PHONY: x86
-x86:
+x86: $(OUTC)
+
+$(OUTC):
 	$(MAKE) -C error
 	mv -v error/panic.o ./
 	$(MAKE) -C mm
@@ -17,6 +20,10 @@ x86:
 	mv -v kern/kern.o ./
 	$(MAKE) -C arch
 	mv -v arch/arch.o ./
+	$(MAKE) -C text
+	mv -v text/text.o ./
+	
+	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
 
 .PHONY: clean
 clean:
