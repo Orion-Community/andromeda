@@ -33,7 +33,7 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-jmp mm_cmos
+
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;
@@ -152,7 +152,7 @@ mm_e801:
 	jmp .done
 
 .failed:
-	jmp mm_cmos
+	jmp mm_88
 	stc
 	ret
 
@@ -187,73 +187,11 @@ mm_88:
 	jmp .done
 
 .failed:
-	jmp mm_cmos
 	stc
 	ret
 .done:
 	add cx, 2	; low entries
 	mov [mmr+4], cx
-	clc
-	ret
-
-; 
-; This memory map routine does not use the bios to create one, but the cmos.
-; 
-mm_cmos:
-	pushfd	; save proc state
-	cli
-	xor di, di
-	mov ax, GEBL_MMAP_SEG
-	mov es, ax
-
-	sti
-	call lowmmap
-	jc .failed
-
-	cli
-	nxte .highmem
-
-.highmem:
-	mov al, GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER
-	out GEBL_CMOS_OUTPUT, al	; tell the cmos we want to read the high memory
-	call .iowait
-
-	xor ax, ax
-	in al, GEBL_CMOS_INPUT ; get the low bytes
-	push ax
-
-	mov al, GEBL_CMOS_EXT_MEM_HIGH_ORDER_REGISTER
-	out GEBL_CMOS_OUTPUT, al	; get most significant byte
-	call .iowait
-
-	xor ax, ax
-	in al, GEBL_CMOS_INPUT
-
-	pop dx
-	shl ax, 8
-	or ax, dx	; ax is the most significant byte, dx the least significant
-
-	and eax, 0xffff
-	shl eax, 10
-
-	call addmemoryhole
-
-	jmp .done
-
-.iowait:
-	xor ax, ax
-	out GEBL_DELAY_PORT, al
-	ret
-
-.failed:
-	popfd
-	stc
-	ret
-
-.done:
-	add cx, 2	; lowmmap entries
-	mov [mmr+4], cx
-	popfd	
 	clc
 	ret
 
@@ -265,8 +203,6 @@ lowmmap:
 	call copy_empty_entry	; copy first entry
 	xor ax, ax
 	int 0x12	; get low memory size
-stc
-	jc cmoslowmmap	; if interrupt 0x12 is not support.
 
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
@@ -299,68 +235,6 @@ stc
 	stc
 	ret
 .done:
-	clc
-	ret
-
-; 
-; This subroutine will create the first two entries, the low memory (mem < 1mb). When it returns es:di will point to the
-; start of the last entry.
-; 
-cmoslowmmap:
-	pushfd
-	cli
-	call copy_empty_entry
-
-	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
-	out GEBL_CMOS_OUTPUT, al
-	call .iowait	; wait
-
-	xor ax, ax
-	in al, GEBL_CMOS_INPUT
-	push ax	 ; sava data temp
-	
-	mov al, GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; most sig byte
-	out GEBL_CMOS_OUTPUT, al
-	call .iowait
-
-	xor ax, ax
-	in al, GEBL_CMOS_INPUT	; collect data
-	
-	pop dx
-	shl ax, 8	; put al in ah
-	or ax, dx ; ah is the most significant byte, dl the least significant
-	
-	and eax, 0xffff
-	shl eax, 10	; eax*1024 -> convert to bytes
-	push eax	; save for the low reserved mmap
-	
-	mov [es:di], dword GEBL_LOW_BASE
-	mov [es:di+8], eax
-	mov [es:di+16], dword GEBL_USABLE_MEM
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
-
-	nxte .lowres
-
-.lowres:
-; low reserver memory
-	pop eax	; get saved value
-	and edx, 0xffff
-	mov edx, (1 << 20)
-	sub edx, eax
-
-	mov [es:di], eax
-	mov [es:di+8], edx	; length (in bytes)
-	mov [es:di+16], dword GEBL_RESERVED_MEM	; reserverd memory
-	mov [es:di+20], dword GEBL_ACPI		; also this entry is acpi 3.0 compatible
-	jmp .done
-
-.iowait:
-	xor ax, ax
-	out GEBL_DELAY_PORT, al
-	ret
-
-.done:
-	popfd	; restore proc state
 	clc
 	ret
 
