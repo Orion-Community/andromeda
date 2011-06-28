@@ -17,15 +17,18 @@
 */
 
 /*
- * This is the main function for both the compressed and decompressed image.
- * The compressed image is nothing more than a basic kernel with image loading
- * code, to load the decompressed image. An approach still has to be chosen on
- * how to load the decompressed image.
+ * This is the main function for the nano kernel.
+ * What this thing does is interpret the arguments handed to us by the bootloader.
+ * Next it will load in the module received from the bootloader.
+ * This module is actually the main kernel with all the drivers and
+ * the less basic tasks, along with a copy of this kernel, all situated
+ * at 3 GiB. This is always possible due to the virtual memory possibilities
+ * opened up to us by paged memory.
  *
- * One angle is to load the decompressed image in from disk.
- * Another is to get a module from GRUB which we can put into place our selves.
- * The latter is the most gracefull, however, the former will suffice and is
- * probably a whole lot easier.
+ * This kernel will produce:
+ * - A memory map
+ * - A paging system to enable virtual memory
+ * - A piece of the VGA driver to enable writing text to screen.
  */
 
 // Basic includes
@@ -35,7 +38,9 @@
 #include <kern/elf.h>
 #include <mm/paging.h>
 #include <mm/map.h>
-//#include <interrupts/int.h>
+#include <interrupts/int.h>
+
+#include <kern/cpu.h>
 
 unsigned char stack[0x8000];
 
@@ -59,8 +64,6 @@ size_t mmap_size;
 
 #endif
 
-#include <kern/cpu.h>
-
 int vendor = 0;
 
 // Print a welcome message
@@ -72,11 +75,7 @@ void announce()
 }
 
 // The main function
-#ifdef __COMPRESSED
 int kmain(unsigned long magic, multiboot_info_t* hdr)
-#else
-int kmain()
-#endif
 {
   textInit();
   #ifdef __COMPRESSED
