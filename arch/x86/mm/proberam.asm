@@ -114,10 +114,9 @@ proberam:
 	and esi, edx
 	sub esi, GEBL_HIGH_BASE
 	pop edx
-	add esi, edx
+	add edx, esi
 
-	shr esi, 10
-	mov dx, si
+	shr edx, 10
 
 	mov al, GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER ; select the low order register
 	out GEBL_CMOS_OUTPUT, al
@@ -239,7 +238,7 @@ cmoslowmmap:
 
 addmemoryhole:
 	pushad	; save all registers
-	xor cx, cx
+	xor ecx, ecx
 	push ecx	; .next will pop the counter off
 
 	call copy_empty_entry
@@ -269,7 +268,7 @@ addmemoryhole:
 	jz .done
 
 	pop ecx
-	dec ecx
+	dec ecx		; if not decreased it wil increase twice.
 	push ecx
 	call .next
 

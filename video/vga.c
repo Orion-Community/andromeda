@@ -108,7 +108,7 @@ void putc(uint8_t c)
 			break;
 	}
 	
-	reloc_cursor(cursor.x-2, cursor.line);
+	reloc_cursor(cursor.x, cursor.line);
 }
 
 void writeat(uint8_t c, uint32_t x)
