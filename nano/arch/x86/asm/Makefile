@@ -8,11 +8,16 @@ ISR=isr.asm
 GDT=lgdt.asm
 ASM=asm.asm
 
-.PHONY: all
-all: out.o
-	ld -o out.o *.o --allow-shlib-undefined -shared -nostdlib --oformat=elf32-i386 -melf_i386
+LD=ld
+LDFLAGS=--allow-shlib-undefined -shared -nostdlib --oformat=elf32-i386 -melf_i386
 
-out.o: io.o irq.o isr.o lgdt.o asm.o
+.PHONY: all
+all: assembly.o
+
+.PHONY: assembly.o
+assembly.o: io.o irq.o isr.o lgdt.o asm.o
+	$(LD) -o assembly.o *.o $(LDFLAGS)
+	mv assembly.o ../
 
 io.o:
 	$(AS) $(ASFLAGS) $(IO)

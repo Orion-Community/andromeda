@@ -3,10 +3,16 @@ CFLAGS=-I../../include/ -Iinclude/ -nostdlib -fno-builtin -nostdinc -fno-stack-p
 ASM=nasm
 MAKE=make
 
+LD=ld
+LDFLAGS=--allow-shlib-undefined -shared -nostdlib --oformat=elf32-i386 -melf_i386
+
 .PHONY: all
-all:
+all: arch.o
+
+arch.o:
 	$(CC) $(CFLAGS) */*.c
 	$(MAKE) -C asm
+	$(LD) -o arch.o *.o  $(LDFLAGS)
 
 .PHONY: clean
 clean:
