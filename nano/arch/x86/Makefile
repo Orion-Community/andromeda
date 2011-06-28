@@ -6,13 +6,16 @@ MAKE=make
 LD=ld
 LDFLAGS=--allow-shlib-undefined -shared -nostdlib --oformat=elf32-i386 -melf_i386
 
+INTERRUPTS=interrupts/APIC.c interrupts/IDT.c interrupts/irq.c interrupts/isr.c interrupts/PIC.c
+MM=mm/GDT.c
+
 .PHONY: all
 all: arch.o
 
-arch.o:
+arch.o: $(INTERRUPTS) $(MM)
 	$(CC) $(CFLAGS) */*.c
 	$(MAKE) -C asm
-	$(LD) -o arch.o *.o  $(LDFLAGS)
+	$(LD) -o arch.o asm/*.o *.o $(LDFLAGS)
 
 .PHONY: clean
 clean:

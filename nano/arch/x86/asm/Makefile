@@ -14,24 +14,22 @@ LDFLAGS=--allow-shlib-undefined -shared -nostdlib --oformat=elf32-i386 -melf_i38
 .PHONY: all
 all: assembly.o
 
-.PHONY: assembly.o
 assembly.o: io.o irq.o isr.o lgdt.o asm.o
-	$(LD) -o assembly.o *.o $(LDFLAGS)
-	mv assembly.o ../
+#	$(LD) -o assembly.o *.o $(LDFLAGS)
 
-io.o:
+io.o: io.asm
 	$(AS) $(ASFLAGS) $(IO)
 
-irq.o:
+irq.o: irq.asm
 	$(AS) $(ASFLAGS) $(IRQ)
 
-isr.o:
+isr.o: isr.asm
 	$(AS) $(ASFLAGS) $(ISR)
 
-lgdt.o:
+lgdt.o: lgdt.asm
 	$(AS) $(ASFLAGS) $(GDT)
 
-asm.o:
+asm.o: asm.asm
 	$(AS) $(ASFLAGS) $(ASM)
 
 .PHONY: clean
