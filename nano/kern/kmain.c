@@ -39,16 +39,16 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 #include <interrupts/int.h>
+#include <boot/mboot.h>
+#include <mm/map.h>
 
 #include <kern/cpu.h>
 
 unsigned char stack[0x8000];
 
 // Define the place of the heap
-#ifdef __COMPRESSED
 
-#include <boot/mboot.h>
-#include <mm/map.h>
+
 
 void testMMap(multiboot_info_t* hdr);
 
@@ -57,12 +57,13 @@ size_t mmap_size;
 
 #define HEAPSIZE 0x1000000
 
-#else
+
+/* Uncompressed
 
 #define HEAP 0xE0000000
 #define HEAPSIZE 10000000
 
-#endif
+*/
 
 int vendor = 0;
 
