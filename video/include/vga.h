@@ -21,7 +21,6 @@
 #ifndef __VGA_H
 #define __VGA_H
 
-#define GEBL_VGA_HEADER
 #define GEBL_VGAMEMORY 0xB8000
 #define GEBL_WIDTH 80
 #define GEBL_HEIGHT 25

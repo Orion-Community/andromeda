@@ -94,6 +94,13 @@ void putc(uint8_t c)
 			cursor.x = 0;
 			cursor.line++;
 			break;
+
+		case '\b':
+			cursor.x -= 2;
+			cursor.vidmem[i-2] = ' ';
+			cursor.vidmem[i-1] = GEBL_WHITE_TXT;
+			break;
+
 		default:
 			cursor.vidmem[i] = c;
 			cursor.vidmem[i+1] = GEBL_WHITE_TXT;
@@ -101,7 +108,7 @@ void putc(uint8_t c)
 			break;
 	}
 	
-	reloc_cursor(cursor.x, cursor.line);
+	reloc_cursor(cursor.x-2, cursor.line);
 }
 
 void writeat(uint8_t c, uint32_t x)
@@ -128,10 +135,10 @@ void clearscreen() // clear the entire text screen
 
 void reloc_cursor(uint32_t x, uint32_t y)
 {
-	uint16_t loc = (GEBL_WIDTH * y) + x;
+	uint16_t loc = (y * GEBL_WIDTH) + x;
 
-        outb(0x3d4, 0xe); 
-        outb(0x3d5, loc >> 8);
-        outb(0x3d4, 0xf);
-        outb(0x3d5, loc);
+        outb(0x3d4, 0xf); 
+        outb(0x3d5, (uint8_t)(loc&0xff));
+        outb(0x3d4, 0xe);
+        outb(0x3d5, (uint8_t)((loc>>8)&0xff));
 }

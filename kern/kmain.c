@@ -51,6 +51,7 @@ void kmain(void)
 	println("Multiboot memory map:\n");
 	gebl_display_mmap();
 #endif
+	outb(GEBL_KBC_COMMAND, GEBL_KB_INIT);
 	println("Waiting for service interrupts..");
 	while(1) halt();
 	println("End of program reached!");

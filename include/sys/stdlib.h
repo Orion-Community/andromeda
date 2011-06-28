@@ -22,6 +22,8 @@
 #define NULL 0
 #define FALSE 0
 #define TRUE !FALSE
+#define GEBL_KBC_COMMAND 0x64
+#define GEBL_KB_INIT 0xae
 
 typedef unsigned long long uint64_t;
 typedef unsigned int uint32_t;
