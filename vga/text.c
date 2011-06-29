@@ -33,10 +33,25 @@ void textInit()
 {
 #ifdef HD
   /*
-   * Note that the code isn't HD ready jet. Only low res. VGA is allowed.
+   * Note that the code isn't HD ready jet. Only low resolustion VGA is allowed!
+   * 
+   *   //  Set videomode (assambly) for real mode:  //
+   *   //    AX = 4F02h                             //
+   *   //    BX =  11Bh                             //
+   *   //    int 10                                 //
+   *   //  Returns:                                 //
+   *   //    AL = 4Fh if function supported         //
+   *   //    AH = status (0=succes, 1=failt)        //
+   * 
    */
   graphicsInit(???,???,???);
 #else
+  /*
+   *   //  Set videomode (assambly) for real mode:  //
+   *   //    AX = 00h                               //
+   *   //    BX = 0Dh                               //
+   *   //    int 10                                 //
+   */
   graphicsInit(320,200,1);
 #endif
   ttyInit();
