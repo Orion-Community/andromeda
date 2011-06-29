@@ -25,10 +25,21 @@
 
 #ifndef __GRAPHICS_H
 #define __GRAPHICS_H
+
+#define graphicsInitMode_13h(){  \
+  __asm__ __volatile__ (   \
+    "mov $0x013, %ax\n\t"  \
+    "int $10"              \
+  );                       \
+  graphicsInit(320,200,1); \
+} // ONLY WORKS IN REAL MODE !!!
+
 unsigned int screenWidth;
 unsigned int screenHeight;
 unsigned int screenColorDepth;
 unsigned char* screenbuf;
 void graphicsInit(unsigned int width, unsigned int heigth, unsigned int depth);
 void graphicsSetScreen(unsigned int width, unsigned int heigth, unsigned int depth);
+void drawChar(unsigned int x, unsigned int y,char chr);
+void drawString(unsigned int x, unsigned int y,char* str);
 #endif

@@ -30,11 +30,10 @@
 /*
  * Hardcode font. currently only contains fonts for '0' and '1'.
  */
-
-
-const unsigned int charData[4] = {
+const unsigned int charData[6] = {
          0x3c7e6666,0x66667e3c, // 0
-         0x18381818,0x181818ff  // 1
+         0x18381818,0x181818ff, // 1
+         0x10280404,0x0c18307e  // 2
 };
 
 void graphicsInit(unsigned int width, unsigned int heigth, unsigned int depth)
@@ -43,6 +42,7 @@ void graphicsInit(unsigned int width, unsigned int heigth, unsigned int depth)
   screenHeight = heigth;
   screenColorDepth = depth;
   screenbuf = kalloc(screenWidth*screenHeight*screenColorDepth);
+  memset(screenbuf,0x0,screenWidth*screenHeight*screenColorDepth);
 }
 
 void graphicsSetScreen(unsigned int width, unsigned int heigth, unsigned int depth)
@@ -64,9 +64,7 @@ void putPixel(unsigned int x, unsigned int y, unsigned int color)
 // Retreive the pixel value
 unsigned int getPixel(unsigned int x, unsigned int y)
 {
-  unsigned int pixel = (x + y * screenWidth);
-  pixel *= screenColorDepth;
-  pixel += screenbuf;
+  unsigned int pixel = (unsigned int)screenbuf + (x + y * screenWidth) * screenColorDepth; // = base addres + ( pixel num. * pixel width )
   return *((unsigned int *)pixel); // is this correct?
 }
 
@@ -75,14 +73,14 @@ void drawBuf(unsigned int x, unsigned int y,unsigned int height, unsigned int wi
   if (((x + width) > screenWidth) || ((y+height) > screenHeight))
     return;
   int i  = 0; // counter for loop.
-  int i2 = screenbuf + (x + y * screenWidth) * screenColorDepth; // adres of the first pixel to draw to ( = base addres + ( pixel num. * pixel width ) )
+  int i2 = (unsigned int)screenbuf + (x + y * screenWidth) * screenColorDepth; // adres of the first pixel to draw to ( = base addres + ( pixel num. * pixel width ) )
 
   while(i < height) // loops through each horizontal line of the image buffer.
   {
     memcpy(
-      buffer + (i * width),
-      i2,
-      width
+      (void *)((unsigned int)buffer + (i * width * screenColorDepth)),
+      (void *)i2,
+      width * screenColorDepth
     );
     i++;
     i2 += screenWidth * screenColorDepth; // go 1 pixel down
@@ -158,7 +156,7 @@ void drawBufScale(unsigned int x, unsigned int y, unsigned int heigth, unsigned 
  */
 void* getCharBuf(char character)
 {
-  if(character>1) return getCharBuf((char)0); // draws '0' if invalide character is asked.
+  if(character>2) return getCharBuf((char)0); // draws '0' if invalide character is asked.
   char* buf = kalloc(64*screenColorDepth);
   unsigned int chr1 = charData[character*2];
   unsigned int chr2 = charData[character*2+1];
@@ -185,9 +183,20 @@ void drawChar(unsigned int x, unsigned int y,char chr)
 
 void drawString(unsigned int x, unsigned int y,char* str)
 {
-  int i = strlen(str);
-  for (;i>0;i--)
+  if(x>(screenWidth-8) | y>(screenHeight-8) )
+    return;
+  int i = 0, i2 = x;
+  while(str[i] != '\0')
   {
-    drawChar(x+(i*8),y,*(str+i));
+    if(i>screenWidth-8)
+    {
+      i2=x;
+      y++;
+      if(y>screenHeight-8)
+        return;
+    }
+    drawChar(i2,y,str[i]);
+    i++;
+    i2+=8;
   }
 }
