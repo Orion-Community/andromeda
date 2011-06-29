@@ -44,7 +44,7 @@ void textInit()
    *   //    AH = status (0=succes, 1=failt)        //
    * 
    */
-  graphicsInit(???,???,???);
+  graphicsInit(1280,1024,16777216/*=16M colors*/); // Will fix this later for wide-screens...
 #else
   /*
    *   //  Set videomode (assambly) for real mode:  //
