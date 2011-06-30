@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define __COMPRESSED
+
 #ifndef __COMPRESSED
 #include <interrupts.h>
 #include <irq.h>
