@@ -59,6 +59,7 @@ void setExceptions()
   setIdtGate(18, (unsigned int)machine, 0x08, 0x8E);
   setIdtGate(19, (unsigned int)simd, 0x08, 0x8E);
 }
+/*
 #ifndef __COMPRESSED
 void setIRQ(int offset1, int offset2)
 {
@@ -80,7 +81,7 @@ void setIRQ(int offset1, int offset2)
   setIdtGate(offset2+7, (unsigned int)irq15, 0x08, 0x8E);
 }
 #endif
-
+*/
 void setIDT(idt_t *idt, idtEntry_t* table, unsigned int elements)
 {
   idt->limit = sizeof(idtEntry_t)*SIZE;
@@ -93,8 +94,7 @@ void prepareIDT()
 {
   int cs = getCS();
   #ifdef IDTTEST
-  printhex(cs); putc('\n');
-  printhex(getDS()); putc('\n');
+  printf("%X\n%X\n", cs, getDS());
   #endif
   table = kalloc(sizeof(idtEntry_t)*SIZE);
   idt_t* idt = kalloc(sizeof(idt_t));
@@ -103,9 +103,9 @@ void prepareIDT()
      panic ("Aiee, NULL pointer!!!");
   }
   setExceptions();
-  #ifndef __COMPRESSED
+/*  #ifndef __COMPRESSED
   setIRQ(INTBASE, INTBASE+8);
-  #endif
+  #endif*/
   setIDT(idt, table, SIZE);
   loadIdt(idt);
   #ifdef WARN
