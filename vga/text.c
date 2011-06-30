@@ -25,16 +25,101 @@
 
 #include <stdlib.h>
 #include <io.h>
+#include <text.h>
 #include "include/graphics.h"
+#include "include/TTY.h"
 
 void textInit()
 {
 #ifdef HD
   /*
-   * Note that the code isn't HD ready jet. Only low res. VGA is allowed.
+   * Note that the code isn't HD ready jet. Only low resolustion VGA is allowed!
+   * 
+   *   //  Set videomode (assambly) for real mode:  //
+   *   //    AX = 4F02h                             //
+   *   //    BX =  11Bh                             //
+   *   //    int 10                                 //
+   *   //  Returns:                                 //
+   *   //    AL = 4Fh if function supported         //
+   *   //    AH = status (0=succes, 1=failt)        //
+   * 
    */
-  graphicsInit(???,???,???);
+  graphicsInit(1280,1024,16777216/*=16M colors*/); // Will fix this later for wide-screens...
 #else
+  /*
+   *   //  Set videomode (assambly) for real mode:  //
+   *   //    AX = 00h                               //
+   *   //    BX = 0Dh                               //
+   *   //    int 10                                 //
+   */
   graphicsInit(320,200,1);
 #endif
+  ttyInit();
+}
+
+unsigned int formatBuf(void *buffer, unsigned char *format, ...)
+{
+  int i;
+  va_list list;
+  unsigned int tmp;
+  va_start(list, format);
+  for (i = 0; format[i] != '\0'; i++)
+  {
+    if (format[i] != '%')
+    {
+      *((unsigned char*)buffer++) = format[i];
+    }
+    else
+    {
+      i++;
+      if (format[i+1] == '\0')
+      {
+	*((unsigned char*)buffer++) = format[i];
+	break;
+      }
+      switch(format[i])
+      {
+	case 'd':
+	case 'i':
+	  printNum(va_arg(list, unsigned int), 10, TRUE, FALSE); //needs to be replaced!
+	  break;
+	case 'u':
+	  printNum(va_arg(list, unsigned int), 10, FALSE, FALSE); //needs to be replaced!
+	  break;
+	case 'x':
+	  printNum(va_arg(list, unsigned int), 16, FALSE, FALSE); //needs to be replaced!
+	  break;
+	case 'X':
+	  printNum(va_arg(list, unsigned int), 16, FALSE, TRUE);  //needs to be replaced!
+	  break;
+	case 'c':
+	  *((unsigned char*)buffer++) = (unsigned char)va_arg(list, unsigned int);
+	  break;
+	case 's':
+	  printf(va_arg(list, char*));
+	  break;
+	case '%':
+	  *((unsigned char*)buffer++) = '%';
+	  break;
+	default:
+	  break;
+      }
+    }
+    va_end(list);
+  }
+  return (unsigned int)buffer;
+}
+
+void fprintf(void *buffer, unsigned char *format, ...)
+{
+  va_list list;
+  va_start(list, format);
+  formatBuf(buffer, format, list/*Don't know for sure if this works*/);
+}
+
+void printf(unsigned char *format, ...)
+{
+  va_list list;
+  va_start(list, format);
+  ttyPtr -= (int)(ttyBuf + ttyPtr) - (int)formatBuf(ttyBuf + ttyPtr, format, list/*Don't know for sure if this works*/);
 }

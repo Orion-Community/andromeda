@@ -16,20 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __TEXT_H
-#define __TEXT_H
-#include <types.h>
-#ifdef GRAPHIC
-char* textBuf;
-void textInit();
-void fprintf(void *, unsigned char *, ...);
-void printf(unsigned char *, ...);
-#else
-void println(unsigned char*);
-void printf(unsigned char*, ...);
-void putc(unsigned char);
-void printNum(int index, unsigned int base, boolean sInt, boolean capital);
-void scroll(unsigned char);
-void textInit();
-#endif
+#ifndef __TTY_H
+#define __TTY_H
+char* ttyBuf;
+int ttyPtr;
+int ttyFirstChar;
+#define TTYBUFSIZE 1000 // 320x200 pixels = 80x25 characters = 1000 characters
+void ttyInit();
 #endif

@@ -16,20 +16,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __TEXT_H
-#define __TEXT_H
-#include <types.h>
-#ifdef GRAPHIC
-char* textBuf;
-void textInit();
-void fprintf(void *, unsigned char *, ...);
-void printf(unsigned char *, ...);
-#else
-void println(unsigned char*);
-void printf(unsigned char*, ...);
-void putc(unsigned char);
-void printNum(int index, unsigned int base, boolean sInt, boolean capital);
-void scroll(unsigned char);
-void textInit();
-#endif
-#endif
+/*
+ * 
+ * THIS FILE IS JUST A STUB!
+ * Please don't implement jet.
+ * 
+ */
+
+#include <stdlib.h>
+#include <io.h>
+#include "include/graphics.h"
+#include "include/TTY.h"
+
+void ttyInit()
+{
+  ttyPtr = 0;
+  ttyFirstChar = 0;
+  ttyBuf = kalloc(TTYBUFSIZE);
+  memset(ttyBuf,0x00,TTYBUFSIZE);
+}
+
+void drawTTY()
+{
+  drawString(0,0,(char *)( (int)ttyBuf + ttyFirstChar ) );
+  unsigned int y = -(int)(ttyPtr / -40);
+  drawChar((unsigned int)ttyPtr-y,y,'_');
+}
