@@ -10,10 +10,10 @@ ASM=asm.asm
 BOOT=boot.asm
 
 LD=ld
-LDFLAGS=--allow-shlib-undefined -shared -nostdlib --oformat=elf32-i386 -melf_i386
+LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 .PHONY: all
-all: io.o irq.o isr.o lgdt.o asm.o
+all: io.o irq.o isr.o lgdt.o asm.o boot.o
 
 io.o: io.asm
 	$(AS) $(ASFLAGS) $(IO)

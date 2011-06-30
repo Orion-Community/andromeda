@@ -17,7 +17,7 @@
 ;
 ;	The multiboot header file, calls the C-level entry point
 ;
-%ifdef __COMPRESSED
+;%ifdef __COMPRESSED
 [SECTION .boot]
 MBOOT_PAGE_ALIGN    equ 1<<0    ; Load kernel and modules on a page boundary
 MBOOT_MEM_INFO      equ 1<<1    ; Provide your kernel with memory info
@@ -70,21 +70,21 @@ start:
     jmp $                       ; Enter an infinite loop, to stop the processor
                                 ; executing whatever rubbish is in the memory
                                 ; after our kernel!
-%else
-CORE_MAGIC	equ	0xC0DEBABE	; Lolz
-
-[SECTION .boot]
-[EXTERN  code]                   ; Start of the '.text' section.
-[EXTERN  bss]                    ; Start of the .bss section.
-[EXTERN  end]
-  dd CORE_MAGIC
-  dd end
-
-[SECTION .text]
-[GLOBAL  start]
-[EXTERN  kmain]
-start:
-  cli
-  call kmain
-  jmp $
-%endif
+; %else
+; CORE_MAGIC	equ	0xC0DEBABE	; Lolz
+; 
+; [SECTION .boot]
+; [EXTERN  code]                   ; Start of the '.text' section.
+; [EXTERN  bss]                    ; Start of the .bss section.
+; [EXTERN  end]
+;   dd CORE_MAGIC
+;   dd end
+; 
+; [SECTION .text]
+; [GLOBAL  start]
+; [EXTERN  kmain]
+; start:
+;   cli
+;   call kmain
+;   jmp $
+; %endif

@@ -4,7 +4,7 @@ ASM=nasm
 MAKE=make
 
 LD=ld
-LDFLAGS=--allow-shlib-undefined -shared -nostdlib --oformat=elf32-i386 -melf_i386
+LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 INTERRUPTS=interrupts/APIC.c interrupts/IDT.c interrupts/irq.c interrupts/isr.c interrupts/PIC.c
 MM=mm/GDT.c
