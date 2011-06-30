@@ -22,6 +22,8 @@
 #include <PIC/PIC.h>
 #include <APIC/APIC.h>
 
+#define __COMPRESSED
+
 void initAPIC()
 {
   pic = APIC;

@@ -48,8 +48,6 @@ unsigned char stack[0x8000];
 
 // Define the place of the heap
 
-
-
 void testMMap(multiboot_info_t* hdr);
 
 multiboot_memory_map_t* mmap;
@@ -79,7 +77,7 @@ void announce()
 int kmain(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
-  #ifdef __COMPRESSED
+  //#ifdef __COMPRESSED
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
     printf("\nInvalid magic word: %X\n", magic);
@@ -103,19 +101,19 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid modules");
   }
-  #endif
+  //#endif
   
   #ifdef DBG
   printf("Addr of stackbase: "); printhex((int)&stack); putc('\n');
   #endif
   
-  #ifdef __COMPRESSED
+  //#ifdef __COMPRESSED
   #ifdef DBG
   testMMap(hdr);/*
   int i;
   for (i = 0; i<0x1FFFFFFF; i++);*/
   #endif
-  #endif
+  //#endif
   
   // Initialise the heap
   initHeap(HEAPSIZE);
@@ -123,9 +121,9 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
 		     // Up untill this point they have
 		     // been disabled.
   // If in the compressed image
-  #ifdef __COMPRESSED
+  //#ifdef __COMPRESSED
   announce(); // print welcome message
-  #endif
+  //#endif
   #ifdef __INTEL
   // Intel specific function
   setGDT();  // Also in decompressed kernel as the compressed image could be overwritten
@@ -170,9 +168,6 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   #ifdef MMTEST
   testAlloc();
   printf("End test\n");
-  #endif
-  #ifdef __COMPRESSED
-  //exec(coreImg);
   #endif
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {

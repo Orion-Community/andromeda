@@ -17,12 +17,16 @@
 */
 #include <mm/map.h>
 #include <thread.h>
+#include <boot/mboot.h>
 #include <stdlib.h>
 
 mutex_t pageLock = 0;
 
 module_t modules[32];
 unsigned short bitmap[PAGES];
+
+extern unsigned long end;
+extern unsigned long mboot;
 
 boolean claimPage(unsigned long page, unsigned short owner)
 {
@@ -72,17 +76,16 @@ void freePage(void* page, unsigned short owner)
   bitmap[(unsigned long)page] = FREE;
 }
 
-#ifdef __COMPRESSED
-
+//#ifdef __COMPRESSED
 void buildMap(multiboot_memory_map_t* map, int size)
 {
-  long i, j, end;
+  long i, j, mapEnd;
   for(i = 0; i < PAGES; i++)
   {
     bitmap[i] = NOTUSABLE;
   }
-  end = (long)map + (long)size;
-  while ((long)map < end)
+  mapEnd = (long)map + (long)size;
+  while ((long)map < mapEnd)
   {
     for (j = map->addr; j < map->addr + map->len; j+=PAGESIZE)
     {
@@ -117,4 +120,4 @@ void addCompressed()
     bitmap[i] = COMPRESSED;
   }
 }
-#endif
+//#endif
