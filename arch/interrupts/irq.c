@@ -26,6 +26,11 @@ void cIRQ0(gebl_isr_stack regs)
 {
 	timer += 1;
 	pic_eoi(0);
+	
+// 	int mod = timer % 10;
+// 	printnum(timer, 10, FALSE, FALSE);
+// 	putc(0xa);
+	
 	return;
 }
 void cIRQ1(gebl_isr_stack regs)

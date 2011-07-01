@@ -26,6 +26,7 @@
 %define GEBL_HIGH_BASE 0x001000000
 %define GEBL_LOW_BASE 0x00
 %define GEBL_ACPI 0x01
+%define GEBL_PROBE_BLOCKSIZE 0x1000
 
 ; CMOS i/o ports
 
@@ -53,6 +54,9 @@
 
 %define GEBL_PIC1_DATA 0x21
 %define GEBL_PIC2_DATA 0xa1
+
+; PIC commands
+%define GEBL_PIC_DISABLE 0xff
 
 %macro nxte 1
 	add di, 0x18
