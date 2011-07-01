@@ -46,8 +46,6 @@ struct idt
 typedef struct idt idt_t;
 extern void loadIdt(idt_t*);
 
-void prepareIDT();
-
 extern void divByZero();
 extern void nmi();
 extern void breakp();

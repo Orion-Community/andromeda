@@ -9,7 +9,7 @@ TARGETS=alloc.c heap.c map.c memory.c paging.c test.c
 all: mm.o
 
 mm.o: $(TARGETS)
-	$(CC) $(TARGETS) $(CFLAGS)
+	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)
 	$(LD) -o mm.o *.o $(LDFLAGS)
 	
 .PHONY: clean

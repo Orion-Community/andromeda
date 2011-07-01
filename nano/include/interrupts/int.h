@@ -19,6 +19,7 @@
 #ifndef __INT_H
 #define __INT_H
 
+void prepareIDT();
 void intInit();
 
 #endif

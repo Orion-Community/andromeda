@@ -13,8 +13,8 @@ MM=mm/GDT.c
 all: arch.o
 
 arch.o: $(INTERRUPTS) $(MM)
-	$(CC) $(CFLAGS) */*.c
-	$(MAKE) -C asm
+	$(CC) $(CFLAGS) $(FLAGS) */*.c
+	$(MAKE) FLAGS="$(FLAGS)" -C asm
 	$(LD) -o arch.o asm/*.o *.o $(LDFLAGS)
 
 .PHONY: clean

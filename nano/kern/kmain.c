@@ -117,7 +117,8 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   
   // Initialise the heap
   initHeap(HEAPSIZE);
-  intInit(); 	     // Interrupts are allowed again.
+  prepareIDT();
+  //intInit(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
 		     // been disabled.
   // If in the compressed image

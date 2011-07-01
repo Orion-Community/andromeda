@@ -16,22 +16,22 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 all: io.o irq.o isr.o lgdt.o asm.o boot.o
 
 io.o: io.asm
-	$(AS) $(ASFLAGS) $(IO)
+	$(AS) $(ASFLAGS) $(FLAGS) $(IO)
 
 irq.o: irq.asm
-	$(AS) $(ASFLAGS) $(IRQ)
+	$(AS) $(ASFLAGS) $(FLAGS) $(IRQ)
 
 isr.o: isr.asm
-	$(AS) $(ASFLAGS) $(ISR)
+	$(AS) $(ASFLAGS) $(FLAGS) $(ISR)
 
 lgdt.o: lgdt.asm
-	$(AS) $(ASFLAGS) $(GDT)
+	$(AS) $(ASFLAGS) $(FLAGS) $(GDT)
 
 asm.o: asm.asm
-	$(AS) $(ASFLAGS) $(ASM)
+	$(AS) $(ASFLAGS) $(FLAGS) $(ASM)
 
 boot.o: boot.asm
-	$(AS) $(ASFLAGS) $(BOOT)
+	$(AS) $(ASFLAGS) $(FLAGS) $(BOOT)
 
 .PHONY: clean
 clean:

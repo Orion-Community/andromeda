@@ -13,13 +13,13 @@ all: kern.o
 kern.o: load.o timer.o core.o
 	$(LD) $(LDFLAGS) *.o -o kern.o
 load.o: $(ELF)
-	$(CC) $(CFLAGS) $(ELF)
+	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
 
 timer.o: $(TIMER)
-	$(CC) $(CFLAGS) $(TIMER)
+	$(CC) $(CFLAGS) $(FLAGS) $(TIMER)
 
 core.o: $(CORE)
-	$(CC) $(CFLAGS) $(CORE)
+	$(CC) $(CFLAGS) $(FLAGS) $(CORE)
 
 .PHONY: clean
 clean:

@@ -7,7 +7,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 all: panic.o
 
 panic.o: panic.c
-	$(CC) $(CFLAGS) panic.c
+	$(CC) $(CFLAGS) $(FLAGS) panic.c
 
 .PHONY: clean
 clean:

@@ -8,4 +8,4 @@ DEPS=include/out.h
 all: text.o
 
 text.o: $(TARGETS) $(DEPS)
-	$(CC) $(CFLAGS) $(TARGETS) -o text.o
+	$(CC) $(CFLAGS) $(FLAGS) $(TARGETS) -o text.o
