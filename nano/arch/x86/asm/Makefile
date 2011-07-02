@@ -7,7 +7,6 @@ IRQ=irq.asm
 ISR=isr.asm
 GDT=lgdt.asm
 ASM=asm.asm
-BOOT=boot.asm
 
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
@@ -29,9 +28,6 @@ lgdt.o: lgdt.asm
 
 asm.o: asm.asm
 	$(AS) $(ASFLAGS) $(FLAGS) $(ASM)
-
-boot.o: boot.asm
-	$(AS) $(ASFLAGS) $(FLAGS) $(BOOT)
 
 .PHONY: clean
 clean:

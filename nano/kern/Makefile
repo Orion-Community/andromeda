@@ -5,7 +5,6 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 ELF=elf.c exec.c
 TIMER=timer.c
-CORE=kmain.c
 
 .PHONY: all
 all: kern.o
@@ -17,9 +16,6 @@ load.o: $(ELF)
 
 timer.o: $(TIMER)
 	$(CC) $(CFLAGS) $(FLAGS) $(TIMER)
-
-core.o: $(CORE)
-	$(CC) $(CFLAGS) $(FLAGS) $(CORE)
 
 .PHONY: clean
 clean:
