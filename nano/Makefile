@@ -1,5 +1,5 @@
-include make/makeIncl
-include make/x86
+include ../make/makeIncl
+include ../make/x86
 
 .PHONY: all
 all: x86
@@ -13,14 +13,14 @@ x86: $(OUTC)
 
 $(OUTC):
 	$(MAKE) -C error
-	mv -v error/panic.o ./
 	$(MAKE) -C mm
-	mv -v mm/mm.o ./
 	$(MAKE) -C kern
-	mv -v kern/kern.o ./
 	$(MAKE) -C arch
-	mv -v arch/arch.o ./
 	$(MAKE) -C text
+	mv -v error/panic.o ./
+	mv -v mm/mm.o ./
+	mv -v kern/kern.o ./
+	mv -v arch/arch.o ./
 	mv -v text/text.o ./
 	
 	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
@@ -33,7 +33,6 @@ clean:
 	$(MAKE) -C arch clean
 	rm -v *.o
 	rm $(OUTC)
-	rm $(OUTD)
 
 .PHONY: all
 test: all

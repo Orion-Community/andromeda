@@ -1,6 +1,0 @@
-AS=nasm
-CFLAGS=-nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -Iinclude -D X86 -D __INTEL -mtune=i686 -march=i386
-LDFLAGS=-oformat=elf32-i386 -melf_i386
-LDCOMPRESSED=-Tcompressed.ld
-LDCORE=-Tcore.ld
-ASFLAGS=-felf -iinclude/ -D X86

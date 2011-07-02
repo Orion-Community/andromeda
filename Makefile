@@ -16,6 +16,24 @@ x86:
 	$(MAKE) -f Makefile.x86 decompressed
 	rm *.o
 
+.PHONY: new
+new: $(OUTD)
+
+$(OUTD):
+	$(MAKE) -C drivers/
+	$(MAKE) -C kern/
+	$(MAKE) -C nano/
+	$(MAKE) -C math/
+	
+	cp -v drivers/drivers.o ./
+	cp -v kern/kern.o ./
+	cp -v nano/*.o ./
+	cp -v math/maths.o ./
+	
+	cp -v nano/$(OUTC) ./
+	
+	$(LD) $(LDFLAGS) $(LDCORE) -o $(OUTD) *.o
+
 .PHONY: amd64
 amd64:
 	@echo "Not yet implemented"

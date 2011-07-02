@@ -1,6 +1,0 @@
-CC=gcc
-LD=ld
-MAKE=make
-OUTC=compressed
-OUTD=core
-COMPRESSED=-D\ __COMPRESSED
