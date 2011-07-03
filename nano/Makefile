@@ -17,11 +17,13 @@ $(OUTC):
 	$(MAKE) -C kern
 	$(MAKE) -C arch
 	$(MAKE) -C text
+	$(MAKE) -C boot
 	mv -v error/panic.o ./
 	mv -v mm/mm.o ./
 	mv -v kern/kern.o ./
 	mv -v arch/arch.o ./
 	mv -v text/text.o ./
+	mv -v boot/nanoboot.o ./
 	
 	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
 
@@ -31,6 +33,7 @@ clean:
 	$(MAKE) -C mm clean
 	$(MAKE) -C kern clean
 	$(MAKE) -C arch clean
+	$(MAKE) -C boot clean
 	rm -v *.o
 	rm $(OUTC)
 

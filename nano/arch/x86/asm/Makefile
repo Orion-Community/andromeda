@@ -12,7 +12,7 @@ LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 .PHONY: all
-all: io.o irq.o isr.o lgdt.o asm.o boot.o
+all: io.o irq.o isr.o lgdt.o asm.o
 
 io.o: io.asm
 	$(AS) $(ASFLAGS) $(FLAGS) $(IO)

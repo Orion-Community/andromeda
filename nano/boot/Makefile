@@ -10,7 +10,7 @@ ASFLAGS=-felf -D X86 -I../../include/
 .PHONY: all
 all: nanoboot.o
 
-nanoboot.o:
+nanoboot.o: kmain.o boot.o
 	$(LD) $(LDFLAGS) *.o -o nanoboot.o
 
 kmain.o: kmain.c
@@ -18,3 +18,7 @@ kmain.o: kmain.c
 
 boot.o: boot.asm
 	$(AS) $(ASFLAGS) $(FLAGS) boot.asm
+
+.PHONY: clean
+clean:
+	rm -v *.o

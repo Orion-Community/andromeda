@@ -25,14 +25,25 @@ $(OUTD):
 	$(MAKE) -C nano/
 	$(MAKE) -C math/
 	
-	cp -v drivers/drivers.o ./
-	cp -v kern/kern.o ./
-	cp -v nano/*.o ./
-	cp -v math/maths.o ./
+	mv -v drivers/drivers.o ./
+	mv -v kern/kern.o ./
+	mv -v nano/*.o ./
+	mv -v math/maths.o ./
 	
-	cp -v nano/$(OUTC) ./
+	mv -v nano/$(OUTC) ./
 	
 	$(LD) $(LDFLAGS) $(LDCORE) -o $(OUTD) *.o
+
+.PHONY: newClean
+newClean:
+	$(MAKE) -C drivers/ clean
+	$(MAKE) -C kern/ clean
+	$(MAKE) -C nano/ clean
+	$(MAKE) -C maths/ clean
+	
+	rm -v *.o
+	rm -v $(OUTC)
+	rm -v $(OUTD)
 
 .PHONY: amd64
 amd64:

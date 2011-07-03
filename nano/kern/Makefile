@@ -9,7 +9,7 @@ TIMER=timer.c
 .PHONY: all
 all: kern.o
 
-kern.o: load.o timer.o core.o
+kern.o: load.o timer.o
 	$(LD) $(LDFLAGS) *.o -o kern.o
 load.o: $(ELF)
 	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
