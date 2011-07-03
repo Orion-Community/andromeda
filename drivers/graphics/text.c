@@ -63,22 +63,54 @@ char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F',
   /*
    * remake of the nano kernels printNum. Optemized for buffer use + support long number (nano kernel version only supports up to 32 charakters)
    */
-void Int2Str(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
+int itoa(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
 {
+  if (base > 36 || base < 2 )
+    return 0;
+  int count = 0;
   if(num < 0)
   {
     if(sInt)
-      *((char*)buffer++) = '-';
+      *((char*)buffer+(count++)) = '-';
     num = -num
   }
   int i = base, buf;
-  while(num>=i) i *= base;
+  while(num>=i)
+  {
+    i *= base;
+    count++;
+  }
   for(i/=base;i>1;i/=base)
   {
     buf = (int)(num/i);
     *((char*)buffer++) = (capital)? HEX[buf] : hex[buf];
     num -= buf*i;
   }
+  return count;
+}
+
+int dtoa(void* buffer, double num, unsigned int base, boolean sInt, boolean capital)
+{
+  if (base > 36 || base < 2 )
+    return 0;
+
+  int count = itoa(buffer,(int)num, base, sInt, capital); // print part befor '.'
+
+  double decimals = num-(double)((int)num);
+  if(decimals==0) // check for ??.0
+    return count;
+
+  buffer+=count;
+  *(buffer++) = '.';
+
+  for (;decimal>0;count++)
+  {
+    decimal*=10;
+    *((char*)buffer++) = (capital)? HEX[(int)decimal] : hex[(int)decimal];
+    decimal-=(double)((int)decimal);
+  }
+
+  return count;
 }
 
 unsigned int formatBuf(void *buffer, unsigned char *format, ...)
@@ -105,16 +137,16 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
       {
 	case 'd':
 	case 'i':
-	  Int2Str(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
+	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
 	  break;
 	case 'u':
-	  Int2Str(buffer, va_arg(list, unsigned int), 10, FALSE, FALSE);
+	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, FALSE, FALSE);
 	  break;
 	case 'x':
-	  Int2Str(buffer, va_arg(list, unsigned int), 16, FALSE, FALSE);
+	  buffer += itoa(buffer, va_arg(list, unsigned int), 16, FALSE, FALSE);
 	  break;
 	case 'X':
-	  Int2Str(buffer, va_arg(list, unsigned int), 16, FALSE, TRUE);
+	  buffer += itoa(buffer, va_arg(list, unsigned int), 16, FALSE, TRUE);
 	  break;
 	case 'c':
 	  *((unsigned char*)buffer++) = (unsigned char)va_arg(list, unsigned int);
