@@ -44,7 +44,7 @@ void textInit()
    *   //    AH = status (0=succes, 1=failt)        //
    * 
    */
-  graphicsInit(1280,1024,16777216/*=16M colors*/); // Will fix this later for wide-screens...
+  graphicsInit(1280,1024,3/*=16M colors*/); // Will fix this later for wide-screens...
 #else
   /*
    *   //  Set videomode (assambly) for real mode:  //
@@ -55,6 +55,30 @@ void textInit()
   graphicsInit(320,200,1);
 #endif
   ttyInit();
+}
+
+char hex[36] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+
+  /*
+   * remake of the nano kernels printNum. Optemized for buffer use + support long number (nano kernel version only supports up to 32 charakters)
+   */
+void Int2Str(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
+{
+  if(num < 0)
+  {
+    if(sInt)
+      *((char*)buffer++) = '-';
+    num = -num
+  }
+  int i = base, buf;
+  while(num>=i) i *= base;
+  for(i/=base;i>1;i/=base)
+  {
+    buf = (int)(num/i);
+    *((char*)buffer++) = (capital)? HEX[buf] : hex[buf];
+    num -= buf*i;
+  }
 }
 
 unsigned int formatBuf(void *buffer, unsigned char *format, ...)
@@ -81,22 +105,25 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
       {
 	case 'd':
 	case 'i':
-	  printNum(va_arg(list, unsigned int), 10, TRUE, FALSE); //needs to be replaced!
+	  Int2Str(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
 	  break;
 	case 'u':
-	  printNum(va_arg(list, unsigned int), 10, FALSE, FALSE); //needs to be replaced!
+	  Int2Str(buffer, va_arg(list, unsigned int), 10, FALSE, FALSE);
 	  break;
 	case 'x':
-	  printNum(va_arg(list, unsigned int), 16, FALSE, FALSE); //needs to be replaced!
+	  Int2Str(buffer, va_arg(list, unsigned int), 16, FALSE, FALSE);
 	  break;
 	case 'X':
-	  printNum(va_arg(list, unsigned int), 16, FALSE, TRUE);  //needs to be replaced!
+	  Int2Str(buffer, va_arg(list, unsigned int), 16, FALSE, TRUE);
 	  break;
 	case 'c':
 	  *((unsigned char*)buffer++) = (unsigned char)va_arg(list, unsigned int);
 	  break;
 	case 's':
-	  printf(va_arg(list, char*));
+          char* str = va_arg(list, char*);
+          int len = strlen(str);
+	  memcpy( buffer, str, strlen(str) );
+          buffer += len;
 	  break;
 	case '%':
 	  *((unsigned char*)buffer++) = '%';
@@ -114,12 +141,12 @@ void fprintf(void *buffer, unsigned char *format, ...)
 {
   va_list list;
   va_start(list, format);
-  formatBuf(buffer, format, list/*Don't know for sure if this works*/);
+  formatBuf(buffer, format, list/* <- Don't know for sure if this works*/);
 }
 
 void printf(unsigned char *format, ...)
 {
   va_list list;
   va_start(list, format);
-  ttyPtr -= (int)(ttyBuf + ttyPtr) - (int)formatBuf(ttyBuf + ttyPtr, format, list/*Don't know for sure if this works*/);
+  ttyPtr -= (int)(ttyBuf + ttyPtr) - (int)formatBuf(ttyBuf + ttyPtr, format, list/* <- Don't know for sure if this works*/);
 }
