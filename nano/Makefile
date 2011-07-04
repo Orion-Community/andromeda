@@ -23,7 +23,7 @@ $(OUTC):
 	mv -v kern/kern.o ./
 	mv -v arch/arch.o ./
 	mv -v text/text.o ./
-	mv -v boot/nanoboot.o ./
+	mv -v boot/*.o ./
 	
 	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
 
