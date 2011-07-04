@@ -19,7 +19,8 @@
 [SECTION .text]
 
 %include "sys/include/stdlib.h"
-
+[extern printnum]
+[extern putc]
 [GLOBAL endprogram]
 endprogram:
 	cli
@@ -70,5 +71,18 @@ clearInterrupts:
 
 [GLOBAL cmosmap]
 cmosmap:
+	pushad
+	mov esi, 0x100000
+	mov ecx, 1<<20
 	int 0x80
+	push 0
+	push 0
+	push 16
+	push ecx
+	call printnum
+
+	push 0xa
+	call putc
+	add esp, 5*4
+	popad
 	ret
