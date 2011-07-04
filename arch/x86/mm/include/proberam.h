@@ -87,7 +87,7 @@
 	not eax			; invert eax
 	mov dword [%1], eax
 	mov dword [dummy], edx	; dummy write
-; 	wbinvd	; write back and invalidate the cache
+	wbinvd	; write back and invalidate the cache
 	mov ebx, dword [%1] ; get value back
 	mov dword [%1], edx
 	
