@@ -39,6 +39,7 @@
 %define GEBL_CMOS_EXT_MEM_HIGH_ORDER_REGISTER 0x31
 %define GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER 0x15
 %define GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER 0x16
+%define GEBL_NMI_DISABLE 0x1
 
 
 ; ram types
@@ -91,7 +92,7 @@
 	mov ebx, dword [%1] ; get value back
 	mov dword [%1], edx
 	
-	cmp eax, ebx	; zf is clear when result is not equal
+	xor eax, ebx	; zf is set when result is equal
 
 	pop edx
 	pop ebx

@@ -62,13 +62,13 @@ proberam:
 	shr esi, 10	; esi /= 1024
 	mov dx, si
 
-	mov al, GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; select the low order register
+	mov al, (GEBL_NMI_DISABLE<<7) | GEBL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; select the low order register
 	out GEBL_CMOS_OUTPUT, al
 
 	mov al, dl
 	out GEBL_CMOS_OVERWRITE, al	; overwrite with better value
 
-	mov al, GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; select the low order register
+	mov al, (GEBL_NMI_DISABLE<<7) | GEBL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; select the low order register
 	out GEBL_CMOS_OUTPUT, al
 
 	mov al, dh
@@ -118,13 +118,13 @@ proberam:
 
 	shr edx, 10
 
-	mov al, GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER ; select the low order register
+	mov al, (GEBL_NMI_DISABLE<<7) | GEBL_CMOS_EXT_MEM_LOW_ORDER_REGISTER ; select the low order register
 	out GEBL_CMOS_OUTPUT, al
 
 	mov al, dl
 	out GEBL_CMOS_OVERWRITE, al	; overwrite with better value
 
-	mov al, GEBL_CMOS_EXT_MEM_HIGH_ORDER_REGISTER ; select the low order register
+	mov al, (GEBL_NMI_DISABLE<<7) | GEBL_CMOS_EXT_MEM_HIGH_ORDER_REGISTER ; select the low order register
 	out GEBL_CMOS_OUTPUT, al
 
 	mov al, dh

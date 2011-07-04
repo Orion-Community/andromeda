@@ -30,6 +30,27 @@ void textinit()
 	cursor.vidmem = (char *)GEBL_VGAMEMORY;
 }
 
+void scroll(uint8_t lines)
+{
+	uint32_t x, y;
+	for(y = 0; y < GEBL_HEIGHT - lines; y++)
+	{
+		for(x = 0; x < GEBL_WIDTH; x++)
+		{
+			cursor.vidmem[y*2*GEBL_WIDTH+x] = cursor.vidmem[(y+lines)*2*GEBL_WIDTH+x];
+		}
+	}
+	for(; y < GEBL_HEIGHT; y++)
+	{
+		for(x = 0; x < GEBL_WIDTH; x+2)
+		{
+			cursor.vidmem[y*GEBL_WIDTH*2+x] = ((GEBL_WHITE_TXT<<8) | ' ');
+		}
+	}
+	cursor.line = 18;
+	cursor.x = 0;
+}
+
 void println(uint8_t * txt)
 {
 	uint32_t i = 0;
@@ -86,7 +107,7 @@ void printnum(int index, uint32_t base, bool sInt, bool capital)
 
 void putc(uint8_t c)
 {
-	uint32_t i = (cursor.line * 80 * 2) + cursor.x;
+	uint32_t i = (cursor.line * GEBL_WIDTH * 2) + cursor.x;
 	switch(c)
 	{
 		case '\n':
@@ -102,13 +123,21 @@ void putc(uint8_t c)
 			break;
 
 		default:
-			cursor.vidmem[i] = c;
-			cursor.vidmem[i+1] = GEBL_WHITE_TXT;
+			cursor.vidmem[i] = (uint16_t) (GEBL_WHITE_TXT<<8) | (uint16_t) (c);
 			cursor.x += 2;
 			break;
 	}
 	
 	reloc_cursor(cursor.x, cursor.line);
+	if(cursor.line >= GEBL_HEIGHT)
+	{
+		scroll(6);
+	}
+// 	if(cursor.x >= GEBL_WIDTH)
+// 	{
+// 		cursor.x %= GEBL_WIDTH;
+// 		cursor.line++;
+// 	}
 }
 
 void writeat(uint8_t c, uint32_t x)
@@ -135,7 +164,7 @@ void clearscreen() // clear the entire text screen
 
 void reloc_cursor(uint32_t x, uint32_t y)
 {
-	uint16_t loc = (y * GEBL_WIDTH) + x;
+	uint16_t loc = (y * GEBL_WIDTH) + (x/2);
 
         outb(0x3d4, 0xf); 
         outb(0x3d5, (uint8_t)(loc&0xff));

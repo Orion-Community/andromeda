@@ -143,11 +143,15 @@ void cIRQ1(gebl_isr_stack regs)
 			break;
 			
 
-		case 0x39:
+		case 0x1c: //enter
+			putc(0xa);
+			break;
+
+		case 0x39: // space
 			putc(' ');
 			break;
 
-		case 0x0e:
+		case 0x0e:	// backspace
 			putc(0x8);
 			break;
 	}
