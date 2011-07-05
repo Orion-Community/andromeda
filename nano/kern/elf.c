@@ -94,7 +94,30 @@ int elfExec(void* image)
 						hdr->p_memsz, hdr->p_align, hdr->p_flags);
       thisHeader+=hdrSize;
     }
-
+    #ifdef ELFDBG
+    int j;
+    for (j = 0; j < 0x1FFFFFFF; j++);
+    #endif
+    Elf32_Off sectionAddress = elfHeader->e_shoff;
+    if (address != 0)
+    {
+      void *sectionHeader = (void*)(((unsigned long)elfHeader) + ((unsigned long)sectionAddress));
+      void *thisSection = NULL;
+      int noSHdrs = elfHeader->e_shnum;
+      int shdrSize = elfHeader->e_shentsize;
+      i = 0;
+      for (thisSection = sectionHeader; i < noHdrs; i++)
+      {
+	Elf32_Shdr* hdr = (Elf32_Shdr*)thisSection;
+	printf("Type:\t0x%X\nOffset:\t0x%X\nAddr:\t0x%X\nSize:\t0x%X\nAlign:\t0x%X\nFlags:\t0x%X\n\n",
+						hdr->sh_type, hdr->sh_offset, hdr->sh_addr,
+						hdr->sh_size, hdr->sh_addralign, hdr->sh_flags);
+	#ifdef ELFDBG
+	for (j = 0; j < 0xfffffff; j++);
+	#endif
+      }
+      
+    }
   }
   return 1;
 }
