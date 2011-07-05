@@ -84,6 +84,8 @@ void printf(unsigned char *line, ...)
       switch(line[i])
       {
 	case 'd':
+	  printDecimalNum(va_arg(list, double), 10, FALSE);
+	  break;
 	case 'i':
 	  printNum(va_arg(list, unsigned int), 10, TRUE, FALSE);
 	  break;
@@ -116,8 +118,66 @@ void printf(unsigned char *line, ...)
 char hex[36] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 
+int itoa(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
+{
+  int bufBase = (int)buffer;
+  if (base > 36 || base < 2 )
+    return 0;
+  int count = 0;
+  if(num < 0)
+  {
+    if(sInt)
+    {
+      *((char*)buffer++) = '-';
+      count++;
+    }
+    num = -num;
+  }
+  int i = base, buf;
+  while(num>=i)
+  {
+    i *= base;
+    count++;
+  }
+  for(i/=base;i>=1;i/=base)
+  {
+    buf = (int)(num/i);
+    *((char*)buffer++) = (capital)? HEX[buf] : hex[buf];
+    num -= buf*i;
+  }
+  return count+1;
+}
+
+
+int dtoa(void* buffer, double num, unsigned int base, boolean capital)
+{
+  if (base > 36 || base < 2 )
+    return 0;
+
+  int count = itoa(buffer,(int)num, base, TRUE, capital); // print part before '.'
+
+  double decimals = num-(double)((int)num);
+  if(decimals==0) // check for xx.0
+    return count;
+
+  buffer+=count;
+  *((char*)buffer++) = '.';
+
+  for (;decimals>0;count++)
+  {
+    decimals*=10;
+    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals];
+    decimals-=(double)((int)decimals);
+  }
+
+  return count+1; // +1 because of the dot character
+}
+
 void printNum(int index, unsigned int base, boolean sInt, boolean capital)
 {
+  /*
+   * Old version:
+   * 
   char buf[32];
   memset(buf, '\0', 32);
   int i = 0;
@@ -141,6 +201,27 @@ void printNum(int index, unsigned int base, boolean sInt, boolean capital)
   for (i--; i >= 0; i--)
   {
     putc(buf[31-i]);
+  }
+   * 
+   * New version:
+   */
+  char buf[32];
+  memset(buf,'\0',32);
+  int i = 0,count = itoa(buf,index, base, sInt,capital);
+  for (;i<count;i++)
+  {
+    putc(buf[i]);
+  }
+}
+
+void printDecimalNum(double index, unsigned int base, boolean capital)
+{
+  char buf[64];
+  memset(buf,'\0',64);
+  int i = 0,count = dtoa(buf,index, base,capital);
+  for (;i<count;i++)
+  {
+    putc(buf[i]);
   }
 }
 

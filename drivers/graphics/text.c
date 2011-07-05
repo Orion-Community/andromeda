@@ -99,15 +99,15 @@ int itoa(void* buffer, int num, unsigned int base, boolean sInt, boolean capital
   /*
    * Function has been tested and works fine!
    */
-int dtoa(void* buffer, double num, unsigned int base, boolean sInt, boolean capital)
+int dtoa(void* buffer, double num, unsigned int base, boolean capital)
 {
   if (base > 36 || base < 2 )
     return 0;
 
-  int count = itoa(buffer,(int)num, base, sInt, capital); // print part befor '.'
+  int count = itoa(buffer,(int)num, base, TRUE, capital); // print part before '.'
 
   double decimals = num-(double)((int)num);
-  if(decimals==0) // check for ??.0
+  if(decimals==0) // check for xx.0
     return count;
 
   buffer+=count;
@@ -120,7 +120,7 @@ int dtoa(void* buffer, double num, unsigned int base, boolean sInt, boolean capi
     decimals-=(double)((int)decimals);
   }
 
-  return count;
+  return count+1;
 }
 
   /*
@@ -151,7 +151,7 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
       {
 	case 'd':
 	case 'i':
-	  buffer += itoa(buffer, va_arg(list,         int), 10, TRUE, FALSE);
+	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
 	  break;
 	case 'u':
 	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, FALSE, FALSE);
@@ -163,7 +163,7 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
 	  buffer += itoa(buffer, va_arg(list, unsigned int), 16, FALSE, TRUE);
 	  break;
 	case 'd':
-	  buffer += dtoa(buffer, va_arg(list,       double), 10, TRUE, FALSE);
+	  buffer += dtoa(buffer, va_arg(list,       double), 10,        FALSE);
 	  break;
 	case 'c':
 	  *((unsigned char*)buffer++) = (unsigned char)va_arg(list, unsigned int);
