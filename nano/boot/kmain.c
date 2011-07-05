@@ -170,7 +170,7 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   printf("End test\n");
   #endif
   
-  printf("%i\n", atoi(1024));
+  printf("%i\n", atoi("1024"));
   
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {

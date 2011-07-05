@@ -152,18 +152,14 @@ char* itoa(unsigned int index, char* buffer, unsigned int base)
 
 int atoi(char* str)
 {
-  int i = strlen(str);
-  int idx;
-  for (; i > 0; i--)
+  int i = 0;
+  int idx = 0;
+  while (str[i] != '\0')
   {
-    if (str[i] >= 0x30 && str[i] <0x3A)
+    if (str[i] >= 0x30 && str[i] <= 0x39)
     {
-      idx *= 10;
-      idx = str[i] - 0x30;
-    }
-    else
-    {
-      return 0;
+      idx = idx * 10 + (str[i] - 0x30);
+      i++;
     }
   }
   return idx;
