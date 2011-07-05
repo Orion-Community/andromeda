@@ -25,7 +25,7 @@ extern long long timer;
 unsigned int seedTwo = 1; // Store the seeds
 unsigned int seedOne = 1;
 
-int abs(int num)
+long abs(long num)
 {
   return (num>0)?num:-num;
 }
