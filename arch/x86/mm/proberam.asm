@@ -27,7 +27,15 @@
 [EXTERN printnum]
 [EXTERN iowait]
 
-[GLOBAL proberam]
+[GLOBAL cIRQ80]
+cIRQ80:
+	mov ebp, esp
+	push ebp
+
+	mov eax, [ebp+36]
+	test eax, 0001b
+	jz createmmap
+
 proberam:
 	xor eax, eax
 	in al, GEBL_PIC1_DATA
@@ -47,6 +55,8 @@ proberam:
 	sub ebp, esi	; bytes to add due to rounding down
 	add ecx, ebp
 	shr ecx, 12
+	jz .end		; no blocks to test. lets get out.
+
 	mov eax, ecx	; eax is blocks to test
 	xor ecx, ecx
 	or esi, 0xffc	; round up to last word of block
@@ -68,12 +78,12 @@ proberam:
 	shr ax, 8
 	out GEBL_PIC1_DATA, al
 
-	pop edx
-	pop eax
+	pop ebp
+	mov [ebp+28], ebx
+	mov [ebp+32], ecx
 
-	mov ebp, esp
-	mov [ebp+20], ebx
-	mov [ebp+24], ecx
+	ret
 
-	push eax
-	jmp edx
+createmmap:
+	pop ebp
+	ret

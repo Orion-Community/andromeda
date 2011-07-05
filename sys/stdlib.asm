@@ -72,7 +72,8 @@ clearInterrupts:
 [GLOBAL cmosmap]
 cmosmap:
 	pushad
-	mov esi, 0x100000
+	mov eax, 1
+	mov esi, 0
 	mov ecx, 1<<20
 	int 0x80
 	push 0
