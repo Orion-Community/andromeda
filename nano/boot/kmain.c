@@ -114,7 +114,6 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   for (i = 0; i<0x1FFFFFFF; i++);*/
   #endif
   //#endif
-  
   // Initialise the heap
   initHeap(HEAPSIZE);
   prepareIDT();
@@ -170,9 +169,13 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   testAlloc();
   printf("End test\n");
   #endif
+  
+  char tmp[32];
+  printf("1024: %s\n", itoa(0x1024, tmp, 16));
+  
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
-    printf("\nTest int(2874):%i\nTest doube (3.25):%d\n\nYou can now shutdown your PC\n",2874,3.25);
+    printf("You can now shutdown your PC\n");
     halt();
   }
   return 0; // To keep the compiler happy.
