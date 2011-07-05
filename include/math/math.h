@@ -23,6 +23,6 @@
 
 void randomize(unsigned int seed);
 int random();
-int ABS(int num);
+int abs(int num);
 
 #endif
