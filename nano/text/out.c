@@ -93,9 +93,11 @@ void printf(unsigned char *line, ...)
 	  printNum(va_arg(list, unsigned int), 10, FALSE, FALSE);
 	  break;
 	case 'x':
+          putc('0');putc('x');
 	  printNum(va_arg(list, unsigned int), 16, FALSE, FALSE);
 	  break;
 	case 'X':
+          putc('0');putc('x');
 	  printNum(va_arg(list, unsigned int), 16, FALSE, TRUE);
 	  break;
 	case 'c':
@@ -124,28 +126,33 @@ int itoa(void* buffer, int num, unsigned int base, boolean sInt, boolean capital
   if (base > 36 || base < 2 )
     return 0;
   int count = 0;
-  if(num < 0)
+  if( (num < 0) && sInt) //if number is negative print '-' and print absolue value of number (witch is -num)
   {
-    if(sInt)
-    {
-      *((char*)buffer++) = '-';
-      count++;
-    }
+    *((char*)buffer++) = '-';
+    count++;
     num = -num;
   }
-  int i = base, buf;
-  while(num>=i)
+  unsigned int i = base, numBase = num/base, buf;
+  if (numBase>0)
   {
-    i *= base;
-    count++;
+    while(i<=numBase)
+    {
+      i *= base;
+      count++;
+    }
   }
-  for(i/=base;i>=1;i/=base)
+  else
   {
-    buf = (int)(num/i);
+    count--;
+    i = 1;
+  }
+  for(;i>=1;i/=base)
+  {
+    buf = (unsigned int)(num/i);
     *((char*)buffer++) = (capital)? HEX[buf] : hex[buf];
     num -= buf*i;
   }
-  return count+1;
+  return count+2;
 }
 
 
@@ -175,36 +182,6 @@ int dtoa(void* buffer, double num, unsigned int base, boolean capital)
 
 void printNum(int index, unsigned int base, boolean sInt, boolean capital)
 {
-  /*
-   * Old version:
-   * 
-  char buf[32];
-  memset(buf, '\0', 32);
-  int i = 0;
-  
-  if (base > 36 || base < 2 )
-    return;
-  if (index == 0)
-    putc('0');
-  
-  if (index < 0 && sInt)
-  {
-    putc('-');
-    index *= -1;
-  } 
-  unsigned int uIndex = (unsigned int) index;
-  for (; uIndex != 0; i++)
-  {
-    buf[31-i] = (capital) ? HEX[uIndex%base] : hex[uIndex%base];
-    uIndex /=base;
-  }
-  for (i--; i >= 0; i--)
-  {
-    putc(buf[31-i]);
-  }
-   * 
-   * New version:
-   */
   char buf[32];
   memset(buf,'\0',32);
   int i = 0,count = itoa(buf,index, base, sInt,capital);

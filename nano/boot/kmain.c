@@ -172,7 +172,7 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   #endif
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
-    printf("\nTest int(2874):%i\nTest doube (3.25):%d\n\nYou can now shutdown your PC\n",2874,3.25);
+    printf("\nTest int(2874):%x\nTest hex. int(0xffffffff):%x\nTest doube (3.25):%d\n\nYou can now shutdown your PC\n",2874,0xfffaafff,3.25);
     halt();
   }
   return 0; // To keep the compiler happy.
