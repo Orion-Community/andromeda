@@ -114,7 +114,6 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   for (i = 0; i<0x1FFFFFFF; i++);*/
   #endif
   //#endif
-  printf("Test: (0x10000001): %x\n", 0xfffffff);
   // Initialise the heap
   initHeap(HEAPSIZE);
   prepareIDT();
