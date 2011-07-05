@@ -150,6 +150,24 @@ char* itoa(unsigned int index, char* buffer, unsigned int base)
   return buffer;
 }
 
+int atoi(char* str)
+{
+  int i = strlen(str);
+  int idx;
+  for (; i > 0; i--)
+  {
+    if (str[i] >= 0x30 && str[i] <0x3A)
+    {
+      idx *= 10;
+      idx = str[i] - 0x30;
+    }
+    else
+    {
+      return 0;
+    }
+  }
+  return idx;
+}
 
 int dtoa(double num, void* buffer, unsigned int base)
 {

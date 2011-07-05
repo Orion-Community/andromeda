@@ -32,5 +32,6 @@ void printNum(int index, unsigned int base, boolean sInt, boolean capital);
 void printDecimalNum(double index, unsigned int base);
 void scroll(unsigned char);
 void textInit();
+int atoi(char* str);
 #endif
 #endif
