@@ -25,6 +25,11 @@ extern long long timer;
 unsigned int seedTwo = 1; // Store the seeds
 unsigned int seedOne = 1;
 
+int ABS(int num)
+{
+  return (num>0)?num:-num;
+}
+
 void randomize(unsigned int s) // Create the seed
 {
   if (s!=0)

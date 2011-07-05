@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2011  Steven van der Schoot
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 /*
  * 
  * THIS FILE IS JUST A STUB!
- * Please don't implement jet.
+ * Please don't implement jet. (nothing is tested!)
  * 
  */
 
@@ -62,17 +62,24 @@ char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F',
 
   /*
    * remake of the nano kernels printNum. Optemized for buffer use + support long number (nano kernel version only supports up to 32 charakters)
+   * 
+   * Function has been tested and works fine!
+   * 
    */
 int itoa(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
 {
+  int bufBase = (int)buffer;
   if (base > 36 || base < 2 )
     return 0;
   int count = 0;
   if(num < 0)
   {
     if(sInt)
-      *((char*)buffer+(count++)) = '-';
-    num = -num
+    {
+      *((char*)buffer++) = '-';
+      count++;
+    }
+    num = -num;
   }
   int i = base, buf;
   while(num>=i)
@@ -80,15 +87,18 @@ int itoa(void* buffer, int num, unsigned int base, boolean sInt, boolean capital
     i *= base;
     count++;
   }
-  for(i/=base;i>1;i/=base)
+  for(i/=base;i>=1;i/=base)
   {
     buf = (int)(num/i);
     *((char*)buffer++) = (capital)? HEX[buf] : hex[buf];
     num -= buf*i;
   }
-  return count;
+  return count+1;
 }
 
+  /*
+   * Function has been tested and works fine!
+   */
 int dtoa(void* buffer, double num, unsigned int base, boolean sInt, boolean capital)
 {
   if (base > 36 || base < 2 )
@@ -101,17 +111,21 @@ int dtoa(void* buffer, double num, unsigned int base, boolean sInt, boolean capi
     return count;
 
   buffer+=count;
-  *(buffer++) = '.';
+  *((char*)buffer++) = '.';
 
-  for (;decimal>0;count++)
+  for (;decimals>0;count++)
   {
-    decimal*=10;
-    *((char*)buffer++) = (capital)? HEX[(int)decimal] : hex[(int)decimal];
-    decimal-=(double)((int)decimal);
+    decimals*=10;
+    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals];
+    decimals-=(double)((int)decimals);
   }
 
   return count;
 }
+
+  /*
+   * TODO: ftoa function!
+   */
 
 unsigned int formatBuf(void *buffer, unsigned char *format, ...)
 {
@@ -137,7 +151,7 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
       {
 	case 'd':
 	case 'i':
-	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
+	  buffer += itoa(buffer, va_arg(list,         int), 10, TRUE, FALSE);
 	  break;
 	case 'u':
 	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, FALSE, FALSE);
@@ -147,6 +161,9 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
 	  break;
 	case 'X':
 	  buffer += itoa(buffer, va_arg(list, unsigned int), 16, FALSE, TRUE);
+	  break;
+	case 'd':
+	  buffer += dtoa(buffer, va_arg(list,       double), 10, TRUE, FALSE);
 	  break;
 	case 'c':
 	  *((unsigned char*)buffer++) = (unsigned char)va_arg(list, unsigned int);
