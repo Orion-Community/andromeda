@@ -1,0 +1,9 @@
+TODO:
+
+GRAPHICS DRIVER GENERAL:
+*	Making setVideoMode function (VGA graphical modes)
+*       Debuging
+
+BUGS:
+*       Font needs more characters.
+*       \n character isn't handeld correct (should be changed in drawString and drawTTY function)

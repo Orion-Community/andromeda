@@ -23,5 +23,6 @@
 
 void randomize(unsigned int seed);
 int random();
+int ABS(int num);
 
 #endif
