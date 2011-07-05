@@ -170,9 +170,6 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   printf("End test\n");
   #endif
   
-  char tmp[32];
-  printf("1024: %s\n", itoa(0x1024, tmp, 16));
-  
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
     printf("You can now shutdown your PC\n");

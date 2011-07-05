@@ -57,7 +57,7 @@ start:
     mov ecx, 0x10
     mov ss, ecx
     mov ecx, stack		; Set the new stack frame
-    add ecx, 0x2000		; Add the size of the stack to the pointer
+    add ecx, 0x8000		; Add the size of the stack to the pointer
     mov ebp, ecx
     mov esp, ecx		; Stack grows down in memory and we're at the
     push esp			; top of the minimum required memory
