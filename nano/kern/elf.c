@@ -86,10 +86,11 @@ int elfExec(void* image)
     int noHdrs = elfHeader->e_phnum;
     int hdrSize = elfHeader->e_phentsize;
     int i = 0;
+    printf("Program header\n");
     for (thisHeader = programHeader; i < noHdrs; i++)
     {
       Elf32_Phdr* hdr = (Elf32_Phdr*)thisHeader;
-      printf("Type:\t0x%X\nOffset:\t0x%X\nvaddr:\t0x%X\nSize:\t0x%X\nAlign:\t0x%X\nFlags:\t0x%X\n\n",
+      printf("Type:\t0x%X\tOffset:\t0x%X\nvaddr:\t0x%X\tSize:\t0x%X\nAlign:\t0x%X\tFlags:\t0x%X\n\n",
 						hdr->p_type, hdr->p_offset, hdr->p_vaddr, 
 						hdr->p_memsz, hdr->p_align, hdr->p_flags);
       thisHeader+=hdrSize;
@@ -106,12 +107,14 @@ int elfExec(void* image)
       int noSHdrs = elfHeader->e_shnum;
       int shdrSize = elfHeader->e_shentsize;
       i = 0;
+      printf("Section header\n");
       for (thisSection = sectionHeader; i < noHdrs; i++)
       {
 	Elf32_Shdr* hdr = (Elf32_Shdr*)thisSection;
-	printf("Type:\t0x%X\nOffset:\t0x%X\nAddr:\t0x%X\nSize:\t0x%X\nAlign:\t0x%X\nFlags:\t0x%X\n\n",
+	printf("Type:\t0x%X\tOffset:\t0x%X\nAddr:\t0x%X\tSize:\t0x%X\nAlign:\t0x%X\tFlags:\t0x%X\nName:\t0x%X\n\n",
 						hdr->sh_type, hdr->sh_offset, hdr->sh_addr,
-						hdr->sh_size, hdr->sh_addralign, hdr->sh_flags);
+						hdr->sh_size, hdr->sh_addralign, hdr->sh_flags,
+						hdr->sh_name);
 	#ifdef ELFDBG
 	for (j = 0; j < 0xfffffff; j++);
 	#endif

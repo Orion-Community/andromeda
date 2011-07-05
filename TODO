@@ -53,6 +53,3 @@ DRIVERSUBSYSTEM
 *	Start work on the TTY's using the framebuffer
 
 *	Resume work on the IRQ's
-
-BUGS
-*	When using the va_list, the arguments don't get traversed
