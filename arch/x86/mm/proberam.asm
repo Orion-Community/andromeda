@@ -46,6 +46,10 @@ cIRQ80:
 	pop ebp
 	ret
 
+; 
+; This function probe's for ram. It expects a starting address in esi and the amount of bytes to probe for in ecx (note that the minimum size is 4kb). When it returns,
+; esi contains the correct (blockrounded (rounded down)) starting address and ecx the amount of bytes found.
+; 
 proberam:
 	xor eax, eax
 	in al, GEBL_PIC1_DATA
@@ -58,8 +62,7 @@ proberam:
 	out GEBL_PIC2_DATA, al
 
 	mov ebp, esi	; esi = starting address
-	or esi, 0xfff
-	and esi, ~0xfff
+	and esi, ~0xfff	; round down to block
 	push esi	; esi = starting address rounded (down) to block boundry
 
 	sub ebp, esi	; bytes to add due to rounding down
@@ -104,7 +107,7 @@ proberam:
 	ret
 
 ;
-; Get a memory map from the cmos.
+; Get a memory map from the cmos. Retuns amount of entries in ecx and a pointer to the first entry in edx.
 ;
 createmmap:
 	mov edi, GEBL_MMR_POINTER
@@ -279,6 +282,9 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 	sub edi, 0x18	; just to make addressing esier
 	ret
 
+; 
+; Update the cmos memory registers. Amount of low memory in bytes in ebx and the amount of extended memory (in bytes) in edx.
+; 
 updatecmos:
 	mov ebx, dword [ebp+24]
 	mov edx, dword [ebp+28]	; extended memory above 1M (formot 2^n-1)
