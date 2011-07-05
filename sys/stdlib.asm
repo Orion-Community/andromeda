@@ -73,17 +73,23 @@ clearInterrupts:
 cmosmap:
 	pushad
 	mov eax, 1
-	mov esi, 0
+	mov esi, 0x0
 	mov ecx, 1<<20
-	int 0x80
-	push 0
-	push 0
-	push 16
+	int 0x80	; returns amount of mem found in ecx
 	push ecx
-	call printnum
 
-	push 0xa
-	call putc
-	add esp, 5*4
+	mov eax, 1
+	mov esi, 1<<20
+	mov ecx, (1<<20)*16
+	int 0x80
+
+	mov edx, ecx
+	pop ebx
+	mov eax, 3
+	int 0x80
+
+	mov eax, 2
+	int 0x80
+
 	popad
 	ret

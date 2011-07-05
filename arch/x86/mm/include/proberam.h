@@ -99,6 +99,12 @@
 	pop eax
 %endmacro
 
+%macro xtest 2
+	push %1
+	xor %1, %2
+	pop %1
+%endmacro
+
 mmap_entry:	; 0x18-byte mmap entry
 	base dq 0	; base address
 	length dq 0	; length (top_addr - base_addr)
