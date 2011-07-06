@@ -18,7 +18,7 @@ ISR_DEPS=arch/x86/interrupts/isr.asm
 ISRI_DEPS=arch/x86/interrupts/isr.c
 IRQ_DEPS=arch/x86/interrupts/irq.asm
 IRQI_DEPS=arch/x86/interrupts/irq.c
-PROBE_DEPS=arch/x86/mm/proberam.asm
+IRQ30_DEPS=arch/x86/mm/cIRQ30.asm
 
 # Object files
 STAGE15=stage15.o
@@ -41,9 +41,9 @@ ISR=isr.o
 ISRI=isri.o
 IRQ=irq.o
 IRQI=irqi.o
-PROBE=proberam.o
+IRQ30=irq30.o
 
-DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(PROBE) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IRQ30) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)
@@ -105,5 +105,5 @@ $(MMAPI): $(MMAPI_DEPS)
 $(A20): $(A20_DEPS)
 	$(AS) $(ASFLAGS) -o $(A20) $(A20_DEPS)
 
-$(PROBE): $(PROBE_DEPS)
-	$(AS) $(ASFLAGS) -o $(PROBE) $(PROBE_DEPS)
+$(IRQ30): $(IRQ30_DEPS) arch/x86/mm/include/cIRQ30.h
+	$(AS) $(ASFLAGS) -o $(IRQ30) $(IRQ30_DEPS)

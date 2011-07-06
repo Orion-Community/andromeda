@@ -1,6 +1,6 @@
 ;
-;    If all 4 methods of getting a memory map failed (and thus the bios is bugged) we can use 
-;    this to get info about the available memory.
+;    This IRQ (25) serves the user some memory related services. Such as a ram prober,
+;    a cmos update routine and a function which builds a mmap from the cmos.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -18,17 +18,15 @@
 ;
 
 [SECTION .data]
-	dummy dd 0
 
-%include "arch/x86/mm/include/proberam.h"
+%include "arch/x86/mm/include/cIRQ30.h"
 
 [SECTION .text]
 
-[EXTERN printnum]
 [EXTERN iowait]
 
-[GLOBAL cIRQ80]
-cIRQ80:
+[GLOBAL cIRQ30]
+cIRQ30:
 	mov ebp, esp
 	push ebp
 	mov eax, [ebp+36]

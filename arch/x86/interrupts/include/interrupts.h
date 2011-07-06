@@ -72,6 +72,28 @@ extern void machine();
 extern void simd();
 
 /*
+ * Exception implementation headers
+ */
+extern void cDivByZero();
+extern void cNmi();
+extern void cBreakp();
+extern void cOverflow();
+extern void cBound();
+extern void cInvalOp();
+extern void cNoMath();
+extern void cDoubleFault();
+extern void cDepricated();
+extern void cInvalidTSS();
+extern void cSnp();
+extern void cStackFault();
+extern void cGenProt();
+extern void cPageFault();
+extern void cFpu();
+extern void cAlligned();
+extern void cMachine();
+extern void cSimd();
+
+/*
  * Interrupt headers
  */
 extern void irq0();
@@ -90,11 +112,26 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
-extern void irq80();
-// extern void systemcall();
+extern void irq30();
 
 /*
  * Iterrupt implementation functions
  */
-extern void proberam();
+void cIRQ0();
+void cIRQ1();
+void cIRQ2();
+void cIRQ3();
+void cIRQ4();
+void cIRQ5();
+void cIRQ6();
+void cIRQ7();
+void cIRQ8();
+void cIRQ9();
+void cIRQ10();
+void cIRQ11();
+void cIRQ12();
+void cIRQ13();
+void cIRQ14();
+void cIRQ15();
+extern void cIRQ30();
 #endif

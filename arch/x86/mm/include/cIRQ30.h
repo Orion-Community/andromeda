@@ -1,5 +1,5 @@
 ;
-;    Header for the memory map implementation.
+;    IRQ30 header.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-%ifndef __MEMPROBE_H
-%define __MEMPROBE_H
+%ifndef __IRQ25_H
+%define __IRQ25_H
 
 %define GEBL_MMR_POINTER 0x500
 
@@ -104,6 +104,8 @@
 	xor %1, %2
 	pop %1
 %endmacro
+
+dummy dd 0
 
 mmap_entry:	; 0x18-byte mmap entry
 	base dq 0	; base address

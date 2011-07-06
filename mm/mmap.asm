@@ -34,21 +34,21 @@ updatecmosmmap:
 	mov eax, 1
 	mov esi, 0x0
 	mov ecx, 1<<20
-	int 0x80	; returns amount of mem found in ecx
+	int 0x30	; returns amount of mem found in ecx
 	push ecx
 
 	mov eax, 1
 	mov esi, 1<<20
 	mov ecx, (1<<20)*63
-	int 0x80
+	int 0x30
 
 	mov edx, ecx
 	pop ebx
 	mov eax, 3
-	int 0x80
+	int 0x30
 
 	mov eax, 2
-	int 0x80
+	int 0x30
 	mov [mmr+4], cx
 	mov [mmr], edx
 
