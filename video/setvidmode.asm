@@ -19,8 +19,34 @@
 [SECTION .data]
 
 [SECTION .text]
-	gdt qword 0
-	idt qword 0
+	pmGDT qword 0
+	PMidt qword 0
+
+gdt:
+    times 8 db 0
+    CODE_SEG equ $ - gdt	; Code segment, read/execute, nonconforming
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x9A
+        db 0xF
+        db 0
+    DATA_SEG equ $ - gdt	; Data segment, read/write
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x9A
+        db 0xF
+        db 0
+gdt_end equ $ - gdt
+
+gdtr:
+	dw gdt_end - 1
+	dd gdt
+
+idtr:
+	dw 0x3ff
+	dd 0x0
 
 [GLOBAL setvidmode]
 setvidmode:
@@ -28,23 +54,28 @@ setvidmode:
 	pushad
 	pushfd
 
-	sgdt gdt
-	sidt idt
+cli
+
+	sgdt PMgdt
+	sidt PMidt
 
 	mov eax, cr0
-	and eax, 0x7FFFFFFE	; disable the PE and paging bit
+	and eax, 0x7fffffff	; disable the page bit
 	mov cr0, eax
 
-	xor ax, ax
+	lgdt [gdtr]	; load real mode gdt
+	jmp CODE_SEG:.flush
+.flush:
+	mov ax, CODE_SEG	; flush all segments
 	mov ds, ax
 	mov es, ax
 	mov ss, ax
 	mov fs, ax
 	mov gs, ax
-	jmp 0x0:.flush
-.flush1:
-	; in pmode now..
-	
+	mov sp, 0x7300
+
+	lidt [idtr]
+
 .end:
 	lgdt gdt
 	lidt idt

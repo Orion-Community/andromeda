@@ -44,10 +44,10 @@ gdt:
         db 0x92
         db 0xCF
         db 0
-gdt_end:
+gdt_end equ $ - gdt
 
 gdtr:
-	dw gdt_end - gdt - 1; gdt limit = size
+	dw gdt_end - 1; gdt limit = size
 	dd gdt ; gdt base address
 
 	; Status messages
