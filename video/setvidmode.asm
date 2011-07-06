@@ -1,6 +1,5 @@
 ;
-;    This IRQ (25) serves the user some memory related services. Such as a ram prober,
-;    a cmos update routine and a function which builds a mmap from the cmos.
+;    Adjust video mode to user input.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -54,3 +53,4 @@ setvidmode:
 	mov cr0, eax
 	popfd
 	popad
+	ret
