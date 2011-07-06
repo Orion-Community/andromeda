@@ -106,11 +106,34 @@ int atoi(char* str)
 {
   int i = 0;
   int idx = 0;
-  while (str[i] != '\0')
+  while (str[i] != '\0' && idx < 0x20000000) // (idx < 0x20000000) = overload prevention
   {
     if (str[i] >= 0x30 && str[i] <= 0x39)
     {
-      idx = idx * 10 + (str[i] - 0x30);
+      if( 0xffffffff-(idx*10) > (str[i] - 0x30) ) //overload prevention
+        idx = idx * 10 + (str[i] - 0x30);
+      else
+        break;
+      i++;
+    }
+  }
+  if (str[0]=='-')
+    idx *= -1;
+  return idx;
+}
+
+long atol(char* str)
+{
+  int i = 0;
+  long idx = 0;
+  while (str[i] != '\0' && idx < 0x2000000000000000) // (idx < 0x20000000) = overload prevention
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      if( 0xffffffffffffffff-(idx*10) > (str[i] - 0x30) ) //overload prevention
+        idx = idx * 10 + (str[i] - 0x30);
+      else
+        break;
       i++;
     }
   }
@@ -203,17 +226,17 @@ double atod(char* str)
 {
   int i = 0;
   double idx = 0;
-  while ( (str[i] != '\0') && (str[i] != '.') )
+  while ( (str[i] != '\0') && (str[i] != '.') ) //parse all digits before dot.
   {
     if (str[i] >= 0x30 && str[i] <= 0x39)
     {
-      idx *= 10;
-      idx += str[i] - 0x30;
+      idx *= 10; // e.g. 123 -> 1230
+      idx += str[i] - 0x30; // e.g. 1230 -> 1234 (where 4 come from '4' - 0x30 = 4)
       i++;
     }
   }
   int i2 = 1;
-  while (str[i] != '\0')
+  while (str[i] != '\0') //parse alle digits after dot.
   {
     if (str[i] >= 0x30 && str[i] <= 0x39)
     {

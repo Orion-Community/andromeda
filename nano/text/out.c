@@ -154,14 +154,19 @@ int atoi(char* str)
 {
   int i = 0;
   int idx = 0;
-  while (str[i] != '\0')
+  while (str[i] != '\0' && idx < 0x20000000) // (idx < 0x20000000) = overload prevention
   {
     if (str[i] >= 0x30 && str[i] <= 0x39)
     {
-      idx = idx * 10 + (str[i] - 0x30);
+      if( 0xffffffff-(idx*10) > (str[i] - 0x30) ) //overload prevention
+        idx = idx * 10 + (str[i] - 0x30);
+      else
+        break;
       i++;
     }
   }
+  if (str[0]=='-')
+    idx *= -1;
   return idx;
 }
 
