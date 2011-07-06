@@ -86,7 +86,7 @@ proberam:
 	jmp .looptop
 
 .skiphole:
-	xor esi, GEBL_HIGH_BASE | 0xf0000	; add esi, 1<<20
+	xor esi, GEBL_HIGH_BASE | GEBL_HOLE_BASE	; add esi, 1<<20
 	sub eax, (1<<20)/GEBL_PROBE_BLOCKSIZE
 	add ecx, 1<<20
 	jmp [esp]
@@ -216,7 +216,7 @@ addmemoryhole:
 	jb .remainder
 	
 	; first 14 mb are usable
-	mov [es:edi], dword 0x100000	; base - 15mb
+	mov [es:edi], dword GEBL_EXT_BASE
 	mov [es:edi+8], dword 0x00E00000 ; length = 14 mb
 	mov [es:edi+16], dword GEBL_USABLE_MEM	; usable memory
 	mov [es:edi+20], dword GEBL_ACPI	; acpi 3.0
@@ -224,7 +224,7 @@ addmemoryhole:
 	call .next
 	
 .hole:	
-	mov [es:edi], dword 0x00F00000	; base - 15mb
+	mov [es:edi], dword 0x00F00000
 	mov [es:edi+8], dword 0x00100000	; length = 1mb
 	mov [es:edi+16], dword GEBL_BAD_MEM	; bad memory
 	mov [es:edi+20], dword GEBL_ACPI	; acpi 3.0
@@ -243,7 +243,7 @@ addmemoryhole:
 	call .next
 
 .remainder:
-	mov [es:edi], dword 0x001000000	; base
+	mov [es:edi], dword GEBL_HIGH_BASE	; base
 	mov [es:edi+8], eax
 	mov [es:edi+16], dword GEBL_USABLE_MEM	; free memory
 	mov [es:edi+20], dword GEBL_ACPI	; acpi 3.0
