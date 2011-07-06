@@ -113,6 +113,39 @@ int memcmp(void *ptr1, void* ptr2, size_t count)
 }
 
 #else
+#ifdef DUFFS
+void memset(void* dst, int value, size_t size)
+{
+  register n=(count+7)/8;
+  switch(count%8){
+    case 0:      do{     *to++ = *from;
+    case 7:              *to++ = *from;
+    case 6:              *to++ = *from;
+    case 5:              *to++ = *from;
+    case 4:              *to++ = *from;
+    case 3:              *to++ = *from;
+    case 2:              *to++ = *from;
+    case 1:              *to++ = *from;
+    }while(--n>0);
+  }
+}
+
+void memcpy(void dst, int src, size_t size)
+{
+  register n=(count+7)/8;
+  switch(count%8){
+    case 0:      do{     *to++ = *from++;
+    case 7:              *to++ = *from++;
+    case 6:              *to++ = *from++;
+    case 5:              *to++ = *from++;
+    case 4:              *to++ = *from++;
+    case 3:              *to++ = *from++;
+    case 2:              *to++ = *from++;
+    case 1:              *to++ = *from++;
+    }while(--n>0);
+  }
+}
+#else
 void memset(void* location, int value, size_t size)
 {
   int i = 0;
@@ -133,7 +166,7 @@ void memcpy(void *destination, void* source, size_t num)
     *(dst+i) = *(src+i);
   }
 }
-
+#endif
 int memcmp(void *ptr1, void* ptr2, size_t num)
 {
   int ret = 0;
