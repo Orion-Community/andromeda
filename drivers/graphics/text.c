@@ -52,7 +52,7 @@ void textInit()
    *   //    BX = 0Dh                               //
    *   //    int 10                                 //
    */
-  graphicsInit(320,200,1);
+  graphicsInit(320,200,1/*=256 colors*/);
 #endif
   ttyInit();
 }
@@ -60,72 +60,280 @@ void textInit()
 char hex[36] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 
-  /*
-   * remake of the nano kernels printNum. Optemized for buffer use + support long number (nano kernel version only supports up to 32 charakters)
-   * 
-   * Function has been tested and works fine!
-   * 
-   */
-int itoa(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
+int formatInt(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
 {
   int bufBase = (int)buffer;
   if (base > 36 || base < 2 )
     return 0;
   int count = 0;
-  if(num < 0)
+  if( (num < 0) && sInt) //if number is negative print '-' and print absolue value of number (witch is -num)
   {
-    if(sInt)
-    {
-      *((char*)buffer++) = '-';
-      count++;
-    }
+    *((char*)buffer++) = '-';
+    count++;
     num = -num;
   }
-  int i = base, buf;
-  while(num>=i)
+  unsigned int i = base, numBase = num/base, buf;
+  if (numBase>0)
   {
-    i *= base;
-    count++;
+    while(i<=numBase)
+    {
+      i *= base;
+      count++;
+    }
   }
-  for(i/=base;i>=1;i/=base)
+  else
   {
-    buf = (int)(num/i);
+    count--;
+    i = 1;
+  }
+  for(;i>=1;i/=base)
+  {
+    buf = (unsigned int)(num/i);
     *((char*)buffer++) = (capital)? HEX[buf] : hex[buf];
     num -= buf*i;
   }
-  return count+1;
+  return count+2;
 }
 
-  /*
-   * Function has been tested and works fine!
-   */
-int dtoa(void* buffer, double num, unsigned int base, boolean capital)
+char* itoa(unsigned int index, char* buffer, unsigned int base)
+{
+  int len = formatInt(buffer, index, base, (base==10)?TRUE:FALSE, FALSE); // only signed if base = 10
+  buffer[len] = '\0';
+  return buffer;
+}
+
+int atoi(char* str)
+{
+  int i = 0;
+  int idx = 0;
+  while (str[i] != '\0')
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      idx = idx * 10 + (str[i] - 0x30);
+      i++;
+    }
+  }
+  if (str[0]=='-')
+    idx *= -1;
+  return idx;
+}
+
+    /*
+     * Function:
+     *   This function converts a double to a string into a given buffer.
+     * 
+     * Params:
+     *   - buffer: ______ Pointer to buffer to be written to.
+     *   - num: _________ Double that should be converted.
+     *   - base: ________ Numerical system (e.g. 10 for normal number format,
+     *                    2 for binairy, 16 for hexadecimal...)
+     *   - capital: _____ Only effects on base > 10. If true all characters above 9 will be
+     *                    uppercase, if false lower case.
+     *   - scientific: __ If true this will print 1 digit before dot and all other digits
+     *                    after the dot, ending with exx or Exx presenting * base^xx.
+     * 
+     * Return:
+     *   length of string writen to buffer.
+     * 
+     */
+int formatDouble(void* buffer, double num, unsigned int base, boolean capital, boolean scientific)
 {
   if (base > 36 || base < 2 )
     return 0;
 
-  int count = itoa(buffer,(int)num, base, TRUE, capital); // print part before '.'
+  int precision = 0, // persents number after e (or E) when printing scientific.
+      count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before dot.
 
-  double decimals = num-(double)((int)num);
-  if(decimals==0) // check for xx.0
-    return count;
-
-  buffer+=count;
-  *((char*)buffer++) = '.';
-
-  for (;decimals>0;count++)
+  if(scientific)
   {
-    decimals*=10;
-    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals];
-    decimals-=(double)((int)decimals);
+    precision = count-1;
+    if(precision!=0) // if we should print scientific AND we have more than 1 digit before dot.
+    {
+      memcpy((char*)buffer+2,(char*)buffer+1,count); // all digits after first digit are moved 1 place to left. (e.g. 12345 becomes 122345)
+      *((char*)(buffer+1))= '.'; // replace seccond digit with a dot (e.g. 122345 becomes 1.2345)
+      count++;
+    }
+  }
+  buffer+=count;
+  double decimals = num-(double)((int)num); // get all decimals of the number.
+  if(decimals==0) // check for xx.0
+  {
+    if(scientific)
+    {
+      *((char*)buffer++) = (capital)?'E':'e'; //print exx or Exx
+      if(precision>=0)
+        *((char*)buffer++) = '+';  //print leading + (minus is printed by formatInt)
+      count += formatInt(buffer, precision, base, TRUE, capital); //print precision
+    }
+    return count; // appears to be an integer, so we are done now.
+  }
+  precision += decimals;
+
+  
+  if(precision==0) // this is 0 for non scientific AND for scientific, but without printed dot.
+    *((char*)buffer++) = '.';
+
+  for (;decimals>0;count++) //loop through all decimals
+  {
+    decimals*=10; // move current decimal befor to left side of the dot.
+    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals]; //print decimal.
+    decimals-=(double)((int)decimals); //decimal is printed, remove it!
+  }
+
+  if(scientific)
+  {
+    *((char*)buffer++) = (capital)?'E':'e'; //print exx or Exx
+    if(precision>=0)
+      *((char*)buffer++) = '+';  //print leading + (minus is printed by formatInt)
+    count += 1+formatInt(buffer, precision, base, TRUE, capital); //print precision
   }
 
   return count+1;
 }
 
-  /*
-   * TODO: ftoa function!
-   */
+char* dtoa(double index, char* buffer, unsigned int base)
+{
+  int len = formatDouble(buffer, index, base, FALSE, FALSE);
+  buffer[len] = '\0';
+  return buffer;
+}
+
+double atod(char* str)
+{
+  int i = 0;
+  double idx = 0;
+  while ( (str[i] != '\0') && (str[i] != '.') )
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      idx *= 10;
+      idx += str[i] - 0x30;
+      i++;
+    }
+  }
+  int i2 = 1;
+  while (str[i] != '\0')
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      i2 *= 0.1;
+      idx += (str[i] - 0x30)*i2;
+      i++;
+    }
+  }
+  if (str[0]=='-')
+    idx *= -1;
+  return idx;
+}
+
+    /*
+     * Function:
+     *   This function converts a float to a string into a given buffer.
+     * 
+     * Params:
+     *   - buffer: ______ Pointer to buffer to be written to.
+     *   - num: _________ Float that should be converted.
+     *   - base: ________ Numerical system (e.g. 10 for normal number format,
+     *                    2 for binairy, 16 for hexadecimal...)
+     *   - capital: _____ Only effects on base > 10. If true all characters above 9 will be
+     *                    uppercase, if false lower case.
+     *   - scientific: __ If true this will print 1 digit before dot and all other digits
+     *                    after the dot, ending with exx or Exx presenting * base^xx.
+     * 
+     * Return:
+     *   length of string writen to buffer.
+     * 
+     */
+int formatFloat(void* buffer, float num, unsigned int base, boolean capital, boolean scientific)
+{
+  if (base > 36 || base < 2 )
+    return 0;
+
+  int precision = 0, // persents number after e (or E) when printing scientific.
+      count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before dot.
+
+  if(scientific)
+  {
+    precision = count-1;
+    if(precision!=0) // if we should print scientific AND we have more than 1 digit before dot.
+    {
+      memcpy((char*)buffer+2,(char*)buffer+1,count); // all digits after first digit are moved 1 place to left. (e.g. 12345 becomes 122345)
+      *((char*)(buffer+1))= '.'; // replace seccond digit with a dot (e.g. 122345 becomes 1.2345)
+      count++;
+    }
+  }
+  buffer+=count;
+  float decimals = num-(float)((int)num); // get all decimals of the number.
+  if(decimals==0) // check for xx.0
+  {
+    if(scientific)
+    {
+      *((char*)buffer++) = (capital)?'E':'e'; //print exx or Exx
+      if(precision>=0)
+        *((char*)buffer++) = '+';  //print leading + (minus is printed by formatInt)
+      count += formatInt(buffer, precision, base, TRUE, capital); //print precision
+    }
+    return count; // appears to be an integer, so we are done now.
+  }
+  precision += decimals;
+
+  
+  if(precision==0) // this is 0 for non scientific AND for scientific, but without printed dot.
+    *((char*)buffer++) = '.';
+
+  for (;decimals>0;count++) //loop through all decimals
+  {
+    decimals*=10; // move current decimal befor to left side of the dot.
+    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals]; //print decimal.
+    decimals-=(float)((int)decimals); //decimal is printed, remove it!
+  }
+
+  if(scientific)
+  {
+    *((char*)buffer++) = (capital)?'E':'e'; //print exx or Exx
+    if(precision>=0)
+      *((char*)buffer++) = '+';  //print leading + (minus is printed by formatInt)
+    count += 1+formatInt(buffer, precision, base, TRUE, capital); //print precision
+  }
+
+  return count+1;
+}
+
+char* ftoa(float index, char* buffer, unsigned int base)
+{
+  int len = formatFloat(buffer, index, base, FALSE, FALSE);
+  buffer[len] = '\0';
+  return buffer;
+}
+
+double atof(char* str)
+{
+  int i = 0;
+  float idx = 0;
+  while ( (str[i] != '\0') && (str[i] != '.') )
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      idx *= 10;
+      idx += str[i] - 0x30;
+      i++;
+    }
+  }
+  int i2 = 1;
+  while (str[i] != '\0')
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      i2 *= 0.1;
+      idx += (str[i] - 0x30)*i2;
+      i++;
+    }
+  }
+  if (str[0]=='-')
+    idx *= -1;
+  return idx;
+}
 
 unsigned int formatBuf(void *buffer, unsigned char *format, ...)
 {
@@ -149,21 +357,43 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
       }
       switch(format[i])
       {
-	case 'd':
+	case 'f':
+          buffer += formatFloat(buffer, va_arg(list, float), 10, FALSE, FALSE);
+	  *((char*)buffer++) = 'f';
+	  break;
+	case 'e':
+	  buffer += formatDouble(buffer, va_arg(list, double), 10, FALSE, TRUE);
+	  break;
+	case 'E':
+	  buffer += formatDouble(buffer, va_arg(list, double), 10, TRUE, TRUE);
+	  break;
+	case 'g': //print shorter scientific number (e.g. 392.65 or 9.824e13)
+	  break;
+	case 'G': //print shorter scientific number (e.g. 392.65 or 9.824E13)
+	  break;
+	case 'p': //print pointer address (e.g. B800:0000)
+	  break;
 	case 'i':
-	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
+	  buffer += formatInt(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
 	  break;
 	case 'u':
-	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, FALSE, FALSE);
+	  buffer += formatInt(buffer, va_arg(list, unsigned int), 10, FALSE, FALSE);
 	  break;
 	case 'x':
-	  buffer += itoa(buffer, va_arg(list, unsigned int), 16, FALSE, FALSE);
+	  *((char*)buffer++) = '0';
+	  *((char*)buffer++) = 'x';
+	  buffer += formatInt(buffer, va_arg(list, unsigned int), 16, FALSE, FALSE);
 	  break;
 	case 'X':
-	  buffer += itoa(buffer, va_arg(list, unsigned int), 16, FALSE, TRUE);
+	  *((char*)buffer++) = '0';
+	  *((char*)buffer++) = 'X';
+	  buffer += formatInt(buffer, va_arg(list, unsigned int), 16, FALSE, TRUE);
+	  break;
+	case 'o':
+	  buffer += formatInt(buffer, va_arg(list, unsigned int),  8, FALSE, TRUE);
 	  break;
 	case 'd':
-	  buffer += dtoa(buffer, va_arg(list,       double), 10,        FALSE);
+	  buffer += formatDouble(buffer, va_arg(list, double), 10, FALSE, FALSE);
 	  break;
 	case 'c':
 	  *((unsigned char*)buffer++) = (unsigned char)va_arg(list, unsigned int);
@@ -186,14 +416,14 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
   return (unsigned int)buffer;
 }
 
-void fprintf(void *buffer, unsigned char *format, ...)
+void fprintf(void *buffer, const char *format, ...)
 {
   va_list list;
   va_start(list, format);
   formatBuf(buffer, format, list/* <- Don't know for sure if this works*/);
 }
 
-void printf(unsigned char *format, ...)
+void printf(const char *format, ...)
 {
   va_list list;
   va_start(list, format);
