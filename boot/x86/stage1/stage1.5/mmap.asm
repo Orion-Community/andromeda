@@ -215,10 +215,6 @@ lowmmap:
 	nxte .lowres
 
 .lowres:
-	mov al, 0x41
-	mov ah, 0x0E
-	xor bh, bh
-	int 0x10
 ; low reserver memory
 	pop eax
 	and edx, 0xffff
