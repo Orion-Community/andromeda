@@ -80,7 +80,7 @@ cmosmap:
 
 	mov eax, 1
 	mov esi, 1<<20
-	mov ecx, (1<<20)*16
+	mov ecx, (1<<20)*63
 	int 0x80
 
 	mov edx, ecx

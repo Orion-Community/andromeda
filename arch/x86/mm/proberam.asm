@@ -88,12 +88,13 @@ proberam:
 	jmp .looptop
 
 .skiphole:
-	xor esi, GEBL_HIGH_BASE | 0xf0000	; add esi, 1<<20
-	sub eax, (1<<20)/0x1000
+; 	xor esi, GEBL_HIGH_BASE | 0xf0000	; add esi, 1<<20
+	sub eax, (1<<20)/GEBL_PROBE_BLOCKSIZE
+	add ecx, 1<<20
 	jmp [esp]
 
 .end:
-	add esp, 4	; pop 
+	add esp, 4	; pop .l1 label
 	pop ebx	; starting address
 	pop eax		; re-set the old pic masks
 	out GEBL_PIC2_DATA, al
