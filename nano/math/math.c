@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Steven v.d. Schoot
+    Copyright (C) 2011  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,17 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VGA_H
-#define VGA_H
-#define KEYBUF 0xB8000
-#define WIDTH 80
-#define HEIGHT 25
+#include <math/math.h>
+#include <mm/memory.h>
 
-struct curPos
+long abs(long num)
 {
-	int x;
-	int y;
-	int tabwidth;
-};
-
-#endif
+  return (num>0)?num:-num;
+}

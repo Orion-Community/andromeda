@@ -16,17 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VGA_H
-#define VGA_H
-#define KEYBUF 0xB8000
-#define WIDTH 80
-#define HEIGHT 25
+#ifndef __TEXT_H
+#define __TEXT_H
 
-struct curPos
-{
-	int x;
-	int y;
-	int tabwidth;
-};
+void textInit()
+char* itoa(unsigned int index, char* buffer, unsigned int base)
+char* dtoa(double index, char* buffer, unsigned int base)
+void printf(const char *format, ...)
+void fprintf(void *buffer, const char *format, ...)
 
 #endif
