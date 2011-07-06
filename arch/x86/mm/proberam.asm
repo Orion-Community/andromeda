@@ -88,7 +88,7 @@ proberam:
 	jmp .looptop
 
 .skiphole:
-; 	xor esi, GEBL_HIGH_BASE | 0xf0000	; add esi, 1<<20
+	xor esi, GEBL_HIGH_BASE | 0xf0000	; add esi, 1<<20
 	sub eax, (1<<20)/GEBL_PROBE_BLOCKSIZE
 	add ecx, 1<<20
 	jmp [esp]
