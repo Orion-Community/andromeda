@@ -114,6 +114,8 @@ int atoi(char* str)
       i++;
     }
   }
+  if (str[0]=='-')
+    idx *= -1;
   return idx;
 }
 
@@ -140,8 +142,8 @@ int formatDouble(void* buffer, double num, unsigned int base, boolean capital, b
   if (base > 36 || base < 2 )
     return 0;
 
-  int precision = 0, // persents number after e when printing scientific.
-      count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before '.'
+  int precision = 0, // persents number after e (or E) when printing scientific.
+      count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before dot.
 
   if(scientific)
   {
@@ -197,6 +199,34 @@ char* dtoa(double index, char* buffer, unsigned int base)
   return buffer;
 }
 
+double atod(char* str)
+{
+  int i = 0;
+  double idx = 0;
+  while ( (str[i] != '\0') && (str[i] != '.') )
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      idx *= 10;
+      idx += str[i] - 0x30;
+      i++;
+    }
+  }
+  int i2 = 1;
+  while (str[i] != '\0')
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      i2 *= 0.1;
+      idx += (str[i] - 0x30)*i2;
+      i++;
+    }
+  }
+  if (str[0]=='-')
+    idx *= -1;
+  return idx;
+}
+
     /*
      * Function:
      *   This function converts a float to a string into a given buffer.
@@ -220,8 +250,8 @@ int formatFloat(void* buffer, float num, unsigned int base, boolean capital, boo
   if (base > 36 || base < 2 )
     return 0;
 
-  int precision = 0, // persents number after e when printing scientific.
-      count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before '.'
+  int precision = 0, // persents number after e (or E) when printing scientific.
+      count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before dot.
 
   if(scientific)
   {
@@ -275,6 +305,34 @@ char* ftoa(float index, char* buffer, unsigned int base)
   int len = formatFloat(buffer, index, base, FALSE, FALSE);
   buffer[len] = '\0';
   return buffer;
+}
+
+double atof(char* str)
+{
+  int i = 0;
+  float idx = 0;
+  while ( (str[i] != '\0') && (str[i] != '.') )
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      idx *= 10;
+      idx += str[i] - 0x30;
+      i++;
+    }
+  }
+  int i2 = 1;
+  while (str[i] != '\0')
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      i2 *= 0.1;
+      idx += (str[i] - 0x30)*i2;
+      i++;
+    }
+  }
+  if (str[0]=='-')
+    idx *= -1;
+  return idx;
 }
 
 unsigned int formatBuf(void *buffer, unsigned char *format, ...)
