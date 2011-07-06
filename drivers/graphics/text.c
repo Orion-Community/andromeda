@@ -116,40 +116,9 @@ int atoi(char* str)
   }
   return idx;
 }
-   /*
-    * Couldn't find this function's standard form, but I guess it should be like this.
-    */
-char* dtoa(double index, char* buffer, unsigned int base)
+
+int formatDouble(void* buffer, double num, unsigned int base, boolean capital, boolean scientific)
 {
-  int len = formatDouble(buffer, index, base, FALSE, FALSE);
-  buffer[len] = '\0';
-  return buffer;
-}
-
-int formatDouble(void* buffer, double num, unsigned int base, boolean capital, scientific)
-{
-/*
-  if (base > 36 || base < 2 )
-    return 0;
-
-  int count = itoa(buffer,(int)num, base, TRUE, capital); // print part before '.'
-
-  double decimals = num-(double)((int)num);
-  if(decimals==0) // check for xx.0
-    return count;
-
-  buffer+=count;
-  *((char*)buffer++) = '.';
-
-  for (;decimals>0;count++)
-  {
-    decimals*=10;
-    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals];
-    decimals-=(double)((int)decimals);
-  }
-
-  return count+1;
-*/
   if (base > 36 || base < 2 )
     return 0;
 
@@ -158,18 +127,18 @@ int formatDouble(void* buffer, double num, unsigned int base, boolean capital, s
   if(scientific)
   {
     precision = count-1;
-    if(precision)
+    if(precision!=0)
     {
-      memcpy(buffer+1,buffer+2,count-1);
-      *((char*)(buffer+1)) = '.';
+      memcpy((char*)buffer+2,(char*)buffer+1,count);
+      *((char*)(buffer+1))= '.';
       count++;
     }
   }
-
+  buffer+=count;
   double decimals = num-(double)((int)num);
   if(decimals==0) // check for xx.0
   {
-    if(precision)
+    if(scientific)
     {
       *((char*)buffer++) = (capital)?'E':'e';
       if(precision>=0)
@@ -178,10 +147,10 @@ int formatDouble(void* buffer, double num, unsigned int base, boolean capital, s
     }
     return count;
   }
+  precision += decimals;
 
-  buffer+=count;
   
-  if(!precision)
+  if(precision==0) // this is 0 for non scientific and for scientific, but no dot printed yet.
     *((char*)buffer++) = '.';
 
   for (;decimals>0;count++)
@@ -191,15 +160,22 @@ int formatDouble(void* buffer, double num, unsigned int base, boolean capital, s
     decimals-=(double)((int)decimals);
   }
 
-  if(precision)
+  if(scientific)
   {
     *((char*)buffer++) = (capital)?'E':'e';
     if(precision>=0)
       *((char*)buffer++) = '+';
-    count += formatInt(buffer, precision, base, TRUE, capital);
+    count += 1+formatInt(buffer, precision, base, TRUE, capital);
   }
 
   return count+1;
+}
+
+char* dtoa(double index, char* buffer, unsigned int base)
+{
+  int len = formatDouble(buffer, index, base, FALSE, FALSE);
+  buffer[len] = '\0';
+  return buffer;
 }
 
   /*
