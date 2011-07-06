@@ -1,4 +1,5 @@
 include make/makeIncl
+include make/x86
 
 .PHONY: all
 all: x86
@@ -24,11 +25,15 @@ $(OUTD):
 	$(MAKE) -C kern/
 	$(MAKE) -C nano/
 	$(MAKE) -C math/
+	$(MAKE) -C boot/
+	
+	rm -v nano/boot.o nano/kmain.o nano/map.o
 	
 	mv -v drivers/drivers.o ./
 	mv -v kern/kern.o ./
 	mv -v nano/*.o ./
 	mv -v math/maths.o ./
+	mv -v boot/*.o ./
 	
 	mv -v nano/$(OUTC) ./
 	

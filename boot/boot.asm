@@ -8,8 +8,9 @@ CORE_MAGIC	equ	0xC0DEBABE	; Lolz
   dd end
 
 [SECTION .text]
-[GLOBAL  start]
-[EXTERN  core]
+[GLOBAL start]
+[EXTERN core]
+[EXTERN stack]
 start:
   mov ecx, stack		; Set the new stack frame
   add ecx, 0x10000		; Add the size of the stack to the pointer

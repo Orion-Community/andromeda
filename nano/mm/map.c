@@ -25,9 +25,6 @@ mutex_t pageLock = 0;
 module_t modules[32];
 unsigned short bitmap[PAGES];
 
-extern unsigned long end;
-extern unsigned long mboot;
-
 boolean claimPage(unsigned long page, unsigned short owner)
 {
   if (bitmap[page] != FREE || page > PAGES)
@@ -75,49 +72,3 @@ void freePage(void* page, unsigned short owner)
   }
   bitmap[(unsigned long)page] = FREE;
 }
-
-//#ifdef __COMPRESSED
-void buildMap(multiboot_memory_map_t* map, int size)
-{
-  long i, j, mapEnd;
-  for(i = 0; i < PAGES; i++)
-  {
-    bitmap[i] = NOTUSABLE;
-  }
-  mapEnd = (long)map + (long)size;
-  while ((long)map < mapEnd)
-  {
-    for (j = map->addr; j < map->addr + map->len; j+=PAGESIZE)
-    {
-      bitmap[j/PAGESIZE] = (map->type == 1) ? FREE : NOTUSABLE;
-    }
-    map = (multiboot_memory_map_t*)((long)map+(long)map->size+sizeof(map->size));
-  }
-  bitmap[0xB8] = MAPPEDIO;
-  bitmap[0xB0] = MAPPEDIO;
-}
-
-void addModules(multiboot_module_t* mods, int count)
-{
-  long i, j;
-  for (i = 0; i < count; i++)
-  {
-    modules[i].addr = mods[i].mod_start;
-    modules[i].end = mods[i].mod_end;
-    for(j = mods[i].mod_start; j < mods[i].mod_end; j+=PAGESIZE)
-    {
-      bitmap[j/PAGESIZE] = MODULE;
-    }
-  }
-}
-
-void addCompressed()
-{
-  long i;
-  unsigned long final = ((unsigned long)&end) + (((int)&end % PAGESIZE) ? PAGESIZE : 0x0);
-  for (i = ((long)(&mboot)/PAGESIZE); i < ((long)final/PAGESIZE); i++)
-  {
-    bitmap[i] = COMPRESSED;
-  }
-}
-//#endif

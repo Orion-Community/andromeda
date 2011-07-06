@@ -18,6 +18,8 @@
 #include <math/math.h>
 #include <mm/memory.h>
 
+#define __COMPRESSED
+
 #ifndef __COMPRESSED
 extern long long timer;
 #endif
