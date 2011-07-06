@@ -52,7 +52,7 @@ void textInit()
    *   //    BX = 0Dh                               //
    *   //    int 10                                 //
    */
-  graphicsInit(320,200,1);
+  graphicsInit(320,200,1/*=256 colors*/);
 #endif
   ttyInit();
 }
@@ -117,55 +117,74 @@ int atoi(char* str)
   return idx;
 }
 
+    /*
+     * Function:
+     *   This function converts a double to a string into a given buffer.
+     * 
+     * Params:
+     *   - buffer: ______ Pointer to buffer to be written to.
+     *   - num: _________ Double that should be converted.
+     *   - base: ________ Numerical system (e.g. 10 for normal number format,
+     *                    2 for binairy, 16 for hexadecimal...)
+     *   - capital: _____ Only effects on base > 10. If true all characters above 9 will be
+     *                    uppercase, if false lower case.
+     *   - scientific: __ If true this will print 1 digit before dot and all other digits
+     *                    after the dot, ending with exx or Exx presenting * base^xx.
+     * 
+     * Return:
+     *   length of string writen to buffer.
+     * 
+     */
 int formatDouble(void* buffer, double num, unsigned int base, boolean capital, boolean scientific)
 {
   if (base > 36 || base < 2 )
     return 0;
 
-  int precision = 0, count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before '.'
+  int precision = 0, // persents number after e when printing scientific.
+      count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before '.'
 
   if(scientific)
   {
     precision = count-1;
-    if(precision!=0)
+    if(precision!=0) // if we should print scientific AND we have more than 1 digit before dot.
     {
-      memcpy((char*)buffer+2,(char*)buffer+1,count);
-      *((char*)(buffer+1))= '.';
+      memcpy((char*)buffer+2,(char*)buffer+1,count); // all digits after first digit are moved 1 place to left. (e.g. 12345 becomes 122345)
+      *((char*)(buffer+1))= '.'; // replace seccond digit with a dot (e.g. 122345 becomes 1.2345)
       count++;
     }
   }
   buffer+=count;
-  double decimals = num-(double)((int)num);
+  double decimals = num-(double)((int)num); // get all decimals of the number.
   if(decimals==0) // check for xx.0
   {
     if(scientific)
     {
-      *((char*)buffer++) = (capital)?'E':'e';
+      *((char*)buffer++) = (capital)?'E':'e'; //print exx or Exx
       if(precision>=0)
-        *((char*)buffer++) = '+';
-      count += formatInt(buffer, precision, base, TRUE, capital);
+        *((char*)buffer++) = '+';  //print leading + (minus is printed by formatInt)
+      count += formatInt(buffer, precision, base, TRUE, capital); //print precision
     }
-    return count;
+    return count; // appears to be an integer, so we are done now.
   }
   precision += decimals;
 
   
-  if(precision==0) // this is 0 for non scientific and for scientific, but no dot printed yet.
+  if(precision==0) // this is 0 for non scientific AND for scientific, but without printed dot.
     *((char*)buffer++) = '.';
 
-  for (;decimals>0;count++)
+  for (;decimals>0;count++) //loop through all decimals
   {
-    decimals*=10;
-    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals];
-    decimals-=(double)((int)decimals);
+    decimals*=10; // move current decimal befor to left side of the dot.
+    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals]; //print decimal.
+    decimals-=(double)((int)decimals); //decimal is printed, remove it!
   }
 
   if(scientific)
   {
-    *((char*)buffer++) = (capital)?'E':'e';
+    *((char*)buffer++) = (capital)?'E':'e'; //print exx or Exx
     if(precision>=0)
-      *((char*)buffer++) = '+';
-    count += 1+formatInt(buffer, precision, base, TRUE, capital);
+      *((char*)buffer++) = '+';  //print leading + (minus is printed by formatInt)
+    count += 1+formatInt(buffer, precision, base, TRUE, capital); //print precision
   }
 
   return count+1;
