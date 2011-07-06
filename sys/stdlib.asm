@@ -68,28 +68,3 @@ setInterrupts:
 clearInterrupts:
 	cli
 	ret
-
-[GLOBAL cmosmap]
-cmosmap:
-	pushad
-	mov eax, 1
-	mov esi, 0x0
-	mov ecx, 1<<20
-	int 0x80	; returns amount of mem found in ecx
-	push ecx
-
-	mov eax, 1
-	mov esi, 1<<20
-	mov ecx, (1<<20)*63
-	int 0x80
-
-	mov edx, ecx
-	pop ebx
-	mov eax, 3
-	int 0x80
-
-	mov eax, 2
-	int 0x80
-
-	popad
-	ret

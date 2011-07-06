@@ -38,4 +38,5 @@ struct gebl_mmap_register
 // typedef struct gebl_mmap_register gebl_mmap_register_t
 
 extern struct gebl_mmap_register * getmmr();
+extern void updatecmosmmap();
 #endif

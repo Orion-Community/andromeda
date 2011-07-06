@@ -152,8 +152,7 @@ createmmap:
 	ret
 
 .done:
-	add ecx, 2	; lowmmap entries
-	mov [mmr+4], cx
+	add ecx, 2 ; low entries
 	pop ebp
 	mov [ebp+32], ecx
 	mov [ebp+28], dword GEBL_MMR_POINTER
