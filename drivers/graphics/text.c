@@ -60,47 +60,75 @@ void textInit()
 char hex[36] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 
-  /*
-   * remake of the nano kernels printNum. Optemized for buffer use + support long number (nano kernel version only supports up to 32 charakters)
-   * 
-   * Function has been tested and works fine!
-   * 
-   */
-int itoa(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
+int formatInt(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
 {
   int bufBase = (int)buffer;
   if (base > 36 || base < 2 )
     return 0;
   int count = 0;
-  if(num < 0)
+  if( (num < 0) && sInt) //if number is negative print '-' and print absolue value of number (witch is -num)
   {
-    if(sInt)
-    {
-      *((char*)buffer++) = '-';
-      count++;
-    }
+    *((char*)buffer++) = '-';
+    count++;
     num = -num;
   }
-  int i = base, buf;
-  while(num>=i)
+  unsigned int i = base, numBase = num/base, buf;
+  if (numBase>0)
   {
-    i *= base;
-    count++;
+    while(i<=numBase)
+    {
+      i *= base;
+      count++;
+    }
   }
-  for(i/=base;i>=1;i/=base)
+  else
   {
-    buf = (int)(num/i);
+    count--;
+    i = 1;
+  }
+  for(;i>=1;i/=base)
+  {
+    buf = (unsigned int)(num/i);
     *((char*)buffer++) = (capital)? HEX[buf] : hex[buf];
     num -= buf*i;
   }
-  return count+1;
+  return count+2;
 }
 
-  /*
-   * Function has been tested and works fine!
-   */
-int dtoa(void* buffer, double num, unsigned int base, boolean capital)
+char* itoa(unsigned int index, char* buffer, unsigned int base)
 {
+  int len = formatInt(buffer, index, base, (base==10)?TRUE:FALSE, FALSE); // only signed if base = 10
+  buffer[len] = '\0';
+  return buffer;
+}
+
+int atoi(char* str)
+{
+  int i = 0;
+  int idx = 0;
+  while (str[i] != '\0')
+  {
+    if (str[i] >= 0x30 && str[i] <= 0x39)
+    {
+      idx = idx * 10 + (str[i] - 0x30);
+      i++;
+    }
+  }
+  return idx;
+}
+   /*
+    * Couldn't find this function's standard form, but I guess it should be like this.
+    */
+char* dtoa(double index, char* buffer, unsigned int base)
+{
+  int len = formatDouble(buffer, index, base, FALSE, FALSE);
+  buffer[len] = '\0';
+  return buffer;
+}
+
+int formatDouble(void* buffer, double num, unsigned int base, boolean capital, scientific)
+{
+/*
   if (base > 36 || base < 2 )
     return 0;
 
@@ -118,6 +146,57 @@ int dtoa(void* buffer, double num, unsigned int base, boolean capital)
     decimals*=10;
     *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals];
     decimals-=(double)((int)decimals);
+  }
+
+  return count+1;
+*/
+  if (base > 36 || base < 2 )
+    return 0;
+
+  int precision = 0, count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before '.'
+
+  if(scientific)
+  {
+    precision = count-1;
+    if(precision)
+    {
+      memcpy(buffer+1,buffer+2,count-1);
+      *((char*)(buffer+1)) = '.';
+      count++;
+    }
+  }
+
+  double decimals = num-(double)((int)num);
+  if(decimals==0) // check for xx.0
+  {
+    if(precision)
+    {
+      *((char*)buffer++) = (capital)?'E':'e';
+      if(precision>=0)
+        *((char*)buffer++) = '+';
+      count += formatInt(buffer, precision, base, TRUE, capital);
+    }
+    return count;
+  }
+
+  buffer+=count;
+  
+  if(!precision)
+    *((char*)buffer++) = '.';
+
+  for (;decimals>0;count++)
+  {
+    decimals*=10;
+    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals];
+    decimals-=(double)((int)decimals);
+  }
+
+  if(precision)
+  {
+    *((char*)buffer++) = (capital)?'E':'e';
+    if(precision>=0)
+      *((char*)buffer++) = '+';
+    count += formatInt(buffer, precision, base, TRUE, capital);
   }
 
   return count+1;
@@ -149,21 +228,37 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
       }
       switch(format[i])
       {
-	case 'd':
+	case 'f': //print float
+	  break;
+	case 'e':
+	  buffer += formatDouble(buffer, va_arg(list, double), 10, FALSE, TRUE);
+	  break;
+	case 'E':
+	  buffer += formatDouble(buffer, va_arg(list, double), 10, TRUE, TRUE);
+	  break;
+	case 'g': //print shorter scientific number (e.g. 392.65 or 9.824e13)
+	  break;
+	case 'G': //print shorter scientific number (e.g. 392.65 or 9.824E13)
+	  break;
+	case 'p': //print pointer address (e.g. B800:0000)
+	  break;
 	case 'i':
-	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
+	  buffer += formatInt(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
 	  break;
 	case 'u':
-	  buffer += itoa(buffer, va_arg(list, unsigned int), 10, FALSE, FALSE);
+	  buffer += formatInt(buffer, va_arg(list, unsigned int), 10, FALSE, FALSE);
 	  break;
 	case 'x':
-	  buffer += itoa(buffer, va_arg(list, unsigned int), 16, FALSE, FALSE);
+	  buffer += formatInt(buffer, va_arg(list, unsigned int), 16, FALSE, FALSE);
 	  break;
 	case 'X':
-	  buffer += itoa(buffer, va_arg(list, unsigned int), 16, FALSE, TRUE);
+	  buffer += formatInt(buffer, va_arg(list, unsigned int), 16, FALSE, TRUE);
+	  break;
+	case 'o':
+	  buffer += formatInt(buffer, va_arg(list, unsigned int),  8, FALSE, TRUE);
 	  break;
 	case 'd':
-	  buffer += dtoa(buffer, va_arg(list,       double), 10,        FALSE);
+	  buffer += formatDouble(buffer, va_arg(list, double), 10, FALSE, FALSE);
 	  break;
 	case 'c':
 	  *((unsigned char*)buffer++) = (unsigned char)va_arg(list, unsigned int);
@@ -186,14 +281,14 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
   return (unsigned int)buffer;
 }
 
-void fprintf(void *buffer, unsigned char *format, ...)
+void fprintf(void *buffer, const char *format, ...)
 {
   va_list list;
   va_start(list, format);
   formatBuf(buffer, format, list/* <- Don't know for sure if this works*/);
 }
 
-void printf(unsigned char *format, ...)
+void printf(const char *format, ...)
 {
   va_list list;
   va_start(list, format);

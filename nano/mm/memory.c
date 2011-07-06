@@ -76,31 +76,39 @@ void memset(void *dest, int sval, size_t count)
 void memcpy(void *dest, void *src, size_t count)
 {
   if(!count){return;}
+  int diff = abs( (long)(dest - src) );
 #ifdef X86 //64 bit int is only faster at X86, X64 prefers 2 time 32 int
-  if( abs( (long)(dest - src) ) >= 8)
+  if( diff >= 8)
     while(count >= 8){ *(unsigned long long*)dest = *(unsigned long long*)src; dest += 8; src += 8; count -= 8; }
-  if( (abs( (long)(dest - src) ) >= 4) && (count >= 4) ) { *(unsigned int*)dest = *(unsigned int*)src; dest += 4; src += 4; count -= 4; }
+  if( (diff >= 4) && (count >= 4) )
+    while(count >= 4){ *(unsigned long long*)dest = *(unsigned long long*)src; dest += 4; src += 4; count -= 4; }
 #else
-  if( abs( (long)(dest - src) ) >= 4)
+  if( diff >= 4)
     while(count >= 4){ *(unsigned int*)dest = *(unsigned int*)src; dest += 4; src += 4; count -= 4; }
 #endif
-  if( (abs( (long)(dest - src) ) >= 2) && (count >= 2) ) { *(unsigned short*)dest = *(unsigned short*)src; dest += 2; src += 2; count -= 2; }
-  if( (abs( (long)(dest - src) ) >= 1) && (count = 1) ) { *(unsigned char*)dest = *(unsigned char*)src; }
+  if( (diff >= 2) && (count >= 2) ) 
+    while(count >= 2){ *(unsigned long long*)dest = *(unsigned long long*)src; dest += 2; src += 2; count -= 2; }
+  if( (diff >= 1) && (count = 1) ) 
+    while(count >= 1){ *(unsigned long long*)dest = *(unsigned long long*)src; dest += 1; src += 1; count -= 1; }
   return;
 }
 
 int memcmp(void *ptr1, void* ptr2, size_t count)
 {
+  int diff = abs( (long)(ptr1 - ptr2) );
 #ifdef X86 //64 bit int is only faster at X86, X64 prefers 2 time 32 int
-  if( abs( (long)(ptr1 - ptr2) ) >= 8)
+  if( diff >= 8)
     while(count >= 8){ if(*(unsigned long long*)ptr1 - *(unsigned long long*)ptr2) return 1; ptr1 += 8; ptr2 += 8; count -= 8; }
-  if( (abs( (long)(ptr1 - ptr2) ) >= 4) && (count >= 4) ) { if(*(unsigned int*)ptr1 - *(unsigned int*)ptr2) return 1; ptr1 += 4; ptr2 += 4; count -= 4; }
+  if( (diff >= 4) && (count >= 4) )
+    while(count >= 4){ if(*(unsigned long long*)ptr1 - *(unsigned long long*)ptr2) return 1; ptr1 += 4; ptr2 += 4; count -= 4; }
 #else
-  if( abs( (long)(ptr1 - ptr2) ) >= 4)
+  if( diff >= 4)
     while(count >= 4){ if(*(unsigned int*)ptr1 - *(unsigned int*)ptr2) return 1; ptr1 += 4; ptr2 += 4; count -= 4; }
 #endif
-  if( (abs( (long)(ptr1 - ptr2) ) >= 2) && (count >= 2) ) { if(*(unsigned short*)ptr1 - *(unsigned short*)ptr2) return 1; ptr1 += 2; ptr2 += 2; count -= 2; }
-  if( (abs( (long)(ptr1 - ptr2) ) >= 1) && (count = 1) ) { if(*(unsigned char*)ptr1 - *(unsigned char*)ptr2) return 1; }
+  if( (diff >= 2) && (count >= 2) )
+    while(count >= 2){ if(*(unsigned long long*)ptr1 - *(unsigned long long*)ptr2) return 1; ptr1 += 2; ptr2 += 2; count -= 2; }
+  if( (diff >= 1) && (count = 1) )
+    while(count >= 1){ if(*(unsigned long long*)ptr1 - *(unsigned long long*)ptr2) return 1; ptr1 += 1; ptr2 += 1; count -= 1; }
   return 0;
 }
 
