@@ -73,6 +73,17 @@ void announce()
   println("Decompressing the kernel");
 }
 
+boolean setupCore(module_t mod)
+{
+  // Examine and augment the elf image here, return true if faulty
+  
+  // Switch to graphical mode
+  
+  // Switch context to core image
+  
+  return FALSE;
+}
+
 // The main function
 int kmain(unsigned long magic, multiboot_info_t* hdr)
 {
@@ -169,6 +180,11 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   testAlloc();
   printf("End test\n");
   #endif
+  
+  if (setupCore(modules[0]))
+  {
+    panic("Core image couldn't be loaded!");
+  }
   
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
