@@ -83,6 +83,7 @@
 	push eax
 	push ebx
 	push edx
+
 	mov eax, dword [%1]	; original value at address
 	mov edx, eax		; copy
 	not eax			; invert eax
@@ -91,7 +92,6 @@
 	wbinvd	; write back and invalidate the cache
 	mov ebx, dword [%1] ; get value back
 	mov dword [%1], edx
-	
 	xor eax, ebx	; zf is set when result is equal
 
 	pop edx

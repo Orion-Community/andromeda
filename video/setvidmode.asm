@@ -16,6 +16,15 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+%macro stsgms 1
+	mov ax, %1
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+	mov fs, ax
+	mov gs, ax
+%endmacro
+
 [SECTION .data]
 
 [SECTION .text]
@@ -72,9 +81,21 @@ cli
 	mov ss, ax
 	mov fs, ax
 	mov gs, ax
-	mov sp, 0x7300
 
 	lidt [idtr]
+
+	; now we will disable the pe bit
+	mov eax, cr0
+	and eax, 0x7FFFFFFE
+	mov cr0, eax
+	jmp 0x0:.flush2
+
+.flush2:
+	stsgms 0	; set all segments to 0
+	mov sp, 0x7300	; real mode stack
+	sti ; here we are.. in real mode => goodluck
+
+rm_main:
 
 .end:
 	lgdt gdt
