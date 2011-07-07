@@ -29,7 +29,7 @@
 #include "include/graphics.h"
 #include "include/TTY.h"
 
-void textInit()
+void vgaInit()
 {
 #ifdef HD
   /*
@@ -57,8 +57,8 @@ void textInit()
   ttyInit();
 }
 
-char hex[36] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
-char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+extern char *hex;
+extern char *HEX;
 
 int formatInt(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
 {
@@ -125,7 +125,7 @@ int atoi(char* str)
 long atol(char* str)
 {
   int i = 0;
-  long idx = 0;
+  unsigned long long idx = 0;
   while (str[i] != '\0' && idx < 0x2000000000000000) // (idx < 0x20000000) = overload prevention
   {
     if (str[i] >= 0x30 && str[i] <= 0x39)
@@ -169,6 +169,7 @@ int formatDouble(void* buffer, double num, unsigned int base, boolean capital, b
       count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before dot.
 
   if(scientific)
+
   {
     precision = count-1;
     if(precision!=0) // if we should print scientific AND we have more than 1 digit before dot.
@@ -183,6 +184,7 @@ int formatDouble(void* buffer, double num, unsigned int base, boolean capital, b
   if(decimals==0) // check for xx.0
   {
     if(scientific)
+
     {
       *((char*)buffer++) = (capital)?'E':'e'; //print exx or Exx
       if(precision>=0)
@@ -421,12 +423,12 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
 	case 'c':
 	  *((unsigned char*)buffer++) = (unsigned char)va_arg(list, unsigned int);
 	  break;
-	case 's':
-          char* str = va_arg(list, char*);
-          int len = strlen(str);
-	  memcpy( buffer, str, strlen(str) );
-          buffer += len;
-	  break;
+// 	case 's':
+//           char* str = va_arg(list, char*);
+//           int len = strlen(str);
+// 	  memcpy( buffer, str, strlen(str) );
+//           buffer += len;
+// 	  break;
 	case '%':
 	  *((unsigned char*)buffer++) = '%';
 	  break;
@@ -439,16 +441,16 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
   return (unsigned int)buffer;
 }
 
-void fprintf(void *buffer, const char *format, ...)
-{
-  va_list list;
-  va_start(list, format);
-  formatBuf(buffer, format, list/* <- Don't know for sure if this works*/);
-}
-
-void printf(const char *format, ...)
-{
-  va_list list;
-  va_start(list, format);
-  ttyPtr -= (int)(ttyBuf + ttyPtr) - (int)formatBuf(ttyBuf + ttyPtr, format, list/* <- Don't know for sure if this works*/);
-}
+// void fprintf(void *buffer, const char *format, ...)
+// {
+//   va_list list;
+//   va_start(list, format);
+//   formatBuf(buffer, format, list/* <- Don't know for sure if this works*/);
+// }
+// 
+// void printf(const char *format, ...)
+// {
+//   va_list list;
+//   va_start(list, format);
+//   ttyPtr -= (int)(ttyBuf + ttyPtr) - (int)formatBuf(ttyBuf + ttyPtr, format, list/* <- Don't know for sure if this works*/);
+// }

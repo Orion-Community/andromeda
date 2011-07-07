@@ -29,6 +29,11 @@ $(OUTC):
 	
 	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
 
+.PHONY: localClean
+localClean: clean
+	rm -v *.o
+	rm $(OUTC)
+	
 .PHONY: clean
 clean:
 	$(MAKE) -C error clean
@@ -36,8 +41,6 @@ clean:
 	$(MAKE) -C kern clean
 	$(MAKE) -C arch clean
 	$(MAKE) -C nano clean
-	rm -v *.o
-	rm $(OUTC)
 
 .PHONY: all
 test: all

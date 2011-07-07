@@ -2,30 +2,17 @@ include make/makeIncl
 include make/x86
 
 .PHONY: all
-all: x86
-
-.PHONY: x86
-x86:
-	@echo "Pass one"
-	@echo
-	@echo
-	$(MAKE) -f Makefile.x86 compressed EFLAGS="$(COMPRESSED)"
-	rm *.o
-	@echo "Pass two"
-	@echo
-	@echo
-	$(MAKE) -f Makefile.x86 decompressed
-	rm *.o
+all: new
 
 .PHONY: new
 new: $(OUTD)
 
 $(OUTD):
-	$(MAKE) -C drivers/
-	$(MAKE) -C kern/
-	$(MAKE) -C nano/
-	$(MAKE) -C math/
-	$(MAKE) -C boot/
+	$(MAKE) -C drivers/ FLAGS="$(FLAGS) "
+	$(MAKE) -C kern/ FLAGS="$(FLAGS) "
+	$(MAKE) -C nano/ FLAGS="$(FLAGS) "
+	$(MAKE) -C math/ FLAGS="$(FLAGS) "
+	$(MAKE) -C boot/ FLAGS="$(FLAGS) "
 	
 	rm -v nano/boot.o nano/kmain.o nano/map.o
 	
@@ -39,12 +26,12 @@ $(OUTD):
 	
 	$(LD) $(LDFLAGS) $(LDCORE) -o $(OUTD) *.o
 
-.PHONY: newClean
-newClean:
+.PHONY: clean
+clean:
 	$(MAKE) -C drivers/ clean
 	$(MAKE) -C kern/ clean
 	$(MAKE) -C nano/ clean
-	$(MAKE) -C maths/ clean
+	$(MAKE) -C math/ clean
 	
 	rm -v *.o
 	rm -v $(OUTC)
@@ -53,11 +40,6 @@ newClean:
 .PHONY: amd64
 amd64:
 	@echo "Not yet implemented"
-
-.PHONY: clean
-clean:
-	rm $(OUTC)
-	rm $(OUTD)
 
 .PHONY: all
 test: all

@@ -21,7 +21,6 @@
 
 void panic(char* msg)
 {
-	println("Andromeda panic");
-	println(msg);
+	printf("Andromeda panic!\n%s\n", msg);
 	endProg(); // Halt and catch fire!
 }
