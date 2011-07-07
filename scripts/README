@@ -1,0 +1,18 @@
+README
+
+I strongly urge you to read the disclaimer, as you agree to it as soon as you issue the
+command to run one of these scripts.
+
+These scripts expect to be run from outside the source directory, which should be named
+andromeda. They also expect the loop0 device to be free, and that the directory /media/loop
+exists.
+
+The scripts in this directory fall under the terms and conditions imposed by the GNU General
+Public Licence version 3 or newer, as can be read in the COPYING file in the above directory.
+
+DISCLAIMER!
+Some of the scripts use sudo.
+They might modify the setup of your platform in ways you might not expect or desire.
+I hereby disclaim any responsibility for any damage resulting from the usage of those scripts.
+
+Use them at your own risk
