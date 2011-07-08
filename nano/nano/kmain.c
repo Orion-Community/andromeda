@@ -146,7 +146,7 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   #endif
   //#endif
   // Initialise the heap
-  initHeap(HEAPSIZE);
+  initHeap(HEAPSIZE, TRUE);
   prepareIDT();
   //intInit(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
