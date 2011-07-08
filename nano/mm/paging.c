@@ -42,10 +42,11 @@ void cPageFault(isrVal_t regs)
   if (regs.cs != 0x8 && regs.cs != 0x18)
   {
     panic("Incorrect frame");
-  }
+  }  
+  unsigned long page = getCR2();
   unsigned char err = (unsigned char) (regs.errCode & 0x7);
-  #ifdef MODS
-  printf("The pagefault was caused by: %X\n", (unsigned int)getCR2());
+  #ifdef DBG
+  printf("The pagefault was caused by: %X\n", page);
   #endif
   if (RESERVED)
   {
@@ -59,22 +60,21 @@ void cPageFault(isrVal_t regs)
   else if (!PRESENT && WRITE)
   {
     // Allocate page here!
-    unsigned long page = getCR2();
     pageState_t* phys = allocPage(COMPRESSED);
-    #ifdef MODS
+    #ifdef DBG
     printf("Virt: 0x%x\n", page);
     #endif
     if (phys->usable == FALSE)
     {
       panic("No more free memory!");
     }
-    #ifdef MODS
+    #ifdef DBG
     printf("Virt: 0x%x\n", page);
     #endif
     boolean test = setPage((void*)(page), (void*)phys->addr, FALSE, TRUE);
     if (!test)
     {
-      #ifdef MODS
+      #ifdef DBG
       printf("Virt: 0x%x\n", page);
       #endif
       freePage((void*)phys->addr, COMPRESSED);
@@ -86,6 +86,7 @@ void cPageFault(isrVal_t regs)
   }
   else if (!PRESENT && !WRITE)
   {
+    printf("The attempted address: 0x%X\n", page);
     panic("Page non existent!");
     // Read the page from image
   }

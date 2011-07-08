@@ -67,7 +67,31 @@ boolean elfCheck(Elf32_Ehdr* hdr)
 
 int coreAugment(void* image)
 {
-  return -1;
+  Elf32_Ehdr *elfHeader = (Elf32_Ehdr*) image;
+  Elf32_Off address = elfHeader->e_phoff;
+  if (address == 0)
+  {
+    return 0;
+  }
+  void *programHeader = (void*)(((unsigned long)elfHeader) + ((unsigned long)address));
+  void *thisHeader = NULL;
+  int noHdrs = elfHeader->e_phnum;
+  int hdrSize = elfHeader->e_phentsize;
+  int i = 0;
+  for (thisHeader = programHeader; i < noHdrs; i++)
+  {
+    Elf32_Phdr* hdr = (Elf32_Phdr*)thisHeader;
+    if (hdr->p_type != 0x6474E551)
+    memcpy(hdr->p_vaddr, (void*)(hdr->p_offset+(unsigned int) image), hdr->p_memsz);
+    
+    // Memory protection flags should probably be set here.
+    
+//     printf("Type:\t0x%X\tOffset:\t0x%X\nvaddr:\t0x%X\tSize:\t0x%X\nAlign:\t0x%X\tFlags:\t0x%X\n\n",
+// 						hdr->p_type, hdr->p_offset, hdr->p_vaddr, 
+// 						hdr->p_memsz, hdr->p_align, hdr->p_flags);
+    thisHeader+=hdrSize;
+  }
+  return 0;
 }
 
 int coreCheck(void* image)
@@ -94,11 +118,8 @@ int coreCheck(void* image)
     Elf32_Phdr* hdr = (Elf32_Phdr*)thisHeader;
     if (*(int*)(hdr->p_offset+(unsigned int) image) == 0xC0DEBABE)
       return 0;
-//     printf("Type:\t0x%X\tOffset:\t0x%X\nvaddr:\t0x%X\tSize:\t0x%X\nAlign:\t0x%X\tFlags:\t0x%X\n\n",
-// 						hdr->p_type, hdr->p_offset, hdr->p_vaddr, 
-// 						hdr->p_memsz, hdr->p_align, hdr->p_flags);
-      thisHeader+=hdrSize;
-    }
+    thisHeader+=hdrSize;
+  }
   return 3;
 }
 
