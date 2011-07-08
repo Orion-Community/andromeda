@@ -22,7 +22,7 @@
 #define ELFMAGIC 0x7F454C46
 
 // Used to check the validity of the Elf header
-boolean checkHdr(Elf32_Ehdr* hdr)
+boolean elfCheck(Elf32_Ehdr* hdr)
 {
   unsigned char* e_ident = hdr->e_ident;
   int i;
@@ -65,6 +65,23 @@ boolean checkHdr(Elf32_Ehdr* hdr)
   return TRUE;
 }
 
+boolean coreCheck(void* image)
+{
+  if (!elfCheck(image))
+    return FALSE;
+  Elf32_Ehdr *elfHeader = (Elf32_Ehdr*) image;
+  if (elfHeader->e_entry < 0xC0000000)
+    return FALSE;
+  
+  Elf32_Off phdr = elfHeader->e_phoff + (int) image;
+  
+  Elf32_Phdr* programheader = (Elf32_Phdr*) (((unsigned long) elfHeader) + ((unsigned long) phdr));
+  if (*((unsigned int *)((programheader->p_offset) + (unsigned long)image)) != 0xC0DEBABE)
+  {
+    return FALSE;
+  }
+}
+
 /*
  * Run the elf image passed on to this function. Shouldn't return at all
  * but just in case it does, the return types are:
@@ -73,7 +90,7 @@ boolean checkHdr(Elf32_Ehdr* hdr)
  */
 int elfExec(void* image)
 {
-  if (checkHdr(image))
+  if (elfCheck(image))
   {
     Elf32_Ehdr *elfHeader = (Elf32_Ehdr*) image;
     Elf32_Off address = elfHeader->e_phoff;
