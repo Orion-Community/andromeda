@@ -28,7 +28,7 @@ $(OUTD):
 
 .PHONY: clean
 clean:
-	$(MAKE) -C drivers/ clean
+	#$(MAKE) -C drivers/ clean
 	$(MAKE) -C kern/ clean
 	$(MAKE) -C nano/ clean
 	$(MAKE) -C math/ clean

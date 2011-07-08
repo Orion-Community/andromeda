@@ -1,4 +1,4 @@
 
 #!/bin/bash
-make -C andromeda/ clean
-make -C andromeda FLAGS=-D\ WARN\ -D\ MODS\ -D\ FAST\ -D\ ELFDBG CC=distcc
+make -C andromeda/ clean -B
+make -C andromeda FLAGS=-D\ MODS\ -D\ FAST CC=distcc -B
