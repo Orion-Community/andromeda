@@ -86,9 +86,6 @@ int coreAugment(void* image)
     
     // Memory protection flags should probably be set here.
     
-//     printf("Type:\t0x%X\tOffset:\t0x%X\nvaddr:\t0x%X\tSize:\t0x%X\nAlign:\t0x%X\tFlags:\t0x%X\n\n",
-// 						hdr->p_type, hdr->p_offset, hdr->p_vaddr, 
-// 						hdr->p_memsz, hdr->p_align, hdr->p_flags);
     thisHeader+=hdrSize;
   }
   return 0;
