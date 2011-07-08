@@ -120,6 +120,16 @@ int coreCheck(void* image)
   return 3;
 }
 
+void elfJmp(void* image)
+{
+  Elf32_Ehdr *elfHeader = (Elf32_Ehdr*) image;
+  void* addr = (void*)(elfHeader->e_entry);
+  #ifdef ELFDBG
+  printf("entry point: 0x%X\n", addr);
+  #endif
+  elfJump(addr);
+}
+
 /*
  * Run the elf image passed on to this function. Shouldn't return at all
  * but just in case it does, the return types are:

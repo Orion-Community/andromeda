@@ -21,6 +21,8 @@ unsigned char stack[0x10000];
 
 int core()
 {
+  textInit();
+  printf("Welcome to core!\n");
   // In the future this will do a little more
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {

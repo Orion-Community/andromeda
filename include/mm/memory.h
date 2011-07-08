@@ -25,7 +25,7 @@ void paging();
 void memset(void*, int, size_t);
 void memcpy(void*, void*, size_t);
 int memcmp(void*, void*, size_t);
-int initHeap(long);
+int initHeap(long size, boolean compressed);
 
 size_t strlen(char* string);
 

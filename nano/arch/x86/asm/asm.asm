@@ -30,6 +30,8 @@
 [GLOBAL setCR3]
 [GLOBAL toglePGbit]
 [GLOBAL pgbit]
+[GLOBAL intdbg]
+[GLOBAL elfJump]
 [EXTERN mutexEnter]
 [EXTERN mutexRelease]
 
@@ -177,7 +179,6 @@ toglePGbit:
   add esp, 4
   ret
   
-[GLOBAL intdbg]
 intdbg:
   int3
   ret
@@ -186,3 +187,6 @@ endProg:
   cli
   hlt
   jmp endProg
+
+elfJump:
+  jmp [esp+4] ; jump toward the argument, don't care about the stack

@@ -8,7 +8,7 @@ all: new
 new: $(OUTD)
 
 $(OUTD):
-	$(MAKE) -C drivers/ FLAGS="$(FLAGS) "
+	#$(MAKE) -C drivers/ FLAGS="$(FLAGS) "
 	$(MAKE) -C kern/ FLAGS="$(FLAGS) "
 	$(MAKE) -C nano/ FLAGS="$(FLAGS) "
 	$(MAKE) -C math/ FLAGS="$(FLAGS) "
@@ -16,7 +16,7 @@ $(OUTD):
 	
 	rm -v nano/boot.o nano/kmain.o nano/map.o
 	
-	mv -v drivers/drivers.o ./
+	#mv -v drivers/drivers.o ./
 	mv -v kern/kern.o ./
 	mv -v nano/*.o ./
 	mv -v math/maths.o ./
