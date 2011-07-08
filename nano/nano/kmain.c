@@ -75,6 +75,23 @@ void announce()
 
 boolean setupCore(module_t mod)
 {
+  switch(coreCheck (mod.addr))
+  {
+    case 0:
+      printf("Core check success!\n");
+      break;
+    case -1:
+      panic("Invalid elf image");
+      break;
+    case -2:
+      panic("Entry point too low");
+      break;
+    case -3:
+      panic("Kernel magic invalid");
+      break;
+    default:
+      panic("Unknown return value");
+  }
   // Examine and augment the elf image here, return true if faulty
   
   // Switch to graphical mode

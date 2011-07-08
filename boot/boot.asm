@@ -1,10 +1,13 @@
 CORE_MAGIC	equ	0xC0DEBABE	; Lolz
 
+[BITS 32]
+
 [SECTION .boot]
 [EXTERN  code]                   ; Start of the '.text' section.
 [EXTERN  bss]                    ; Start of the .bss section.
 [EXTERN  end]
   dd CORE_MAGIC
+  dd start
   dd end
 
 [SECTION .text]

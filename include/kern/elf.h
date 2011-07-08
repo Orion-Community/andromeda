@@ -266,5 +266,6 @@ typedef struct {
 
 boolean checkHdr(Elf32_Ehdr* hdr);
 int elfExec(void* image);
+int coreCheck(void* image);
 
 #endif

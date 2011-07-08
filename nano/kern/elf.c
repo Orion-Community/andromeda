@@ -65,21 +65,41 @@ boolean elfCheck(Elf32_Ehdr* hdr)
   return TRUE;
 }
 
-boolean coreCheck(void* image)
+int coreAugment(void* image)
+{
+  return -1;
+}
+
+int coreCheck(void* image)
 {
   if (!elfCheck(image))
-    return FALSE;
+    return -1;
   Elf32_Ehdr *elfHeader = (Elf32_Ehdr*) image;
   if (elfHeader->e_entry < 0xC0000000)
-    return FALSE;
+    return -2;
   
-  Elf32_Off phdr = elfHeader->e_phoff + (int) image;
-  
-  Elf32_Phdr* programheader = (Elf32_Phdr*) (((unsigned long) elfHeader) + ((unsigned long) phdr));
-  if (*((unsigned int *)((programheader->p_offset) + (unsigned long)image)) != 0xC0DEBABE)
+  Elf32_Off address = elfHeader->e_phoff;
+  if (address == 0)
   {
-    return FALSE;
+    return 0;
   }
+  void *programHeader = (void*)(((unsigned long)elfHeader) + ((unsigned long)address));
+  void *thisHeader = NULL;
+  int noHdrs = elfHeader->e_phnum;
+  int hdrSize = elfHeader->e_phentsize;
+  int i = 0;
+  
+  for (thisHeader = programHeader; i < noHdrs; i++)
+  {
+    Elf32_Phdr* hdr = (Elf32_Phdr*)thisHeader;
+    if (*(int*)(hdr->p_offset+(unsigned int) image) == 0xC0DEBABE)
+      return 0;
+//     printf("Type:\t0x%X\tOffset:\t0x%X\nvaddr:\t0x%X\tSize:\t0x%X\nAlign:\t0x%X\tFlags:\t0x%X\n\n",
+// 						hdr->p_type, hdr->p_offset, hdr->p_vaddr, 
+// 						hdr->p_memsz, hdr->p_align, hdr->p_flags);
+      thisHeader+=hdrSize;
+    }
+  return 3;
 }
 
 /*
@@ -117,7 +137,7 @@ int elfExec(void* image)
     for (j = 0; j < 0x1FFFFFFF; j++);
     #endif
     Elf32_Off sectionAddress = elfHeader->e_shoff;
-    if (address != 0)
+    if (address != 0 && FALSE)
     {
       void *sectionHeader = (void*)(((unsigned long)elfHeader) + ((unsigned long)sectionAddress));
       void *thisSection = NULL;
