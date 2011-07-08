@@ -16,8 +16,8 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-%ifndef __IRQ25_H
-%define __IRQ25_H
+%ifndef __IRQ30_H
+%define __IRQ30_H
 
 %define GEBL_MMR_POINTER 0x500
 
