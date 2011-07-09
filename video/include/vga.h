@@ -30,7 +30,7 @@ typedef struct vgaProperty
 {
 	int line;
 	uint32_t x;
-	char * vidmem;
+	uint16_t * vidmem;
 } GEBL_VGA;
 
 void reloc_cursor(uint32_t x, uint32_t y);

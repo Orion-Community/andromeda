@@ -27,7 +27,7 @@ void textinit()
 {
 	cursor.line = 0;
 	cursor.x = 0;
-	cursor.vidmem = (char *)GEBL_VGAMEMORY;
+	cursor.vidmem = (uint16_t *)GEBL_VGAMEMORY;
 }
 
 void scroll(uint8_t lines)
@@ -37,18 +37,18 @@ void scroll(uint8_t lines)
 	{
 		for(x = 0; x < GEBL_WIDTH; x++)
 		{
-			cursor.vidmem[y*2*GEBL_WIDTH+x] = cursor.vidmem[(y+lines)*2*GEBL_WIDTH+x];
+			cursor.vidmem[x+y*GEBL_WIDTH] = cursor.vidmem[x+(y+lines)*GEBL_WIDTH];
 		}
 	}
 	for(; y < GEBL_HEIGHT; y++)
 	{
-		for(x = 0; x < GEBL_WIDTH; x+2)
+		for(x = 0; x < GEBL_WIDTH; x++)
 		{
-			cursor.vidmem[y*GEBL_WIDTH*2+x] = ((GEBL_WHITE_TXT<<8) | ' ');
+			cursor.vidmem[x+y*GEBL_WIDTH] = ((GEBL_WHITE_TXT<<8) | ' ');
 		}
 	}
-	cursor.line = 18;
-	cursor.x = 0;
+	cursor.line -= lines;
+	reloc_cursor(cursor.x, cursor.line);
 }
 
 void println(uint8_t * txt)
@@ -107,7 +107,7 @@ void printnum(int index, uint32_t base, bool sInt, bool capital)
 
 void putc(uint8_t c)
 {
-	uint32_t i = (cursor.line * GEBL_WIDTH * 2) + cursor.x;
+	uint32_t i = (cursor.line * GEBL_WIDTH) + cursor.x;
 	switch(c)
 	{
 		case '\n':
@@ -117,27 +117,21 @@ void putc(uint8_t c)
 			break;
 
 		case '\b':
-			cursor.x -= 2;
-			cursor.vidmem[i-2] = ' ';
-			cursor.vidmem[i-1] = GEBL_WHITE_TXT;
+			cursor.x -= 1;
+			cursor.vidmem[i-1] = (GEBL_WHITE_TXT<<8)| ' ';
 			break;
 
 		default:
-			cursor.vidmem[i] = (uint16_t) (GEBL_WHITE_TXT<<8) | (uint16_t) (c);
-			cursor.x += 2;
+			cursor.vidmem[i] = (GEBL_WHITE_TXT<<8) | c;
+			cursor.x += 1;
 			break;
 	}
 	
 	reloc_cursor(cursor.x, cursor.line);
 	if(cursor.line >= GEBL_HEIGHT)
 	{
-		scroll(6);
+		scroll(cursor.line%GEBL_HEIGHT+1);
 	}
-// 	if(cursor.x >= GEBL_WIDTH)
-// 	{
-// 		cursor.x %= GEBL_WIDTH;
-// 		cursor.line++;
-// 	}
 }
 
 void writeat(uint8_t c, uint32_t x)
@@ -164,7 +158,7 @@ void clearscreen() // clear the entire text screen
 
 void reloc_cursor(uint32_t x, uint32_t y)
 {
-	uint16_t loc = (y * GEBL_WIDTH) + (x/2);
+	uint16_t loc = (y * GEBL_WIDTH) + x;
 
         outb(0x3d4, 0xf); 
         outb(0x3d5, (uint8_t)(loc&0xff));
