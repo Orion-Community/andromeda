@@ -17,35 +17,20 @@
 */
 
 #include <stdlib.h>
-#include <interrupts.h>
 #include <interrupts/int.h>
-#include <PIC/PIC.h>
-#include <APIC/APIC.h>
+#include <arch/x86/interrupts.h>
+#include <arch/x86/PIC/PIC.h>
+#include <arch/x86/APIC/APIC.h>
 
 #define __COMPRESSED
-
-void initAPIC()
-{
-  pic = APIC;
-  panic("No implementation for the APIC!");
-}
 
 void intInit()
 {
   prepareIDT();
-  #ifndef __COMPRESSED
   if (DetectAPIC())
   {
-    #ifndef WARN
-    initAPIC();
-    #else
-    printf("WARNING: The APIC hasn't got any implementation!\n");
-    initPIC();
-    #endif
-    sti();
-    return;
+    printf("WARNING: The APIC hasn't got any implementation!\nFalling back to PIC support\n");
   }
   initPIC();
   sti();
-  #endif
 }

@@ -50,15 +50,10 @@ cli: ; Shut down interrupts from C level code
   ret
 
 halt:
-;   %ifndef __COMPRESSED
-;   pushfd
-;   sti
-;   hlt
-;   popfd
-;   %else
-  cli
+  pushfd
+  sti
   hlt
-;   %endif
+  popfd
   ret
   
 DetectAPIC:

@@ -17,7 +17,7 @@
 */
 
 #ifdef __INTEL
-#include <GDT.h>
+#include <arch/x86/GDT.h>
 #include <stdlib.h>
 
 gdtEntry_t *GDT = NULL;

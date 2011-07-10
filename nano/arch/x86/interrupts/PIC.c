@@ -15,9 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef __COMPRESSED
-#include <interrupts.h>
-#include <PIC/PIC.h>
+#include <arch/x86/interrupts.h>
+#include <arch/x86/PIC/PIC.h>
 #include <io.h>
 #include <stdlib.h>
 
@@ -49,4 +48,3 @@ void initPIC()
   picRemap(INTBASE, INTBASE+8);
   //panic("No implementation for the PIC!");
 }
-#endif

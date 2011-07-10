@@ -47,7 +47,6 @@ int initHeap(long size, boolean compressed)
   return 0;
 }
 
-#ifdef FAST
 void memset(void *dest, int sval, size_t count)
 {
   if(!count){return;}
@@ -183,73 +182,6 @@ int memcmp(void *ptr1, void* ptr2, size_t count)
   }
   return 0;
 }
-
-#else
-#ifdef DUFFS
-void memset(void* dst, int value, size_t size)
-{
-  register n=(count+7)/8;
-  switch(count%8){
-    case 0:      do{     *to++ = *from;
-    case 7:              *to++ = *from;
-    case 6:              *to++ = *from;
-    case 5:              *to++ = *from;
-    case 4:              *to++ = *from;
-    case 3:              *to++ = *from;
-    case 2:              *to++ = *from;
-    case 1:              *to++ = *from;
-    }while(--n>0);
-  }
-}
-
-void memcpy(void dst, int src, size_t size)
-{
-  register n=(count+7)/8;
-  switch(count%8){
-    case 0:      do{     *to++ = *from++;
-    case 7:              *to++ = *from++;
-    case 6:              *to++ = *from++;
-    case 5:              *to++ = *from++;
-    case 4:              *to++ = *from++;
-    case 3:              *to++ = *from++;
-    case 2:              *to++ = *from++;
-    case 1:              *to++ = *from++;
-    }while(--n>0);
-  }
-}
-#else
-void memset(void* location, int value, size_t size)
-{
-  int i = 0;
-  unsigned char* offset = (unsigned char*)location;
-  for (; i < size; i++)
-  {
-    *(offset+i) = (unsigned char)value;
-  }
-}
-
-void memcpy(void *destination, void* source, size_t num)
-{
-  int i = 0;
-  unsigned char* src = source;
-  unsigned char* dst = destination;
-  for (; i < num; i++)
-  {
-    *(dst+i) = *(src+i);
-  }
-}
-#endif
-int memcmp(void *ptr1, void* ptr2, size_t num)
-{
-  int ret = 0;
-  int i = 0;
-  for (; i < num && ret == 0; i++)
-  {
-    ret = *((unsigned char*)ptr1+i) - *((unsigned char*)ptr2+i);
-  }
-  return ret;
-}
-#endif
 
 size_t strlen(char* string)
 {

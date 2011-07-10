@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <interrupts.h>
+#include <arch/x86/interrupts.h>
 #include <stdlib.h>
 #include <mm/paging.h>
 

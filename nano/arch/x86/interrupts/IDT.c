@@ -15,9 +15,9 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <interrupts.h>
+#include <arch/x86/interrupts.h>
+#include <arch/x86/irq.h>
 #include <interrupts/int.h>
-#include <irq.h>
 #include <stdlib.h>
 
 #define SIZE 256
@@ -60,8 +60,7 @@ void setExceptions()
   setIdtGate(18, (unsigned int)machine, 0x08, 0x8E);
   setIdtGate(19, (unsigned int)simd, 0x08, 0x8E);
 }
-/*
-#ifndef __COMPRESSED
+
 void setIRQ(int offset1, int offset2)
 {
   setIdtGate(offset1+0, (unsigned int)irq0 , 0x08, 0x8E);
@@ -81,8 +80,7 @@ void setIRQ(int offset1, int offset2)
   setIdtGate(offset2+6, (unsigned int)irq14, 0x08, 0x8E);
   setIdtGate(offset2+7, (unsigned int)irq15, 0x08, 0x8E);
 }
-#endif
-*/
+
 void setIDT(idt_t *idt, idtEntry_t* table, unsigned int elements)
 {
   idt->limit = sizeof(idtEntry_t)*SIZE;
@@ -104,9 +102,7 @@ void prepareIDT()
      panic ("Aiee, NULL pointer!!!");
   }
   setExceptions();
-/*  #ifndef __COMPRESSED
   setIRQ(INTBASE, INTBASE+8);
-  #endif*/
   setIDT(idt, table, SIZE);
   loadIdt(idt);
   #ifdef WARN

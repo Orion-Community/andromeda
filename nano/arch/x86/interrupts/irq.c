@@ -16,13 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define __COMPRESSED
-
-#ifndef __COMPRESSED
-#include <interrupts.h>
-#include <irq.h>
-#include <PIC/PIC.h>
-#include <APIC/APIC.h>
+#include <arch/x86/interrupts.h>
+#include <arch/x86/irq.h>
+#include <arch/x86/PIC/PIC.h>
+#include <arch/x86/APIC/APIC.h>
 #include <stdlib.h>
 
 void timerTick(); // The timer function
@@ -175,4 +172,3 @@ void picEOI(int irqNo) // Send end of interrupt
   }
   outb(PIC1COMMAND, PICEOI);
 }
-#endif
