@@ -22,8 +22,6 @@
 #include <types.h>
 
 extern int getVendor();
-extern void sti();
-extern void cli();
 extern void halt();
 extern void endProg();
 #ifdef __INTEL

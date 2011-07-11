@@ -15,8 +15,6 @@
 ;   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ; The assembly headers for the interrupts.
-[GLOBAL sti]
-[GLOBAL cli]
 [GLOBAL halt]
 [GLOBAL endProg]
 [GLOBAL DetectAPIC]
@@ -36,28 +34,10 @@
 [EXTERN mutexRelease]
 
 mutex   dd	0 ;The mutex variable
-pgbit	db	0 ;Paging is disabled per default
+pgbit	dd	0 ;Paging is disabled per default
 		  ;Booleans have been typedefed as unsigned char
 
 %include "asm/call.mac"
-
-sti: ; Start interrupts from C level code
-  push ebp
-  jmp $
-  mov ebp, esp
-  jmp $
-  sti ; Start interrupts
-  jmp $
-  mov esp, ebp
-  jmp $
-  pop ebp
-  jmp $
-  ret
-  
-cli: ; Shut down interrupts from C level code
-  enter
-  cli ; Stop interrupts
-  return
 
 halt:
   pushfd
