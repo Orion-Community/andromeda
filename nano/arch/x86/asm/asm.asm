@@ -42,12 +42,22 @@ pgbit	db	0 ;Paging is disabled per default
 %include "asm/call.mac"
 
 sti: ; Start interrupts from C level code
+  push ebp
+  jmp $
+  mov ebp, esp
+  jmp $
   sti ; Start interrupts
+  jmp $
+  mov esp, ebp
+  jmp $
+  pop ebp
+  jmp $
   ret
   
 cli: ; Shut down interrupts from C level code
+  enter
   cli ; Stop interrupts
-  ret
+  return
 
 halt:
   pushfd

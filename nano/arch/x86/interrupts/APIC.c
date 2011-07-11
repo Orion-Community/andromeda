@@ -22,15 +22,13 @@
 #include <arch/x86/PIC/PIC.h>
 #include <arch/x86/APIC/APIC.h>
 
-#define __COMPRESSED
-
 void intInit()
 {
   prepareIDT();
   if (DetectAPIC())
   {
-    printf("WARNING: The APIC hasn't got any implementation!\nFalling back to PIC support\n");
+    printf("WARNING: The APIC hasn't got any implementation!\nFalling back to PIC driver\n");
   }
   initPIC();
-  sti();
+  __asm__ ("sti");
 }

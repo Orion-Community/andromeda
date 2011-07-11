@@ -30,7 +30,7 @@
 #define WRITE    ((err & WRITEBIT)    ? TRUE : FALSE)
 #define USER	 ((err & USERBIT)     ? TRUE : FALSE)
 #define RESERVED ((err & RESERVEDBIT) ? TRUE : FALSE)
-#define DATA     ((err & DATATBIT)    ? TRUE : FALSE)
+#define DATA     ((err & DATABIT)     ? FALSE : TRUE)
 
 #ifdef __INTEL
 
@@ -86,8 +86,12 @@ void cPageFault(isrVal_t regs)
   }
   else if (!PRESENT && !WRITE)
   {
+    if (!DATA)
+    {
+      printf("Trying to execute an invalid location in memory\n");
+    }
     printf("The attempted address: 0x%X\n", page);
-    panic("Page non existent!");
+    panic("Reading non existent page");
     // Read the page from image
   }
   else if (PRESENT)

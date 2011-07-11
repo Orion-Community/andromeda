@@ -108,7 +108,6 @@ boolean setupCore(module_t mod)
 int kmain(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
-  //#ifdef __COMPRESSED
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
     printf("\nInvalid magic word: %X\n", magic);
@@ -132,31 +131,30 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid modules");
   }
-  //#endif
-  
+   
   #ifdef DBG
   printf("Addr of stackbase: "); printhex((int)&stack); putc('\n');
   #endif
   
-  //#ifdef __COMPRESSED
   #ifdef DBG
   testMMap(hdr);/*
   int i;
   for (i = 0; i<0x1FFFFFFF; i++);*/
   #endif
-  //#endif
+
   // Initialise the heap
   initHeap(HEAPSIZE, TRUE);
+  
+  setGDT();
+  //prepareIDT();
   intInit(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
 		     // been disabled.
   // If in the compressed image
-  //#ifdef __COMPRESSED
   announce(); // print welcome message
-  //#endif
   #ifdef __INTEL
   // Intel specific function
-  setGDT();  // Also in decompressed kernel as the compressed image could be overwritten
+ 
 
   #ifdef VENDORTELL
   switch(getVendor())
@@ -204,11 +202,10 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
 //   {
 //     panic("Core image couldn't be loaded!");
 //   }
-  
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
-//     halt();
+     halt();
   }
   return 0; // To keep the compiler happy.
 }

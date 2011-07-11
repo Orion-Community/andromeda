@@ -20,10 +20,9 @@
 #include <interrupts/int.h>
 #include <stdlib.h>
 
-#define SIZE 256
+#define GDTSIZE 256
 
 int pic = 0;
-extern memNode_t* blocks;
 
 idtEntry_t* table;
 void setIdtGate(unsigned char num, unsigned int base, unsigned short sel, unsigned char flags)
@@ -83,7 +82,7 @@ void setIRQ(int offset1, int offset2)
 
 void setIDT(idt_t *idt, idtEntry_t* table, unsigned int elements)
 {
-  idt->limit = sizeof(idtEntry_t)*SIZE;
+  idt->limit = sizeof(idtEntry_t)*GDTSIZE;
   idt->base  = (int)table;
 }
 
@@ -95,7 +94,7 @@ void prepareIDT()
   #ifdef IDTTEST
   printf("%X\n%X\n", cs, getDS());
   #endif
-  table = kalloc(sizeof(idtEntry_t)*SIZE);
+  table = kalloc(sizeof(idtEntry_t)*GDTSIZE);
   idt_t* idt = kalloc(sizeof(idt_t));
   if (table == NULL || idt == NULL)
   {
@@ -103,7 +102,7 @@ void prepareIDT()
   }
   setExceptions();
   setIRQ(INTBASE, INTBASE+8);
-  setIDT(idt, table, SIZE);
+  setIDT(idt, table, GDTSIZE);
   loadIdt(idt);
   #ifdef WARN
   printf("WARNING: Exceptions need a better implementation!\n");
