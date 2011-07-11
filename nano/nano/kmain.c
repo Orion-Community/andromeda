@@ -96,7 +96,6 @@ boolean setupCore(module_t mod)
   coreAugment(mod.addr);
   
   // Switch to graphical mode
-  printf("Reached!\n");
   // Switch context to core image
   
   elfJmp(mod.addr);
@@ -198,10 +197,10 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   printf("End test\n");
   #endif
   
-//   if (setupCore(modules[0]))
-//   {
-//     panic("Core image couldn't be loaded!");
-//   }
+  if (setupCore(modules[0]))
+  {
+    panic("Core image couldn't be loaded!");
+  }
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {

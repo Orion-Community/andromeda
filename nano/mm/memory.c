@@ -20,6 +20,9 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 
+extern int end;
+extern int mboot;
+
 int initHeap(long size, boolean compressed)
 {
   if (compressed)
@@ -43,6 +46,11 @@ int initHeap(long size, boolean compressed)
     examineHeap();
     #endif
     initPaging();
+  }
+  else
+  {
+    size = 0xFFFFFFFF - (long)&end - 4;
+    heapCoreBlocks(end+4, size);
   }
   return 0;
 }

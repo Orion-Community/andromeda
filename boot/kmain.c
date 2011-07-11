@@ -15,18 +15,28 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <text.h>
+#include <stdlib.h>
+
+// Heap of undetermined size
+#define HEAPSIZE 0x0
 
 unsigned char stack[0x10000];
 
 int core()
 {
+  initHeap(HEAPSIZE, FALSE);
   textInit();
-  printf("Welcome to core!\n");
+  printf("Success!\n");
+  
+  intInit();
+  setGDT();
+  
+  
+  
   // In the future this will do a little more
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
-    printf("You can now shutdown your PC\n");
     halt();
   }
+  printf("You can now shutdown your PC\n");
 }
