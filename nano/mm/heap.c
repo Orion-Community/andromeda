@@ -55,15 +55,6 @@ void heapCoreBlocks(void* base, int size)
 {
   mutexEnter(prot);
   initHdr(base, size-sizeof(memNode_t));
-  if (blocks == NULL)
-  {
-    blocks = base;
-  }
-  else
-  {
-    mutexRelease(prot);
-    free((void*)base+sizeof(memNode_t));
-    mutexEnter(prot);
-  }
+  blocks = base;
   mutexRelease(prot);
 }

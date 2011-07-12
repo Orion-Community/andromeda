@@ -38,6 +38,10 @@ start:
   mov ebp, ecx
   mov esp, ecx			; Stack grows down in memory and we're at the
   push esp			; top of the minimum required memory
+  
+  push eax			; Push the memory map handed to us from the core image
+  push ebx
+  
   cli
   call core
   jmp $

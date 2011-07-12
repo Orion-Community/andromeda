@@ -22,7 +22,7 @@
 
 mutex_t pageLock = 0;
 
-module_t modules[32];
+module_t modules[MAX_MODS];
 unsigned short bitmap[PAGES];
 
 boolean claimPage(unsigned long page, unsigned short owner)

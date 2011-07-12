@@ -21,12 +21,15 @@
 
 #include <mm/paging.h>
 #include <types.h>
+#include <boot/mboot.h>
 
 #define FREE	   0x0000
 #define MODULE	   0x0001
 #define COMPRESSED 0x0002
 #define MAPPEDIO   0x0003
 #define NOTUSABLE  0xFFFF
+
+#define MAX_MODS   0x20
 
 
 typedef struct
@@ -43,17 +46,13 @@ struct module_s
 
 typedef struct module_s module_t;
 
-extern unsigned short bitmap[];
 extern module_t modules[];
+extern unsigned short bitmap[];
+
 boolean claimPage(unsigned long page, unsigned short owner);
 pageState_t* allocPage(unsigned short owner);
 void freePage(void* page, unsigned short owner);
 
-
-#ifdef __COMPRESSED
-#include <boot/mboot.h>
-
 void buildMap(multiboot_memory_map_t*, int);
 
-#endif
 #endif

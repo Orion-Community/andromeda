@@ -16,27 +16,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <stdlib.h>
+#include <mm/map.h>
 
-// Heap of undetermined size
-#define HEAPSIZE 0x0
+// Heap of 200 MiB
+#define HEAPSIZE 0xC800000
 
 unsigned char stack[0x10000];
 
-int core()
+int core(unsigned short memorymap[], module_t mods[])
 {
-  initHeap(HEAPSIZE, FALSE);
+  memcpy(bitmap, memorymap, PAGES);
+  memcpy(modules, mods, MAX_MODS);
   textInit();
-  printf("Success!\n");
-  
+  initHeap(HEAPSIZE, FALSE);
   intInit();
   setGDT();
   
-  
+  char* test = kalloc(0x700);
+  if (test == NULL)
+    panic("Heap is empty");
+  free (test);
   
   // In the future this will do a little more
+  printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
     halt();
   }
-  printf("You can now shutdown your PC\n");
 }

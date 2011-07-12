@@ -49,8 +49,7 @@ int initHeap(long size, boolean compressed)
   }
   else
   {
-    size = 0xFFFFFFFF - (long)&end - 4;
-    heapCoreBlocks(end+4, size);
+    heapCoreBlocks(0xFFFFFFFF-size, size);
   }
   return 0;
 }

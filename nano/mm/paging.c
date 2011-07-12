@@ -117,6 +117,8 @@ boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode)
     #endif
     #ifdef MODS
     printf("virt: 0x%x\nphys: 0x%x\n", virtAddr, physAddr);
+    int idx = 0;
+    for (; idx < 0xFFFFFFF; idx++);
     #endif
     return FALSE;
   }

@@ -174,4 +174,6 @@ endProg:
   jmp endProg
 
 elfJump:
+  mov ebx, [esp+12] ; Give the modules in ebx
+  mov eax, [esp+8] ; Give the memory map in eax
   jmp [esp+4] ; jump toward the argument, don't care about the stack

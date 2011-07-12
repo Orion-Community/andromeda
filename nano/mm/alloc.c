@@ -76,25 +76,11 @@ void examineHeap()
 // It initialises the header to a good position and simplifies the code a bit.
 void initHdr(memNode_t* block, size_t size)
 {
-	
-	#ifdef MMTEST
-	printf("Checkpoint 1\n");
-	printf("Block addr: "); printhex((int)block); putc('\n');
-	#endif
 	block->size = size;
 	block->previous = NULL;
-	#ifdef MMTEST
-	printf("Checkpoint 2\n");
-	#endif
 	block->next = NULL;
 	block->used = FALSE;
-	#ifdef MMTEST
-	printf("Checkpoint 3\n");
-	#endif
 	block->hdrMagic = HDRMAGIC;
-	#ifdef MMTEST
-	printf("Checkpoint 4\n");
-	#endif
 }
 
 // Finds a block on the heap, which is free and which is large enough.
