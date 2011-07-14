@@ -19,6 +19,8 @@
 #include <sys/stdlib.h>
 
 #ifndef __INTERRUPT_H
+#define __INTERRUPT_H
+
 struct idtentry
 {
 	uint16_t base_low;
