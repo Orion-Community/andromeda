@@ -15,18 +15,19 @@
 	* Obtain a mmap in differt ways.
 	* Test the mmap pointer
 	* added support for more then one partition.
+	* Keyboard is working
+	* memory can also be probed now, using an interrupt
 
 What should be improved:
+	* keyboard support (more scan codes)
 
 Next item:
 	* update the floppy drive support
-	* Get some interrupts working
-	* Get rid of all nasty includes.
+	* get a disk driver working.
+
 What has to be done:
 
 	* Make the bootloader multiboot compatible
-	* update the floppy drive support
-	* Multiboot compatibility
 
 Notes:
 ­eerst image loading met interrupts, dan far jump, ­dan GDT

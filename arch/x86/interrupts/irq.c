@@ -56,7 +56,7 @@ void cIRQ1(gebl_isr_stack regs)
 
 		case 0x12:
 			putc('e');
-		break;
+			break;
 
 		case 0x21:
 			putc('f');
@@ -153,6 +153,10 @@ void cIRQ1(gebl_isr_stack regs)
 
 		case 0x0e:	// backspace
 			putc(0x8);
+			break;
+
+		case 0x50:	// arrow down key
+			scroll(1);
 			break;
 	}
 	
