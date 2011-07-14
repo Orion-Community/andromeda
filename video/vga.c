@@ -47,6 +47,14 @@ void scroll(uint8_t lines)
 			cursor.vidmem[x+y*GEBL_WIDTH] = ((GEBL_WHITE_TXT<<8) | ' ');
 		}
 	}
+	
+	if(lines >= GEBL_HEIGHT)
+	{
+		cursor.line = 0;
+		cursor.x = 0;
+		reloc_cursor(0,0);
+		return;
+	}
 	cursor.line -= lines;
 	reloc_cursor(cursor.x, cursor.line);
 }
