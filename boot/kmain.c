@@ -29,6 +29,7 @@ int core(unsigned short memorymap[], module_t mods[])
   memcpy(modules, mods, MAX_MODS);
   textInit();
   heapStub();
+  extendHeap(&end, HEAPSIZE);
   intInit();
   setGDT();
   

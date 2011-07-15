@@ -26,12 +26,22 @@ char stub[STUBSIZE];
 
 void heapStub()
 {
-  printf ("Reached\n");
-  int i = 0;
-  for (; i < 0x1fffffff; i++);
   mutexEnter(prot);
   memNode_t* node = (memNode_t*)stub;
   initHdr(node, STUBSIZE-sizeof(memNode_t));
   blocks=node;
+  mutexRelease(prot);
+}
+
+extendHeap(void* base, int size)
+{
+  mutexEnter(prot);
+  memNode_t* node = (memNode_t*)base;
+  initHdr(node, STUBSIZE-sizeof(memNode_t));
+  memNode_t* tmp;
+  for (tmp = blocks; tmp->next < node && tmp->next != NULL; tmp = tmp->next);
+  memNode_t* tmpNext = tmp->next;
+  tmp->next = node;
+  node ->next = tmpNext;
   mutexRelease(prot);
 }
