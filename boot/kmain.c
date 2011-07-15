@@ -25,12 +25,22 @@ unsigned char stack[0x10000];
 
 int core(unsigned short memorymap[], module_t mods[])
 {
+  // Install all the necessary data for complex memory management
   memcpy(bitmap, memorymap, PAGES);
   memcpy(modules, mods, MAX_MODS);
+  
+  // Set up the new screen
   textInit();
+  // Install a new heap at the right location.
   heapStub();
   extendHeap(&end, HEAPSIZE);
+  
+  // Set up the new interrupts
   intInit();
+  
+  corePaging();
+  
+  // Set the CPU up so that it no longer requires the nano image
   setGDT();
   
   char* test = kalloc(0x700);

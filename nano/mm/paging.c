@@ -274,4 +274,9 @@ void initPaging ()
   toglePGbit();
 }
 
+void corePaging()
+{
+  printf("The page tables still haven't been installed in high memory!\n");
+}
+
 #endif

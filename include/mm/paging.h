@@ -31,7 +31,8 @@
 #define CHECKALLIGN(a) ((a%PAGESIZE) ? FALSE : TRUE)
 boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode);
 void* getPhysAddr(void* addr);
-void initPaging ();
+void initPaging();
+void corePaging();
 
 struct pageDir
 {
