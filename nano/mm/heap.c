@@ -20,9 +20,6 @@
 #include <thread.h>
 #define SIZE ((size <= ALLOC_MAX) ? size : ALLOC_MAX)
 
-extern memNode_t* blocks;
-extern mutex_t prot;
-
 //Makes use of the memory bitmap to select the pages that are usable.
 //Since the heap has only limited allocation space, there also needs
 //to be a regeon that's used for memory mapping.
@@ -54,7 +51,8 @@ void heapAddBlocks(void* base, int size) // Requests size in bytes
 void heapCoreBlocks(void* base, int size)
 {
   mutexEnter(prot);
-  initHdr(base, size-sizeof(memNode_t));
-  blocks = base;
+  memNode_t* node = (memNode_t*)base;
+  initHdr(node, size-sizeof(memNode_t));
+  blocks=node;
   mutexRelease(prot);
 }

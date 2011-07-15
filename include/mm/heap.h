@@ -20,6 +20,7 @@
 #define __HEAP_H
 
 #include <types.h>
+#include <thread.h>
 
 struct memNode
 {
@@ -37,6 +38,8 @@ void* alloc (size_t,boolean);
 int free (void* ptr);
 void initHdr(memNode_t* block, size_t size);
 
+void heapStub();
+
 #define kalloc(a) alloc(a,FALSE)
 
 // Alloc_max = 1 MB
@@ -53,5 +56,8 @@ void examineHeap();
 
 extern long heapBase;
 extern long heapSize;
+
+extern memNode_t* blocks;
+extern mutex_t prot;
 
 #endif

@@ -10,6 +10,7 @@ new: $(OUTD)
 $(OUTD):
 	#$(MAKE) -C drivers/ FLAGS="$(FLAGS) "
 	$(MAKE) -C kern/ FLAGS="$(FLAGS) "
+	$(MAKE) -C mm/ FLAGS="$(FLAGS) "
 	$(MAKE) -C nano/ FLAGS="$(FLAGS) "
 	$(MAKE) -C math/ FLAGS="$(FLAGS) "
 	$(MAKE) -C boot/ FLAGS="$(FLAGS) "
@@ -18,6 +19,7 @@ $(OUTD):
 	
 	#mv -v drivers/drivers.o ./
 	mv -v kern/kern.o ./
+	mv -v mm/coremm.o ./
 	mv -v nano/*.o ./
 	mv -v math/maths.o ./
 	mv -v boot/*.o ./
@@ -30,6 +32,7 @@ $(OUTD):
 clean:
 	#$(MAKE) -C drivers/ clean
 	$(MAKE) -C kern/ clean
+	$(MAKE) -C mm/ clean
 	$(MAKE) -C nano/ clean
 	$(MAKE) -C math/ clean
 	

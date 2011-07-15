@@ -20,37 +20,27 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 
-extern int end;
-extern int mboot;
-
-int initHeap(long size, boolean compressed)
+int initHeap(long size)
 {
-  if (compressed)
+  long done = 0;
+  int i = 0x100;
+  for (; i < PAGES; i++)
   {
-    long done = 0;
-    int i = 0x100;
-    for (; i < PAGES; i++)
+    if (bitmap[i] == FREE)
     {
-      if (bitmap[i] == FREE)
+      heapAddBlocks((void*)(i*PAGESIZE), PAGESIZE);
+      done += PAGESIZE;
+      claimPage((long)i, COMPRESSED);
+      if (size <= done)
       {
-	heapAddBlocks((void*)(i*PAGESIZE), PAGESIZE);
-	done += PAGESIZE;
-	claimPage((long)i, COMPRESSED);
-	if (size <= done)
-	{
-	  break;
-	}
+        break;
       }
     }
-    #ifdef DBG
-    examineHeap();
-    #endif
-    initPaging();
   }
-  else
-  {
-    heapCoreBlocks(0xFFFFFFFF-size, size);
-  }
+  #ifdef DBG
+  examineHeap();
+  #endif
+  initPaging();
   return 0;
 }
 

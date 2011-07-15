@@ -23,9 +23,6 @@
 extern module_t modules[32];
 extern unsigned short bitmap[PAGES];
 
-extern unsigned long end;
-extern unsigned long mboot;
-
 //#ifdef __COMPRESSED
 void buildMap(multiboot_memory_map_t* map, int size)
 {

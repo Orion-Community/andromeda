@@ -142,7 +142,7 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   #endif
 
   // Initialise the heap
-  initHeap(HEAPSIZE, TRUE);
+  initHeap(HEAPSIZE);
   
   setGDT();
   //prepareIDT();

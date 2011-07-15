@@ -44,7 +44,7 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned);
 memNode_t* merge(memNode_t* alpha, memNode_t* beta);
 
 #ifdef MMTEST
-// Debugging function used to examine the heap (duh ...)
+// Debugging function used to examine the heap
 void examineHeap()
 {
 	printf("Head\n");
@@ -58,7 +58,7 @@ void examineHeap()
 }
 #endif
 #ifdef DBG
-// Debugging function used to examine the heap (duh ...)
+// Debugging function used to examine the heap
 void examineHeap()
 {
 	printf("Head\n");

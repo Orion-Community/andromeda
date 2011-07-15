@@ -16,28 +16,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __MEMORY_H
-#define __MEMORY_H
+#include <mm/memory.h>
+#include <thread.h>
+#include <stdlib.h>
 
-#include <mm/heap.h>
+#define STUBSIZE 0x4000
 
-void paging();
-void memset(void*, int, size_t);
-void memcpy(void*, void*, size_t);
-int memcmp(void*, void*, size_t);
-int initHeap(long size);
+char stub[STUBSIZE];
 
-size_t strlen(char* string);
-
-#ifdef __INTEL
-void setGDT();
-#endif
-
-extern unsigned int mboot;
-extern unsigned int end;
-
-#ifdef X86
-#define PAGESIZE 0x1000
-#endif
-
-#endif
+void heapStub()
+{
+  printf ("Reached\n");
+  int i = 0;
+  for (; i < 0x1fffffff; i++);
+  mutexEnter(prot);
+  memNode_t* node = (memNode_t*)stub;
+  initHdr(node, STUBSIZE-sizeof(memNode_t));
+  blocks=node;
+  mutexRelease(prot);
+}
