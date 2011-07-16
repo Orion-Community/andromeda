@@ -100,7 +100,7 @@ boolean setupCore(module_t mod)
   
   elfJmp(mod.addr);
   
-  return FALSE;
+  return FALSE; //Doesn't get reached, ever, if all goes well
 }
 
 // The main function
@@ -130,31 +130,16 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid modules");
   }
-   
-  #ifdef DBG
-  printf("Addr of stackbase: "); printhex((int)&stack); putc('\n');
-  #endif
-  
-  #ifdef DBG
-  testMMap(hdr);/*
-  int i;
-  for (i = 0; i<0x1FFFFFFF; i++);*/
-  #endif
 
   // Initialise the heap
   initHeap(HEAPSIZE);
   
   setGDT();
-  //prepareIDT();
   intInit(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
 		     // been disabled.
   // If in the compressed image
   announce(); // print welcome message
-  #ifdef __INTEL
-  // Intel specific function
- 
-
   #ifdef VENDORTELL
   switch(getVendor())
   {
@@ -166,29 +151,6 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
       break;
     default:
       printf("You're using a system not officially supported\n");
-  }
-  #endif
-  #endif
-  
-  #ifdef MMTEST
-  wait();
-  #endif
-  
-  #ifdef DBG
-  int *a = kalloc(sizeof(int));
-  printf("Phys addr of: %x = %x\n", (int)a, (int)getPhysAddr(a));
-  free(a);
-  a = (int*)0xC0000000;
-  *a = 0xDEADBEEF;
-  #endif
-  #ifdef MODS
-  if(elfExec((void*)modules[0].addr) == 1)
-  {
-    printf("ELF success!\n");
-  }
-  else
-  {
-    printf("ELF fail!!!!\n");
   }
   #endif
   

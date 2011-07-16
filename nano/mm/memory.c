@@ -44,6 +44,12 @@ int initHeap(long size)
   return 0;
 }
 
+/**
+ * Algorithm below might be optimised by making the read addresses, data bus width alligned:
+ * 32-bits PMode: 32-bits // Depends on CPU caching to get the speed equal to long mode
+ * PAE mode:      32-bits // Does a similar trick to 32-bits PMode
+ * Long mode:     64-bits // Makes the most of register size
+ */
 void memset(void *dest, int sval, size_t count)
 {
   if(!count){return;}

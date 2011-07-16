@@ -72,12 +72,15 @@ void irqHandle(isrVal_t regs)
     picEOI(regs.funcPtr); // Send end of interrupt signal.
   }
 }
+
+// Needs to call a list of functions each time a certain threshold is passed
 unsigned long long timer = 0;
 void timerTick()
 {
   timer+=1;
 }
 
+// Driver needs to use look up tables instead of a huge switch-case structure
 void keyboard()
 {
   char c = inb(0x60);

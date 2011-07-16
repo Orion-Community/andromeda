@@ -18,8 +18,8 @@
 #include <stdlib.h>
 #include <mm/map.h>
 
-// Heap of 200 MiB
-#define HEAPSIZE 0xC800000
+// Heap of 256 MiB
+#define HEAPSIZE 0x10000000
 
 unsigned char stack[0x10000];
 
@@ -42,11 +42,6 @@ int core(unsigned short memorymap[], module_t mods[])
   
   // Set the CPU up so that it no longer requires the nano image
   setGDT();
-  
-  char* test = kalloc(0x700);
-  if (test == NULL)
-    panic("Heap is empty");
-  free (test);
   
   // In the future this will do a little more
   printf("You can now shutdown your PC\n");

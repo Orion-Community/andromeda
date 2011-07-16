@@ -34,6 +34,16 @@
 
 #ifdef __INTEL
 
+/**
+ * This paging system is fun and all, and it works, but it is by no means
+ * optimised. We need someone to take a look at this to optimise it for
+ * both speed and memory savings.
+ *
+ * Another issue this system has, is that it isn't finished yet. This can
+ * be a good thing as if a complete redesign is necessary, it can still
+ * be done.
+ */
+
 void cPageFault(isrVal_t regs)
 {
   #ifdef DBG
