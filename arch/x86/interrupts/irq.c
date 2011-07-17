@@ -19,6 +19,7 @@
 #include <textio.h>
 #include "include/interrupts.h"
 #include "include/pic.h"
+#include "include/keyboard.h"
 
 
 uint64_t timer = 0;
@@ -36,130 +37,10 @@ void cIRQ0(gebl_isr_stack regs)
 void cIRQ1(gebl_isr_stack regs)
 {
 	char c = inb(0x60);
-	switch(c)
-	{
-		case 0x1e:
-			putc('a');
-			break;
+	if(c & 0x80)
+	{}
+	else putc(keycodes[c].value);
 
-		case 0x30:
-			putc('b');
-			break;
-
-		case 0x2e:
-			putc('c');
-			break;
-
-		case 0x20:
-			putc('d');
-			break;
-
-		case 0x12:
-			putc('e');
-			break;
-
-		case 0x21:
-			putc('f');
-			break;
-
-		case 0x22:
-			putc('g');
-			break;
-
-		case 0x23:
-			putc('h');
-			break;
-
-		case 0x17:
-			putc('i');
-			break;
-
-		case 0x24:
-			putc('j');
-			break;
-
-		case 0x25:
-			putc('k');
-			break;
-
-		case 0x26:
-			putc('l');
-			break;
-
-		case 0x32:
-			putc('m');
-			break;
-
-		case 0x31:
-			putc('n');
-			break;
-
-		case 0x18:
-			putc('o');
-			break;
-
-		case 0x19:
-			putc('p');
-			break;
-
-		case 0x10:
-			putc('q');
-			break;
-
-		case 0x13:
-			putc('r');
-			break;
-
-		case 0x1f:
-			putc('s');
-			break;
-
-		case 0x14:
-			putc('t');
-			break;
-
-		case 0x16:
-			putc('u');
-			break;
-
-		case 0x2f:
-			putc('v');
-			break;
-
-		case 0x11:
-			putc('w');
-			break;
-
-		case 0x2d:
-			putc('x');
-			break;
-
-		case 0x15:
-			putc('y');
-			break;
-
-		case 0x2c:
-			putc('z');
-			break;
-			
-
-		case 0x1c: //enter
-			putc(0xa);
-			break;
-
-		case 0x39: // space
-			putc(' ');
-			break;
-
-		case 0x0e:	// backspace
-			putc(0x8);
-			break;
-
-		case 0x50:	// arrow down key
-			scroll(1);
-			break;
-	}
-	
 	pic_eoi(1);
 	return;
 }

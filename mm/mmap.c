@@ -34,31 +34,24 @@ void gebl_display_mmap()
 	int i = 0;
 	uint32_t count = getmmr()->ecount;
 	print("Base address");
-	writeat('|', 30);
+	writeat('|', 20);
 	putc(0x20);
 	print("Length");
-	writeat('|', 60);
+	writeat('|', 40);
 	putc(0x20);
 	print("Type");
-	writeat('|', 80);
-	putc(0x20);
-	print("ACPI");
-	writeat('|', 100);
+
 	putc(0xa);
 	for(; i < count; i++)
 	{
 		entry = getmmapentry(i);
 		printnum((int)entry->base, 16, FALSE, FALSE);
-		writeat('|', 30);
+		writeat('|', 20);
 		putc(0x20);
 		printnum((int)entry->len, 16, FALSE, FALSE);
-		writeat('|', 60);
+		writeat('|', 40);
 		putc(0x20);
 		printnum(entry->type, 16, FALSE, FALSE);
-		writeat('|', 80);
-		putc(0x20);
-		printnum(entry->acpi, 16, FALSE, FALSE);
-		writeat('|', 100);
 		putc(0xa);
 	}
 }

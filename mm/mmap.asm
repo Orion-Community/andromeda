@@ -49,7 +49,7 @@ updatecmosmmap:
 
 	mov eax, 2
 	int 0x30
-	mov [mmr+4], cx
+	mov [mmr+4], ecx
 	mov [mmr], edx
 
 	popad

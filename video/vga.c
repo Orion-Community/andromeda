@@ -118,6 +118,9 @@ void putc(uint8_t c)
 	uint32_t i = (cursor.line * GEBL_WIDTH) + cursor.x;
 	switch(c)
 	{
+		case '\0':
+			break;
+			
 		case '\n':
 			
 			cursor.x = 0;

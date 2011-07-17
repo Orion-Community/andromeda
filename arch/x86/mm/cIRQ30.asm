@@ -60,11 +60,12 @@ proberam:
 	out GEBL_PIC2_DATA, al
 
 	mov ebp, esi	; esi = starting address
-	and esi, ~0xfff	; round down to block
+	add esi, 0xfff
+	and esi, ~0xfff	; round up to block
 	push esi	; esi = starting address rounded (down) to block boundry
 
 	sub ebp, esi	; bytes to add due to rounding down
-	add ecx, ebp
+	sub ecx, ebp
 	shr ecx, 12
 	jz .end		; no blocks to test. lets get out.
 
