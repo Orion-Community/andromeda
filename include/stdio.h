@@ -28,8 +28,10 @@
 struct buffer_s
 {
   char *buffer;
-  int size;
+  unsigned int size;
+  unsigned int cursor;
   struct buffer_s *next;
+  boolean full;
 };
 
 typedef struct buffer_s buffer_t;
