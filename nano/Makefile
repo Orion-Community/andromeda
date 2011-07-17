@@ -19,6 +19,8 @@ $(OUTC):
 	$(MAKE) -C text
 	$(MAKE) -C nano
 	$(MAKE) -C math
+	$(MAKE) -C lib
+	$(MAKE) -C tty
 	mv -v error/panic.o ./
 	mv -v mm/mm.o ./
 	mv -v kern/kern.o ./
@@ -26,6 +28,8 @@ $(OUTC):
 	mv -v text/text.o ./
 	mv -v nano/*.o ./
 	mv -v math/maths.o ./
+	mv -v lib/lib.o ./
+	mv -v tty/terminal.o ./
 	
 	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
 

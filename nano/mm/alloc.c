@@ -72,6 +72,14 @@ void initHdr(memNode_t* block, size_t size)
 // Finds a block on the heap, which is free and which is large enough.
 // In the case that pageAlligned is enabled the block also has to hold
 // page alligned data (usefull for the page directory).
+void* nalloc(size_t size)
+{
+  void* tmp = alloc(size, FALSE);
+  if (tmp != NULL);
+  memset(tmp, 0, size);
+  return tmp;
+}
+
 void* alloc (size_t size, boolean pageAlligned)
 {
 	#ifdef MMTEST

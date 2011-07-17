@@ -41,6 +41,7 @@
 #include <interrupts/int.h>
 #include <boot/mboot.h>
 #include <mm/map.h>
+#include <tty/tty.h>
 
 #include <kern/cpu.h>
 
@@ -54,14 +55,6 @@ multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
 #define HEAPSIZE 0x1000000
-
-
-/* Uncompressed
-
-#define HEAP 0xE0000000
-#define HEAPSIZE 10000000
-
-*/
 
 int vendor = 0;
 
@@ -159,10 +152,14 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   printf("End test\n");
   #endif
   
+  tty_init();
+  
+  #ifndef TESTING
   if (setupCore(modules[0]))
   {
     panic("Core image couldn't be loaded!");
   }
+  #endif
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {

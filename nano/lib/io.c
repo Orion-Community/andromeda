@@ -16,3 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
+#include <tty/tty.h>
+#include <error/panic.h>
+
+void bufWrite(int tty, int buffer, char* data)
+{
+  panic("bufWrite hasn't been implemented yet");
+}
+char* bufRead(int tty, int buffer, int size)
+{
+  panic("bufRead hasn't been implemented yet");
+}

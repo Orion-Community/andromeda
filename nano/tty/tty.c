@@ -17,3 +17,29 @@
 */
 
 #include <tty/tty.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <error/panic.h>
+
+#define TERMINALS 12
+
+tty_t terminals[TERMINALS];
+
+void tty_init()
+{
+  int i = 0;
+  for (; i < TERMINALS; i++)
+  {
+    terminals[i].io = nalloc(sizeof(tty_io_t));
+    if (terminals[i].io == NULL)
+    {
+      panic("Out of memory in tty_init");
+    }
+    terminals[i].io -> input = nalloc(sizeof(buffer_s));
+    terminals[i].io -> output = nalloc(sizeof(buffer_s));
+    if (terminals[i].io -> input == NULL || terminals[i].io -> output == NULL)
+    {
+      panic("Out of memory in tty_init");
+    }
+  }
+}

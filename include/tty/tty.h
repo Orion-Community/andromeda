@@ -30,6 +30,11 @@ typedef struct
 typedef struct {
   tty_io_t* io;
   char* screenBuf;
-} tty_t; 
+  unsigned int cursor_x;
+  unsigned int cursor_y;
+  unsigned int screenmode;
+} tty_t;
+
+void tty_init();
 
 #endif

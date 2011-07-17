@@ -3,14 +3,14 @@ LD=ld
 CFLAGS=-I../../include/ -nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 -D __INTEL -mtune=i686 -march=i386
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-TARGETS=tty.c
+TARGETS=io.c
 
 .PHONY: all
-all: terminal.o
+all: lib.o
 
-terminal.o: $(TARGETS)
+lib.o: $(TARGETS)
 	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)
-	$(LD) -o terminal.o *.o $(LDFLAGS)
+	$(LD) -o lib.o *.o $(LDFLAGS)
 	
 .PHONY: clean
 clean:

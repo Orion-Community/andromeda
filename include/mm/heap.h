@@ -35,6 +35,7 @@ typedef struct memNode memNode_t;
 void heapAddBlocks(void*, int);
 
 void* alloc (size_t,boolean);
+void* nalloc (size_t);
 int free (void* ptr);
 void initHdr(memNode_t* block, size_t size);
 

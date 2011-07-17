@@ -19,6 +19,8 @@
 #ifndef __STDIO_H
 #define __STDIO_H
 
+#include <stdlib.h>
+
 struct
 {
   char *buffer;
