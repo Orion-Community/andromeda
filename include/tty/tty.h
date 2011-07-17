@@ -19,19 +19,12 @@
 #ifndef __TTY_H
 #define __TTY_H
 
-struct
-{
-  char *buffer;
-  int size;
-  struct tty_buffer_s* next;
-} tty_buffer_s;
-
-typedef struct tty_buffer_s tty_buffer_t;
+#include <stdio.h>
 
 typedef struct
 {
-  tty_buffer_t* input;
-  tty_buffer_t* output;
+  buffer_t* input;
+  buffer_t* output;
 } tty_io_t;
 
 typedef struct {

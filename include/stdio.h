@@ -19,6 +19,13 @@
 #ifndef __STDIO_H
 #define __STDIO_H
 
-#include <tty/tty.h>
+struct
+{
+  char *buffer;
+  int size;
+  struct buffer_s* next;
+} buffer_s;
+
+typedef struct buffer_s buffer_t;
 
 #endif
