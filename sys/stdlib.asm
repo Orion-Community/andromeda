@@ -16,6 +16,9 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[SECTION .data]
+fakeidt:	dw 0x0
+		dd 0x0
 [SECTION .text]
 
 %include "sys/include/stdlib.h"
@@ -67,4 +70,10 @@ setInterrupts:
 [GLOBAL clearInterrupts]
 clearInterrupts:
 	cli
+	ret
+
+[GLOBAL reboot]
+reboot:
+	sti
+	lidt [fakeidt]
 	ret

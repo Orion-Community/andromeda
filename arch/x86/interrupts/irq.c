@@ -20,6 +20,7 @@
 #include "include/interrupts.h"
 #include "include/pic.h"
 #include "include/keyboard.h"
+#include <sys/stdlib.h>
 
 
 uint64_t timer = 0;
@@ -34,12 +35,56 @@ void cIRQ0(gebl_isr_stack regs)
 	
 	return;
 }
+
+bool alt = FALSE;
+bool ctrl = FALSE;
+bool end = FALSE;
 void cIRQ1(gebl_isr_stack regs)
 {
 	char c = inb(0x60);
 	if(c & 0x80)
-	{}
-	else putc(keycodes[c].value);
+	{
+		/*
+		 * Here I can test if the shift key is pressed or not and display capital letters and stuff like that..
+		 */
+		uint8_t tmp = c ^ 0x80;
+		if(tmp == 0x38) alt = FALSE;
+		if(tmp == 0x1d) ctrl = FALSE;
+		if(tmp == 0x4f) end = FALSE;
+	}
+
+	else
+	{
+		/*
+		 * All default letters are taken from the array. All other keys are handled in this switch case
+		 */
+		switch(c)
+		{
+			case 0x38:
+				alt = TRUE;
+				break;
+
+			case 0x1d:
+				ctrl = TRUE;
+				break;
+
+			case 0x4f:
+				end = TRUE;
+				break;
+
+			case 0x50:
+				scroll(1);
+				break;
+			default:
+				putc(keycodes[c].value);
+				break;
+		}
+	}
+	
+	if(ctrl && alt && end)
+	{
+		reboot();
+	}
 
 	pic_eoi(1);
 	return;
