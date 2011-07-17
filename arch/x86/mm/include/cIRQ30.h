@@ -99,10 +99,10 @@
 	pop eax
 %endmacro
 
-%macro xtest 2
-	push %1
+%macro xchange 2
 	xor %1, %2
-	pop %1
+	xor %2, %1
+	xor %1, %2
 %endmacro
 
 dummy dd 0

@@ -31,13 +31,13 @@ cIRQ30:
 	push ebp
 	mov eax, [ebp+36]
 
-	xtest eax, 0001b
+	cmp eax, 0001b
 	jz proberam
 
-	xtest eax, 0010b
+	cmp eax, 0010b
 	jz createmmap
 	
-	xtest eax, 0011b
+	cmp eax, 0011b
 	jz updatecmos
 
 .end:
@@ -60,8 +60,8 @@ proberam:
 	out GEBL_PIC2_DATA, al
 
 	mov ebp, esi	; esi = starting address
-	add esi, 0xfff
-	and esi, ~0xfff	; round up to block
+	add esi, GEBL_PROBE_BLOCKSIZE - 1
+	and esi, ~(GEBL_PROBE_BLOCKSIZE - 1)	; round up to block
 	push esi	; esi = starting address rounded (down) to block boundry
 
 	sub ebp, esi	; bytes to add due to rounding down
@@ -69,12 +69,14 @@ proberam:
 	shr ecx, 12
 	jz .end		; no blocks to test. lets get out.
 
-	mov eax, ecx	; eax is blocks to test
-	xor ecx, ecx
-	or esi, 0xffc	; round up to last word of block
+	xor eax, eax
+
+	xchange eax, ecx
+
+	or esi, GEBL_PROBE_BLOCKSIZE - 4	; round up to last word of block
 	push .l1
 .looptop:
-	cmp esi, GEBL_HOLE_BASE | 0xffc
+	cmp esi, GEBL_HOLE_BASE | (GEBL_PROBE_BLOCKSIZE - 4)
 	je .skiphole
 .l1:
 	memtest esi
