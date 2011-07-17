@@ -86,7 +86,7 @@ int coreAugment(void* image)
   {
     Elf32_Phdr* hdr = (Elf32_Phdr*)thisHeader;
     if (hdr->p_type != 0x6474E551)
-    memcpy(hdr->p_vaddr, (void*)(hdr->p_offset+(unsigned int) image), hdr->p_memsz);
+    memcpy((void*)hdr->p_vaddr, (void*)(hdr->p_offset+(unsigned int) image), hdr->p_memsz);
     
     // Memory protection flags should probably be set here.
     

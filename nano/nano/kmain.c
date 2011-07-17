@@ -69,7 +69,7 @@ void announce()
 boolean setupCore(module_t mod)
 {
   // Examine and augment the elf image here, return true if faulty
-  switch(coreCheck(mod.addr))
+  switch(coreCheck((void*)mod.addr))
   {
     case 0:
       break;

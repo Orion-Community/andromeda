@@ -21,19 +21,19 @@
 
 #include <stdio.h>
 
-typedef struct
-{
-  buffer_t* input;
-  buffer_t* output;
-} tty_io_t;
+#define TERMINALS 12
 
 typedef struct {
-  tty_io_t* io;
-  char* screenBuf;
+  buffer_t buffers[0x10];
+  char* frameBuf;
   unsigned int cursor_x;
   unsigned int cursor_y;
+  unsigned int size_x;
+  unsigned int size_y;
   unsigned int screenmode;
 } tty_t;
+
+extern tty_t terminals[];
 
 void tty_init();
 

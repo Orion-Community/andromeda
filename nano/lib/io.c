@@ -23,8 +23,10 @@
 void bufWrite(int tty, int buffer, char* data)
 {
   panic("bufWrite hasn't been implemented yet");
+  if (tty >= TERMINALS || buffer == STDIN)
+    return;
 }
-char* bufRead(int tty, int buffer, int size)
+char* bufRead(int tty, char* buffer, int size)
 {
   panic("bufRead hasn't been implemented yet");
 }

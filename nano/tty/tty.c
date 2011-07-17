@@ -21,7 +21,8 @@
 #include <stdlib.h>
 #include <error/panic.h>
 
-#define TERMINALS 12
+#define VGA_WIDTH  80
+#define VGA_HEIGHT 25
 
 tty_t terminals[TERMINALS];
 
@@ -30,16 +31,11 @@ void tty_init()
   int i = 0;
   for (; i < TERMINALS; i++)
   {
-    terminals[i].io = nalloc(sizeof(tty_io_t));
-    if (terminals[i].io == NULL)
-    {
-      panic("Out of memory in tty_init");
-    }
-    terminals[i].io -> input = nalloc(sizeof(buffer_s));
-    terminals[i].io -> output = nalloc(sizeof(buffer_s));
-    if (terminals[i].io -> input == NULL || terminals[i].io -> output == NULL)
-    {
-      panic("Out of memory in tty_init");
-    }
+    terminals[i].frameBuf   = nalloc(2*VGA_HEIGHT*VGA_WIDTH);
+    terminals[i].cursor_x   = 0;
+    terminals[i].cursor_y   = 0;
+    terminals[i].size_x     = VGA_WIDTH;
+    terminals[i].size_y     = VGA_HEIGHT;
+    terminals[i].screenmode = 0;
   }
 }

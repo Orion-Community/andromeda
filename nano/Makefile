@@ -45,6 +45,8 @@ clean:
 	$(MAKE) -C kern clean
 	$(MAKE) -C arch clean
 	$(MAKE) -C nano clean
+	$(MAKE) -C lib clean
+	$(MAKE) -C tty clean
 
 .PHONY: all
 test: all

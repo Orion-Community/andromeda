@@ -21,12 +21,16 @@
 
 #include <stdlib.h>
 
-struct
+#define STDERR 0
+#define STDOUT 1
+#define STDIN  2
+
+struct buffer_s
 {
   char *buffer;
   int size;
-  struct buffer_s* next;
-} buffer_s;
+  struct buffer_s *next;
+};
 
 typedef struct buffer_s buffer_t;
 
