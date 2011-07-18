@@ -35,17 +35,25 @@ void tty_init()
     terminals[i].size_x     = VGA_WIDTH;
     terminals[i].size_y     = VGA_HEIGHT;
     terminals[i].screenmode = 0;
+    terminals[i].lock       = 0;
     for (j = 0; j < BUFFERS; j++)
     {
-      terminals[i].buffers[j].buffer = nalloc(80*sizeof(char));
-      if (terminals[i].buffers[j].buffer == NULL)
+      buffer_t *tmp = nalloc(sizeof(buffer_t));
+      if (tmp == NULL)
       {
 	panic("Out of memory in tty_init");
       }
-      terminals[i].buffers[j].size   = 80;
-      terminals[i].buffers[j].cursor = 0;
-      terminals[i].buffers[j].next   = NULL;
-      terminals[i].buffers[j].full   = FALSE;
+      terminals[i].buffers[j] = tmp;
+      tmp->buffer = nalloc(80);
+      if (tmp->buffer == NULL)
+      {
+	panic("Out of memory in tty_init");
+      }
+      tmp->size   = 80;
+      tmp->cursor = 0;
+      tmp->next   = NULL;
+      tmp->full   = FALSE;
+      tmp->lock   = 0;
     }
   }
 }
@@ -54,13 +62,15 @@ buffer_t *ttyFindNextBuffer(int tty, int buffer)
 {
   if (tty >= TERMINALS || buffer == STDIN)
     return;
-  buffer_t *current = &terminals[tty].buffers[buffer];
+  buffer_t *current = terminals[tty].buffers[buffer];
   
   for (; current->full == FALSE; current = current->next)
   {
     if (current->next == NULL)
     {
+      mutexEnter(current->lock);
       current->next = initBuffer();
+      mutexRelease(current->lock);
     }
   }
   return current;
@@ -69,7 +79,8 @@ buffer_t *ttyFindNextBuffer(int tty, int buffer)
 void ttyWrite(int tty, int buffer, char* data)
 {
   buffer_t *current = ttyFindNextBuffer(tty, buffer);
-  
+  mutexEnter(terminals[tty].lock);
+  mutexEnter(current->lock);
   unsigned int tomove = strlen(data);
   unsigned int index = 0;
   unsigned int moved = 0;
@@ -84,23 +95,33 @@ void ttyWrite(int tty, int buffer, char* data)
     if (current -> cursor == current -> size)
     {
       current->full = TRUE;
+      mutexRelease(current->lock);
       current = ttyFindNextBuffer(tty, buffer);
+      mutexEnter(current->lock);
     }
   }
+  mutexRelease(current->lock);
+  mutexRelease(terminals[tty].lock);
+}
+
+char* ttyRead(int tty, int* buffer, int size)
+{
+  panic("bufRead hasn't been implemented yet");
 }
 
 void ttyUpdate(int tty, int buffer, size_t chars)
 {
+  buffer_t *current = terminals[tty].buffers[buffer];
+  unsigned int done = 0;
+  for(;chars != 0; chars -= done)
+  {
+    
+  }
   // Memcpy from buffer, to tty screen buffer untill chars amount is transferred or the buffer is empty
 }
 
 void ttyFlush(int tty)
 {
   // Set video mode according to tty
-  // Memcpy the screenbuffer to framebuffer
-}
-
-char* ttyRead(int tty, int* buffer, int size)
-{
-  panic("bufRead hasn't been implemented yet");
+  // Memcpy the framebuffer to screenbuffer
 }
