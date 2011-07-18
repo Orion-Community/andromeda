@@ -39,7 +39,7 @@ buffer_t *initBuffer()
   return buf;
 }
 
-buffer_t* getFirstSpace(buffer_t* buffer)
+inline buffer_t* getFirstSpace(buffer_t* buffer)
 {
   buffer_t* tmp = buffer;
   for (; tmp->full == TRUE; tmp = tmp->next)
@@ -65,9 +65,14 @@ void bufferWrite(buffer_t* buffer, char* data)
     doing = (current->size - current->cursor >= remaining) ? remaining : current->size - current->cursor;
     void* dst = (void*)((unsigned long)current->buffer+current->cursor);
     void* src = (void*)((unsigned long)data+cursor);
-    memset(dst, src, doing);
+    memcpy(dst, src, doing);
     cursor += doing;
     remaining -= doing;
     mutexRelease(current->lock);
   }
+}
+
+char* bufferRead(buffer_t* buffer, size_t data)
+{
+  
 }
