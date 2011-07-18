@@ -23,7 +23,7 @@
 
 tty_t terminals[TERMINALS];
 
-void tty_init()
+void ttyInit()
 {
   int i = 0;
   int j;
@@ -58,70 +58,17 @@ void tty_init()
   }
 }
 
-buffer_t *ttyFindNextBuffer(int tty, int buffer)
+void ttyWrite(char* data)
 {
-  if (tty >= TERMINALS || buffer == STDIN)
-    return;
-  buffer_t *current = terminals[tty].buffers[buffer];
   
-  for (; current->full == FALSE; current = current->next)
+}
+
+void ttyWriteBuffer(buffer_t* buffer)
+{
+  buffer_t* current = buffer;
+  int done = 0;
+  while(current->next != NULL)
   {
-    if (current->next == NULL)
-    {
-      mutexEnter(current->lock);
-      current->next = initBuffer();
-      mutexRelease(current->lock);
-    }
+    ttyWrite(current->buffer);
   }
-  return current;
-}
-
-void ttyWrite(int tty, int buffer, char* data)
-{
-  buffer_t *current = ttyFindNextBuffer(tty, buffer);
-  mutexEnter(terminals[tty].lock);
-  mutexEnter(current->lock);
-  unsigned int tomove = strlen(data);
-  unsigned int index = 0;
-  unsigned int moved = 0;
-  for (; tomove!=0; tomove -= moved)
-  {
-    moved = (tomove >= current->size-current->cursor) ? current->size-current->cursor : tomove;
-    void* dst = (void*)((unsigned long)current->buffer + current->cursor);
-    void* src = (void*)((unsigned long)data + index);
-    memset(dst, src, moved);
-    index += moved;
-    current->cursor += moved;
-    if (current -> cursor == current -> size)
-    {
-      current->full = TRUE;
-      mutexRelease(current->lock);
-      current = ttyFindNextBuffer(tty, buffer);
-      mutexEnter(current->lock);
-    }
-  }
-  mutexRelease(current->lock);
-  mutexRelease(terminals[tty].lock);
-}
-
-char* ttyRead(int tty, int* buffer, int size)
-{
-  panic("bufRead hasn't been implemented yet");
-}
-
-void ttyUpdate(int tty, int buffer, size_t chars)
-{
-  buffer_t *current = terminals[tty].buffers[buffer];
-  unsigned int done = 0;
-  for(;chars != 0; chars -= done)
-  {
-    
-  }
-  // Memcpy from buffer, to tty screen buffer untill chars amount is transferred or the buffer is empty
-}
-
-void ttyFlush(int tty)
-{
-  // Set video mode according to tty
-  // Memcpy the framebuffer to screenbuffer
 }

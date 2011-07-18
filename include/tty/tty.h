@@ -28,22 +28,12 @@
 #define VGA_HEIGHT 25
 
 typedef struct {
-  buffer_t *buffers[BUFFERS];
   char* frameBuf;
   unsigned int cursor_x;
   unsigned int cursor_y;
   unsigned int size_x;
   unsigned int size_y;
   unsigned int screenmode;
-  mutex_t lock;
 } tty_t;
-
-extern tty_t terminals[];
-
-void tty_init();
-
-buffer_t *ttyFindNextBuffer(int tty, int buffer);
-void ttyWrite(int tty, int buffer, char* data);
-char* ttyRead(int tty, int* buffer, int size);
 
 #endif

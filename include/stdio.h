@@ -33,7 +33,6 @@ struct buffer_s
   unsigned int cursor;
   struct buffer_s *next;
   boolean full;
-  mutex_t lock;
 };
 
 typedef struct buffer_s buffer_t;
