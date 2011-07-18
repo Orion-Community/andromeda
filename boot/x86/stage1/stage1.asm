@@ -1,5 +1,5 @@
 ;
-;    Golden Eagle Boot loader. The first stage is loaded by the bios at 0x0:0x7C00.
+;    First stage of openLoader. The first stage is loaded by the bios at 0x0:0x7C00.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify

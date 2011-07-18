@@ -1,5 +1,5 @@
 /*
- *   GoldenEagle Bootloader C entry point.
+ *   openLoader C entry point.
  *   Copyright (C) 2011  Michel Megens
  *
  *   This program is free software: you can redistribute it and/or modify
