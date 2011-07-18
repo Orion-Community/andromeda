@@ -35,26 +35,8 @@ void ttyInit()
     terminals[i].size_x     = VGA_WIDTH;
     terminals[i].size_y     = VGA_HEIGHT;
     terminals[i].screenmode = 0;
-    terminals[i].lock       = 0;
-    for (j = 0; j < BUFFERS; j++)
-    {
-      buffer_t *tmp = nalloc(sizeof(buffer_t));
-      if (tmp == NULL)
-      {
-	panic("Out of memory in tty_init");
-      }
-      terminals[i].buffers[j] = tmp;
-      tmp->buffer = nalloc(80);
-      if (tmp->buffer == NULL)
-      {
-	panic("Out of memory in tty_init");
-      }
-      tmp->size   = 80;
-      tmp->cursor = 0;
-      tmp->next   = NULL;
-      tmp->full   = FALSE;
-      tmp->lock   = 0;
-    }
+    terminals[i].stdin      = initBuffer();
+    terminals[i].stdout     = initBuffer();
   }
 }
 
@@ -65,10 +47,5 @@ void ttyWrite(char* data)
 
 void ttyWriteBuffer(buffer_t* buffer)
 {
-  buffer_t* current = buffer;
-  int done = 0;
-  while(current->next != NULL)
-  {
-    ttyWrite(current->buffer);
-  }
+
 }

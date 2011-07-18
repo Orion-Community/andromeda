@@ -17,13 +17,17 @@
 */
 
 #include <stdio.h>
-#include <tty/tty.h>
+#include <thread.h>
 #include <error/panic.h>
 
 buffer_t *initBuffer()
 {
   buffer_t *buf = nalloc(sizeof(buffer_t));
-  buf->buffer = nalloc(80*sizeof(char));
+  if (buf == NULL)
+  {
+    panic("Out of memory in initBuffer");
+  }
+  buf->buffer = nalloc(80);
   if (buf->buffer == NULL)
   {
     panic("Out of memory in initBuffer");
@@ -33,4 +37,37 @@ buffer_t *initBuffer()
   buf->next   = NULL;
   buf->full   = FALSE;
   return buf;
+}
+
+buffer_t* getFirstSpace(buffer_t* buffer)
+{
+  buffer_t* tmp = buffer;
+  for (; tmp->full == TRUE; tmp = tmp->next)
+  {
+    if (tmp->next == NULL)
+    {
+      tmp->next = initBuffer();
+    }
+  }
+}
+
+void bufferWrite(buffer_t* buffer, char* data)
+{
+  unsigned int todo = strlen(data);
+  unsigned int remaining = todo;
+  unsigned int cursor = 0;
+  unsigned int done = 0;
+  unsigned int doing = 0;
+  for (; done <= todo; done += doing)
+  {
+    buffer_t* current = getFirstSpace(buffer);
+    mutexEnter(current->lock);
+    doing = (current->size - current->cursor >= remaining) ? remaining : current->size - current->cursor;
+    void* dst = (void*)((unsigned long)current->buffer+current->cursor);
+    void* src = (void*)((unsigned long)data+cursor);
+    memset(dst, src, doing);
+    cursor += doing;
+    remaining -= doing;
+    mutexRelease(current->lock);
+  }
 }

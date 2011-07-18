@@ -22,12 +22,13 @@
 #include <stdio.h>
 
 #define TERMINALS 0x8
-#define BUFFERS   0x10
 
 #define VGA_WIDTH  80
 #define VGA_HEIGHT 25
 
 typedef struct {
+  buffer_t* stdin;
+  buffer_t* stdout;
   char* frameBuf;
   unsigned int cursor_x;
   unsigned int cursor_y;

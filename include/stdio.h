@@ -22,10 +22,6 @@
 #include <stdlib.h>
 #include <thread.h>
 
-#define STDERR 0
-#define STDOUT 1
-#define STDIN  2
-
 struct buffer_s
 {
   char *buffer;
@@ -33,6 +29,7 @@ struct buffer_s
   unsigned int cursor;
   struct buffer_s *next;
   boolean full;
+  mutex_t lock;
 };
 
 typedef struct buffer_s buffer_t;

@@ -152,7 +152,7 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   printf("End test\n");
   #endif
   
-  tty_init();
+  ttyInit();
   
   #ifndef TESTING
   if (setupCore(modules[0]))
