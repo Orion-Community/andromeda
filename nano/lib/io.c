@@ -46,13 +46,62 @@ inline buffer_t* getFirstSpace(buffer_t* buffer)
   {
     if (tmp->next == NULL)
     {
+      mutexEnter(tmp->lock);
       tmp->next = initBuffer();
+      mutexRelease(tmp->lock);
     }
   }
 }
-
+#ifdef FAST
 void bufferWrite(buffer_t* buffer, char* data)
 {
+  buffer_t* buf = buffer;
+  while(buf->full)
+  {
+    buf = buf->next;
+  }
+  int len = strlen(data);
+  mutexEnter(buf->lock);
+  if( len + buf->cursor < buf->size )
+  {
+    memcpy( (char*)buf->cursor, data, len );
+    buf->cursor += len;
+    mutexRelease(buf->lock);
+  }
+  else
+  {
+    int i = buf->size - buf->cursor;
+    memcpy( (char*)buf->cursor, data, i);
+    buf->cursor = buf->size;
+    mutexRelease(buf->lock);
+    while(1)
+    {
+      if(buf->next = NULL)
+        buf->next = initBuffer();
+      buf = buf->next;
+      mutexEnter( buf->lock );
+      if( len - i > buf->size )
+      {
+        buf->cursor = buf->size;
+        memcpy( buf->buffer, data + i, buf->size );
+        i+=buf->size;
+        mutexRelease(buf->lock);
+      }
+      else
+      {
+        memcpy( buf->buffer, data + i, len - i );
+        mutexRelease(buf->lock);
+        break;
+      }
+    }
+    if(buf->next = NULL)
+      buf->next = initBuffer();
+  }
+}
+#else
+void bufferWrite(buffer_t* buffer, char* data)
+{
+  buffer_t* current = buffer;
   unsigned int todo = strlen(data);
   unsigned int remaining = todo;
   unsigned int cursor = 0;
@@ -60,7 +109,7 @@ void bufferWrite(buffer_t* buffer, char* data)
   unsigned int doing = 0;
   for (; done <= todo; done += doing)
   {
-    buffer_t* current = getFirstSpace(buffer);
+    current = getFirstSpace(current);
     mutexEnter(current->lock);
     doing = (current->size - current->cursor >= remaining) ? remaining : current->size - current->cursor;
     void* dst = (void*)((unsigned long)current->buffer+current->cursor);
@@ -71,8 +120,24 @@ void bufferWrite(buffer_t* buffer, char* data)
     mutexRelease(current->lock);
   }
 }
-
-char* bufferRead(buffer_t* buffer, size_t data)
+#endif
+char* bufferRead(buffer_t** buffer, size_t data)
 {
-  
+  buffer_t* current = *(buffer);
+  buffer_t* next = NULL;
+  char* output = nalloc(data+1);
+  unsigned int remaining = data;
+  unsigned int doing = 0;
+  unsigned int done = 0;
+  for (;done == data; done += doing)
+  {
+    doing = (current->size - current->read < remaining) ? current->size - current->read : remaining;
+    
+    void* dst = (void*)((unsigned long)output+done);
+    void* src = (void*)((unsigned long)current->buffer);
+    
+    memcpy (dst, src, doing);
+    
+    remaining -= doing;
+  }
 }

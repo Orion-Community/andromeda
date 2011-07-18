@@ -27,6 +27,7 @@ struct buffer_s
   char *buffer;
   unsigned int size;
   unsigned int cursor;
+  unsigned int read;
   struct buffer_s *next;
   boolean full;
   mutex_t lock;
