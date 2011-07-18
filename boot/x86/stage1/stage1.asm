@@ -22,7 +22,7 @@
 jmp short main
 nop
 
-booted db 'GEBL is booted. (C) Michel Megens, 2011', 0x0
+booted db 'openLoader is booted. (C) Michel Megens, 2011 - Press a key to continue.', 0x0
 failed db '0x1', 0x0
 dap:
 	db 0x10      	; register size
@@ -133,6 +133,10 @@ main: ; entry point
 .loaded:
 	mov si, booted
 	call println
+; wait for keyboard input
+	xor ah, ah
+	int 0x16
+
 	pop dx
 	pop si
 	jmp 0x0:0x7E00

@@ -23,7 +23,7 @@
 
 bool inKernelRing()
 {
-	gebl_segments_t * segs = getsegs();
+	OL_segments_t * segs = getsegs();
 	uint8_t * error = "Not in kernel ring!";
 	
 	if((segs->cs & 0x8) == 0)
@@ -38,7 +38,7 @@ bool inKernelRing()
 	return TRUE;
 }
 
-void cDivByZero(gebl_isr_stack regs)
+void cDivByZero(OL_isr_stack regs)
 {
 	print("\nI define you as idiot. You just tried to divede by zero. Code \nfailed at EIP: ");
 	printnum(regs.eip, 16, FALSE, FALSE);
@@ -89,7 +89,7 @@ void cStackFault()
 {
 	panic("Stack fault!");
 }
-void cGenProt(gebl_isr_stack regs)
+void cGenProt(OL_isr_stack regs)
 {
 	print("General protection fault! Fault occured at: ");
 	printnum(regs.eip, 16, FALSE, FALSE);
@@ -100,7 +100,7 @@ void cPageFault()
 {
 	panic("Page fault");
 }
-void cFpu(gebl_isr_stack regs)
+void cFpu(OL_isr_stack regs)
 {
 	putc(0xa);
 	print("Floating point fault at EIP ");

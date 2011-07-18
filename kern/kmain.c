@@ -28,14 +28,14 @@ void kmain(void)
 	textinit();
 	clearscreen();
 
-	println("GoldenEagle kernel is executing. \n");
+	println("The openLoader kernel is executing. \n");
 
 	char status = inb(0x60);
 
 	putc(0xa);
 	
 	println("Current stack pointer: ");
-	gebl_registers_t * regs = getregs();
+	OL_registers_t * regs = getregs();
 	printnum(regs->esp, 16, FALSE, FALSE);
 	putc(0xa);
 
@@ -49,9 +49,9 @@ void kmain(void)
 	setIDT();
 #ifdef __DEBUG
 	println("Multiboot memory map:\n");
-	gebl_display_mmap();
+	OL_display_mmap();
 #endif
-	outb(GEBL_KBC_COMMAND, GEBL_KB_INIT);
+	outb(OL_KBC_COMMAND, OL_KB_INIT);
 	println("Waiting for service interrupts..");
 	while(1) halt();
 	println("End of program reached!");

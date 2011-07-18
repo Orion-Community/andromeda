@@ -20,7 +20,7 @@
 
 void panic(uint8_t * str)
 {
-	println("GEBL PANIC!");
+	println("openLoader PANIC!");
 	println(str);
 	halt();
 }

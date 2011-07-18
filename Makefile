@@ -20,13 +20,13 @@ MBR=boot/x86/masterboot.asm
 MBR_IMG=build/masterboot.bin
 BIN1=build/stage1.bin
 BIN2=build/stage15.bin
-GEBL=build/goldeneaglebl.bin
+OL=build/openloader.bin
 BOOTBLOCK=build/bootblock.bin
 
 
 
 .PHONY: all
-all: $(GEBL)
+all: $(OL)
 
 .PHONY: masterboot
 masterboot: $(MBR_IMG)
@@ -57,6 +57,6 @@ $(BOOTBLOCK): $(BIN1) $(BIN2)
 	dd if=$(BIN1) of=$(BOOTBLOCK) seek=0
 	dd if=$(BIN2) of=$(BOOTBLOCK) seek=1 ibs=512 conv=sync
 
-$(GEBL): $(MBR_IMG) $(BOOTBLOCK)
-	dd if=$(MBR_IMG) of=$(GEBL) seek=0
-	dd if=$(BOOTBLOCK) of=$(GEBL) seek=2048
+$(OL): $(MBR_IMG) $(BOOTBLOCK)
+	dd if=$(MBR_IMG) of=$(OL) seek=0
+	dd if=$(BOOTBLOCK) of=$(OL) seek=2048

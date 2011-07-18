@@ -1,5 +1,5 @@
 /*
- *   The GEBL standard library.
+ *   The OL standard library.
  *   Copyright (C) 2011  Michel Megens
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -22,8 +22,8 @@
 #define NULL 0
 #define FALSE 0
 #define TRUE !FALSE
-#define GEBL_KBC_COMMAND 0x64
-#define GEBL_KB_INIT 0xae
+#define OL_KBC_COMMAND 0x64
+#define OL_KB_INIT 0xae
 
 typedef unsigned long long uint64_t;
 typedef unsigned int uint32_t;
@@ -42,7 +42,7 @@ struct registers
 	uint32_t ebp;
 	uint32_t esp;
 } __attribute__((packed));
-typedef struct registers gebl_registers_t;
+typedef struct registers OL_registers_t;
 
 struct segments
 {
@@ -54,15 +54,15 @@ struct segments
 	uint16_t ss;
 	
 } __attribute__((packed));
-typedef struct segments gebl_segments_t;
+typedef struct segments OL_segments_t;
 
 /*
  * Halt the system until it is interrupted.
  */
 extern void halt();
 extern void endprogram();
-extern gebl_registers_t * getregs();
-extern gebl_segments_t * getsegs();
+extern OL_registers_t * getregs();
+extern OL_segments_t * getsegs();
 // extern void testIDT();
 extern void setInterrupts();
 extern void clearInterrupts();

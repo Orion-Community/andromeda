@@ -24,7 +24,7 @@
 ; The entry size is given in the mmr.
 [GLOBAL getmemorymap]
 getmemorymap:
-	mov ax, GEBL_MMAP_SEG
+	mov ax, OL_MMAP_SEG
 	mov es, ax
 	xor di, di
 
@@ -44,9 +44,9 @@ mm_e820:
 	mov eax, 0xe820
 	xor ebx, ebx
 	mov ecx, 0x18
-	mov edx, GEBL_SMAP
+	mov edx, OL_SMAP
 	push edx
-	mov [es:di+20], dword GEBL_ACPI ; acpi 3.x compatibility
+	mov [es:di+20], dword OL_ACPI ; acpi 3.x compatibility
 	int 0x15
 	pop edx	; restore magic number
 
@@ -60,9 +60,9 @@ mm_e820:
 .getentry:
 	mov eax, 0xe820
 	mov ecx, 0x18
-	mov edx, GEBL_SMAP
+	mov edx, OL_SMAP
 	push edx
-	mov [es:di+20], dword GEBL_ACPI
+	mov [es:di+20], dword OL_ACPI
 	int 0x15
 	pop edx
 
@@ -98,7 +98,7 @@ mm_e820:
 ;
 mm_e801:
 	xor di, di
-	mov ax, GEBL_MMAP_SEG
+	mov ax, OL_MMAP_SEG
 	mov es, ax
 	call lowmmap
 	jc .failed
@@ -114,10 +114,10 @@ mm_e801:
 
 	and ecx, 0xffff	; clear upper 16 bits
 	shl ecx, 10
-	mov [es:di], dword GEBL_EXT_BASE
+	mov [es:di], dword OL_EXT_BASE
 	mov [es:di+8], ecx		;dword (0x3c00<<10)
-	mov [es:di+16], byte GEBL_USABLE_MEM
-	mov [es:di+20], byte GEBL_ACPI
+	mov [es:di+16], byte OL_USABLE_MEM
+	mov [es:di+20], byte OL_ACPI
 
 	jecxz .useax
 	nxte .highmem
@@ -134,10 +134,10 @@ mm_e801:
 
 	and edx, 0xffff
 	shl edx, 16	; edx * 1024 * 64
-	mov [es:di], dword GEBL_HIGH_BASE
+	mov [es:di], dword OL_HIGH_BASE
 	mov [es:di+8], edx
-	mov [es:di+16],	byte GEBL_USABLE_MEM	; type -> usable
-	mov [es:di+20], byte GEBL_ACPI	; acpi 3.0 compatible
+	mov [es:di+16],	byte OL_USABLE_MEM	; type -> usable
+	mov [es:di+20], byte OL_ACPI	; acpi 3.0 compatible
 
 	test edx, edx
 	jz .usebx
@@ -167,7 +167,7 @@ mm_e801:
 ; 
 mm_88:
 	xor di, di	; set segment:offset of the buffer, just to be sure
-	mov ax, GEBL_MMAP_SEG
+	mov ax, OL_MMAP_SEG
 	mov es, ax
 
 	call lowmmap	; get a lowmmap
@@ -207,10 +207,10 @@ lowmmap:
 	and eax, 0xffff	; clear upper 16  bits
 	shl eax, 10	; convert to bytes
 	push eax	; save for later
-	mov [es:di], dword GEBL_LOW_BASE
+	mov [es:di], dword OL_LOW_BASE
 	mov [es:di+8], eax
-	mov [es:di+16], dword GEBL_USABLE_MEM
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0 compatible entry
+	mov [es:di+16], dword OL_USABLE_MEM
+	mov [es:di+20], dword OL_ACPI	; acpi 3.0 compatible entry
 
 	nxte .lowres
 
@@ -223,8 +223,8 @@ lowmmap:
 
 	mov [es:di], eax
 	mov [es:di+8], edx	; length (in bytes)
-	mov [es:di+16], dword GEBL_RESERVED_MEM	; reserverd memory
-	mov [es:di+20], dword GEBL_ACPI		; also this entry is acpi 3.0 compatible
+	mov [es:di+16], dword OL_RESERVED_MEM	; reserverd memory
+	mov [es:di+20], dword OL_ACPI		; also this entry is acpi 3.0 compatible
 	jmp .done
 
 .failed:
@@ -251,16 +251,16 @@ addmemoryhole:
 	; first 14 mb are usable
 	mov [es:di], dword 0x100000	; base - 15mb
 	mov [es:di+8], dword 0x00E00000 ; length = 14 mb
-	mov [es:di+16], dword GEBL_USABLE_MEM	; usable memory
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	mov [es:di+16], dword OL_USABLE_MEM	; usable memory
+	mov [es:di+20], dword OL_ACPI	; acpi 3.0
 	
 	call .next
 	
 .hole:	
 	mov [es:di], dword 0x00F00000	; base - 15mb
 	mov [es:di+8], dword 0x00100000	; length = 1mb
-	mov [es:di+16], dword GEBL_BAD_MEM	; bad memory
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	mov [es:di+16], dword OL_BAD_MEM	; bad memory
+	mov [es:di+20], dword OL_ACPI	; acpi 3.0
 	
 	sub eax, (15 << 20)	; substract 15 mb (the reserved mem + the memory already defined as usable) from it
 	pop cx
@@ -278,8 +278,8 @@ addmemoryhole:
 .remainder:
 	mov [es:di], dword 0x001000000	; base
 	mov [es:di+8], eax
-	mov [es:di+16], dword GEBL_USABLE_MEM	; free memory
-	mov [es:di+20], dword GEBL_ACPI	; acpi 3.0
+	mov [es:di+16], dword OL_USABLE_MEM	; free memory
+	mov [es:di+20], dword OL_ACPI	; acpi 3.0
 	pop cx
 	inc cx
 	push cx	; to prevent stack corruption

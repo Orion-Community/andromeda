@@ -21,17 +21,17 @@
 #ifndef __VGA_H
 #define __VGA_H
 
-#define GEBL_VGAMEMORY 0xB8000
-#define GEBL_WIDTH 80
-#define GEBL_HEIGHT 25
-#define GEBL_WHITE_TXT 0x07
+#define OL_VGAMEMORY 0xB8000
+#define OL_WIDTH 80
+#define OL_HEIGHT 25
+#define OL_WHITE_TXT 0x07
 
 typedef struct vgaProperty
 {
 	int line;
 	uint32_t x;
 	uint16_t * vidmem;
-} GEBL_VGA;
+} OL_VGA;
 
 void reloc_cursor(uint32_t x, uint32_t y);
 #endif

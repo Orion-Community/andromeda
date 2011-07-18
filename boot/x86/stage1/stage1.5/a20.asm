@@ -28,28 +28,28 @@ openA20:
 	pusha
 
 	call .writewait
-	mov al, GEBL_DISABLE_KEYBOARD
-	out GEBL_COMMAND_PORT, al
+	mov al, OL_DISABLE_KEYBOARD
+	out OL_COMMAND_PORT, al
 
 	mov cx, 0x5	; 5 attempts
 .atkeyboard1:
 	call .writewait	; check if we can write before we write a command
-	mov al, GEBL_READ_OUTPUT_PORT
-	out GEBL_COMMAND_PORT, al	; write command 0xd0 (read output port)
+	mov al, OL_READ_OUTPUT_PORT
+	out OL_COMMAND_PORT, al	; write command 0xd0 (read output port)
 	call .readwait
 
 	xor ax, ax
-	in al, GEBL_OUTPUTBUFFER_PORT	; read output port from the buffer
+	in al, OL_OUTPUTBUFFER_PORT	; read output port from the buffer
 	or al, 0x2	; enable a20 bit - or al, 00000010b
 	push ax		; save the data temp
 
 	call .writewait
-	mov al, GEBL_WRITE_OUTPUT_PORT	; write to output port command (0xd1)
-	out GEBL_COMMAND_PORT, al
+	mov al, OL_WRITE_OUTPUT_PORT	; write to output port command (0xd1)
+	out OL_COMMAND_PORT, al
 	call .writewait
 
 	pop ax
-	out GEBL_DATA_PORT, al	; sent the output register with the enable a20 bit
+	out OL_DATA_PORT, al	; sent the output register with the enable a20 bit
 
 	call .testA20
 
@@ -59,8 +59,8 @@ openA20:
 
 .atkeyboard2:
 	call .writewait
-	mov al, GEBL_ENABLE_A20_GATE
-	out GEBL_COMMAND_PORT, al	; 0xdf command -> enable a20 gate
+	mov al, OL_ENABLE_A20_GATE
+	out OL_COMMAND_PORT, al	; 0xdf command -> enable a20 gate
 
 	call .testA20
 
@@ -89,26 +89,26 @@ openA20:
 
 .readwait:
 	xor ax, ax
-	in al, GEBL_STATUS_PORT	; read status register
+	in al, OL_STATUS_PORT	; read status register
 	bt ax, 0
 	jnc .readwait
 	ret
 
 .writewait:
 	xor ax, ax
-	in al, GEBL_STATUS_PORT	; read status register
+	in al, OL_STATUS_PORT	; read status register
 	bt ax, 1
 	jc .writewait
 	ret
 
 .testA20:
 	call .writewait
-	mov al, GEBL_READ_OUTPUT_PORT	; read output port
-	out GEBL_COMMAND_PORT, al
+	mov al, OL_READ_OUTPUT_PORT	; read output port
+	out OL_COMMAND_PORT, al
 	call .readwait
 
 	xor ax, ax
-	in al, GEBL_OUTPUTBUFFER_PORT	; read output port
+	in al, OL_OUTPUTBUFFER_PORT	; read output port
 	bt ax, 1	; test the second bit
 	pop dx	; return address
 	jc .done

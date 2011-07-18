@@ -24,7 +24,7 @@
 
 
 uint64_t timer = 0;
-void cIRQ0(gebl_isr_stack regs)
+void cIRQ0(OL_isr_stack regs)
 {
 	timer += 1;
 	pic_eoi(0);
@@ -39,7 +39,7 @@ void cIRQ0(gebl_isr_stack regs)
 bool alt = FALSE;
 bool ctrl = FALSE;
 bool end = FALSE;
-void cIRQ1(gebl_isr_stack regs)
+void cIRQ1(OL_isr_stack regs)
 {
 	char c = inb(0x60);
 	if(c & 0x80)
@@ -90,73 +90,73 @@ void cIRQ1(gebl_isr_stack regs)
 	return;
 }
 
-void cIRQ2(gebl_isr_stack regs)
+void cIRQ2(OL_isr_stack regs)
 {
 	pic_eoi(2);
 	return;
 }
-void cIRQ3(gebl_isr_stack regs)
+void cIRQ3(OL_isr_stack regs)
 {
 	pic_eoi(3);
 	return;
 }
-void cIRQ4(gebl_isr_stack regs)
+void cIRQ4(OL_isr_stack regs)
 {
 	pic_eoi(4);
 	return;
 }
 
-void cIRQ5(gebl_isr_stack regs)
+void cIRQ5(OL_isr_stack regs)
 {
 	pic_eoi(5);
 	return;
 }
-void cIRQ6(gebl_isr_stack regs)
+void cIRQ6(OL_isr_stack regs)
 {
 	pic_eoi(6);
 	return;
 }
-void cIRQ7(gebl_isr_stack regs)
+void cIRQ7(OL_isr_stack regs)
 {
 	return;
 }
-void cIRQ8(gebl_isr_stack regs)
+void cIRQ8(OL_isr_stack regs)
 {
 	pic_eoi(8);
 	return;
 }
-void cIRQ9(gebl_isr_stack regs)
+void cIRQ9(OL_isr_stack regs)
 {
 	putc('a');
 	pic_eoi(9);
 	return;
 }
-void cIRQ10(gebl_isr_stack regs)
+void cIRQ10(OL_isr_stack regs)
 {
 	pic_eoi(10);
 	return;
 }
-void cIRQ11(gebl_isr_stack regs)
+void cIRQ11(OL_isr_stack regs)
 {
 	pic_eoi(11);
 	return;
 }
-void cIRQ12(gebl_isr_stack regs)
+void cIRQ12(OL_isr_stack regs)
 {
 	pic_eoi(12);
 	return;
 }
-void cIRQ13(gebl_isr_stack regs)
+void cIRQ13(OL_isr_stack regs)
 {
 	pic_eoi(13);
 	return;
 }
-void cIRQ14(gebl_isr_stack regs)
+void cIRQ14(OL_isr_stack regs)
 {
 	pic_eoi(14);
 	return;
 }
-void cIRQ15(gebl_isr_stack regs)
+void cIRQ15(OL_isr_stack regs)
 {
 	pic_eoi(15);
 	return;

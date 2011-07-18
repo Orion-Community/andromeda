@@ -65,12 +65,12 @@ start:
 	mov fs, ax
 
 	mov ss, ax	; stack segment
-	mov sp, GEBL_LOADOFF
+	mov sp, OL_LOADOFF
 	mov bp, sp
 	sti
 main:
 ; 	es is already set to 0
-	mov di, GEBL_BUFOFF
+	mov di, OL_BUFOFF
 	mov si, _start ; beginning of the source
 	push si
 	mov cx, 512/2
@@ -80,9 +80,9 @@ main:
 	
 	push dx ; drive number
 
-	jmp GEBL_BUFSEG:GEBL_JUMPOFF
+	jmp OL_BUFSEG:OL_JUMPOFF
 ;
-; GEBL_JUMPOFF gets us to the offset of migrate in the new seg:offset address. It is defined as: 
+; OL_JUMPOFF gets us to the offset of migrate in the new seg:offset address. It is defined as: 
 ; (0x7c00 - addressof(migrate)) + 0x500 (0x500 = buffer offeset)
 ;
 
@@ -90,7 +90,7 @@ migrate:
 ; here we should use the partition table to indicate what offset we should use to load the first sector
 ; of the active (bootable) partition.
 %ifdef __HDD
-	mov si, GEBL_BUFOFF+GEBL_PART_TABLE
+	mov si, OL_BUFOFF+OL_PART_TABLE
 	xor cx, cx
 toploop:
 	test cx, 100b ; cmp cx, 0x4
@@ -173,7 +173,7 @@ toploop:
 	
 	xor bx, bx	; segment 0
 	mov es, bx
-	mov bx, GEBL_LOADOFF	; buffer
+	mov bx, OL_LOADOFF	; buffer
 	mov ax, 0x201
 	int 0x13
 
@@ -207,7 +207,7 @@ toploop:
 .end:
 	pop dx
 	ret
-	;jmp GEBL_LOADSEG:GEBL_LOADOFF
+	;jmp OL_LOADSEG:OL_LOADOFF
 	cli
 	hlt
 	jmp .end

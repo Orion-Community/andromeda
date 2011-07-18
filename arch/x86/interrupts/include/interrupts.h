@@ -29,14 +29,14 @@ struct idtentry
 	uint8_t flags;
 	uint16_t base_high;
 } __attribute__((packed));
-typedef struct idtentry gebl_idt_entry_t;
+typedef struct idtentry OL_idt_entry_t;
 
 struct idt
 {
 	uint16_t limit;
 	uint32_t baseptr;
 } __attribute__((packed));
-typedef struct idt gebl_idt_t;
+typedef struct idt OL_idt_t;
 
 struct isrstack
 {
@@ -46,10 +46,10 @@ struct isrstack
 	uint32_t eip, cs, eflags, proc_esp;
 	uint16_t ss;
 } __attribute__((packed));
-typedef struct isrstack gebl_isr_stack;
+typedef struct isrstack OL_isr_stack;
 
 extern void setEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
-extern void installIDT(gebl_idt_t * idt);
+extern void installIDT(OL_idt_t * idt);
 
 /*
  * The exception headers which are found in the idt

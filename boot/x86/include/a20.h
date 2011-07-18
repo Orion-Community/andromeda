@@ -20,20 +20,20 @@
 %ifndef __A20_H
 %define __A20_H
 
-%define GEBL_ENABLE_A20_GATE 0xdf
-%define GEBL_READ_OUTPUT_PORT 0xd0
-%define GEBL_WRITE_OUTPUT_PORT 0xd1
-%define GEBL_DISABLE_KEYBOARD 0xad
+%define OL_ENABLE_A20_GATE 0xdf
+%define OL_READ_OUTPUT_PORT 0xd0
+%define OL_WRITE_OUTPUT_PORT 0xd1
+%define OL_DISABLE_KEYBOARD 0xad
 
 ; 
 ; If you write data to port 0x64 the cpu inteprents it as a command byte. To sent a data byte 
 ; sent to port 0x60.
 ; 
 
-%define GEBL_STATUS_PORT 0x64
-%define GEBL_DATA_PORT 0x60
-%define GEBL_OUTPUTBUFFER_PORT 0x60
-%define GEBL_COMMAND_PORT 0x64
+%define OL_STATUS_PORT 0x64
+%define OL_DATA_PORT 0x60
+%define OL_OUTPUTBUFFER_PORT 0x60
+%define OL_COMMAND_PORT 0x64
 %define A20_PORT 0x92
 
 %endif

@@ -19,6 +19,6 @@
 #ifndef __MMAP_H
 #define __MMAP_H
 
-void gebl_display_mmap();
+void OL_display_mmap();
 uint64_t getmmapentries();
 #endif

@@ -21,34 +21,34 @@
 #include <sys/stdlib.h>
 #include <sys/io.h>
 
-GEBL_VGA cursor;
+OL_VGA cursor;
 
 void textinit()
 {
 	cursor.line = 0;
 	cursor.x = 0;
-	cursor.vidmem = (uint16_t *)GEBL_VGAMEMORY;
+	cursor.vidmem = (uint16_t *)OL_VGAMEMORY;
 }
 
 void scroll(uint8_t lines)
 {
 	uint32_t x, y;
-	for(y = 0; y < GEBL_HEIGHT - lines; y++)
+	for(y = 0; y < OL_HEIGHT - lines; y++)
 	{
-		for(x = 0; x < GEBL_WIDTH; x++)
+		for(x = 0; x < OL_WIDTH; x++)
 		{
-			cursor.vidmem[x+y*GEBL_WIDTH] = cursor.vidmem[x+(y+lines)*GEBL_WIDTH];
+			cursor.vidmem[x+y*OL_WIDTH] = cursor.vidmem[x+(y+lines)*OL_WIDTH];
 		}
 	}
-	for(; y < GEBL_HEIGHT; y++)
+	for(; y < OL_HEIGHT; y++)
 	{
-		for(x = 0; x < GEBL_WIDTH; x++)
+		for(x = 0; x < OL_WIDTH; x++)
 		{
-			cursor.vidmem[x+y*GEBL_WIDTH] = ((GEBL_WHITE_TXT<<8) | ' ');
+			cursor.vidmem[x+y*OL_WIDTH] = ((OL_WHITE_TXT<<8) | ' ');
 		}
 	}
 	
-	if(lines >= GEBL_HEIGHT)
+	if(lines >= OL_HEIGHT)
 	{
 		cursor.line = 0;
 		cursor.x = 0;
@@ -115,7 +115,7 @@ void printnum(int index, uint32_t base, bool sInt, bool capital)
 
 void putc(uint8_t c)
 {
-	uint32_t i = (cursor.line * GEBL_WIDTH) + cursor.x;
+	uint32_t i = (cursor.line * OL_WIDTH) + cursor.x;
 	switch(c)
 	{
 		case '\0':
@@ -129,19 +129,19 @@ void putc(uint8_t c)
 
 		case '\b':
 			cursor.x -= 1;
-			cursor.vidmem[i-1] = (GEBL_WHITE_TXT<<8)| ' ';
+			cursor.vidmem[i-1] = (OL_WHITE_TXT<<8)| ' ';
 			break;
 
 		default:
-			cursor.vidmem[i] = (GEBL_WHITE_TXT<<8) | c;
+			cursor.vidmem[i] = (OL_WHITE_TXT<<8) | c;
 			cursor.x += 1;
 			break;
 	}
 	
 	reloc_cursor(cursor.x, cursor.line);
-	if(cursor.line >= GEBL_HEIGHT)
+	if(cursor.line >= OL_HEIGHT)
 	{
-		scroll(cursor.line%GEBL_HEIGHT+1);
+		scroll(cursor.line%OL_HEIGHT+1);
 	}
 }
 
@@ -158,18 +158,18 @@ void clearscreen() // clear the entire text screen
 {
 	char *vidmem = (char *) 0xb8000;
 	unsigned int i = 0;
-	while(i < (GEBL_WIDTH * GEBL_HEIGHT * 2))
+	while(i < (OL_WIDTH * OL_HEIGHT * 2))
 	{
 		vidmem[i]=' ';
 		i++;
-		vidmem[i] = GEBL_WHITE_TXT;
+		vidmem[i] = OL_WHITE_TXT;
 		i++;
 	}
 }
 
 void reloc_cursor(uint32_t x, uint32_t y)
 {
-	uint16_t loc = (y * GEBL_WIDTH) + x;
+	uint16_t loc = (y * OL_WIDTH) + x;
 
         outb(0x3d4, 0xf); 
         outb(0x3d5, (uint8_t)(loc&0xff));
