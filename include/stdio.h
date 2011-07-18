@@ -36,4 +36,6 @@ struct buffer_s
 
 typedef struct buffer_s buffer_t;
 
+buffer_t *initBuffer();
+
 #endif

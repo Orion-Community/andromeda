@@ -20,15 +20,17 @@
 #include <tty/tty.h>
 #include <error/panic.h>
 
-void bufWrite(int tty, int buffer, char* data)
+buffer_t *initBuffer()
 {
-  panic("bufWrite hasn't been implemented yet");
-  if (tty >= TERMINALS || buffer == STDIN)
-    return;
-  buffer_t current = terminals[tty].buffers[buffer];
-  
-}
-char* bufRead(int tty, int* buffer, int size)
-{
-  panic("bufRead hasn't been implemented yet");
+  buffer_t *buf = nalloc(sizeof(buffer_t));
+  buf->buffer = nalloc(80*sizeof(char));
+  if (buf->buffer == NULL)
+  {
+    panic("Out of memory in initBuffer");
+  }
+  buf->size   = 80;
+  buf->cursor = 0;
+  buf->next   = NULL;
+  buf->full   = FALSE;
+  return buf;
 }

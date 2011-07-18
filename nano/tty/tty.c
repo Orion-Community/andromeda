@@ -49,3 +49,58 @@ void tty_init()
     }
   }
 }
+
+buffer_t *ttyFindNextBuffer(int tty, int buffer)
+{
+  if (tty >= TERMINALS || buffer == STDIN)
+    return;
+  buffer_t *current = &terminals[tty].buffers[buffer];
+  
+  for (; current->full == FALSE; current = current->next)
+  {
+    if (current->next == NULL)
+    {
+      current->next = initBuffer();
+    }
+  }
+  return current;
+}
+
+void ttyWrite(int tty, int buffer, char* data)
+{
+  buffer_t *current = ttyFindNextBuffer(tty, buffer);
+  
+  unsigned int tomove = strlen(data);
+  unsigned int index = 0;
+  unsigned int moved = 0;
+  for (; tomove!=0; tomove -= moved)
+  {
+    moved = (tomove >= current->size-current->cursor) ? current->size-current->cursor : tomove;
+    void* dst = (void*)((unsigned long)current->buffer + current->cursor);
+    void* src = (void*)((unsigned long)data + index);
+    memset(dst, src, moved);
+    index += moved;
+    current->cursor += moved;
+    if (current -> cursor == current -> size)
+    {
+      current->full = TRUE;
+      current = ttyFindNextBuffer(tty, buffer);
+    }
+  }
+}
+
+void ttyUpdate(int tty, int buffer, size_t chars)
+{
+  // Memcpy from buffer, to tty screen buffer untill chars amount is transferred or the buffer is empty
+}
+
+void ttyFlush(int tty)
+{
+  // Set video mode according to tty
+  // Memcpy the screenbuffer to framebuffer
+}
+
+char* ttyRead(int tty, int* buffer, int size)
+{
+  panic("bufRead hasn't been implemented yet");
+}

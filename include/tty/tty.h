@@ -41,4 +41,8 @@ extern tty_t terminals[];
 
 void tty_init();
 
+buffer_t *ttyFindNextBuffer(int tty, int buffer);
+void ttyWrite(int tty, int buffer, char* data);
+char* ttyRead(int tty, int* buffer, int size);
+
 #endif
