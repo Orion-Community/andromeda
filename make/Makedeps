@@ -19,6 +19,7 @@ ISRI_DEPS=arch/x86/interrupts/isr.c
 IRQ_DEPS=arch/x86/interrupts/irq.asm
 IRQI_DEPS=arch/x86/interrupts/irq.c
 IRQ30_DEPS=arch/x86/mm/cIRQ30.asm
+IDE_DEPS=arch/x86/diskio/ide.asm
 
 # Object files
 STAGE15=stage15.o
@@ -42,8 +43,9 @@ ISRI=isri.o
 IRQ=irq.o
 IRQI=irqi.o
 IRQ30=irq30.o
+IDE=ide.o
 
-DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IRQ30) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IRQ30) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(IDE) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)
@@ -107,3 +109,6 @@ $(A20): $(A20_DEPS)
 
 $(IRQ30): $(IRQ30_DEPS) arch/x86/mm/include/cIRQ30.h
 	$(AS) $(ASFLAGS) -o $(IRQ30) $(IRQ30_DEPS)
+
+$(IDE): $(IDE_DEPS)
+	$(AS) $(ASFLAGS) -o $(IDE) $(IDE_DEPS)
