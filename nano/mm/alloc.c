@@ -69,9 +69,16 @@ void initHdr(memNode_t* block, size_t size)
 	block->hdrMagic = HDRMAGIC;
 }
 
-// Finds a block on the heap, which is free and which is large enough.
-// In the case that pageAlligned is enabled the block also has to hold
-// page alligned data (usefull for the page directory).
+void *realloc(void* ptr, size_t size)
+{
+  void* new = alloc(size, FALSE);
+  memNode_t* ptrInfo = ptr - sizeof(memNode_t);
+  size_t currentSize = ptrInfo->size;
+  memcpy(new, ptr, (size > currentSize) ? currentSize : size);
+  free(ptr);
+  return new;
+}
+
 void* nalloc(size_t size)
 {
   void* tmp = alloc(size, FALSE);
@@ -80,6 +87,9 @@ void* nalloc(size_t size)
   return tmp;
 }
 
+// Finds a block on the heap, which is free and which is large enough.
+// In the case that pageAlligned is enabled the block also has to hold
+// page alligned data (usefull for the page directory).
 void* alloc (size_t size, boolean pageAlligned)
 {
 	#ifdef MMTEST

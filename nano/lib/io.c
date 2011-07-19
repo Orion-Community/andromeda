@@ -140,6 +140,7 @@ char* bufferRead(buffer_t** buffer, size_t data)
     if (doing > current->cursor)
     {
       doing = current->cursor;
+      current->read = current->cursor;
       stop = TRUE;
     }
     
@@ -151,7 +152,7 @@ char* bufferRead(buffer_t** buffer, size_t data)
     remaining -= doing;
     current->read += doing;
     
-    if (current->read != current->size)
+    if (current->read == current->size)
     {
       next = current->next;
       free(current);
