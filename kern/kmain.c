@@ -52,8 +52,9 @@ void kmain(void)
 	println("Multiboot memory map:\n");
 	OL_display_mmap();
 #endif
-	ide_init(bootdrive);
-	
+	uint8_t active = ide_init(bootdrive);
+	ide_read(0x100, 1<<20, &bootdrive[active], 50);
+
 	outb(OL_KBC_COMMAND, OL_KB_INIT);	// enable the keyboard
 	println("Waiting for service interrupts..");
 	while(1) halt();

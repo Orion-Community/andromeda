@@ -41,8 +41,8 @@ extern uint8_t ide_read(uint32_t sectors /* sectors to read */, uint32_t buffer 
 		OL_ptable * partition /* partition where the sectors are found in */, uint32_t lba /* relative lba */);
 
 /**
- * Initialize the ide driver. It will set the partition table correctly.
+ * Initialize the ide driver. It will set the partition table correctly. It returns the active partition.
  * 
  * NOTE: This function expects that the current partition tables are located at 0x0:0x7c00.
  */
-extern void ide_init(OL_ptable * partitions);
+extern uint8_t ide_init(OL_ptable * partitions);

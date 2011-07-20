@@ -18,6 +18,8 @@
 
 [SECTION .text]
 
+[EXTERN printnum]
+
 [GLOBAL ide_init]
 ide_init:
 	push ebp
@@ -26,19 +28,47 @@ ide_init:
 	mov edi, [ebp+8]
 	mov esi, 0x7c00
 	cld
-	mov ecx, 0x20
-	rep movsw
+	xor edx, edx	; max 4 partitions
 
+.looptop:
+	test byte [esi], 0x80
+	jz .continue
+	mov eax, edx
+
+.continue:
+	mov ecx, 0x8
+	rep movsw
+.loopend:
+	inc edx
+	test edx, 0x4
+	jz .looptop
 .end:
 	pop ebp
-
 	ret
 
 [GLOBAL ide_read]
-ide_read:
+ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	push ebp
 	mov ebp, esp
 
+	mov eax, [ebp+8]
+	test eax, eax
+	jz .fail	; you should read more then zero sectors - idiot
+	test eax, 0x400000	; are you trying to read more than 2gb? - idiot
+	jnz .fail
+
+	mov ebx, [ebp+16]
+	test byte [ebx], 0x80
+	jz .fail2
+
 .end:
+	clc
 	pop ebp
 	ret
+
+.fail:
+	stc
+	ret
+
+.fail2:
+	jmp $
