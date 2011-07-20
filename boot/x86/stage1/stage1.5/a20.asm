@@ -19,7 +19,7 @@
 [BITS 16]
 [SECTION .stage2]
 
-%include "boot/x86/include/a20.asm"
+%include "boot/x86/include/a20.asmh"
 
 [GLOBAL openA20]
 openA20:

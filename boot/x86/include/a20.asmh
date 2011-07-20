@@ -1,5 +1,6 @@
 ;
-;    Entry point for stage 1.5. This sector will use a dynamic sector loader to load the second stage and the micro kernel.
+;    Header for the a20 implementation.
+;
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,54 +17,23 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[BITS 16]
-[SECTION .stage1]
-[EXTERN endptr]
+%ifndef __A20_H
+%define __A20_H
 
-%include "boot/x86/include/masterboot.asmh"
+%define OL_ENABLE_A20_GATE 0xdf
+%define OL_READ_OUTPUT_PORT 0xd0
+%define OL_WRITE_OUTPUT_PORT 0xd1
+%define OL_DISABLE_KEYBOARD 0xad
 
-jmp short main
-nop
+; 
+; If you write data to port 0x64 the cpu inteprents it as a command byte. To sent a data byte 
+; sent to port 0x60.
+; 
 
-main:
-	mov di, 0x7c00
-	mov si, OL_BUFOFF+OL_PART_TABLE
-	push di
-	mov cx, 0x40
-	cld
-	rep movsw
-	push dx
+%define OL_STATUS_PORT 0x64
+%define OL_DATA_PORT 0x60
+%define OL_OUTPUTBUFFER_PORT 0x60
+%define OL_COMMAND_PORT 0x64
+%define A20_PORT 0x92
 
-	jmp .loadstage2
-
-.bailout:
-	mov si, failed
-	call println
-	cli
-	jmp $
-
-.loadstage2:
-	call dynamicloader
-	jc .bailout
-
-	pop dx
-	pop si
-	jmp 0x7E0:0x200
-
-	jmp .bailout
-
-;
-; Dynamic disk reader
-;
-
-%include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
-
-;
-; Print routine
-;
-
-%include 'boot/x86/println.asm'
-	
-	failed db '0x2', 0x0
-
-times 512 - ($ - $$) db 0
+%endif

@@ -16,7 +16,7 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-%include "boot/x86/include/masterboot.asm"
+%include "boot/x86/include/masterboot.asmh"
 
 [BITS 16]
 [ORG 0x7c00]

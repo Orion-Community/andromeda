@@ -1,5 +1,5 @@
 ;
-;    Entry point for stage 1.5. This sector will use a dynamic sector loader to load the second stage and the micro kernel.
+;    Get the system memory map from the bios and store it in a global constant.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,54 +16,24 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[BITS 16]
-[SECTION .stage1]
-[EXTERN endptr]
+%ifndef __STDLIB_H
 
-%include "boot/x86/include/masterboot.asmh"
-
-jmp short main
-nop
-
-main:
-	mov di, 0x7c00
-	mov si, OL_BUFOFF+OL_PART_TABLE
-	push di
-	mov cx, 0x40
-	cld
-	rep movsw
-	push dx
-
-	jmp .loadstage2
-
-.bailout:
-	mov si, failed
-	call println
-	cli
-	jmp $
-
-.loadstage2:
-	call dynamicloader
-	jc .bailout
-
-	pop dx
-	pop si
-	jmp 0x7E0:0x200
-
-	jmp .bailout
-
-;
-; Dynamic disk reader
-;
-
-%include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
-
-;
-; Print routine
-;
-
-%include 'boot/x86/println.asm'
+regs:
+	eax_t dd 0
+	ebx_t dd 0
+	ecx_t dd 0
+	edx_t dd 0
+	esi_t dd 0
+	edi_t dd 0
+	ebp_t dd 0
+	esp_t dd 0
 	
-	failed db '0x2', 0x0
+segs:
+	ds_t dw 0
+	cs_t dw 0
+	es_t dw 0
+	fs_t dw 0
+	gs_t dw 0
+	ss_t dw 0
 
-times 512 - ($ - $$) db 0
+%endif
