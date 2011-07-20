@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Steven v.d. Schoot
+    Copyright (C) 2011  Steven van der Schoot
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,13 +16,5 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __TEXT_H
-#define __TEXT_H
-
-void textInit()
-char* itoa(unsigned int index, char* buffer, unsigned int base)
-char* dtoa(double index, char* buffer, unsigned int base)
-void printf(const char *format, ...)
-void fprintf(void *buffer, const char *format, ...)
-
-#endif
+void imageBufferCpy(imageBuffer* src, imageBuffer* dest, int x, int y);
+void imageBufferPartCpy(imageBuffer* src, imageBuffer* dest, int x, int y, int width, int height, int partx, int party);

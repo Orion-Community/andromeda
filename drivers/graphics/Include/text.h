@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2011  Steven van der Schoot
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,29 +16,5 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
- * 
- * THIS FILE IS JUST A STUB!
- * Please don't implement jet.
- * 
- */
-
-#include <stdlib.h>
-#include <io.h>
-#include "include/graphics.h"
-#include "include/TTY.h"
-
-void ttyInit()
-{
-  ttyPtr = 0;
-  ttyFirstChar = 0;
-  ttyBuf = kalloc(TTYBUFSIZE);
-  memset(ttyBuf,0x00,TTYBUFSIZE);
-}
-
-void drawTTY()
-{
-  drawString(0,0,(char *)( (int)ttyBuf + ttyFirstChar ) );
-  unsigned int y = -(int)(ttyPtr / -40);
-  drawChar((unsigned int)ttyPtr-y,y,'_');
-}
+void drawChar(int x, int y, char chr);
+void drawString(int x, int y, char* str);
