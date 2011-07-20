@@ -30,15 +30,23 @@
 
 void ttyInit()
 {
-  ttyPtr = 0;
-  ttyFirstChar = 0;
-  ttyBuf = kalloc(TTYBUFSIZE);
-  memset(ttyBuf,0x00,TTYBUFSIZE);
+  //tyPtr = 0;
+  //ttyFirstChar = 0;
+  //ttyBuf = kalloc(TTYBUFSIZE);
+  //memset(ttyBuf,0x00,TTYBUFSIZE);
+
+  /*
+   * TODO: Bind drawTTY() on timer.
+   */
+
 }
 
 void drawTTY()
 {
-  drawString(0,0,(char *)( (int)ttyBuf + ttyFirstChar ) );
-  unsigned int y = -(int)(ttyPtr / -40);
-  drawChar((unsigned int)ttyPtr-y,y,'_');
+  drawString(0,0,ttyViewLine);
+  //unsigned int y = -(int)(ttyPtr / -40);
+  //drawChar((unsigned int)ttyPtr-y,y,'_');
+  /*
+   * TODO: draw cursor.
+   */
 }

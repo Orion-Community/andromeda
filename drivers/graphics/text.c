@@ -29,6 +29,9 @@
 #include "include/graphics.h"
 #include "include/TTY.h"
 
+char* stdoutBase;
+char* stderrBase;
+
 void vgaInit()
 {
 #ifdef HD
@@ -55,6 +58,10 @@ void vgaInit()
   graphicsInit(320,200,1/*=256 colors*/);
 #endif
   ttyInit();
+  stdout = stdoutBase = kalloc(1900);
+  stderr = stderrBase = kalloc(1900);
+  memset(stdout,0x00,1900)
+  memset(stderr,0x00,1900)
 }
 
 extern char *hex;
@@ -398,6 +405,7 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
 	  break;
 	case 'p': //print pointer address (e.g. B800:0000)
 	  break;
+	  break;
 	case 'i':
 	  buffer += formatInt(buffer, va_arg(list, unsigned int), 10, TRUE, FALSE);
 	  break;
@@ -423,12 +431,10 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
 	case 'c':
 	  *((unsigned char*)buffer++) = (unsigned char)va_arg(list, unsigned int);
 	  break;
-// 	case 's':
-//           char* str = va_arg(list, char*);
-//           int len = strlen(str);
-// 	  memcpy( buffer, str, strlen(str) );
-//           buffer += len;
-// 	  break;
+ 	case 's':
+           formatBuf(buffer,va_arg(list, char*));
+           buffer += len;
+ 	  break;
 	case '%':
 	  *((unsigned char*)buffer++) = '%';
 	  break;
@@ -441,16 +447,21 @@ unsigned int formatBuf(void *buffer, unsigned char *format, ...)
   return (unsigned int)buffer;
 }
 
-// void fprintf(void *buffer, const char *format, ...)
-// {
-//   va_list list;
-//   va_start(list, format);
-//   formatBuf(buffer, format, list/* <- Don't know for sure if this works*/);
-// }
-// 
-// void printf(const char *format, ...)
-// {
-//   va_list list;
-//   va_start(list, format);
-//   ttyPtr -= (int)(ttyBuf + ttyPtr) - (int)formatBuf(ttyBuf + ttyPtr, format, list/* <- Don't know for sure if this works*/);
-// }
+void fprintf(void *buffer, const char *format, ...)
+{
+  va_list list;
+  va_start(list, format);
+  formatBuf(buffer, format, list/* <- Don't know for sure if this works*/);
+}
+
+void printf(const char *format, ...)
+{
+  va_list list;
+  va_start(list, format);
+  ttyPtr -= (int)(ttyBuf + ttyPtr) - (int)formatBuf(ttyBuf + ttyPtr, format, list/* <- Don't know for sure if this works*/);
+}
+
+void putc(char chr)
+{
+  *(stdout++) = char;
+}

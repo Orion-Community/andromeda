@@ -18,9 +18,9 @@
 
 #ifndef __TTY_H
 #define __TTY_H
-char* ttyBuf;
-int ttyPtr;
-int ttyFirstChar;
-#define TTYBUFSIZE 1000 // 320x200 pixels = 80x25 characters = 1000 characters
+//char* ttyBuf;
+//int ttyPtr;
+char* ttyViewLine;
+#define TTYBUFSIZE 1900 // 320x200 pixels = 64x25 characters = 1900 characters
 void ttyInit();
 #endif

@@ -52,7 +52,7 @@ inline buffer_t* getFirstSpace(buffer_t* buffer)
     }
   }
 }
-#ifdef FAST
+#ifdef FAST // NOTE: This doesn't require getFirstSpace(), so this function migth be deleted if compiled with FAST
 void bufferWrite(buffer_t* buffer, char* data)
 {
   buffer_t* buf = buffer;

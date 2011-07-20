@@ -19,6 +19,9 @@
 #ifndef __TEXT_H
 #define __TEXT_H
 
+char* stdout;
+char* stderr;
+
 void textInit()
 char* itoa(unsigned int index, char* buffer, unsigned int base)
 char* dtoa(double index, char* buffer, unsigned int base)

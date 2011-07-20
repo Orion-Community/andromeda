@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2011  Bart Kuivenhoven & Steven van der Schoot
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -180,7 +180,6 @@ int memcmp(void *ptr1, void* ptr2, size_t count)
   }
   if( (count = 1) && (*(unsigned long long*)ptr1 - *(unsigned long long*)ptr2) )
   {
-    //if(*(unsigned long long*)ptr1 - *(unsigned long long*)ptr2)
       return 1;
   }
   return 0;
