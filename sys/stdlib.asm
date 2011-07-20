@@ -76,3 +76,30 @@ reboot:
 	sti
 	lidt [fakeidt]
 	ret
+
+[EXTERN isSleeping]
+[EXTERN sleepTime]
+[GLOBAL sleep]
+sleep:
+	push ebp
+	mov ebp, esp
+	push eax
+	mov eax, [ebp+8] ; first argument -> mili's to sleep
+	mov [sleepTime], eax
+	mov [isSleeping], byte 1
+
+.sleepLoop:
+	cli
+	mov eax, [sleepTime]
+	or eax, eax
+	jz .done
+
+	sti
+	times 8 nop
+	jmp .sleepLoop
+
+.done:
+	mov [isSleeping], byte 0
+	pop eax
+	pop ebp
+	ret

@@ -24,7 +24,7 @@
 
 [EXTERN printnum]
 [EXTERN putc]
-[EXTERN iowait]
+[EXTERN sleep]
 
 [GLOBAL ide_init]
 ide_init:
@@ -56,6 +56,8 @@ ide_init:
 ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	push ebp
 	mov ebp, esp
+	pushfd
+	cli
 
 	mov eax, [ebp+8]
 	test eax, eax
@@ -74,7 +76,7 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	mov dx, 0x1f7
 	in al, dx
 	test al, 0x88
-	je .valueOK
+; 	je .valueOK
 
 .reset:
 	call ata_reset
@@ -100,6 +102,7 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 
 .end:
 	clc
+	popfd
 	pop ebp
 	ret
 
@@ -109,10 +112,11 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	ret
 
 ata_reset:
+	cli
 	mov dx, OL_MASTER_ATA_COMMAND
 	push eax
 
-.reset
+.reset:
 	mov al, 4
 	out dx, al			; do a "software reset" on the bus
 	xor eax, eax
@@ -122,6 +126,10 @@ ata_reset:
 	in al, dx
 	in al, dx
 	in al, dx
+	in al, dx
+	in al, dx
+
+
 	test al, 0x88
 	jnz .reset
 

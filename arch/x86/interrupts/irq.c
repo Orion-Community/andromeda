@@ -24,14 +24,16 @@
 
 
 uint64_t timer = 0;
+uint64_t sleepTime = 0;
+bool isSleeping = FALSE;
 void cIRQ0(OL_isr_stack regs)
 {
+	if(isSleeping)
+	{
+		if(!(sleepTime == 0)) sleepTime--;
+	}
 	timer += 1;
 	pic_eoi(0);
-	
-// 	int mod = timer % 10;
-// 	printnum(timer, 10, FALSE, FALSE);
-// 	putc(0xa);
 	
 	return;
 }
@@ -153,11 +155,13 @@ void cIRQ13(OL_isr_stack regs)
 }
 void cIRQ14(OL_isr_stack regs)
 {
+	putc('a');
 	pic_eoi(14);
 	return;
 }
 void cIRQ15(OL_isr_stack regs)
 {
+	putc('b');
 	pic_eoi(15);
 	return;
 }
