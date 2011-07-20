@@ -22,6 +22,7 @@
 #include <mm/mmap.h>
 #include <interrupts/pic.h>
 #include <interrupts/idt.h>
+#include <sys/ide.h>
 
 void kmain(void)
 {
@@ -51,7 +52,9 @@ void kmain(void)
 	println("Multiboot memory map:\n");
 	OL_display_mmap();
 #endif
-	outb(OL_KBC_COMMAND, OL_KB_INIT);
+	ide_init(bootdrive);
+	
+	outb(OL_KBC_COMMAND, OL_KB_INIT);	// enable the keyboard
 	println("Waiting for service interrupts..");
 	while(1) halt();
 	println("End of program reached!");

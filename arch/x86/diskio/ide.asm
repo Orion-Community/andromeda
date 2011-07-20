@@ -16,18 +16,29 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[SECTION .text]
+
 [GLOBAL ide_init]
 ide_init:
 	push ebp
 	mov ebp, esp
 
-	mov ebx, 0x7c00
-	test byte [ebx], 0x80
-	jz .fail
+	mov edi, [ebp+8]
+	mov esi, 0x7c00
+	cld
+	mov ecx, 0x20
+	rep movsw
+
+.end:
+	pop ebp
+
+	ret
+
+[GLOBAL ide_read]
+ide_read:
+	push ebp
+	mov ebp, esp
 
 .end:
 	pop ebp
 	ret
-
-.fail:
-	jmp $

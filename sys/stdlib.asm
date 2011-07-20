@@ -59,7 +59,7 @@ getsegs:
 	mov [segs+8], gs
 	mov [segs+10], ss
 
-	mov eax, regs
+	mov eax, segs
 	ret
 
 [GLOBAL setInterrupts]

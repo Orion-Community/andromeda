@@ -20,13 +20,16 @@
 [SECTION .stage1]
 [EXTERN endptr]
 
+%include "boot/x86/include/masterboot.h"
+
 jmp short main
 nop
 
 main:
 	mov di, 0x7c00
+	mov si, OL_BUFOFF+OL_PART_TABLE
 	push di
-	mov cx, 0x8
+	mov cx, 0x40
 	cld
 	rep movsw
 	push dx
