@@ -16,6 +16,10 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[SECTION .data]
+
+%include "arch/x86/diskio/include/ide.asmh"
+
 [SECTION .text]
 
 [EXTERN printnum]
@@ -60,6 +64,14 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	mov ebx, [ebp+16]
 	test byte [ebx], 0x80
 	jz .fail2
+
+	cmp dword [ebx+OL_PTABLE_TOT_SECTORS], eax
+	jb .fail2
+
+	mov dx, OL_MASTER_ATA_STATUS
+	in al, dx
+	test al, 0xa8
+	jne .fail2
 
 .end:
 	clc

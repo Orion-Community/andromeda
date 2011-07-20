@@ -50,4 +50,17 @@
 ; ATA PIO MODE commands
 %define OL_READ_LBA28_SECTORS 0x20
 %define OL_READ_LBA48_SECTORS 0x24
+
+%define OL_PTABLE			0x7c00
+%define OL_BOOT_INDICATOR 		0
+%define OL_PTABLE_STARTING_HEAD 	1
+%define OL_PTABLE_STARTNG_SECTOR	2
+%define OL_PTABLE_STARTING_CYL		3	; upper two bits are bits 5 and 6 (0 based) of the starting sector byte
+%define OL_PTABLE_SYSTEM_ID		4
+%define OL_PTABLE_ENDING_HEAD		5
+%define OL_PTABLE_ENDING_SECTOR		6	; upper two bits are bits 5 and 6 (0 based) of the ending sector byte
+%define OL_PTABLE_ENDING_CYL		7
+%define OL_PTABLE_LBA			8
+%define OL_PTABLE_TOT_SECTORS		12
+
 %endif

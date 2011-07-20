@@ -53,7 +53,7 @@ void kmain(void)
 	OL_display_mmap();
 #endif
 	uint8_t active = ide_init(bootdrive);
-	ide_read(0x100, 1<<20, &bootdrive[active], 50);
+	ide_read(0x100, 1<<20, &bootdrive[active], 60);
 
 	outb(OL_KBC_COMMAND, OL_KB_INIT);	// enable the keyboard
 	println("Waiting for service interrupts..");
