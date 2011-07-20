@@ -39,19 +39,7 @@ buffer_t *initBuffer()
   return buf;
 }
 
-inline buffer_t* getFirstSpace(buffer_t* buffer)
-{
-  buffer_t* tmp = buffer;
-  for (; tmp->full == TRUE; tmp = tmp->next)
-  {
-    if (tmp->next == NULL)
-    {
-      mutexEnter(tmp->lock);
-      tmp->next = initBuffer();
-      mutexRelease(tmp->lock);
-    }
-  }
-}
+
 #ifdef FAST // NOTE: This doesn't require getFirstSpace(), so this function migth be deleted if compiled with FAST
 void bufferWrite(buffer_t* buffer, char* data)
 {
@@ -99,6 +87,20 @@ void bufferWrite(buffer_t* buffer, char* data)
   }
 }
 #else
+inline buffer_t* getFirstSpace(buffer_t* buffer)
+{
+  buffer_t* tmp = buffer;
+  for (; tmp->full == TRUE; tmp = tmp->next)
+  {
+    if (tmp->next == NULL)
+    {
+      mutexEnter(tmp->lock);
+      tmp->next = initBuffer();
+      mutexRelease(tmp->lock);
+    }
+  }
+}
+
 void bufferWrite(buffer_t* buffer, char* data)
 {
   buffer_t* current = buffer;
@@ -116,6 +118,9 @@ void bufferWrite(buffer_t* buffer, char* data)
     void* src = (void*)((unsigned long)data+cursor);
     memcpy(dst, src, doing);
     cursor += doing;
+    current->cursor += doing;
+    if (current->cursor == current->size)
+      current->full = TRUE;
     remaining -= doing;
     mutexRelease(current->lock);
   }
@@ -129,15 +134,35 @@ char* bufferRead(buffer_t** buffer, size_t data)
   unsigned int remaining = data;
   unsigned int doing = 0;
   unsigned int done = 0;
+  boolean stop = FALSE;
   for (;done == data; done += doing)
   {
     doing = (current->size - current->read < remaining) ? current->size - current->read : remaining;
+    if (doing > current->cursor)
+    {
+      doing = current->cursor;
+      current->read = current->cursor;
+      stop = TRUE;
+    }
     
-    void* dst = (void*)((unsigned long)output+done);
-    void* src = (void*)((unsigned long)current->buffer);
+    void* dst = (void*)((unsigned long)output + done);
+    void* src = (void*)((unsigned long)current->buffer + current->read);
     
     memcpy (dst, src, doing);
     
     remaining -= doing;
+    current->read += doing;
+    
+    if (current->read == current->size)
+    {
+      next = current->next;
+      free(current);
+      current = next;
+    }
+    if (stop)
+    {
+      break;
+    }
   }
+  return output;
 }

@@ -47,13 +47,11 @@ memNode_t* merge(memNode_t* alpha, memNode_t* beta);
 // Debugging function used to examine the heap
 void examineHeap()
 {
-	printf("Head\n");
-	printhex((int)blocks); putc('\n');
+	printf("Head\n0x%X\n", (int) blocks);
 	memNode_t* carrige;
 	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
 	{
-		printf("node: "); printhex((int)carrige); putc('\t');
-		printf("size: "); printhex(carrige->size); putc('\n');
+		printf("node: 0x%X\tsize: 0x%X\n", (int)carrige, carige->size);
 	}
 }
 #endif
@@ -69,9 +67,16 @@ void initHdr(memNode_t* block, size_t size)
 	block->hdrMagic = HDRMAGIC;
 }
 
-// Finds a block on the heap, which is free and which is large enough.
-// In the case that pageAlligned is enabled the block also has to hold
-// page alligned data (usefull for the page directory).
+void *realloc(void* ptr, size_t size)
+{
+  void* new = alloc(size, FALSE);
+  memNode_t* ptrInfo = ptr - sizeof(memNode_t);
+  size_t currentSize = ptrInfo->size;
+  memcpy(new, ptr, (size > currentSize) ? currentSize : size);
+  free(ptr);
+  return new;
+}
+
 void* nalloc(size_t size)
 {
   void* tmp = alloc(size, FALSE);
@@ -80,16 +85,11 @@ void* nalloc(size_t size)
   return tmp;
 }
 
+// Finds a block on the heap, which is free and which is large enough.
+// In the case that pageAlligned is enabled the block also has to hold
+// page alligned data (usefull for the page directory).
 void* alloc (size_t size, boolean pageAlligned)
 {
-	#ifdef MMTEST
-	printf("Alloc!!!\n");
-	if (blocks == NULL)
-	{
-	  printf("Working with empty memory!\n");
-	  return NULL;
-	}
-	#endif
 	mutexEnter(prot);
 	if(size > ALLOC_MAX)
 	{
@@ -115,29 +115,12 @@ void* alloc (size_t size, boolean pageAlligned)
 				offset %= PAGEBOUNDARY;
 				unsigned long blockSize = offset+size;
 				
-				// The below code is debugging code
-				#ifdef MMTEST
-				printf("BlockSize:\t");
-				printhex(blockSize); putc('\n');
-				printf("Offset:\t");
-				printhex(offset); putc('\n');
-				printf("Size:\t");
-				printhex(size); putc('\n');
-				printf("Carrige size:\t");
-				printhex(carrige->size); putc('\n');
-				printf("Ifresult:\t");
-				printhex(carrige->size-blockSize); putc('\n');
-				#endif
 				if (carrige->size >= blockSize) // if the size is large enough to be split into
 								// page alligned blocks, then do it.
 				{
 					memNode_t* ret = splitMul(carrige, size, TRUE); // Split the block
 					useBlock(ret); // Mark the block as used
-					// Display the block size if debugging is compiled in
-					#ifdef MMTEST
-					printf("Size of block\n");
-					printhex(ret->size); putc('\n');
-					#endif
+
 					//return the desired block
 					mutexRelease(prot);
 					return (void*)ret+sizeof(memNode_t);
@@ -164,10 +147,6 @@ void* alloc (size_t size, boolean pageAlligned)
 			}
 			// If the block is the right size or too small to hold 2 separate blocks,
 			// In which one of them is the size allocated, then allocate the entire block.
-			#ifdef MMTEST
-			printf("Size of block\n");
-			printhex(carrige->size); putc('\n');
-			#endif
 			mutexRelease(prot);
 			return (void*)carrige+sizeof(memNode_t);
 		}
@@ -183,10 +162,6 @@ void* alloc (size_t size, boolean pageAlligned)
 			{
 				continue;
 			}
-			#ifdef MMTEST
-			printf("Size of block\n");
-			printhex(tmp->size); putc('\n');
-			#endif
 			mutexRelease(prot);
 			return (void*)tmp+sizeof(memNode_t);
 		}
@@ -198,9 +173,6 @@ void* alloc (size_t size, boolean pageAlligned)
 		}
 	}
 	mutexRelease(prot);
-	#ifdef MMTEST
-	printf("Something went horribly wrong!\n");
-	#endif
 	return NULL;
 }
 
@@ -437,18 +409,6 @@ memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 	}
 	if ((alpha->next != beta) && (beta->next != alpha))
 	{ // if the pointers don't match, we should not proceed.
-		#ifdef MMTEST
-		printf("WARNING!!!\n"); // more debugging code
-		
-		printf("Alpha->next:\t");
-		printhex((int)(void*)alpha->next); putc('\n');
-		printf("Beta->next:\t");
-		printhex((int)(void*)beta->next); putc('\n');
-		printf("\nAlpha:\t");
-		printhex((int)(void*)alpha); putc('\n');
-		printf("Alpha:\t");
-		printhex((int)(void*)beta); putc('\n');
-		#endif
 		return NULL; // return error
 	}
 	memNode_t* tmp;
@@ -457,9 +417,6 @@ memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 		tmp = alpha;
 		alpha = beta;
 		beta = tmp;
-		#ifdef MMTEST
-		printf("Alpha\n"); // even more debugging info
-		#endif
 	}
 	beta->size = beta->size+alpha->size+sizeof(memNode_t); // do the actual merging
 	beta->next = alpha->next;
