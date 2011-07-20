@@ -19,7 +19,7 @@
 
 [SECTION .data]
 
-%include "arch/x86/mm/include/cIRQ30.h"
+%include "arch/x86/mm/include/cIRQ30.asmh"
 
 [SECTION .text]
 

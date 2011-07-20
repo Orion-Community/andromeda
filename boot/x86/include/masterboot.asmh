@@ -1,5 +1,5 @@
 ;
-;    Entry point for stage 1.5. This sector will use a dynamic sector loader to load the second stage and the micro kernel.
+;    Header file for the master boot record.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,54 +16,18 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[BITS 16]
-[SECTION .stage1]
-[EXTERN endptr]
+%ifndef __H_MASTERBOOT
+%define __H_MASTERBOOT
 
-%include "boot/x86/include/masterboot.asmh"
+; here is the mbr loaded into by the bios
+%define OL_LOADSEG 0x0
+%define OL_LOADOFF 0x7c00
 
-jmp short main
-nop
+; the mbr will migrate itself to this segment:offset address
+%define OL_BUFSEG 0x0
+%define OL_BUFOFF 0x500
 
-main:
-	mov di, 0x7c00
-	mov si, OL_BUFOFF+OL_PART_TABLE
-	push di
-	mov cx, 0x40
-	cld
-	rep movsw
-	push dx
-
-	jmp .loadstage2
-
-.bailout:
-	mov si, failed
-	call println
-	cli
-	jmp $
-
-.loadstage2:
-	call dynamicloader
-	jc .bailout
-
-	pop dx
-	pop si
-	jmp 0x7E0:0x200
-
-	jmp .bailout
-
-;
-; Dynamic disk reader
-;
-
-%include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
-
-;
-; Print routine
-;
-
-%include 'boot/x86/println.asm'
-	
-	failed db '0x2', 0x0
-
-times 512 - ($ - $$) db 0
+%define OL_PART_TABLE 0x1be
+%define OL_PART_TABLE_ENTRY_SIZE 0x10
+%define OL_JUMPOFF  OL_BUFOFF + (migrate - _start)
+%endif

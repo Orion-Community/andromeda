@@ -50,7 +50,7 @@ DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO
 .PHONY: all
 all: $(DEPS)
 
-$(STAGE15): $(STAGE15_DEPS) boot/x86/include/mmap.h boot/x86/include/a20.h
+$(STAGE15): $(STAGE15_DEPS) boot/x86/include/mmap.asm boot/x86/include/a20.asm
 	$(AS) $(ASFLAGS) -o $(STAGE15) $(STAGE15_DEPS)
 
 $(STAGE2): $(STAGE2_DEPS)
@@ -107,7 +107,7 @@ $(MMAPI): $(MMAPI_DEPS)
 $(A20): $(A20_DEPS)
 	$(AS) $(ASFLAGS) -o $(A20) $(A20_DEPS)
 
-$(IRQ30): $(IRQ30_DEPS) arch/x86/mm/include/cIRQ30.h
+$(IRQ30): $(IRQ30_DEPS) arch/x86/mm/include/cIRQ30.asm
 	$(AS) $(ASFLAGS) -o $(IRQ30) $(IRQ30_DEPS)
 
 $(IDE): $(IDE_DEPS)
