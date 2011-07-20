@@ -128,8 +128,17 @@ void putc(uint8_t c)
 			break;
 
 		case '\b':
-			cursor.x -= 1;
-			cursor.vidmem[i-1] = (OL_WHITE_TXT<<8)| ' ';
+			if(cursor.x == 0)
+			{
+				cursor.line--;
+				cursor.x = 79;
+			}
+			
+			else
+			{
+				cursor.x -= 1;
+				cursor.vidmem[i-1] = (OL_WHITE_TXT<<8)| ' ';
+			}
 			break;
 
 		default:
@@ -138,11 +147,11 @@ void putc(uint8_t c)
 			break;
 	}
 	
-	reloc_cursor(cursor.x, cursor.line);
 	if(cursor.line >= OL_HEIGHT)
 	{
 		scroll(cursor.line%OL_HEIGHT+1);
 	}
+	reloc_cursor(cursor.x, cursor.line);
 }
 
 void writeat(uint8_t c, uint32_t x)
