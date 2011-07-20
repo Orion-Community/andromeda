@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Steven v.d. Schoot
+    Copyright (C) 2011  Steven van der Schoot
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,11 +16,5 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __TTY_H
-#define __TTY_H
-char* ttyBuf;
-int ttyPtr;
-int ttyFirstChar;
-#define TTYBUFSIZE 1000 // 320x200 pixels = 80x25 characters = 1000 characters
-void ttyInit();
-#endif
+boolean vgaInit();
+int setVideoMode(int mode);
