@@ -45,8 +45,10 @@ cIRQ30:
 	ret
 
 ; 
-; This function probe's for ram. It expects a starting address in esi and the amount of bytes to probe for in ecx (note that the minimum size is 4kb). When it returns,
-; esi contains the correct (blockrounded (rounded down)) starting address and ecx the amount of bytes found.
+; This function probe's for ram. It expects a starting address in esi and 
+; the amount of bytes to probe for in ecx (note that the minimum size is 4kb). 
+; When it returns, esi contains the correct (blockrounded (rounded down))
+; starting address and ecx the amount of bytes found.
 ; 
 proberam:
 	xor eax, eax
@@ -108,7 +110,8 @@ proberam:
 	ret
 
 ;
-; Get a memory map from the cmos. Retuns amount of entries in ecx and a pointer to the first entry in edx.
+; Get a memory map from the cmos. Retuns amount of entries in ecx and a 
+; pointer to the first entry in edx.
 ;
 createmmap:
 	mov edi, OL_MMR_POINTER

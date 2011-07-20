@@ -17,14 +17,14 @@
 	* added support for more then one partition.
 	* Keyboard is working
 	* memory can also be probed now, using an interrupt
+	* added a keyboard table
 
 What should be improved:
-	* keyboard support (more scan codes)
 
 Next item:
 	* update the floppy drive support
 	* get a disk driver working.
-
+	* implement ATI PIO mode
 What has to be done:
 
 	* Make the bootloader multiboot compatible
