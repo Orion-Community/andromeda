@@ -21,7 +21,7 @@ fakeidt:	dw 0x0
 		dd 0x0
 [SECTION .text]
 
-%include "sys/include/stdlib.h"
+%include "sys/include/stdlib.asm"
 [extern printnum]
 [extern putc]
 [GLOBAL endprogram]

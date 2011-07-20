@@ -20,7 +20,7 @@
 [SECTION .stage1]
 [EXTERN endptr]
 
-%include "boot/x86/include/masterboot.h"
+%include "boot/x86/include/masterboot.asm"
 
 jmp short main
 nop
