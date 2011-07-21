@@ -73,6 +73,24 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	test al, 0xa8
 	jne .fail2
 
+	mov edx, [ebp+20]	; relative lba
+	cmp edx, 0xfffffff
+	jg short .test
+
+	add eax, edx	; sectors to read + relative lba
+	add eax, dword [ebx+OL_PTABLE_LBA]
+	cmp eax, 0xfffffff
+
+.test:
+	mov dx, OL_MASTER_ATA_BASE
+	jle .lba28
+
+.lba48:
+	; implement 48 bit lba
+
+.lba28:
+	; implement 28 bit lba
+
 .end:
 	clc
 	pop ebp

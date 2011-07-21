@@ -25,6 +25,9 @@ Next item:
 	* update the floppy drive support
 	* get a disk driver working.
 	* implement ATI PIO mode
+		* implement 28-bit lba
+		* implement 48-bit lba
+
 What has to be done:
 
 	* Make the bootloader multiboot compatible
