@@ -37,6 +37,7 @@ const struct videoMode_s videomodes[2] = {
     {0320,0200,1,0x0000,0x0013,0x0000,0xB8000}, // 320  x 200  x 256
     {1280,1024,1,0x004F,0x0002,0x011B,0xB8000}  // 1280 x 1024 x 16M | 0xB8000 is just a guess
   };
+char* screenbuf; // sreen buffer, containing all pixels that should be written to the screen.
 int videoMode;         // the current video mode.
 
 /**
@@ -53,7 +54,9 @@ boolean vgaInit()
    *   - get videomode from settings file.
    */
   int mode = 0; //should become a user defined videomode,  from a settings file.
-
+  
+  screenbuf = kalloc(1);
+  
   if setVideoMode( mode ) == -1
     if setVideoMode(0) == -1
       return false;
@@ -80,7 +83,8 @@ int setVideoMode(int mode)
    * Here should be some code to make an bios interupt. It should use a function like this:
    *   int ret = someDoInteruptFunction( 10h , videoModes[mode] -> return , videoModes[mode] -> ah , videoModes[mode] -> ax );
    */
-  videoMode = mode.
+  realloc( screenbuf, videoModes[mode]->heigwidth * videoModes[mode]->height * videoModes[mode]->depth );
+  videoMode = mode;
   return -1;
 }
 
@@ -122,4 +126,15 @@ unsigned int getScreenWidth()
 unsigned int getScreenHeight()
 {
   return videoModes[videoMode]->height;
+}
+
+/**
+ * Used to get the screen buffer as image buffer.
+ * 
+ * @return
+ *   screen height in pixels.
+ */
+imageBuffer getScreenBuf()
+{
+  return (imageBuffer){screenBuffer,videoModes[videoMode]->height,videoModes[videoMode]->height};
 }

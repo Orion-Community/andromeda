@@ -36,9 +36,8 @@ struct pixel_s
 typedef struct imageBuffer_s imageBuffer;
 typedef struct pixel_s pixel;
 
-imageBuffer screenbuf; // sreen buffer, containing all pixels that should be written to the screen.
-
 boolean vgaInit();
 int setVideoMode(int mode);
+imageBuffer getScreenBuf()
 
 #endif
