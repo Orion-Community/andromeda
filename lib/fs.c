@@ -32,11 +32,25 @@ void fsInitDrives()
   }
 }
 
+#define _FS_BMP_IDX(a) (a/32)
+#define _FS_BMP_OFF(a) (a%32)
+#define _FS_BMP_SZ(a)  ((a%32 == 0) ? a/32 : a/32+1)
+
 void fsInit(inode_t* root)
 {
   if (root == NULL)
   {
     _fs_root = vfsInit(_VFS_STD_SIZE, _FS_ROOT_RIGHTS);
+    _fs_root->root = (void*)((unsigned long)_fs_root + sizeof(struct _FS_INODE));
+    _fs_root->root->bmp = (void*)((unsigned long)_fs_root->root + sizeof(struct _FS_ROOTNODE));
+    _fs_root->root->root = _fs_root;
+    _fs_root->root->size = _VFS_STD_SIZE;
+    _fs_root->root->free = _fs_root->root->size - (sizeof(struct _FS_INODE) + sizeof(struct _FS_ROOTNODE) + _FS_BMP_SZ(_VFS_STD_SIZE));
+    int i = 0;
+    for (; i < _VFS_STD_SIZE; i++)
+    {
+      _fs_root->root->bmp[_FS_ROOT_IDX(i)] |= (i > _VFS_STD_SIZE-_fs_root->root->free) 1 << _FS_BMP_OFF(i) : 0 << _FS_BMP_OFF(i);
+    }
   }
 }
 
@@ -46,18 +60,18 @@ struct _FS_INODE* vfsInit(size_t size, unsigned int protection)
   for (; i < _FS_MAX_DRIVES && _fs_drives != NULL; i++);
   if (i == 0)
     panic("No more free drives to use in vfsInit");
-  _fs_drives[i] = kalloc(sizeof(struct _FS_FILE));
+  _fs_drives[i] = nalloc(sizeof(struct _FS_FILE));
   if (_fs_drives == NULL )
   {
     panic("Out of memory in vfsInit!");
   }
-  _fs_drives[i]->start   = kalloc(size);
+  _fs_drives[i]->start   = kalloc(size*_VFS_STD_BLCK);
   _fs_drives[i]->end     = (char*)((size_t)_fs_drives[i]->start + size);
   _fs_drives[i]->read    = _fs_drives[i]->start;
   _fs_drives[i]->write   = _fs_drives[i]->start;
   _fs_drives[i]->size    = size;
   
-  struct _FS_INODE* vfs  = kalloc(sizeof(struct _FS_INODE));
+  struct _FS_INODE* vfs  = _fs_drives[i]->start;
   vfs -> name            = NULL;
   vfs -> protection      = protection;
   vfs -> userid          = _FS_USER_ROOT;

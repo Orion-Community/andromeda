@@ -32,19 +32,22 @@
 #define _FS_PROT_ALL_W 0x002
 #define _FS_PROT_ALL_X 0x001
 
-#define _FS_META_DIR 0x001
-#define _FS_META_BLK 0x002
-#define _FS_META_BIN 0x003
-#define _FS_META_SYM 0x004
-#define _FS_META_MNT 0x005
+#define _FS_META_DIR  0x000
+#define _FS_META_BLK  0x001
+#define _FS_META_BIN  0x002
+#define _FS_META_SYM  0x003
+#define _FS_META_MNT  0x004
+#define _FS_META_ROOT 0x004
 
 #define _FS_USER_ROOT  0
 #define _FS_GROUP_ROOT 0
 
 #define _FS_MAX_DRIVES 0x20
 
-#define _VFS_STD_SIZE 0x100000
 #define _FS_ROOT_RIGHTS (_FS_PROT_DIR|_FS_PROT_OWN_R|_FS_PROT_OWN_W|_FS_PROT_OWN_X|_FS_PROT_GRP_R|_FS_PROT_GRP_X|_FS_PROT_ALL_R|_FS_PROT_ALL_X)
+
+#define _VFS_STD_BLCK 0x200;
+#define _VFS_STD_SIZE 0x100000/_VFS_STD_BLCK
 
 struct _FS_INODE
 {
@@ -57,6 +60,17 @@ struct _FS_INODE
   unsigned long inode;       // Address of inode on disk
   unsigned int length;       // Length of the file in units of 512 bytes
   struct _FS_INODE* poiter;  // For symlinks
+  struct _FS_INODE* parent;  // Should point to the parent directory
+  struct _FS_ROOTNODE* root; // For the root node
+};
+
+struct _FS_ROOTNODE
+{
+  unsigned int* bmp;
+  unsigned int size;
+  unsigned int free;
+  struct _FS_INODE* root;
+  char** mountpoints;
 };
 
 typedef struct _FS_INODE inode_t;
