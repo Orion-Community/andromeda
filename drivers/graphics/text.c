@@ -16,8 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
+#include "Include/VGA.h"
 #include "Include/graphics.h"
-#include "Include/text.h" 
+#include "Include/text.h"
+
+char* font;
 
   /**
    * This function loads the basinc fonts.
@@ -25,9 +29,12 @@
 boolean textInit()
 {
   /**
-   * load atleast 1 font image and convert them into an array of buffers.
+   * @TODO:
+   *   - load atleast 1 font image and place them in font.
    */
-  return false;
+  font = alloc(256);
+  memset(0x00,font,256);
+  return true;
 }
 
   /**
@@ -58,6 +65,19 @@ imageBuffer string2imageBuffer(char* str) //Don't know for sure if I will keep t
   return ...;
 }
 
+imageBuffer getCharBuffer(char chr, unsigned int bgcolor, unsigned int color)
+{
+  imageBuffer buffer = {alloc(64*getScreenDepth()),8,8};
+  char* buf = buffer.buffer;
+  int i = 0;
+  for (;i<64;i++)
+  {
+    memset(buf,font[chr]?color:bgcolor,getScreenDepth())
+    buf += getScreenDepth();
+  }
+  return buffer;
+}
+
   /**
    * This function draws a character to the screen.
    * 
@@ -69,12 +89,16 @@ imageBuffer string2imageBuffer(char* str) //Don't know for sure if I will keep t
    * 
    * @param chr
    *   The character that should draw to the screen.
-   */
-void drawChar(int x, int y, char chr)
-{
-  /**
    * 
+   * @param bgcolor
+   *   The background color for the character.
+   * 
+   * @param color
+   *   The character color.
    */
+void drawChar(unsigned int x, unsigned int y, char chr, unsigned int bgcolor, unsigned int color)
+{
+  drawBuffer(getCharBuffer(chr,bgcolor,color),x,y);
 }
 
 
@@ -89,10 +113,51 @@ void drawChar(int x, int y, char chr)
    * 
    * @param str
    *   The string that should be draw to the screen.
-   */
-void drawString(int x, int y, char* str)
-{
-  /**
    * 
+   * @param bgcolor
+   *   The background color for the characters.
+   * 
+   * @param color
+   *   The character color.
    */
+void drawString(unsigned int x, unsigned int y, char* str, unsigned int bgcolor, unsigned int color)
+{
+  int i       = 0,
+      i2      = 0,
+      maxChrs = (int)((getScreenWidth()-x)/8),
+      len     = strlen(str),
+      strToDo = 0;
+
+  while i < len
+  {
+    if len - i > maxChrs
+    {
+      strToDo = maxChrs;
+      while strToDo > 0
+      {
+        if str[strToDo] == ' '
+        {
+          str[strToDo] == '\n'
+          break;
+        }
+        strToDo--;
+      }
+      if strToDo == 0
+        strToDo = maxChrs;
+    } else
+      strToDo = 0;
+    for (i2 = 0, i2 < strToDo, i2++)
+    {
+      if str[i]=='\n'
+      {
+        i++;
+        break;
+      }
+      drawChar(x+i2*8,y,str[i],bgcolor,color);
+      i++;
+    }
+    y += 8;
+    if y > getScreenHeight()
+      break;
+  }
 }

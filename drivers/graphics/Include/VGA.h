@@ -16,16 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef __VGA_H
 #define __VGA_H
-
-struct imageBuffer_s
-{
-  char *buffer;
-  unsigned int width;
-  unsigned int height;
-};
 
 struct pixel_s
 {
@@ -33,11 +25,13 @@ struct pixel_s
   unsigned int y;
 };
 
-typedef struct imageBuffer_s imageBuffer;
 typedef struct pixel_s pixel;
 
 boolean vgaInit();
 int setVideoMode(int mode);
-imageBuffer getScreenBuf()
+imageBuffer getScreenBuf();
+inline unsigned int getScreenWidth();
+inline unsigned int getScreenHeight();
+inline unsigned int getScreenDepth();
 
 #endif

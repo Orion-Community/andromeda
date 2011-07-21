@@ -112,7 +112,7 @@ void updateScreen()
  * @return
  *   screen width in pixels.
  */
-unsigned int getScreenWidth()
+inline unsigned int getScreenWidth()
 {
   return videoModes[videoMode]->width;
 }
@@ -123,9 +123,20 @@ unsigned int getScreenWidth()
  * @return
  *   screen height in pixels.
  */
-unsigned int getScreenHeight()
+inline unsigned int getScreenHeight()
 {
   return videoModes[videoMode]->height;
+}
+
+/**
+ * Used to get the screen depth.
+ * 
+ * @return
+ *   screen depth in chars.
+ */
+inline unsigned int getScreenDepth()
+{
+  return videoModes[videoMode]->depth;
 }
 
 /**

@@ -16,5 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-void drawChar(int x, int y, char chr);
-void drawString(int x, int y, char* str);
+#ifndef __TEXT_H
+#define __TEXT_H
+
+void drawChar(unsigned int x, unsigned int y, char chr, unsigned int bgcolor, unsigned int color);
+void drawString(unsigned int x, unsigned int y, char* str, unsigned int bgcolor, unsigned int color);
+
+#endif

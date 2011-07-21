@@ -16,5 +16,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef __GRAPHICS_H
+#define __GRAPHICS_H
+
+struct imageBuffer_s
+{
+  char *buffer;
+  unsigned int width;
+  unsigned int height;
+};
+typedef struct imageBuffer_s imageBuffer;
+
 void imageBufferCpy(imageBuffer* src, imageBuffer* dest, int x, int y);
 void imageBufferPartCpy(imageBuffer* src, imageBuffer* dest, int x, int y, int width, int height, int partx, int party);
+
+#endif
