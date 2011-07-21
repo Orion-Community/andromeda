@@ -47,11 +47,15 @@ void fsInit(inode_t* root)
     _fs_root->root->root = _fs_root;
     _fs_root->root->size = _VFS_STD_SIZE;
     _fs_root->root->free = _fs_root->root->size - (sizeof(struct _FS_INODE) + sizeof(struct _FS_ROOTNODE) + _FS_BMP_SZ(_VFS_STD_SIZE));
+    _fs_root->root->mounts = NULL;
     int i = 0;
     for (; i < _VFS_STD_SIZE; i++)
     {
       _fs_root->root->bmp[_FS_BMP_IDX(i)] |= (i > _VFS_STD_SIZE-_fs_root->root->free)? 1 << _FS_BMP_OFF(i) : 0 << _FS_BMP_OFF(i);
     }
+    _fs_root->meta = _FS_META_ROOT;
+    _fs_root->name = "/";
+    _fs_root->offset = _fs_root->root->bmp + _FS_BMP_SZ(_VFS_STD_SIZE);
   }
 }
 
@@ -81,5 +85,6 @@ struct _FS_INODE* vfsInit(size_t size, unsigned int protection)
   vfs -> device          = i;
   vfs -> inode           = 0;
   vfs -> length          = size;
+  vfs -> offset          = sizeof(struct _FS_INODE);
   return vfs;
 }

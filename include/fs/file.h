@@ -31,4 +31,11 @@ struct _FS_FILE
   struct _IO_FILE* chain;
 };
 
+struct _FS_DIRECTORY
+{
+  char* name;
+  unsigned int device;
+  unsigned int inode;
+};
+
 #endif
