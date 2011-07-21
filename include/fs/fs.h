@@ -59,7 +59,7 @@ struct _FS_INODE
   unsigned int device;       // Device ID
   unsigned int inode;        // Address of inode on disk
   unsigned int offset;       // Offset from inode start to access the first bit of data
-  unsigned int length;       // Length of the file in units of 512 bytes
+  unsigned int length;       // Length of the file in units of 1 byte
   struct _FS_INODE* poiter;  // For symlinks
   struct _FS_INODE* parent;  // Should point to the parent directory
   struct _FS_ROOTNODE* root; // For the root node

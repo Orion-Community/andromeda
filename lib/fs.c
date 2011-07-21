@@ -47,7 +47,7 @@ void fsInit(inode_t* root)
     _fs_root->root->root = _fs_root;
     _fs_root->root->size = _VFS_STD_SIZE;
     _fs_root->root->free = _fs_root->root->size - (sizeof(struct _FS_INODE) + sizeof(struct _FS_ROOTNODE) + _FS_BMP_SZ(_VFS_STD_SIZE));
-    _fs_root->root->mounts = NULL;
+    _fs_root->root->mounts = 0;
     int i = 0;
     for (; i < _VFS_STD_SIZE; i++)
     {
@@ -55,36 +55,36 @@ void fsInit(inode_t* root)
     }
     _fs_root->meta = _FS_META_ROOT;
     _fs_root->name = "/";
-    _fs_root->offset = _fs_root->root->bmp + _FS_BMP_SZ(_VFS_STD_SIZE);
+    _fs_root->offset = (unsigned long)_fs_root->root->bmp + _FS_BMP_SZ(_VFS_STD_SIZE);
   }
 }
 
 struct _FS_INODE* vfsInit(size_t size, unsigned int protection)
 {
-  int i = 0;
-  for (; i < _FS_MAX_DRIVES && _fs_drives != NULL; i++);
-  if (i == 0)
+  int device = 0;
+  for (; device <= _FS_MAX_DRIVES && _fs_drives[device] != NULL; device++);
+  if (device == _FS_MAX_DRIVES)
     panic("No more free drives to use in vfsInit");
-  _fs_drives[i] = nalloc(sizeof(struct _FS_FILE));
+  _fs_drives[device] = nalloc(sizeof(struct _FS_FILE));
   if (_fs_drives == NULL )
   {
     panic("Out of memory in vfsInit!");
   }
-  _fs_drives[i]->start   = kalloc(size*_VFS_STD_BLCK);
-  _fs_drives[i]->end     = (char*)((size_t)_fs_drives[i]->start + size);
-  _fs_drives[i]->read    = _fs_drives[i]->start;
-  _fs_drives[i]->write   = _fs_drives[i]->start;
-  _fs_drives[i]->size    = size;
+  _fs_drives[device]->start   = kalloc(size*_VFS_STD_BLCK);
+  _fs_drives[device]->end     = (char*)((size_t)_fs_drives[device]->start + size);
+  _fs_drives[device]->read    = _fs_drives[device]->start;
+  _fs_drives[device]->write   = _fs_drives[device]->start;
+  _fs_drives[device]->size    = size;
   
-  struct _FS_INODE* vfs  = _fs_drives[i]->start;
+  struct _FS_INODE* vfs  = (struct _FS_INODE*)_fs_drives[device]->start;
   vfs -> name            = NULL;
   vfs -> protection      = protection;
   vfs -> userid          = _FS_USER_ROOT;
   vfs -> groupid         = _FS_GROUP_ROOT;
   vfs -> meta            = 0;
-  vfs -> device          = i;
-  vfs -> inode           = 0;
-  vfs -> length          = size;
+  vfs -> device          = device;
+  vfs -> inode           = 0; // Standard file size = 0 bytes
+  vfs -> length          = 0;
   vfs -> offset          = sizeof(struct _FS_INODE);
   return vfs;
 }
