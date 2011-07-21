@@ -23,6 +23,8 @@
 [SECTION .text]
 
 [EXTERN printnum]
+[EXTERN putc]
+[EXTERN iowait]
 
 [GLOBAL ide_init]
 ide_init:
@@ -63,16 +65,21 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 
 	mov ebx, [ebp+16]
 	test byte [ebx], 0x80
-	jz .fail2
+	jz .fail
 
 	cmp dword [ebx+OL_PTABLE_TOT_SECTORS], eax
-	jb .fail2
+	jb .fail
 
-	mov dx, OL_MASTER_ATA_STATUS
+	xor ax, ax
+	mov dx, 0x1f7
 	in al, dx
-	test al, 0xa8
-	jne .fail2
+	test al, 0x88
+	je .valueOK
 
+.reset:
+	call ata_reset
+
+.valueOK:
 	mov edx, [ebp+20]	; relative lba
 	cmp edx, 0xfffffff
 	jg short .test
@@ -98,7 +105,32 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 
 .fail:
 	stc
+	pop ebp
 	ret
 
-.fail2:
-	jmp $
+ata_reset:
+	mov dx, OL_MASTER_ATA_COMMAND
+	push eax
+
+.reset
+	mov al, 4
+	out dx, al			; do a "software reset" on the bus
+	xor eax, eax
+	out dx, al			; reset the bus to normal operation
+	in al, dx			; it might take 4 tries for status bits to reset
+	in al, dx			; ie. do a 400ns delay
+	in al, dx
+	in al, dx
+	in al, dx
+	test al, 0x88
+	jnz .reset
+
+	push 0
+	push 0
+	push 16
+	push eax
+	call printnum
+	add esp, 4*4
+
+	pop eax
+	ret
