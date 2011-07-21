@@ -14,6 +14,7 @@ $(OUTD):
 	$(MAKE) -C nano/ FLAGS="$(FLAGS) "
 	$(MAKE) -C math/ FLAGS="$(FLAGS) "
 	$(MAKE) -C boot/ FLAGS="$(FLAGS) "
+	$(MAKE) -C lib/ FLAGS="$(FLAGS) "
 	
 	rm -v nano/boot.o nano/kmain.o nano/map.o
 	
@@ -23,6 +24,7 @@ $(OUTD):
 	mv -v nano/*.o ./
 	mv -v math/maths.o ./
 	mv -v boot/*.o ./
+	mv -v lib/lib.o ./
 	
 	mv -v nano/$(OUTC) ./
 	
@@ -35,6 +37,7 @@ clean:
 	$(MAKE) -C mm/ clean
 	$(MAKE) -C nano/ clean
 	$(MAKE) -C math/ clean
+	$(MAKE) -C lib/ clean
 	
 	rm -v *.o
 	rm -v $(OUTC)

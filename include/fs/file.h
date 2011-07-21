@@ -16,36 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <tty/tty.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <error/panic.h>
+#ifndef __FS_FILE_H
+#define __FS_FILE_H
 
-tty_t terminals[TERMINALS];
+#include <types.h>
 
-void ttyInit()
+struct _FS_FILE
 {
-  int i = 0;
-  int j;
-  for (; i < TERMINALS; i++)
-  {
-    terminals[i].frameBuf   = nalloc(2*VGA_HEIGHT*VGA_WIDTH);
-    terminals[i].cursor_x   = 0;
-    terminals[i].cursor_y   = 0;
-    terminals[i].size_x     = VGA_WIDTH;
-    terminals[i].size_y     = VGA_HEIGHT;
-    terminals[i].screenmode = 0;
-    terminals[i].stdin      = initBuffer();
-    terminals[i].stdout     = initBuffer();
-  }
-}
+  char* start;
+  char* end;
+  char* read;
+  char* write;
+  size_t size;
+  struct _IO_FILE* chain;
+};
 
-void ttyWrite(char* data)
+struct _FS_DIRECTORY
 {
-  
-}
+  char* name;
+  unsigned int device;
+  unsigned int inode;
+};
 
-void ttyWriteBuffer(buffer_t* buffer)
-{
-
-}
+#endif
