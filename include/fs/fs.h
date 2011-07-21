@@ -46,8 +46,8 @@
 
 #define _FS_ROOT_RIGHTS (_FS_PROT_DIR|_FS_PROT_OWN_R|_FS_PROT_OWN_W|_FS_PROT_OWN_X|_FS_PROT_GRP_R|_FS_PROT_GRP_X|_FS_PROT_ALL_R|_FS_PROT_ALL_X)
 
-#define _VFS_STD_BLCK 0x200;
-#define _VFS_STD_SIZE 0x100000/_VFS_STD_BLCK
+#define _VFS_STD_BLCK 0x200
+#define _VFS_STD_SIZE (0x100000/_VFS_STD_BLCK)
 
 struct _FS_INODE
 {
@@ -57,7 +57,7 @@ struct _FS_INODE
   unsigned int groupid;      // Owner data
   unsigned int meta;         // Any flags required for administration
   unsigned int device;       // Device ID
-  unsigned long inode;       // Address of inode on disk
+  unsigned int inode;        // Address of inode on disk
   unsigned int length;       // Length of the file in units of 512 bytes
   struct _FS_INODE* poiter;  // For symlinks
   struct _FS_INODE* parent;  // Should point to the parent directory
@@ -70,7 +70,14 @@ struct _FS_ROOTNODE
   unsigned int size;
   unsigned int free;
   struct _FS_INODE* root;
-  char** mountpoints;
+  struct _FS_MOUNTPOINT* mountpoints;
+};
+
+struct _FS_MOUNTPOINT
+{
+  unsigned int inode;
+  unsigned char* path;
+  unsigned int fs_type;
 };
 
 typedef struct _FS_INODE inode_t;

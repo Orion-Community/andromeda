@@ -32,9 +32,10 @@ void fsInitDrives()
   }
 }
 
-#define _FS_BMP_IDX(a) (a/32)
-#define _FS_BMP_OFF(a) (a%32)
-#define _FS_BMP_SZ(a)  ((a%32 == 0) ? a/32 : a/32+1)
+#define _FS_BMP_BITS (sizeof(int)*8)
+#define _FS_BMP_IDX(a) (a/_FS_BMP_BITS)
+#define _FS_BMP_OFF(a) (a%_FS_BMP_BITS)
+#define _FS_BMP_SZ(a)  ((a%_FS_BMP_BITS == 0) ? a/_FS_BMP_BITS : a/_FS_BMP_BITS+1)
 
 void fsInit(inode_t* root)
 {
@@ -49,7 +50,7 @@ void fsInit(inode_t* root)
     int i = 0;
     for (; i < _VFS_STD_SIZE; i++)
     {
-      _fs_root->root->bmp[_FS_ROOT_IDX(i)] |= (i > _VFS_STD_SIZE-_fs_root->root->free) 1 << _FS_BMP_OFF(i) : 0 << _FS_BMP_OFF(i);
+      _fs_root->root->bmp[_FS_BMP_IDX(i)] |= (i > _VFS_STD_SIZE-_fs_root->root->free)? 1 << _FS_BMP_OFF(i) : 0 << _FS_BMP_OFF(i);
     }
   }
 }
