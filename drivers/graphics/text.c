@@ -37,34 +37,6 @@ boolean textInit()
   return true;
 }
 
-  /**
-   * This function returns the image buffer of a single character.
-   * 
-   * @param chr
-   *   The character that should be view by the image buffer.
-   */
-imageBuffer char2ImageBuffer(char chr) //Don't know for sure if I will keep this function
-{
-  /**
-   * 
-   */
-  return ...;
-}
-
-  /**
-   * This function returns the image buffer of a string.
-   * 
-   * @param str
-   *   The string that should be view by the image buffer.
-   */
-imageBuffer string2imageBuffer(char* str) //Don't know for sure if I will keep this function
-{
-  /**
-   * 
-   */
-  return ...;
-}
-
 imageBuffer getCharBuffer(char chr, unsigned int bgcolor, unsigned int color)
 {
   imageBuffer buffer = {alloc(64*getScreenDepth()),8,8};
@@ -76,6 +48,95 @@ imageBuffer getCharBuffer(char chr, unsigned int bgcolor, unsigned int color)
     buf += getScreenDepth();
   }
   return buffer;
+}
+
+  /**
+   * This function prints a character to an image buffer.
+   * 
+   * @param buffer
+   *   The buffer the string should be printed to.
+   * 
+   * @param chr
+   *   The character that should printed to the image buffer.
+   * 
+   * @param bgcolor
+   *   The background color for the character.
+   * 
+   * @param color
+   *   The character color.
+   * 
+   * @param x
+   *   The x coordinate in image buffer for the character.
+   * 
+   * @param y
+   *   The y coordinate in image buffer for the character.
+   */
+void printCharToBuffer(imageBuffer buffer, char chr, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color)
+{
+  imageBufferCpy(getCharBuffer(chr,bgcolor,color),buffer,x,y);
+}
+
+  /**
+   * This function prints a sting to an image buffer.
+   * 
+   * @param buffer
+   *   The buffer the string should be printed to.
+   * 
+   * @param str
+   *   The string that should printed to the image buffer.
+   * 
+   * @param bgcolor
+   *   The background color for the characters.
+   * 
+   * @param color
+   *   The character color.
+   * 
+   * @param x
+   *   The x coordinate in image buffer for the character.
+   * 
+   * @param y
+   *   The y coordinate in image buffer for the character.
+   */
+void printStringToBuffer(imageBuffer buffer, char* str, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color)
+{
+  int i       = 0,
+      i2      = 0,
+      maxChrs = (int)((buffer.width-x)/8),
+      len     = strlen(str),
+      strToDo = 0;
+
+  while i < len
+  {
+    if len - i > maxChrs
+    {
+      strToDo = maxChrs;
+      while strToDo > 0
+      {
+        if str[strToDo] == ' '
+        {
+          str[strToDo] == '\n'
+          break;
+        }
+        strToDo--;
+      }
+      if strToDo == 0
+        strToDo = maxChrs;
+    } else
+      strToDo = 0;
+    for (i2 = 0, i2 < strToDo, i2++)
+    {
+      if str[i]=='\n'
+      {
+        i++;
+        break;
+      }
+      printCharToBuffer(buffer,str[i],x+i2*8,y,bgcolor,color);
+      i++;
+    }
+    y += 8;
+    if y > buffer.height()
+      break;
+  }
 }
 
   /**
@@ -120,44 +181,7 @@ void drawChar(unsigned int x, unsigned int y, char chr, unsigned int bgcolor, un
    * @param color
    *   The character color.
    */
-void drawString(unsigned int x, unsigned int y, char* str, unsigned int bgcolor, unsigned int color)
+void drawString(char* str, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color)
 {
-  int i       = 0,
-      i2      = 0,
-      maxChrs = (int)((getScreenWidth()-x)/8),
-      len     = strlen(str),
-      strToDo = 0;
-
-  while i < len
-  {
-    if len - i > maxChrs
-    {
-      strToDo = maxChrs;
-      while strToDo > 0
-      {
-        if str[strToDo] == ' '
-        {
-          str[strToDo] == '\n'
-          break;
-        }
-        strToDo--;
-      }
-      if strToDo == 0
-        strToDo = maxChrs;
-    } else
-      strToDo = 0;
-    for (i2 = 0, i2 < strToDo, i2++)
-    {
-      if str[i]=='\n'
-      {
-        i++;
-        break;
-      }
-      drawChar(x+i2*8,y,str[i],bgcolor,color);
-      i++;
-    }
-    y += 8;
-    if y > getScreenHeight()
-      break;
-  }
+  printStringToBuffer(getScreenBuf(),x,y,bgcolor,color);
 }
