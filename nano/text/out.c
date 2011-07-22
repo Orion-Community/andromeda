@@ -237,6 +237,7 @@ void printDecimalNum(double index, unsigned int base)
 
 void putc(unsigned char i)
 {
+#ifndef GRAPHICS
 	boolean noPrint = FALSE;
 	if (i == '\n')
 	{
@@ -275,6 +276,7 @@ void putc(unsigned char i)
 		keybuf[cursor.x-1+cursor.y*WIDTH] = chr;
 	}
 	reloc(cursor.x, cursor.y);
+#endif
 }
 
 int reloc(int loc_x, int loc_y)

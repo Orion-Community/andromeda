@@ -14,7 +14,7 @@ graphics.o:
 
 interrupts.o:
 	$(MAKE) -C interrupts/
-	mv -v interrupts/interrupts.o ./
+	mv -fv interrupts/interrupts.o ./
 
 .PHONY: clean
 clean:

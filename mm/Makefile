@@ -14,4 +14,4 @@ coremm.o: $(TARGETS)
 	
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -fv *.o

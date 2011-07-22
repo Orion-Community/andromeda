@@ -3,7 +3,7 @@ MAKE=make
 .PHONY: x86
 x86:
 	$(MAKE) FLAGS="$(FLAGS)" -C x86
-	mv -v x86/arch.o ./
+	mv -fv x86/arch.o ./
 
 .PHONY: clean
 clean:

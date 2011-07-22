@@ -19,4 +19,4 @@ timer.o: $(TIMER)
 
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -fv *.o

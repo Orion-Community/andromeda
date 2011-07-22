@@ -20,4 +20,4 @@ arch.o: $(INTERRUPTS) $(MM)
 .PHONY: clean
 clean:
 	$(MAKE) -C asm clean
-	rm -v *.o
+	rm -fv *.o

@@ -44,8 +44,12 @@ int core(unsigned short memorymap[], module_t mods[])
   // Set the CPU up so that it no longer requires the nano image
   setGDT();
   
+  // Sinus test
+  printf("Sinus(0.5) = %d\n",sin(0.5f));
+  
   // In the future this will do a little more
   printf("You can now shutdown your PC\n");
+
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
     halt();

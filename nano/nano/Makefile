@@ -21,4 +21,4 @@ boot.o: boot.asm
 
 .PHONY: clean
 clean:
-	#rm -v *.o
+	#rm -fv *.o

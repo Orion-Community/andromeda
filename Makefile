@@ -16,7 +16,7 @@ $(OUTD):
 	$(MAKE) -C boot/ FLAGS="$(FLAGS) "
 	$(MAKE) -C lib/ FLAGS="$(FLAGS) "
 	
-	rm -v nano/boot.o nano/kmain.o nano/map.o
+	rm -fv nano/boot.o nano/kmain.o nano/map.o
 	
 	if [ "$(GRAPHICS)" = "enabled" ]; then mv -v drivers/drivers.o ./; fi
 	mv -v kern/kern.o ./
@@ -39,9 +39,9 @@ clean:
 	$(MAKE) -C math/ clean
 	$(MAKE) -C lib/ clean
 	
-	rm -v *.o
-	rm -v $(OUTC)
-	rm -v $(OUTD)
+	rm -fv *.o
+	rm -fv $(OUTC)
+	rm -fv $(OUTD)
 
 .PHONY: amd64
 amd64:

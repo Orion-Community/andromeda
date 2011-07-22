@@ -1,12 +1,5 @@
 #!/bin/bash
 cd `dirname $0`/..
-
-function error { 
-echo Failed. 
-ls -l $SNAPSHOT | mail seanw -s "Backup script failed" 
-exit 
-}
-
 FLAGS="-O3"
 DEFS=""
 for i in $*
@@ -15,6 +8,12 @@ do
     DEFS="$DEFS $i=enabled"
 done
 make clean -B $DEFS
-make FLAGS="$FLAGS" CC=distcc $DEFS
+RET=$?
+if [ ${RET} -eq 0 ]; then
+make FLAGS="$FLAGS" CC=distcc -B $DEFS
 RET=$?
 exit $RET
+else
+echo -en '\E[1;31m'"\033[1m   !!!   Some weird error happend ($RET errors during clean)   !!!\033[0m"
+exit $RET
+fi

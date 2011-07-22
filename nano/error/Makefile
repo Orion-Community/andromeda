@@ -11,4 +11,4 @@ panic.o: panic.c
 
 .PHONY: clean
 clean:
-#	rm -v *.o
+#	rm -fv *.o

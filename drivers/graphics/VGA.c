@@ -28,14 +28,13 @@ struct videoMode_s
   unsigned int height;
   unsigned int depth;
   unsigned int ax;
-  unsigned int ah;
   unsigned int bx;
   char* addr;
 };
 
 const struct videoMode_s videomodes[2] = {
-    {0320,0200,1,0x0000,0x0013,0x0000,0xB8000}, // 320  x 200  x 256
-    {1280,1024,1,0x004F,0x0002,0x011B,0xB8000}  // 1280 x 1024 x 16M | 0xB8000 is just a guess
+    {0320,0200,1,0x0013,0x0000,0xB8000}, // 320  x 200  x 256
+    {1280,1024,1,0x4F02,0x011B,0xB8000}  // 1280 x 1024 x 16M | 0xB8000 is just a guess
   };
 char* screenbuf; // sreen buffer, containing all pixels that should be written to the screen.
 int videoMode;         // the current video mode.
@@ -83,6 +82,7 @@ int setVideoMode(int mode)
    * Here should be some code to make an bios interupt. It should use a function like this:
    *   int ret = someDoInteruptFunction( 10h , videoModes[mode] -> return , videoModes[mode] -> ah , videoModes[mode] -> ax );
    */
+  
   realloc( screenbuf, videoModes[mode]->heigwidth * videoModes[mode]->height * videoModes[mode]->depth );
   videoMode = mode;
   return -1;

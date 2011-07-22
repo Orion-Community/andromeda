@@ -19,19 +19,19 @@ $(OUTC):
 	$(MAKE) -C text
 	$(MAKE) -C nano
 	$(MAKE) -C math
-	mv -v error/panic.o ./
-	mv -v mm/mm.o ./
-	mv -v kern/kern.o ./
-	mv -v arch/arch.o ./
-	mv -v text/text.o ./
-	mv -v nano/*.o ./
-	mv -v math/maths.o ./
+	mv -fv error/panic.o ./
+	mv -fv mm/mm.o ./
+	mv -fv kern/kern.o ./
+	mv -fv arch/arch.o ./
+	mv -fv text/text.o ./
+	mv -fv nano/*.o ./
+	mv -fv math/maths.o ./
 	
 	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
 
 .PHONY: localClean
 localClean: clean
-	rm -v *.o
+	rm -fv *.o
 	rm $(OUTC)
 	
 .PHONY: clean
