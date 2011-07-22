@@ -1,4 +1,5 @@
 #!/bin/bash
-./setupfloppy.sh
-./cpfloppy.sh
-./releasefloppy.sh
+D=`dirname $0`
+$D/setupfloppy.sh
+$D/cpfloppy.sh
+$D/releasefloppy.sh

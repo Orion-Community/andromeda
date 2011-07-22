@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo cp andromeda/{compressed,core} /media/loop
+sudo cp `dirname $0`/../{compressed,core} /media/loop

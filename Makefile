@@ -8,7 +8,7 @@ all: new
 new: $(OUTD)
 
 $(OUTD):
-	#$(MAKE) -C drivers/ FLAGS="$(FLAGS) "
+	if [ "$(GRAPHICS)" = "enabled" ]; then $(MAKE) -C drivers/ FLAGS="$(FLAGS) "; fi
 	$(MAKE) -C kern/ FLAGS="$(FLAGS) "
 	$(MAKE) -C mm/ FLAGS="$(FLAGS) "
 	$(MAKE) -C nano/ FLAGS="$(FLAGS) "
@@ -18,7 +18,7 @@ $(OUTD):
 	
 	rm -v nano/boot.o nano/kmain.o nano/map.o
 	
-	#mv -v drivers/drivers.o ./
+	if [ "$(GRAPHICS)" = "enabled" ]; then mv -v drivers/drivers.o ./; fi
 	mv -v kern/kern.o ./
 	mv -v mm/coremm.o ./
 	mv -v nano/*.o ./
@@ -32,7 +32,7 @@ $(OUTD):
 
 .PHONY: clean
 clean:
-	#$(MAKE) -C drivers/ clean
+	if [ "$(GRAPHICS)" = "enabled" ]; then $(MAKE) -C drivers/ clean; fi
 	$(MAKE) -C kern/ clean
 	$(MAKE) -C mm/ clean
 	$(MAKE) -C nano/ clean
