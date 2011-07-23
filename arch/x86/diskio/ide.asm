@@ -57,7 +57,6 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	push ebp
 	mov ebp, esp
 	pushfd
-	cli
 
 	mov eax, [ebp+8]
 	test eax, eax
@@ -80,6 +79,13 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 
 .reset:
 	call ata_reset
+	push 0
+	push 0
+	push 16
+	push eax
+	call printnum
+	add esp, 4*4
+
 
 .valueOK:
 	mov edx, [ebp+20]	; relative lba
@@ -112,33 +118,82 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	ret
 
 ata_reset:
-	cli
-	mov dx, OL_MASTER_ATA_COMMAND
-	push eax
+	mov dx, OL_MASTER_ATA_STATUS
 
 .reset:
 	mov al, 4
 	out dx, al			; do a "software reset" on the bus
 	xor eax, eax
 	out dx, al			; reset the bus to normal operation
-	in al, dx			; it might take 4 tries for status bits to reset
-	in al, dx			; ie. do a 400ns delay
-	in al, dx
+
+	in ax, dx
+	in ax, dx
+	in ax, dx
+	in ax, dx
+
+.retest:
+	in ax, dx
+
+	test ax, 0x88
+	jnz .retest
+
+	ret
+
+[GLOBAL ata_identify]
+ata_identify:
+	push ebp
+	mov ebp, esp
+
+	mov dx, OL_MASTER_ATA_DRIVE_SELECT
+	mov al, 0xa0
+	out dx, al
+
+	xor al, al
+	mov dx, OL_MASTER_ATA_SECTOR_COUNT
+	out dx, al
+	
+	or dx, 1b ; inc dx -> dx = 0xf3
+	out dx, al
+
+	inc dx
+	out dx, al
+
+	inc dx
+	out dx, al
+
+	mov al, 0xec ; identify command
+	mov dx, OL_MASTER_ATA_COMMAND
+	out dx, al
+
+	mov dx, OL_MASTER_ATA_STATUS
+	xor eax, eax
 	in al, dx
 	in al, dx
 	in al, dx
 	in al, dx
 
+.retry:
+	in al, dx
+	cmp al, 0xff
+	je .testLBA
+	jmp .done
 
-	test al, 0x88
-	jnz .reset
+.testLBA:
+	mov dx, OL_MASTER_ATA_MID_LBA
+	in al, dx
+	or al, al
+	jnz .fail
 
-	push 0
-	push 0
-	push 16
-	push eax
-	call printnum
-	add esp, 4*4
+	inc dx
+	in al, dx
+	or al, al
+	jnz .fail
+	jmp .done
 
-	pop eax
+.fail:
+	jmp  $
+
+.done:
+	and eax, 0xff
+	pop ebp
 	ret

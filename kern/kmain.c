@@ -48,14 +48,15 @@ void kmain(void)
 	
 	pic_init();
 	setIDT();
+	outb(OL_KBC_COMMAND, OL_KB_INIT);	// enable the keyboard
 #ifdef __DEBUG
 	println("Multiboot memory map:\n");
 	OL_display_mmap();
 #endif
 	uint8_t active = ide_init(bootdrive);
-	ide_read(0x100, 1<<20, &bootdrive[active], 60);
+// 	ide_read(0x100, 1<<20, &bootdrive[active], 60);
+	printnum(ata_identify(), 16, FALSE, FALSE);
 
-	outb(OL_KBC_COMMAND, OL_KB_INIT);	// enable the keyboard
 	println("Waiting for service interrupts..");
 	while(1) halt();
 	println("End of program reached!");

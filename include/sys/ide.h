@@ -46,3 +46,8 @@ extern uint8_t ide_read(uint32_t sectors /* sectors to read */, uint32_t buffer 
  * NOTE: This function expects that the current partition tables are located at 0x0:0x7c00.
  */
 extern uint8_t ide_init(OL_ptable * partitions);
+
+/**
+ * Get information about the drive.
+ */
+extern uint8_t ata_identify(void);
