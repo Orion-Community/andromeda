@@ -16,25 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __FS_FILE_H
-#define __FS_FILE_H
 
-#include <types.h>
 
-struct _FS_FILE
+void ttyInit(int ttys)
 {
-  char* start;
-  char* end;
-  char* read;
-  char* write;
-  size_t size;
-  struct _IO_FILE* chain;
-};
-
-struct _FS_DIRECTORY
-{
-  char* name;
-  unsigned int inode;
-};
-
-#endif
+}

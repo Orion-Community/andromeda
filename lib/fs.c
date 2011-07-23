@@ -41,7 +41,7 @@ void fsInit(inode_t* root)
 {
   if (root == NULL)
   {
-    _fs_root = vfsInit(_VFS_STD_SIZE, _FS_ROOT_RIGHTS);
+    _fs_root = memFsInit(_VFS_STD_SIZE, _FS_ROOT_RIGHTS);
     _fs_root->root = (void*)((unsigned long)_fs_root + sizeof(struct _FS_INODE));
     _fs_root->root->bmp = (void*)((unsigned long)_fs_root->root + sizeof(struct _FS_ROOTNODE));
     _fs_root->root->root = _fs_root;
@@ -51,7 +51,7 @@ void fsInit(inode_t* root)
     int i = 0;
     for (; i < _VFS_STD_SIZE; i++)
     {
-      _fs_root->root->bmp[_FS_BMP_IDX(i)] |= (i > _VFS_STD_SIZE-_fs_root->root->free)? 1 << _FS_BMP_OFF(i) : 0 << _FS_BMP_OFF(i);
+      _fs_root->root->bmp[_FS_BMP_IDX(i)] |= (i > _VFS_STD_SIZE-_fs_root->root->free) ? 1 << _FS_BMP_OFF(i) : 0 << _FS_BMP_OFF(i);
     }
     _fs_root->meta = _FS_META_ROOT;
     _fs_root->name = "/";
@@ -59,7 +59,7 @@ void fsInit(inode_t* root)
   }
 }
 
-struct _FS_INODE* vfsInit(size_t size, unsigned int protection)
+struct _FS_INODE* memFsInit(size_t size, unsigned int protection)
 {
   int device = 0;
   for (; device <= _FS_MAX_DRIVES && _fs_drives[device] != NULL; device++);
