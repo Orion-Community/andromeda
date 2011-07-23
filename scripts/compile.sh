@@ -1,6 +1,6 @@
 #!/bin/bash
 cd `dirname $0`/..
-FLAGS="-O3"
+FLAGS=""
 DEFS=""
 for i in $*
 do

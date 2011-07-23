@@ -45,7 +45,9 @@ int core(unsigned short memorymap[], module_t mods[])
   setGDT();
   
   // Sinus test
-  printf("Sinus(0.5) = %d\n",sin(0.5f));
+  double d = sin(0.5);
+  printf("Sin(0.5) = %d\n",d);
+  printf("Sin(0.5) = %d\n",sin(0.5)); // Somehow this doesn't work. Gives a varity of weird error, witch can change every compilation (even if you don't edit this rule, try comment the 2 rule before...) 
   
   // In the future this will do a little more
   printf("You can now shutdown your PC\n");
