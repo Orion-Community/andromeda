@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <tty/tty.h>
 #include <mm/map.h>
+#include <fs/fs.h>
 
 // Heap of 256 MiB
 #define HEAPSIZE 0x10000000
@@ -43,6 +44,8 @@ int core(unsigned short memorymap[], module_t mods[])
   
   // Set the CPU up so that it no longer requires the nano image
   setGDT();
+  // Set up the filesystem
+  fsInit(NULL);
   
   // In the future this will do a little more
   printf("You can now shutdown your PC\n");
