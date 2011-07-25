@@ -30,6 +30,7 @@ struct _FS_FILE
   size_t size; // Size of this inode
   struct _IO_FILE* chain; // Next inode, if this one isn't large enough
   char* path;  // Path to file
+  boolean buffered; // TRUE for buffered
 };
 
 struct _FS_DIR_ENTRY

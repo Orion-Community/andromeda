@@ -15,3 +15,22 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <kern/timer.h>
+#include <stdlib.h>
+
+boolean scheduling = FALSE;
+void (*scheduler) ();
+time_t timer = 0;
+time_t quantum = 0;
+
+void timerTick()
+{
+  timer ++;
+  if (scheduling)
+  {
+    quantum--;
+    if (quantum == 0)
+      scheduler();
+  }
+}

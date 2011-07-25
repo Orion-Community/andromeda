@@ -74,13 +74,6 @@ void irqHandle(isrVal_t regs)
   }
 }
 
-// Needs to call a list of functions each time a certain threshold is passed
-unsigned long long timer = 0;
-void timerTick()
-{
-  timer+=1;
-}
-
 // Driver needs to use look up tables instead of a huge switch-case structure
 void keyboard()
 {

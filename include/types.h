@@ -97,6 +97,7 @@ typedef struct
 
 // typedef struct __TYPE_REGISTERS isrVal_t;
 typedef unsigned long size_t;
+typedef unsigned long time_t;
 
 #define NULL (void *)0
 #endif
