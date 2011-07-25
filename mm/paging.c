@@ -16,25 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fs/fs.h>
-#include <fs/file.h>
+#include <mm/paging.h>
+#include <mm/map.h>
 #include <stdlib.h>
 
-struct _FS_INODE* _fs_root = NULL;
+#ifdef __INTEL
 
-#define _FS_BMP_BITS (sizeof(int)*8)
-#define _FS_BMP_IDX(a) (a/_FS_BMP_BITS)
-#define _FS_BMP_OFF(a) (a%_FS_BMP_BITS)
-#define _FS_BMP_SZ(a)  ((a%_FS_BMP_BITS == 0) ? a/_FS_BMP_BITS : a/_FS_BMP_BITS+1)
-
-void fsInit(inode_t* root)
+void corePaging()
 {
-  if (root == NULL)
-  {
-    panic("No root file system supplied!");
-  }
-  else
-  {
-    panic("File systems not yet supported!");
-  }
+  printf("Warning! Page tables haven't been implemented in high memory yet!\n");
 }
+#endif

@@ -39,7 +39,7 @@ int core(unsigned short memorymap[], module_t mods[])
   
   // Set up the new interrupts
   intInit();
-  
+  // Let's create our own page tables and directory
   corePaging();
   
   // Set the CPU up so that it no longer requires the nano image
