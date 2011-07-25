@@ -18,6 +18,7 @@
 
 #ifndef __KERN_SCHED_H
 #define __KERN_SCHED_H
+#include <fs/fs.h>
 void sched();
 void fork (int);
 void kill (int);
@@ -40,6 +41,7 @@ struct __TASK_STRUCT
   unsigned int uid; // User ID
 
   struct __REGISTERS *registers; // Reference to the registers to be restored
+  struct __FS_INODE *procData; // Pointer to /proc/pid
 
   unsigned int ring; // Privilege level
   char *path; // Path to binary (to look up new data)
