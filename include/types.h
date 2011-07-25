@@ -87,8 +87,6 @@ typedef	__va_list	va_list;
  * End nicked
  */
 
-typedef unsigned long size_t;
-
 typedef struct
 {
   unsigned int ds;
@@ -96,6 +94,9 @@ typedef struct
   unsigned int funcPtr, errCode;
   unsigned int eip, cs, eflags, procesp, ss;
 } isrVal_t;
+
+// typedef struct __TYPE_REGISTERS isrVal_t;
+typedef unsigned long size_t;
 
 #define NULL (void *)0
 #endif

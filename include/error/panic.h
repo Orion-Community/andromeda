@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __PANIC_H
-#define __PANIC_H
+#ifndef __ERROR_PANIC_H
+#define __ERROR_PANIC_H
 void panic(char *);
 extern void sti();
 extern void cli();

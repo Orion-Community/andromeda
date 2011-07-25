@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ELF_H
-#define ELF_H
+#ifndef __KERN_ELF_H
+#define __KERN_ELF_H
 
 #include <stdlib.h>
 

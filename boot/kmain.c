@@ -19,6 +19,7 @@
 #include <tty/tty.h>
 #include <mm/map.h>
 #include <fs/fs.h>
+#include <kern/sched.h>
 
 // Heap of 256 MiB
 #define HEAPSIZE 0x10000000

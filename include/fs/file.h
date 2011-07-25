@@ -23,18 +23,19 @@
 
 struct _FS_FILE
 {
-  char* start;
-  char* end;
-  char* read;
-  char* write;
-  size_t size;
-  struct _IO_FILE* chain;
+  char* start; // Start of file (within this inode)
+  char* end;   // End of file (within this inode)
+  char* read;  // The read pointer (within this inode)
+  char* write; // The write pointer (within this inode, should be >= read)
+  size_t size; // Size of this inode
+  struct _IO_FILE* chain; // Next inode, if this one isn't large enough
+  char* path;  // Path to file
 };
 
-struct _FS_DIRECTORY
+struct _FS_DIR_ENTRY
 {
-  char* name;
-  unsigned int inode;
+  char* name; 
+  struct _FS_INODE* inode;
 };
 
 #endif

@@ -19,6 +19,7 @@
 #ifndef __KERN_SCHED_H
 #define __KERN_SCHED_H
 #include <fs/fs.h>
+#include <types.h>
 void sched();
 void fork (int);
 void kill (int);
@@ -28,19 +29,12 @@ void kill (int);
 #define _STATE_PAUSING 2
 #define _STATE_ZOMBIE  3
 
-struct __REGISTERS
-{
-  unsigned long rax, rbx, rcx, rdx;
-  unsigned long ds, cs, ss, rip;
-  unsigned long rsp;
-};
-
 struct __TASK_STRUCT
 {
   unsigned int pid; // Proccess ID
   unsigned int uid; // User ID
 
-  struct __REGISTERS *registers; // Reference to the registers to be restored
+  isrVal_t *registers; // Reference to the registers to be restored
   struct __FS_INODE *procData; // Pointer to /proc/pid
 
   unsigned int ring; // Privilege level

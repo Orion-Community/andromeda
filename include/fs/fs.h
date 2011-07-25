@@ -20,6 +20,7 @@
 #define __FS_FS_H
 
 #include <fs/file.h>
+#include <thread.h>
 
 #define _FS_PROT_DIR   0x200
 #define _FS_PROT_OWN_R 0x100
@@ -62,6 +63,7 @@ struct _FS_INODE
   struct _FS_INODE* poiter;  // For symlinks
   struct _FS_INODE* parent;  // Should point to the parent directory
   struct _FS_ROOTNODE* root; // Pointer to the super block
+  mutex_t lock;              // If there are operations to be done on the file, the file must be locked, untill the operations are complete
 };
 
 struct _FS_ROOTNODE
