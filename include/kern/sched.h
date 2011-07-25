@@ -27,12 +27,19 @@ void kill (int);
 #define _STATE_PAUSING 2
 #define _STATE_ZOMBIE  3
 
+struct __REGISTERS
+{
+  unsigned long rax, rbx, rcx, rdx;
+  unsigned long ds, cs, ss, rip;
+  unsigned long rsp;
+};
+
 struct __TASK_STRUCT
 {
   unsigned int pid; // Proccess ID
   unsigned int uid; // User ID
 
-  struct *__REGISTERS; // Reference to the registers to be restored
+  struct __REGISTERS *registers; // Reference to the registers to be restored
 
   unsigned int ring; // Privilege level
   char *path; // Path to binary (to look up new data)
