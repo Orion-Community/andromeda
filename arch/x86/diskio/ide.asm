@@ -16,6 +16,12 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+%macro newline 0
+	push 0xa
+	call putc
+	add esp, 4
+%endmacro
+
 [SECTION .data]
 
 %include "arch/x86/diskio/include/ide.asmh"
@@ -144,15 +150,28 @@ ata_identify:
 	push ebp
 	mov ebp, esp
 
-	mov dx, OL_MASTER_ATA_DRIVE_SELECT
-	mov al, 0xa0
+	mov dx, OL_MASTER_ATA_FEATURES
+	mov al, 0
 	out dx, al
 
+.reset:
+	mov dx, OL_MASTER_ATA_COMMAND
+	mov al, 0x4
+	out dx, al
+	xor al, al
+	out dx, al
+
+.selectdrive:
+	mov dx, OL_MASTER_ATA_DRIVE_SELECT
+	mov al, 0xb0 ; select master drive
+	out dx, al
+
+.setValues:
 	xor al, al
 	mov dx, OL_MASTER_ATA_SECTOR_COUNT
 	out dx, al
 	
-	or dx, 1b ; inc dx -> dx = 0xf3
+	inc dx ; inc dx -> dx = 0xf3
 	out dx, al
 
 	inc dx
@@ -161,37 +180,35 @@ ata_identify:
 	inc dx
 	out dx, al
 
+.identify:
 	mov al, 0xec ; identify command
 	mov dx, OL_MASTER_ATA_COMMAND
 	out dx, al
 
 	mov dx, OL_MASTER_ATA_STATUS
 	xor eax, eax
-	in al, dx
-	in al, dx
-	in al, dx
-	in al, dx
+
+	xor bl, bl
 
 .retry:
 	in al, dx
-	cmp al, 0xff
-	je .testLBA
-	jmp .done
+	push ax
+	xor al, bl
+	pop ax
+	mov bl, al
+	jnz .printAL
+	jmp .retry
 
-.testLBA:
-	mov dx, OL_MASTER_ATA_MID_LBA
-	in al, dx
-	or al, al
-	jnz .fail
-
-	inc dx
-	in al, dx
-	or al, al
-	jnz .fail
-	jmp .done
-
-.fail:
-	jmp  $
+.printAL:
+	pushad
+	push 0
+	push 0
+	push 16
+	push eax
+	call printnum
+	add esp, 4*4
+	popad
+	jmp .retry
 
 .done:
 	and eax, 0xff
