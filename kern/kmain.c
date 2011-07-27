@@ -55,7 +55,8 @@ void kmain(void)
 #endif
 	uint8_t active = ide_init(bootdrive);
 // 	ide_read(0x100, 1<<20, &bootdrive[active], 60);
-	printnum(ata_identify(), 16, FALSE, FALSE);
+	uint8_t eax = ata_identify();
+// 	printnum(eax, 16, FALSE, FALSE);
 
 	println("Waiting for service interrupts..");
 	while(1) halt();

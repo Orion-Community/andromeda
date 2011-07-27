@@ -21,6 +21,14 @@
 	call putc
 	add esp, 4
 %endmacro
+%macro printhex 1
+	push 0
+	push 0
+	push 16
+	push dword %1
+	call printnum
+	add esp, 4*4
+%endmacro
 
 [SECTION .data]
 
@@ -189,6 +197,7 @@ ata_identify:
 	xor eax, eax
 
 	xor bl, bl
+	mov dh, 200
 
 .retry:
 	in al, dx
@@ -197,20 +206,33 @@ ata_identify:
 	pop ax
 	mov bl, al
 	jnz .printAL
+	dec dh
+	jz .done
 	jmp .retry
 
 .printAL:
 	pushad
-	push 0
-	push 0
-	push 16
-	push eax
-	call printnum
-	add esp, 4*4
+; 	printhex eax
+; 	newline
 	popad
 	jmp .retry
 
+.testValues:
+	mov dx, OL_MASTER_ATA_MID_LBA
+	push dx
+	in al, dx
+	printhex eax
+	newline
+
+	pop dx
+	inc dx
+	in al, dx
+	printhex eax
+	newline
+	ret
+
 .done:
+	call .testValues
 	and eax, 0xff
 	pop ebp
 	ret
