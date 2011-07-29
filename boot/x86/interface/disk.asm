@@ -17,29 +17,45 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[BITS 16]
-[SECTION .stage1]
+; [BITS 16]
+; [SECTION .stage1]
 
 ; 
 ; When called, es contains the buffer segment, di will point to a destination
 ; buffer offset, ecx contains the amount of sectors to read and ebx is the LBA
 ; address. DX contains the drive number.
-; 
-[GLOBAL int13_read]
+
+; [GLOBAL int13_read]
 int13_read:
-	push bx
-	push cx
-	push es
-	push di
 	push dx
 	push bp
 	mov bp, sp
+
+	mov [dap+2], cx
+	mov [dap+4], di
+	mov [dap+6], es
+	mov [dap+8], eax
+	mov [dap+12], ebx
 
 .reset:
 	xor ah, ah
 	mov dx, [bp+2]
 	int 0x13
 	jc .end
+
+.extcheck:
+	mov dl, [bp+2]
+	mov bx, 0x55aa
+	mov ax, 0x4100
+	int 0x13
+	jc .chs
+
+.extread:
+	mov dl, [bp+2]
+	lea si, [dap]
+	mov ax, 0x4200
+	int 0x13
+	jnc .end
 
 .chs:
 	mov ax, 0x800
@@ -57,7 +73,7 @@ int13_read:
 
 	xor dx, dx	; clean modulo storage place
 	xor ch, ch	; get all the crap out of ch
-	mov ax, word [bp+10]
+	mov ax, word [dap+8]
 	div cx		; ax = temp value 	dx = sector (0-based)
 	add dx, 1	; make sector 1-based and read second sector
 	push dx		; save the sector num for a while
@@ -76,11 +92,11 @@ int13_read:
 	mov bx, [bp+2]	; bios drive num
 	mov dl, bl
 	
-	mov bx, 0x7e0	; segment 0x7e0
+	mov bx, word [dap+6]	; segment 0x7e0
 	mov es, bx
-	mov bx, 0x200	; buffer offset
+	mov bx, word [dap+4]	; buffer offset
 
-	mov al, 1
+	mov al, byte [dap+2]
 	mov ah, 0x2
 	int 0x13
 
@@ -88,9 +104,16 @@ int13_read:
 
 	pop bp
 	pop dx
-	pop di
-	pop es
-	pop cx
-	pop bx
 
 	ret
+
+; 
+; Disk address packet
+; 
+dap:
+	db 0x10
+	db 0x0
+	dw 0x0		; amount of sectors to read
+	dw 0x0		; offset
+	dw 0x0		; segment
+	dq 0x0		; sector to start at

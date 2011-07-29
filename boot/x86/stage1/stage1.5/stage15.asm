@@ -19,7 +19,7 @@
 [BITS 16]
 [SECTION .stage1]
 [EXTERN endptr]
-[EXTERN int13_read]
+; ; [EXTERN int13_read]
 
 %include "boot/x86/include/masterboot.asmh"
 
@@ -48,7 +48,8 @@ main:
 	mov bx, 0x7e0
 	mov es, bx
 	mov di, 0x200
-	mov ebx, 0x805
+	mov eax, 0x805
+	xor ebx, ebx
 	mov ecx, 1
 
 	call int13_read
@@ -69,7 +70,7 @@ main:
 
 ; %include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
 
-; %include 'boot/x86/interface/disk.asm'
+%include 'boot/x86/interface/disk.asm'
 
 ;
 ; Print routine
