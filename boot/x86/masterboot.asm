@@ -69,6 +69,8 @@ start:
 	mov bp, sp
 	sti
 main:
+	mov al, 0x41
+	call print
 ; 	es is already set to 0
 	mov di, OL_BUFOFF
 	mov si, _start ; beginning of the source
@@ -237,7 +239,7 @@ dap:
 %ifdef __DEBUG
 times 446 - ($-$$) db 0
 ; first partition table
-	db 0x0
+	db 0x80
 	db 0x0
 	dw 0x21
 	dw 0xbe83
@@ -248,7 +250,7 @@ times 446 - ($-$$) db 0
 	dw 0xb800
 	dw 0x3b
 ; second partition table
-	db 0x80
+	db 0x00
 	db 0x0
 	dw 0x21
 	dw 0xbe83

@@ -44,26 +44,15 @@ main:
 	jmp $
 
 .loadstage2:
-	push si
-	push dx
 
 	mov bx, 0x7e0
 	mov es, bx
 	mov di, 0x200
-	mov ebx, 0x1
+	mov ebx, 0x805
 	mov ecx, 1
 
 	call int13_read
-.lala:
 	jc .bailout
-
-	mov bx, 0x7e0
-	mov es, bx
-	mov bx, 0x3fe
-	cmp word [es:bx], 0xaa55
-	jne .bailout
-
-	add sp, 4
 
 ; 	call dynamicloader
 ; 	jc .bailout
