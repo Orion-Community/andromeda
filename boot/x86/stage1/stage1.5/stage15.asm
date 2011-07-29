@@ -19,6 +19,7 @@
 [BITS 16]
 [SECTION .stage1]
 [EXTERN endptr]
+[EXTERN int13_read]
 
 %include "boot/x86/include/masterboot.asmh"
 
@@ -43,8 +44,29 @@ main:
 	jmp $
 
 .loadstage2:
-	call dynamicloader
+	push si
+	push dx
+
+	mov bx, 0x7e0
+	mov es, bx
+	mov di, 0x200
+	mov ebx, 0x1
+	mov ecx, 1
+
+	call int13_read
+.lala:
 	jc .bailout
+
+	mov bx, 0x7e0
+	mov es, bx
+	mov bx, 0x3fe
+	cmp word [es:bx], 0xaa55
+	jne .bailout
+
+	add sp, 4
+
+; 	call dynamicloader
+; 	jc .bailout
 
 	pop dx
 	pop si
@@ -56,7 +78,9 @@ main:
 ; Dynamic disk reader
 ;
 
-%include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
+; %include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
+
+; %include 'boot/x86/interface/disk.asm'
 
 ;
 ; Print routine

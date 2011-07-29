@@ -20,6 +20,7 @@ IRQ_DEPS=arch/x86/interrupts/irq.asm
 IRQI_DEPS=arch/x86/interrupts/irq.c
 IRQ30_DEPS=arch/x86/mm/cIRQ30.asm
 IDE_DEPS=arch/x86/diskio/ide.asm
+BIOSDISK_DEPS=boot/x86/interface/disk.asm
 
 # Object files
 STAGE15=stage15.o
@@ -44,8 +45,9 @@ IRQ=irq.o
 IRQI=irqi.o
 IRQ30=irq30.o
 IDE=ide.o
+BIOSDISK=disk.o
 
-DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IRQ30) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(IDE) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(BIOSDISK) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IRQ30) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(IDE) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)
@@ -112,3 +114,6 @@ $(IRQ30): $(IRQ30_DEPS) arch/x86/mm/include/cIRQ30.asmh
 
 $(IDE): $(IDE_DEPS)
 	$(AS) $(ASFLAGS) -o $(IDE) $(IDE_DEPS)
+
+$(BIOSDISK): $(BIOSDISK_DEPS)
+	$(AS) $(ASFLAGS) -o $(BIOSDISK) $(BIOSDISK_DEPS)

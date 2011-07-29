@@ -111,7 +111,7 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	cmp eax, 0xfffffff
 
 .test:
-	mov dx, OL_MASTER_ATA_BASE
+	mov dx, OL_PRIMARY_BUS_BASE
 	jle .lba28
 
 .lba48:
@@ -132,7 +132,7 @@ ide_read: ; ide_read(sectors to read, dest buffer, ptable pointer, relative lba)
 	ret
 
 ata_reset:
-	mov dx, OL_MASTER_ATA_STATUS
+	mov dx, OL_PRIMARY_BUS_STATUS
 
 .reset:
 	mov al, 4
@@ -158,25 +158,25 @@ ata_identify:
 	push ebp
 	mov ebp, esp
 
-	mov dx, OL_MASTER_ATA_FEATURES
-	mov al, 0
-	out dx, al
-
 .reset:
-	mov dx, OL_MASTER_ATA_COMMAND
+	mov dx, OL_PRIMARY_BUS_COMMAND
 	mov al, 0x4
 	out dx, al
 	xor al, al
 	out dx, al
 
+	mov dx, OL_PRIMARY_BUS_FEATURES
+	mov al, 0
+	out dx, al
+
 .selectdrive:
-	mov dx, OL_MASTER_ATA_DRIVE_SELECT
-	mov al, 0xb0 ; select master drive
+	mov dx, OL_PRIMARY_BUS_DRIVE_SELECT
+	mov al, 0xa0 ; select master drive
 	out dx, al
 
 .setValues:
 	xor al, al
-	mov dx, OL_MASTER_ATA_SECTOR_COUNT
+	mov dx, OL_PRIMARY_BUS_SECTOR_COUNT
 	out dx, al
 	
 	inc dx ; inc dx -> dx = 0xf3
@@ -190,10 +190,10 @@ ata_identify:
 
 .identify:
 	mov al, 0xec ; identify command
-	mov dx, OL_MASTER_ATA_COMMAND
+	mov dx, OL_PRIMARY_BUS_COMMAND
 	out dx, al
 
-	mov dx, OL_MASTER_ATA_STATUS
+	mov dx, OL_PRIMARY_BUS_STATUS
 	xor eax, eax
 
 	xor bl, bl
@@ -218,7 +218,7 @@ ata_identify:
 	jmp .retry
 
 .testValues:
-	mov dx, OL_MASTER_ATA_MID_LBA
+	mov dx, OL_PRIMARY_BUS_MID_LBA
 	push dx
 	in al, dx
 	printhex eax

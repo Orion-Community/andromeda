@@ -1,7 +1,6 @@
 ;
-;    Calculate how many sectors the second stage is, and load enough sectors. Algorith used:
-;	sectors to read = (endptr - (stage15Offset + stage15Size)) / sectorSize
-;
+;    A BIOS disk interface. It is used to communicate with the BIOS and read/write to
+;    hard disks. If needed, the LBA input will be converted to CHS.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -18,59 +17,38 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-dynamicloader:
-%ifdef __HDD
-	pop word [returnaddr]
-	pop dx
-	pop si
-	push si
+[BITS 16]
+[SECTION .stage1]
+
+; 
+; When called, es contains the buffer segment, di will point to a destination
+; buffer offset, ecx contains the amount of sectors to read and ebx is the LBA
+; address. DX contains the drive number.
+; 
+[GLOBAL int13_read]
+int13_read:
+	push bx
+	push cx
+	push es
+	push di
 	push dx
+	push bp
 	mov bp, sp
 
 .reset:
-	xor ah, ah ; function 0 = reset
-; 	pop dx
-; 	push dx
-	mov dx, [bp]
+	xor ah, ah
+	mov dx, [bp+2]
 	int 0x13
-	jc .return
-
-.checkextensions:
-	mov ax, 0x4100	; check ext
-	pop dx
-	push dx
-	mov bx, 0x55AA
-	int 0x13
-	jc .chs
-
-.extread:
-	call .calcsectors
-	mov [dap+2], ax
-
-	pop dx
-	push dx			; restore drive num
-	mov ax, word [si+8]	; low word of lba
-	mov cx, word [si+10]	; high word of lba
-	add ax, 2		; read the third sector
-	push si			; temp save pt
-	mov si, dap
-	mov [si+8], ax
-	mov [si+10], cx
-	mov ax, 0x4200
-	int 0x13
-	pop si
-	jnc .return
-
-; If int 0x13 extensions are not supported, use CHS to read the sectors..
+	jc .end
 
 .chs:
 	mov ax, 0x800
-	pop dx
-	push dx
+	mov dx, [bp+2]
+
 	xor di, di	; work around for some buggy bioses
 	mov es, di
 	int 0x13
-	jc .return
+	jc .end
 
 	and cl, 00111111b	; max sector number is 0x3f
 	inc dh		; make head 1-based
@@ -79,9 +57,9 @@ dynamicloader:
 
 	xor dx, dx	; clean modulo storage place
 	xor ch, ch	; get all the crap out of ch
-	mov ax, word [si+8]	; the pt
+	mov ax, word [bp+10]
 	div cx		; ax = temp value 	dx = sector (0-based)
-	add dx, 3	; make sector 1-based and read second sector
+	add dx, 1	; make sector 1-based and read second sector
 	push dx		; save the sector num for a while
 
 	xor dx, dx	; clean modulo
@@ -95,43 +73,24 @@ dynamicloader:
 	mov cl, al
 
 	shl dx, 8	; move dh, dl
-	pop bx		; pop bios drive num off
+	mov bx, [bp+2]	; bios drive num
 	mov dl, bl
-	push bx		; push bios drive num
 	
 	mov bx, 0x7e0	; segment 0x7e0
 	mov es, bx
 	mov bx, 0x200	; buffer offset
-	
-	call .calcsectors
+
+	mov al, 1
 	mov ah, 0x2
 	int 0x13
 
-.return:
-	push word [returnaddr]
-	ret
+.end:
 
-.calcsectors:
-	lea ax, [endptr] ; adress of the end
-	sub ax, 0x8000 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
-	test ax, 0x1FF ; ax % 512
-	jz .powof2
-	jmp .powof2
-	
-	shr ax, 9 ; ax / 512 = amount of sectors
-	inc ax
-	ret
-.powof2:
-	shr ax, 9
-	ret
+	pop bp
+	pop dx
+	pop di
+	pop es
+	pop cx
+	pop bx
 
-dap:
-	db 0x10
-	db 0x0
-	dw 0x0		; amount of sectors to read
-	dw 0x200		; offset
-	dw 0x7e0	; segment
-	dq 0x0		; sector to start at
-
-returnaddr dw 0
-%endif
+	ret
