@@ -107,6 +107,20 @@ int13_read:
 
 	ret
 
+calcsectors:
+	lea ax, [endptr] ; adress of the end
+	sub ax, 0x8000 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
+	test ax, 0x1FF ; ax % 512
+	jz .powof2
+	jmp .powof2 ; bugged
+	
+	shr ax, 9 ; ax / 512 = amount of sectors
+	inc ax
+	ret
+.powof2:
+	shr ax, 9
+	ret
+
 ; 
 ; Disk address packet
 ; 

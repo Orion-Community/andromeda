@@ -44,13 +44,15 @@ main:
 	jmp $
 
 .loadstage2:
+	call calcsectors
+	mov cx, ax
+	mov eax, dword [0x7c00+8]
+	add eax, 2	; third sector
+	xor ebx, ebx
 
 	mov bx, 0x7e0
 	mov es, bx
 	mov di, 0x200
-	mov eax, 0x805
-	xor ebx, ebx
-	mov ecx, 1
 
 	call int13_read
 	jc .bailout
