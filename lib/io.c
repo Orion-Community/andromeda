@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <thread.h>
 #include <error/panic.h>
+#include <fs/fs.h>
 
 buffer_t *initBuffer()
 {
@@ -165,4 +166,10 @@ char* bufferRead(buffer_t** buffer, size_t data)
     }
   }
   return output;
+}
+
+vsprintf(FILE* file, char* pattern, va_list list)
+{
+  // This will do the actual printing to screen/file
+  panic("vsprintf doesn't work yet");
 }

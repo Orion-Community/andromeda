@@ -38,3 +38,8 @@ void fsInit(inode_t* root)
     panic("File systems not yet supported!");
   }
 }
+
+FILE* fopen()
+{
+  panic("fopen Requires a file system!");
+}

@@ -33,6 +33,8 @@ struct _FS_FILE
   boolean buffered; // TRUE for buffered
 };
 
+typedef struct _FS_FILE FILE;
+
 struct _FS_DIR_ENTRY
 {
   char* name; 

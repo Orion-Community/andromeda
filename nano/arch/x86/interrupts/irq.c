@@ -23,6 +23,9 @@
 #include <drivers/kbd.h>
 #include <stdlib.h>
 
+boolean sentinels = FALSE;
+boolean signals = FALSE;
+
 void timerTick(); // The timer function
 void picEOI(int irqNo); // Reset the interrupt pin
 void keyboard();

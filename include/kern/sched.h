@@ -24,6 +24,23 @@ void sched();
 void fork (int);
 void kill (int);
 
+struct __KERN_SCHED_PENT // Page directory entry for a certain process
+{
+  struct __KERN_SCHED_PENT* next; // Next entry
+  boolean swapped; // Has this page been swapped?
+  unsigned int block; // In that case you need this block;
+};
+
+struct __KERN_SCHED_SEGMENT
+{
+  void* base; // Base address
+  size_t length;
+  struct __KERN_SCHED_PENT* pagedir; // Page directory for segment
+  boolean executable;
+  boolean writable;
+  boolean swappable;
+};
+
 #define _STATE_RUNNING 0
 #define _STATE_WAITING 1
 #define _STATE_PAUSING 2
@@ -38,10 +55,15 @@ struct __TASK_STRUCT
   struct __FS_INODE *procData; // Pointer to /proc/pid
 
   unsigned int ring; // Privilege level
-  char *path; // Path to binary (to look up new data)
+  char *ptb; // Path to binary (to look up new data)
+  char *workingDir;
   unsigned int priority; // Priority level
   unsigned int spent; // Ammount of time spent in last epoch
 
   unsigned int state;
+  struct _KERN_SCHED_SEGMENT* text;
+  struct _KERN_SCHED_SEGMENT* data;
+  struct _KERN_SCHED_SEGMENT* bss;
+  struct _KERN_SCHED_SEGMENT* stack;
 };
 #endif

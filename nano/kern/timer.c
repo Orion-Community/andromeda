@@ -20,6 +20,8 @@
 #include <stdlib.h>
 
 boolean scheduling = FALSE;
+extern boolean sentinels;
+extern boolean signals;
 void (*scheduler) ();
 time_t timer = 0;
 time_t quantum = 0;
@@ -32,5 +34,11 @@ void timerTick()
     quantum--;
     if (quantum == 0)
       scheduler();
+  }
+  if (sentinels)
+  {
+  }
+  if (signals)
+  {
   }
 }

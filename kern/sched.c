@@ -19,6 +19,8 @@
 #include <kern/sched.h>
 #include <error/panic.h>
 
+extern boolean scheduling;
+
 void sched()
 {
 	panic("Could not schedule");
