@@ -23,6 +23,9 @@
 #include <drivers/kbd.h>
 #include <stdlib.h>
 
+boolean sentinels = FALSE;
+boolean signals = FALSE;
+
 void timerTick(); // The timer function
 void picEOI(int irqNo); // Reset the interrupt pin
 void keyboard();
@@ -72,13 +75,6 @@ void irqHandle(isrVal_t regs)
   {
     picEOI(regs.funcPtr); // Send end of interrupt signal.
   }
-}
-
-// Needs to call a list of functions each time a certain threshold is passed
-unsigned long long timer = 0;
-void timerTick()
-{
-  timer+=1;
 }
 
 // Driver needs to use look up tables instead of a huge switch-case structure

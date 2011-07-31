@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <tty/tty.h>
 #include <mm/map.h>
+#include <fs/fs.h>
+#include <kern/sched.h>
 
 // Heap of 256 MiB
 #define HEAPSIZE 0x10000000
@@ -38,11 +40,13 @@ int core(unsigned short memorymap[], module_t mods[])
   
   // Set up the new interrupts
   intInit();
-  
+  // Let's create our own page tables and directory
   corePaging();
   
   // Set the CPU up so that it no longer requires the nano image
   setGDT();
+  // Set up the filesystem
+  fsInit(NULL);
   
   // Sinus test
   double d = sin(0.5);

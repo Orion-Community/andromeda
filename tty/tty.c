@@ -16,9 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __INTERRUPTS_INT_H
-#define __INTERRUPTS_INT_H
 
-void intInit();
 
-#endif
+void ttyInit(int ttys)
+{
+}

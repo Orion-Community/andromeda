@@ -21,16 +21,6 @@
 #include <stdlib.h>
 
 struct _FS_INODE* _fs_root = NULL;
-struct _FS_FILE* _fs_drives[_FS_MAX_DRIVES];
-
-void fsInitDrives()
-{   
-  int i = 0;
-  for (; i < _FS_MAX_DRIVES; i++)
-  {
-    _fs_drives[i] = NULL;
-  }
-}
 
 #define _FS_BMP_BITS (sizeof(int)*8)
 #define _FS_BMP_IDX(a) (a/_FS_BMP_BITS)
@@ -41,50 +31,15 @@ void fsInit(inode_t* root)
 {
   if (root == NULL)
   {
-    _fs_root = vfsInit(_VFS_STD_SIZE, _FS_ROOT_RIGHTS);
-    _fs_root->root = (void*)((unsigned long)_fs_root + sizeof(struct _FS_INODE));
-    _fs_root->root->bmp = (void*)((unsigned long)_fs_root->root + sizeof(struct _FS_ROOTNODE));
-    _fs_root->root->root = _fs_root;
-    _fs_root->root->size = _VFS_STD_SIZE;
-    _fs_root->root->free = _fs_root->root->size - (sizeof(struct _FS_INODE) + sizeof(struct _FS_ROOTNODE) + _FS_BMP_SZ(_VFS_STD_SIZE));
-    _fs_root->root->mounts = 0;
-    int i = 0;
-    for (; i < _VFS_STD_SIZE; i++)
-    {
-      _fs_root->root->bmp[_FS_BMP_IDX(i)] |= (i > _VFS_STD_SIZE-_fs_root->root->free)? 1 << _FS_BMP_OFF(i) : 0 << _FS_BMP_OFF(i);
-    }
-    _fs_root->meta = _FS_META_ROOT;
-    _fs_root->name = "/";
-    _fs_root->offset = (unsigned long)_fs_root->root->bmp + _FS_BMP_SZ(_VFS_STD_SIZE);
+    panic("No root file system supplied!");
+  }
+  else
+  {
+    panic("File systems not yet supported!");
   }
 }
 
-struct _FS_INODE* vfsInit(size_t size, unsigned int protection)
+FILE* fopen()
 {
-  int device = 0;
-  for (; device <= _FS_MAX_DRIVES && _fs_drives[device] != NULL; device++);
-  if (device == _FS_MAX_DRIVES)
-    panic("No more free drives to use in vfsInit");
-  _fs_drives[device] = nalloc(sizeof(struct _FS_FILE));
-  if (_fs_drives == NULL )
-  {
-    panic("Out of memory in vfsInit!");
-  }
-  _fs_drives[device]->start   = kalloc(size*_VFS_STD_BLCK);
-  _fs_drives[device]->end     = (char*)((size_t)_fs_drives[device]->start + size);
-  _fs_drives[device]->read    = _fs_drives[device]->start;
-  _fs_drives[device]->write   = _fs_drives[device]->start;
-  _fs_drives[device]->size    = size;
-  
-  struct _FS_INODE* vfs  = (struct _FS_INODE*)_fs_drives[device]->start;
-  vfs -> name            = NULL;
-  vfs -> protection      = protection;
-  vfs -> userid          = _FS_USER_ROOT;
-  vfs -> groupid         = _FS_GROUP_ROOT;
-  vfs -> meta            = 0;
-  vfs -> device          = device;
-  vfs -> inode           = 0; // Standard file size = 0 bytes
-  vfs -> length          = 0;
-  vfs -> offset          = sizeof(struct _FS_INODE);
-  return vfs;
+  panic("fopen Requires a file system!");
 }

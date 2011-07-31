@@ -16,9 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __INTERRUPTS_INT_H
-#define __INTERRUPTS_INT_H
+#include <mm/paging.h>
+#include <mm/map.h>
+#include <stdlib.h>
 
-void intInit();
+#ifdef __INTEL
 
+void corePaging()
+{
+  printf("Warning! Page tables haven't been implemented in high memory yet!\n");
+}
 #endif

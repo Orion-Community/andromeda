@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __CPU_H
-#define __CPU_H
+#ifndef __KERN_CPU_H
+#define __KERN_CPU_H
 
 #include <types.h>
 

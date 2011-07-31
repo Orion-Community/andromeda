@@ -296,10 +296,3 @@ void initPaging ()
   setCR3(cr3);
   toglePGbit();
 }
-
-void corePaging()
-{
-  printf("The page tables still haven't been installed in high memory!\n");
-}
-
-#endif

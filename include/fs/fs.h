@@ -20,6 +20,7 @@
 #define __FS_FS_H
 
 #include <fs/file.h>
+#include <thread.h>
 
 #define _FS_PROT_DIR   0x200
 #define _FS_PROT_OWN_R 0x100
@@ -56,23 +57,22 @@ struct _FS_INODE
   unsigned int userid;       // Owner data
   unsigned int groupid;      // Owner data
   unsigned int meta;         // Any flags required for administration
-  unsigned int device;       // Device ID
   unsigned int inode;        // Address of inode on disk
   unsigned int offset;       // Offset from inode start to access the first bit of data
   unsigned int length;       // Length of the file in units of 1 byte
   struct _FS_INODE* poiter;  // For symlinks
   struct _FS_INODE* parent;  // Should point to the parent directory
-  struct _FS_ROOTNODE* root; // For the root node
+  struct _FS_ROOTNODE* root; // Pointer to the super block
+  mutex_t lock;              // If there are operations to be done on the file, the file must be locked, untill the operations are complete
 };
 
 struct _FS_ROOTNODE
 {
   unsigned int* bmp;         // Bitmap of free blocks
   unsigned int size;         // The size of the filesystem in blocks
-  unsigned int blocksize;    // The size of the blocks
+  unsigned int device;       // The device ID
   unsigned int free;         // The ammount of free blocks
   struct _FS_INODE* root;    // A pointer to the root inode
-  struct _FS_MOUNT* mountpoints; // A pointer to this files mountpoints
   unsigned int mounts;       // The amount of mounts performed on this system
 };
 
@@ -86,14 +86,6 @@ struct _FS_ROOTNODE
 #define _FS_MNT_FT32 0x007
 #define _FS_MNT_NTFS 0x008
 #define _FS_MNT_REIS 0x009
-
-struct _FS_MOUNT
-{
-  unsigned int device;       // Device to which we are mounted
-  unsigned int inode;        // The address of the inode on disk
-  unsigned int fs_type;      // File system type
-  unsigned char* path;       // Path to mountpoint
-};
 
 typedef struct _FS_INODE inode_t;
 
