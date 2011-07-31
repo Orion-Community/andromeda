@@ -9,10 +9,10 @@ TARGETS+=$(call test,CONDITIONAL)
 all: drivers.o
 
 drivers.o: $(TARGETS)
-	$(if $(TARGETS), , \
-		drivers.o *.o; \
-		mv -v drivers.o ../ \
-	)
+ifneq ("$(strip $(TARGETS))","")
+	$(LD) $(LDFLAGS) -o drivers.o *.o
+	mv -v drivers.o ../
+endif	
 
 graphics.o:
 	$(MAKE) -C graphics/ $(MAKEEND)

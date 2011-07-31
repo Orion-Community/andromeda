@@ -28,7 +28,7 @@ struct pixel_s
 
 typedef struct pixel_s pixel;
 
-boolean vgaInit();
+bool vgaInit();
 int setVideoMode(int mode);
 imageBuffer getScreenBuf();
 inline unsigned int getScreenWidth();

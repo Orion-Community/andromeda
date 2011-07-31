@@ -296,3 +296,4 @@ void initPaging ()
   setCR3(cr3);
   toglePGbit();
 }
+#endif

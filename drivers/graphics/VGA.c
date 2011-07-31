@@ -42,10 +42,10 @@ int videoMode;   // the current video mode.
  * @return
  *   false if failt, true if succeded
  */
-boolean vgaInit()
+bool vgaInit()
 {
   /**
-   * TODO
+   * @TODO
    *   - load settings file or get setting from preloaded settings file.
    *   - get videomode from settings file.
    */
@@ -246,7 +246,7 @@ int setModeViaPorts(int width, int height,int chain4)
 void updateScreen()
 {
   /**
-   * @TODO:
+   * @TODO
    *   - check if this works for all videoModes.
    */
   memcpy(

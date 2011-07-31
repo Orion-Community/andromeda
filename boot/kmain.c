@@ -20,6 +20,9 @@
 #include <mm/map.h>
 #include <fs/fs.h>
 #include <kern/sched.h>
+#ifdef GRAPHICS
+#include "../drivers/graphics/Include/VGA.h"
+#endif
 
 // Heap of 256 MiB
 #define HEAPSIZE 0x10000000
@@ -53,6 +56,11 @@ int core(unsigned short memorymap[], module_t mods[])
   printf("Sin(0.5) = %d\n",d);
   printf("Sin(0.5) = %d\n",sin(0.5)); // Somehow this doesn't work. Gives a varity of weird error, witch can change every compilation (even if you don't edit this rule, try comment the 2 rule before...) 
   
+  #ifdef GRAPHICS
+    if (!vgaInit())
+      panic("Initizing VGA driver failt!");
+  #endif
+
   // In the future this will do a little more
   printf("You can now shutdown your PC\n");
 
