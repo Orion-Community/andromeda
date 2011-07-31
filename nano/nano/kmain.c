@@ -159,12 +159,6 @@ int kmain(unsigned long magic, multiboot_info_t* hdr)
   }
   #endif
 
-// TESTING!!!
-
-
-
-// END TESTING!!!
-
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {

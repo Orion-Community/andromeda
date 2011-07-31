@@ -1,6 +1,8 @@
 include make/makeIncl
 include make/x86
 
+MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
+
 .PHONY: all
 all: new
 
@@ -8,23 +10,15 @@ all: new
 new: $(OUTD)
 
 $(OUTD):
-	if [ "$(GRAPHICS)" = "enabled" ]; then $(MAKE) -C drivers/ FLAGS="$(FLAGS) "; fi
-	$(MAKE) -C kern/ FLAGS="$(FLAGS) "
-	$(MAKE) -C mm/ FLAGS="$(FLAGS) "
-	$(MAKE) -C nano/ FLAGS="$(FLAGS) "
-	$(MAKE) -C math/ FLAGS="$(FLAGS) "
-	$(MAKE) -C boot/ FLAGS="$(FLAGS) "
-	$(MAKE) -C lib/ FLAGS="$(FLAGS) "
+	$(MAKE) -C drivers/ $(MAKEEND)
+	$(MAKE) -C kern/ $(MAKEEND)
+	$(MAKE) -C mm/ $(MAKEEND)
+	$(MAKE) -C nano/ $(MAKEEND)
+	$(MAKE) -C math/ $(MAKEEND)
+	$(MAKE) -C boot/ $(MAKEEND)
+	$(MAKE) -C lib/ $(MAKEEND)
 	
 	rm -fv nano/boot.o nano/kmain.o nano/map.o
-	
-	if [ "$(GRAPHICS)" = "enabled" ]; then mv -v drivers/drivers.o ./; fi
-	mv -v kern/kern.o ./
-	mv -v mm/coremm.o ./
-	mv -v nano/*.o ./
-	mv -v math/maths.o ./
-	mv -v boot/*.o ./
-	mv -v lib/lib.o ./
 	
 	mv -v nano/$(OUTC) ./
 	
@@ -32,7 +26,7 @@ $(OUTD):
 
 .PHONY: clean
 clean:
-	if [ "$(GRAPHICS)" = "enabled" ]; then $(MAKE) -C drivers/ clean; fi
+	$(MAKE) -C drivers/ clean
 	$(MAKE) -C kern/ clean
 	$(MAKE) -C mm/ clean
 	$(MAKE) -C nano/ clean

@@ -5,10 +5,11 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 DEPS=VGA.c graphics.c text.c
 TARGETS=vga.o
-HEADERS=include/VGA.h include/graphics.h include/text.h
+HEADERS=Include/VGA.h Include/graphics.h Include/text.h
 
 .PHONY: all
 all: $(TARGETS)
+	mv vga.o ../graphics.o;
 
 $(TARGETS): $(DEPS) $(HEADERS)
 	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)

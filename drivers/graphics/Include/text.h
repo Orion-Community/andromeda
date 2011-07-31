@@ -19,7 +19,7 @@
 #ifndef __TEXT_H
 #define __TEXT_H
 
-boolean textInit();
+boolean textInitG();
 void printCharToBuffer(imageBuffer buffer, char chr, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color);
 void printStringToBuffer(imageBuffer buffer, char* str, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color);
 void drawChar(unsigned int x, unsigned int y, char chr, unsigned int bgcolor, unsigned int color);

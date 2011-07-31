@@ -8,6 +8,7 @@ TIMER=timer.c
 
 .PHONY: all
 all: kern.o
+	mv -fv kern.o ../
 
 kern.o: load.o timer.o
 	$(LD) $(LDFLAGS) *.o -o kern.o

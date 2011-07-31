@@ -7,6 +7,7 @@ TARGETS=heap.c
 
 .PHONY: all
 all: coremm.o
+	mv -v coremm.o ../
 
 coremm.o: $(TARGETS)
 	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)

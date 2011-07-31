@@ -21,13 +21,13 @@
 
 struct imageBuffer_s
 {
-  char *buffer;
+  char*        buffer;
   unsigned int width;
   unsigned int height;
 };
 typedef struct imageBuffer_s imageBuffer;
 
-void imageBufferCpy(imageBuffer* src, imageBuffer* dest, int x, int y);
-void imageBufferPartCpy(imageBuffer* src, imageBuffer* dest, int x, int y, int width, int height, int partx, int party);
+void imageBufferCpy(imageBuffer src, imageBuffer dest, int x, int y);
+void imageBufferPartCpy(imageBuffer src, imageBuffer dest, int x, int y, int width, int height, int partx, int party);
 
 #endif

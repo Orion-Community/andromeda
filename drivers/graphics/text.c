@@ -26,25 +26,25 @@ char* font;
   /**
    * This function loads the basinc fonts.
    */
-boolean textInit()
+boolean textInitG() // This will be named textInit again after I implemented the text mode driver too.
 {
   /**
    * @TODO:
    *   - load atleast 1 font image and place them in font.
    */
-  font = alloc(256);
-  memset(0x00,font,256);
+  font = kalloc(256);
+  memset(font,0,256);
   return true;
 }
 
 imageBuffer getCharBuffer(char chr, unsigned int bgcolor, unsigned int color)
 {
-  imageBuffer buffer = {alloc(64*getScreenDepth()),8,8};
+  imageBuffer buffer = {kalloc(64*getScreenDepth()),8,8};
   char* buf = buffer.buffer;
   int i = 0;
   for (;i<64;i++)
   {
-    memset(buf,font[chr]?color:bgcolor,getScreenDepth())
+    memset(buf,font[chr]?color:bgcolor,getScreenDepth());
     buf += getScreenDepth();
   }
   return buffer;
@@ -105,27 +105,27 @@ void printStringToBuffer(imageBuffer buffer, char* str, unsigned int x, unsigned
       len     = strlen(str),
       strToDo = 0;
 
-  while i < len
+  while ( i < len )
   {
-    if len - i > maxChrs
+    if ( len - i > maxChrs )
     {
       strToDo = maxChrs;
-      while strToDo > 0
+      while ( strToDo > 0 )
       {
-        if str[strToDo] == ' '
+        if ( str[strToDo] == ' ' )
         {
-          str[strToDo] == '\n'
+          str[strToDo] == '\n';
           break;
         }
         strToDo--;
       }
-      if strToDo == 0
+      if ( strToDo == 0 )
         strToDo = maxChrs;
     } else
       strToDo = 0;
-    for (i2 = 0, i2 < strToDo, i2++)
+    for (i2 = 0; i2 < strToDo; i2++)
     {
-      if str[i]=='\n'
+      if ( str[i]=='\n' )
       {
         i++;
         break;
@@ -134,7 +134,7 @@ void printStringToBuffer(imageBuffer buffer, char* str, unsigned int x, unsigned
       i++;
     }
     y += 8;
-    if y > buffer.height()
+    if ( y > buffer.height )
       break;
   }
 }
@@ -183,5 +183,5 @@ void drawChar(unsigned int x, unsigned int y, char chr, unsigned int bgcolor, un
    */
 void drawString(char* str, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color)
 {
-  printStringToBuffer(getScreenBuf(),x,y,bgcolor,color);
+  printStringToBuffer(getScreenBuf(),str,x,y,bgcolor,color);
 }

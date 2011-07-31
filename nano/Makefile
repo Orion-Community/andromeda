@@ -1,8 +1,11 @@
 include ../make/makeIncl
 include ../make/x86
 
+MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
+
 .PHONY: all
 all: x86
+	mv -v *.o ../
 
 .PHONY: amd64
 amd64:
@@ -12,20 +15,13 @@ amd64:
 x86: $(OUTC)
 
 $(OUTC):
-	$(MAKE) -C error
-	$(MAKE) -C mm
-	$(MAKE) -C kern
-	$(MAKE) -C arch
-	$(MAKE) -C text
-	$(MAKE) -C nano
-	$(MAKE) -C math
-	mv -fv error/panic.o ./
-	mv -fv mm/mm.o ./
-	mv -fv kern/kern.o ./
-	mv -fv arch/arch.o ./
-	mv -fv text/text.o ./
-	mv -fv nano/*.o ./
-	mv -fv math/maths.o ./
+	$(MAKE) -C error $(MAKEEND)
+	$(MAKE) -C mm $(MAKEEND)
+	$(MAKE) -C kern $(MAKEEND)
+	$(MAKE) -C arch $(MAKEEND)
+	$(MAKE) -C text $(MAKEEND)
+	$(MAKE) -C nano $(MAKEEND)
+	$(MAKE) -C math $(MAKEEND)
 	
 	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
 

@@ -1,3 +1,4 @@
+MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 CC=gcc
 CFLAGS=-I../../../include/ -nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 -D __INTEL -mtune=i686 -march=i386
 ASM=nasm
@@ -11,10 +12,11 @@ MM=mm/GDT.c
 
 .PHONY: all
 all: arch.o
+	mv -fv arch.o ../
 
 arch.o: $(INTERRUPTS) $(MM)
 	$(CC) $(CFLAGS) $(FLAGS) */*.c
-	$(MAKE) FLAGS="$(FLAGS)" -C asm
+	$(MAKE) -C asm $(MAKEEND)
 	$(LD) -o arch.o asm/*.o *.o $(LDFLAGS)
 
 .PHONY: clean

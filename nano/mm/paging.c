@@ -28,7 +28,7 @@
 
 #define PRESENT  ((err & PRESENTBIT)  ? TRUE : FALSE)
 #define WRITE    ((err & WRITEBIT)    ? TRUE : FALSE)
-#define USER	 ((err & USERBIT)     ? TRUE : FALSE)
+#define USER     ((err & USERBIT)     ? TRUE : FALSE)
 #define RESERVED ((err & RESERVEDBIT) ? TRUE : FALSE)
 #define DATA     ((err & DATABIT)     ? FALSE : TRUE)
 
@@ -183,11 +183,11 @@ void* getPhysAddr(void* addr)
   ret = (void *)tmpRet; // return the variable
   
   #ifdef TESTPAGES
-  printf("CR3\t"); printhex((int)CR3); putc('\n');
-  printf("PD\t"); printhex((int)pd); putc('\n');
-  printf("PD idx\t"); printhex((int)pdIdx); putc('\n');
-  printf("PT\t"); printhex((int)pt); putc('\n');
-  printf("PT idx\t"); printhex((int)ptIdx); putc('\n');
+  printf("CR3\t%u\n",(int)CR3);// printhex((int)CR3); putc('\n');
+  printf("PD\t%u\n",(int)pd);// printhex((int)pd); putc('\n');
+  printf("PD idx\t%u\n",(int)pdIdx);// printhex((int)pdIdx); putc('\n');
+  printf("PT\t%u\n",(int)pt);// printhex((int)pt); putc('\n');
+  printf("PT idx\t%u\n",(int)ptIdx);// printhex((int)ptIdx); putc('\n');
   #endif
   
   #endif
@@ -223,41 +223,54 @@ pageDir_t* setupPageDir()
     {
       switch(bitmap[i*PAGETABLES+j])
       {
-	case FREE:
-	  // Do nothing, the 0 page is fine
-	  break;
-	case COMPRESSED:
-	case MODULE:
-	case MAPPEDIO:
-	  pt[j].pageIdx = (i*PAGETABLES+j);
-	  pt[j].pcd = 0;
-	  pt[j].pwt = 0;
-	  pt[j].present = 1;
-	  pt[j].accessed = 0;
-	  pt[j].dirty = 0;
-	  pt[j].rw = 1;
-	  pt[j].userMode = 0;
-	  pt[j].global = 0;
-	  pt[j].pat = 0;
-	  k++;
-	  // Map the page to physical memory
-	  break;
-	case NOTUSABLE:
-	  // Keep it 0, as it is still not usable
-	  break;
+        case FREE:
+          // Do nothing, the 0 page is fine
+          break;
+        case COMPRESSED:
+        case MODULE:
+        case MAPPEDIO:
+          pt[j].pageIdx = (i*PAGETABLES+j);
+          pt[j].pcd = 0;
+          pt[j].pwt = 0;
+          pt[j].present = 1;
+          pt[j].accessed = 0;
+          pt[j].dirty = 0;
+          pt[j].rw = 1;
+          pt[j].userMode = 0;
+          pt[j].global = 0;
+          pt[j].pat = 0;
+          k++;
+          // Map the page to physical memory
+          break;
+        case NOTUSABLE:
+          // Keep it 0, as it is still not usable
+          break;
       }
       if (i*PAGETABLES+j == 0xB8000)
       {
-	pt[j].pageIdx = (i*PAGETABLES+j);
-	pt[j].pcd = 0;
-	pt[j].pwt = 0;
-	pt[j].present = 1;
-	pt[j].accessed = 0;
-	pt[j].dirty = 0;
-	pt[j].rw = 1;
-	pt[j].userMode = 0;
-	pt[j].global = 0;
-	pt[j].pat = 0;
+        pt[j].pageIdx = (i*PAGETABLES+j);
+        pt[j].pcd = 0;
+        pt[j].pwt = 0;
+        pt[j].present = 1;
+        pt[j].accessed = 0;
+        pt[j].dirty = 0;
+        pt[j].rw = 1;
+        pt[j].userMode = 0;
+        pt[j].global = 0;
+        pt[j].pat = 0;
+      }
+      else if (i*PAGETABLES+j == 0xA0000)
+      {
+        pt[j].pageIdx = (i*PAGETABLES+j);
+        pt[j].pcd = 0;
+        pt[j].pwt = 0;
+        pt[j].present = 1;
+        pt[j].accessed = 0;
+        pt[j].dirty = 0;
+        pt[j].rw = 1;
+        pt[j].userMode = 0;
+        pt[j].global = 0;
+        pt[j].pat = 0;
       }
     }
     pageDir[i].pageIdx = (int)pt >> 0xC;

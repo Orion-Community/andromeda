@@ -17,7 +17,7 @@
 */
 
 #include <stdio.h>
-#include "Include/vga.h"
+#include "Include/VGA.h"
 #include "Include/graphics.h"
 
 /**
@@ -35,7 +35,7 @@
  * @param y
  *   The y coordinate in destination image of the left-top pixel of the source image.
  */
-void imageBufferCpy(imageBuffer* src, imageBuffer* dest, int x, int y)
+void imageBufferCpy(imageBuffer src, imageBuffer dest, int x, int y)
 {
   int i       = 0,
       maxX    = (dest.width>src.width+x)?src.width:dest.width-x,
@@ -77,7 +77,7 @@ void imageBufferCpy(imageBuffer* src, imageBuffer* dest, int x, int y)
  * @param party
  *   The y coordinate of the part from src that should be copied.
  */
-void imageBufferPartCpy(imageBuffer* src, imageBuffer* dest, int x, int y, int width, int height, int partx, int party)
+void imageBufferPartCpy(imageBuffer src, imageBuffer dest, int x, int y, int width, int height, int partx, int party)
 {
   int i       = 0,
       maxX    = (dest.width>width+x)?width:dest.width-x,
@@ -106,7 +106,7 @@ void imageBufferPartCpy(imageBuffer* src, imageBuffer* dest, int x, int y, int w
  * @param y
  *   The y coordinate in destination image of the left-top pixel of the source image.
  */
-void drawBuffer(imageBuffer* src, int x, int y)
+void drawBuffer(imageBuffer src, int x, int y)
 {
   imageBufferCpy(src, getScreenBuf(), x, y);
 }
@@ -135,7 +135,7 @@ void drawBuffer(imageBuffer* src, int x, int y)
  * @param party
  *   The y coordinate of the part from src that should be copied.
  */
-void drawBufferPart(imageBuffer* src, int x, int y, int width, int height, int partx, int party)
+void drawBufferPart(imageBuffer src, int x, int y, int width, int height, int partx, int party)
 {
   imageBufferPartCpy(src, getScreenBuf(), x, y, width, height, partx, party);
 }

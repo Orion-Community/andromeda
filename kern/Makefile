@@ -9,6 +9,7 @@ TARGETS=kern.o
 
 .PHONY: all
 all: $(TARGETS)
+	mv -v kern.o ../
 
 $(TARGETS): $(DEPS) $(HEADERS)
 	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)

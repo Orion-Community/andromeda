@@ -7,6 +7,7 @@ TARGETS=io.c fs.c
 
 .PHONY: all
 all: lib.o
+	mv -v lib.o ../
 
 lib.o: $(TARGETS)
 	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)

@@ -20,7 +20,9 @@
 #define __IO_H_
 
 extern unsigned char inb(unsigned short port);
+//extern unsigned char inw(unsigned short port);
 extern void outb(unsigned short port, unsigned char msg);
+extern void outw(unsigned short port, unsigned short msg);
 extern void ioWait(void);
 
 extern unsigned int readCR0(void);

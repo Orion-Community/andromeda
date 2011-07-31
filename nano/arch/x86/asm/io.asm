@@ -17,6 +17,7 @@
 %include "asm/call.mac"
 
 [GLOBAL outb]
+[GLOBAL outw]
 [GLOBAL inb]
 [GLOBAL ioWait]
 
@@ -27,6 +28,19 @@ outb: ; outb (char data, short port)
   xor edx, edx
   
   mov eax, [ebp+12]
+  mov edx, [ebp+8]
+  
+  out dx, al
+  
+  return
+
+outw: ; outw (short data, short port)  I'm a c programmer, not asm, so I don't know for sure if this works correct.
+  enter
+  
+  xor eax, eax
+  xor edx, edx
+  
+  mov eax, [ebp+16]
   mov edx, [ebp+8]
   
   out dx, al
