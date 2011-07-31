@@ -1,23 +1,18 @@
-MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
-MAKE=make
-LD=ld
+include ../make/makeIncl
+
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
-DRIVERS=
-ifeq ($(GRAPHICS),enabled)
-	DRIVERS+=graphics.o
-endif
-ifeq ($(INTERRUPTS),enabled)
-	DRIVERS+=interrupts.o
-endif
+TARGETS=
+CONDITIONAL=GRAPHICS:graphics.o INTERRUPTS:interrupts.o
+TARGETS+=$(call test,CONDITIONAL)
 
 .PHONY: all
 all: drivers.o
 
-drivers.o: $(DRIVERS)
-ifneq ($(DRIVERS),)
-	$(LD) $(LDFLAGS) -o drivers.o *.o
-	mv -v drivers.o ../
-endif
+drivers.o: $(TARGETS)
+	$(if $(TARGETS), , \
+		drivers.o *.o; \
+		mv -v drivers.o ../ \
+	)
 
 graphics.o:
 	$(MAKE) -C graphics/ $(MAKEEND)
