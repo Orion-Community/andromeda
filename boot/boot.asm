@@ -30,7 +30,7 @@ mboot:
 
 [SECTION .text]
 [GLOBAL start]
-[EXTERN core]
+[EXTERN init]
 [EXTERN stack]
 start:
   mov ecx, stack		; Set the new stack frame
@@ -43,5 +43,5 @@ start:
   push ebx
   
   cli
-  call core
+  call init
   jmp $

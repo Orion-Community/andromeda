@@ -49,7 +49,7 @@ mboot:
 
 [SECTION .text]
 [GLOBAL  start]                  ; Kernel entry point.
-[EXTERN  kmain]                  ; This is the entry point of our C code
+[EXTERN  init]                  ; This is the entry point of our C code
 [EXTERN  stack]
 
 start:
@@ -66,7 +66,7 @@ start:
 
     ; Execute the kernel:
     cli                         ; Forbidden for interrupts.
-    call kmain                  ; call our main() function.
+    call init                   ; call our init() function.
     jmp $                       ; Enter an infinite loop, to stop the processor
                                 ; executing whatever rubbish is in the memory
                                 ; after our kernel!

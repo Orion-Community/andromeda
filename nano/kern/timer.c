@@ -38,11 +38,10 @@ void setTimerFreq(int frequency)
 
 void timerTick()
 {
-  microtime--;
-  if (!microtime)
+  microtime ++;
+  if (microtime%freq == 0)
   {
-    timer ++;
-    microtime = freq;
+    timer++;
   }
   if (scheduling)
   {

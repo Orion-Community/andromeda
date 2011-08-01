@@ -97,7 +97,7 @@ boolean setupCore(module_t mod)
 }
 
 // The main function
-int kmain(unsigned long magic, multiboot_info_t* hdr)
+int init(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)

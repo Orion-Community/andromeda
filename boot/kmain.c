@@ -26,7 +26,7 @@
 
 unsigned char stack[0x10000];
 
-int core(unsigned short memorymap[], module_t mods[])
+int init(unsigned short memorymap[], module_t mods[])
 {
   // Install all the necessary data for complex memory management
   memcpy(bitmap, memorymap, PAGES);
