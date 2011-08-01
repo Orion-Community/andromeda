@@ -63,6 +63,8 @@ struct _FS_INODE
   struct _FS_INODE* poiter;  // For symlinks
   struct _FS_INODE* parent;  // Should point to the parent directory
   struct _FS_ROOTNODE* root; // Pointer to the super block
+  unsigned int diskInode;    // Poiter to inode on disk
+  struct _FS_INODE* driver;  // Disk driver regarding the location of the file.
   mutex_t lock;              // If there are operations to be done on the file, the file must be locked, untill the operations are complete
 };
 

@@ -19,4 +19,9 @@
 #ifndef __KERN_TIMER_H
 #define __KERN_TIMER_H
 
+#define _TIME_FREQ_MAX 0xFFFFFFFF
+#define _TIME_FREQ_MIN 0x0
+
+void setTimerFrequency(int);
+
 #endif

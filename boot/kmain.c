@@ -46,7 +46,9 @@ int core(unsigned short memorymap[], module_t mods[])
   // Set the CPU up so that it no longer requires the nano image
   setGDT();
   // Set up the filesystem
+  #ifndef NOFS
   fsInit(NULL);
+  #endif
   
   // In the future this will do a little more
   printf("You can now shutdown your PC\n");
