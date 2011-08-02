@@ -73,6 +73,10 @@ proberam:
 
 	xor eax, eax
 
+	xor eax, ecx	; exchange eax and ecx
+	xor ecx, eax
+	xor eax, ecx
+
 	or esi, OL_PROBE_BLOCKSIZE - 4	; round up to last word of block
 	push .l1
 .looptop:
@@ -82,21 +86,21 @@ proberam:
 	memtest esi
 	jne .end	; xor sets zf if equal
 	add esi, OL_PROBE_BLOCKSIZE
-	add eax, OL_PROBE_BLOCKSIZE	; byte counter
+	add ecx, OL_PROBE_BLOCKSIZE	; byte counter
 
-	dec ecx
+	dec eax
 	jz .end
 	jmp .looptop
 
 .skiphole:
 	xor esi, OL_HIGH_BASE | OL_HOLE_BASE	; add esi, 1<<20
-	sub ecx, (1<<20)/OL_PROBE_BLOCKSIZE
-	add eax, 1<<20
+	sub eax, (1<<20)/OL_PROBE_BLOCKSIZE
+	add ecx, 1<<20
 	jmp [esp]
 
 .end:
-	xchange eax, ecx
 	add esp, 4	; pop .l1 label
+
 	pop ebx	; starting address
 	pop eax		; re-set the old pic masks
 	out OL_PIC2_DATA, al

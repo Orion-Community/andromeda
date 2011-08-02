@@ -99,12 +99,6 @@
 	pop eax
 %endmacro
 
-%macro xchange 2
-	xor %1, %2
-	xor %2, %1
-	xor %1, %2
-%endmacro
-
 dummy dd 0
 
 mmap_entry:	; 0x18-byte mmap entry
