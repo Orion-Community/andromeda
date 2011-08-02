@@ -19,12 +19,26 @@
 [BITS 16]
 [SECTION .stage1]
 [EXTERN endptr]
-; ; [EXTERN int13_read]
 
 %include "boot/x86/include/masterboot.asmh"
 
 jmp short main
 nop
+
+gdt:
+    times 8 db 0
+    UNREAL_SEG equ $ - gdt	; Data segment, read/write, expand down
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x92
+        db 0xCF
+        db 0
+gdt_end equ $ - gdt
+
+gdtr:
+	dw gdt_end - 1; gdt limit = size
+	dd gdt ; gdt base address
 
 main:
 	mov di, 0x7c00
@@ -35,7 +49,7 @@ main:
 	rep movsw
 	push dx
 
-	jmp .loadstage2
+	jmp .unrealmode
 
 .bailout:
 	mov si, failed
@@ -43,7 +57,27 @@ main:
 	cli
 	jmp $
 
-.loadstage2:
+.unrealmode:
+; before we load the core image and the second stage with the bios we
+; have to hack the processor in unreal mode first.
+	cli
+	push ds	; save for later
+	lgdt [gdtr]
+	mov eax, cr0
+	or eax, 1b
+	mov cr0, eax
+
+	mov ax, UNREAL_SEG
+	mov ds, ax
+
+	mov eax, cr0
+	xor eax, 1b
+	mov cr0, eax
+	pop ds
+	sti
+; hello unreal mode
+
+.loadcore:
 	call calcsectors
 	mov cx, ax
 	mov eax, dword [0x7c00+8]
@@ -57,9 +91,6 @@ main:
 	call int13_read
 	jc .bailout
 
-; 	call dynamicloader
-; 	jc .bailout
-
 	pop dx
 	pop si
 	jmp 0x7E0:0x200
@@ -67,10 +98,8 @@ main:
 	jmp .bailout
 
 ;
-; Dynamic disk reader
+; 16-bit bios disk interface
 ;
-
-; %include 'boot/x86/stage1/stage1.5/dynamicloader.asm'
 
 %include 'boot/x86/interface/disk.asm'
 

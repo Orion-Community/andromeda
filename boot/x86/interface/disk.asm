@@ -17,15 +17,11 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-; [BITS 16]
-; [SECTION .stage1]
-
 ; 
 ; When called, es contains the buffer segment, di will point to a destination
 ; buffer offset, ecx contains the amount of sectors to read and ebx is the LBA
 ; address. DX contains the drive number.
 
-; [GLOBAL int13_read]
 int13_read:
 	push dx
 	push bp

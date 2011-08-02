@@ -50,6 +50,7 @@ gdtr:
 	dw gdt_end - 1; gdt limit = size
 	dd gdt ; gdt base address
 
+
 	; Status messages
 	pmode db 'Implementing a GDT and PMode.', 0x0
 	failed db '0x2', 0x0
@@ -65,10 +66,15 @@ main:
 	mov si, pmode
 	call println
 
+
+; 	sgdt [gdtr_rm]
+
 	cli
+	push ds	; save for later
+
 	lgdt [gdtr]
 	mov eax, cr0
-	or eax, 100001b 	; enable pe bit
+	or eax, 00001b 	; enable pe bit
 	mov cr0, eax
 .flush:
 	mov ax, DATA_SEG	; flush segments

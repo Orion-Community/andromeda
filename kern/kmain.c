@@ -26,6 +26,8 @@
 
 void kmain(void)
 {
+// 	int * testval = 0x20000000;
+// 	if(*testval != 0xaa55) endprogram();
 	textinit();
 	clearscreen();
 
@@ -53,9 +55,9 @@ void kmain(void)
 	println("Multiboot memory map:\n");
 	OL_display_mmap();
 #endif
-// 	uint8_t active = ide_init(bootdrive);
+	uint8_t active = ide_init(bootdrive);
 // 	ide_read(0x100, 1<<20, &bootdrive[active], 60);
-// 	uint8_t eax = ata_identify();
+	uint8_t eax = ata_identify();
 // 	printnum(eax, 16, FALSE, FALSE);
 
 	println("Waiting for service interrupts..");
