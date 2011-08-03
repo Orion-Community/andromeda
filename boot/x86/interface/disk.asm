@@ -19,7 +19,7 @@
 
 ; 
 ; When called, es contains the buffer segment, di will point to a destination
-; buffer offset, ecx contains the amount of sectors to read and ebx is the LBA
+; buffer offset, cx contains the amount of sectors to read and eax:ebx is the LBA
 ; address. DX contains the drive number.
 
 int13_read:
@@ -54,6 +54,11 @@ int13_read:
 	jnc .end
 
 .chs:
+	mov eax, dword [dap+12] ; if the lba is to large -> quit
+	test eax, eax
+	stc
+	jz .end
+
 	mov ax, 0x800
 	mov dx, [bp+2]
 
