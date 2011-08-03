@@ -94,6 +94,10 @@ int setVideoMode(int mode)
 
 // misc out (3c2h) value for various modes
 
+/**
+ * For these numbers see: http://wiki.osdev.org/VGA_Hardware#List_of_register_settings
+ */
+
 #define R_COM  0x63 // "common" bits
 
 #define R_W256 0x00

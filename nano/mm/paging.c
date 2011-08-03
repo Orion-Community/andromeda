@@ -246,20 +246,7 @@ pageDir_t* setupPageDir()
           // Keep it 0, as it is still not usable
           break;
       }
-      if (i*PAGETABLES+j == 0xB8000)
-      {
-        pt[j].pageIdx = (i*PAGETABLES+j);
-        pt[j].pcd = 0;
-        pt[j].pwt = 0;
-        pt[j].present = 1;
-        pt[j].accessed = 0;
-        pt[j].dirty = 0;
-        pt[j].rw = 1;
-        pt[j].userMode = 0;
-        pt[j].global = 0;
-        pt[j].pat = 0;
-      }
-      else if (i*PAGETABLES+j == 0xA0000)
+      if ( (i*PAGETABLES+j == 0xA0000) || (i*PAGETABLES+j == 0xB0000) ) // should make exception for 0xA0000 - 0xBFFFF
       {
         pt[j].pageIdx = (i*PAGETABLES+j);
         pt[j].pcd = 0;
