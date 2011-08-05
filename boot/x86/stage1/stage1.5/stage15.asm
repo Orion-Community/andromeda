@@ -20,6 +20,7 @@
 [SECTION .stage1]
 [EXTERN endptr]
 
+%define SECTORS_TO_READ 4
 %include "boot/x86/include/masterboot.asmh"
 
 jmp short main
@@ -82,24 +83,36 @@ main:
 
 .loadcore:
 	call calcsectors
-	sub eax, 1
+	sub eax, SECTORS_TO_READ ; read x-sectors each loop
 	push eax
-	xor ebp, ebp
+	mov ax, SECTORS_TO_READ
+	xor ebp, ebp ; ebp should not be incremented at first loop
 	jmp .loadsector
 
 .looptop:
 	pop eax
-	sub ax, 1
+	cmp eax, SECTORS_TO_READ
+	jb .lastsectors		; when there are less then x sectors to read
+
+	sub ax, SECTORS_TO_READ
+	push eax
+	mov ax, SECTORS_TO_READ
+	
+	add ebp, SECTORS_TO_READ
+	jmp .loadsector
+
+.lastsectors:
+	dec eax		; read last sectors one by one
 	js .end
 	push eax
-	
-	add ebp, 1
+	inc ebp
+	mov ax, 1
 
 .loadsector:
-	mov cx, 1
+	mov cx, ax
 	mov eax, dword [0x7c00+8]
-	add eax, 3	; third sector
-	add eax, ebp
+	add eax, 3	; fourth sector offset
+	add eax, ebp	; make sure we don't read the same sector every time
 	xor ebx, ebx
 	mov es, bx
 	mov di, 0x600
@@ -107,21 +120,21 @@ main:
 	call int13_read
 	jc .bailout
 
-	shl cx, 9
-	shl ebp, 9
-	mov edi, 0x8200
-	mov esi, 0x600
-	add edi, ebp
-	shr ebp, 9
+	shl cx, 9	; cx *= 512
+	shl ebp, 9	; ebp *= 512
+	mov edi, 0x8200	; start of destination
+	mov esi, 0x600	; buffer address
+	add edi, ebp	; adjust destination for current read
+	shr ebp, 9	; revert back
 
-.cpysectors:
+.cpysectors:	; actualy a memcpy
 	mov eax, dword [ds:esi]
 	mov dword [ds:edi], eax
 
-	add edi, 4
+	add edi, 4	; copy 4 bytes every memcpy loop
 	add esi, 4
 
-	sub cx, 4
+	sub cx, 4	; we do NOT want a never ending loop
 	jnz .cpysectors
 
 	jmp .looptop
@@ -147,6 +160,10 @@ main:
 ;
 
 %include 'boot/x86/println.asm'
+
+; 
+; Routine to open the A20-gate
+; 
 
 %include 'boot/x86/stage1/stage1.5/a20.asm'
 	
