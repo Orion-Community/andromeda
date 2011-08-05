@@ -18,18 +18,23 @@
 	* Keyboard is working
 	* memory can also be probed now, using an interrupt
 	* added a keyboard table
+	* update the floppy drive support
+	* Made a load buffer for int 0x13, so the kernel size isn't bound to
+	  the 1MiB limit anymore.
 
 What should be improved:
 
 Next item:
-	* update the floppy drive support
-	* get a disk driver working.
-	* implement ATI PIO mode
-		* implement 28-bit lba
-		* implement 48-bit lba
+	* reprogram the PIT
+	* memory allocator
+	* Change Makefile structure
 
 What has to be done:
 
+	* implement ATI PIO mode
+		* implement 28-bit lba
+		* implement 48-bit lba
+	* implement  PCI, USB, SCSI, AHCI
 	* Make the bootloader multiboot compatible
 
 Notes:
