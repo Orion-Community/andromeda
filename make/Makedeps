@@ -47,7 +47,7 @@ IRQ30=irq30.o
 IDE=ide.o
 BIOSDISK=disk.o
 
-DEPS=$(STAGE15) $(STAGE2) $(A20) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IRQ30) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(IDE) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(STAGE2) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IRQ30) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(IDE) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
 
 .PHONY: all
 all: $(DEPS)

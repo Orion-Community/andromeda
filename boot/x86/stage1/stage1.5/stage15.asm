@@ -49,6 +49,9 @@ main:
 	rep movsw
 	push dx
 
+	call openA20
+	jc .bailout
+
 	jmp .unrealmode
 
 .bailout:
@@ -59,7 +62,7 @@ main:
 
 .unrealmode:
 ; before we load the core image and the second stage with the bios we
-; have to hack the processor in unreal mode first.
+; have to hack the processor into unreal mode.
 	cli
 	push ds	; save for later
 	lgdt [gdtr]
@@ -79,43 +82,57 @@ main:
 
 .loadcore:
 	call calcsectors
-; 	push ax
-	mov cx, ax
-	mov eax, dword [0x7c00+8]
-	add eax, 2	; third sector
-	xor ebx, ebx
+	sub eax, 1
+	push eax
+	xor ebp, ebp
+	jmp .loadsector
 
-	mov bx, 0x7e0
+.looptop:
+	pop eax
+	sub ax, 1
+	js .end
+	push eax
+	
+	add ebp, 1
+
+.loadsector:
+	mov cx, 1
+	mov eax, dword [0x7c00+8]
+	add eax, 3	; third sector
+	add eax, ebp
+	xor ebx, ebx
 	mov es, bx
-	mov di, 0x200
+	mov di, 0x600
 
 	call int13_read
 	jc .bailout
 
-	
 	shl cx, 9
-
-	mov edi, 0x200000
-	mov esi, 0x8000
+	shl ebp, 9
+	mov edi, 0x8200
+	mov esi, 0x600
+	add edi, ebp
+	shr ebp, 9
 
 .cpysectors:
 	mov eax, dword [ds:esi]
 	mov dword [ds:edi], eax
 
-	sub cx, 4
-	js .end
-
-	add esi, 4
 	add edi, 4
-	jmp .cpysectors
+	add esi, 4
+
+	sub cx, 4
+	jnz .cpysectors
+
+	jmp .looptop
 
 .end:
-	mov edi, 0x200000
+	mov edi, 0x100000
 	mov [ds:edi], word 0xaa55
 	pop dx
 	pop si
 
-	jmp 0x7E0:0x200
+	jmp 0x0:0x8200
 
 	jmp .bailout
 
@@ -130,7 +147,9 @@ main:
 ;
 
 %include 'boot/x86/println.asm'
+
+%include 'boot/x86/stage1/stage1.5/a20.asm'
 	
 	failed db '0x2', 0x0
 
-times 512 - ($ - $$) db 0
+times 1024 - ($ - $$) db 0

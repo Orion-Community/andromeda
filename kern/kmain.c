@@ -24,7 +24,7 @@
 #include <interrupts/idt.h>
 #include <sys/ide.h>
 
-short * loopval = 0x200000;
+short * loopval = 0x100000;
 void kmain(void)
 {
 // 	int * testval = 0x20000000;

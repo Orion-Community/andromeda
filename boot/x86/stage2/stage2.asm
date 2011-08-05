@@ -21,10 +21,11 @@
 [GLOBAL endptr]
 [EXTERN pmodemain]
 [EXTERN getmemorymap]
-[EXTERN openA20]
+; [EXTERN openA20]
 
 jmp short main
 nop
+
 ;
 ; GLOBAL DESCRIPTOR TABLE
 ;
@@ -57,8 +58,8 @@ gdtr:
 
 
 main:
-	call openA20
-	jc .bailout
+; 	call openA20
+; 	jc .bailout
 
 	call getmemorymap
 	jc .bailout
@@ -66,14 +67,7 @@ main:
 	mov si, pmode
 	call println
 
-
-; 	sgdt [gdtr_rm]
-; 	mov edi, 0x100000
-; 	mov [ds:edi], word 0xaa55
-
 	cli
-	push ds	; save for later
-
 	lgdt [gdtr]
 	mov eax, cr0
 	or eax, 00001b 	; enable pe bit

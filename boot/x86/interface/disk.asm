@@ -32,7 +32,7 @@ int13_read:
 	mov [dap+4], di
 	mov [dap+6], es
 	mov [dap+8], eax
-	mov [dap+12], ebx
+	mov [dap+12], dword 0
 
 .reset:
 	xor ah, ah
@@ -45,14 +45,15 @@ int13_read:
 	mov bx, 0x55aa
 	mov ax, 0x4100
 	int 0x13
-	jc .chs
+	jc .end
 
 .extread:
 	mov dl, [bp+2]
 	lea si, [dap]
 	mov ax, 0x4200
 	int 0x13
-	jnc .end
+; 	jnc .end
+	jmp .end
 
 .chs:
 	mov eax, dword [dap+12] ; if the lba is to large -> quit
@@ -111,17 +112,17 @@ int13_read:
 	ret
 
 calcsectors:
-	lea ax, [endptr] ; adress of the end
-	sub ax, 0x8000 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
-	test ax, 0x1FF ; ax % 512
+	lea eax, [endptr] ; adress of the end
+	sub eax, 0x8000 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
+	test eax, 0x1FF ; ax % 512
 	jz .powof2
-	jmp .powof2 ; bugged
+; 	jmp .powof2 ; bugged
 	
-	shr ax, 9 ; ax / 512 = amount of sectors
-	inc ax
+	shr eax, 9 ; ax / 512 = amount of sectors
+	inc eax
 	ret
 .powof2:
-	shr ax, 9
+	shr eax, 9
 	ret
 
 ; 

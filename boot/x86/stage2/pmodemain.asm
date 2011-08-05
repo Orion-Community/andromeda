@@ -22,11 +22,7 @@
 [SECTION .text]
 
 pmodemain:
-
-	mov eax, kmain
-	sub eax, 0x8000
-	add eax, 0x200000
-	call eax
+	call kmain
 
 .end:
 	jmp $
