@@ -32,7 +32,7 @@ int13_read:
 	mov [dap+4], di
 	mov [dap+6], es
 	mov [dap+8], eax
-	mov [dap+12], dword 0
+	mov [dap+12], ebx
 
 .reset:
 	xor ah, ah
@@ -45,21 +45,20 @@ int13_read:
 	mov bx, 0x55aa
 	mov ax, 0x4100
 	int 0x13
-	jc .end
+	jc .chs
 
 .extread:
 	mov dl, [bp+2]
 	lea si, [dap]
 	mov ax, 0x4200
 	int 0x13
-; 	jnc .end
-	jmp .end
+	jnc .end
 
 .chs:
-	mov eax, dword [dap+12] ; if the lba is to large -> quit
+	mov eax, dword [dap+12]	; lba can't be to big if we are using chs
 	test eax, eax
 	stc
-	jz .end
+	jnz .end
 
 	mov ax, 0x800
 	mov dx, [bp+2]

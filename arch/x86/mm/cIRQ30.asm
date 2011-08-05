@@ -77,7 +77,7 @@ proberam:
 	xor ecx, eax
 	xor eax, ecx
 
-	or esi, OL_PROBE_BLOCKSIZE - 4	; round up to last word of block
+	or esi, OL_PROBE_BLOCKSIZE - 4	; round up to last dword of block
 	push .l1
 .looptop:
 	cmp esi, OL_HOLE_BASE | (OL_PROBE_BLOCKSIZE - 4)

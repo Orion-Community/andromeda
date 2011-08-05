@@ -94,11 +94,11 @@ main:
 	cmp eax, SECTORS_TO_READ
 	jb .lastsectors		; when there are less then x sectors to read
 
-	sub ax, SECTORS_TO_READ
+	sub ax, SECTORS_TO_READ	; prevent endless loop
 	push eax
 	mov ax, SECTORS_TO_READ
 	
-	add ebp, SECTORS_TO_READ
+	add ebp, SECTORS_TO_READ	; ebp holds the amount of read sectors (minus first 4)
 	jmp .loadsector
 
 .lastsectors:
@@ -120,6 +120,7 @@ main:
 	call int13_read
 	jc .bailout
 
+; now we will copy the sector from the buffer to its final destination
 	shl cx, 9	; cx *= 512
 	shl ebp, 9	; ebp *= 512
 	mov edi, 0x8200	; start of destination
