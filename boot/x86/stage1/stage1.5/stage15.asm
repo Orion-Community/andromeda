@@ -79,6 +79,7 @@ main:
 
 .loadcore:
 	call calcsectors
+; 	push ax
 	mov cx, ax
 	mov eax, dword [0x7c00+8]
 	add eax, 2	; third sector
@@ -91,8 +92,29 @@ main:
 	call int13_read
 	jc .bailout
 
+	
+	shl cx, 9
+
+	mov edi, 0x200000
+	mov esi, 0x8000
+
+.cpysectors:
+	mov eax, dword [ds:esi]
+	mov dword [ds:edi], eax
+
+	sub cx, 4
+	js .end
+
+	add esi, 4
+	add edi, 4
+	jmp .cpysectors
+
+.end:
+	mov edi, 0x200000
+	mov [ds:edi], word 0xaa55
 	pop dx
 	pop si
+
 	jmp 0x7E0:0x200
 
 	jmp .bailout

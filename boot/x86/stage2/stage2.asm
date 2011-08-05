@@ -68,6 +68,8 @@ main:
 
 
 ; 	sgdt [gdtr_rm]
+; 	mov edi, 0x100000
+; 	mov [ds:edi], word 0xaa55
 
 	cli
 	push ds	; save for later
@@ -84,7 +86,6 @@ main:
 	mov fs, ax
 	mov gs, ax
 	mov esp, 0x9f000; top of usable memory..
-
 	jmp CODE_SEG:pmodemain
 
 .bailout:

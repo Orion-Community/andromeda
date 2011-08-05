@@ -36,3 +36,23 @@ println:
 	xor bh, bh
 	int 0x10
 	ret
+
+; printnum:
+; 	push bp
+; 	mov bp, sp
+; 	push 0
+; 	mov bx, 10
+; 
+; .newchar:
+; 	xor dx, dx
+; 	idiv bx
+; 	add dx, 0x30
+; 	push dx		; stack will fuck up here
+; 	test ax, ax
+; 	jnz .newchar
+; 
+; ; 	add sp, 2
+; 	mov si, sp
+; 	call println
+; 	mov sp, bp
+; 	ret

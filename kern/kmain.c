@@ -24,6 +24,7 @@
 #include <interrupts/idt.h>
 #include <sys/ide.h>
 
+short * loopval = 0x200000;
 void kmain(void)
 {
 // 	int * testval = 0x20000000;
@@ -55,10 +56,11 @@ void kmain(void)
 	println("Multiboot memory map:\n");
 	OL_display_mmap();
 #endif
-	uint8_t active = ide_init(bootdrive);
+// 	uint8_t active = ide_init(bootdrive);
 // 	ide_read(0x100, 1<<20, &bootdrive[active], 60);
-	uint8_t eax = ata_identify();
+// 	uint8_t eax = ata_identify();
 // 	printnum(eax, 16, FALSE, FALSE);
+	printnum(*loopval, 16, FALSE, FALSE);
 
 	println("Waiting for service interrupts..");
 	while(1) halt();

@@ -5,6 +5,7 @@ SECTIONS
 		*(.stage1)
 		*(.stage2)
 		*(.pmode)
+		. = ALIGN(4096);
 	}
 	.text :
 	{

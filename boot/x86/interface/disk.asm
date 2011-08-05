@@ -23,6 +23,7 @@
 ; address. DX contains the drive number.
 
 int13_read:
+	push cx
 	push dx
 	push bp
 	mov bp, sp
@@ -105,6 +106,7 @@ int13_read:
 
 	pop bp
 	pop dx
+	pop cx
 
 	ret
 
