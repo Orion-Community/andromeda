@@ -66,9 +66,9 @@ proberam:
 	and esi, ~(OL_PROBE_BLOCKSIZE - 1)	; round up to block
 	push esi	; esi = starting address rounded (down) to block boundry
 
-	sub ebp, esi	; bytes to add due to rounding down
+	sub ebp, esi	; bytes to add due to rounding up
 	sub ecx, ebp
-	shr ecx, 12
+	shr ecx, 12	; ecx contains blocks to test
 	jz .end		; no blocks to test. lets get out.
 
 	xor eax, eax
@@ -88,7 +88,7 @@ proberam:
 	add esi, OL_PROBE_BLOCKSIZE
 	add ecx, OL_PROBE_BLOCKSIZE	; byte counter
 
-	dec eax
+	dec eax		; one block less to test
 	jz .end
 	jmp .looptop
 
