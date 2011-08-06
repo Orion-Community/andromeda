@@ -61,7 +61,7 @@ struct __TASK_STRUCT
   unsigned int uid; // User ID
 
   unsigned int noThreads;
-  struct __THREAD_STATE threads[];
+  struct __THREAD_STATE *threads;
   struct __FS_INODE *procData; // Pointer to /proc/pid
 
   unsigned int ring; // Privilege level
