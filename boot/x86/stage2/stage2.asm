@@ -79,7 +79,7 @@ main:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov esp, 0x9f000; top of usable memory..
+	mov esp, 0x8000; top of usable memory..
 	jmp CODE_SEG:pmodemain
 
 .bailout:

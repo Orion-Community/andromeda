@@ -71,5 +71,4 @@ void pic_eoi(uint8_t irq)
 void pic_init()
 {
 	pic_remap(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE+8);
-	clearInterrupts();
 }
