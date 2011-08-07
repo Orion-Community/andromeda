@@ -39,6 +39,7 @@
 #define _FS_META_SYM  0x003
 #define _FS_META_MNT  0x004
 #define _FS_META_ROOT 0x004
+#define _FS_META_LNK  0x005
 
 #define _FS_USER_ROOT  0
 #define _FS_GROUP_ROOT 0
@@ -57,14 +58,10 @@ struct _FS_INODE
   unsigned int userid;       // Owner data
   unsigned int groupid;      // Owner data
   unsigned int meta;         // Any flags required for administration
+  unsigned int drv;	     // Drive id
   unsigned int inode;        // Address of inode on disk
-  unsigned int offset;       // Offset from inode start to access the first bit of data
-  unsigned int length;       // Length of the file in units of 1 byte
-  struct _FS_INODE* poiter;  // For symlinks
-  struct _FS_INODE* parent;  // Should point to the parent directory
+  struct _FS_INODE* poiter;  // Where is the data
   struct _FS_ROOTNODE* root; // Pointer to the super block
-  unsigned int diskInode;    // Poiter to inode on disk
-  struct _FS_INODE* driver;  // Disk driver regarding the location of the file.
   mutex_t lock;              // If there are operations to be done on the file, the file must be locked, untill the operations are complete
 };
 
@@ -74,8 +71,6 @@ struct _FS_ROOTNODE
   unsigned int size;         // The size of the filesystem in blocks
   unsigned int device;       // The device ID
   unsigned int free;         // The ammount of free blocks
-  struct _FS_INODE* root;    // A pointer to the root inode
-  unsigned int mounts;       // The amount of mounts performed on this system
 };
 
 #define _FS_MNT_ERR  0x000
@@ -88,6 +83,9 @@ struct _FS_ROOTNODE
 #define _FS_MNT_FT32 0x007
 #define _FS_MNT_NTFS 0x008
 #define _FS_MNT_REIS 0x009
+#define _FS_MNT_UFS  0x00A
+#define _FS_MNT_AFS  0x00B
+#define _FS_MNT_NFS  0x00C
 
 typedef struct _FS_INODE inode_t;
 
