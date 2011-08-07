@@ -24,15 +24,10 @@
 bool inKernelRing()
 {
 	OL_segments_t * segs = getsegs();
-	uint8_t * error = "Not in kernel ring!";
 	
-	if((segs->cs & 0x8) == 0)
+	if((segs->cs & 0x8) == 0 || (segs->ds & 0x10) == 0)
 	{
-		panic(error);
-	}
-	if((segs->ds & 0x10) == 0)
-	{
-		panic(error);
+		return FALSE;
 	}
 	
 	return TRUE;

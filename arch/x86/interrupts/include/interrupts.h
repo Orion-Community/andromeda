@@ -48,6 +48,7 @@ struct isrstack
 } __attribute__((packed));
 typedef struct isrstack OL_isr_stack;
 
+bool inKernelRing();
 extern void setEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
 extern void installIDT(OL_idt_t * idt);
 

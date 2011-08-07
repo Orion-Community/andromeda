@@ -19,16 +19,30 @@
 
 [SECTION .data]
 
+	panicmsg db 'You are not in the kernel ring!', 0x0
+
 %include "arch/x86/mm/include/cIRQ30.asmh"
 
 [SECTION .text]
 
 [EXTERN iowait]
+[EXTERN inKernelRing]
+[EXTERN panic]
 
 [GLOBAL cIRQ30]
 cIRQ30:
 	mov ebp, esp
 	push ebp
+
+	call inKernelRing
+	test eax, eax
+	jnz .continue
+
+.panic:
+	push panicmsg
+	call panic
+
+.continue:
 	mov eax, [ebp+36]
 
 	cmp eax, 0001b

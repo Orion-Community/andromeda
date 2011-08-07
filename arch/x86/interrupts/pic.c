@@ -52,10 +52,12 @@ void pic_remap(uint32_t offset1, uint32_t offset2)
 	
 	outb(0x21, 0x3c);
 	outb(0xa1, 0x3f);
-	
-// 	outb(OL_PIC2_DATA, 0xff);	// disable irq's, not yet implemented.
-// 	outb(OL_PIC2_COMMAND, 0xff);
-// 	iowait();
+
+#if 0
+	outb(OL_PIC2_DATA, 0xff);	// disable irq's, not yet implemented.
+	outb(OL_PIC2_COMMAND, 0xff);
+	iowait();
+#endif
 }
 
 void pic_eoi(uint8_t irq)
@@ -63,7 +65,6 @@ void pic_eoi(uint8_t irq)
 	if(irq >= 8)
 	{
 		outb(OL_PIC2_COMMAND, OL_PIC_EOI);
-// 		return;
 	}
 	outb(OL_PIC1_COMMAND, OL_PIC_EOI);
 }
@@ -71,4 +72,5 @@ void pic_eoi(uint8_t irq)
 void pic_init()
 {
 	pic_remap(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE+8);
+	initPIT(100); // program pic to 100 hertz
 }

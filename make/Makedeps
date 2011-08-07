@@ -1,6 +1,6 @@
 # Deps
 STAGE15_DEPS=boot/x86/stage1/stage1.5/stage15.asm
-A20_DEPS=boot/x86/stage1/stage1.5/a20.asm
+PIT_DEPS=arch/x86/interrupts/pit.asm
 STAGE2_DEPS=boot/x86/stage2/stage2.asm
 KERN_DEPS=kern/kmain.c
 VGA_DEPS=video/vga.c
@@ -24,7 +24,7 @@ BIOSDISK_DEPS=boot/x86/interface/disk.asm
 
 # Object files
 STAGE15=stage15.o
-A20=a20.o
+PIT=pit.o
 STAGE2=stage2.o
 KERN=kmain.o
 VGA=vga.o
@@ -47,7 +47,7 @@ IRQ30=irq30.o
 IDE=ide.o
 BIOSDISK=disk.o
 
-DEPS=$(STAGE15) $(STAGE2) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(IDT) $(IRQ30) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(IDE) $(MMAP) $(MMAP_ASM) $(PIC) $(ERROR)
+DEPS=$(STAGE15) $(STAGE2) $(MMAPI) $(PMODE) $(KERN) $(VGA) $(STDLIB) $(IO) $(PIC) $(IDT) $(IRQ30) $(IDT_ASM) $(ISR) $(ISRI) $(IRQ) $(IRQI) $(IDE) $(MMAP) $(MMAP_ASM) $(ERROR) $(PIT)
 
 .PHONY: all
 all: $(DEPS)
@@ -106,8 +106,8 @@ $(PMODE): $(PMODE_DEPS)
 $(MMAPI): $(MMAPI_DEPS)
 	$(AS) $(ASFLAGS) -o $(MMAPI) $(MMAPI_DEPS)
 
-$(A20): $(A20_DEPS)
-	$(AS) $(ASFLAGS) -o $(A20) $(A20_DEPS)
+$(PIT): $(PIT_DEPS)
+	$(AS) $(ASFLAGS) -o $(PIT) $(PIT_DEPS)
 
 $(IRQ30): $(IRQ30_DEPS) arch/x86/mm/include/cIRQ30.asmh
 	$(AS) $(ASFLAGS) -o $(IRQ30) $(IRQ30_DEPS)

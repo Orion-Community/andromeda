@@ -24,7 +24,7 @@
 #include <interrupts/idt.h>
 #include <sys/ide.h>
 
-short * loopval = 0x100000;
+short * magicword = 0x1100000;
 void kmain(void)
 {
 // 	int * testval = 0x20000000;
@@ -56,11 +56,15 @@ void kmain(void)
 	println("Multiboot memory map:\n");
 	OL_display_mmap();
 #endif
-// 	uint8_t active = ide_init(bootdrive);
-// 	ide_read(0x100, 1<<20, &bootdrive[active], 60);
-// 	uint8_t eax = ata_identify();
-// 	printnum(eax, 16, FALSE, FALSE);
-	printnum(*loopval, 16, FALSE, FALSE);
+#if 0
+	uint8_t active = ide_init(bootdrive);
+	ide_read(0x100, 1<<20, &bootdrive[active], 60);
+	uint8_t eax = ata_identify();
+	printnum(eax, 16, FALSE, FALSE);
+#endif
+	print("Magic word from stage 1.5: ");
+	printnum(*magicword, 16, FALSE, FALSE);
+	putc(0xa);
 
 	println("Waiting for service interrupts..");
 	while(1) halt();

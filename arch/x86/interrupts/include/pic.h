@@ -23,6 +23,7 @@
 void pic_remap(uint32_t set1, uint32_t set2);
 void pic_eoi(uint8_t irq);
 void pic_init();
+extern void initPIT();
 
 #define OL_INTERRUPT_BASE 0x20
 

@@ -141,8 +141,9 @@ main:
 	jmp .looptop
 
 .end:
-	mov edi, 0x100000
-	mov [ds:edi], word 0xaa55
+	mov edi, 0x1100000
+	mov ax, word [endptr]
+	mov [ds:edi], ax
 	pop dx
 	pop si
 
