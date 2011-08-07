@@ -93,9 +93,11 @@ proberam:
 
 	or esi, OL_PROBE_BLOCKSIZE - 4	; round up to last dword of block
 	push .l1
+
 .looptop:
 	cmp esi, OL_HOLE_BASE | (OL_PROBE_BLOCKSIZE - 4)
 	je .skiphole
+
 .l1:
 	memtest esi
 	jne .end	; xor sets zf if equal
@@ -173,6 +175,7 @@ createmmap:
 	ret
 
 .done:
+
 	add ecx, 2 ; low entries
 	pop ebp
 	mov [ebp+32], ecx
@@ -180,7 +183,10 @@ createmmap:
 
 	ret
 
-; get low memory from the cmos. If it is not available, probe for it and then set it with func 1 and 2 of this interrupt.
+; 
+; get low memory from the cmos. If it is not available, probe for it and then set it with func 1 and 2 
+; of this interrupt.
+; 
 cmoslowmmap:
 	call copy_empty_entry
 
@@ -298,8 +304,8 @@ addmemoryhole:
 
 copy_empty_entry:	; this subroutine copies an emty memory map to the location specified by es:edi
 	cld	; just to be sure that edi gets incremented
-	mov si, mmap_entry
-	mov cx, 0xc
+	mov esi, mmap_entry
+	mov ecx, 0xc
 	rep movsw	; copy copy copy!
 	sub edi, 0x18	; just to make addressing esier
 	ret
@@ -310,6 +316,7 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 updatecmos:
 	mov ebx, dword [ebp+24]
 	mov edx, dword [ebp+28]	; extended memory above 1M (formot 2^n-1)
+
 .lowmem:
 	shr ebx, 10
 
@@ -345,5 +352,4 @@ updatecmos:
 
 .end:
 	pop ebp
-	mov [ebp+36], dword 1
 	ret
