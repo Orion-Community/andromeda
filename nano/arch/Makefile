@@ -5,6 +5,7 @@ MAKE=make
 all: x86
 	mv -fv arch.o ../
 
+.PHONY: x86
 x86:
 	$(MAKE) $(MAKEEND) -C x86
 
