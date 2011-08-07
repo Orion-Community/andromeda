@@ -21,11 +21,11 @@
 	* update the floppy drive support
 	* Made a load buffer for int 0x13, so the kernel size isn't bound to
 	  the 1MiB limit anymore.
+	* wrote code to reprogram the pit.
 
 What should be improved:
 
 Next item:
-	* reprogram the PIT
 	* memory allocator
 	* Change Makefile structure
 

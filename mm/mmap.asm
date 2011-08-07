@@ -40,15 +40,15 @@ updatecmosmmap:
 	mov eax, 1
 	mov esi, 1<<20
 	mov ecx, (1<<20)*63
-	int 0x30
+	int 0x30	; get amount of extended memory (max 63MiB)
 
 	mov edx, ecx
 	pop ebx
 	mov eax, 3
-	int 0x30
+	int 0x30	; update the cmos mmap
 
 	mov eax, 2
-	int 0x30
+	int 0x30	; create cmos mmap
 	mov [mmr+4], ecx
 	mov [mmr], edx
 

@@ -124,6 +124,7 @@ proberam:
 	pop ebp
 	mov [ebp+24], ebx
 	mov [ebp+32], ecx
+
 .done:
 	ret
 
@@ -136,7 +137,6 @@ createmmap:
 
 	call cmoslowmmap
 	jc .failed
-
 	nxte
 
 .highmem:
@@ -180,6 +180,7 @@ createmmap:
 
 	ret
 
+; get low memory from the cmos. If it is not available, probe for it and then set it with func 1 and 2 of this interrupt.
 cmoslowmmap:
 	call copy_empty_entry
 
@@ -344,5 +345,5 @@ updatecmos:
 
 .end:
 	pop ebp
-	mov [ebp+32], dword 1
+	mov [ebp+36], dword 1
 	ret
