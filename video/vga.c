@@ -88,7 +88,7 @@ void printnum(int index, uint32_t base, bool sInt, bool capital)
 		putc(0x30);
 		return;
 	}
-	char* buf[32];
+	char buf[32];
 	int i = 0;
 
 	if (base > 16)
@@ -109,7 +109,8 @@ void printnum(int index, uint32_t base, bool sInt, bool capital)
 	
 	for (i--; i >= 0; i--)
 	{
-		putc(buf[31-i]);
+// 		putc(buf[31-i]);
+		putc(*(buf+(31-i)));
 	}
 }
 
