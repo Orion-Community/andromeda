@@ -1,62 +1,70 @@
-include make/Makedeps
-
 # Tools
 AS=nasm
 LD=ld
 CC=gcc
+MAKE=make
 
 # Flags
-ASFLAGS=-f elf32 -D __$(BUILD_TARGET) -D __DEBUG -I"include/"
-BINARYASFLAGS=-f bin -D __$(BUILD_TARGET) -D __DEBUG -I"include/"
-CCFLAGS=-c -m32 -nostdlib -e kmain -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc -Iinclude -D __DEBUG
+ASFLAGS=-felf32 -I"include/" $(FLAGS)
+BINARYASFLAGS=-f bin -I"include/" $(FLAGS)
+CCFLAGS=-c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc -Iinclude -e kmain $(FLAGS)
 LDFLAGS=-Tlink.ld --oformat binary -melf_i386
-BUILD_TARGET=HDD
+FLAGS=-D __HDD -D __DEBUG
 
 # Deps
-STAGE1_DEPS=boot/x86/stage1/stage1.asm
-MBR=boot/x86/masterboot.asm
+BOOTBLOCK_DEPS=boot.o kern.o arch.o mm.o sys.o video.o error.o
 
 # Images
 MBR_IMG=build/masterboot.bin
 BIN1=build/stage1.bin
 BIN2=build/stage15.bin
 OL=build/openloader.bin
-BOOTBLOCK=build/bootblock.bin
+BOOTBLOCK=bootblock.bin
 
 
 
 .PHONY: all
-all: $(OL)
+all: x86
+	@echo "Finished building the openLoader core images. You can find them in src/build."
 
-.PHONY: masterboot
-masterboot: $(MBR_IMG)
-	@echo "CAUTION: The mbr is still highly expirimental!"
+.PHONY: x86
+x86: $(BOOTBLOCK)
 
-.PHONY: test
-test: all
-	bochs -f bochsrc
+$(BOOTBLOCK):
+	$(MAKE) -C boot x86
+	$(MAKE) -C arch x86
+	$(MAKE) -C kern
+	$(MAKE) -C error
+	$(MAKE) -C sys
+	$(MAKE) -C mm
+	$(MAKE) -C video
+	mv -v boot/boot.o ./
+	mv -v boot/masterboot.bin ./
+	mv -v boot/stage1.bin ./
+	mv -v arch/arch.o ./
+	mv -v sys/sys.o ./
+	mv -v error/error.o ./
+	mv -v mm/mm.o ./
+	mv -v kern/kern.o ./
+	mv -v video/video.o ./
+	$(LD) $(LDFLAGS) *.o -o $(BOOTBLOCK)
 
-.PHONY: ctest
-ctest: clean all test
 
 .PHONY: clean
 clean:
-	rm *.o
-	rm build/*.bin
+	$(MAKE) -C boot clean
+	$(MAKE) -C arch clean
+	$(MAKE) -C kern clean
+	$(MAKE) -C error clean
+	$(MAKE) -C sys clean
+	$(MAKE) -C mm clean
+	$(MAKE) -C video clean
 
-$(MBR_IMG): $(MBR)
-	$(AS) $(BINARYASFLAGS) -o $(MBR_IMG) $(MBR)
+#$(BOOTBLOCK): $(BIN1) $(BIN2)
+#	dd if=$(BIN1) of=$(BOOTBLOCK) seek=0
+#	dd if=$(BIN2) of=$(BOOTBLOCK) seek=1 ibs=512 conv=sync
 
-$(BIN1): $(STAGE1_DEPS)
-	$(AS) $(BINARYASFLAGS) -o $(BIN1) $(STAGE1_DEPS)
+#$(OL): $(MBR_IMG) $(BOOTBLOCK)
+#	dd if=$(MBR_IMG) of=$(OL) seek=0
+#	dd if=$(BOOTBLOCK) of=$(OL) seek=2048
 
-$(BIN2): $(DEPS)
-	$(LD) $(LDFLAGS) -o $(BIN2) $(DEPS)
-
-$(BOOTBLOCK): $(BIN1) $(BIN2)
-	dd if=$(BIN1) of=$(BOOTBLOCK) seek=0
-	dd if=$(BIN2) of=$(BOOTBLOCK) seek=1 ibs=512 conv=sync
-
-$(OL): $(MBR_IMG) $(BOOTBLOCK)
-	dd if=$(MBR_IMG) of=$(OL) seek=0
-	dd if=$(BOOTBLOCK) of=$(OL) seek=2048

@@ -21,7 +21,7 @@ MMAP_HDR=include/mmap.h
 .PHONY: all
 all: $(MM)
 
-$(MM): $(MMAP_DEPS)
+$(MM): $(MM_DEPS)
 	$(LD) $(LDFLAGS) $(MM_DEPS) -o $(MM)
 
 mmap.o:
