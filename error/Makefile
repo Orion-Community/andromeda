@@ -9,17 +9,21 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 # targets
 ERROR=error.o
+ERROR_DEPS=panic.o
 
 # source files
-ERROR_SRC=panic.c
+PANIC_SRC=panic.c
 
 .PHONY: all
 all: $(ERROR)
 
-$(ERROR): $(ERROR_SRC)
-	$(CC) $(CCFLAGS) -o $(ERROR) $(ERROR_SRC)
+$(ERROR): $(ERROR_DEPS)
+	$(LD) $(LDFLAGS) $(ERROR_DEPS) -o $(ERROR)
+
+panic.o:
+	$(CC) $(CCFLAGS) $(PANIC_SRC) -o panic.o
 
 .PHONY: clean
 clean:
-	#rm -v *.o
+	rm -v *.o
 

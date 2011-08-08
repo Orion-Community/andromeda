@@ -15,39 +15,49 @@ FLAGS=-D __HDD -D __DEBUG
 BOOTBLOCK_DEPS=boot.o kern.o arch.o mm.o sys.o video.o error.o
 
 # Images
-MBR_IMG=build/masterboot.bin
-BIN1=build/stage1.bin
-BIN2=build/stage15.bin
-OL=build/openloader.bin
-BOOTBLOCK=bootblock.bin
+MBR=masterboot.bin
+BIN1=stage1.bin
+TEMPBIN=temp.bin
+BOOTBLOCK=openloader.bin
 
 
 
 .PHONY: all
 all: x86
-	@echo "Finished building the openLoader core images. You can find them in src/build."
 
 .PHONY: x86
 x86: $(BOOTBLOCK)
+	
 
 $(BOOTBLOCK):
-	$(MAKE) -C boot x86
-	$(MAKE) -C arch x86
-	$(MAKE) -C kern
-	$(MAKE) -C error
-	$(MAKE) -C sys
-	$(MAKE) -C mm
-	$(MAKE) -C video
+	$(MAKE) FLAGS="$(FLAGS)" -C boot x86
+	$(MAKE) FLAGS="$(FLAGS)" -C arch x86
+	$(MAKE) FLAGS="$(FLAGS)" -C kern
+	$(MAKE) FLAGS="$(FLAGS)" -C error
+	$(MAKE) FLAGS="$(FLAGS)" -C sys
+	$(MAKE) FLAGS="$(FLAGS)" -C mm
+	$(MAKE) FLAGS="$(FLAGS)" -C video
 	mv -v boot/boot.o ./
-	mv -v boot/masterboot.bin ./
-	mv -v boot/stage1.bin ./
+	mv -v boot/masterboot.bin ./$(MBR)
+	mv -v boot/stage1.bin ./$(BIN1)
 	mv -v arch/arch.o ./
 	mv -v sys/sys.o ./
 	mv -v error/error.o ./
 	mv -v mm/mm.o ./
 	mv -v kern/kern.o ./
 	mv -v video/video.o ./
-	$(LD) $(LDFLAGS) *.o -o $(BOOTBLOCK)
+	$(LD) $(LDFLAGS) *.o -o $(TEMPBIN)
+	@echo "\n"
+	@echo "The openLoader project has been builded for the intel x86 architecture."
+	@echo "Issue a make install to complete the process."
+
+.PHONE: install
+install: $(BIN1) $(TEMPBIN)
+	mkdir -v build/
+	dd if=$(BIN1) of=build/$(BOOTBLOCK) seek=0
+	dd if=$(TEMPBIN) of=build/$(BOOTBLOCK) seek=1 ibs=512 conv=sync
+	@echo "\n"
+	@echo "Thank you for using the openLoader project, \n OpenLoader development team"
 
 
 .PHONY: clean
@@ -59,6 +69,9 @@ clean:
 	$(MAKE) -C sys clean
 	$(MAKE) -C mm clean
 	$(MAKE) -C video clean
+	rm -v *.o *.bin
+	rm -Rfv build/
+	@echo "\nWorking directory is clean"
 
 #$(BOOTBLOCK): $(BIN1) $(BIN2)
 #	dd if=$(BIN1) of=$(BOOTBLOCK) seek=0

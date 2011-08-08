@@ -25,7 +25,7 @@ $(MASTERBOOT): $(MASTERBOOT_SRC) $(MASTERBOOT_HDR)
 	$(AS) $(BINASFLAGS) $(MASTERBOOT_SRC) -o $(MASTERBOOT)
 
 $(BOOT):
-	$(MAKE) FLAGS="$(FLAGS)" -C stage1 # make stage 1 + stage 1.5
+	$(MAKE) FLAGS="$(FLAGS)" -C stage1
 	$(MAKE) FLAGS="$(FLAGS)" -C stage2
 	$(LD) $(LDFLAGS) $(STAGE15_SRC) $(STAGE2_SRC) -o $(BOOT)
 
