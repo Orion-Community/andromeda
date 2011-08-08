@@ -21,7 +21,7 @@
 [EXTERN endptr]
 
 %define SECTORS_TO_READ 4
-%include "boot/x86/include/masterboot.asmh"
+%include "masterboot.asmh"
 
 jmp short main
 nop
@@ -41,6 +41,7 @@ gdtr:
 	dw gdt_end - 1; gdt limit = size
 	dd gdt ; gdt base address
 
+[GLOBAL main]
 main:
 	mov di, 0x7c00
 	mov si, OL_BUFOFF+OL_PART_TABLE
@@ -155,19 +156,19 @@ main:
 ; 16-bit bios disk interface
 ;
 
-%include 'boot/x86/interface/disk.asm'
+%include 'disk.asm'
 
 ;
 ; Print routine
 ;
 
-%include 'boot/x86/println.asm'
+%include 'println.asm'
 
 ; 
 ; Routine to open the A20-gate
 ; 
 
-%include 'boot/x86/stage1/stage1.5/a20.asm'
+%include 'a20.asm'
 	
 	failed db '0x2', 0x0
 

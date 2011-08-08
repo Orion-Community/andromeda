@@ -7,8 +7,6 @@ LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 MAKE=make
 
-FLAGS=-D __DEBUG -D __HDD
-
 .PHONY: all
 all: x86
 
@@ -20,4 +18,4 @@ x86:
 .PHONY: clean
 clean:
 	$(MAKE) -C x86 clean
-	rm -v *.o
+

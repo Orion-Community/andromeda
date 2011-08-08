@@ -90,7 +90,7 @@ main:
 ; Print routines
 ;
 
-%include 'boot/x86/println.asm'
+%include 'println.asm'
 
 [SECTION .end]
 endptr:

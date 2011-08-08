@@ -147,7 +147,7 @@ main: ; entry point
 ; Print routines
 ;
 
-%include 'boot/x86/println.asm'
+%include 'println.asm'
 
 times 510 - ($ - $$) db 0
 dw 0xAA55
