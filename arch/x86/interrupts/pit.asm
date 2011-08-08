@@ -28,7 +28,7 @@
 
 [EXTERN iowait]
 
-%include "arch/x86/interrupts/include/pit.asmh"
+%include "pit.asmh"
 
 [GLOBAL initPIT]
 initPIT:	; void initPIT(uint16 hz);

@@ -41,7 +41,7 @@
 
 [SECTION .data]
 
-%include "arch/x86/diskio/include/ide.asmh"
+%include "ide.asmh"
 
 [SECTION .text]
 

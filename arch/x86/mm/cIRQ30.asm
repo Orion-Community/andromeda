@@ -21,7 +21,7 @@
 
 	panicmsg db 'You are not in the kernel ring!', 0x0
 
-%include "arch/x86/mm/include/cIRQ30.asmh"
+%include "cIRQ30.asmh"
 
 [SECTION .text]
 
