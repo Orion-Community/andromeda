@@ -17,6 +17,7 @@
  */
 
 #include <sys/stdlib.h>
+#include <textio.h>
 
 void panic(uint8_t * str)
 {

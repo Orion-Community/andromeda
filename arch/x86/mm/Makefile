@@ -1,5 +1,11 @@
+# compliler shizle
 AS=nasm
 ASFLAGS=-felf32 -I"include/" $(FLAGS)
+CC=gcc
+CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc $(FLAGS)
+MAKE=make
+LD=ld
+LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 # targets
 IRQ30=irq30.o
