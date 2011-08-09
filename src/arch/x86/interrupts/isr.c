@@ -23,7 +23,7 @@
 
 bool inKernelRing()
 {
-	OL_segments_t * segs = getsegs();
+	ol_segments_t segs = getsegs();
 	
 	if((segs->cs & 0x8) == 0 || (segs->ds & 0x10) == 0)
 	{
@@ -33,7 +33,7 @@ bool inKernelRing()
 	return TRUE;
 }
 
-void cDivByZero(OL_isr_stack regs)
+void cDivByZero(ol_isr_stack regs)
 {
 	print("\nI define you as idiot. You just tried to divede by zero. Code \nfailed at EIP: ");
 	printnum(regs.eip, 16, FALSE, FALSE);
@@ -84,7 +84,7 @@ void cStackFault()
 {
 	panic("Stack fault!");
 }
-void cGenProt(OL_isr_stack regs)
+void cGenProt(ol_isr_stack regs)
 {
 	print("General protection fault! Fault occured at: ");
 	printnum(regs.eip, 16, FALSE, FALSE);
@@ -95,7 +95,7 @@ void cPageFault()
 {
 	panic("Page fault");
 }
-void cFpu(OL_isr_stack regs)
+void cFpu(ol_isr_stack regs)
 {
 	putc(0xa);
 	print("Floating point fault at EIP ");

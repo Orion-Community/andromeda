@@ -58,11 +58,10 @@ gdtr:
 
 
 main:
-; 	call openA20
-; 	jc .bailout
-
+%ifndef __PROBERAM
 	call getmemorymap
 	jc .bailout
+%endif
 
 	mov si, pmode
 	call println

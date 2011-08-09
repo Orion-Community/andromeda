@@ -42,7 +42,7 @@ struct registers
 	uint32_t ebp;
 	uint32_t esp;
 } __attribute__((packed));
-typedef struct registers OL_registers_t;
+typedef struct registers *ol_registers_t;
 
 struct segments
 {
@@ -54,15 +54,15 @@ struct segments
 	uint16_t ss;
 	
 } __attribute__((packed));
-typedef struct segments OL_segments_t;
+typedef struct segments *ol_segments_t;
 
 /*
  * Halt the system until it is interrupted.
  */
 extern void halt();
 extern void endprogram();
-extern OL_registers_t * getregs();
-extern OL_segments_t * getsegs();
+extern ol_registers_t getregs();
+extern ol_segments_t getsegs();
 // extern void testIDT();
 extern void setInterrupts();
 extern void clearInterrupts();

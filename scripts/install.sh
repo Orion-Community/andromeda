@@ -9,6 +9,9 @@ then
 	echo "The openLoader will be writter to the\
  device you specified. It will cause\
  data loss."
+	echo "Specify masterboot as image to\
+ write the masterboot to the specified drive.\
+ Enter bootblock to write the main image to the device."
 else
 	if [ ! -f $mbr ] || [ ! -f $bootblock ]
 	then

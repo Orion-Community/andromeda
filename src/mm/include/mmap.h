@@ -20,23 +20,23 @@
 #ifndef __MM_H
 #define __MM_H
 
-struct OL_mmap_entry
+struct ol_mmap_entry
 {
 	uint64_t base;
 	uint64_t len;
 	uint32_t type;
 	uint32_t acpi;
 } __attribute__((packed));
-// typedef struct OL_mmap_entry OL_mmap_entry_t
+typedef struct ol_mmap_entry *ol_mmap_entry_t;
 
-struct OL_mmap_register 
+struct ol_mmap_register 
 {
-	struct OL_mmap_entry * entry;
+	ol_mmap_entry_t entry;
 	uint16_t ecount;
 	uint8_t entry_size;
 } __attribute__ ((packed));
-// typedef struct OL_mmap_register OL_mmap_register_t
+typedef struct ol_mmap_register *ol_mmap_register_t;
 
-extern struct OL_mmap_register * getmmr();
+extern ol_mmap_register_t getmmr();
 extern void updatecmosmmap();
 #endif

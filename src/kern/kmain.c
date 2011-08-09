@@ -39,7 +39,7 @@ void kmain(void)
 	putc(0xa);
 	
 	println("Current stack pointer: ");
-	OL_registers_t * regs = getregs();
+	ol_registers_t regs = getregs();
 	printnum(regs->esp, 16, FALSE, FALSE);
 	putc(0xa);
 
@@ -54,14 +54,15 @@ void kmain(void)
 	outb(OL_KBC_COMMAND, OL_KB_INIT);	// enable the keyboard
 
 // display mmap
+	init_mmap();
 	println("Multiboot memory map:\n");
-	OL_display_mmap();
+	display_mmap();
 
 #if 0
 	uint8_t active = ide_init(bootdrive);
 	ide_read(0x100, 1<<20, &bootdrive[active], 60);
 	uint8_t eax = ata_identify();
-	printnum(eax, 16, FALSE, FALSE);
+	printnum(active, 16, FALSE, FALSE);
 #endif
 	print("Magic word from stage 1.5: ");
 	printnum(*magicword, 16, FALSE, FALSE);

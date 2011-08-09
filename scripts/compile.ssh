@@ -1,0 +1,47 @@
+#!/bin/bash
+
+function makeAll()
+{
+	make FLAGS="$eflags -D __HDD" -C ../src all
+	make -C ../src install
+	exit 0
+}
+
+function makeTest()
+{
+	make FLAGS="$eflags -D __HDD -D __DEBUG" -C ../src all
+	make -C ../src test
+	exit 0
+}
+
+function makeClean()
+{
+	make -C ../src clean
+	exit 0
+}
+
+function usage()
+{
+	echo "Usage: $0 [target] <extra make flags>"
+	echo
+	echo "Targets:"
+	echo "all		This will build a disk image to install to\
+ floppy drives or harddisks."
+	echo
+	echo "test		When you build the test target then the Makefile will\
+ build a test image for emulators."
+	echo
+	echo "clean		Removes object files and and binary images"
+	echo
+	echo "Extra compile flags:"
+	echo "-D __PROBERAM	probe manually for RAM instead of using the bios\
+ to figure out the amount of RAM."
+	exit 0
+}
+
+eflags=$2 # extra flags
+[[ $# -eq 0 ]] && makeAll
+[[ $1 = "--help" ]] && usage
+[[ $1 = "all" ]] && makeAll
+[[ $1 = "test" ]] && makeTest
+[[ $1 = "clean" ]] && makeClean

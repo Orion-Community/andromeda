@@ -46,7 +46,7 @@ struct isrstack
 	uint32_t eip, cs, eflags, proc_esp;
 	uint16_t ss;
 } __attribute__((packed));
-typedef struct isrstack OL_isr_stack;
+typedef struct isrstack ol_isr_stack;
 
 bool inKernelRing();
 extern void setEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);

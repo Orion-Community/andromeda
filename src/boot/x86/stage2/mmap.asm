@@ -34,7 +34,8 @@ getmemorymap:
 	movzx ebx, di
 	add eax, ebx
 	mov [mmr], eax
-jmp mm_88
+
+jmp mm_e801
 ; 
 ; The memory map returned from bios int 0xe820 is a complete system map, it will be given to the bootloader kernel for little editing
 ;

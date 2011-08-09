@@ -20,16 +20,21 @@
 #include <sys/stdlib.h>
 #include <textio.h>
 
-struct OL_mmap_entry * getmmapentry(int idx)
+ol_mmap_entry_t getmmapentry(int idx)
 {
-	struct OL_mmap_register * mmr = getmmr();
+	ol_mmap_register_t mmr = getmmr();
 	return mmr->entry+idx;
 }
 
-void OL_display_mmap()
+void init_mmap()
 {
-	updatecmosmmap();
-	struct OL_mmap_entry * entry;
+	ol_mmap_register_t mmr = getmmr();
+	if(mmr->ecount <= 1) updatecmosmmap();
+}
+
+void display_mmap()
+{
+	ol_mmap_entry_t entry;
 	
 	int i = 0;
 	uint32_t count = getmmr()->ecount;

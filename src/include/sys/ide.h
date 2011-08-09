@@ -28,7 +28,7 @@ struct partition_table
 	uint32_t lba;
 	uint32_t total_sectors; // total sectors in this partition
 } bootdrive[4];
-typedef struct partition_table OL_ptable;
+typedef struct partition_table *ol_ptable_t;
 
 /**
  * Read from drive.
@@ -38,14 +38,14 @@ typedef struct partition_table OL_ptable;
  * NOTE: You !CANNOT! read outside a partition, even if those sectors exist.
  */
 extern uint8_t ide_read(uint32_t sectors /* sectors to read */, uint32_t buffer /* destination buffer */, 
-		OL_ptable * partition /* partition where the sectors are found in */, uint32_t lba /* relative lba */);
+		ol_ptable_t partition /* partition where the sectors are found in */, uint32_t lba /* relative lba */);
 
 /**
  * Initialize the ide driver. It will set the partition table correctly. It returns the active partition.
  * 
  * NOTE: This function expects that the current partition tables are located at 0x0:0x7c00.
  */
-extern uint8_t ide_init(OL_ptable * partitions);
+extern uint8_t ide_init(ol_ptable_t partitions);
 
 /**
  * Get information about the drive.
