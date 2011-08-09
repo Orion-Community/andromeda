@@ -51,19 +51,18 @@ int core(unsigned short memorymap[], module_t mods[])
   // Set up the filesystem
   fsInit(NULL);
   
-  // Sinus test
-  double d = sin(0.5);
-  printf("Sin(0.5) = %d\n",d);
-  printf("Sin(0.5) = %d\n",sin(0.5)); // Somehow this doesn't work. Gives a varity of weird error, witch can change every compilation (even if you don't edit this rule, try comment the 2 rule before...) 
-  
   #ifdef GRAPHICS
     if (!vgaInit())
       panic("Initizing VGA driver failt!");
+    char* vga = 0xA0000;
+    vga[0] = 0xff;
+    vga[1] = 0x0f;
+    vga[2] = 0xf0;
+    vga[3] = 0x33;
   #endif
-
+  
   // In the future this will do a little more
   printf("You can now shutdown your PC\n");
-
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
     halt();

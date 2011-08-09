@@ -46,19 +46,20 @@ cd `dirname $0`
 ./compile.sh $OPT
 RET=$?
 if [ ${RET} -eq 0 ]; then
-	./updatefloppy.sh$n
 	if [ $s -eq 0 ];
 	then
+		./updatefloppy.sh$n
 		kvm -fda floppy.img -m 32M -s
 	else
-		kvm -fda floppy.img -m 32M -s &
+		./updatefloppy.sh -s$n
+		kvm -fda floppy.img -m 32M -s
 	fi
 else
-if [ $s -eq 0 ];
-then
-echo ""
-echo -en '\E[1;31m'"\033[1m     ***   $RET Errors found!     ***\033[0m\n"
-echo ""
-fi
+	if [ $s -eq 0 ];
+	then
+		echo ""
+		echo -en '\E[1;31m'"\033[1m     ***   $RET Errors found!     ***\033[0m\n"
+		echo ""
+	fi
 fi
 exit ${RET}
