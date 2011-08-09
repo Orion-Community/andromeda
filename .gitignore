@@ -1,2 +1,2 @@
-*.o
-build/*.bin
+src/*.o
+src/build/*.bin

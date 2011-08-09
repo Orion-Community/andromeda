@@ -69,8 +69,6 @@ start:
 	mov bp, sp
 	sti
 main:
-	mov al, 0x41
-	call print
 ; 	es is already set to 0
 	mov di, OL_BUFOFF
 	mov si, _start ; beginning of the source

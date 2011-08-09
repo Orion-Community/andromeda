@@ -52,10 +52,11 @@ void kmain(void)
 	pic_init();
 	setIDT();
 	outb(OL_KBC_COMMAND, OL_KB_INIT);	// enable the keyboard
-#ifdef __DEBUG
+
+// display mmap
 	println("Multiboot memory map:\n");
 	OL_display_mmap();
-#endif
+
 #if 0
 	uint8_t active = ide_init(bootdrive);
 	ide_read(0x100, 1<<20, &bootdrive[active], 60);

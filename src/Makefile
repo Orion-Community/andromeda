@@ -19,6 +19,7 @@ MBR=masterboot.bin
 BIN1=stage1.bin
 TEMPBIN=temp.bin
 BOOTBLOCK=openloader.bin
+TESTIMG=testimage.bin
 
 
 
@@ -54,11 +55,16 @@ $(BOOTBLOCK):
 .PHONE: install
 install: $(BIN1) $(TEMPBIN)
 	mkdir -v build/
+	mv -v $(MBR) build/
 	dd if=$(BIN1) of=build/$(BOOTBLOCK) seek=0
 	dd if=$(TEMPBIN) of=build/$(BOOTBLOCK) seek=1 ibs=512 conv=sync
 	@echo "\n"
 	@echo "Thank you for using the openLoader project, \n OpenLoader development team"
 
+.PHONE: test
+test: install
+	dd if=build/$(MBR) of=build/$(TESTIMG) seek=0
+	dd if=build/$(BOOTBLOCK) of=build/$(TESTIMG) seek=2048
 
 .PHONY: clean
 clean:

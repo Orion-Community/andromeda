@@ -4,9 +4,7 @@ romimage: file=/usr/share/bochs/BIOS-bochs-latest
 megs:	1024 
 vgaromimage: file=/usr/share/vgabios/vgabios.bin
 ata0: enabled=1
-ata0-master: type=disk, path="/dev/sdf", mode=flat, cylinders=16, heads=16, spt=63
-ata1: enabled=0
-ata1-master: type=disk, path="build/openloader.bin", mode=flat, cylinders=25, heads=16, spt=63
+ata0-master: type=disk, path="build/testimage.bin", mode=flat, cylinders=16, heads=16, spt=63
 boot: disk
 #gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
 #keyboard_mapping: enabled=1, map=/usr/share/bochs/keymaps/x11-pc-us.map
