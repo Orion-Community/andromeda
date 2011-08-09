@@ -40,8 +40,12 @@ void buildMap(multiboot_memory_map_t* map, int size)
     }
     map = (multiboot_memory_map_t*)((long)map+(long)map->size+sizeof(map->size));
   }
-  bitmap[0xB8] = MAPPEDIO;
-  bitmap[0xB0] = MAPPEDIO;
+  int ioBase = 0xA0000; // Reserve video memory
+  int ioLimit = 0xBFFFF;
+  for (; ioBase <= ioLimit; ioBase += PAGESIZE)
+  {
+    bitmap[ioBase/PAGESIZE] = MAPPEDIO;
+  }
 }
 
 void addModules(multiboot_module_t* mods, int count)
