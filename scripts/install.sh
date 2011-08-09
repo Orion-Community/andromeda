@@ -19,7 +19,7 @@ else
 	else if test $2 = "masterboot"
 	then
 		sudo fdisk -u -C17 -H16 -S63 $1
-		sudo dd if=$mbr of=$1 count=1 bs=445 seek=0
+		sudo dd if=$mbr of=$1 count=1 bs=446 seek=0
 		sudo dd if=$mbr of=$1 count=1 bs=2 seek=510
 	else if test $2 = "bootblock"
 	then

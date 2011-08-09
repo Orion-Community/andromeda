@@ -29,14 +29,14 @@ struct idtentry
 	uint8_t flags;
 	uint16_t base_high;
 } __attribute__((packed));
-typedef struct idtentry OL_idt_entry_t;
+typedef struct idtentry ol_idt_entry_t;
 
 struct idt
 {
 	uint16_t limit;
 	uint32_t baseptr;
 } __attribute__((packed));
-typedef struct idt OL_idt_t;
+typedef struct idt ol_idt_t;
 
 struct isrstack
 {
@@ -50,7 +50,7 @@ typedef struct isrstack ol_isr_stack;
 
 bool inKernelRing();
 extern void setEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
-extern void installIDT(OL_idt_t * idt);
+extern void installIDT(ol_idt_t * idt);
 
 /*
  * The exception headers which are found in the idt

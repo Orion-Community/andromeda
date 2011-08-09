@@ -68,11 +68,11 @@ void installInterrupts(int offset1, int offset2)
 
 void setIDT()
 {
-	OL_idt_t idt;
+	ol_idt_t idt;
 	installExceptions();
 	installInterrupts(0x20, 0x28);
 	
-	idt.limit = sizeof(OL_idt_entry_t) * 256;
+	idt.limit = sizeof(ol_idt_entry_t) * 256;
 	idt.baseptr = 0x7400;
 	
 	installIDT(&idt);
