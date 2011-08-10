@@ -26,7 +26,7 @@ char* font;
   /**
    * This function loads the basinc fonts.
    */
-boolean textInitG() // This will be named textInit again after I implemented the text mode driver too.
+bool textInitG() // This will be named textInit again after I implemented the text mode driver too.
 {
   /**
    * @TODO:

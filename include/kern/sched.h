@@ -46,21 +46,30 @@ struct __KERN_SCHED_SEGMENT
 #define _STATE_PAUSING 2
 #define _STATE_ZOMBIE  3
 
+struct __THREAD_STATE
+{
+  unsigned int tid;      // The id of the specific thread
+  isrVal_t* registers;   // The registers as stored by the irq stub
+  unsigned int state;    // The state of the current thread
+  unsigned int priority; // The thread based priority
+  unsigned int used;     // The running time used by the thread
+};
+
 struct __TASK_STRUCT
 {
   unsigned int pid; // Proccess ID
   unsigned int uid; // User ID
 
-  isrVal_t *registers; // Reference to the registers to be restored
+  unsigned int noThreads;
+  struct __THREAD_STATE *threads;
   struct __FS_INODE *procData; // Pointer to /proc/pid
 
   unsigned int ring; // Privilege level
   char *ptb; // Path to binary (to look up new data)
   char *workingDir;
   unsigned int priority; // Priority level
-  unsigned int spent; // Ammount of time spent in last epoch
+  unsigned int spent; // Ammount of time spent in current epoch
 
-  unsigned int state;
   struct _KERN_SCHED_SEGMENT* text;
   struct _KERN_SCHED_SEGMENT* data;
   struct _KERN_SCHED_SEGMENT* bss;

@@ -37,14 +37,14 @@
  */
 void imageBufferCpy(imageBuffer src, imageBuffer dest, int x, int y)
 {
-  int i       = 0,
-      maxX    = (dest.width>src.width+x)?src.width:dest.width-x,
-      maxY    = (dest.height>src.height+y)?src.height:dest.height-y,
-      crsPix  = (int)src.buffer,
-      destPix = (int)dest.buffer+x;
+  unsigned int i       = 0,
+               maxX    = (dest.width>src.width+x)?src.width:dest.width-x,
+               maxY    = (dest.height>src.height+y)?src.height:dest.height-y,
+               crsPix  = (unsigned int)src.buffer,
+               destPix = (unsigned int)dest.buffer+x+dest.width*y;
   for(;i<maxY;i++)
   {
-    memcpy((char*)crsPix,(char*)destPix,maxX);
+    memcpy((char*)destPix,(char*)crsPix,maxX);
     crsPix  += src.width;
     destPix += dest.width;
   }
@@ -83,10 +83,10 @@ void imageBufferPartCpy(imageBuffer src, imageBuffer dest, int x, int y, int wid
       maxX    = (dest.width>width+x)?width:dest.width-x,
       maxY    = (dest.height>height+y)?height:dest.height-y,
       crsPix  = (int)src.buffer + (src.width * party) + partx,
-      destPix = (int)dest.buffer + x;
+      destPix = (int)dest.buffer + x + dest.width*y;
   for(;i<maxY;i++)
   {
-    memcpy((char*)crsPix,(char*)destPix,maxX);
+    memcpy((void*)destPix,(void*)crsPix,maxX);
     crsPix  += src.width;
     destPix += dest.width;
   }

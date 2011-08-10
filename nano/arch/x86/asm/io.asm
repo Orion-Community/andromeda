@@ -43,7 +43,7 @@ outw: ; outw (short data, short port)  I'm a c programmer, not asm, so I don't k
   mov eax, [ebp+16]
   mov edx, [ebp+8]
   
-  out dx, al
+  out dx, ax
   
   return
 

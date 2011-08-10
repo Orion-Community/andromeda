@@ -24,11 +24,25 @@ extern boolean sentinels;
 extern boolean signals;
 void (*scheduler) ();
 time_t timer = 0;
+time_t freq = 0;
+time_t microtime = 0;
 time_t quantum = 0;
+
+void setTimerFreq(int frequency)
+{
+  if (frequency > _TIME_FREQ_MIN && frequency < _TIME_FREQ_MAX)
+  {
+    freq = frequency;
+  }
+}
 
 void timerTick()
 {
-  timer ++;
+  microtime ++;
+  if (microtime%freq == 0)
+  {
+    timer++;
+  }
   if (scheduling)
   {
     quantum--;

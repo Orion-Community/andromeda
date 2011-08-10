@@ -14,7 +14,7 @@ $(OUTD):
 	$(MAKE) -C nano/ $(MAKEEND)
 	$(MAKE) -C math/ $(MAKEEND)
 	$(MAKE) -C boot/ $(MAKEEND)
-	$(MAKE) -C lib/ $(MAKEEND)
+	$(MAKE) -C fs/ $(MAKEEND)
 	
 	rm -fv nano/boot.o nano/kmain.o nano/map.o
 	
@@ -29,7 +29,7 @@ clean:
 	$(MAKE) -C mm/ clean
 	$(MAKE) -C nano/ clean
 	$(MAKE) -C math/ clean
-	$(MAKE) -C lib/ clean
+	$(MAKE) -C fs/ clean
 	
 	rm -fv *.o
 	rm -fv $(OUTC)

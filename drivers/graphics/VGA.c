@@ -51,13 +51,13 @@ bool vgaInit()
    */
   int mode = 0; //should become a user defined videomode,  from a settings file.
   
-  screenbuf = kalloc(1);
+  screenbuf = (void*)0xA0000; //kalloc(1); // while there's no timer, we cannot buffer the screen...
   
   if ( setVideoMode( mode ) == -1 )
     if ( setVideoMode(0) == -1 )
       return false;
 
-  if ( !textInitG() );
+  if ( !textInitG() )
     return false;
 
   return true;
@@ -81,13 +81,15 @@ int setVideoMode(int mode)
    */
   if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
 	return -1;
-  realloc( screenbuf, videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth );
+  //realloc( screenbuf, videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth );
+  screenbuf = (void*)0xA0000; // while there's no timer, we cannot buffer the screen...
+  memset(screenbuf,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
   videoMode = mode;
   return 0;
 }
 
-#define outp(port,msg) outb(port,msg)
-#define outpw(port,msg) outw(port,msg)
+//#define outp(port,msg) outb(port,msg)
+//#define outpw(port,msg) outw(port,msg)
 #define inp(port) inb(port)
 //#define inpw(port,msg) inw(port,msg)
 #define SZ(x) (sizeof(x)/sizeof(x[0]))
@@ -97,6 +99,16 @@ int setVideoMode(int mode)
 /**
  * For these numbers see: http://wiki.osdev.org/VGA_Hardware#List_of_register_settings
  */
+
+void outpw(unsigned short port, unsigned short value)
+{
+asm volatile ("outw %%ax,%%dx": :"dN"(port), "a"(value));
+} 
+
+void outp(unsigned short port, unsigned char value)
+{
+asm volatile ("outb %%al,%%dx": :"dN"(port), "a"(value));
+}
 
 #define R_COM  0x63 // "common" bits
 
@@ -228,6 +240,11 @@ int setModeViaPorts(int width, int height,int chain4)
    outpw(0x3ce,0x4005); // 256color mode
    outpw(0x3ce,0x0506); // graph mode & A000-AFFF
 
+/* ADDED */
+   outpw(0x3d4,0x000C);
+   outpw(0x3d4,0x000D);
+/* END ADDED */
+
    inp(0x3da);
    outp(0x3c0,0x30); outp(0x3c0,0x41);
    outp(0x3c0,0x33); outp(0x3c0,0x00);
@@ -301,5 +318,5 @@ inline unsigned int getScreenDepth()
  */
 imageBuffer getScreenBuf()
 {
-  return (imageBuffer){screenbuf,videoModes[videoMode].height,videoModes[videoMode].height};
+  return (imageBuffer){screenbuf,videoModes[videoMode].width,videoModes[videoMode].height};
 }

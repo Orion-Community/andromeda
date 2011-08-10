@@ -16,24 +16,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __VGA_H
-#define __VGA_H
-#include "graphics.h"
+#ifndef __BEEP_H_
+#define __BEEP_H_
 
-struct pixel_s
-{
-  unsigned int x;
-  unsigned int y;
-};
-
-typedef struct pixel_s pixel;
-
-bool vgaInit();
-int setVideoMode(int mode);
-int setModeViaPorts(int width, int height,int chain4);
-imageBuffer getScreenBuf();
-inline unsigned int getScreenWidth();
-inline unsigned int getScreenHeight();
-inline unsigned int getScreenDepth();
+static void play_tone(unsigned int nFrequence); //Play sound using built in speaker
+static void stop_tone(); //make it shutup
+void beep();
 
 #endif

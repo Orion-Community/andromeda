@@ -22,6 +22,10 @@
 #include <kern/sched.h>
 #ifdef GRAPHICS
 #include "../drivers/graphics/Include/VGA.h"
+#include "../drivers/graphics/Include/graphics.h"
+#endif
+#ifdef BEEP
+#include "../drivers/system beep/Include/beep.h"
 #endif
 
 // Heap of 256 MiB
@@ -29,7 +33,7 @@
 
 unsigned char stack[0x10000];
 
-int core(unsigned short memorymap[], module_t mods[])
+int init(unsigned short memorymap[], module_t mods[])
 {
   // Install all the necessary data for complex memory management
   memcpy(bitmap, memorymap, PAGES);
@@ -49,16 +53,30 @@ int core(unsigned short memorymap[], module_t mods[])
   // Set the CPU up so that it no longer requires the nano image
   setGDT();
   // Set up the filesystem
-  fsInit(NULL);
+  #ifndef NOFS
+    fsInit(NULL);
+  #endif
+
+  #ifdef BEEP
+    printf("Beep...");
+    beep();
+    printf("Done\n");
+  #endif
   
   #ifdef GRAPHICS
     if (!vgaInit())
       panic("Initizing VGA driver failt!");
-    char* vga = 0xA0000;
-    vga[0] = 0xff;
-    vga[1] = 0x0f;
-    vga[2] = 0xf0;
-    vga[3] = 0x33;
+    /**
+     * Test vga driver...
+     */
+    imageBuffer img = {kalloc(32*32),32,32};         // Create a new image buffer (25 x 20 pixels)
+    memset(img.buffer,0,32*32);                      // Set buffer to black
+    int i = 0;
+    for (;i<32;i++)
+    {
+      memset((void*)((int)img.buffer+i*32),(i+1),i); // Make a figure.
+    }
+    drawBuffer(img,64,64);                           // Draw the buffer at 64x64!
   #endif
   
   // In the future this will do a little more
