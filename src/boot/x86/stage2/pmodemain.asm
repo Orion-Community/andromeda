@@ -17,12 +17,22 @@
 ;
 
 [BITS 32]
+%ifndef __STAGE2
 [EXTERN kmain]
 [GLOBAL pmodemain]
 [SECTION .text]
 
 pmodemain:
-	call kmain
+	mov eax, kmain
+
+	jmp eax
 
 .end:
 	jmp $
+%else
+
+pmodemain:
+	
+	jmp 0x100000
+
+%endif

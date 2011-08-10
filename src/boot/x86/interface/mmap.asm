@@ -16,9 +16,6 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[BITS 16]
-[SECTION .stage2]
-
 %include "mmap.asmh"
 
 ; Create a multiboot memory map. It is not multiboot compatible in the way it rolls out of this function. The size still has to be added into the entry.

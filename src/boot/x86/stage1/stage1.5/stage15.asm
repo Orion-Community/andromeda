@@ -17,8 +17,7 @@
 ;
 
 [BITS 16]
-[SECTION .stage1]
-[EXTERN endptr]
+[ORG 0x7e00]
 
 %define SECTORS_TO_READ 4
 %include "masterboot.asmh"
@@ -84,6 +83,7 @@ main:
 
 .loadcore:
 	call calcsectors
+	mov eax, 25
 	sub eax, SECTORS_TO_READ ; read x-sectors each loop
 	push eax
 	mov ax, SECTORS_TO_READ
@@ -112,7 +112,7 @@ main:
 .loadsector:
 	mov cx, ax
 	mov eax, dword [0x7c00+8]
-	add eax, 3	; fourth sector offset
+	add eax, 5	; fourth sector offset
 	add eax, ebp	; make sure we don't read the same sector every time
 	xor ebx, ebx
 	mov es, bx
@@ -122,29 +122,31 @@ main:
 	jc .bailout
 
 ; now we will copy the sector from the buffer to its final destination
+	and ecx, 0xffff
 	shl cx, 9	; cx *= 512
 	shl ebp, 9	; ebp *= 512
-	mov edi, 0x8200	; start of destination
+	mov edi, 0x100000	; start of destination
 	mov esi, 0x600	; buffer address
 	add edi, ebp	; adjust destination for current read
+	add ebx, ebp
 	shr ebp, 9	; revert back
 
 .cpysectors:	; actualy a memcpy
-	mov eax, dword [ds:esi]
-	mov dword [ds:edi], eax
+	mov al, byte [ds:esi]
+	mov byte [ds:edi], al
 
-	add edi, 4	; copy 4 bytes every memcpy loop
-	add esi, 4
+	add edi, 1	; copy 4 bytes every memcpy loop
+	add esi, 1
 
-	sub cx, 4	; we do NOT want a never ending loop
+	sub cx, 1	; we do NOT want a never ending loop
 	jnz .cpysectors
 
 	jmp .looptop
 
 .end:
-	mov edi, 0x1100000
-	mov ax, word [endptr]
-	mov [ds:edi], ax
+; 	mov edi, 0x1100000
+; 	mov ax, word [endptr]
+; 	mov [ds:edi], ax
 	pop dx
 	pop si
 

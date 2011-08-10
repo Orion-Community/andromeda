@@ -17,15 +17,10 @@
 ;
 
 [BITS 16]
-[SECTION .stage2]
-[GLOBAL endptr]
-[EXTERN pmodemain]
-[EXTERN getmemorymap]
-; [EXTERN openA20]
-
+[ORG 0x8200]
 jmp short main
 nop
-
+%define __STAGE2
 ;
 ; GLOBAL DESCRIPTOR TABLE
 ;
@@ -53,7 +48,7 @@ gdtr:
 
 
 	; Status messages
-	pmode db 'Implementing a GDT and PMode.', 0x0
+	pmodemsg db 'Implementing a GDT and PMode.', 0x0
 	failed db '0x2', 0x0
 
 
@@ -63,7 +58,7 @@ main:
 	jc .bailout
 %endif
 
-	mov si, pmode
+	mov si, pmodemsg
 	call println
 
 	cli
@@ -79,7 +74,9 @@ main:
 	mov fs, ax
 	mov gs, ax
 	mov esp, 0x8000; top of usable memory..
+; jmp $
 	jmp CODE_SEG:pmodemain
+
 
 .bailout:
 	cli
@@ -91,6 +88,8 @@ main:
 
 %include 'println.asm'
 
-[SECTION .end]
-endptr:
-	dw 0xBEEF
+%include 'mmap.asm'
+
+%include 'pmodemain.asm'
+
+times 1024 - ($-$$) db 0

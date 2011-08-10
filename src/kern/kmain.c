@@ -65,7 +65,7 @@ void kmain(void)
 	printnum(active, 16, FALSE, FALSE);
 #endif
 	print("Magic word from stage 1.5: ");
-	printnum(*magicword, 16, FALSE, FALSE);
+	printnum((uint32_t)display_mmap, 16, FALSE, FALSE);
 	putc(0xa);
 
 	println("Waiting for service interrupts..");

@@ -5,22 +5,24 @@ BINASFLAGS=-fbin -I"../include/" -I"../interface/" $(FLAGS)
 MAKE=make
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 LD=ld
+DD=dd
 
 # targets
 
-STAGE15=stage1_5.o
+STAGE15=stage1.5/stage15.bin
 STAGE1=stage1.bin
 
 # source files
-STAGE15_SRC=stage1.5/stage15.o 	# not really source, its
+ 	# not really source, its
 				# meat for the linker
 STAGE1_SRC=stage1.asm
 
 .PHONY: all
-all: $(STAGE15_SRC) $(STAGE1)
-	$(LD) $(LDFLAGS) $(STAGE15_SRC) -o $(STAGE15)
+all: $(STAGE15) $(STAGE1)
+	$(DD) if=$(STAGE15) of=$(STAGE1) seek=1 ibs=512
+	
 
-$(STAGE15_SRC):
+$(STAGE15):
 	$(MAKE) FLAGS="$(FLAGS)" -C stage1.5
 
 $(STAGE1): $(STAGE1_SRC)
@@ -29,5 +31,5 @@ $(STAGE1): $(STAGE1_SRC)
 .PHONY: clean
 clean:
 	$(MAKE) -C stage1.5 clean
-	rm -v *.o
+	#rm -v *.bin
 

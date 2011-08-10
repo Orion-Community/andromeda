@@ -7,7 +7,7 @@ MAKE=make
 # Flags
 ASFLAGS=-felf32 -I"include/" $(FLAGS)
 BINARYASFLAGS=-f bin -I"include/" $(FLAGS)
-CCFLAGS=-c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc -Iinclude -e kmain $(FLAGS)
+CCFLAGS=-c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc -Iinclude $(FLAGS)
 LDFLAGS=-Tlink.ld --oformat binary -melf_i386
 FLAGS=-D __HDD -D __DEBUG
 
@@ -20,8 +20,6 @@ BIN1=stage1.bin
 TEMPBIN=temp.bin
 BOOTBLOCK=openloader.bin
 TESTIMG=testimage.bin
-
-
 
 .PHONY: all
 all: x86
@@ -47,7 +45,7 @@ $(BOOTBLOCK):
 	mv -v mm/mm.o ./
 	mv -v kern/kern.o ./
 	mv -v video/video.o ./
-	$(LD) $(LDFLAGS) *.o -o $(TEMPBIN)
+	$(LD) $(LDFLAGS) $(BOOTBLOCK_DEPS) -o $(TEMPBIN)
 	@echo "\n"
 	@echo "The openLoader project has been builded for the intel x86 architecture."
 	@echo "Issue a make install to complete the process."
@@ -57,7 +55,7 @@ install: $(BIN1) $(TEMPBIN)
 	mkdir -v build/
 	mv -v $(MBR) build/
 	dd if=$(BIN1) of=build/$(BOOTBLOCK) seek=0
-	dd if=$(TEMPBIN) of=build/$(BOOTBLOCK) seek=1 ibs=512 conv=sync
+	dd if=$(TEMPBIN) of=build/$(BOOTBLOCK) seek=5 ibs=512 conv=sync
 	@echo "\n"
 	@echo "Thank you for using the openLoader project, \n OpenLoader development team"
 

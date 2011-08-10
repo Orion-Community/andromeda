@@ -25,7 +25,7 @@
 ; 
 getmmr:
 	xor eax, eax
-	mov eax, mmr
+	mov eax, 0x500
 	ret
 
 [GLOBAL updatecmosmmap]
@@ -49,8 +49,8 @@ updatecmosmmap:
 
 	mov eax, 2
 	int 0x30	; create cmos mmap
-	mov [mmr+4], ecx
-	mov [mmr], edx
+	mov [0x500+4], ecx
+	mov [0x500], edx
 
 	popad
 	ret
