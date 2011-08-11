@@ -24,7 +24,7 @@
 #include <interrupts/idt.h>
 #include <sys/ide.h>
 
-short * magicword = 0x1100000;
+extern int * endptr;
 void kmain(void)
 {
 // 	int * testval = 0x20000000;
@@ -65,7 +65,7 @@ void kmain(void)
 	printnum(active, 16, FALSE, FALSE);
 #endif
 	print("Magic word from stage 1.5: ");
-	printnum((uint32_t)display_mmap, 16, FALSE, FALSE);
+	printnum(endptr, 16, FALSE, FALSE);
 	putc(0xa);
 
 	println("Waiting for service interrupts..");

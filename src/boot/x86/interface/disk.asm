@@ -22,7 +22,7 @@
 ; buffer offset, cx contains the amount of sectors to read and eax:ebx is the LBA
 ; address. DX contains the drive number.
 
-int13_read:
+int13read:
 	push cx
 	push dx
 	push bp
@@ -111,7 +111,16 @@ int13_read:
 	ret
 
 calcsectors:
-; 	mov eax, endptr ; adress of the end
+	xor di, di
+	mov es, di
+	mov di, OL_SECTOR_BUFFER
+	mov ecx, 1
+	mov eax, [OL_PTABLE_PTR+8]
+	add eax, 5	; read sixth sector in boot partition
+	xor ebx, ebx
+	call int13read	; read the sector which contains pmodemain
+	mov eax, dword [OL_SECTOR_BUFFER+2]
+
 	sub eax, 0x100000 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
 	test eax, 0x1FF ; ax % 512
 	jz .powof2

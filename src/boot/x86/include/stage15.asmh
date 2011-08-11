@@ -1,5 +1,5 @@
 ;
-;    Low level memory map functions.
+;    Stage 1.5 header file.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,40 +16,13 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[SECTION .text]
+%ifndef __STAGE15_H
+%define __STAGE15_H
 
-[GLOBAL getmmr]
-; 
-; This will return the mmr in eax. Used in mmap.c to get the mmr.
-; 
-getmmr:
-	xor eax, eax
-	mov eax, 0x600
-	ret
+%define OL_DESTINATION_BUFFER 0x100000
+%define OL_SECTOR_BUFFER 0x600
 
-[GLOBAL updatecmosmmap]
-updatecmosmmap:
-	pushad
-	mov eax, 1
-	mov esi, 0x0
-	mov ecx, 1<<20
-	int 0x30	; returns amount of mem found in ecx
-	push ecx
+%define OL_SECTORS_TO_READ 4
+%define OL_PTABLE_PTR 0x7c00
 
-	mov eax, 1
-	mov esi, 1<<20
-	mov ecx, (1<<20)*63
-	int 0x30	; get amount of extended memory (max 63MiB)
-
-	mov edx, ecx
-	pop ebx
-	mov eax, 3
-	int 0x30	; update the cmos mmap
-
-	mov eax, 2
-	int 0x30	; create cmos mmap
-	mov [0x600+4], ecx
-	mov [0x600], edx
-
-	popad
-	ret
+%endif

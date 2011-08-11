@@ -20,7 +20,11 @@
 %ifndef __STAGE2
 [EXTERN kmain]
 [GLOBAL pmodemain]
+[GLOBAL endptr]
 [SECTION .text]
+
+jmp short pmodemain
+	dd endptr
 
 pmodemain:
 	mov eax, kmain
@@ -29,6 +33,10 @@ pmodemain:
 
 .end:
 	jmp $
+
+[SECTION .end]
+endptr:
+	dd 0xdeadbeef
 %else
 
 pmodemain:

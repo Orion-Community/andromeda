@@ -19,8 +19,8 @@
 [BITS 16]
 [ORG 0x7e00]
 
-%define SECTORS_TO_READ 4
 %include "masterboot.asmh"
+%include "stage15.asmh"
 
 jmp short main
 nop
@@ -42,7 +42,7 @@ gdtr:
 
 [GLOBAL main]
 main:
-	mov di, 0x7c00
+	mov di, OL_PTABLE_PTR
 	mov si, OL_BUFOFF+OL_PART_TABLE
 	push di
 	mov cx, 0x40
@@ -83,23 +83,23 @@ main:
 
 .loadcore:
 	call calcsectors
-	mov eax, 25
-	sub eax, SECTORS_TO_READ ; read x-sectors each loop
+
+	sub eax, OL_SECTORS_TO_READ ; read x-sectors each loop
 	push eax
-	mov ax, SECTORS_TO_READ
+	mov ax, OL_SECTORS_TO_READ
 	xor ebp, ebp ; ebp should not be incremented at first loop
 	jmp .loadsector
 
 .looptop:
 	pop eax
-	cmp eax, SECTORS_TO_READ
+	cmp eax, OL_SECTORS_TO_READ
 	jb .lastsectors		; when there are less then x sectors to read
 
-	sub ax, SECTORS_TO_READ	; prevent endless loop
+	sub ax, OL_SECTORS_TO_READ	; prevent endless loop
 	push eax
-	mov ax, SECTORS_TO_READ
+	mov ax, OL_SECTORS_TO_READ
 	
-	add ebp, SECTORS_TO_READ	; ebp holds the amount of read sectors (minus first 4)
+	add ebp, OL_SECTORS_TO_READ	; ebp holds the amount of read sectors (minus first 4)
 	jmp .loadsector
 
 .lastsectors:
@@ -111,22 +111,22 @@ main:
 
 .loadsector:
 	mov cx, ax
-	mov eax, dword [0x7c00+8]
-	add eax, 5	; fourth sector offset
+	mov eax, dword [OL_PTABLE_PTR+8]
+	add eax, 5	; sixth sector offset
 	add eax, ebp	; make sure we don't read the same sector every time
 	xor ebx, ebx
 	mov es, bx
-	mov di, 0x600
+	mov di, OL_SECTOR_BUFFER
 
-	call int13_read
+	call int13read
 	jc .bailout
 
 ; now we will copy the sector from the buffer to its final destination
 	and ecx, 0xffff
 	shl cx, 9	; cx *= 512
 	shl ebp, 9	; ebp *= 512
-	mov edi, 0x100000	; start of destination
-	mov esi, 0x600	; buffer address
+	mov edi, OL_DESTINATION_BUFFER	; start of destination
+	mov esi, OL_SECTOR_BUFFER	; buffer address
 	add edi, ebp	; adjust destination for current read
 	add ebx, ebp
 	shr ebp, 9	; revert back
