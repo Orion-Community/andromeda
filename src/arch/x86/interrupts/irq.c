@@ -41,10 +41,11 @@ void cIRQ0(ol_irq_stack_t regs)
 
 bool alt = FALSE;
 bool ctrl = FALSE;
-bool end = FALSE;
+bool endkey = FALSE;
 void cIRQ1(ol_irq_stack_t regs)
 {
 	char c = inb(0x60);
+
 	if(c & 0x80)
 	{
 		/*
@@ -53,7 +54,7 @@ void cIRQ1(ol_irq_stack_t regs)
 		uint8_t tmp = c ^ 0x80;
 		if(tmp == 0x38) alt = FALSE;
 		if(tmp == 0x1d) ctrl = FALSE;
-		if(tmp == 0x4f) end = FALSE;
+		if(tmp == 0x4f) endkey = FALSE;
 	}
 
 	else
@@ -63,6 +64,8 @@ void cIRQ1(ol_irq_stack_t regs)
 		 */
 		switch(c)
 		{
+			case 0xe0: // escaped scan codes
+				break;
 			case 0x38:
 				alt = TRUE;
 				break;
@@ -72,7 +75,7 @@ void cIRQ1(ol_irq_stack_t regs)
 				break;
 
 			case 0x4f:
-				end = TRUE;
+				endkey = TRUE;
 				break;
 
 			case 0x50:
@@ -82,11 +85,11 @@ void cIRQ1(ol_irq_stack_t regs)
 				putc(keycodes[c].value);
 				break;
 		}
-	}
-	
-	if(ctrl && alt && end)
-	{
-		reboot();
+		
+		if(ctrl && alt && endkey)
+		{
+			reboot();
+		}
 	}
 
 	pic_eoi(1);
