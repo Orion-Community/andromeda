@@ -12,6 +12,7 @@ BOOT=boot.o
 MASTERBOOT=masterboot.bin
 STAGE15=stage1/stage15.bin
 STAGE2=stage2/stage2.bin
+PMODEMAIN=stage2/pmodemain.o
 STAGE1=stage1.bin
 # sources
 MASTERBOOT_SRC=masterboot.asm
@@ -30,7 +31,7 @@ $(MASTERBOOT): $(MASTERBOOT_SRC) $(MASTERBOOT_HDR)
 $(BOOT):
 	$(MAKE) FLAGS="$(FLAGS)" -C stage1
 	$(MAKE) FLAGS="$(FLAGS)" -C stage2
-	$(LD) $(LDFLAGS) stage2/pmodemain.o -o $(BOOT)
+	$(LD) $(LDFLAGS) $(PMODEMAIN) -o $(BOOT)
 
 .PHONY: clean
 clean:

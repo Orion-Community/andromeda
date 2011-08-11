@@ -84,22 +84,22 @@ main:
 .loadcore:
 	call calcsectors
 
-	sub eax, OL_SECTORS_TO_READ ; read x-sectors each loop
+	sub eax, OL_SECTOR_BLOCK ; read x-sectors each loop
 	push eax
-	mov ax, OL_SECTORS_TO_READ
 	xor ebp, ebp ; ebp should not be incremented at first loop
-	jmp .loadsector
+	jmp .cpylooptop		; calcsectors did alread read 4 sectors
+				; to the buffer.
 
 .looptop:
 	pop eax
-	cmp eax, OL_SECTORS_TO_READ
+	cmp eax, OL_SECTOR_BLOCK
 	jb .lastsectors		; when there are less then x sectors to read
 
-	sub ax, OL_SECTORS_TO_READ	; prevent endless loop
+	sub ax, OL_SECTOR_BLOCK	; prevent endless loop
 	push eax
-	mov ax, OL_SECTORS_TO_READ
+	mov ax, OL_SECTOR_BLOCK
 	
-	add ebp, OL_SECTORS_TO_READ	; ebp holds the amount of read sectors (minus first 4)
+	add ebp, OL_SECTOR_BLOCK	; ebp holds the amount of read sectors (minus first 4)
 	jmp .loadsector
 
 .lastsectors:
@@ -122,6 +122,7 @@ main:
 	jc .bailout
 
 ; now we will copy the sector from the buffer to its final destination
+.cpylooptop:
 	and ecx, 0xffff
 	shl cx, 9	; cx *= 512
 	shl ebp, 9	; ebp *= 512

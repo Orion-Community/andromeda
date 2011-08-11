@@ -25,22 +25,21 @@
 
 jmp short pmodemain
 	dd endptr
+%endif
 
 pmodemain:
+%ifndef __STAGE2
 	mov eax, kmain
-
-	jmp eax
+	call eax
+%elifdef __STAGE2
+	push mmr
+	jmp OL_DESTINATION_BUFFER
+%endif
 
 .end:
 	jmp $
-
+%ifndef __STAGE2
 [SECTION .end]
 endptr:
 	dd 0xdeadbeef
-%else
-
-pmodemain:
-	
-	jmp 0x100000
-
 %endif

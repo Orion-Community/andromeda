@@ -113,8 +113,8 @@ int13read:
 calcsectors:
 	xor di, di
 	mov es, di
-	mov di, OL_SECTOR_BUFFER
-	mov ecx, 1
+	mov di, OL_SECTOR_BUFFER	; destination buffer
+	mov ecx, OL_SECTOR_BLOCK	; 4 sectors
 	mov eax, [OL_PTABLE_PTR+8]
 	add eax, 5	; read sixth sector in boot partition
 	xor ebx, ebx

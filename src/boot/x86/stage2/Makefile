@@ -16,12 +16,13 @@ PMODEMAIN_SRC=pmodemain.asm
 
 # headers
 MMAP_HDR=../include/mmap.asmh
+STAGE15_HDR=../include/stage15.asmh
 
 .PHONY: all
 all: $(STAGE2) $(PMODEMAIN)
 
-$(STAGE2): $(STAGE2_SRC) $(MMAP_HDR)
-	$(AS) $(BINASFLAGS) $(STAGE2_SRC) -o $(STAGE2)
+$(STAGE2): $(STAGE2_SRC) $(MMAP_HDR) $(STAGE15_HDR)
+	$(AS) $(BINASFLAGS) $(STAGE2_SRC) -o $(STAGE2) -D __STAGE2
 
 $(PMODEMAIN): $(PMODEMAIN_SRC)
 	$(AS) $(ASFLAGS) $(PMODEMAIN_SRC) -o $(PMODEMAIN)

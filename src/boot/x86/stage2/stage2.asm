@@ -19,8 +19,9 @@
 [BITS 16]
 [ORG 0x8200]
 jmp short main
-nop
-%define __STAGE2
+
+%include "stage15.asmh"
+
 ;
 ; GLOBAL DESCRIPTOR TABLE
 ;

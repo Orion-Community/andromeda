@@ -64,8 +64,7 @@ void kmain(void)
 	uint8_t eax = ata_identify();
 	printnum(active, 16, FALSE, FALSE);
 #endif
-	print("Magic word from stage 1.5: ");
-	printnum(endptr, 16, FALSE, FALSE);
+
 	putc(0xa);
 
 	println("Waiting for service interrupts..");
