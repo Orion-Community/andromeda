@@ -19,40 +19,81 @@
 #include <kern/timer.h>
 #include <stdlib.h>
 
+struct __kern_timer
+{
+  boolean sentinels;
+  boolean signals;
+  void (*hwInit)(unsigned int freq);
+  void (*scheduler)(struct __kern_timer*);
+  time_t time;
+  time_t freq;
+  time_t microtime;
+  time_t quantum;
+};
+
+struct __kern_sig
+{
+  time_t time;
+  time_t microtime;
+  void (*function)();
+};
+
 boolean scheduling = FALSE;
 extern boolean sentinels;
 extern boolean signals;
 void (*scheduler) ();
-time_t timer = 0;
-time_t freq = 0;
-time_t microtime = 0;
-time_t quantum = 0;
+time_t kernTimer = 0;
+time_t kernFreq = 0;
+time_t kernMicrotime = 0;
+time_t kernQuantum = 0;
+
+struct __kern_timer *timer;
+
+void setupTimer(unsigned int freq, void* scheduler, void* hwInit)
+{
+  timer->sentinels = false;
+  timer->signals = false;
+  timer->hwInit = hwInit;
+  timer->scheduler = scheduler;
+  timer->time = 0;
+  timer->freq = freq;
+  timer->microtime = 0;
+  timer->quantum = 0;
+  timer->hwInit(timer->freq);
+}
 
 void setTimerFreq(int frequency)
 {
   if (frequency > _TIME_FREQ_MIN && frequency < _TIME_FREQ_MAX)
   {
-    freq = frequency;
+    timer->freq = frequency;
+    timer->hwInit(frequency);
+  }
+  else
+  {
+    timer->freq = _TIME_FREQ_MIN;
+    timer->hwInit(_TIME_FREQ_MIN);
   }
 }
 
 void timerTick()
 {
-  microtime ++;
-  if (microtime%freq == 0)
+  timer->microtime ++;
+  if (timer->microtime%timer->freq == 0)
   {
-    timer++;
+    timer->time++;
+    timer->microtime = 0;
   }
   if (scheduling)
   {
-    quantum--;
-    if (quantum == 0)
-      scheduler();
+    timer->quantum--;
+    if (timer->quantum == 0)
+      timer->scheduler(timer);
   }
-  if (sentinels)
+  if (timer->sentinels)
   {
   }
-  if (signals)
+  if (timer->signals)
   {
   }
 }
