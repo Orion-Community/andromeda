@@ -22,6 +22,8 @@
 #define _TIME_FREQ_MAX 0xFFFFFFFF
 #define _TIME_FREQ_MIN 0x0
 
+void setupTimer(unsigned int freq, void* scheduler, void* hwInit);
 void setTimerFrequency(int);
+extern struct __kern_timer *timer;
 
 #endif

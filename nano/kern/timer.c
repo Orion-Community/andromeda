@@ -39,20 +39,13 @@ struct __kern_sig
 };
 
 boolean scheduling = FALSE;
-extern boolean sentinels;
-extern boolean signals;
-void (*scheduler) ();
-time_t kernTimer = 0;
-time_t kernFreq = 0;
-time_t kernMicrotime = 0;
-time_t kernQuantum = 0;
 
 struct __kern_timer *timer;
 
 void setupTimer(unsigned int freq, void* scheduler, void* hwInit)
 {
-  timer->sentinels = false;
-  timer->signals = false;
+  timer->sentinels = FALSE;
+  timer->signals = FALSE;
   timer->hwInit = hwInit;
   timer->scheduler = scheduler;
   timer->time = 0;
