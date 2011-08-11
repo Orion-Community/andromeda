@@ -16,8 +16,9 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stdlib.h>
-#include "include/interrupts.h"
+#include <stdlib.h>
+#include <interrupts/idt.h>
+#include <interrupts/interrupts.h>
 
 void installExceptions()
 {

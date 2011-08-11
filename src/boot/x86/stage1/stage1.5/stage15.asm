@@ -19,8 +19,8 @@
 [BITS 16]
 [ORG 0x7e00]
 
-%include "masterboot.asmh"
-%include "stage15.asmh"
+%include "boot/masterboot.asmh"
+%include "boot/stage15.asmh"
 
 jmp short main
 nop

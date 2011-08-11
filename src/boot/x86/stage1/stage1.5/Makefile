@@ -1,7 +1,7 @@
 # compliler shizle
 AS=nasm
-ASFLAGS=-felf32 -I"../../include/" -I"../../interface/" $(FLAGS)
-BINASFLAGS=-fbin -I"../../include/" -I"../../interface/" $(FLAGS)
+ASFLAGS=-felf32 -I"../../../../include/" -I"../../interface/" $(FLAGS)
+BINASFLAGS=-fbin -I"../../../../include/" -I"../../interface/" $(FLAGS)
 MAKE=make
 
 # targets
@@ -13,8 +13,6 @@ STAGE15_SRC=stage15.asm
 
 #A20_SRC=a20.asm
 
-# headers
-#A20_HDR=../../include/a20.asmh
 
 .PHONY: all
 all: $(STAGE15)

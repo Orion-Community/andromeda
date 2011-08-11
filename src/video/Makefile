@@ -15,16 +15,13 @@ VIDEO_DEPS=vga.o #vidmode.o
 #sources
 VGA_SRC=vga.c
 
-# header files
-VGA_HDR=include/vga.h
-
 .PHONY: all
 all: $(VIDEO)
 
 $(VIDEO): $(VIDEO_DEPS)
 	$(LD) $(LDFLAGS) $(VIDEO_DEPS) -o $(VIDEO)
 
-vga.o: $(VGA_HDR)
+vga.o:
 	$(CC) $(CCFLAGS) $(VGA_SRC) -o vga.o
 
 .PHONY: clean

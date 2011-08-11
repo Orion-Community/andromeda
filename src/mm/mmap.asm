@@ -19,17 +19,15 @@
 [SECTION .text]
 
 [GLOBAL getmmr]
-; 
-; This will return the mmr in eax. Used in mmap.c to get the mmr.
-; 
 getmmr:
-	xor eax, eax
 	mov eax, 0x600
 	ret
 
 [GLOBAL updatecmosmmap]
 updatecmosmmap:
 	pushad
+	mov ebp, esp
+
 	mov eax, 1
 	mov esi, 0x0
 	mov ecx, 1<<20
@@ -48,8 +46,10 @@ updatecmosmmap:
 
 	mov eax, 2
 	int 0x30	; create cmos mmap
-	mov [0x600+4], ecx
-	mov [0x600], edx
+
+	mov ebx, [ebp+36]
+	mov [ebx+4], cx
+	mov [ebx], edx
 
 	popad
 	ret

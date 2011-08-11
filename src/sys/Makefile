@@ -1,6 +1,6 @@
 # compliler shizle
 AS=nasm
-ASFLAGS=-felf32 -I"include/" $(FLAGS)
+ASFLAGS=-felf32 -I"../include/" $(FLAGS)
 CC=gcc
 CCFLAGS=-I"../include" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc $(FLAGS)
 MAKE=make
@@ -16,8 +16,6 @@ SYS_DEPS=stdlib.o io.o
 IO_SRC=io.asm
 STDLIB_SRC=stdlib.asm
 
-#headers
-STDLIB_HDR=stdlib.asmh
 
 .PHONY: all
 all: $(SYS_DEPS)

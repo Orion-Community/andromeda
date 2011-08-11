@@ -16,12 +16,11 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "include/vga.h"
 #include <textio.h>
-#include <sys/stdlib.h>
+#include <stdlib.h>
 #include <sys/io.h>
 
-OL_VGA cursor;
+ol_vga_mem_t cursor;
 
 void textinit()
 {

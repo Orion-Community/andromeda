@@ -79,7 +79,7 @@
 	sub edi, 0x18	; just to make addressing esier
 %endmacro
 
-%macro memtest 1
+%macro memtest 2
 	push eax
 	push ebx
 	push edx
@@ -88,7 +88,7 @@
 	mov edx, eax		; copy
 	not eax			; invert eax
 	mov dword [%1], eax
-	mov dword [dummy], edx	; dummy write
+	mov dword [%2], edx	; dummy write
 	wbinvd	; write back and invalidate the cache
 	mov ebx, dword [%1] ; get value back
 	mov dword [%1], edx
@@ -98,8 +98,6 @@
 	pop ebx
 	pop eax
 %endmacro
-
-dummy dd 0
 
 mmap_entry:	; 0x18-byte mmap entry
 	base dq 0	; base address

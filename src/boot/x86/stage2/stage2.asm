@@ -20,7 +20,7 @@
 [ORG 0x8200]
 jmp short main
 
-%include "stage15.asmh"
+%include "boot/stage15.asmh"
 
 ;
 ; GLOBAL DESCRIPTOR TABLE
@@ -94,3 +94,4 @@ main:
 %include 'pmodemain.asm'
 
 times 1024 - ($-$$) db 0
+

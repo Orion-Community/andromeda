@@ -1,7 +1,7 @@
 # compliler shizle
 AS=nasm
-ASFLAGS=-felf32 -I"../include/" -I"../interface/" $(FLAGS)
-BINASFLAGS=-fbin -I"../include/" -I"../interface/" $(FLAGS)
+ASFLAGS=-felf32 -I"../../../include/" -I"../interface/" $(FLAGS)
+BINASFLAGS=-fbin -I"../../../include/" -I"../interface/" $(FLAGS)
 MAKE=make
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 LD=ld

@@ -16,5 +16,5 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stdlib.h>
+#include <stdlib.h>
 void panic(uint8_t * msg);

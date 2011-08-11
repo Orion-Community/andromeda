@@ -17,11 +17,14 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[SECTION .bss]
+	dummy resd 1	; needed by the header
+
 [SECTION .data]
 
 	panicmsg db 'You are not in the kernel ring!', 0x0
 
-%include "cIRQ30.asmh"
+%include "mm/cIRQ30.asmh"
 
 [SECTION .text]
 
@@ -99,7 +102,7 @@ proberam:
 	je .skiphole
 
 .l1:
-	memtest esi
+	memtest esi, dummy
 	jne .end	; xor sets zf if equal
 	add esi, OL_PROBE_BLOCKSIZE
 	add ecx, OL_PROBE_BLOCKSIZE	; byte counter

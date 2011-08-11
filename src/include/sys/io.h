@@ -16,7 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stdlib.h>
+#include <stdlib.h>
 
 #ifndef __IO_H_
 #define __IO_H_

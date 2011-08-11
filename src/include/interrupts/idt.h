@@ -16,13 +16,29 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stdlib.h>
+#include <stdlib.h>
 
 #ifndef _ISR_H_
 #define _ISR_H_
 
-/*
- * Set the IDT.
- */
+struct idtentry
+{
+	uint16_t base_low;
+	uint16_t sel;
+	uint8_t zero;
+	uint8_t flags;
+	uint16_t base_high;
+} __attribute__((packed));
+typedef struct idtentry ol_idt_entry_t;
+
+struct idt
+{
+	uint16_t limit;
+	uint32_t baseptr;
+} __attribute__((packed));
+typedef struct idt ol_idt_t;
+
+extern void setEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
+extern void installIDT(ol_idt_t * idt);
 void setIDT();
 #endif

@@ -71,6 +71,6 @@ mmap_entry:	; 0x18-byte mmap entry
 mmr:
 	dd 0	; pointer to the memory map
 	dw 0 ;entry count
-	db 0x24 ; entry size
+	db 0x18 ; entry size
 
 %endif

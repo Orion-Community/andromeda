@@ -16,28 +16,26 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "include/mmap.h"
-#include <sys/stdlib.h>
+#include <mm/mmap.h>
+#include <stdlib.h>
 #include <textio.h>
 
-ol_mmap_entry_t getmmapentry(int idx)
+ol_mmap_entry_t getmmapentry(ol_mmap_register_t mmr, uint32_t idx)
 {
-	ol_mmap_register_t mmr = getmmr();
 	return mmr->entry+idx;
 }
 
-void init_mmap()
+void init_mmap(ol_mmap_register_t mmr)
 {
-	ol_mmap_register_t mmr = getmmr();
-	if(mmr->ecount <= 1) updatecmosmmap();
+	if(mmr->ecount <= 1) updatecmosmmap(mmr);
 }
 
-void display_mmap()
+void display_mmap(ol_mmap_register_t mmr)
 {
 	ol_mmap_entry_t entry;
 	
 	int i = 0;
-	uint32_t count = getmmr()->ecount;
+	uint32_t count = mmr->ecount;
 	print("Base address");
 	writeat('|', 20);
 	putc(0x20);
@@ -49,7 +47,7 @@ void display_mmap()
 	putc(0xa);
 	for(; i < count; i++)
 	{
-		entry = getmmapentry(i);
+		entry = getmmapentry(mmr, i);
 		printnum((int)entry->base, 16, FALSE, FALSE);
 		writeat('|', 20);
 		putc(0x20);

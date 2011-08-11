@@ -1,7 +1,7 @@
 # compliler shizle
 AS=nasm
-ASFLAGS=-felf32 -I"include/" -I"interface/" $(FLAGS)
-BINASFLAGS=-fbin -I"include/" -I"interface/" $(FLAGS)
+ASFLAGS=-felf32 -I"../../include/" -I"interface/" $(FLAGS)
+BINASFLAGS=-fbin -I"../../include/" -I"interface/" $(FLAGS)
 MAKE=make
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386 -e pmodemain
 LD=ld
@@ -18,14 +18,13 @@ STAGE1=stage1.bin
 MASTERBOOT_SRC=masterboot.asm
 
 # headers
-MASTERBOOT_HDR=include/masterboot.asmh
 
 .PHONY: all
 all: $(BOOT) $(MASTERBOOT)
 	mv -v stage1/$(STAGE1) ./
 	$(DD) if=$(STAGE2) of=$(STAGE1) ibs=512 seek=3
 
-$(MASTERBOOT): $(MASTERBOOT_SRC) $(MASTERBOOT_HDR)
+$(MASTERBOOT): $(MASTERBOOT_SRC)
 	$(AS) $(BINASFLAGS) $(MASTERBOOT_SRC) -o $(MASTERBOOT)
 
 $(BOOT):

@@ -16,9 +16,9 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stdlib.h>
+#include <stdlib.h>
 #include <error/panic.h>
-#include "include/pic.h"
+#include <interrupts/pic.h>
 
 void pic_remap(uint32_t offset1, uint32_t offset2)
 {

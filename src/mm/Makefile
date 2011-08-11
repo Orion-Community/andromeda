@@ -1,6 +1,6 @@
 # compliler shizle
 AS=nasm
-ASFLAGS=-felf32 -I"include/" $(FLAGS)
+ASFLAGS=-felf32 -I"../include/" $(FLAGS)
 CC=gcc
 CCFLAGS=-I"../include" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc $(FLAGS)
 MAKE=make
@@ -15,9 +15,6 @@ MM_DEPS=mmap.o mmap2.o
 MMAP_SRC=mmap.asm
 MMAP2_SRC=mmap.c
 
-#headers
-MMAP_HDR=include/mmap.h
-
 .PHONY: all
 all: $(MM)
 
@@ -27,7 +24,7 @@ $(MM): $(MM_DEPS)
 mmap.o:
 	$(AS) $(ASFLAGS) $(MMAP_SRC) -o mmap.o
 
-mmap2.o: $(MMAP_HDR)
+mmap2.o:
 	$(CC) $(CCFLAGS) $(MMAP2_SRC) -o mmap2.o
 
 .PHONY: clean

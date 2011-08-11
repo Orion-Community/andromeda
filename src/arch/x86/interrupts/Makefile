@@ -1,6 +1,6 @@
 # compliler shizle
 AS=nasm
-ASFLAGS=-felf32 -I"include/" $(FLAGS)
+ASFLAGS=-felf32 -I"../../../include/" $(FLAGS)
 CC=gcc
 CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc $(FLAGS)
 
@@ -25,11 +25,6 @@ ISR2_SRC=isr.c
 PIC_SRC=pic.c
 PIT_SRC=pit.asm
 
-# headers
-INTERRUPT_HDR=include/interrupts.h # c header
-KB_HDR=include/keyboard.h
-PIC_HDR=include/pic.h
-PIT_HDR=include/pit.asmh # asm header
 
 .PHONY: all
 all: $(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT)
@@ -37,25 +32,25 @@ all: $(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT)
 $(IDT): $(IDT_SRC)
 	$(AS) $(ASFLAGS) $(IDT_SRC) -o $(IDT)
 
-$(IDT2): $(IDT2_SRC) $(INTERRUPT_HDR)
+$(IDT2): $(IDT2_SRC)
 	$(CC) $(CCFLAGS) $(IDT2_SRC) -o $(IDT2)
 
 $(IRQ): $(IRQ_SRC)
 	$(AS) $(ASFLAGS) $(IRQ_SRC) -o $(IRQ)
 
-$(IRQ2): $(IRQ2_SRC) $(INTERRUPT_HDR)
+$(IRQ2): $(IRQ2_SRC)
 	$(CC) $(CCFLAGS) $(IRQ2_SRC) -o $(IRQ2)
 
 $(ISR): $(ISR_SRC)
 	$(AS) $(ASFLAGS) $(ISR_SRC) -o $(ISR)
 
-$(ISR2): $(ISR2_SRC) $(INTERRUPT_HDR)
+$(ISR2): $(ISR2_SRC)
 	$(CC) $(CCFLAGS) $(ISR2_SRC) -o $(ISR2)
 
-$(PIC): $(PIC_SRC) $(INTERRUPT_HDR)
+$(PIC): $(PIC_SRC)
 	$(CC) $(CCFLAGS) $(PIC_SRC) -o $(PIC)
 
-$(PIT): $(PIT_SRC) $(PIT_HDR)
+$(PIT): $(PIT_SRC)
 	$(AS) $(ASFLAGS) $(PIT_SRC) -o $(PIT)
 
 .PHONY: clean

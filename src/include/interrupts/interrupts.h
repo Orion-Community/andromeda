@@ -16,41 +16,35 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stdlib.h>
+#include <stdlib.h>
 
 #ifndef __INTERRUPT_H
 #define __INTERRUPT_H
 
-struct idtentry
-{
-	uint16_t base_low;
-	uint16_t sel;
-	uint8_t zero;
-	uint8_t flags;
-	uint16_t base_high;
-} __attribute__((packed));
-typedef struct idtentry ol_idt_entry_t;
-
-struct idt
-{
-	uint16_t limit;
-	uint32_t baseptr;
-} __attribute__((packed));
-typedef struct idt ol_idt_t;
-
-struct isrstack
+struct isr_stack
 {
 	uint16_t ds;
 	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
 	uint32_t interruptHandler, errorCode;
-	uint32_t eip, cs, eflags, proc_esp;
+	uint32_t eip;
+	uint16_t cs;
+	uint32_t eflags, proc_esp;
 	uint16_t ss;
 } __attribute__((packed));
-typedef struct isrstack ol_isr_stack;
+typedef struct isr_stack ol_isr_stack_t;
+
+struct irq_stack
+{
+	uint16_t ds;
+	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+	uint32_t eip;
+	uint16_t cs;
+	uint32_t eflags, proc_esp;
+	uint16_t ss;
+} __attribute__((packed));
+typedef struct irq_stack ol_irq_stack_t;
 
 bool inKernelRing();
-extern void setEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
-extern void installIDT(ol_idt_t * idt);
 
 /*
  * The exception headers which are found in the idt

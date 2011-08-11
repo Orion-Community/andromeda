@@ -17,16 +17,17 @@
  */
 
 #include <textio.h>
-#include "include/interrupts.h"
-#include "include/pic.h"
-#include "include/keyboard.h"
-#include <sys/stdlib.h>
+#include <interrupts/interrupts.h>
+#include <interrupts/pic.h>
+#include <interrupts/keyboard.h>
+#include <interrupts/idt.h>
+#include <stdlib.h>
 
 
 uint64_t timer = 0;
 uint64_t sleepTime = 0;
 bool isSleeping = FALSE;
-void cIRQ0(ol_isr_stack regs)
+void cIRQ0(ol_irq_stack_t regs)
 {
 	if(isSleeping)
 	{
@@ -41,7 +42,7 @@ void cIRQ0(ol_isr_stack regs)
 bool alt = FALSE;
 bool ctrl = FALSE;
 bool end = FALSE;
-void cIRQ1(ol_isr_stack regs)
+void cIRQ1(ol_irq_stack_t regs)
 {
 	char c = inb(0x60);
 	if(c & 0x80)
@@ -92,74 +93,74 @@ void cIRQ1(ol_isr_stack regs)
 	return;
 }
 
-void cIRQ2(ol_isr_stack regs)
+void cIRQ2(ol_irq_stack_t regs)
 {
 	pic_eoi(2);
 	return;
 }
-void cIRQ3(ol_isr_stack regs)
+void cIRQ3(ol_irq_stack_t regs)
 {
 	pic_eoi(3);
 	return;
 }
-void cIRQ4(ol_isr_stack regs)
+void cIRQ4(ol_irq_stack_t regs)
 {
 	pic_eoi(4);
 	return;
 }
 
-void cIRQ5(ol_isr_stack regs)
+void cIRQ5(ol_irq_stack_t regs)
 {
 	pic_eoi(5);
 	return;
 }
-void cIRQ6(ol_isr_stack regs)
+void cIRQ6(ol_irq_stack_t regs)
 {
 	pic_eoi(6);
 	return;
 }
-void cIRQ7(ol_isr_stack regs)
+void cIRQ7(ol_irq_stack_t regs)
 {
 	return;
 }
-void cIRQ8(ol_isr_stack regs)
+void cIRQ8(ol_irq_stack_t regs)
 {
 	pic_eoi(8);
 	return;
 }
-void cIRQ9(ol_isr_stack regs)
+void cIRQ9(ol_irq_stack_t regs)
 {
 	putc('a');
 	pic_eoi(9);
 	return;
 }
-void cIRQ10(ol_isr_stack regs)
+void cIRQ10(ol_irq_stack_t regs)
 {
 	pic_eoi(10);
 	return;
 }
-void cIRQ11(ol_isr_stack regs)
+void cIRQ11(ol_irq_stack_t regs)
 {
 	pic_eoi(11);
 	return;
 }
-void cIRQ12(ol_isr_stack regs)
+void cIRQ12(ol_irq_stack_t regs)
 {
 	pic_eoi(12);
 	return;
 }
-void cIRQ13(ol_isr_stack regs)
+void cIRQ13(ol_irq_stack_t regs)
 {
 	pic_eoi(13);
 	return;
 }
-void cIRQ14(ol_isr_stack regs)
+void cIRQ14(ol_irq_stack_t regs)
 {
 	putc('a');
 	pic_eoi(14);
 	return;
 }
-void cIRQ15(ol_isr_stack regs)
+void cIRQ15(ol_irq_stack_t regs)
 {
 	putc('b');
 	pic_eoi(15);

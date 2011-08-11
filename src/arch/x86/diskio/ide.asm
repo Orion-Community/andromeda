@@ -41,7 +41,7 @@
 
 [SECTION .data]
 
-%include "ide.asmh"
+%include "sys/ide.asmh"
 
 [SECTION .text]
 

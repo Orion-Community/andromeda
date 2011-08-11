@@ -16,9 +16,9 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stdlib.h>
+#include <stdlib.h>
 #include <error/panic.h>
-#include "include/interrupts.h"
+#include <interrupts/interrupts.h>
 #include <textio.h>
 
 bool inKernelRing()
@@ -33,7 +33,7 @@ bool inKernelRing()
 	return TRUE;
 }
 
-void cDivByZero(ol_isr_stack regs)
+void cDivByZero(ol_isr_stack_t regs)
 {
 	print("\nI define you as idiot. You just tried to divede by zero. Code \nfailed at EIP: ");
 	printnum(regs.eip, 16, FALSE, FALSE);
@@ -84,7 +84,7 @@ void cStackFault()
 {
 	panic("Stack fault!");
 }
-void cGenProt(ol_isr_stack regs)
+void cGenProt(ol_isr_stack_t regs)
 {
 	print("General protection fault! Fault occured at: ");
 	printnum(regs.eip, 16, FALSE, FALSE);
@@ -95,7 +95,7 @@ void cPageFault()
 {
 	panic("Page fault");
 }
-void cFpu(ol_isr_stack regs)
+void cFpu(ol_isr_stack_t regs)
 {
 	putc(0xa);
 	print("Floating point fault at EIP ");

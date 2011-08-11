@@ -16,7 +16,24 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <sys/stdlib.h>
+#include <stdlib.h>
+
+#ifndef __VGA_H
+#define __VGA_H
+
+#define OL_VGAMEMORY 0xB8000
+#define OL_WIDTH 80
+#define OL_HEIGHT 25
+#define OL_WHITE_TXT 0x07
+
+typedef struct ol_vga_mem
+{
+	int line;
+	uint32_t x;
+	uint16_t * vidmem;
+} ol_vga_mem_t;
+
+void reloc_cursor(uint32_t x, uint32_t y);
 
 /*
  * Initialize text i/o.
@@ -52,3 +69,4 @@ void putc(uint8_t c);
  * Writte a character on the current line at location x.
  */
 void writeat(uint8_t c, uint32_t x);
+#endif
