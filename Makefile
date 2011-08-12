@@ -8,23 +8,15 @@ all: new
 new: $(OUTD)
 
 $(OUTD):
-	#$(MAKE) -C drivers/ FLAGS="$(FLAGS) "
-	$(MAKE) -C kern/ FLAGS="$(FLAGS) "
-	$(MAKE) -C mm/ FLAGS="$(FLAGS) "
-	$(MAKE) -C nano/ FLAGS="$(FLAGS) "
-	$(MAKE) -C math/ FLAGS="$(FLAGS) "
-	$(MAKE) -C boot/ FLAGS="$(FLAGS) "
-	$(MAKE) -C fs/ FLAGS="$(FLAGS) "
+	$(MAKE) -C drivers/ $(MAKEEND)
+	$(MAKE) -C kern/ $(MAKEEND)
+	$(MAKE) -C mm/ $(MAKEEND)
+	$(MAKE) -C nano/ $(MAKEEND)
+	$(MAKE) -C math/ $(MAKEEND)
+	$(MAKE) -C boot/ $(MAKEEND)
+	$(MAKE) -C fs/ $(MAKEEND)
 	
-	rm -v nano/boot.o nano/kmain.o nano/map.o
-	
-	#mv -v drivers/drivers.o ./
-	mv -v kern/kern.o ./
-	mv -v mm/coremm.o ./
-	mv -v nano/*.o ./
-	mv -v math/maths.o ./
-	mv -v boot/*.o ./
-	mv -v fs/fs.o ./
+	rm -fv nano/boot.o nano/kmain.o nano/map.o
 	
 	mv -v nano/$(OUTC) ./
 	
@@ -32,16 +24,16 @@ $(OUTD):
 
 .PHONY: clean
 clean:
-	#$(MAKE) -C drivers/ clean
+	$(MAKE) -C drivers/ clean
 	$(MAKE) -C kern/ clean
 	$(MAKE) -C mm/ clean
 	$(MAKE) -C nano/ clean
 	$(MAKE) -C math/ clean
 	$(MAKE) -C fs/ clean
 	
-	rm -v *.o
-	rm -v $(OUTC)
-	rm -v $(OUTD)
+	rm -fv *.o
+	rm -fv $(OUTC)
+	rm -fv $(OUTD)
 
 .PHONY: amd64
 amd64:

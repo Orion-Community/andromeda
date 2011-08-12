@@ -53,8 +53,8 @@ int initHeap(long size)
 void memset(void *dest, int sval, size_t count)
 {
   if(!count){return;}
-#ifndef X86 //64 bit int is only faster at X86, X64 prefers 2 time 32 int
   sval &= 0x000000ff;
+#ifndef X86 //64 bit int is only faster at X86, X64 prefers 2 time 32 int
   unsigned long long val = (unsigned long long)sval;
   char i = 8;
   for(;i<64;i+=8)
@@ -133,7 +133,7 @@ void memcpy(void *dest, void *src, size_t count)
     src += 2;
     count -= 2;
   }
-  if(count = 1)
+  if(count >= 1)
   {
     *(unsigned long long*)dest = *(unsigned long long*)src;
   }

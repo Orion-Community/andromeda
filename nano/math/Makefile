@@ -9,6 +9,7 @@ HEADERS=
 
 .PHONY: all
 all: $(TARGETS)
+	mv -fv maths.o ../
 
 $(TARGETS): $(DEPS) $(HEADERS)
 	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)

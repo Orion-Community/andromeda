@@ -19,8 +19,15 @@
 #define __TYPES_H
 
 typedef unsigned char boolean;
+#define bool boolean
 #define FALSE 0
 #define TRUE !FALSE
+#define false FALSE
+#define true TRUE
+
+typedef char           byte;
+typedef unsigned short word;
+typedef unsigned long  dword;
 
 /*
  * Code untill end nicked, is nicked from FreeBSD

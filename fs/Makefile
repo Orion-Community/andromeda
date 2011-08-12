@@ -8,10 +8,10 @@ TARGETS=io.c
 
 .PHONY: all
 all: vfs.o fs.o
+	mv -v vfs.o ../
 
 vfs.o:
 	$(MAKE) -C vfs
-	mv -v vfs/vfs.o ./
 
 fs.o: $(TARGETS)
 	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)
@@ -19,5 +19,5 @@ fs.o: $(TARGETS)
 	
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -fv *.o
 	$(MAKE) -C vfs/ clean

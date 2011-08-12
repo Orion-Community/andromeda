@@ -8,13 +8,14 @@ AS=nasm
 ASFLAGS=-felf -D X86 -I../include/
 
 .PHONY: all
-all: kmain.o boot.o
+all: coreboot.o
+	mv -v coreboot.o ../
 
-nanoboot.o: 
-	$(LD) $(LDFLAGS) *.o -o nanoboot.o
+coreboot.o: init.o boot.o 
+	$(LD) $(LDFLAGS) *.o -o coreboot.o
 
-kmain.o: kmain.c
-	$(CC) $(CFLAGS) $(FLAGS) kmain.c
+init.o: init.c
+	$(CC) $(CFLAGS) $(FLAGS) init.c
 
 boot.o: boot.asm
 	$(AS) $(ASFLAGS) $(FLAGS) boot.asm

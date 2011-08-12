@@ -3,16 +3,18 @@ LD=ld
 CFLAGS=-I../../include/ -nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 -D __INTEL -mtune=i686 -march=i386
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-TARGETS=alloc.c heap.c map.c memory.c paging.c test.c
+DEPS=beep.c
+TARGETS=system\ beep.o
+HEADERS=Include/beep.h
 
 .PHONY: all
-all: mm.o
-	mv -fv mm.o ../
+all: $(TARGETS)
+	mv -fv system\ beep.o ../;
 
-mm.o: $(TARGETS)
-	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)
-	$(LD) -o mm.o *.o $(LDFLAGS)
-	
+$(TARGETS): $(DEPS) $(HEADERS)
+	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)
+	$(LD) $(LDFLAGS) -o $(TARGETS) *.o
+
 .PHONY: clean
 clean:
 	rm -fv *.o

@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2011  Steven van der Schoot
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,15 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __TEXT_H
-#define __TEXT_H
-#include <types.h>
-void println(unsigned char*);
-void printf(unsigned char*, ...);
-void putc(unsigned char);
-void printNum(int index, unsigned int base, boolean sInt, boolean capital);
-void printDecimalNum(double index, unsigned int base);
-void scroll(unsigned char);
-void textInit();
-int atoi(char* str);
-#endif
+void biosIntAxAhBx(unsigned int intNUm, unsigned int ax,unsigned int ah,unsigned int bx)
+{
+
+}

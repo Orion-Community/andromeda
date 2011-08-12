@@ -158,6 +158,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
     panic("Core image couldn't be loaded!");
   }
   #endif
+
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
   {
