@@ -183,11 +183,11 @@ void* getPhysAddr(void* addr)
   ret = (void *)tmpRet; // return the variable
   
   #ifdef TESTPAGES
-  printf("CR3\t"); printhex((int)CR3); putc('\n');
-  printf("PD\t"); printhex((int)pd); putc('\n');
-  printf("PD idx\t"); printhex((int)pdIdx); putc('\n');
-  printf("PT\t"); printhex((int)pt); putc('\n');
-  printf("PT idx\t"); printhex((int)ptIdx); putc('\n');
+  printf("CR3\t%u\n",(int)CR3);
+  printf("PD\t%u\n",(int)pd);
+  printf("PD idx\t%u\n",(int)pdIdx);
+  printf("PT\t%u\n",(int)pt);
+  printf("PT idx\t%u\n",(int)ptIdx);
   #endif
   
   #endif

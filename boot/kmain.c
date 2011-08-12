@@ -20,6 +20,13 @@
 #include <mm/map.h>
 #include <fs/fs.h>
 #include <kern/sched.h>
+#ifdef GRAPHICS
+#include "../drivers/graphics/Include/VGA.h"
+#include "../drivers/graphics/Include/graphics.h"
+#endif
+#ifdef BEEP
+#include "../drivers/system beep/Include/beep.h"
+#endif
 
 // Heap of 256 MiB
 #define HEAPSIZE 0x10000000
@@ -47,7 +54,29 @@ int init(unsigned short memorymap[], module_t mods[])
   setGDT();
   // Set up the filesystem
   #ifndef NOFS
-  fsInit(NULL);
+    fsInit(NULL);
+  #endif
+
+  #ifdef BEEP
+    printf("Beep...");
+    beep();
+    printf("Done\n");
+  #endif
+  
+  #ifdef GRAPHICS
+    if (!vgaInit())
+      panic("Initizing VGA driver failt!");
+    /**
+     * Test vga driver...
+     */
+    imageBuffer img = {kalloc(32*32),32,32};         // Create a new image buffer (25 x 20 pixels)
+    memset(img.buffer,0,32*32);                      // Set buffer to black
+    int i = 0;
+    for (;i<32;i++)
+    {
+      memset((void*)((int)img.buffer+i*32),(i+1),i); // Make a figure.
+    }
+    drawBuffer(img,64,64);                           // Draw the buffer at 64x64!
   #endif
   
   // In the future this will do a little more

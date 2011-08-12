@@ -1,9 +1,13 @@
+MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 MAKE=make
+
+.PHONY: all
+all: x86
+	mv -fv arch.o ../
 
 .PHONY: x86
 x86:
-	$(MAKE) FLAGS="$(FLAGS)" -C x86
-	mv -v x86/arch.o ./
+	$(MAKE) $(MAKEEND) -C x86
 
 .PHONY: clean
 clean:

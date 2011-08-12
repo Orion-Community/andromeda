@@ -16,5 +16,24 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-boolean vgaInit();
+#ifndef __VGA_H
+#define __VGA_H
+#include "graphics.h"
+
+struct pixel_s
+{
+  unsigned int x;
+  unsigned int y;
+};
+
+typedef struct pixel_s pixel;
+
+bool vgaInit();
 int setVideoMode(int mode);
+int setModeViaPorts(int width, int height,int chain4);
+imageBuffer getScreenBuf();
+inline unsigned int getScreenWidth();
+inline unsigned int getScreenHeight();
+inline unsigned int getScreenDepth();
+
+#endif

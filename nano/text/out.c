@@ -118,38 +118,6 @@ void printf(unsigned char *line, ...)
 char hex[36] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 char HEX[36] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
 
-char* itoa(unsigned int index, char* buffer, unsigned int base)
-{
-  char buf[32];
-  memset(buf, '\0', 32);
-  int i = 0;
-  
-  if (base > 36 || base < 2 )
-    return;
-  if (index == 0)
-    putc('0');
-  
-  if (index < 0 && base == 0xA)
-  {
-    putc('-');
-    index *= -1;
-  } 
-  unsigned int uIndex = (unsigned int) index;
-  for (; uIndex != 0; i++)
-  {
-    buf[31-i] = hex[uIndex%base];
-    uIndex /=base;
-  }
-  int j = 0;
-  for (; i >= 0; i--, j++)
-  {
-    buffer[j] = buf[32-i];
-  }
-  buffer[j] = '\0';
-  
-  return buffer;
-}
-
 int atoi(char* str)
 {
   int i = 0;
@@ -170,29 +138,110 @@ int atoi(char* str)
   return idx;
 }
 
-int dtoa(double num, void* buffer, unsigned int base)
+int formatInt(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
+{
+  int bufBase = (int)buffer;
+  if (base > 36 || base < 2 )
+    return 0;
+  int count = 0;
+  if( (num < 0) && sInt) //if number is negative print '-' and print absolue value of number (witch is -num)
+  {
+    *((char*)buffer++) = '-';
+    count++;
+    num = -num;
+  }
+  unsigned int i = base, numBase = num/base, buf;
+  if (numBase>0)
+  {
+    while(i<=numBase)
+    {
+      i *= base;
+      count++;
+    }
+  }
+  else
+  {
+    count--;
+    i = 1;
+  }
+  for(;i>=1;i/=base)
+  {
+    buf = (unsigned int)(num/i);
+    *((char*)buffer++) = (capital)? HEX[buf] : hex[buf];
+    num -= buf*i;
+  }
+  return count+2;
+}
+
+char* itoa(unsigned int index, char* buffer, unsigned int base)
+{
+  int len = formatInt(buffer, index, base, (base==10)?TRUE:FALSE, FALSE); // only signed if base = 10
+  buffer[len] = '\0';
+  return buffer;
+}
+
+int formatDouble(void* buffer, double num, unsigned int base, boolean capital, boolean scientific)
 {
   if (base > 36 || base < 2 )
     return 0;
 
-  itoa((int)num,buffer,base);
-  int count = strlen(buffer);
+  int precision = 0, // persents number after e (or E) when printing scientific.
+      count = formatInt(buffer,(int)num, base, TRUE, capital); // print part before dot.
 
-  double decimals = num-(double)((int)num);
-  if(decimals==0) // check for xx.0
-    return count;
+  if(scientific)
 
-  buffer+=count;
-  *((char*)buffer++) = '.';
-
-  for (;decimals>0;count++)
   {
-    decimals*=10;
-    *((char*)buffer++) = hex[(int)decimals];
-    decimals-=(double)((int)decimals);
+    precision = count-1;
+    if(precision!=0) // if we should print scientific AND we have more than 1 digit before dot.
+    {
+      memcpy((char*)buffer+2,(char*)buffer+1,count); // all digits after first digit are moved 1 place to left. (e.g. 12345 becomes 122345)
+      *((char*)(buffer+1))= '.'; // replace seccond digit with a dot (e.g. 122345 becomes 1.2345)
+      count++;
+    }
+  }
+  buffer+=count;
+  double decimals = num-(double)((int)num); // get all decimals of the number.
+  if(decimals==0) // check for xx.0
+  {
+    if(scientific)
+
+    {
+      *((char*)buffer++) = (capital)?'E':'e'; //print exx or Exx
+      if(precision>=0)
+        *((char*)buffer++) = '+';  //print leading + (minus is printed by formatInt)
+      count += formatInt(buffer, precision, base, TRUE, capital); //print precision
+    }
+    return count; // appears to be an integer, so we are done now.
+  }
+  precision += decimals;
+
+  
+  if(precision==0) // this is 0 for non scientific AND for scientific, but without printed dot.
+    *((char*)buffer++) = '.';
+
+  for (;decimals>0;count++) //loop through all decimals
+  {
+    decimals*=10; // move current decimal befor to left side of the dot.
+    *((char*)buffer++) = (capital)? HEX[(int)decimals] : hex[(int)decimals]; //print decimal.
+    decimals-=(double)((int)decimals); //decimal is printed, remove it!
   }
 
-  return count+1; // +1 because of the dot character
+  if(scientific)
+  {
+    *((char*)buffer++) = (capital)?'E':'e'; //print exx or Exx
+    if(precision>=0)
+      *((char*)buffer++) = '+';  //print leading + (minus is printed by formatInt)
+    count += 1+formatInt(buffer, precision, base, TRUE, capital); //print precision
+  }
+
+  return count+1;
+}
+
+char* dtoa(double index, char* buffer, unsigned int base)
+{
+  int len = formatDouble(buffer, index, base, FALSE, FALSE);
+  buffer[len] = '\0';
+  return buffer;
 }
 
 void printNum(int index, unsigned int base, boolean sInt, boolean capital)
@@ -228,7 +277,7 @@ void printDecimalNum(double index, unsigned int base)
   char buf[64];
   memset(buf,'\0',64);
   int i = 0;
-  int count = dtoa((int)index, buf, base);
+  int count = strlen(dtoa(index, buf, base));
   for (;i<count;i++)
   {
     putc(buf[i]);
@@ -283,7 +332,7 @@ int reloc(int loc_x, int loc_y)
          * Set the new cursor position
          */
         unsigned short location = loc_y * WIDTH + loc_x;
-        outb(0x3D4, 14); 
+        outb(0x3D4, 14);
         outb(0x3D5, location >> 8);
         outb(0x3D4, 15);
         outb(0x3D5, location);

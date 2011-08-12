@@ -9,6 +9,7 @@ TARGETS=kern.o
 
 .PHONY: all
 all: $(TARGETS)
+	mv -v kern.o ../
 
 $(TARGETS): $(DEPS) $(HEADERS)
 	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)
@@ -16,4 +17,4 @@ $(TARGETS): $(DEPS) $(HEADERS)
 
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -fv *.o

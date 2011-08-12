@@ -31,4 +31,4 @@ asm.o: asm.asm
 
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -fv *.o

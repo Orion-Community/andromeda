@@ -16,46 +16,127 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
+#include "Include/VGA.h"
 #include "Include/graphics.h"
-#include "Include/text.h" 
+#include "Include/text.h"
+
+char* font;
 
   /**
    * This function loads the basinc fonts.
    */
-boolean textInit()
+bool textInitG() // This will be named textInit again after I implemented the text mode driver too.
 {
   /**
-   * load atleast 1 font image and convert them into an array of buffers.
+   * @TODO:
+   *   - load atleast 1 font image and place them in font.
    */
-  return false;
+  font = kalloc(256);
+  memset(font,0,256);
+  return true;
+}
+
+imageBuffer getCharBuffer(char chr, unsigned int bgcolor, unsigned int color)
+{
+  imageBuffer buffer = {kalloc(64*getScreenDepth()),8,8};
+  char* buf = buffer.buffer;
+  int i = 0;
+  for (;i<64;i++)
+  {
+    memset(buf,font[chr]?color:bgcolor,getScreenDepth());
+    buf += getScreenDepth();
+  }
+  return buffer;
 }
 
   /**
-   * This function returns the image buffer of a single character.
+   * This function prints a character to an image buffer.
+   * 
+   * @param buffer
+   *   The buffer the string should be printed to.
    * 
    * @param chr
-   *   The character that should be view by the image buffer.
-   */
-imageBuffer char2ImageBuffer(char chr) //Don't know for sure if I will keep this function
-{
-  /**
+   *   The character that should printed to the image buffer.
    * 
+   * @param bgcolor
+   *   The background color for the character.
+   * 
+   * @param color
+   *   The character color.
+   * 
+   * @param x
+   *   The x coordinate in image buffer for the character.
+   * 
+   * @param y
+   *   The y coordinate in image buffer for the character.
    */
-  return ...;
+void printCharToBuffer(imageBuffer buffer, char chr, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color)
+{
+  imageBufferCpy(getCharBuffer(chr,bgcolor,color),buffer,x,y);
 }
 
   /**
-   * This function returns the image buffer of a string.
+   * This function prints a sting to an image buffer.
+   * 
+   * @param buffer
+   *   The buffer the string should be printed to.
    * 
    * @param str
-   *   The string that should be view by the image buffer.
-   */
-imageBuffer string2imageBuffer(char* str) //Don't know for sure if I will keep this function
-{
-  /**
+   *   The string that should printed to the image buffer.
    * 
+   * @param bgcolor
+   *   The background color for the characters.
+   * 
+   * @param color
+   *   The character color.
+   * 
+   * @param x
+   *   The x coordinate in image buffer for the character.
+   * 
+   * @param y
+   *   The y coordinate in image buffer for the character.
    */
-  return ...;
+void printStringToBuffer(imageBuffer buffer, char* str, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color)
+{
+  int i       = 0,
+      i2      = 0,
+      maxChrs = (int)((buffer.width-x)/8),
+      len     = strlen(str),
+      strToDo = 0;
+
+  while ( i < len )
+  {
+    if ( len - i > maxChrs )
+    {
+      strToDo = maxChrs;
+      while ( strToDo > 0 )
+      {
+        if ( str[strToDo] == ' ' )
+        {
+          str[strToDo] == '\n';
+          break;
+        }
+        strToDo--;
+      }
+      if ( strToDo == 0 )
+        strToDo = maxChrs;
+    } else
+      strToDo = 0;
+    for (i2 = 0; i2 < strToDo; i2++)
+    {
+      if ( str[i]=='\n' )
+      {
+        i++;
+        break;
+      }
+      printCharToBuffer(buffer,str[i],x+i2*8,y,bgcolor,color);
+      i++;
+    }
+    y += 8;
+    if ( y > buffer.height )
+      break;
+  }
 }
 
   /**
@@ -69,12 +150,16 @@ imageBuffer string2imageBuffer(char* str) //Don't know for sure if I will keep t
    * 
    * @param chr
    *   The character that should draw to the screen.
-   */
-void drawChar(int x, int y, char chr)
-{
-  /**
    * 
+   * @param bgcolor
+   *   The background color for the character.
+   * 
+   * @param color
+   *   The character color.
    */
+void drawChar(unsigned int x, unsigned int y, char chr, unsigned int bgcolor, unsigned int color)
+{
+  drawBuffer(getCharBuffer(chr,bgcolor,color),x,y);
 }
 
 
@@ -89,10 +174,14 @@ void drawChar(int x, int y, char chr)
    * 
    * @param str
    *   The string that should be draw to the screen.
-   */
-void drawString(int x, int y, char* str)
-{
-  /**
    * 
+   * @param bgcolor
+   *   The background color for the characters.
+   * 
+   * @param color
+   *   The character color.
    */
+void drawString(char* str, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color)
+{
+  printStringToBuffer(getScreenBuf(),str,x,y,bgcolor,color);
 }

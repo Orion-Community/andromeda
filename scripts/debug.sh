@@ -1,6 +1,6 @@
 #!/bin/bash
+s=0
 n=""
-s=""
 function options {
 	case "$1" in
 		h|-help)
@@ -9,14 +9,14 @@ function options {
 			echo "Options:";
 			echo "       -h --help     Print this help message";
 			echo "       -s --silent   Silent mode (script wont print anything)";
-			echo "       -n --nosudo   script will not use sudo for mound/unmounting. Requires ";
-			echo "                     `dirname $0`/floppy.img in fstab. (For more info type:"
-			echo "                     `dirname $0`/setupfloppy.sh -h"
+			echo "       -n --nosudo   Script will not use sudo for mound/unmounting. Requires ";
+			echo "                     `dirname $0`/floppy.img in fstab (For more info"
+			echo "                     type: `dirname $0`/setupfloppy.sh -h)"
 			exit 0 ;;
+		s|-silent)
+			s=1 ;;
 		n|-nosudo)
 			n=" -n";;
-		s|-silent)
-			s=" -s";;
 		*)
 			echo "Unknown option ${var}";
 			exit 0;;
@@ -42,7 +42,24 @@ do
 		OPT+=" $var"
 	fi
 done
-D=`dirname $0`
-$D/setupfloppy.sh$n$s
-$D/cpfloppy.sh
-$D/releasefloppy.sh$n
+cd `dirname $0`
+./compile.sh $OPT
+RET=$?
+if [ ${RET} -eq 0 ]; then
+	if [ $s -eq 0 ];
+	then
+		./updatefloppy.sh$n
+		kvm -fda floppy.img -m 32M -s -vga vmware
+	else
+		./updatefloppy.sh -s$n
+		kvm -fda floppy.img -m 32M -s -vga vmware
+	fi
+else
+	if [ $s -eq 0 ];
+	then
+		echo ""
+		echo -en '\E[1;31m'"\033[1m     ***   Errors found!     ***\033[0m\n"
+		echo ""
+	fi
+fi
+exit ${RET}

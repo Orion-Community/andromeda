@@ -8,6 +8,7 @@ TARGETS=fs.c
 
 .PHONY: all
 all: vfs.o
+	mv -fv vfs.o ../
 
 vfs.o: $(TARGETS)
 	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)
@@ -15,4 +16,4 @@ vfs.o: $(TARGETS)
 	
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -fv *.o

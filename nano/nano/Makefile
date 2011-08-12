@@ -9,6 +9,7 @@ ASFLAGS=-felf -D X86 -I../../include/
 
 .PHONY: all
 all: kmain.o boot.o map.o
+	mv -fv *.o ../
 
 map.o:
 	$(CC) $(CFLAGS) $(FLAGS) map.c
@@ -21,4 +22,4 @@ boot.o: boot.asm
 
 .PHONY: clean
 clean:
-	#rm -v *.o
+	#rm -fv *.o
