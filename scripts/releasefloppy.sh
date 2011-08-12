@@ -39,9 +39,7 @@ do
 done
 if [ $n -eq 0 ];
 then
-echo "!!!!!!!!!!!";
 sudo umount /dev/loop0
-sudo losetup -d /dev/loop0
 else
 umount /media/loop
 fi

@@ -49,10 +49,10 @@ if [ ${RET} -eq 0 ]; then
 	if [ $s -eq 0 ];
 	then
 		./updatefloppy.sh$n
-		kvm -fda floppy.img -m 32M -s -vga vmware
+		qemu -fda floppy.img -m 32M -s -vga vmware
 	else
 		./updatefloppy.sh -s$n
-		kvm -fda floppy.img -m 32M -s -vga vmware
+		qemu -fda floppy.img -m 32M -s -vga vmware
 	fi
 else
 	if [ $s -eq 0 ];

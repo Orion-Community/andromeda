@@ -77,6 +77,11 @@ int init(unsigned short memorymap[], module_t mods[])
       memset((void*)((int)img.buffer+i*32),(i+1),i); // Make a figure.
     }
     drawBuffer(img,64,64);                           // Draw the buffer at 64x64!
+
+    imageBuffer img2 = {kalloc(10*2),10,2};
+    memset(img2.buffer,11,10*2);
+    drawBuffer(img2,128,128);
+    memcpy(0xA0000+128+130*320,img2.buffer,10*2);
   #endif
   
   // In the future this will do a little more

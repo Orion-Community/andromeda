@@ -65,8 +65,7 @@ then
 else
 	if [ $n -eq 0 ];
 	then
-		sudo losetup /dev/loop0 `dirname $0`/floppy.img
-		sudo mount /dev/loop0 /media/loop
+		sudo mount -o loop `dirname $0`/floppy.img /media/loop
 	else
 		mount `dirname $0`/floppy.img
 	fi
