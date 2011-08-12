@@ -75,8 +75,8 @@ main:
 	mov fs, ax
 	mov gs, ax
 	mov esp, 0x8000; top of usable memory..
-; jmp $
-	jmp CODE_SEG:pmodemain
+	jmp32 0x8, linearaddr(0x0, pmodemain)	; get to pmode
+
 
 
 .bailout:
