@@ -20,35 +20,73 @@
 #include <fs/file.h>
 #include <stdlib.h>
 
-struct _FS_INODE* _fs_root = NULL;
+inode_t *_fs_root = NULL;
 
 #define _FS_BMP_BITS (sizeof(int)*8)
 #define _FS_BMP_IDX(a) (a/_FS_BMP_BITS)
 #define _FS_BMP_OFF(a) (a%_FS_BMP_BITS)
 #define _FS_BMP_SZ(a)  ((a%_FS_BMP_BITS == 0) ? a/_FS_BMP_BITS : a/_FS_BMP_BITS+1)
 
-/*
- * /proc
- * /dev
- */
+char* procPath = "proc";
+char* devPath = "dev";
 
 void fsInit(inode_t* root)
 {
   if (root == NULL)
   {
-    panic("No root file system supplied!");
+//     panic("No root file system supplied!");
+    printf("WARNING: File systems not complete!\n");
     _fs_root = kalloc(sizeof(inode_t));
+    if (_fs_root == NULL)
+      goto nomem;
     _fs_root -> inode = _FS_ROOT_INODE;
     _fs_root -> size  = 2*sizeof(struct _FS_DIR_ENTRY);
+    _fs_root -> prot  = _FS_PROT_DIR | _FS_ROOT_RIGHTS;
     _fs_root -> data  = kalloc(sizeof(struct _FS_FILE));
+    if (_fs_root -> data == NULL)
+      goto nomem;
     _fs_root -> data -> start = kalloc (_fs_root -> size);
+    if (_fs_root -> data -> start == NULL)
+      goto nomem;
     _fs_root -> data -> end = (char*)((unsigned long) _fs_root -> data -> start + _fs_root -> size);
     _fs_root -> data -> read = _fs_root -> data -> start;
     _fs_root -> data -> write = _fs_root -> data -> start;
+    
+    struct _FS_DIR_ENTRY *root = (struct _FS_DIR_ENTRY*) _fs_root -> data -> start;
+    root[0].drv = 0;
+    root[0].inode = 0;
+    root[0].virtInode = kalloc(sizeof(inode_t));
+    root[0].nameSize = strlen(procPath);
+    root[0].name = procPath;
+    root[1].drv = 0;
+    root[1].inode = 0;
+    root[1].virtInode = kalloc(sizeof(inode_t));
+    root[1].nameSize = strlen(devPath);
+    root[1].name = devPath;
   }
   else
   {
     panic("File systems not yet supported!");
+  }
+  return;
+nomem:
+  panic("Not enough memory in fsInit!");
+}
+
+int mkdir (char* name, inode_t* parent, unsigned int prot)
+{
+  
+}
+
+void list(inode_t *dir)
+{
+  int size = dir -> size / sizeof (struct _FS_DIR_ENTRY);
+  int i = 0;
+  struct _FS_DIR_ENTRY *entries = (struct _FS_DIR_ENTRY *)dir -> data -> start;
+  printf("%i Directory entries\n", size);
+  for (; i < size; i++)
+  {
+    printf("%s\n",  entries[i].name);
   }
 }
 

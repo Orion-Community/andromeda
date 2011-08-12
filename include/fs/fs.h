@@ -46,7 +46,7 @@
 
 #define _FS_MAX_DRIVES 0x20
 
-#define _FS_ROOT_RIGHTS (_FS_PROT_DIR|_FS_PROT_OWN_R|_FS_PROT_OWN_W|_FS_PROT_OWN_X|_FS_PROT_GRP_R|_FS_PROT_GRP_X|_FS_PROT_ALL_R|_FS_PROT_ALL_X)
+#define _FS_ROOT_RIGHTS (_FS_PROT_OWN_R|_FS_PROT_OWN_W|_FS_PROT_OWN_X|_FS_PROT_GRP_R|_FS_PROT_GRP_X|_FS_PROT_ALL_R|_FS_PROT_ALL_X)
 #define _FS_ROOT_INODE 0x2
 
 #define _VFS_STD_BLCK 0x200
@@ -54,8 +54,7 @@
 
 struct _FS_INODE
 {
-  char* name;                // File name
-  unsigned short protection; // protection bits d-rwx-rwx-rwx
+  unsigned short prot;       // protection bits d-rwx-rwx-rwx
   unsigned int userid;       // Owner data
   unsigned int groupid;      // Owner data
   unsigned int meta;         // Any flags required for administration
@@ -63,8 +62,6 @@ struct _FS_INODE
   unsigned int inode;        // Address of inode on disk
   size_t size;               // The size of the file
   struct _FS_FILE* data;     // Where is the data in memory
-  unsigned int blocks[16];   // Which block do we need to access
-  boolean buffered[16];      // Which blocks have been buffered
   mutex_t lock;              // If there are operations to be done on the file, the file must be locked, untill the operations are complete
 };
 
@@ -88,5 +85,6 @@ extern struct _FS_INODE* _fs_root;
 
 void fsInit(inode_t* root);
 struct _FS_INODE* vfsInit(size_t size, unsigned int protection);
+void list(inode_t *dir);
 
 #endif

@@ -37,10 +37,11 @@ typedef struct _FS_FILE FILE;
 
 struct _FS_DIR_ENTRY
 {
-  char name[255];
   unsigned int drv;
   unsigned int inode;
-  struct _FS_INODE* virt_inode;
+  struct _FS_INODE* virtInode;
+  size_t nameSize;
+  char *name;
 };
 
 #endif

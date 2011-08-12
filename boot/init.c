@@ -55,6 +55,7 @@ int init(unsigned short memorymap[], module_t mods[])
   // Set up the filesystem
   #ifndef NOFS
     fsInit(NULL);
+    list(_fs_root);
   #endif
 
   #ifdef BEEP
