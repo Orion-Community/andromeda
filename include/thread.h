@@ -19,9 +19,13 @@
 #ifndef __THREAD_H
 #define __THREAD_H
 
+#define __THREAD_MUTEX_FREE 0
+#define __THREAD_MUTEX_SHUT 1
+
 typedef unsigned int mutex_t;
 
 extern void mutexEnter(mutex_t);
+extern void mutexTest(mutex_t);
 extern void mutexRelease(mutex_t);
 
 #endif
