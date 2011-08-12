@@ -3,3 +3,4 @@ compressed
 core
 *.project
 *~
+scripts/floppy.img
