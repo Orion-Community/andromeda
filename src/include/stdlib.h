@@ -61,6 +61,13 @@ typedef struct segments *ol_segments_t;
  */
 extern void halt();
 extern void endprogram();
+
+/**
+ * WARNING: This is NOT a safe reboot. It actually forces the system to crash 
+ * (triple fault), which results in a CPU reset.
+ */
+extern void reboot();
+
 extern ol_registers_t getregs();
 extern ol_segments_t getsegs();
 // extern void testIDT();

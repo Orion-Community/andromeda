@@ -10,11 +10,12 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 # targets
 SYS=sys.o
 #subtargets
-SYS_DEPS=stdlib.o io.o
+SYS_DEPS=stdlib.o io.o keyboard.o
 
 # source files
 IO_SRC=io.asm
 STDLIB_SRC=stdlib.asm
+KB_SRC=keyboard.c
 
 
 .PHONY: all
@@ -26,6 +27,9 @@ stdlib.o:
 
 io.o:
 	$(AS) $(ASFLAGS) $(IO_SRC) -o io.o
+
+keyboard.o:
+	$(CC) $(CCFLAGS) $(KB_SRC) -o keyboard.o
 
 .PHONY: clean
 clean:

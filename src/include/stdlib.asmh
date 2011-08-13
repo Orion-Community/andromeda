@@ -16,7 +16,8 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-%ifndef __STDLIB_H
+%ifndef __STDLIB_H_
+%define __STDLIB_H_
 
 regs:
 	eax_t dd 0
