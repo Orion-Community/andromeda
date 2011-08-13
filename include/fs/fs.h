@@ -55,8 +55,8 @@
 struct _FS_INODE
 {
   unsigned short prot;       // protection bits d-rwx-rwx-rwx
-  unsigned int userid;       // Owner data
-  unsigned int groupid;      // Owner data
+  unsigned int usrid;        // Owner data
+  unsigned int grpid;        // Owner data
   unsigned int meta;         // Any flags required for administration
   unsigned int drv;	     // Drive id
   unsigned int inode;        // Address of inode on disk
