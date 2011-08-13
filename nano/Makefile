@@ -5,6 +5,9 @@ MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 
 .PHONY: all
 all: x86
+	rm -fv boot.o
+	rm -fv map.o
+	rm -fv kmain.o
 	mv -v *.o ../
 
 .PHONY: amd64

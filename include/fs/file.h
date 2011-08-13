@@ -28,7 +28,7 @@ struct _FS_FILE
   char* read;  // The read pointer (within this inode)
   char* write; // The write pointer (within this inode, should be >= read)
   size_t size; // Size of this inode
-  struct _IO_FILE* chain; // Next inode, if this one isn't large enough
+  struct _FS_FILE* chain; // Next inode, if this one isn't large enough
   char* path;  // Path to file
   boolean buffered; // TRUE for buffered
 };
@@ -37,8 +37,11 @@ typedef struct _FS_FILE FILE;
 
 struct _FS_DIR_ENTRY
 {
-  char* name; 
-  struct _FS_INODE* inode;
+  unsigned int drv;
+  unsigned int inode;
+  struct _FS_INODE* virtInode;
+  size_t nameSize;
+  char *name;
 };
 
 #endif

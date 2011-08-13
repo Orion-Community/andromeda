@@ -101,6 +101,16 @@ mutexEnter:
   
   return
 
+[GLOBAL mutexTest] ; // Return 0 if mutex was unlocked, 1 if locked
+mutexTest:
+  enter
+
+  mov eax, 1
+  xchg [ebp+8], eax
+
+  return
+
+
 [GLOBAL mutexRelease]
 mutexRelease:
   enter
