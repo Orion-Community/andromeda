@@ -44,20 +44,20 @@ void testMMap(multiboot_info_t* hdr)
 	      mmap->len&0xFFFFFFFF,
 	      mmap->type);
     }
-    printf("End pointer = "); printhex((int)&end); putc('\n');
+    printf("End pointer = %x\n",(int)&end);
   }
        
   if (hdr->flags && MULTIBOOT_INFO_MODS)
   {
     int mods = hdr->mods_count;
     multiboot_module_t* mbootModules = (multiboot_module_t*)hdr->mods_addr;
-    printf("No. modules: "); printhex(mods); putc('\n');
+    printf("No. modules: %x\n",mods);
     int i = 0;
     for (; i < mods; i++)
     {
-      printf("Base addr = "); printhex(mbootModules[i].mod_start); putc('\n');
-      printf("End  addr = "); printhex(mbootModules[i].mod_end);   putc('\n');
-      printf("CMD  line = "); printf((char*)mbootModules[i].cmdline); putc('\n');
+      printf("Base addr = %x\n",mbootModules[i].mod_start);
+      printf("End  addr = %x\n",mbootModules[i].mod_end);
+      printf("CMD  line = %s\n",(char*)mbootModules[i].cmdline);
     }
   }
   else
@@ -94,14 +94,14 @@ void testAlloc()
 {
   printf("Heap test suite!\n\n");
   large_t* a = alloc(sizeof(large_t), FALSE);
-  printf("Addr of A: "); printhex((int)a); putc('\n');
+  printf("Addr of A: %x\n",(int)a);
   large_t* b = alloc(sizeof(large_t), TRUE);
-  printf("Addr of B: "); printhex((int)a); putc('\n');
+  printf("Addr of B: %x\n",(int)a);
   
   small_t* c = alloc(sizeof(small_t), FALSE);
-  printf("Addr of C: "); printhex((int)a); putc('\n');
+  printf("Addr of C: %x\n",(int)a);
   small_t* d = alloc(sizeof(small_t), TRUE);
-  printf("Addr of D: "); printhex((int)a); putc('\n');
+  printf("Addr of D: %x\n",(int)a);
   
   examineHeap();
   wait();
@@ -113,9 +113,9 @@ void testAlloc()
   wait();
   
   a = alloc(sizeof(large_t), TRUE);
-  printf("Addr of A: "); printhex((int)a); putc('\n');
+  printf("Addr of A: %x\n",(int)a);
   c = alloc(sizeof(small_t), TRUE);
-  printf("Addr of C: "); printhex((int)a); putc('\n');
+  printf("Addr of C: %x\n",(int)a);
   
   examineHeap();
   wait();

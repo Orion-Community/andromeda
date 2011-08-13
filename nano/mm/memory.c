@@ -37,9 +37,9 @@ int initHeap(long size)
       }
     }
   }
-  #ifdef DBG
-  examineHeap();
-  #endif
+  /*#ifdef DBG
+  examineHeap(); // Doesn't work!
+  #endif*/
   initPaging();
   return 0;
 }

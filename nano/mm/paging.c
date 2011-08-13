@@ -110,7 +110,7 @@ void cPageFault(isrVal_t regs)
     // Kill process trying to access this page!
   }
   #ifdef DBG
-  printf("Err code: "); printhex(err); putc('\n');
+  printf("Err code: %x\n",err);
   #endif
   #ifdef WARN
   printf("WARNING:\tPaging isn't finished yet!\n");
