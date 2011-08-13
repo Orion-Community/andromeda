@@ -181,6 +181,8 @@ int free (void* ptr)
 	#ifdef MMTEST
 	printf("Free!!!\n");
 	#endif
+	if (ptr == NULL)
+	  return -1;
 	mutexEnter(prot);
 	memNode_t* block = (void*)ptr-sizeof(memNode_t);
 	memNode_t* carrige;
