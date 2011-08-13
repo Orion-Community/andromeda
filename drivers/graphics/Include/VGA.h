@@ -31,6 +31,7 @@ typedef struct pixel_s pixel;
 bool vgaInit();
 int setVideoMode(int mode);
 int setModeViaPorts(int width, int height,int chain4);
+void updateScreen();
 imageBuffer getScreenBuf();
 inline unsigned int getScreenWidth();
 inline unsigned int getScreenHeight();

@@ -18,9 +18,16 @@
 #include <stdlib.h>
 
 // Claim to have paniced, show the message and enter an infinite loop.
-
-void panic(char* msg)
-{
-	printf("Andromeda panic!\n%s\n", msg);
-	endProg(); // Halt and catch fire!
-}
+#ifdef DBG
+	void panicDebug(char * msg, char* file, int line)
+	{
+		printf("Andromeda panic in %s at line %i\n%s\n", file, line, msg);
+		endProg(); // Halt and catch fire!
+	}
+#else
+	void panic(char* msg)
+	{
+		printf("Andromeda panic!\n%s\n", msg);
+		endProg(); // Halt and catch fire!
+	}
+#endif

@@ -81,7 +81,7 @@ void* nalloc(size_t size)
 {
   void* tmp = alloc(size, FALSE);
   if (tmp != NULL);
-  memset(tmp, 0, size);
+    memset(tmp, 0, size);
   return tmp;
 }
 

@@ -73,7 +73,9 @@ imageBuffer getCharBuffer(char chr, unsigned int bgcolor, unsigned int color)
    */
 void printCharToBuffer(imageBuffer buffer, char chr, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color)
 {
-  imageBufferCpy(getCharBuffer(chr,bgcolor,color),buffer,x,y);
+  imageBuffer buf = getCharBuffer(chr,bgcolor,color);
+  imageBufferCpy(buf,buffer,x,y);
+  free(buf.buffer);
 }
 
   /**

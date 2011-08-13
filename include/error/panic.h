@@ -18,7 +18,13 @@
 
 #ifndef __ERROR_PANIC_H
 #define __ERROR_PANIC_H
-void panic(char *);
+
+#ifdef DBG
+	void panicDebug(char *, char*, int);
+	#define panic(str) panicDebug(str,__FILE__, __LINE__)
+#else
+	void panic(char *);
+#endif
 extern void sti();
 extern void cli();
 #endif
