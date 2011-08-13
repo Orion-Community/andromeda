@@ -19,7 +19,7 @@
 #include <textio.h>
 #include <interrupts/interrupts.h>
 #include <interrupts/pic.h>
-#include <interrupts/keyboard.h>
+#include <sys/keyboard.h>
 #include <interrupts/idt.h>
 #include <stdlib.h>
 

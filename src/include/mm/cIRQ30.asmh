@@ -79,7 +79,7 @@
 	sub edi, 0x18	; just to make addressing esier
 %endmacro
 
-%macro memtest 2
+%macro memtest 2	; memtest <addr_to_test>, <dummy_addr>
 	push eax
 	push ebx
 	push edx
@@ -87,12 +87,18 @@
 	mov eax, dword [%1]	; original value at address
 	mov edx, eax		; copy
 	not eax			; invert eax
-	mov dword [%1], eax
-	mov dword [%2], edx	; dummy write
+	push eax		; save for later
+	mov dword [%1], eax	; write to mem address
+	mov dword [%2], eax	; dummy write
 	wbinvd	; write back and invalidate the cache
 	mov ebx, dword [%1] ; get value back
-	mov dword [%1], edx
+	mov dword [%1], edx	; restore the old value
+	mov edx, dword [%2]	; get dummy write back
+; test results
 	xor eax, ebx	; zf is set when result is equal
+	pop eax		; revert eax for possible next xor
+	jnz short $+4	; jump over the other xor to keep the result in eflags
+	xor eax, edx	; zf is not set when dummy write failed
 
 	pop edx
 	pop ebx
