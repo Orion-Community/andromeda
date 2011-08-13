@@ -55,6 +55,11 @@ void cPageFault(isrVal_t regs)
     panic("Incorrect frame");
   }  
   unsigned long page = getCR2();
+  #ifdef X86
+  page &= 0xFFFFF000;
+  #else
+  
+  #endif
   unsigned char err = (unsigned char) (regs.errCode & 0x7);
   #ifdef DBG
   printf("The pagefault was caused by: %X\n", page);
