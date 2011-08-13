@@ -35,9 +35,8 @@ struct videoMode_s
 };
 
 const struct videoMode_s videoModes[2] = {
-    {  320,  200, 1, true},  // 320  x 200  x 256 (linear) <-- Highest linear resolution!
-    {  320,  200, 1, false}, // 320  x 200  x 256 (planar)
-    {  600,  400, 1, false}, // 600  x 400  x 256 (planar) <-- Highest VGA resolution!
+    {  320,  200, 1, true},  // 320  x 200  x 256
+    {  600,  400, 1, false}, // 320  x 200  x 256
   };
 char* screenbuf; // sreen buffer, containing all pixels that should be written to the screen.
 int videoMode;   // the current video mode.
@@ -50,23 +49,21 @@ int videoMode;   // the current video mode.
  */
 bool vgaInit()
 {
-	/**
-	* @TODO
-	*   - load settings file or get setting from preloaded settings file.
-	*   - get videomode from settings file.
-	*/
-	int mode = 1; //should become a user defined videomode,  from a settings file.
+  /**
+   * @TODO
+   *   - load settings file or get setting from preloaded settings file.
+   *   - get videomode from settings file.
+   */
+  int mode = 0; //should become a user defined videomode,  from a settings file.
+  screenbuf = kalloc(1); // while there's no timer, we cannot buffer the screen...
+  if ( setVideoMode( mode ) == -1 )
+    if ( setVideoMode(0) == -1 )
+      return false;
 
-	screenbuf = kalloc(0);
+  if ( !textInitG() )
+    return false;
 
-	if ( setVideoMode( mode ) == -1 )
-		if ( setVideoMode(0) == -1 )
-			return false;
-
-	if ( !textInitG() )
-		return false;
-
-	return true;
+  return true;
 }
 
 /**
@@ -81,19 +78,21 @@ bool vgaInit()
  */
 int setVideoMode(int mode)
 {
-	free(screenbuf);
-	screenbuf = kalloc( videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth );
-
-	if(screenbuf==NULL)
-		screenbuf = 0xA0000; //return -1;
-
-	if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
-		return -1;
-
-	memset(screenbuf,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
-	videoMode = mode;
-	updateScreen();
-	return 0;
+  /**
+   * Here should be some code to make an bios interupt. It should use a function like this:
+   *   int ret = someDoInteruptFunction( 10h , videoModes[mode] -> return , videoModes[mode] -> ah , videoModes[mode] -> ax );
+   */
+  free(screenbuf);
+  screenbuf = kalloc( videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth );
+  if(screenbuf==NULL)
+    return -1;
+  if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
+    return -1;
+  //screenbuf = (void*)0xA0000; // while there's no timer, we cannot buffer the screen...
+  memset(screenbuf,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
+  videoMode = mode;
+  updateScreen();
+  return 0;
 }
 
 //#define outp(port,msg) outb(port,msg)
@@ -110,12 +109,12 @@ int setVideoMode(int mode)
 
 void outpw(unsigned short port, unsigned short value)
 {
-	asm volatile ("outw %%ax,%%dx": :"dN"(port), "a"(value));
+asm volatile ("outw %%ax,%%dx": :"dN"(port), "a"(value));
 } 
 
 void outp(unsigned short port, unsigned char value)
 {
-	asm volatile ("outb %%al,%%dx": :"dN"(port), "a"(value));
+asm volatile ("outb %%al,%%dx": :"dN"(port), "a"(value));
 }
 
 #define R_COM  0x63 // "common" bits
@@ -269,56 +268,23 @@ int setModeViaPorts(int width, int height,int chain4)
 
 /**
  * 
- */
-void switchPlane()
-{
-	;
-}
-
-/**
- * 
  * 
  * 
  */
 void updateScreen()
 {
-	if(videoModes[videoMode].chain4)
-		memcpy(
-			screenbuf ,
-			(void*)0xA0000 ,
-			videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth
-		);
-	else
-	{
-		int            size   = videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth / 4;
-		unsigned int   i      = 0                               ,
-		               i2                                       ;
-		unsigned char* plane1 = (unsigned char*)(0xA0000)       ;
-		unsigned char* plane2 = (unsigned char*)(0xA0000+size)  ; //  ]
-		unsigned char* plane3 = (unsigned char*)(0xA0000+2*size); //  ]-> these adress seem to be wrong.
-		unsigned char* plane4 = (unsigned char*)(0xA0000+3*size); //  ]
-		unsigned char* buf    = screenbuf                       ;
-
-		for(; i < size; i++)
-		{
-			*plane1 = (unsigned char)0;
-			*plane2 = (unsigned char)0;
-			*plane3 = (unsigned char)0;
-			*plane4 = (unsigned char)0;
-			for(i2=0;i2<4;i2++)
-			{
-				*plane1 |= (unsigned char)( (*buf     ) & 0x03 );
-				*plane2 |= (unsigned char)( (*buf << 2) & 0x03 );
-				*plane3 |= (unsigned char)( (*buf << 4) & 0x03 );
-				*plane4 |= (unsigned char)( (*buf << 6) & 0x03 );
-				buf++;
-			}
-			plane1++;
-			plane2++;
-			plane3++;
-			plane4++;
-		}
-	}
+  /**
+   * @TODO
+   *   - check if this works for all videoModes.
+   */
+  if(videoModes[videoMode].chain4)
+    memcpy(
+      screenbuf ,
+      (void*)0xA0000 ,
+      videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth
+    );
+  else
+    panic("Cannot switch plains jet...");
 }
 
 /**
@@ -329,7 +295,7 @@ void updateScreen()
  */
 inline unsigned int getScreenWidth()
 {
-	return videoModes[videoMode].width;
+  return videoModes[videoMode].width;
 }
 
 /**
@@ -340,7 +306,7 @@ inline unsigned int getScreenWidth()
  */
 inline unsigned int getScreenHeight()
 {
-	return videoModes[videoMode].height;
+  return videoModes[videoMode].height;
 }
 
 /**
@@ -351,7 +317,7 @@ inline unsigned int getScreenHeight()
  */
 inline unsigned int getScreenDepth()
 {
-	return videoModes[videoMode].depth;
+  return videoModes[videoMode].depth;
 }
 
 /**
@@ -362,5 +328,5 @@ inline unsigned int getScreenDepth()
  */
 imageBuffer getScreenBuf()
 {
-	return (imageBuffer){screenbuf,videoModes[videoMode].width,videoModes[videoMode].height};
+  return (imageBuffer){screenbuf,videoModes[videoMode].width,videoModes[videoMode].height};
 }
