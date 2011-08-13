@@ -77,7 +77,8 @@ int init(unsigned short memorymap[], module_t mods[])
       memset((void*)((int)img.buffer+i*32),(i+1),i); // Make a figure.
     }
     drawBuffer(img,64,64);                           // Draw the buffer at [64,64]!
-    drawBufferPart(img,46,64,16,32,0,0);             // Draw buffer from [0,0] to [16,32] at [46,64] !
+    drawBufferPart(img,46,64,16,32,0,0);             // Draw buffer from [0,0] to [16,32] at [46,64]!
+    updateScreen();                                  // As we have no timer jet, manual screen refresh.
   #endif
   
   // In the future this will do a little more

@@ -51,7 +51,7 @@ bool vgaInit()
    */
   int mode = 0; //should become a user defined videomode,  from a settings file.
   
-  screenbuf = (void*)0xA0000; //kalloc(1); // while there's no timer, we cannot buffer the screen...
+  screenbuf = kalloc(1); // while there's no timer, we cannot buffer the screen...
   
   if ( setVideoMode( mode ) == -1 )
     if ( setVideoMode(0) == -1 )
@@ -79,12 +79,16 @@ int setVideoMode(int mode)
    * Here should be some code to make an bios interupt. It should use a function like this:
    *   int ret = someDoInteruptFunction( 10h , videoModes[mode] -> return , videoModes[mode] -> ah , videoModes[mode] -> ax );
    */
+  free(screenbuf);
+  screenbuf = kalloc( videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth );
+  if(screenbuf==NULL)
+    return -1;
   if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
-	return -1;
-  //realloc( screenbuf, videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth );
-  screenbuf = (void*)0xA0000; // while there's no timer, we cannot buffer the screen...
+    return -1;
+  //screenbuf = (void*)0xA0000; // while there's no timer, we cannot buffer the screen...
   memset(screenbuf,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
   videoMode = mode;
+  updateScreen();
   return 0;
 }
 
@@ -270,11 +274,14 @@ void updateScreen()
    * @TODO
    *   - check if this works for all videoModes.
    */
-  memcpy(
-    screenbuf ,
-    (void*)0xA0000 ,
-    videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth
-  );
+  if(videoModes[videoMode].chain4)
+    memcpy(
+      screenbuf ,
+      (void*)0xA0000 ,
+      videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth
+    );
+  else
+    panic("Cannot switch plains jet...");
 }
 
 /**
