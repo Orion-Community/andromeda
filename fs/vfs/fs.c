@@ -37,17 +37,16 @@ void fsInit(inode_t* root)
 //     panic("No root file system supplied!");
     printf("WARNING: File systems not complete!\n");
     _fs_root = kalloc(sizeof(inode_t));
-    if (_fs_root == NULL)
-      goto nomem;
+    if (_fs_root == NULL) goto nomem;
     _fs_root -> inode = _FS_ROOT_INODE;
     _fs_root -> size  = 2*sizeof(struct _FS_DIR_ENTRY);
     _fs_root -> prot  = _FS_PROT_DIR | _FS_ROOT_RIGHTS;
+    _fs_root -> usrid = 0;
+    _fs_root -> grpid = 0;
     _fs_root -> data  = kalloc(sizeof(struct _FS_FILE));
-    if (_fs_root -> data == NULL)
-      goto nomem;
+    if (_fs_root -> data == NULL) goto nomem;
     _fs_root -> data -> start = kalloc (_fs_root -> size);
-    if (_fs_root -> data -> start == NULL)
-      goto nomem;
+    if (_fs_root -> data -> start == NULL) goto nomem;
     _fs_root -> data -> end = (char*)((unsigned long) _fs_root -> data -> start + _fs_root -> size);
     _fs_root -> data -> read = _fs_root -> data -> start;
     _fs_root -> data -> write = _fs_root -> data -> start;
@@ -73,9 +72,23 @@ nomem:
   panic("Not enough memory in fsInit!");
 }
 
-int mkdir (char* name, inode_t* parent, unsigned int prot)
+int mkdir (char* name, inode_t* parent, unsigned int prot, int usrid, int grpid)
 {
+  inode_t *tmp = kalloc(sizeof(inode_t));
+  if (tmp == NULL) goto nomem;
+  tmp -> prot  = _FS_PROT_DIR | prot;
+  tmp -> drv   = parent -> drv;
+  tmp -> inode = 0;
+  tmp -> usrid = usrid;
+  tmp -> grpid = grpid;
+  tmp -> data  = kalloc(sizeof(FILE));
+  if (tmp -> data == NULL) goto nomem;
   
+  return 0;
+  
+nomem:
+  panic("Not enough memory in mkdir");
+  return -1;
 }
 
 void list(inode_t *dir)
