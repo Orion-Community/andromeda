@@ -32,42 +32,31 @@
 #define HEAPSIZE 0x10000000
 
 unsigned char stack[0x10000];
-extern mutex_t pageLock;
-extern void wait();
 
 int init(unsigned short memorymap[], module_t mods[])
 {
   // Install all the necessary data for complex memory management
-  printf("-11Lock: %x\n", pageLock);
   memcpy(bitmap, memorymap, PAGES);
   memcpy(modules, mods, MAX_MODS);
-  printf("0Lock: %x\n", pageLock);
-  wait();
   
   // Set up the new screen
   textInit();
-  printf("1Lock: %x\n", pageLock);
   // Install a new heap at the right location.
   heapStub();
   extendHeap(&end, HEAPSIZE);
-  printf("2Lock: %x\n", pageLock);
   
   // Set up the new interrupts
   intInit();
   // Let's create our own page tables and directory
   corePaging();
-  printf("3Lock: %x\n", pageLock);
   
   // Set the CPU up so that it no longer requires the nano image
   setGDT();
-  printf("4Lock: %x\n", pageLock);
   // Set up the filesystem
   #ifndef NOFS
     fsInit(NULL);
     list(_fs_root);
   #endif
-  
-  wait();
   
   #ifdef BEEP
     printf("Beep...");
@@ -77,23 +66,19 @@ int init(unsigned short memorymap[], module_t mods[])
   
   #ifdef GRAPHICS
     if (!vgaInit())
-      panic("Initizing VGA driver failt!");
-  printf("5Lock: %x\n", pageLock);
+      panic("Initizing VGA driver failed!");
     /**
      * Test vga driver...
      */
     imageBuffer img = newImageBuffer(32,32);         // Create a new image buffer (25 x 20 pixels)
-  printf("6Lock: %x\n", pageLock);
     int i = 0;
     for (;i<32;i++)
     {
       memset((void*)((int)img.buffer+i*32),(i+1),i); // Make a figure.
     }
-  printf("7Lock: %x\n", pageLock);
     drawBuffer(img,64,64);                           // Draw the buffer at [64,64]!
     drawBufferPart(img,46,64,16,32,0,0);             // Draw buffer from [0,0] to [16,32] at [46,64]!
     updateScreen();                                  // As we have no timer jet, manual screen refresh.
-  printf("8Lock: %x\n", pageLock);
   #endif
   
   // In the future this will do a little more
