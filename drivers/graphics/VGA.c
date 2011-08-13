@@ -90,6 +90,7 @@ int setVideoMode(int mode)
 	if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
 		return -1;
 
+	memset(0xA0000,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
 	memset(screenbuf,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
 	videoMode = mode;
 	updateScreen();
@@ -104,10 +105,6 @@ int setVideoMode(int mode)
 
 // misc out (3c2h) value for various modes
 
-/**
- * For these numbers see: http://wiki.osdev.org/VGA_Hardware#List_of_register_settings
- */
-
 void outpw(unsigned short port, unsigned short value)
 {
 	asm volatile ("outw %%ax,%%dx": :"dN"(port), "a"(value));
@@ -117,6 +114,10 @@ void outp(unsigned short port, unsigned char value)
 {
 	asm volatile ("outb %%al,%%dx": :"dN"(port), "a"(value));
 }
+
+/**
+ * For these numbers see: http://wiki.osdev.org/VGA_Hardware#List_of_register_settings
+ */
 
 #define R_COM  0x63 // "common" bits
 
@@ -268,15 +269,7 @@ int setModeViaPorts(int width, int height,int chain4)
 }
 
 /**
- * 
- */
-void switchPlane()
-{
-	;
-}
-
-/**
- * 
+ * Not info jet!
  * 
  * 
  */
