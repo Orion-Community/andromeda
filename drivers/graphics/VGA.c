@@ -35,8 +35,9 @@ struct videoMode_s
 };
 
 const struct videoMode_s videoModes[2] = {
-    {  320,  200, 1, true},  // 320  x 200  x 256
-    {  600,  400, 1, false}, // 320  x 200  x 256
+    { 320, 200, 1, true }, // 320 x 200 x 256 (linear) <-- Highest linear resolution!
+    { 320, 200, 1, false}, // 320 x 200 x 256 (planar)
+    { 600, 400, 1, false}, // 600 x 400 x 256 (planar) <-- Highest VGA resolution!
   };
 char* screenbuf; // sreen buffer, containing all pixels that should be written to the screen.
 int videoMode;   // the current video mode.
@@ -82,13 +83,13 @@ int setVideoMode(int mode)
 	screenbuf = kalloc( videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth );
 
 	if(screenbuf==NULL)
-		screenbuf = 0xA0000; //return -1;
+		{screenbuf = 0xA0000;printf("kalloc(%i) returned NULL!\n",videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);return -1;}
 
 	if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
-		return -1;
-
-	memset(0xA0000,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
-	memset(screenbuf,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
+		{printf("setModeViaPorts(%i,%i,%i) failed!\n",videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0);return -1;}
+	memset(0xA0000,11,16);
+	memset(screenbuf,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth); //hangs
+	memset(0xA0010,11,16);
 	videoMode = mode;
 	updateScreen();
 	return 0;
@@ -266,28 +267,49 @@ int setModeViaPorts(int width, int height,int chain4)
 }
 
 /**
-<<<<<<< HEAD
- * Not info jet!
-=======
- * 
->>>>>>> 34bde5757279ce1300e0538c16c772f00c97a3cb
+ * No info jet!
  * 
  * 
  */
 void updateScreen()
 {
-  /**
-   * @TODO
-   *   - check if this works for all videoModes.
-   */
-  if(videoModes[videoMode].chain4)
-    memcpy(
-      screenbuf ,
-      (void*)0xA0000 ,
-      videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth
-    );
-  else
-    panic("Cannot switch plains jet...");
+	if(videoModes[videoMode].chain4)
+		memcpy(
+			screenbuf ,
+			(void*)0xA0000 ,
+			videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth
+		);
+	else
+	{
+		int            size   = videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth / 4;
+		unsigned int   i      = 0                               ,
+		               i2                                       ;
+		unsigned char* plane1 = (unsigned char*)(0xA0000)       ;
+		unsigned char* plane2 = (unsigned char*)(0xA0000+size)  ; //  ]
+		unsigned char* plane3 = (unsigned char*)(0xA0000+2*size); //  ]-> these adress seem to be wrong.
+		unsigned char* plane4 = (unsigned char*)(0xA0000+3*size); //  ]
+		unsigned char* buf    = screenbuf                       ;
+
+		for(; i < size; i++)
+		{
+			*plane1 = (unsigned char)0;
+			*plane2 = (unsigned char)0;
+			*plane3 = (unsigned char)0;
+			*plane4 = (unsigned char)0;
+			for(i2=0;i2<4;i2++)
+			{
+				*plane1 |= (unsigned char)( (*buf     ) & 0x03 );
+				*plane2 |= (unsigned char)( (*buf << 2) & 0x03 );
+				*plane3 |= (unsigned char)( (*buf << 4) & 0x03 );
+				*plane4 |= (unsigned char)( (*buf << 6) & 0x03 );
+				buf++;
+			}
+			plane1++;
+			plane2++;
+			plane3++;
+			plane4++;
+		}
+	}
 }
 
 /**
