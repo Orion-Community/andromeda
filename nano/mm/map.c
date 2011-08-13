@@ -38,6 +38,8 @@ boolean claimPage(unsigned long page, unsigned short owner)
 
 pageState_t* allocPage(unsigned short owner)
 {
+  if (pageLock != 0)
+    printf("Lock state: %X\n", (int)pageLock);
   mutexEnter(pageLock);
   unsigned long i;
   pageState_t* addr = kalloc(sizeof(pageState_t));

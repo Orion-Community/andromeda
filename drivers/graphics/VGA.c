@@ -20,6 +20,11 @@
 #include "Include/VGA.h"
 #include "Include/text.h" 
 
+void wait()
+{
+  int i = 0;
+  for (; i < 0x1FFFFFFF; i++);
+}
 
 struct videoMode_s
 {
@@ -50,9 +55,14 @@ bool vgaInit()
    *   - get videomode from settings file.
    */
   int mode = 0; //should become a user defined videomode,  from a settings file.
-  
+  printf("1) start\n");
+  examineHeap();
+  wait();
   screenbuf = kalloc(1); // while there's no timer, we cannot buffer the screen...
-  
+  printf("Screenbuf: %X\n", (int)screenbuf);
+  printf("2) alloc\n");
+  examineHeap();
+  wait();
   if ( setVideoMode( mode ) == -1 )
     if ( setVideoMode(0) == -1 )
       return false;
@@ -80,7 +90,15 @@ int setVideoMode(int mode)
    *   int ret = someDoInteruptFunction( 10h , videoModes[mode] -> return , videoModes[mode] -> ah , videoModes[mode] -> ax );
    */
   free(screenbuf);
+  printf("3) free\n");
+  examineHeap();
+  wait();
+  printf("Test!\n");
   screenbuf = kalloc( videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth );
+  printf("4) alloc\n");
+  examineHeap();
+  wait();
+  halt();
   if(screenbuf==NULL)
     return -1;
   if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
