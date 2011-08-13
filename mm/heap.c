@@ -37,7 +37,7 @@ extendHeap(void* base, int size)
 {
   mutexEnter(prot);
   memNode_t* node = (memNode_t*)base;
-  initHdr(node, STUBSIZE-sizeof(memNode_t));
+  initHdr(node, size-sizeof(memNode_t));
   memNode_t* tmp;
   for (tmp = blocks; tmp->next < node && tmp->next != NULL; tmp = tmp->next);
   memNode_t* tmpNext = tmp->next;

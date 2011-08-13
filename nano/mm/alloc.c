@@ -43,18 +43,16 @@ memNode_t* split(memNode_t* block, size_t size);
 memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned);
 memNode_t* merge(memNode_t* alpha, memNode_t* beta);
 
-#ifdef MMTEST
 // Debugging function used to examine the heap
 void examineHeap()
 {
 	printf("Head\n0x%X\n", (int) blocks);
-	memNode_t* carrige;
-	for (carrige = blocks; carrige!=NULL; carrige=carrige->next)
+	memNode_t* carige;
+	for (carige = blocks; carige!=NULL; carige=carige->next)
 	{
-		printf("node: 0x%X\tsize: 0x%X\n", (int)carrige, carige->size);
+		printf("node: 0x%X\tsize: 0x%X\n", (int)carige, carige->size);
 	}
 }
-#endif
 
 // This code is called whenever a new block header needs to be created.
 // It initialises the header to a good position and simplifies the code a bit.
@@ -90,18 +88,17 @@ void* nalloc(size_t size)
 // page alligned data (usefull for the page directory).
 void* alloc (size_t size, boolean pageAlligned)
 {
-	mutexEnter(prot);
 	if(size > ALLOC_MAX)
 	{
-		mutexRelease(prot);
 		return NULL;
 	}
-	memNode_t* carrige;
-	for(carrige = blocks; carrige!=NULL; carrige=carrige->next)
+	mutexEnter(prot);
+	memNode_t* carige;
+	for(carige = blocks; carige!=NULL; carige=carige->next)
 	{
 		if (pageAlligned == TRUE)
 		{
-			if (!carrige->used)
+			if (!carige->used)
 			{
 				/* 
 				 * If the block isn't used and the block should be alligned with the page boundary
@@ -111,14 +108,14 @@ void* alloc (size_t size, boolean pageAlligned)
 				 * The code figures out the required offset for the block to be able to hold the desired
 				 * block.
 				 */
-				unsigned long offset = PAGEBOUNDARY-((long)carrige+sizeof(memNode_t))%PAGEBOUNDARY;
+				unsigned long offset = PAGEBOUNDARY-((long)carige+sizeof(memNode_t))%PAGEBOUNDARY;
 				offset %= PAGEBOUNDARY;
 				unsigned long blockSize = offset+size;
 				
-				if (carrige->size >= blockSize) // if the size is large enough to be split into
+				if (carige->size >= blockSize) // if the size is large enough to be split into
 								// page alligned blocks, then do it.
 				{
-					memNode_t* ret = splitMul(carrige, size, TRUE); // Split the block
+					memNode_t* ret = splitMul(carige, size, TRUE); // Split the block
 					useBlock(ret); // Mark the block as used
 
 					//return the desired block
@@ -139,25 +136,25 @@ void* alloc (size_t size, boolean pageAlligned)
 				continue;
 			}
 		}
-		else if (carrige->size >= size && carrige->size < size+sizeof(memNode_t))
+		else if (carige->size >= size && carige->size < size+sizeof(memNode_t))
 		{
-			if (useBlock(carrige) == TRUE) // check the usage of the block
+			if (useBlock(carige) == TRUE) // check the usage of the block
 			{
 				continue;
 			}
 			// If the block is the right size or too small to hold 2 separate blocks,
 			// In which one of them is the size allocated, then allocate the entire block.
 			mutexRelease(prot);
-			return (void*)carrige+sizeof(memNode_t);
+			return (void*)carige+sizeof(memNode_t);
 		}
-		else if(carrige->size >= size+sizeof(memNode_t)) // the block is too large
+		else if(carige->size >= size+sizeof(memNode_t)) // the block is too large
 		{
-			if(carrige->used!=FALSE) // assert that the block isn't used
+			if(carige->used!=FALSE) // assert that the block isn't used
 			{
 				continue;
 			}
 			
-			memNode_t* tmp = split(carrige, size);  // split the block
+			memNode_t* tmp = split(carige, size);  // split the block
 			if(useBlock(tmp) == TRUE) // mark the block used.
 			{
 				continue;
@@ -165,8 +162,11 @@ void* alloc (size_t size, boolean pageAlligned)
 			mutexRelease(prot);
 			return (void*)tmp+sizeof(memNode_t);
 		}
-		if (carrige->next == NULL || carrige->next == carrige)
+		if (carige->next == NULL || carige->next == carige)
 		{
+			printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tnext: %X\n", (int)blocks, (int)carige, (int)carige->next);
+			if (carige->next == carige)
+			  printf("Loop in list!\n");
 			break; 	// If we haven't found anything but we're at the end of the list
 				// or heap corruption occured we break out of the loop and return
 				// the default pointer (which is NULL).
@@ -185,7 +185,7 @@ int free (void* ptr)
 	  return -1;
 	mutexEnter(prot);
 	memNode_t* block = (void*)ptr-sizeof(memNode_t);
-	memNode_t* carrige;
+	memNode_t* carige;
 	if (block->hdrMagic != HDRMAGIC)
 	{
 		mutexRelease(prot);
@@ -210,12 +210,12 @@ int free (void* ptr)
 	printf("\n");
 	#endif
 	// Now find a place for the block to fit into the heap list
-	for (carrige = blocks; carrige!=NULL; carrige=carrige->next) // Loop through the heap list
+	for (carige = blocks; carige!=NULL; carige=carige->next) // Loop through the heap list
 	{
 		// if we found the right spot, merge the lot.
-		if ((void*)block+block->size+sizeof(memNode_t) == (void*)carrige || (void*)carrige+carrige->size+sizeof(memNode_t) == (void*)block)
+		if ((void*)block+block->size+sizeof(memNode_t) == (void*)carige || (void*)carige+carige->size+sizeof(memNode_t) == (void*)block)
 		{
-			memNode_t* test = merge(block, carrige); // merging code
+			memNode_t* test = merge(block, carige); // merging code
 			if (test == NULL) // if the merge failed
 			{
 				printf("Merge failed\n");
@@ -231,7 +231,7 @@ int free (void* ptr)
 			else
 			{
 				block = test;
-				carrige = test;
+				carige = test;
 				// We can now continue trying to merge the rest of the list, which might be possible.
 			}
 		}
@@ -283,7 +283,7 @@ void returnBlock(memNode_t* block)
 		return;
 	}
 	block->used = FALSE;
-	memNode_t* carrige;
+	memNode_t* carige;
 	if ((void*)block < (void*)blocks)
 	{// if we're at the top of the heap list add the block there.
 		blocks -> previous = block;
@@ -293,26 +293,26 @@ void returnBlock(memNode_t* block)
 		return;
 	}
 	// We're apparently not at the top of the list
-	for (carrige=blocks; carrige!=NULL; carrige=carrige->next) // Loop through the heap list.
+	for (carige=blocks; carige!=NULL; carige=carige->next) // Loop through the heap list.
 	{
-		if ((void*)carrige+sizeof(memNode_t)+carrige->size == block) // if the carrige connects to the bottom of our block
+		if ((void*)carige+sizeof(memNode_t)+carige->size == block) // if the carige connects to the bottom of our block
 		{
-			block -> next = carrige -> next;
-			block -> previous = carrige;
-			carrige -> next = block;
-			return; // add the block to the list after the carrige
+			block -> next = carige -> next;
+			block -> previous = carige;
+			carige -> next = block;
+			return; // add the block to the list after the carige
 		}
-		else if ((void*)block+sizeof(memNode_t)+block->size == carrige) // if the block connects to the bottom of the carrige
+		else if ((void*)block+sizeof(memNode_t)+block->size == carige) // if the block connects to the bottom of the carige
 		{
-			block -> next = carrige;
-			block -> previous = carrige -> previous;
-			carrige -> previous = block;
-			return; // add the block to the list before the carrige
+			block -> next = carige;
+			block -> previous = carige -> previous;
+			carige -> previous = block;
+			return; // add the block to the list before the carige
 		}
-		else if (carrige->next == NULL)
+		else if (carige->next == NULL)
 		{
-			carrige -> next = block;
-			block -> previous = carrige;
+			carige -> next = block;
+			block -> previous = carige;
 			return; // if we have gotten to the end of the heap we must add the block here
 		}
 	}

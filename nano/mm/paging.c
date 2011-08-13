@@ -44,6 +44,7 @@
  * be done.
  */
 
+boolean state = COMPRESSED;
 void cPageFault(isrVal_t regs)
 {
   #ifdef DBG
@@ -70,7 +71,7 @@ void cPageFault(isrVal_t regs)
   else if (!PRESENT && WRITE)
   {
     // Allocate page here!
-    pageState_t* phys = allocPage(COMPRESSED);
+    pageState_t* phys = allocPage(state);
     #ifdef DBG
     printf("Virt: 0x%x\n", page);
     #endif
@@ -87,7 +88,7 @@ void cPageFault(isrVal_t regs)
       #ifdef DBG
       printf("Virt: 0x%x\n", page);
       #endif
-      freePage((void*)phys->addr, COMPRESSED);
+      freePage((void*)phys->addr, state);
       panic("Setting the page failed dramatically!");
     }
     #ifdef DBG

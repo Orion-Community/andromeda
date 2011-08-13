@@ -91,6 +91,11 @@ boolean setupCore(module_t mod)
   // Switch to graphical mode
   // Switch context to core image
   
+  int* show = 0xc0008014;
+  
+  printf("lockState: %X\n", *show);
+  int i = 0;
+  for (;i < 0x1FFFFFFF; i++);
   elfJmp(mod.addr);
   
   return FALSE; //Doesn't get reached, ever, if all goes well

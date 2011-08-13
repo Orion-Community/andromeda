@@ -20,6 +20,11 @@
 #include "Include/VGA.h"
 #include "Include/text.h" 
 
+void wait()
+{
+  int i = 0;
+  for (; i < 0x1FFFFFFF; i++);
+}
 
 struct videoMode_s
 {

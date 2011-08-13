@@ -27,6 +27,7 @@
 #define MODULE	   0x0001
 #define COMPRESSED 0x0002
 #define MAPPEDIO   0x0003
+#define CORE       0x0004
 #define NOTUSABLE  0xFFFF
 
 #define MAX_MODS   0x20

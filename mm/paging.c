@@ -22,8 +22,13 @@
 
 #ifdef __INTEL
 
+extern mutex_t pageLock;
+extern boolean state;
+
 void corePaging()
 {
+  state = CORE;
+  pageLock = 0;
   printf("Warning! Page tables haven't been implemented in high memory yet!\n");
 }
 #endif
