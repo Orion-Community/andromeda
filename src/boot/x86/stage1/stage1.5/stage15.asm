@@ -95,7 +95,7 @@ main:
 	cmp eax, OL_SECTOR_BLOCK
 	jb .lastsectors		; when there are less then x sectors to read
 
-	sub ax, OL_SECTOR_BLOCK	; prevent endless loop
+	sub eax, OL_SECTOR_BLOCK	; prevent endless loop
 	push eax
 	mov ax, OL_SECTOR_BLOCK
 	
@@ -145,9 +145,7 @@ main:
 	jmp .looptop
 
 .end:
-; 	mov edi, 0x1100000
-; 	mov ax, word [endptr]
-; 	mov [ds:edi], ax
+
 	pop dx
 	pop si
 

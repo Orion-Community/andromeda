@@ -44,7 +44,7 @@ bool ctrl = FALSE;
 bool endkey = FALSE;
 void cIRQ1(ol_irq_stack_t regs)
 {
-	char c = inb(0x60);
+	uint8_t c = inb(0x60);
 
 	if(c & 0x80)
 	{

@@ -58,7 +58,7 @@ void kmain(ol_mmap_register_t mmr)
 	uint8_t eax = ata_identify();
 	printnum(active, 16, FALSE, FALSE);
 #endif
-
+        
 	putc(0xa);
 
 	println("Waiting for service interrupts..");

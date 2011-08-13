@@ -104,6 +104,4 @@ mmap_entry:	; 0x18-byte mmap entry
 	length dq 0	; length (top_addr - base_addr)
 	type dd 0	; entry type
 	acpi3 dd 0	; acpi 3.0 compatibility => should be 1
-
-[EXTERN mmr]
 %endif

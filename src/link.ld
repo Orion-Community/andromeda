@@ -23,7 +23,7 @@ SECTIONS
 		bss = .; _bss = .; __bss = .;
 		*(.bss)
 		*(COMMON)
-		. = ALIGN(4096);
+                . = ALIGN(4096);
 	}
 	.end ALIGN(2) : AT(phys + (end - code))
 	{

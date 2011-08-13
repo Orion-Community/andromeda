@@ -121,7 +121,8 @@ calcsectors:
 	call int13read	; read the sector which contains pmodemain
 	mov eax, dword [OL_SECTOR_BUFFER+2]
 
-	sub eax, 0x100000 ; offset of stage 1.5 (0x7E00) + its file size (0x400) = size
+	sub eax, OL_DESTINATION_BUFFER ; offset of stage 1.5 (0x7E00) + its file 
+                                       ; size (0x400) = size
 	test eax, 0x1FF ; ax % 512
 	jz .powof2
 ; 	jmp .powof2 ; bugged
