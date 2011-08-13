@@ -55,10 +55,7 @@ void memset(void *dest, int sval, size_t count)
 {
   if(!count){return;}
   sval &= 0x000000ff;
-  sval |= (sval << 8)  & 0xff00;
-  sval |= (sval << 16) & 0xffff0000;
 #ifndef X86 //64 bit int is only faster at X86, X64 prefers 2 time 32 int
-  sval |= (sval << 32) & 0xffffffff00000000;
   unsigned long long val = (unsigned long long)sval;
   char i = 8;
   for(;i<64;i+=8)

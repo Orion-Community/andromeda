@@ -29,5 +29,8 @@ typedef struct imageBuffer_s imageBuffer;
 
 void imageBufferCpy(imageBuffer src, imageBuffer dest, int x, int y);
 void imageBufferPartCpy(imageBuffer src, imageBuffer dest, int x, int y, int width, int height, int partx, int party);
+void drawBuffer(imageBuffer src, int x, int y);
+void drawBufferPart(imageBuffer src, int x, int y, int width, int height, int partx, int party);
+imageBuffer newImageBuffer(int width, int height);
 
 #endif

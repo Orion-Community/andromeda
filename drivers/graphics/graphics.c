@@ -80,10 +80,12 @@ void imageBufferCpy(imageBuffer src, imageBuffer dest, int x, int y)
 void imageBufferPartCpy(imageBuffer src, imageBuffer dest, int x, int y, int width, int height, int partx, int party)
 {
   int i       = 0,
-      maxX    = (dest.width>width+x)?width:dest.width-x,
-      maxY    = (dest.height>height+y)?height:dest.height-y,
+      maxX    = (src.width>width+partx)?width:src.width-partx,
+      maxY    = (src.height>height+party)?height:src.height-party,
       crsPix  = (int)src.buffer + (src.width * party) + partx,
       destPix = (int)dest.buffer + x + dest.width*y;
+      maxX    = (dest.width>maxX+x)?maxX:dest.width-x;
+      maxY    = (dest.height>maxY+y)?maxY:dest.height-y;
   for(;i<maxY;i++)
   {
     memcpy((void*)destPix,(void*)crsPix,maxX);
@@ -138,4 +140,14 @@ void drawBuffer(imageBuffer src, int x, int y)
 void drawBufferPart(imageBuffer src, int x, int y, int width, int height, int partx, int party)
 {
   imageBufferPartCpy(src, getScreenBuf(), x, y, width, height, partx, party);
+}
+
+/**
+ * 
+ */
+imageBuffer newImageBuffer(int width, int height)
+{
+  imageBuffer img = (imageBuffer){kalloc(width*height*getScreenDepth()),width,height};
+  memset(img.buffer,0,width*height*getScreenDepth());
+  return img;
 }
