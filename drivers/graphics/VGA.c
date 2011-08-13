@@ -283,15 +283,15 @@ void updateScreen()
 			(void*)0xA0000 ,
 			videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth
 		);
-	else // Planar mode almost works :)...
+	else
 	{
 		int            size   = videoModes[videoMode].width * videoModes[videoMode].height * videoModes[videoMode].depth / 4;
 		unsigned int   i      = 0                               ,
 		               i2                                       ;
 		unsigned char* plane1 = (unsigned char*)(0xA0000)       ;
-		unsigned char* plane2 = (unsigned char*)(0xA0000+size)  ;
-		unsigned char* plane3 = (unsigned char*)(0xA0000+2*size);
-		unsigned char* plane4 = (unsigned char*)(0xA0000+3*size);
+		unsigned char* plane2 = (unsigned char*)(0xA0000+size)  ; //  ]
+		unsigned char* plane3 = (unsigned char*)(0xA0000+2*size); //  ]-> these adress seem to be wrong.
+		unsigned char* plane4 = (unsigned char*)(0xA0000+3*size); //  ]
 		unsigned char* buf    = screenbuf                       ;
 
 		for(; i < size; i++)
