@@ -34,8 +34,8 @@ void fsInit(inode_t* root)
 {
   if (root == NULL)
   {
-//     panic("No root file system supplied!");
     printf("WARNING: File systems not complete!\n");
+    /*
     _fs_root = kalloc(sizeof(inode_t));
     if (_fs_root == NULL) goto nomem;
     _fs_root -> inode = _FS_ROOT_INODE;
@@ -62,6 +62,28 @@ void fsInit(inode_t* root)
     root[1].virtInode = kalloc(sizeof(inode_t));
     root[1].nameSize = strlen(devPath);
     root[1].name = devPath;
+
+    */
+    
+    _fs_root = kalloc(sizeof(inode_t));
+    if (_fs_root == NULL) goto nomem;
+    _fs_root -> inode = _FS_ROOT_INODE;
+    _fs_root -> size  = 0;
+    _fs_root -> prot  = _FS_PROT_DIR | _FS_ROOT_RIGHTS;
+    _fs_root -> usrid = 0;
+    _fs_root -> grpid = 0;
+    _fs_root -> data  = kalloc(sizeof(FILE));
+    if (_fs_root -> data == NULL) goto nomem;
+    _fs_root -> data -> start = NULL;
+    _fs_root -> data -> end   = NULL;
+    _fs_root -> data -> read  = NULL;
+    _fs_root -> data -> write = NULL;
+    _fs_root -> data -> buffered = TRUE;
+    _fs_root -> data -> dirty = FALSE;
+    
+    mkdir ("proc", _fs_root, _FS_ROOT_RIGHTS, 0, 0);
+    mkdir ("dev",  _fs_root, _FS_ROOT_RIGHTS, 0, 0);
+    
   }
   else
   {
@@ -74,30 +96,85 @@ nomem:
 
 int mkdir (char* name, inode_t* parent, unsigned int prot, int usrid, int grpid)
 {
-  inode_t *tmp = kalloc(sizeof(inode_t));
-  if (tmp == NULL) goto nomem;
-  tmp -> prot  = _FS_PROT_DIR | prot;
-  tmp -> drv   = parent -> drv;
-  tmp -> inode = 0;
-  tmp -> usrid = usrid;
-  tmp -> grpid = grpid;
-  tmp -> data  = kalloc(sizeof(FILE));
-  if (tmp -> data == NULL) goto nomem;
-  tmp->data->start = NULL;
-  tmp->data->end   = NULL;
-  tmp->data->read  = NULL;
-  tmp->data->write = NULL;
+  unsigned int entries = parent -> size / sizeof(struct _FS_DIR_ENTRY);
   
-  size_t newparent = parent -> size;
-  newparent += sizeof(struct _FS_DIR_ENTRY);
-  parent -> size = newparent;
-  parent -> data = realloc(parent -> data);
+  parent -> size += sizeof(struct _FS_DIR_ENTRY);
+
+  
   
   return 0;
   
 nomem:
   panic("Not enough memory in mkdir");
   return -1;
+}
+
+int write (FILE* fp, char* buf, size_t num)
+{
+  if (fp -> buffered == FALSE) panic("Unbuffered files not supported yet!");
+  if (fp -> start == NULL)
+  {
+    if (fp -> dirty)
+      panic("Uninitialised dirty file!!!");
+    fp -> start = kalloc(num);
+    if (fp -> start == NULL) goto nomem;
+    fp -> end   = (char*)((unsigned long)fp -> start + num);
+    fp -> read  = fp -> start;
+    fp -> write = fp -> start;
+    fp -> size  = 0;
+  }
+  
+  long toAdd = (long) fp -> end - (long) fp -> write + num;
+  toAdd = (toAdd <= 0) ? 0 : toAdd;
+  fp -> size += toAdd;
+  
+  int idx = 0;
+  
+  for (; idx < num; idx++)
+  {
+    *(char*)((long)fp -> write) = *(char*)((long)buf + idx);
+    (long)fp -> write ++;
+  }
+  
+  return 0;
+  
+  nomem:
+  panic("Not enough memory in mkdir");
+  return -1;
+}
+
+int read (FILE* fp, char* buf, size_t num)
+{
+  if (fp -> read > fp -> end || fp -> read > fp -> write)
+    return -1;
+  // We don't do anything yet!
+  return -1;
+}
+
+int seek (FILE* fp, long offset, int from)
+{
+  unsigned long position = 0;
+  switch (from)
+  {
+    case SEEK_SET:
+      position = (unsigned long)fp -> start;
+      break;
+    case SEEK_RD:
+      position = (unsigned long)fp -> read;
+      break;
+    case SEEK_WRT:
+      position = (unsigned long)fp -> write;
+      break;
+    case SEEK_END:
+      position = (unsigned long)fp -> end;
+      break;
+  }
+  position += offset;
+  if (position > (unsigned long)fp -> end)
+    return -1;
+  fp -> write = (char*)(position);
+  fp -> read  = (char*)(position);
+  return 0;
 }
 
 void list(inode_t *dir)
@@ -112,7 +189,14 @@ void list(inode_t *dir)
   }
 }
 
-FILE* fopen()
+FILE* open()
 {
-  panic("fopen Requires a file system!");
+  printf("Warning! Files can't be opened yet!\n");
+  return NULL;
+}
+
+int close(FILE* fp)
+{
+  printf("Warining! File buffers can't be synchronised yet!\n");
+  return -1;
 }

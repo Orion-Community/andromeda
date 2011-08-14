@@ -31,6 +31,7 @@ struct _FS_FILE
   struct _FS_FILE* chain; // Next inode, if this one isn't large enough
   char* path;  // Path to file
   boolean buffered; // TRUE for buffered
+  boolean dirty;
 };
 
 typedef struct _FS_FILE FILE;
