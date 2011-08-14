@@ -83,6 +83,15 @@ int mkdir (char* name, inode_t* parent, unsigned int prot, int usrid, int grpid)
   tmp -> grpid = grpid;
   tmp -> data  = kalloc(sizeof(FILE));
   if (tmp -> data == NULL) goto nomem;
+  tmp->data->start = NULL;
+  tmp->data->end   = NULL;
+  tmp->data->read  = NULL;
+  tmp->data->write = NULL;
+  
+  size_t newparent = parent -> size;
+  newparent += sizeof(struct _FS_DIR_ENTRY);
+  parent -> size = newparent;
+  parent -> data = realloc(parent -> data);
   
   return 0;
   
