@@ -67,7 +67,7 @@ ps2read:
 	dec cx
 	jz .end
 	call ps2readwait
-
+	test al, al
 	jz .looptop
 
 	in al, OL_PS2_DATA_PORT
@@ -94,27 +94,28 @@ ps2await_ack:
 	pushad
 	mov ecx, 6	; give it up to 4 tries
 
-.looptop:
+; "$-13"
+
 	xor eax, eax
-	dec ecx
+	dec cx
 	jz .end
 
 	call ps2writewait	; wait for write
 	test al, al
-	jz .looptop	; returns non-zero in al if you can write
+	jz $-13	; returns non-zero in al if you can write
 
 	mov al, dl
 	out OL_PS2_DATA_PORT, al	; write requested data
 	mov ecx, 6	; try 5 times
 
-.looptop2:
+; "$-13"
 	xor eax, eax
 	dec cx
-	jz .end
+	jz .end		; try enough. end it
 
-	call ps2readwait
+	call ps2readwait	; wait for read
 	test al, al
-	jz .looptop2
+	jz $-13		; it returns non-zero when ok
 	
 	in al, OL_PS2_DATA_PORT
 	and eax, 0xff
