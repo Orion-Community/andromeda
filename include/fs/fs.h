@@ -87,4 +87,9 @@ void fsInit(inode_t* root);
 struct _FS_INODE* vfsInit(size_t size, unsigned int protection);
 void list(inode_t *dir);
 
+#define SEEK_SET 0
+#define SEEK_RD  1
+#define SEEK_WRT 2
+#define SEEK_END 3
+
 #endif
