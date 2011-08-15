@@ -102,7 +102,7 @@ ps2await_ack:
 
 	call ps2writewait	; wait for write
 	test al, al
-	jz $-13	; returns non-zero in al if you can write
+	jz short $-13	; returns non-zero in al if you can write
 
 	mov al, dl
 	out OL_PS2_DATA_PORT, al	; write requested data
@@ -115,7 +115,7 @@ ps2await_ack:
 
 	call ps2readwait	; wait for read
 	test al, al
-	jz $-13		; it returns non-zero when ok
+	jz short $-13		; it returns non-zero when ok
 	
 	in al, OL_PS2_DATA_PORT
 	and eax, 0xff
