@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 #ifndef __KEYBOARD_H_
-#define __KEYBOARD_H_ 1
+#define __KEYBOARD_H_
 
 #define OL_NUM_LED 0x2
 #define OL_SCROLL_LED 0x1
@@ -33,7 +33,8 @@
 #define OL_KBC_DATA_PORT 0x60
 
 void kb_handle(uint8_t c);
-void toggle_kb_leds(uint8_t);
+static void toggle_kb_leds(uint8_t);
+static bool await_kb_ack(uint8_t value);
 
 typedef struct ol_kb_scancode {
 	uint8_t xt;

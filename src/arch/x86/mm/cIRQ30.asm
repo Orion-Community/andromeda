@@ -61,6 +61,8 @@ cIRQ30:
 	pop ebp
 	ret
 
+; ------------------------------------------------------------------------------
+
 ; 
 ; This function probe's for ram. It expects a starting address in esi and 
 ; the amount of bytes to probe for in ecx (note that the minimum size is 4kb). 
@@ -133,6 +135,8 @@ proberam:
 .done:
 	ret
 
+; ------------------------------------------------------------------------------
+
 ;
 ; Get a memory map from the cmos. Retuns amount of entries in ecx and a 
 ; pointer to the first entry in edx.
@@ -186,6 +190,8 @@ createmmap:
 
 	ret
 
+; ------------------------------------------------------------------------------
+
 ; 
 ; get low memory from the cmos. If it is not available, probe for it and then set it with func 1 and 2 
 ; of this interrupt.
@@ -238,6 +244,8 @@ cmoslowmmap:
 .done:
 	clc
 	ret
+
+; ------------------------------------------------------------------------------
 
 addmemoryhole:
 	pushad	; save all registers
@@ -305,6 +313,8 @@ addmemoryhole:
 	nxte
 	ret
 
+; ------------------------------------------------------------------------------
+
 copy_empty_entry:	; this subroutine copies an emty memory map to the location specified by es:edi
 	cld	; just to be sure that edi gets incremented
 	mov esi, mmap_entry
@@ -312,6 +322,8 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 	rep movsw	; copy copy copy!
 	sub edi, 0x18	; just to make addressing esier
 	ret
+
+; ------------------------------------------------------------------------------
 
 ; 
 ; Update the cmos memory registers. Amount of low memory in bytes in ebx and the amount of extended memory (in bytes) in edx.

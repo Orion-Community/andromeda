@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <sys/io.h>
 
-ol_kb_scancode_t keycodes[] = {
+static ol_kb_scancode_t keycodes[] = {
 
 	{0x0, 0xff, 0x00, 0xff, 0x00, 0xff, 0, '\0'},
 	{0x01, 0x76, 0x08, 0x1d, 0x29, 0x35,   1, '\0'},	/* Esc */
@@ -233,12 +233,28 @@ void kb_handle(uint8_t c)
 	return;
 }
 
-void toggle_kb_leds(uint8_t status)
+static void toggle_kb_leds(uint8_t status)
 {
-    while((inb(OL_KBC_STATUS_REGISTER) & 0x2) != 0);
-    //outb(OL_KBC_COMMAND_PORT, 0xed);
-    outb(OL_KBC_DATA_PORT, 0xed);
-    
-    while((inb(OL_KBC_STATUS_REGISTER) & 0x2) != 0);
-    outb(OL_KBC_DATA_PORT, status);
+        while((inb(OL_KBC_STATUS_REGISTER) & 0x2) != 0);
+        //outb(OL_KBC_DATA_PORT, 0xed);
+        
+        if(await_kb_ack(0xed))
+        {
+                while((inb(OL_KBC_STATUS_REGISTER) & 0x2) != 0);
+                outb(OL_KBC_DATA_PORT, status);
+        }
+}
+
+static bool await_kb_ack(uint8_t value)
+{
+        uint8_t val;
+top:
+        while((inb(OL_KBC_STATUS_REGISTER) & 0x2) != 0);
+        outb(OL_KBC_DATA_PORT, value);
+        while((inb(OL_KBC_STATUS_REGISTER) & 0x1) == 0);
+        val = inb(OL_KBC_DATA_PORT);
+        if(val == 0xfe) goto top;
+        
+        printnum((uint32_t) val, 16, FALSE, FALSE);
+        return TRUE;
 }

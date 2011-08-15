@@ -1,5 +1,6 @@
 ;
-;    Main line of the protected mode section.
+;    PS/2 controller header.
+;    High level drivers relay on these functions.
 ;    Copyright (C) 2011 Michel Megens
 ;
 ;    This program is free software: you can redistribute it and/or modify
@@ -16,34 +17,13 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[BITS 32]
-%ifndef __STAGE2
-[EXTERN kmain]
-[GLOBAL pmodemain]
-[GLOBAL endptr]
-[SECTION .text]
+%define OL_PS2_ACK 0xfa
+%define OL_PS2_RESEND 0xfe
 
-jmp short pmodemain
-	dd endptr
-%endif
+; read only
+%define OL_PS2_STATUS_REGISTER 0x64
+%define OL_PS2_OUTPUT_BUFFER 0x60
 
-; in unrealmode pmodemain is used to get the processor in to 32-bit protected
-; mode. Then it jumps again to the same label, but that one is located at 
-; 0x100000, which will started up the kernel.
-pmodemain:
-%ifndef __STAGE2
-	mov eax, kmain
-	call eax
-%elifdef __STAGE2
-	push mmr
-	jmp OL_DESTINATION_BUFFER
-%endif
-
-.end:
-	jmp $
-%ifndef __STAGE2
-[SECTION .end]
-endptr:
-	dd 0xdeadbeef
-%endif
-
+; write only
+%define OL_PS2_COMMAND_PORT 0x64
+%define OL_PS2_DATA_PORT 0x60
