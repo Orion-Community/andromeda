@@ -80,9 +80,14 @@ void fsInit(inode_t* root)
     _fs_root -> data -> write = NULL;
     _fs_root -> data -> buffered = TRUE;
     _fs_root -> data -> dirty = FALSE;
+    _fs_root -> data -> size = &(_fs_root -> size);
+    
+    printf("Root size: %i\n", _fs_root -> size);
     
     mkdir ("proc", _fs_root, _FS_ROOT_RIGHTS, 0, 0);
+    printf("Root size: %i\n", _fs_root -> size);
     mkdir ("dev",  _fs_root, _FS_ROOT_RIGHTS, 0, 0);
+    printf("Root size: %i\n", _fs_root -> size);
     
   }
   else
@@ -96,11 +101,16 @@ nomem:
 
 int mkdir (char* name, inode_t* parent, unsigned int prot, int usrid, int grpid)
 {
-  unsigned int entries = parent -> size / sizeof(struct _FS_DIR_ENTRY);
+  char* buf = kalloc(sizeof(struct _FS_DIR_ENTRY));
   
-  parent -> size += sizeof(struct _FS_DIR_ENTRY);
-
+  inode_t *virtInode = kalloc(sizeof(inode_t));
+  char* tmpName = kalloc(strlen(name)+1);
+  memcpy(tmpName, name, strlen(name)+1);
+  if (virtInode == NULL || tmpName == NULL) goto nomem;
   
+  struct _FS_DIR_ENTRY dir = {parent -> drv, 0, virtInode, strlen(name), tmpName};
+  
+  write (parent -> data, &dir, sizeof(struct _FS_DIR_ENTRY));
   
   return 0;
   
@@ -118,15 +128,29 @@ int write (FILE* fp, char* buf, size_t num)
       panic("Uninitialised dirty file!!!");
     fp -> start = kalloc(num);
     if (fp -> start == NULL) goto nomem;
-    fp -> end   = (char*)((unsigned long)fp -> start + num);
-    fp -> read  = fp -> start;
-    fp -> write = fp -> start;
-    fp -> size  = 0;
+    fp -> end     = (char*)((unsigned long)fp -> start + num);
+    fp -> read    = fp -> start;
+    fp -> write   = fp -> start;
+    *(fp -> size) = num;
   }
   
-  long toAdd = (long) fp -> end - (long) fp -> write + num;
+  size_t readOffset  = (long)fp -> read -  (long)fp -> start;
+  size_t writeOffset = (long)fp -> write - (long)fp -> start;
+  
+  printf("fp size %i\n", *fp->size);
+  
+  long toAdd = (long) fp -> write - (long) fp -> end + num;
+  printf("To add: %i\n", toAdd);
   toAdd = (toAdd <= 0) ? 0 : toAdd;
-  fp -> size += toAdd;
+  *(fp -> size) += toAdd;
+  
+  printf("fp size %i\n", *fp->size);
+  
+  fp -> start = realloc(fp -> start, *fp -> size);
+  if (fp -> start == NULL) goto nomem;
+  fp -> end   = (char*)((long)fp -> start + *fp -> size);
+  fp -> read  = (char*)((long)fp -> start + readOffset);
+  fp -> write = (char*)((long)fp -> start + writeOffset);
   
   int idx = 0;
   
@@ -182,6 +206,8 @@ void list(inode_t *dir)
   int size = dir -> size / sizeof (struct _FS_DIR_ENTRY);
   int i = 0;
   struct _FS_DIR_ENTRY *entries = (struct _FS_DIR_ENTRY *)dir -> data -> start;
+  printf("Entries: %X\n", entries);
+  printf("Entries.name: %X\n", entries -> name);
   printf("%i Directory entries\n", size);
   for (; i < size; i++)
   {

@@ -27,7 +27,7 @@ struct _FS_FILE
   char* end;   // End of file (within this inode)
   char* read;  // The read pointer (within this inode)
   char* write; // The write pointer (within this inode, should be >= read)
-  size_t size; // Size of this inode
+  size_t *size; // Size of this inode
   struct _FS_FILE* chain; // Next inode, if this one isn't large enough
   char* path;  // Path to file
   boolean buffered; // TRUE for buffered
