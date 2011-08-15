@@ -21,6 +21,7 @@
 #include <sys/keyboard.h>
 #include <stdlib.h>
 #include <sys/io.h>
+#include <sys/ps2.h>
 
 static ol_kb_scancode_t keycodes[] = {
 
@@ -235,13 +236,12 @@ void kb_handle(uint8_t c)
 
 static void toggle_kb_leds(uint8_t status)
 {
-        while((inb(OL_KBC_STATUS_REGISTER) & 0x2) != 0);
-        //outb(OL_KBC_DATA_PORT, 0xed);
         
-        if(await_kb_ack(0xed))
+        
+        if(ps2write(0xed))
         {
-                while((inb(OL_KBC_STATUS_REGISTER) & 0x2) != 0);
-                outb(OL_KBC_DATA_PORT, status);
+
+                ps2write(status);
         }
 }
 

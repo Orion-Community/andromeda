@@ -19,6 +19,25 @@
 [SECTION .data]
 fakeidt:	dw 0x0
 		dd 0x0
+
+regs:
+	eax_t dd 0
+	ebx_t dd 0
+	ecx_t dd 0
+	edx_t dd 0
+	esi_t dd 0
+	edi_t dd 0
+	ebp_t dd 0
+	esp_t dd 0
+	
+segs:
+	ds_t dw 0
+	cs_t dw 0
+	es_t dw 0
+	fs_t dw 0
+	gs_t dw 0
+	ss_t dw 0
+
 [SECTION .text]
 
 %include "stdlib.asmh"

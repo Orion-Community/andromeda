@@ -10,12 +10,13 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 # targets
 SYS=sys.o
 #subtargets
-SYS_DEPS=stdlib.o io.o keyboard.o
+SYS_DEPS=stdlib.o io.o keyboard.o ps2.o
 
 # source files
 IO_SRC=io.asm
 STDLIB_SRC=stdlib.asm
 KB_SRC=keyboard.c
+PS2_SRC=ps2controller.asm
 
 
 .PHONY: all
@@ -30,6 +31,9 @@ io.o:
 
 keyboard.o:
 	$(CC) $(CCFLAGS) $(KB_SRC) -o keyboard.o
+
+ps2.o: $(PS2_SRC)
+	$(AS) $(ASFLAGS) $(PS2_SRC) -o ps2.o
 
 .PHONY: clean
 clean:

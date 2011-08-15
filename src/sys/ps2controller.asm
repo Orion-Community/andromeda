@@ -18,25 +18,71 @@
 ;
 
 %include "sys/ps2.asmh"
+%include "stdlib.asmh"
 
 [SECTION .text]
 
+; write a byte to the kbc. 
 [GLOBAL ps2write]
-ps2write:
-	push ebp
+ps2write: ; bool ps2write(uint8_t val)
+	pushad
 	mov ebp, esp
+	mov ecx, 6	; give it 5 tries
 	
+.looptop:
+	dec cx
+	jz .fail
+
+	mov dl, byte [ebp+36]
+	call ps2await_ack
+	xor al, OL_PS2_RESEND
+	jz .looptop
+	mov eax, TRUE
+	jmp .end
+	
+
+.fail:
+	xor eax, eax
+
+.end:
+	add esp, 8
 	pop ebp
+	add esp, 4
+	pop ebx
+	pop edx
+	pop ecx
+	add esp, 4
 	ret
 
 ; ------------------------------------------------------------------------------
 
 [GLOBAL ps2read]
 ps2read:
-	push ebp
-	mov ebp, esp
+	pushad
+
+	mov ecx, 6	; 5 tries
+
+.looptop:
+	xor eax, eax
+	dec cx
+	jz .end
+	call ps2readwait
+
+	jz .looptop
+
+	in al, OL_PS2_DATA_PORT
+	and eax, 0xff
 	
+.end:
+	pop edi
+	pop esi
 	pop ebp
+	add esp, 4 ; 'pop' esp
+	pop ebx
+	pop edx
+	pop ecx
+	add esp, 4 ; 'pop' eax
+
 	ret
 
 ; ------------------------------------------------------------------------------
@@ -46,12 +92,11 @@ ps2read:
 ; It expects the value to write in dl.
 ps2await_ack:
 	pushad
-	mov ebp, esp
-	mov cx, 6	; give it up to 4 tries
+	mov ecx, 6	; give it up to 4 tries
 
 .looptop:
 	xor eax, eax
-	dec cx
+	dec ecx
 	jz .end
 
 	call ps2writewait	; wait for write
@@ -60,7 +105,7 @@ ps2await_ack:
 
 	mov al, dl
 	out OL_PS2_DATA_PORT, al	; write requested data
-	mov cx, 6	; try 5 times
+	mov ecx, 6	; try 5 times
 
 .looptop2:
 	xor eax, eax
@@ -69,10 +114,13 @@ ps2await_ack:
 
 	call ps2readwait
 	test al, al
-	jnz .looptop2
+	jz .looptop2
 	
+	in al, OL_PS2_DATA_PORT
+	and eax, 0xff
+
 .end:
-	add esp, 20 ; pop edi - edx
+	add esp, 24 ; pop edi - edx
 	pop ecx
 	add esp, 4 ; 'pop' eax
 	ret
@@ -93,14 +141,14 @@ ps2writewait:
 	jnz .looptop
 	mov al, 1
 .end:
-	add esp, 20 ; pop edi - edx
+	add esp, 24 ; pop edi - edx
 	pop ecx
 	add esp, 4 ; 'pop' eax
 	ret
 
 ; ------------------------------------------------------------------------------
 
-; poll the status bit - if it doesn't clear it returns non-zero in eax
+; poll the status bit - when OK, it returns non-zero
 ps2readwait:
 	pushad
 	xor al, al
@@ -117,7 +165,7 @@ ps2readwait:
 	jz .looptop
 	mov al, 1
 .end:
-	add esp, 20 ; pop edi - edx
+	add esp, 24 ; pop edi - edx
 	pop ecx
 	add esp, 4 ; 'pop' eax
 	ret
