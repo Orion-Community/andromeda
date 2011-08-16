@@ -23,14 +23,17 @@
 #include <interrupts/pic.h>
 #include <interrupts/idt.h>
 #include <sys/ide.h>
+#include <mm/heap.h>
+#include <mm/memory.h>
 
 void kmain(ol_mmap_register_t mmr)
-{
+{       
 	textinit();
 	clearscreen();
+        ol_init_heap();
 
 	println("The openLoader kernel is executing. \n");
-
+        
 	print("Current stack pointer: ");
 	ol_registers_t regs = getregs();
 	printnum(regs->esp, 16, FALSE, FALSE);
@@ -60,8 +63,9 @@ void kmain(ol_mmap_register_t mmr)
 #endif
         
 	putc(0xa);
-
-	println("Waiting for service interrupts..");
+	println("Waiting for service interrupts.. \n");
+        char * buffer = kalloc(256);
+        printnum((uint32_t)buffer, 16, FALSE, FALSE);
 	while(1) halt();
 	println("End of program reached!");
 	endprogram();

@@ -19,7 +19,7 @@
 #ifndef __STDLIB_H
 #define __STDLIB_H
 
-#define NULL 0
+#define NULL (void *)0  // the notorious null pointer
 #define FALSE 0
 #define TRUE !FALSE
 #define OL_KBC_COMMAND 0x64
@@ -30,6 +30,7 @@ typedef unsigned int uint32_t;
 typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
 typedef unsigned char bool;
+typedef unsigned long size_t;
 
 struct registers
 {

@@ -1,5 +1,5 @@
 /*
- *   The GEBL standard library.
+ *   openLoader project - The standard library.
  *   Copyright (C) 2011  Michel Megens
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -17,5 +17,13 @@
  */
 
 #include <stdlib.h>
-void 
-panic(uint8_t * msg);
+
+void
+ol_memset(void * ptr, size_t bytes, uint8_t pattern)
+{
+        size_t i = 0;
+        for(; i < bytes; i++)
+        {
+                *((uint8_t *)ptr+i) = pattern;
+        }
+}
