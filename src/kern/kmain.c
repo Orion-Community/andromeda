@@ -24,7 +24,6 @@
 #include <interrupts/idt.h>
 #include <sys/ide.h>
 #include <mm/heap.h>
-#include <mm/memory.h>
 
 void kmain(ol_mmap_register_t mmr)
 {       
@@ -65,7 +64,8 @@ void kmain(ol_mmap_register_t mmr)
 	putc(0xa);
 	println("Waiting for service interrupts.. \n");
         char * buffer = kalloc(256);
-        printnum((uint32_t)buffer, 16, FALSE, FALSE);
+        //free(buffer);
+
 	while(1) halt();
 	println("End of program reached!");
 	endprogram();

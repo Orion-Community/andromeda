@@ -47,14 +47,32 @@ ol_init_heap()
         heap = (ol_memnode_t)0x8000;
         
         heap->magic = (uint8_t)OL_HEAP_MAGIC;
-        heap->inuse = FALSE;
+        heap->flags = OL_BLOCK_UNUSED;
         heap->next = NULL;
         heap->previous = NULL;
         heap->size = OL_NODE_SIZE(0x8000, 0xa0000);
         heap->base = (void *)OL_BLOCK_BASE((uint32_t)heap);
 }
 
-volatile ol_memnode_t
+void *
+kalloc(size_t size)
+{
+        return alloc(size, TRUE);
+}
+
+int
+free(void * block)
+{
+        ol_memnode_t x = (void *)block-sizeof(struct ol_memory_node);
+        ol_memnode_t y = x->next;
+        
+        x = ol_merge_memnodes(y, x);
+        printnum((uint32_t)x->size, 16, FALSE, FALSE);
+        putc(0xa);
+
+}
+
+static volatile ol_memnode_t
 ol_add_block(void *base, size_t len)
 {
         ol_add_heaphdr(base, len);
@@ -62,23 +80,154 @@ ol_add_block(void *base, size_t len)
         return base;
 }
 
-static void
+static ol_memnode_t
 ol_add_heaphdr(void *b, size_t size)
 {
-        ((ol_memnode_t)b)->inuse = TRUE; /* dangerous to use at the moment */
+        ((ol_memnode_t)b)->flags = OL_BLOCK_UNUSED;
         ((ol_memnode_t)b)->magic = (uint8_t)OL_HEAP_MAGIC;
         ((ol_memnode_t)b)->size = size;
         ((ol_memnode_t)b)->next = NULL;
         ((ol_memnode_t)b)->previous = NULL;
+        ((ol_memnode_t)b)->base = (void*)OL_BLOCK_BASE((uint32_t)b);
         
-        free(b);
+        return (ol_memnode_t)b;
 }
 
 volatile ol_memnode_t 
 ol_split_memnode(ol_memnode_t blk, size_t size)
 {
+
+        ol_memnode_t x = ol_add_heaphdr(((void *)blk)+size, blk->size-size-sizeof(
+               struct ol_memory_node));
+        x->previous = blk;
+        x->next = blk->next;
+        blk->size = size;
+        blk->next = x;
+        
+        
 #ifdef __MMTEST
+        printnum((uint32_t)x->size, 16, FALSE, FALSE);
+        putc(0xa);
         println("SPLIT");
 #endif
         return blk;
+}
+
+static void * 
+alloc(size_t size, bool check)
+{
+        if(check && size > OL_MAX_ALLOC_SIZE) return NULL;
+        
+        ol_memnode_t x;
+        
+        /*
+         * Search all heaps for a fitting node
+         */
+        for(x = heap; x != NULL; x = x->next)
+        {
+                if(!(x->magic ^ OL_HEAP_MAGIC)) panic("Heap corruption! - Invalid"
+                        "block header magic detected!");
+                
+                else if(x == x->next) panic("Heap corruption detected!");
+                
+                else if(x->size < size+sizeof(struct ol_memory_node) 
+                        && x->size >= size)
+                {
+                        /*
+                         * If we end up in this if statement, is the block that we
+                         * just found large enough, but not large enough to split
+                         * it in two pieces.
+                         */
+                        
+                        if((x->flags & OL_BLOCK_INUSE) != 0) continue; /* 
+                                                  * if it is in use, try it all
+                                                  * again from the beginning
+                                                  */
+                        return (void *) x->base;
+                }
+                
+                else if(x->size > (size+sizeof(struct ol_memory_node)))
+                {
+                        /*
+                         * Well done, you found a block which is large enough to
+                         * hold your data AND it is large enough to split it in
+                         * two parts
+                         */
+                        if((x->flags & OL_BLOCK_INUSE) != 0) continue;
+                        
+                        ol_memnode_t tmp = ol_split_memnode(x, size);
+                        ol_use_heap_block(tmp);
+#ifdef __MMTEST
+                        printnum((uint32_t)tmp->next->previous, 16, FALSE, FALSE);
+                        putc(0xa);
+#endif
+                        return tmp->base;
+                }
+        }
+        
+        /*
+         * Not in any of the heaps is a node fount which is large enough. When
+         * alloc returns returns NULL-pointers you should allocate a new heap
+         * or you have to free old data.
+         */
+        return NULL;
+}
+
+static volatile ol_memnode_t 
+ol_merge_memnodes(ol_memnode_t a, ol_memnode_t b)
+{
+        //if((a->magic != OL_HEAP_MAGIC ) || (b->magic != OL_HEAP_MAGIC)) panic("Heap "
+         //       "corruption! - Invalid block header magic detected!");
+        
+        if((a->next != b) && (b->next != a)) return NULL;
+        if(b->next == a)
+        {
+                /*
+                 * They are reversed so a should be b and visa versa.
+                 */
+                putc(0x42);
+                ol_memnode_t tmp = a;
+                a = b;
+                b = tmp;
+        }
+        /*
+         * Now we will do the actual merge..
+         */
+        a->size += b->size+sizeof(struct ol_memory_node);
+        a->next = b->next;
+        a->flags = OL_BLOCK_UNUSED;
+        return a;
+}
+
+static void
+ol_use_heap_block(ol_memnode_t x)
+{
+        if(x->previous != NULL)
+        {
+                /*
+                 * we are not at the beginning of the list
+                 */
+                x->previous->next = x->next;
+        }
+        else
+        {
+                /*
+                 * if we are at the beginning of the list
+                 */
+                x->next->previous = NULL;
+        }
+        if(x->next != NULL)
+        {
+                /*
+                 * we are not at the end of the list
+                 */
+                x->next->previous = x->previous;
+        }
+        else
+        {
+                /*
+                 * we are at the end of the list
+                 */
+                x->previous->next = NULL;
+        }
 }
