@@ -9,7 +9,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 # targets
 MM=mm.o
-MM_DEPS=mmap.o mmap2.o alloc.o heap.o
+MM_DEPS=mmap.o mmap2.o heap.o
 
 # source files
 MMAP=mmap.asm

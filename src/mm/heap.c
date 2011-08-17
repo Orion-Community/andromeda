@@ -41,6 +41,18 @@
 
 volatile ol_memnode_t heap;
 
+void
+ol_dbg_heap()
+{
+        println("List of all current heap block base pointers");
+        ol_memnode_t x;
+        for(x = heap; x != NULL; x = x->next)
+        {
+                printnum((uint32_t)x->base, 16, FALSE, FALSE);
+                putc('\n');
+        }
+}
+
 void 
 ol_init_heap()
 {
@@ -64,9 +76,9 @@ int
 free(void * block)
 {
         ol_memnode_t x = (void *)block-sizeof(struct ol_memory_node);
-        ol_memnode_t y = x->next;
         
-        x = ol_merge_memnodes(y, x);
+        ol_return_heap_block(x);        
+        
         printnum((uint32_t)x->size, 16, FALSE, FALSE);
         putc(0xa);
 
@@ -158,8 +170,8 @@ alloc(size_t size, bool check)
                         ol_memnode_t tmp = ol_split_memnode(x, size);
                         ol_use_heap_block(tmp);
 #ifdef __MMTEST
-                        printnum((uint32_t)tmp->next->previous, 16, FALSE, FALSE);
-                        putc(0xa);
+                        //printnum((uint32_t)tmp->next->previous, 16, FALSE, FALSE);
+                        //putc(0xa);
 #endif
                         return tmp->base;
                 }
@@ -204,30 +216,60 @@ ol_use_heap_block(ol_memnode_t x)
 {
         if(x->previous != NULL)
         {
-                /*
-                 * we are not at the beginning of the list
-                 */
+                /* we are not at the beginning of the list */
                 x->previous->next = x->next;
         }
         else
         {
-                /*
-                 * if we are at the beginning of the list
-                 */
-                x->next->previous = NULL;
+                 /* if we are at the beginning of the list */
+                heap = x->next;
         }
         if(x->next != NULL)
         {
-                /*
-                 * we are not at the end of the list
-                 */
+                 /* we are not at the end of the list */
                 x->next->previous = x->previous;
         }
         else
         {
-                /*
-                 * we are at the end of the list
-                 */
+                 /* we are at the end of the list */
                 x->previous->next = NULL;
+        }
+}
+
+static void
+ol_return_heap_block(ol_memnode_t x)
+{
+        x->flags &= OL_BLOCK_UNUSED | 0xfe; /* mark block as not used */
+        
+        if(x->base < heap->base)
+        {
+                /* This block has a base address lower than the current heap*/
+                heap->previous = x;
+                x->previous = NULL;
+                x->next = heap;
+                heap = x;
+                return;
+        }
+        
+        ol_memnode_t block;
+        for(block = heap; block != NULL; block = block->next)
+        {
+                if(block->next == NULL)
+                {
+                        block->next = x;
+                        x->previous = block;
+                        x->next = NULL;
+                        return;
+                }
+                if(block->base < x->base)
+                {
+                        /* if the new block fits on the on top of the carriage block*/
+                        putc(0x43);
+                        x->previous = block;
+                        x->next = block->next;
+                        block->next = x;
+                        return;      
+                }
+                
         }
 }

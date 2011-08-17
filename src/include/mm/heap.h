@@ -43,7 +43,9 @@ extern "C" {
         } __attribute__((packed));
         typedef struct ol_memory_node *ol_memnode_t;
         
-                /**
+        void ol_dbg_heap();
+
+        /**
          * This alloc does zero safety checks. It just searches for available ram
          * and then it returns it to you. This you should use this allocator when
          * you would like to allocate a very big block.
@@ -129,7 +131,9 @@ extern "C" {
          */
         static bool useblock(ol_memnode_t);
         
-        static void ol_use_heap_block(ol_memnode_t x);
+        static void ol_use_heap_block(ol_memnode_t);
+        
+        static void ol_return_heap_block(ol_memnode_t);
         
 #define OL_BLOCK_UNUSED 0x0
 #define OL_BLOCK_INUSE 0x1

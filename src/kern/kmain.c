@@ -63,8 +63,13 @@ void kmain(ol_mmap_register_t mmr)
         
 	putc(0xa);
 	println("Waiting for service interrupts.. \n");
+        //
         char * buffer = kalloc(256);
-        //free(buffer);
+        char * buffer2 = kalloc(128);
+        free(buffer);
+        free(buffer2);
+
+        ol_dbg_heap();
 
 	while(1) halt();
 	println("End of program reached!");
