@@ -22,8 +22,6 @@
 #define NULL (void *)0  // the notorious null pointer
 #define FALSE 0
 #define TRUE !FALSE
-#define OL_KBC_COMMAND 0x64
-#define OL_KB_INIT 0xae
 
 typedef unsigned long long uint64_t;
 typedef unsigned int uint32_t;

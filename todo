@@ -23,11 +23,12 @@
 	  the 1MiB limit anymore.
 	* wrote code to reprogram the pit.
 	* Improved the Makefile system with 10000%
+	* Implemented a memory controller.
 
 What should be improved:
 
 Next item:
-	* memory allocator
+	* Rewrite all assembly code to C, if that is possible.
 
 What has to be done:
 

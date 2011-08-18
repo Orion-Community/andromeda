@@ -27,9 +27,10 @@
 
 void kmain(ol_mmap_register_t mmr)
 {       
+        ol_init_heap();
 	textinit();
 	clearscreen();
-        ol_init_heap();
+
 
 	println("The openLoader kernel is executing. \n");
         
@@ -47,7 +48,7 @@ void kmain(ol_mmap_register_t mmr)
 	
 	pic_init();
 	setIDT();
-	outb(OL_KBC_COMMAND, OL_KB_INIT);	// enable the keyboard
+        //outb(0x64, 0xae);
 
 // display mmap
 	init_mmap(mmr);
@@ -68,9 +69,10 @@ void kmain(ol_mmap_register_t mmr)
         char * buffer3 = kalloc(64);
         char * buffer2 = kalloc(128);
 
-        free(buffer3); 
+ 
         free(buffer);
         free(buffer2);
+        free(buffer3);
 
         ol_dbg_heap();
 

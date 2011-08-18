@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 
+
 #ifndef __VGA_H
 #define __VGA_H
 
@@ -28,10 +29,10 @@
 
 typedef struct ol_vga_mem
 {
-	int line;
+	uint32_t line;
 	uint32_t x;
 	uint16_t * vidmem;
-} ol_vga_mem_t;
+} *ol_vga_mem_t;
 
 void reloc_cursor(uint32_t x, uint32_t y);
 

@@ -19,14 +19,16 @@
 #include <textio.h>
 #include <stdlib.h>
 #include <sys/io.h>
+#include <mm/heap.h>
 
 ol_vga_mem_t cursor;
 
 void textinit()
 {
-	cursor.line = 0;
-	cursor.x = 0;
-	cursor.vidmem = (uint16_t *)OL_VGAMEMORY;
+        cursor = kalloc(sizeof(struct ol_vga_mem));
+	cursor->line = 0;
+	cursor->x = 0;
+	cursor->vidmem = (uint16_t *)OL_VGAMEMORY;
 }
 
 void scroll(uint8_t lines)
@@ -36,26 +38,26 @@ void scroll(uint8_t lines)
 	{
 		for(x = 0; x < OL_WIDTH; x++)
 		{
-			cursor.vidmem[x+y*OL_WIDTH] = cursor.vidmem[x+(y+lines)*OL_WIDTH];
+			cursor->vidmem[x+y*OL_WIDTH] = cursor->vidmem[x+(y+lines)*OL_WIDTH];
 		}
 	}
 	for(; y < OL_HEIGHT; y++)
 	{
 		for(x = 0; x < OL_WIDTH; x++)
 		{
-			cursor.vidmem[x+y*OL_WIDTH] = ((OL_WHITE_TXT<<8) | ' ');
+			cursor->vidmem[x+y*OL_WIDTH] = ((OL_WHITE_TXT<<8) | ' ');
 		}
 	}
 	
 	if(lines >= OL_HEIGHT)
 	{
-		cursor.line = 0;
-		cursor.x = 0;
+		cursor->line = 0;
+		cursor->x = 0;
 		reloc_cursor(0,0);
 		return;
 	}
-	cursor.line -= lines;
-	reloc_cursor(cursor.x, cursor.line);
+	cursor->line -= lines;
+	reloc_cursor(cursor->x, cursor->line);
 }
 
 void println(uint8_t * txt)
@@ -115,7 +117,7 @@ void printnum(int index, uint32_t base, bool sInt, bool capital)
 
 void putc(uint8_t c)
 {
-	uint32_t i = (cursor.line * OL_WIDTH) + cursor.x;
+	uint32_t i = (cursor->line * OL_WIDTH) + cursor->x;
 	switch(c)
 	{
 		case '\0':
@@ -123,42 +125,42 @@ void putc(uint8_t c)
 			
 		case '\n':
 			
-			cursor.x = 0;
-			cursor.line++;
+			cursor->x = 0;
+			cursor->line++;
 			break;
 
 		case '\b':
-			if(cursor.x == 0)
+			if(cursor->x == 0)
 			{
-				cursor.line--;
-				cursor.x = 79;
+				cursor->line--;
+				cursor->x = 79;
 			}
 			
 			else
 			{
-				cursor.x -= 1;
-				cursor.vidmem[i-1] = (OL_WHITE_TXT<<8)| ' ';
+				cursor->x -= 1;
+				cursor->vidmem[i-1] = (OL_WHITE_TXT<<8)| ' ';
 			}
 			break;
 
 		default:
-			cursor.vidmem[i] = (OL_WHITE_TXT<<8) | c;
-			cursor.x += 1;
+			cursor->vidmem[i] = (OL_WHITE_TXT<<8) | c;
+			cursor->x += 1;
 			break;
 	}
 	
-	if(cursor.line >= OL_HEIGHT)
+	if(cursor->line >= OL_HEIGHT)
 	{
-		scroll(cursor.line%OL_HEIGHT+1);
+		scroll(cursor->line%OL_HEIGHT+1);
 	}
-	reloc_cursor(cursor.x, cursor.line);
+	reloc_cursor(cursor->x, cursor->line);
 }
 
 void writeat(uint8_t c, uint32_t x)
 {
 	if((x % 2) == 0)
 	{
-		cursor.x = x;
+		cursor->x = x;
 		putc(c);
 	}
 }

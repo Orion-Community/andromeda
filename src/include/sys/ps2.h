@@ -1,5 +1,5 @@
 /*
- *   The PS/2 C header file.
+ *   OpenLoader - PS/2 Controller
  *   Copyright (C) 2011  Michel Megens
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -21,8 +21,64 @@
 #ifndef __PS2_H
 #define	__PS2_H
 
+/* device type */
+#define OL_PS2_CONTROLLER 0x1
+#define OL_PS2_KEYBOARD 0x2
+#define OL_PS2_MOUSE 0x4
+
+/* commands */
+#define OL_KB_INIT 0xae
+
+/* PS/2 I/O ports */
+/* write only ports */
+#define OL_PS2_DATA_PORT 0x60
+#define OL_PS2_COMMAND_PORT 0x64
+
+/* read only ports*/
+#define OL_PS2_STATUS_REGISTER 0x64
+#define OL_PS2_OUTPUT_BUFFER 0x60
+
+/* flags */
+#define OL_PS2_ACTIVE_FLAG 0x1 /* this marks the device as initialized and reade
+                                  for action */
+#define OL_PS2_ERROR_FLAG 0x2 /* indicates an error */
+
+/* data types */
+typedef unsigned char ol_ps2_dev_type_t;
+typedef struct ol_ps2_dev
+{
+        ol_ps2_dev_type_t type;
+        uint8_t flags;
+        uint8_t status;
+        uint16_t read_port;
+        uint16_t write_port;
+        void (*sent_command) (struct ol_ps2_dev*, uint8_t);
+        
+} *ol_ps2_dev_t;
+
 extern uint8_t ps2read();
 extern bool ps2write(uint8_t val);
+
+static int
+ol_ps2_update_status(ol_ps2_dev_t);
+
+static int
+ol_ps2_init_dev(ol_ps2_dev_t, ol_ps2_dev_type_t);
+
+static uint8_t
+ol_ps2_await_ack(ol_ps2_dev_t);
+
+static void
+ol_ps2_sent_controller_command(ol_ps2_dev_t ctrl, uint8_t cmd);
+
+uint8_t
+ol_ps2_read(ol_ps2_dev_t);
+
+int
+ol_ps2_write(ol_ps2_dev_t, uint8_t);
+
+int
+ol_init_keyboard();
 
 #endif	/* __PS2_H */
 
