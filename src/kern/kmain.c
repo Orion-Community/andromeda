@@ -64,8 +64,11 @@ void kmain(ol_mmap_register_t mmr)
 	putc(0xa);
 	println("Waiting for service interrupts.. \n");
         //
-        char * buffer = kalloc(256);
+        char * buffer = kalloc(5);
+        char * buffer3 = kalloc(64);
         char * buffer2 = kalloc(128);
+
+        free(buffer3); 
         free(buffer);
         free(buffer2);
 

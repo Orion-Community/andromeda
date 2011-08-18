@@ -49,6 +49,8 @@ ol_dbg_heap()
         for(x = heap; x != NULL; x = x->next)
         {
                 printnum((uint32_t)x->base, 16, FALSE, FALSE);
+                print("  -  Length: ");
+                printnum((uint32_t)x->size, 16, FALSE, FALSE);
                 putc('\n');
         }
 }
@@ -77,10 +79,32 @@ free(void * block)
 {
         ol_memnode_t x = (void *)block-sizeof(struct ol_memory_node);
         
-        ol_return_heap_block(x);        
+        ol_return_heap_block(x);
         
-        printnum((uint32_t)x->size, 16, FALSE, FALSE);
-        putc(0xa);
+        /* To counteract on fragmentation and long linked lists, check if blocks
+         can be merged */
+        ol_memnode_t i = heap;
+
+        for(; i != NULL; i = i->next)
+        {
+                if(((void *)(i->base+i->size+sizeof(struct ol_memory_node)) == 
+                        x->base) || ((void *)(x->base+x->size+sizeof(struct
+                        ol_memory_node)) == i->base))
+                {
+                        x = ol_merge_memnodes(i, x);
+                        if(x != NULL)
+                        {
+                                /* The merge was successful, try to find more
+                                 spots to merge */
+                                i = x;
+                                continue;
+                        }
+                        else return -1; 
+                }
+        }
+        return 0;
+        //printnum((uint32_t)x->size, 16, FALSE, FALSE);
+        //putc(0xa);
 
 }
 
@@ -100,7 +124,7 @@ ol_add_heaphdr(void *b, size_t size)
         ((ol_memnode_t)b)->size = size;
         ((ol_memnode_t)b)->next = NULL;
         ((ol_memnode_t)b)->previous = NULL;
-        ((ol_memnode_t)b)->base = (void*)OL_BLOCK_BASE((uint32_t)b);
+        ((ol_memnode_t)b)->base = (void*)OL_BLOCK_BASE((void *)b);
         
         return (ol_memnode_t)b;
 }
@@ -109,7 +133,7 @@ volatile ol_memnode_t
 ol_split_memnode(ol_memnode_t blk, size_t size)
 {
 
-        ol_memnode_t x = ol_add_heaphdr(((void *)blk)+size, blk->size-size-sizeof(
+        ol_memnode_t x = ol_add_heaphdr(((void *)blk->base)+size, blk->size-size-sizeof(
                struct ol_memory_node));
         x->previous = blk;
         x->next = blk->next;
@@ -118,9 +142,7 @@ ol_split_memnode(ol_memnode_t blk, size_t size)
         
         
 #ifdef __MMTEST
-        printnum((uint32_t)x->size, 16, FALSE, FALSE);
-        putc(0xa);
-        println("SPLIT");
+        //println("SPLIT");
 #endif
         return blk;
 }
@@ -142,8 +164,8 @@ alloc(size_t size, bool check)
                 
                 else if(x == x->next) panic("Heap corruption detected!");
                 
-                else if(x->size < size+sizeof(struct ol_memory_node) 
-                        && x->size >= size)
+                else if((x->size < size+sizeof(struct ol_memory_node)) 
+                        && (x->size >= size))
                 {
                         /*
                          * If we end up in this if statement, is the block that we
@@ -170,8 +192,8 @@ alloc(size_t size, bool check)
                         ol_memnode_t tmp = ol_split_memnode(x, size);
                         ol_use_heap_block(tmp);
 #ifdef __MMTEST
-                        //printnum((uint32_t)tmp->next->previous, 16, FALSE, FALSE);
-                        //putc(0xa);
+                        //printnum((uint32_t)tmp->size, 16, FALSE, FALSE);
+                        //putc('\n');
 #endif
                         return tmp->base;
                 }
@@ -197,7 +219,6 @@ ol_merge_memnodes(ol_memnode_t a, ol_memnode_t b)
                 /*
                  * They are reversed so a should be b and visa versa.
                  */
-                putc(0x42);
                 ol_memnode_t tmp = a;
                 a = b;
                 b = tmp;
@@ -261,15 +282,13 @@ ol_return_heap_block(ol_memnode_t x)
                         x->next = NULL;
                         return;
                 }
-                if(block->base < x->base)
+                if(((void*)block->base < x->base) && ((void*)block->next > x->base))
                 {
                         /* if the new block fits on the on top of the carriage block*/
-                        putc(0x43);
                         x->previous = block;
                         x->next = block->next;
                         block->next = x;
                         return;      
                 }
-                
         }
 }
