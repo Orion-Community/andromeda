@@ -22,7 +22,7 @@
 #include <sys/keyboard.h>
 #include <interrupts/idt.h>
 #include <stdlib.h>
-#include <sys/ps2.h>
+#include <sys/dev/ps2.h>
 
 
 uint64_t timer = 0;
@@ -42,7 +42,7 @@ void cIRQ0(ol_irq_stack_t regs)
 
 void cIRQ1(ol_irq_stack_t regs)
 {
-        uint8_t c = ps2read(0x50);
+        uint8_t c = ol_ps2_get_keyboard_scancode();
         kb_handle(c);
         pic_eoi(1);
         return;
