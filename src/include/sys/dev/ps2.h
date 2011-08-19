@@ -27,7 +27,7 @@
 #define OL_PS2_MOUSE 0x4
 
 /* commands */
-#define OL_KB_INIT 0xae
+#define OL_PS2_INIT_KB_CMD 0xae
 
 /* PS/2 I/O ports */
 /* write only ports */
@@ -56,10 +56,7 @@ typedef struct ol_ps2_dev
         
 } *ol_ps2_dev_t;
 
-extern uint8_t ps2read();
-extern bool ps2write(uint8_t val);
-
-static int
+static void
 ol_ps2_update_status(ol_ps2_dev_t);
 
 static int
@@ -71,14 +68,17 @@ ol_ps2_await_ack(ol_ps2_dev_t);
 static void
 ol_ps2_sent_controller_command(ol_ps2_dev_t ctrl, uint8_t cmd);
 
-uint8_t
+static uint8_t
 ol_ps2_read(ol_ps2_dev_t);
 
-int
-ol_ps2_write(ol_ps2_dev_t, uint8_t);
+static int
+ol_ps2_write(ol_ps2_dev_t, uint8_t, bool);
 
 int
-ol_init_keyboard();
+ol_ps2_init_keyboard();
+
+void
+ol_detach_all_devices();
 
 #endif	/* __PS2_H */
 

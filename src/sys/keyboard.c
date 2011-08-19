@@ -21,7 +21,7 @@
 #include <sys/keyboard.h>
 #include <stdlib.h>
 #include <sys/io.h>
-#include <sys/ps2.h>
+#include <sys/dev/ps2.h>
 
 static ol_kb_scancode_t keycodes[] = {
 
@@ -238,10 +238,10 @@ static void toggle_kb_leds(uint8_t status)
 {
         
         
-        if(ps2write(0xed))
+        if(!(ol_ps2_config_keyboard(0xed)))
         {
 
-                ps2write(status);
+                ol_ps2_config_keyboard(status);
         }
 }
 

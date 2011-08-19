@@ -18,12 +18,18 @@
 
 #include <textio.h>
 #include <stdlib.h>
+
 #include <sys/io.h>
+#include <sys/dev/ps2.h>
+#include <sys/ide.h>
+
 #include <mm/mmap.h>
+#include <mm/heap.h>
+
 #include <interrupts/pic.h>
 #include <interrupts/idt.h>
-#include <sys/ide.h>
-#include <mm/heap.h>
+
+
 
 void kmain(ol_mmap_register_t mmr)
 {       
@@ -48,7 +54,7 @@ void kmain(ol_mmap_register_t mmr)
 	
 	pic_init();
 	setIDT();
-        //outb(0x64, 0xae);
+        ol_ps2_init_keyboard();
 
 // display mmap
 	init_mmap(mmr);
@@ -64,16 +70,8 @@ void kmain(ol_mmap_register_t mmr)
         
 	putc(0xa);
 	println("Waiting for service interrupts.. \n");
-        //
-        char * buffer = kalloc(5);
-        char * buffer3 = kalloc(64);
-        char * buffer2 = kalloc(128);
 
- 
-        free(buffer);
-        free(buffer2);
-        free(buffer3);
-
+        ol_detach_all_devices();
         ol_dbg_heap();
 
 	while(1) halt();
