@@ -27,14 +27,37 @@ extern "C"
 #define OL_PCI_CONFIG_ADDRESS 0xcf8
 #define OL_PCI_CONFIG_DATA 0xcfc
         
+/* PCI device structure register fields */
+#define  OL_PCI_REG_PCI_ID       0x00
+#define  OL_PCI_REG_VENDOR       0x00
+#define  OL_PCI_REG_DEVICE       0x02
+#define  OL_PCI_REG_COMMAND      0x04
+#define  OL_PCI_REG_STATUS       0x06
+#define  OL_PCI_REG_REVISION     0x08
+#define  OL_PCI_REG_CLASS        0x08
+#define  OL_PCI_REG_CACHELINE    0x0c
+#define  OL_PCI_REG_LAT_TIMER    0x0d
+#define  OL_PCI_REG_HEADER_TYPE  0x0e
+#define  OL_PCI_REG_BIST         0x0f
+#define  OL_PCI_REG_ADDRESSES    0x10
+        
+/* PCI properties */
+#define OL_PCI_NUM_BUS 256
+#define OL_PCI_NUM_DEV 32
+#define OL_PCI_NUM_FUNC 10-1-1 /* PCI has a max of 10 loads minus one for the
+                                        the pci device counts as one, and the 
+                                        connector also as one, leaving 8 
+                                        functions. */
+        
         typedef uint32_t ol_pci_addr_t;
+        typedef uint32_t ol_pci_id_t;
         
         typedef struct ol_pci_dev
         {
 		uint32_t func; /* device function */
 		uint32_t device; /* device type */
 		uint32_t bus;  /* pci bus */
-		ol_pci_addr_t address;
+                int (*hook)(struct ol_pci_dev*, uint8_t);
         } *ol_pci_dev_t;
 
 	static int
@@ -54,7 +77,17 @@ extern "C"
 
 	void
 	ol_pci_init();
-
+        
+        /* PCI communication functions - They are inline (something like assembly
+         macro's */
+        static inline uint32_t
+        ol_pci_read_dword(ol_pci_addr_t addr)
+        {
+                register uint32_t ret;
+                outl(OL_PCI_CONFIG_ADDRESS, addr);
+                ret = inl(OL_PCI_CONFIG_DATA);
+                return ret;
+        }
 
 #ifdef	__cplusplus
 }

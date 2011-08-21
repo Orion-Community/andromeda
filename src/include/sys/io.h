@@ -23,13 +23,17 @@
 /*
  * inb reads from a given port and returns the read data.
  */
-extern char inb(uint16_t port);
+extern uint8_t inb(uint16_t port);
 
 
 /*
  * outb writes given data to a given port.
  */
 extern void outb(uint16_t port, uint8_t data);
+
+extern void outl(uint16_t port, uint32_t data);
+
+extern uint32_t inl(uint16_t port);
 
 /*
  * This function waits for data when there is written to an output port.

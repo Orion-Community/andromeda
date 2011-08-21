@@ -19,30 +19,46 @@
 #include <stdlib.h>
 #include <sys/dev/pci.h>
 
-#ifndef __PCI_H
+#include <mm/heap.h>
 
 static int
-ol_pci_iterate(int (*hook)(uint8_t, uint8_t, uint8_t));
+ol_pci_iterate()
+{
+        ol_pci_dev_t dev = kalloc(sizeof(struct ol_pci_dev));
+        ol_pci_id_t id;
+        
+        for(dev->bus = 0; dev->bus < OL_PCI_NUM_BUS; dev->bus++)
+        {
+                /* iterate through all busses */
+                for(dev->device = 0; dev->device < OL_PCI_NUM_DEV; dev->device++)
+                {
+                        /* Looping trough all devices */
+                        for(dev->func = 0; dev->func < OL_PCI_NUM_FUNC; 
+                                dev->func++) 
+                        {
+                                id = ol_pci_read_dword(ol_pci_calculate_address(
+                                        dev, OL_PCI_REG_PCI_ID));
+                        }
+                }
+        }
+}
 	
 static int
 ol_pci_get_function_number(ol_pci_dev_t);
 	
 static ol_pci_dev_t
-ol_pci_init_device(ol_pci_dev_t);
+ol_pci_init_device();
 	
 static int
 ol_pci_dev_exist(ol_pci_dev_t);
 
-static void
+static ol_pci_addr_t
 ol_pci_calculate_address(ol_pci_dev_t dev, uint16_t reg)
 {
-	dev->address = (1 << 31) | (dev->bus << 16) | (dev->device << 11)
-	(dev->function << 8) | ((offset & 0x3f) << 2) ((reg << 2) & 0x3f)
-	return;
+	return ((1 << 31) | (dev->bus << 16) | (dev->device << 11)
+	(dev->func << 8) | ((reg & 0x3f) << 2) ((reg << 2) & 0x3f)) & (~3);
 }
 
 
 void
 ol_pci_init();
-
-#endif
