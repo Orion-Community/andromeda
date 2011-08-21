@@ -16,49 +16,33 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+#include <sys/dev/pci.h>
+
 #ifndef __PCI_H
-#define __PCI_H
 
-#ifdef	__cplusplus
-extern "C"
+static int
+ol_pci_iterate(int (*hook)(uint8_t, uint8_t, uint8_t));
+	
+static int
+ol_pci_get_function_number(ol_pci_dev_t);
+	
+static ol_pci_dev_t
+ol_pci_init_device(ol_pci_dev_t);
+	
+static int
+ol_pci_dev_exist(ol_pci_dev_t);
+
+static void
+ol_pci_calculate_address(ol_pci_dev_t dev, uint16_t reg)
 {
-#endif
-
-#define OL_PCI_CONFIG_ADDRESS 0xcf8
-#define OL_PCI_CONFIG_DATA 0xcfc
-        
-        typedef uint32_t ol_pci_addr_t;
-        
-        typedef struct ol_pci_dev
-        {
-		uint32_t func; /* device function */
-		uint32_t device; /* device type */
-		uint32_t bus;  /* pci bus */
-		ol_pci_addr_t address;
-        } *ol_pci_dev_t;
-
-	static int
-	ol_pci_iterate(int (*hook)(uint8_t, uint8_t, uint8_t));
-
-	static void
-	ol_pci_calculate_address(ol_pci_dev_t, uint16_t);
-
-	static int
-	ol_pci_get_function_number(ol_pci_dev_t);
-
-	static ol_pci_dev_t
-	ol_pci_init_device(ol_pci_dev_t);
-
-	static int
-	ol_pci_dev_exist(ol_pci_dev_t);
-
-	void
-	ol_pci_init();
-
-
-#ifdef	__cplusplus
+	dev->address = (1 << 31) | (dev->bus << 16) | (dev->device << 11)
+	(dev->function << 8) | ((offset & 0x3f) << 2) ((reg << 2) & 0x3f)
+	return;
 }
+
+
+void
+ol_pci_init();
+
 #endif
-
-#endif	/* PCI_H */
-
