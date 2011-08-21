@@ -55,8 +55,11 @@ ol_pci_dev_exist(ol_pci_dev_t);
 static ol_pci_addr_t
 ol_pci_calculate_address(ol_pci_dev_t dev, uint16_t reg)
 {
-	return ((1 << 31) | (dev->bus << 16) | (dev->device << 11)
-	(dev->func << 8) | ((reg & 0x3f) << 2) ((reg << 2) & 0x3f)) & (~3);
+        register ol_pci_addr_t x = ((1 << 31) | (dev->bus << 16) | 
+                (dev->device << 11) | (dev->func << 8) | ((reg & 0x3f) << 2)) & 
+                (~3);
+        
+        return x;
 }
 
 
