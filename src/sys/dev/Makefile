@@ -10,11 +10,12 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 # targets
 
 DEV=dev.o
-DEV_D=ps2.o
+DEV_D=pci.o ps2.o
 
 #sources
 
 PS2=ps2.c
+PCI=pci.c
 
 .PHONY: all
 all: $(DEV)
@@ -24,6 +25,9 @@ $(DEV): $(DEV_D)
 
 ps2.o: $(PS2)
 	$(CC) $(CCFLAGS) $(PS2) -o ps2.o
+	
+pci.o: $(PCI)
+	$(CC) $(CCFLAGS) $(PCI) -o pci.o
 	
 .PHONY: clean
 clean:

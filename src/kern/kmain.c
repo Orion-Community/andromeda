@@ -29,6 +29,8 @@
 #include <interrupts/pic.h>
 #include <interrupts/idt.h>
 
+#include <sys/dev/pci.h>
+
 
 
 void kmain(ol_mmap_register_t mmr)
@@ -69,6 +71,7 @@ void kmain(ol_mmap_register_t mmr)
 #endif
         
 	putc(0xa);
+        ol_pci_init();
 	println("Waiting for service interrupts.. \n");
 
         ol_detach_all_devices();
