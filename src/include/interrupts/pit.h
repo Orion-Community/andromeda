@@ -26,8 +26,8 @@ extern "C"
         
 /* some PIT data definitions */
 #define OL_RELOAD_DIVISOR 3579545
-#define OL_MAX_FREQ 1193181
-#define OL_MIN_FREQ 18
+#define OL_PIT_MAX_FREQ 1193181
+#define OL_PIT_MIN_FREQ 18
 
 /* I/O port definitions */
 #define OL_PIT_COMMAND 0x43
@@ -41,16 +41,19 @@ extern "C"
                 uint8_t channel, mode;
                 ol_pit_reload_val reload_value;
                 ol_pit_port_t port;
-        } *ol_system_timer;
+        } *ol_system_pit;
         
         void
-        ol_pit_init();
+        ol_pit_init(uint16_t);
         
         static ol_pit_reload_val
-        ol_pit_calculate_freq(uint32_t freq);
+        ol_pit_calculate_freq(ol_pit_reload_val);
         
         static void
         ol_pit_program_pit(ol_pit_reload_val);
+        
+        static ol_pit_reload_val
+        ol_pit_calculate_reload(uint16_t);
         
 #ifdef	__cplusplus
 }

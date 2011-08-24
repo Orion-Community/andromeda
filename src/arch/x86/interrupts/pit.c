@@ -16,4 +16,35 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <interrupts/pit.h>
+#include <stdlib.h>
 
+static ol_system_pit pit_chan0 = NULL;
+
+void
+ol_pit_init(uint16_t hz)
+{
+        if(pit_chan0 != NULL)
+                pit_chan0 = kalloc(sizeof(struct ol_pit));
+        ol_pit_reload_val rv;
+        
+        if(hz <= OL_PIT_MIN_FREQ)
+        {
+                ol_pit_calculate_freq(0xffff); // slowest reload value
+        }
+        
+        else if(hz >= OL_PIT_MAX_FREQ)
+                ol_pit_calculate_freq(1); // fastest reload value
+        
+        else 
+        {
+                rv = ol_pit_calculate_reload(hz);
+                ol_pit_calculate_freq(rv);
+        }
+}
+
+static ol_pit_reload_val
+ol_pit_calculate_reload(uint16_t hz)
+{
+        
+}
