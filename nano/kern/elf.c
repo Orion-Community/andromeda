@@ -85,8 +85,15 @@ int coreAugment(void* image)
   for (thisHeader = programHeader; i < noHdrs; i++)
   {
     Elf32_Phdr* hdr = (Elf32_Phdr*)thisHeader;
+    #ifdef ELFDBG
+    printf("Header: %X\tType: %X\tMemsz: %X\tFilesz: %X\n", (int)hdr, hdr->p_type, hdr->p_memsz, hdr->p_filesz);
+    #endif
     if (hdr->p_type != 0x6474E551)
-    memcpy((void*)hdr->p_vaddr, (void*)(hdr->p_offset+(unsigned int) image), hdr->p_memsz);
+      
+    if (hdr->p_memsz == 0) continue;
+    memcpy((void*)hdr->p_vaddr, (void*)(hdr->p_offset+(unsigned int) image), hdr->p_filesz);
+    if (hdr -> p_memsz > hdr -> p_filesz)
+      memset((void*)(hdr->p_vaddr + hdr->p_filesz), 0, hdr->p_memsz - hdr->p_filesz);
     
     // Memory protection flags should probably be set here.
     

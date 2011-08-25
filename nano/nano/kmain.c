@@ -88,9 +88,12 @@ boolean setupCore(module_t mod)
   }
   coreAugment(mod.addr);
   
-  // Switch to graphical mode
-  // Switch context to core image
-  
+  #ifdef ELFDBG
+  // Stop execution to make debugging messages readable
+  for (;;)
+    halt();
+  #endif
+  // Jump into the high memory image
   elfJmp(mod.addr);
   
   return FALSE; //Doesn't get reached, ever, if all goes well

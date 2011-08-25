@@ -45,11 +45,16 @@
  */
 
 boolean state = COMPRESSED;
+boolean pageDbg = FALSE;
 void cPageFault(isrVal_t regs)
 {
-  #ifdef DBG
-  printf("PG\n");
-  #endif
+  if (pageDbg)
+    printf("PG\n");
+  if (pageDbg)
+  {
+    printf("Pagefault: %X\n", getCR2());
+    panic("Stopping here!");
+  }
   if (regs.cs != 0x8 && regs.cs != 0x18)
   {
     panic("Incorrect frame");
@@ -59,11 +64,16 @@ void cPageFault(isrVal_t regs)
   page &= 0xFFFFF000;
   #else
   
+  if (pageDbg)
+  {
+    printf("Waiting for input\n");
+    for (;;);
+  }
+  
   #endif
   unsigned char err = (unsigned char) (regs.errCode & 0x7);
-  #ifdef DBG
-  printf("The pagefault was caused by: %X\n", page);
-  #endif
+  if (pageDbg)
+    printf("The pagefault was caused by: %X\n", page);
   if (RESERVED)
   {
     panic("A reserved bit was set!");

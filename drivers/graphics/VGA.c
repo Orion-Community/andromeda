@@ -77,6 +77,9 @@ bool vgaInit()
  *   If fails, this will be -1, else it will be or just some value (not -1) or a value
  *   returned by interupt.
  */
+
+extern boolean pageDbg;
+
 int setVideoMode(int mode)
 {
 	free(screenbuf);
@@ -85,11 +88,18 @@ int setVideoMode(int mode)
 	if(screenbuf==NULL)
 		{screenbuf = 0xA0000;printf("kalloc(%i) returned NULL!\n",videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);return -1;}
 
-	if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
-		{printf("setModeViaPorts(%i,%i,%i) failed!\n",videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0);return -1;}
+// 	if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
+// 		{printf("setModeViaPorts(%i,%i,%i) failed!\n",videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0);return -1;}
 	memset(0xA0000,11,16);
+	printf("Screenbuf: %X\nESP: %X\nValue: %X\n", screenbuf, getESP(), videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
+	pageDbg = TRUE;
 	memset(screenbuf,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth); //hangs
+// 	for (;;);
+	printf("Reached!\n");
+	for(;;);	
 	memset(0xA0010,11,16);
+	
+
 	videoMode = mode;
 	updateScreen();
 	return 0;
