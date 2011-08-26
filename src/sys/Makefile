@@ -31,7 +31,7 @@ io.o:
 
 keyboard.o:
 	$(CC) $(CCFLAGS) $(KB_SRC) -o keyboard.o
-	
+
 dev.o:
 	$(MAKE) -C dev/ all
 	mv -v dev/dev.o ./
@@ -45,4 +45,3 @@ clean:
 	$(MAKE) -C dev/ clean
 	$(MAKE) -C disk/ clean
 	rm -v *.o
-

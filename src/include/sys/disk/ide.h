@@ -94,4 +94,5 @@ ol_ata_detect_dev_type(ol_ata_dev_t);
 
 static void
 ol_ata_soft_reset(ol_ata_dev_t);
+
 #endif

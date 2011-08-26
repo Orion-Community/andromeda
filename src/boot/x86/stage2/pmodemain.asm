@@ -17,11 +17,17 @@
 ;
 
 [BITS 32]
+
+%ifndef __STAGE2
+[SECTION .bss]
+stack resb 0x800
+%endif
+
+[SECTION .text]
 %ifndef __STAGE2
 [EXTERN kmain]
 [GLOBAL pmodemain]
 [GLOBAL endptr]
-[SECTION .text]
 
 jmp short pmodemain
 	dd endptr
@@ -32,6 +38,9 @@ jmp short pmodemain
 ; 0x100000, which will started up the kernel.
 pmodemain:
 %ifndef __STAGE2
+	mov eax, [esp]
+	mov esp, stack
+	mov [esp], eax
 	mov eax, kmain
 	call eax
 %elifdef __STAGE2
