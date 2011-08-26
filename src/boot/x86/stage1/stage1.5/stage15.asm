@@ -103,7 +103,6 @@ main:
 	jmp .loadsector
 
 .lastsectors:
-jmp $
 	dec eax		; read last sectors one by one
 	js .end
 	push eax
@@ -149,7 +148,6 @@ jmp $
 	jmp .looptop
 
 .end:
-jmp $
 	pop dx
 	pop si
 

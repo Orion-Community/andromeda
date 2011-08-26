@@ -139,7 +139,7 @@ main: ; entry point
 
 	pop dx
 	pop si
-	jmp 0x0:0x7E00
+	jmp 0x0:0x7e00
 
 ;
 ; Print routines
