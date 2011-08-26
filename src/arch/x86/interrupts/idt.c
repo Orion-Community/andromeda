@@ -19,63 +19,77 @@
 #include <stdlib.h>
 #include <interrupts/idt.h>
 #include <interrupts/interrupts.h>
+#include <mm/memory.h>
 
-void installExceptions()
+static void
+installExceptions(ol_idt_t idt)
 {
-	setEntry( 0, (uint32_t)divByZero , 0x08, 0x8E);
-	setEntry( 1, (uint32_t)depricated, 0x08, 0x8E);
-	setEntry( 2, (uint32_t)nmi , 0x08, 0x8E);
-	setEntry( 3, (uint32_t)breakp , 0x08, 0x8E);
-	setEntry( 4, (uint32_t)overflow , 0x08, 0x8E);
-	setEntry( 5, (uint32_t)bound , 0x08, 0x8E);
-	setEntry( 6, (uint32_t)invalOp , 0x08, 0x8E);
-	setEntry( 7, (uint32_t)noMath , 0x08, 0x8E);
-	setEntry( 8, (uint32_t)doubleFault , 0x08, 0x8E);
-	setEntry( 9, (uint32_t)depricated , 0x08, 0x8E);
-	setEntry(10, (uint32_t)invalidTSS, 0x08, 0x8E);
-	setEntry(11, (uint32_t)snp, 0x08, 0x8E);
-	setEntry(12, (uint32_t)stackFault, 0x08, 0x8E);
-	setEntry(13, (uint32_t)genProt, 0x08, 0x8E);
-	setEntry(14, (uint32_t)pageFault, 0x08, 0x8E);
-	setEntry(15, (uint32_t)depricated, 0x08, 0x8E);
-	setEntry(16, (uint32_t)fpu, 0x08, 0x8E);
-	setEntry(17, (uint32_t)alligned, 0x08, 0x8E);
-	setEntry(18, (uint32_t)machine, 0x08, 0x8E);
-	setEntry(19, (uint32_t)simd, 0x08, 0x8E);
+	ol_idt_install_entry( 0, (uint32_t)divByZero , 0x08, 0x8E, idt);
+	ol_idt_install_entry( 1, (uint32_t)depricated, 0x08, 0x8E, idt);
+	ol_idt_install_entry( 2, (uint32_t)nmi , 0x08, 0x8E, idt);
+	ol_idt_install_entry( 3, (uint32_t)breakp , 0x08, 0x8E, idt);
+	ol_idt_install_entry( 4, (uint32_t)overflow , 0x08, 0x8E, idt);
+	ol_idt_install_entry( 5, (uint32_t)bound , 0x08, 0x8E, idt);
+	ol_idt_install_entry( 6, (uint32_t)invalOp , 0x08, 0x8E, idt);
+	ol_idt_install_entry( 7, (uint32_t)noMath , 0x08, 0x8E, idt);
+	ol_idt_install_entry( 8, (uint32_t)doubleFault , 0x08, 0x8E, idt);
+	ol_idt_install_entry( 9, (uint32_t)depricated , 0x08, 0x8E, idt);
+	ol_idt_install_entry(10, (uint32_t)invalidTSS, 0x08, 0x8E, idt);
+	ol_idt_install_entry(11, (uint32_t)snp, 0x08, 0x8E, idt);
+	ol_idt_install_entry(12, (uint32_t)stackFault, 0x08, 0x8E, idt);
+	ol_idt_install_entry(13, (uint32_t)genProt, 0x08, 0x8E, idt);
+	ol_idt_install_entry(14, (uint32_t)pageFault, 0x08, 0x8E, idt);
+	ol_idt_install_entry(15, (uint32_t)depricated, 0x08, 0x8E, idt);
+	ol_idt_install_entry(16, (uint32_t)fpu, 0x08, 0x8E, idt);
+	ol_idt_install_entry(17, (uint32_t)alligned, 0x08, 0x8E, idt);
+	ol_idt_install_entry(18, (uint32_t)machine, 0x08, 0x8E, idt);
+	ol_idt_install_entry(19, (uint32_t)simd, 0x08, 0x8E, idt);
 }
 
-void installInterrupts(int offset1, int offset2)
+static void
+installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
 {
-	setEntry(offset1+0, (uint32_t)irq0, 0x08, 0x8e);
-	setEntry(offset1+1, (uint32_t)irq1, 0x08, 0x8e);
-	setEntry(offset1+2, (uint32_t)irq2, 0x08, 0x8e);
-	setEntry(offset1+3, (uint32_t)irq3, 0x08, 0x8e);
-	setEntry(offset1+4, (uint32_t)irq4, 0x08, 0x8e);
-	setEntry(offset1+5, (uint32_t)irq5, 0x08, 0x8e);
-	setEntry(offset1+6, (uint32_t)irq6, 0x08, 0x8e);
-	setEntry(offset1+7, (uint32_t)irq7, 0x08, 0x8e);
-	setEntry(offset2+0, (uint32_t)irq8, 0x08, 0x8e);
-	setEntry(offset2+1, (uint32_t)irq9, 0x08, 0x8e);
-	setEntry(offset2+2, (uint32_t)irq10, 0x08, 0x8e);
-	setEntry(offset2+3, (uint32_t)irq11, 0x08, 0x8e);
-	setEntry(offset2+4, (uint32_t)irq12, 0x08, 0x8e);
-	setEntry(offset2+5, (uint32_t)irq13, 0x08, 0x8e);
-	setEntry(offset2+6, (uint32_t)irq14, 0x08, 0x8e);
-	setEntry(offset2+7, (uint32_t)irq15, 0x08, 0x8e);
+	ol_idt_install_entry(offset1+0, (uint32_t)irq0, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset1+1, (uint32_t)irq1, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset1+2, (uint32_t)irq2, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset1+3, (uint32_t)irq3, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset1+4, (uint32_t)irq4, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset1+5, (uint32_t)irq5, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset1+6, (uint32_t)irq6, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset1+7, (uint32_t)irq7, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset2+0, (uint32_t)irq8, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset2+1, (uint32_t)irq9, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset2+2, (uint32_t)irq10, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset2+3, (uint32_t)irq11, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset2+4, (uint32_t)irq12, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset2+5, (uint32_t)irq13, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset2+6, (uint32_t)irq14, 0x08, 0x8e, idt);
+	ol_idt_install_entry(offset2+7, (uint32_t)irq15, 0x08, 0x8e, idt);
 
 	// software api interrupts
-	setEntry(0x30, (uint32_t)irq30, 0x08, 0x8e);
+	ol_idt_install_entry(0x30, (uint32_t)irq30, 0x08, 0x8e, idt);
 }
 
 void setIDT()
 {
-	ol_idt_t idt;
-	installExceptions();
-	installInterrupts(0x20, 0x28);
-	
-	idt.limit = sizeof(ol_idt_entry_t) * 256;
-	idt.baseptr = 0x7400;
-	
-	installIDT(&idt);
+	ol_idt_t idt = kalloc(sizeof(struct idt));
+        idt->limit = sizeof(ol_idt_entry_t) * 256;
+	idt->baseptr = kalloc(idt->limit);
+        
+	installExceptions(idt);
+	installInterrupts(0x20, 0x28, idt);
+
+	installIDT(idt);
 	setInterrupts();
+}
+
+static void
+ol_idt_install_entry(uint16_t num, uint32_t base, 
+        uint16_t sel, uint8_t flags, ol_idt_t idt)
+{
+        idt->baseptr[num].base_high = (base >> 16) & 0xffff;
+        idt->baseptr[num].base_low = base & 0xffff;
+        idt->baseptr[num].flags = flags;
+        idt->baseptr[num].sel = sel;
+        idt->baseptr[num].zero = 0;
 }

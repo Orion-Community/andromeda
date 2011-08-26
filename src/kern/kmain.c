@@ -21,7 +21,7 @@
 
 #include <sys/io.h>
 #include <sys/dev/ps2.h>
-#include <sys/ide.h>
+#include <sys/disk/ide.h>
 
 #include <mm/mmap.h>
 #include <mm/heap.h>

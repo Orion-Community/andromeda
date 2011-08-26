@@ -18,8 +18,8 @@
 
 #include <stdlib.h>
 
-#ifndef _ISR_H_
-#define _ISR_H_
+#ifndef __IDT_H
+#define __IDT_H
 
 struct idtentry
 {
@@ -29,16 +29,25 @@ struct idtentry
 	uint8_t flags;
 	uint16_t base_high;
 } __attribute__((packed));
-typedef struct idtentry ol_idt_entry_t;
+typedef struct idtentry *ol_idt_entry_t;
 
 struct idt
 {
 	uint16_t limit;
-	uint32_t baseptr;
+	ol_idt_entry_t baseptr;
 } __attribute__((packed));
-typedef struct idt ol_idt_t;
+typedef struct idt *ol_idt_t;
 
-extern void setEntry(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags);
-extern void installIDT(ol_idt_t * idt);
+static void
+ol_idt_install_entry(uint16_t, uint32_t, 
+        uint16_t, uint8_t, ol_idt_t);
+
+static void
+installExceptions(ol_idt_t);
+
+static void
+installInterrupts(uint16_t, uint16_t, ol_idt_t);
+
+extern void installIDT(ol_idt_t idt);
 void setIDT();
 #endif

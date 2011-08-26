@@ -10,7 +10,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 # targets
 SYS=sys.o
 #subtargets
-SYS_DEPS=stdlib.o io.o keyboard.o dev.o
+SYS_DEPS=stdlib.o io.o keyboard.o dev.o disk.o
 
 # source files
 IO_SRC=io.asm
@@ -31,13 +31,17 @@ io.o:
 
 keyboard.o:
 	$(CC) $(CCFLAGS) $(KB_SRC) -o keyboard.o
-	
+
 dev.o:
 	$(MAKE) -C dev/ all
 	mv -v dev/dev.o ./
 
+disk.o:
+	$(MAKE) -C disk/ all
+	mv -v disk/disk.o ./
+
 .PHONY: clean
 clean:
 	$(MAKE) -C dev/ clean
+	$(MAKE) -C disk/ clean
 	rm -v *.o
-
