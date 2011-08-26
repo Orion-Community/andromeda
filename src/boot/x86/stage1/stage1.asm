@@ -28,7 +28,7 @@ dap:
 	db 0x10      	; register size
 	db 0      	; reserved, must be 0
 	dw 0x4      	; sectors to read
-	dw 0x7e00   	; memory offset
+	dw 0x1000   	; memory offset
 	dw 0x0   	; memory segment
 	dq 0x0		; starting sector (sector to read, s1 = 0)
 
@@ -139,7 +139,7 @@ main: ; entry point
 
 	pop dx
 	pop si
-	jmp 0x0:0x7e00
+	jmp 0x0:0x1000
 
 ;
 ; Print routines

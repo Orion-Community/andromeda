@@ -59,12 +59,12 @@ void
 ol_init_heap()
 {
 
-        heap = (ol_memnode_t)(0x8000);        
+        heap = (ol_memnode_t)(1<<20);        
         heap->magic = (uint8_t)OL_HEAP_MAGIC;
         heap->flags = OL_BLOCK_UNUSED;
         heap->next = NULL;
         heap->previous = NULL;
-        heap->size = OL_NODE_SIZE((0x8000), (0xa0000));
+        heap->size = OL_NODE_SIZE((1<<20), (2<<20));
         heap->base = (void *)OL_BLOCK_BASE((uint32_t)heap);
 }
 
@@ -108,11 +108,12 @@ free(void * block)
 
 }
 
-static volatile ol_memnode_t
-ol_add_block(void *base, size_t len)
+volatile ol_memnode_t
+ol_extend_heap(void *base, size_t len)
 {
         ol_add_heaphdr(base, len);
-        
+        ((ol_memnode_t)base)->flags |= OL_BLOCK_INUSE;
+        free(base+sizeof(struct ol_memory_node));
         return base;
 }
 

@@ -1,5 +1,5 @@
 ENTRY(pmodemain)
-phys = 0x100000;
+phys = 0x2000;
 
 SECTIONS
 {	

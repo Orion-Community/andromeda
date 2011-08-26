@@ -89,7 +89,8 @@ extern "C" {
          * @param Block pointer
          * @param Block size
          */
-        static ol_memnode_t ol_add_heaphdr(void *, size_t);
+        static ol_memnode_t 
+        ol_add_heaphdr(void *, size_t);
         
         /**
          * Add a new block to the heap.
@@ -97,7 +98,8 @@ extern "C" {
          * @param len Length of the block.
          * @return The block.
          */
-        static volatile ol_memnode_t ol_add_block(void*, size_t);
+        volatile ol_memnode_t 
+        ol_extend_heap(void*, size_t);
         
         /**
          * Merges two blocks again.

@@ -17,7 +17,7 @@
 ;
 
 [BITS 16]
-[ORG 0x8200]
+[ORG 0x1400]
 jmp short main
 
 %include "boot/stage15.asmh"
@@ -74,7 +74,6 @@ main:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	mov esp, 0x8000; top of usable memory..
 	jmp32 0x8, linearaddr(0x0, pmodemain)	; get to pmode
 
 

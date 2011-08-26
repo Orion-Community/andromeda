@@ -17,7 +17,7 @@
 ;
 
 [BITS 16]
-[ORG 0x7e00]
+[ORG 0x1000]
 
 %include "boot/masterboot.asmh"
 %include "boot/stage15.asmh"
@@ -42,6 +42,9 @@ gdtr:
 
 [GLOBAL main]
 main:
+cli
+	mov sp, OL_REALMODE_STACK
+sti
 	mov di, OL_PTABLE_PTR
 	mov si, OL_BUFOFF+OL_PART_TABLE
 	push di
@@ -151,7 +154,7 @@ main:
 	pop dx
 	pop si
 
-	jmp 0x0:0x8200
+	jmp 0x0:0x1400
 
 	jmp .bailout
 

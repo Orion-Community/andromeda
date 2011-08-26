@@ -19,11 +19,12 @@
 %ifndef __STAGE15_H
 %define __STAGE15_H
 
-%define OL_DESTINATION_BUFFER 0x100000
+%define OL_DESTINATION_BUFFER 0x2000
 %define OL_SECTOR_BUFFER 0x600
 
 %define OL_SECTOR_BLOCK 4
-%define OL_PTABLE_PTR 0x1000
+%define OL_PTABLE_PTR 0xf00
+%define OL_REALMODE_STACK 0x2000
 
 %define linearaddr(segaddr, offaddr) segaddr * 0x10 + offaddr
 

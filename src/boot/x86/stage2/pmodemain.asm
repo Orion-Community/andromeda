@@ -20,8 +20,8 @@
 
 %ifndef __STAGE2
 [SECTION .bss]
-stack: resb 0x800
-
+resb 0x800
+stack:
 %endif
 
 [SECTION .text]
@@ -39,9 +39,9 @@ jmp short pmodemain
 ; 0x100000, which will started up the kernel.
 pmodemain:
 %ifndef __STAGE2
-;	mov eax, [esp]
-;	mov esp, stack
-;	mov [esp], eax
+	mov eax, [esp]
+	mov esp, stack
+	mov [esp], eax
 	mov eax, kmain
 	call eax
 %elifdef __STAGE2

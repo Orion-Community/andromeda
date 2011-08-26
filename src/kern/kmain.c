@@ -41,7 +41,6 @@ void kmain(ol_mmap_register_t mmr)
 	textinit();
 	clearscreen();
 
-
 	println("The openLoader kernel is executing. \n");
         
 	print("Current stack pointer: ");
@@ -79,9 +78,9 @@ void kmain(ol_mmap_register_t mmr)
         ata->base_port = 0x1f0;
         ata->dcr = 0x3f6;
         ata->slave = 0;
-        
 	uint8_t dev_type = ol_ata_detect_dev_type(ata);
 	printnum(dev_type, 16, FALSE, FALSE);
+        free(ata);
         putc(0xa);
 #endif
 	println("Waiting for service interrupts.. \n");

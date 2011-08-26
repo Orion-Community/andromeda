@@ -54,7 +54,7 @@ void pic_remap(uint32_t offset1, uint32_t offset2)
 	outb(0xa1, 0x3f);
 
 #if 0
-	outb(OL_PIC2_DATA, 0xff);	// disable irq's, not yet implemented.
+	outb(OL_PIC2_DATA, 0xff);	// disable irq's
 	outb(OL_PIC2_COMMAND, 0xff);
 	iowait();
 #endif
