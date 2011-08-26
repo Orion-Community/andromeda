@@ -16,7 +16,7 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-%macro stsgms 1
+%macro st_segs 1
 	mov ax, %1
 	mov ds, ax
 	mov es, ax

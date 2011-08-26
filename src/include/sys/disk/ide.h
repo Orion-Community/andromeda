@@ -16,8 +16,38 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sys/dev/pci.h>
+
+#ifndef __IDE_H
+#define __IDE_H
+
+/* ATA bus defines */
+#define OL_MASTER_BUS 0x1f0
+#define OL_DATA_BUS(x) (x)
+
+#define OL_ATA_ERR_INFO(x) (x+1)
+#define OL_ATA_FEATURES(x) (x+1)
+
+#define OL_ATA_SECTOR_COUNT(x) (x+2)
+#define OL_ATA_LOW_LBA(x) (x+3)
+#define OL_ATA_MID_LBA(x) (x+4)
+#define OL_ATA_HIGH_LBA(x) (x+5)
+
+#define OL_ATA_DRIVE_SELECT(x) (x+6)
+#define OL_ATA_HEAD_SELECT(x) (x+6)
+
+#define OL_ATA_COMMAND(x) (x+7)
+#define OL_ATA_STATUS(x) (x+7)
+
+/* ATA device types */
+#define OL_ATA_PATAPI 0x1
+#define OL_ATA_SATAPI 0x2
+#define OL_ATA_PATA 0x4
+#define OL_ATA_SATA 0x8
+#define OL_ATA_UNKNOWN 0xff
+
 // Max 4 partitions
-struct partition_table 
+typedef struct partition_table 
 {
 	uint8_t boot_ind;
 	uint8_t starting_head;
@@ -27,8 +57,15 @@ struct partition_table
 	uint16_t ending_sect_cyl; // same story as byte 2 and 3
 	uint32_t lba;
 	uint32_t total_sectors; // total sectors in this partition
-} bootdrive[4];
-typedef struct partition_table *ol_ptable_t;
+} *ol_ptable_t;
+
+typedef struct ol_ata_dev
+{
+        uint16_t base_port;
+        uint16_t dcr; /* device control register */
+        uint8_t slave;
+        ol_pci_dev_t pci_dev;
+} *ol_ata_dev_t;
 
 /**
  * Read from drive.
@@ -51,3 +88,10 @@ extern uint8_t ide_init(ol_ptable_t partitions);
  * Get information about the drive.
  */
 extern uint8_t ata_identify(void);
+
+int
+ol_ata_detect_dev_type(ol_ata_dev_t);
+
+static void
+ol_ata_soft_reset(ol_ata_dev_t);
+#endif

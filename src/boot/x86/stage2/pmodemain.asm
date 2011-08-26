@@ -36,6 +36,7 @@ pmodemain:
 	call eax
 %elifdef __STAGE2
 	push mmr
+jmp $
 	jmp OL_DESTINATION_BUFFER
 %endif
 

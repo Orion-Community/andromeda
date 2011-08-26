@@ -55,7 +55,7 @@ ide_init:
 	mov ebp, esp
 
 	mov edi, [ebp+8]
-	mov esi, 0x7c00
+	mov esi, 0x1000
 	cld
 	xor edx, edx	; max 4 partitions
 

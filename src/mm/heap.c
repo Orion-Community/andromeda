@@ -58,13 +58,13 @@ ol_dbg_heap()
 void 
 ol_init_heap()
 {
-        heap = (ol_memnode_t)0x8000;
+        heap = (ol_memnode_t)(0x100000);
         
         heap->magic = (uint8_t)OL_HEAP_MAGIC;
         heap->flags = OL_BLOCK_UNUSED;
         heap->next = NULL;
         heap->previous = NULL;
-        heap->size = OL_NODE_SIZE(0x8000, 0xa0000);
+        heap->size = OL_NODE_SIZE(0x100000, 0x200000);
         heap->base = (void *)OL_BLOCK_BASE((uint32_t)heap);
 }
 

@@ -21,7 +21,7 @@
 
 #include <sys/io.h>
 #include <sys/dev/ps2.h>
-#include <sys/ide.h>
+#include <sys/disk/ide.h>
 
 #include <mm/mmap.h>
 #include <mm/heap.h>
@@ -30,6 +30,8 @@
 #include <interrupts/idt.h>
 
 #include <sys/dev/pci.h>
+
+#include "sys/disk/ide.h"
 
 
 
@@ -63,17 +65,28 @@ void kmain(ol_mmap_register_t mmr)
 	println("Multiboot memory map:\n");
 	display_mmap(mmr);
 
-#if 0
-	uint8_t active = ide_init(bootdrive);
-	ide_read(0x100, 1<<20, &bootdrive[active], 60);
-	uint8_t eax = ata_identify();
-	printnum(active, 16, FALSE, FALSE);
-#endif
+        putc(0xa);
+        //ol_pci_init();
         
-	putc(0xa);
-        ol_pci_init();
+        
+#if 1
+        putc(0xa);
+        
+        struct partition_table bootdrive[4];
+	uint8_t active = ide_init(bootdrive); /* search the boot partition */
+
+        ol_ata_dev_t ata = kalloc(sizeof(struct ol_ata_dev));
+        ata->base_port = 0x1f0;
+        ata->dcr = 0x3f6;
+        ata->slave = 0;
+        
+	uint8_t dev_type = ol_ata_detect_dev_type(ata);
+	printnum(dev_type, 16, FALSE, FALSE);
+        putc(0xa);
+#endif
 	println("Waiting for service interrupts.. \n");
 
+        
         ol_detach_all_devices();
         ol_dbg_heap();
 

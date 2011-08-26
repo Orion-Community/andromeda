@@ -9,13 +9,14 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 # targets
 MM=mm.o
-MM_DEPS=mmap.o mmap2.o heap.o
+MM_DEPS=mmap.o mmap2.o heap.o memory.o
 
 # source files
 MMAP=mmap.asm
 MMAP2=mmap.c
 ALLOC=alloc.c
 HEAP=heap.c
+MEMORY=memory.c
 
 .PHONY: all
 all: $(MM)
@@ -34,6 +35,9 @@ alloc.o: $(ALLOC)
 	
 heap.o: $(HEAP)
 	$(CC) $(CCFLAGS) $(HEAP) -o heap.o
+	
+memory.o: $(MEMORY)
+	$(CC) $(CCFLAGS) $(MEMORY) -o memory.o
 
 .PHONY: clean
 clean:

@@ -103,6 +103,7 @@ main:
 	jmp .loadsector
 
 .lastsectors:
+jmp $
 	dec eax		; read last sectors one by one
 	js .end
 	push eax
@@ -110,7 +111,7 @@ main:
 	mov ax, 1
 
 .loadsector:
-	mov cx, ax
+	mov ecx, eax
 	mov eax, dword [OL_PTABLE_PTR+8]
 	add eax, 5	; sixth sector offset
 	add eax, ebp	; make sure we don't read the same sector every time
@@ -124,12 +125,12 @@ main:
 ; now we will copy the sector from the buffer to its final destination
 .cpylooptop:
 	and ecx, 0xffff
-	shl cx, 9	; cx *= 512
+	shl ecx, 9	; cx *= 512
 	shl ebp, 9	; ebp *= 512
 	mov edi, OL_DESTINATION_BUFFER	; start of destination
 	mov esi, OL_SECTOR_BUFFER	; buffer address
 	add edi, ebp	; adjust destination for current read
-	add ebx, ebp
+
 	shr ebp, 9	; revert back
 
 .cpysectors:	; actualy a memcpy
@@ -139,13 +140,16 @@ main:
 	add edi, 1	; copy 4 bytes every memcpy loop
 	add esi, 1
 
-	sub cx, 1	; we do NOT want a never ending loop
+	sub ecx, 1	; we do NOT want a never ending loop
 	jnz .cpysectors
+	js .end
+
+
 
 	jmp .looptop
 
 .end:
-
+jmp $
 	pop dx
 	pop si
 

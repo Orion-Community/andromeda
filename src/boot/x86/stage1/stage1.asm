@@ -140,8 +140,6 @@ main: ; entry point
 	pop dx
 	pop si
 	jmp 0x0:0x7E00
-	cli
-	jmp $
 
 ;
 ; Print routines
