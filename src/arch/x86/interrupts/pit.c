@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <sys/io.h>
 
-static ol_pit_system_timer pit_chan0 = NULL;
+static ol_pit_system_timer_t pit_chan0 = NULL;
 
 int
 ol_pit_init(uint16_t hz)
@@ -30,6 +30,8 @@ ol_pit_init(uint16_t hz)
                 pit_chan0 = kalloc(sizeof(struct ol_pit));
                 
         } else return -1;
+	pit_chan0->channel = 0;
+	pit_chan0->mode = OL_PIT_RATE_GEN
         ol_pit_reload_val_t rv;
         
         if(hz <= OL_PIT_MIN_FREQ)
@@ -62,13 +64,13 @@ ol_pit_calculate_reload(uint16_t hz)
 }
 
 static void
-ol_pit_calculate_freq(ol_pit_system_timer pit)
+ol_pit_calculate_freq(ol_pit_system_timer_t pit)
 {
         pit->timer = (pit->reload_value * 0xDBB3A062) << 10;
 }
 
 static void
-ol_pit_program_pit(ol_pit_system_timer pit)
+ol_pit_program_pit(ol_pit_system_timer_t pit)
 {
         outb(pit->cport, pit->mask); /* set the mask */
         outb(pit->dport, (uint8_t)(pit->reload_value&0xff)); /* low byte */

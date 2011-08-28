@@ -23,7 +23,9 @@
 extern "C"
 {
 #endif
-        
+
+/* different PIT types */
+#define OL_PIT_RATE_GEN 4
 /* some PIT data definitions */
 #define OL_RELOAD_DIVISOR 3579545
 #define OL_PIT_MAX_FREQ 1193181
@@ -43,19 +45,22 @@ extern "C"
                 ol_pit_reload_val_t reload_value;
                 double timer;
                 ol_pit_port_t dport,cport;
-        } *ol_pit_system_timer;
+        } *ol_pit_system_timer_t;
         
         int
         ol_pit_init(uint16_t);
         
         static void
-        ol_pit_calculate_freq(ol_pit_reload_val_t);
+        ol_pit_calculate_freq(ol_pit_system_timer_t);
         
         static void
-        ol_pit_program_pit(ol_pit_reload_val_t);
+        ol_pit_program_pit(ol_pit_system_timer_t);
         
         static ol_pit_reload_val_t
         ol_pit_calculate_reload(uint16_t);
+	
+	static void
+	ol_pit_calc_mask(ol_pit_system_timer_t);
         
 #ifdef	__cplusplus
 }
