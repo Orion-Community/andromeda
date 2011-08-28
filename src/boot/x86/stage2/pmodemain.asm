@@ -41,7 +41,7 @@ pmodemain:
 %ifndef __STAGE2
 	mov eax, [esp]
 	mov esp, stack
-	mov [esp], eax
+	push eax
 	mov eax, kmain
 	call eax
 %elifdef __STAGE2

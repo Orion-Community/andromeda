@@ -65,10 +65,10 @@ void kmain(ol_mmap_register_t mmr)
 	display_mmap(mmr);
 
         putc(0xa);
-        //ol_pci_init();
+        ol_pci_init();
         
         
-#if 1
+#if 0
         putc(0xa);
         
         struct partition_table bootdrive[4];
