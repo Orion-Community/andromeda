@@ -83,8 +83,5 @@ ol_pit_program_pit(ol_pit_system_timer_t pit)
         outb(pit->cport, pit->mask); /* set the mask */
         outb(pit->dport, (uint8_t)(pit->reload_value)); /* low byte */
         outb(pit->dport, (uint8_t)(pit->reload_value>>8)); /* high byte */
-        printnum((uint8_t)(pit->reload_value), 16, 0,0);
-        putc(0xa);
-        printnum((uint8_t)(pit->reload_value >> 8), 16, 0,0);
         iowait();
 }

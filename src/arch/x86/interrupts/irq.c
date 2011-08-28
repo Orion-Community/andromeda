@@ -30,7 +30,6 @@ uint64_t sleepTime = 0;
 bool isSleeping = FALSE;
 void cIRQ0(ol_irq_stack_t regs)
 {
-        putc(0x41);
 	if(isSleeping)
 	{
 		if(!(sleepTime == 0)) sleepTime--;

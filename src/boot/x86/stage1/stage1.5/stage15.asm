@@ -176,6 +176,6 @@ sti
 
 %include 'a20.asm'
 	
-	failed db '0x2', 0x0
+	failed db '0x1.5', 0x0
 
 times 1024 - ($ - $$) db 0
