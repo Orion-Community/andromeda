@@ -19,19 +19,23 @@
 #include <interrupts/pit.h>
 #include <stdlib.h>
 #include <sys/io.h>
+#include <mm/heap.h>
+#include <textio.h>
 
 static ol_pit_system_timer_t pit_chan0 = NULL;
 
 int
 ol_pit_init(uint16_t hz)
 {
-        if(pit_chan0 != NULL)
+        if(pit_chan0 == NULL)
         {
                 pit_chan0 = kalloc(sizeof(struct ol_pit));
                 
         } else return -1;
+        
 	pit_chan0->channel = 0;
-	pit_chan0->mode = OL_PIT_RATE_GEN
+	pit_chan0->mode = OL_PIT_RATE_GEN;
+        pit_chan0->access = 3;
         ol_pit_reload_val_t rv;
         
         if(hz <= OL_PIT_MIN_FREQ)
@@ -72,6 +76,7 @@ ol_pit_calculate_freq(ol_pit_system_timer_t pit)
 static void
 ol_pit_program_pit(ol_pit_system_timer_t pit)
 {
+        ol_pit_calc_mask(pit);
         outb(pit->cport, pit->mask); /* set the mask */
         outb(pit->dport, (uint8_t)(pit->reload_value&0xff)); /* low byte */
         outb(pit->dport, (uint8_t)((pit->reload_value>>8)&0xff)); /* high byte */

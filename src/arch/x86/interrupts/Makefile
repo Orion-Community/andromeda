@@ -23,7 +23,7 @@ IRQ2_SRC=irq.c
 ISR_SRC=isr.asm
 ISR2_SRC=isr.c
 PIC_SRC=pic.c
-PIT_SRC=pit.asm
+PIT_SRC=pit.c
 
 
 .PHONY: all
@@ -51,7 +51,7 @@ $(PIC): $(PIC_SRC)
 	$(CC) $(CCFLAGS) $(PIC_SRC) -o $(PIC)
 
 $(PIT): $(PIT_SRC)
-	$(AS) $(ASFLAGS) $(PIT_SRC) -o $(PIT)
+	$(CC) $(CCFLAGS) $(PIT_SRC) -o $(PIT)
 
 .PHONY: clean
 clean:

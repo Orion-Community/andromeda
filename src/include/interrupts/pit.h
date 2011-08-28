@@ -16,6 +16,8 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+
 #ifndef PIT_H
 #define	PIT_H
 
@@ -25,12 +27,12 @@ extern "C"
 #endif
 
 /* different PIT types */
-#define OL_PIT_RATE_GEN 4
+#define OL_PIT_RATE_GEN 2
+#define OL_PIT_LO_HI_BYTE 3
 /* some PIT data definitions */
 #define OL_RELOAD_DIVISOR 3579545
 #define OL_PIT_MAX_FREQ 1193181
 #define OL_PIT_MIN_FREQ 18
-#define OL_RELOAD_DIVISOR 3579545
 
 /* I/O port definitions */
 #define OL_PIT_COMMAND 0x43
@@ -41,7 +43,7 @@ extern "C"
         
         typedef struct ol_pit
         {
-                uint8_t channel, mode, mask;
+                uint8_t channel, mode, access, mask;
                 ol_pit_reload_val_t reload_value;
                 double timer;
                 ol_pit_port_t dport,cport;
@@ -59,8 +61,12 @@ extern "C"
         static ol_pit_reload_val_t
         ol_pit_calculate_reload(uint16_t);
 	
-	static void
-	ol_pit_calc_mask(ol_pit_system_timer_t);
+	static inline void
+	ol_pit_calc_mask(ol_pit_system_timer_t pit)
+        {
+                pit->mask = ((pit->channel << 6) | (pit->access << 4) | (pit->mode
+                        << 1)) & 0xfe;
+        }
         
 #ifdef	__cplusplus
 }

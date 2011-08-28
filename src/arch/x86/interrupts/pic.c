@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <error/panic.h>
 #include <interrupts/pic.h>
+#include <interrupts/pit.h>
+#include <textio.h>
 
 void pic_remap(uint32_t offset1, uint32_t offset2)
 {
@@ -72,5 +74,5 @@ void pic_eoi(uint8_t irq)
 void pic_init()
 {
 	pic_remap(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE+8);
-	initPIT(100); // program pic to 100 hertz
+	ol_pit_init(100); // program pic to 100 hertz
 }
