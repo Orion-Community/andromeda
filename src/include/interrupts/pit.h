@@ -28,31 +28,33 @@ extern "C"
 #define OL_RELOAD_DIVISOR 3579545
 #define OL_PIT_MAX_FREQ 1193181
 #define OL_PIT_MIN_FREQ 18
+#define OL_RELOAD_DIVISOR 3579545
 
 /* I/O port definitions */
 #define OL_PIT_COMMAND 0x43
 #define OL_PIT_CHAN0_DATA 0x40
 
         typedef uint16_t ol_pit_port_t;
-        typedef uint32_t ol_pit_reload_val;
+        typedef uint32_t ol_pit_reload_val_t;
         
         typedef struct ol_pit
         {
-                uint8_t channel, mode;
-                ol_pit_reload_val reload_value;
-                ol_pit_port_t port;
-        } *ol_system_pit;
+                uint8_t channel, mode, mask;
+                ol_pit_reload_val_t reload_value;
+                double timer;
+                ol_pit_port_t dport,cport;
+        } *ol_pit_system_timer;
         
-        void
+        int
         ol_pit_init(uint16_t);
         
-        static ol_pit_reload_val
-        ol_pit_calculate_freq(ol_pit_reload_val);
+        static void
+        ol_pit_calculate_freq(ol_pit_reload_val_t);
         
         static void
-        ol_pit_program_pit(ol_pit_reload_val);
+        ol_pit_program_pit(ol_pit_reload_val_t);
         
-        static ol_pit_reload_val
+        static ol_pit_reload_val_t
         ol_pit_calculate_reload(uint16_t);
         
 #ifdef	__cplusplus

@@ -18,33 +18,60 @@
 
 #include <interrupts/pit.h>
 #include <stdlib.h>
+#include <sys/io.h>
 
-static ol_system_pit pit_chan0 = NULL;
+static ol_pit_system_timer pit_chan0 = NULL;
 
-void
+int
 ol_pit_init(uint16_t hz)
 {
         if(pit_chan0 != NULL)
+        {
                 pit_chan0 = kalloc(sizeof(struct ol_pit));
-        ol_pit_reload_val rv;
+                
+        } else return -1;
+        ol_pit_reload_val_t rv;
         
         if(hz <= OL_PIT_MIN_FREQ)
         {
-                ol_pit_calculate_freq(0xffff); // slowest reload value
+                pit_chan0->reload_value = 0xffff;
+                ol_pit_calculate_freq(pit_chan0); // slowest reload value
         }
         
         else if(hz >= OL_PIT_MAX_FREQ)
-                ol_pit_calculate_freq(1); // fastest reload value
-        
+        {
+                pit_chan0->reload_value = 1;
+                ol_pit_calculate_freq(pit_chan0); // fastest reload value
+        }
         else 
         {
                 rv = ol_pit_calculate_reload(hz);
-                ol_pit_calculate_freq(rv);
+                pit_chan0->reload_value = rv;
+                ol_pit_calculate_freq(pit_chan0);           
         }
+        ol_pit_program_pit(pit_chan0);
 }
 
-static ol_pit_reload_val
+static ol_pit_reload_val_t
 ol_pit_calculate_reload(uint16_t hz)
 {
-        
+        register ol_pit_reload_val_t ret = hz / OL_RELOAD_DIVISOR;
+        if(ret%2 != 0) ret++;
+        ret /= 3;
+        return ret;
+}
+
+static void
+ol_pit_calculate_freq(ol_pit_system_timer pit)
+{
+        pit->timer = (pit->reload_value * 0xDBB3A062) << 10;
+}
+
+static void
+ol_pit_program_pit(ol_pit_system_timer pit)
+{
+        outb(pit->cport, pit->mask); /* set the mask */
+        outb(pit->dport, (uint8_t)(pit->reload_value&0xff)); /* low byte */
+        outb(pit->dport, (uint8_t)((pit->reload_value>>8)&0xff)); /* high byte */
+        iowait();
 }
