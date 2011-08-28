@@ -25,7 +25,7 @@
 static ol_pit_system_timer_t pit_chan0 = NULL;
 
 int
-ol_pit_init(uint16_t hz)
+ol_pit_init(uint32_t hz)
 {
         if(pit_chan0 == NULL)
         {
@@ -36,23 +36,25 @@ ol_pit_init(uint16_t hz)
 	pit_chan0->channel = 0;
 	pit_chan0->mode = OL_PIT_RATE_GEN;
         pit_chan0->access = 3;
-        ol_pit_reload_val_t rv;
+        pit_chan0->cport = OL_PIT_COMMAND;
+        pit_chan0->dport = OL_PIT_CHAN0_DATA;
         
         if(hz <= OL_PIT_MIN_FREQ)
         {
+
                 pit_chan0->reload_value = 0xffff;
                 ol_pit_calculate_freq(pit_chan0); // slowest reload value
         }
         
         else if(hz >= OL_PIT_MAX_FREQ)
         {
+                putc(0x42);
                 pit_chan0->reload_value = 1;
                 ol_pit_calculate_freq(pit_chan0); // fastest reload value
         }
         else 
         {
-                rv = ol_pit_calculate_reload(hz);
-                pit_chan0->reload_value = rv;
+                pit_chan0->reload_value = ol_pit_calculate_reload(hz);
                 ol_pit_calculate_freq(pit_chan0);           
         }
         ol_pit_program_pit(pit_chan0);
@@ -61,9 +63,10 @@ ol_pit_init(uint16_t hz)
 static ol_pit_reload_val_t
 ol_pit_calculate_reload(uint16_t hz)
 {
-        register ol_pit_reload_val_t ret = hz / OL_RELOAD_DIVISOR;
-        if(ret%2 != 0) ret++;
+        register ol_pit_reload_val_t ret = OL_RELOAD_DIVISOR/hz;
+        if(ret < (OL_RELOAD_DIVISOR/2)) ret++;
         ret /= 3;
+        if(ret < (3/2)) ret++;
         return ret;
 }
 
@@ -78,7 +81,10 @@ ol_pit_program_pit(ol_pit_system_timer_t pit)
 {
         ol_pit_calc_mask(pit);
         outb(pit->cport, pit->mask); /* set the mask */
-        outb(pit->dport, (uint8_t)(pit->reload_value&0xff)); /* low byte */
-        outb(pit->dport, (uint8_t)((pit->reload_value>>8)&0xff)); /* high byte */
+        outb(pit->dport, (uint8_t)(pit->reload_value)); /* low byte */
+        outb(pit->dport, (uint8_t)(pit->reload_value>>8)); /* high byte */
+        printnum((uint8_t)(pit->reload_value), 16, 0,0);
+        putc(0xa);
+        printnum((uint8_t)(pit->reload_value >> 8), 16, 0,0);
         iowait();
 }

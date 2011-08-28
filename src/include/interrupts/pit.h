@@ -50,7 +50,7 @@ extern "C"
         } *ol_pit_system_timer_t;
         
         int
-        ol_pit_init(uint16_t);
+        ol_pit_init(uint32_t);
         
         static void
         ol_pit_calculate_freq(ol_pit_system_timer_t);
