@@ -24,24 +24,24 @@ ol_lock_t lock = 0;
 int
 ol_cpuid_available(ol_cpu_t cpu)
 {
-        register uint32_t flags;
-        register uint32_t flags2;
-        
-        cpu->lock(lock);
+        uint32_t flags;
+        uint32_t flags2;
+
+        cpu->lock(&lock);
         flags = ol_get_eflags();
         ol_set_eflags(flags^OL_CPUID_TEST_BIT);
-        printnum(lock, 16,0,0);
+
         flags2 = ol_get_eflags();
         ol_set_eflags(flags); /* restore flags */
         
         if((flags2>>21)&1)
         {
-                //cpu->unlock(lock);
+                cpu->unlock(&lock);
                 return 0;
         }
         else
         {
-                cpu->unlock(lock);
+                cpu->unlock(&lock);
                 return 1;
         }
 }
@@ -77,24 +77,36 @@ ol_get_eflags(void)
 }
 
 void
-ol_mutex_lock(ol_lock_t lock)
+ol_mutex_lock(ol_lock_t *lock)
 {
-        ol_mutex_toggle(lock, 1);
+        asm volatile("movb $1, %%al \n\t"
+                "l3: xchgb %%al, (%0) \n\t"
+                "testb %%al, %%al \n\t"
+                "jnz l3"
+                : /* no output */
+                : "r" (lock)
+                : "%eax");
 }
 
 void
-ol_mutex_release(ol_lock_t lock)
+ol_mutex_release(ol_lock_t *lock)
 {
-        ol_mutex_toggle(lock, 0);
+        asm volatile("movb $0, %%al \n\t"
+                "l2: xchgb %%al, (%0) \n\t"
+                "testb %%al, %%al \n\t"
+                "jnz l2"
+                : /* no output */
+                : "r" (lock)
+                : "%eax");
 }
 
 static void
 ol_mutex_toggle(ol_lock_t lock, uint8_t direction)
 {
         asm volatile("movb %1, %%al \n\t"
-                "spin: xchgb %%al, %0 \n\t"
+                "l1: xchgb %%al, %0 \n\t"
                 "testb %%al, %%al \n\t"
-                "jnz spin"
+                "jnz l1"
                 : /* no output */
                 : "r" (lock), "r" (direction)
                 : "%eax");

@@ -51,8 +51,8 @@ extern "C"
                 /* CPU device info */
                 uint8_t flags;
 
-                void (*lock)(ol_lock_t);
-                void (*unlock)(ol_lock_t);
+                void (*lock)(ol_lock_t*);
+                void (*unlock)(ol_lock_t*);
                 
         } *ol_cpu_t;
 
@@ -74,10 +74,10 @@ extern "C"
 
         /* LOCKS */
         void /* lock spin lock */
-        ol_mutex_lock(ol_lock_t);
+        ol_mutex_lock(ol_lock_t*);
         
         void /* spin release */
-        ol_mutex_release(ol_lock_t);
+        ol_mutex_release(ol_lock_t*);
         
         static void
         ol_mutex_toggle(ol_lock_t lock, uint8_t direction);
