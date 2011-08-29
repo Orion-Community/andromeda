@@ -66,18 +66,23 @@ extern "C"
         ol_cpu_t 
         ol_cpuid(void);
         
-        extern uint32_t
+        uint32_t
         ol_get_eflags(void);
         
-        extern void
+        void
         ol_set_eflags(uint32_t);
-        
-        extern void
-        ol_mutex_lock(ol_lock_t);
 
-        extern void
+        /* LOCKS */
+        void /* lock spin lock */
+        ol_mutex_lock(ol_lock_t);
+        
+        void /* spin release */
         ol_mutex_release(ol_lock_t);
         
+        static void
+        ol_mutex_toggle(ol_lock_t lock, uint8_t direction);
+        
+        /* CPUID */
         extern uint8_t
         __ol_cpuid(ol_registers_t);
 

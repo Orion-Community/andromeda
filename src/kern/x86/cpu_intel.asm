@@ -17,31 +17,6 @@
 ;
 
 [SECTION .text]
-[GLOBAL ol_get_eflags]
-ol_get_eflags:
-	push ebp
-	mov ebp, esp
-	
-	pushfd
-	pop eax
-
-	mov esp, ebp
-	pop ebp
-	ret
-
-[GLOBAL ol_set_eflags]
-ol_set_eflags:
-	push ebp
-	mov ebp, esp
-	
-	mov eax, [ebp+8]
-	push eax
-	popfd
-
-	mov esp, ebp
-	pop ebp
-	ret
-
 [GLOBAL ol_mutex_lock]
 ol_mutex_lock:
 	push ebp

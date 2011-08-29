@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <arch/x86/cpu.h>
 
-ol_lock_t lock;
+ol_lock_t lock = 0;
 
 int
 ol_cpuid_available(ol_cpu_t cpu)
@@ -30,18 +30,19 @@ ol_cpuid_available(ol_cpu_t cpu)
         cpu->lock(lock);
         flags = ol_get_eflags();
         ol_set_eflags(flags^OL_CPUID_TEST_BIT);
+        printnum(lock, 16,0,0);
         flags2 = ol_get_eflags();
         ol_set_eflags(flags); /* restore flags */
         
-        if((flags>>21)&1)
+        if((flags2>>21)&1)
         {
-                cpu->unlock(lock);
+                //cpu->unlock(lock);
                 return 0;
         }
         else
         {
                 cpu->unlock(lock);
-                return -1;
+                return 1;
         }
 }
 
@@ -52,10 +53,58 @@ ol_cpuid(void)
 }
 
 void
+ol_set_eflags(uint32_t flags)
+{
+        asm volatile("movl %0, %%eax \n\t"
+                        "pushl %%eax \n\t"
+                        "popfl"
+                        : /* no output */
+                        : "r" (flags) 
+                        : "%eax");    
+}
+
+uint32_t
+ol_get_eflags(void)
+{
+        uint32_t ret;
+        asm volatile("pushfl \n\t"
+                        "popl %%eax \n\t"
+                        "movl %%eax, %0"
+                        : "=r" (ret)
+                        : /* no input */
+                        : "%eax" /* eax is clobbered */);
+        return ret;
+}
+
+void
+ol_mutex_lock(ol_lock_t lock)
+{
+        ol_mutex_toggle(lock, 1);
+}
+
+void
+ol_mutex_release(ol_lock_t lock)
+{
+        ol_mutex_toggle(lock, 0);
+}
+
+static void
+ol_mutex_toggle(ol_lock_t lock, uint8_t direction)
+{
+        asm volatile("movb %1, %%al \n\t"
+                "spin: xchgb %%al, %0 \n\t"
+                "testb %%al, %%al \n\t"
+                "jnz spin"
+                : /* no output */
+                : "r" (lock), "r" (direction)
+                : "%eax");
+}
+
+void
 ol_cpu_init(ol_cpu_t cpu)
 {
         cpu->flags = 0;
         cpu->lock = &ol_mutex_lock;
         cpu->unlock = &ol_mutex_release;
-        cpu->flags |= ol_cpuid_available(cpu);
+        cpu->flags |= ol_cpuid_available(cpu) ? 0 : 1;
 }

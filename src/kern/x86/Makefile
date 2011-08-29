@@ -18,11 +18,11 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 ## local sources
 CPU=cpu.c
-CPU_INTEL=cpu_intel.asm
+#CPU_INTEL=cpu_intel.asm
 
 ## targets
 INTEL=i386.o
-INTEL_DEPS=cpu.o cpu_intel.o
+INTEL_DEPS=cpu.o #cpu_intel.o
 
 all: $(INTEL)
 
