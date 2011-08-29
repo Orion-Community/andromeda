@@ -99,9 +99,11 @@ int setVideoMode(int mode)
 	memset(0xA0000,11,16);
 	printf("Check 2\n");
 	printf("Screenbuf: %X\nESP: %X\nValue: %X\n", screenbuf, getESP(), size);
+	printf("Check 2.1\n");
 	int i = 0;
 	for (; i < 0x4FFFFFFF; i++);
 	pageDbg = TRUE;
+	printf("Check 2.2\n");
 	memset(screenbuf,0,size); //hangs
 	printf("Check 3\n");
 	for(;;);	

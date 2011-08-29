@@ -35,6 +35,7 @@ mboot:
 start:
   mov ecx, stack		; Set the new stack frame
   add ecx, 0x10000		; Add the size of the stack to the pointer
+  sub ecx, 0x4			; Fix the offset
   mov ebp, ecx
   mov esp, ecx			; Stack grows down in memory and we're at the
   push esp			; top of the minimum required memory
