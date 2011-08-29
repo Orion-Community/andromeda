@@ -7,7 +7,8 @@ MAKE=make
 # Flags
 ASFLAGS=-felf32 -I"include/" $(FLAGS)
 BINARYASFLAGS=-f bin -I"include/" $(FLAGS)
-CCFLAGS=-c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc -Iinclude $(FLAGS)
+CCFLAGS=-c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin \
+-finline-functions-called-once -fno-weak -nostdinc -Iinclude $(FLAGS)
 LDFLAGS=-Tlink.ld --oformat binary -melf_i386
 FLAGS=-D __HDD -D __DEBUG
 

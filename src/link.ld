@@ -15,6 +15,7 @@ SECTIONS
 	{
 		data = .; _data = .; __data = .;
 		*(.data)
+		*(COMMON)
 		. = ALIGN(4096);
 	}
 
@@ -22,7 +23,6 @@ SECTIONS
 	{
 		bss = .; _bss = .; __bss = .;
 		*(.bss)
-		*(COMMON)
                 . = ALIGN(4096);
 	}
 	.end ALIGN(2) : AT(phys + (end - code))

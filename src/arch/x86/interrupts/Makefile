@@ -2,7 +2,8 @@
 AS=nasm
 ASFLAGS=-felf32 -I"../../../include/" $(FLAGS)
 CC=gcc
-CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin -nostdinc $(FLAGS)
+CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
+ -fno-builtin -nostdinc -finline-functions-called-once -fno-weak $(FLAGS)
 
 # targets
 IDT=idt.o

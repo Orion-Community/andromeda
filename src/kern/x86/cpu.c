@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <arch/x86/cpu.h>
 
-static ol_lock_t lock;
+ol_lock_t lock;
 
 int
 ol_cpuid_available(ol_cpu_t cpu)

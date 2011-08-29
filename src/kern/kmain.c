@@ -34,6 +34,7 @@
 #include <sys/disk/ide.h>
 #include <arch/x86/cpu.h>
 
+extern ol_lock_t lock;
 void kmain(ol_mmap_register_t mmr)
 {       
         ol_init_heap();
