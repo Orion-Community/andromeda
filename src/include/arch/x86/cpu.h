@@ -25,8 +25,11 @@
 extern "C"
 {
 #endif
-#define OL_CPU_INFO_AVAILABLE 0x1
+    
+#define OL_CPUID_AVAILABLE 0x1
 
+        typedef uint8_t ol_lock_t;
+    
         typedef struct ol_gen_regs
         {
                 uint32_t eax, ebx, ecx, edx;
@@ -45,24 +48,36 @@ extern "C"
                 const uint8_t * vendor;
                                 
                 /* CPU device info */
-                uint32_t flags; /* CPU flags */
                 
-                void (*ol_cpu_init)(struct ol_cpu *);
+                uint8_t flags;
+                uint32_t (*geteflags)(void);
+                void (*lock)(ol_lock_t);
+                void (*unlock)(ol_lock_t);
                 
         } *ol_cpu_t;
         
-        int
-        ol_cpuid_available(ol_cpu_t cpu);
+        
+        
+        uint8_t
+        static ol_cpuid_available(ol_cpu_t cpu);
 
         static uint32_t
         ol_get_eflags(void);
 
+        void
+        ol_cpu_init(ol_cpu_t);
+        
         ol_cpu_t 
         ol_cpuid(void);
         
         extern uint32_t
         geteflags(void);
+        
+        extern void
+        mutex_lock(ol_lock_t);
 
+        extern void
+        mutex_release(ol_lock_t);
 
 #ifdef	__cplusplus
 }

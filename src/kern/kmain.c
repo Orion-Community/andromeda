@@ -31,9 +31,8 @@
 
 #include <sys/dev/pci.h>
 
-#include "sys/disk/ide.h"
-
-
+#include <sys/disk/ide.h>
+#include <arch/x86/cpu.h>
 
 void kmain(ol_mmap_register_t mmr)
 {       
@@ -42,6 +41,9 @@ void kmain(ol_mmap_register_t mmr)
 	clearscreen();
 
 	println("The openLoader kernel is executing. \n");
+        
+        ol_cpu_t cpu = kalloc(sizeof(*cpu));
+        ol_cpu_init(cpu);
         
 	print("Current stack pointer: ");
 	ol_registers_t regs = getregs();

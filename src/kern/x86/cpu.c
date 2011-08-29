@@ -19,21 +19,28 @@
 #include <stdlib.h>
 #include <arch/x86/cpu.h>
 
-int
+extern ol_lock_t lock;
+
+uint8_t
 ol_cpuid_available(ol_cpu_t cpu)
 {
-     // mutex_lock(&lock);
-        cpu->flags = geteflags();
-        // mutex_release(&lock);
-}
-
-static uint32_t
-ol_get_eflags(void)
-{
+        cpu->lock(lock);
+        return cpu->geteflags();
+        cpu->unlock(lock);
 }
 
 ol_cpu_t 
 ol_cpuid(void)
 {
         
+}
+
+void
+ol_cpu_init(ol_cpu_t cpu)
+{
+        cpu->geteflags = &geteflags;
+        cpu->flags = 0;
+        cpu->lock = &mutex_lock;
+        cpu->unlock &mutex_release;
+        cpu->flags |= ol_cpuid_available(cpu);
 }

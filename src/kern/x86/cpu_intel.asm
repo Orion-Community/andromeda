@@ -16,6 +16,10 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[SECTION .data]
+[GLOBAL lock]
+	lock db 0
+
 [SECTION .text]
 [GLOBAL geteflags]
 geteflags:
