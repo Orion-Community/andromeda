@@ -58,6 +58,9 @@ ol_pit_init(uint32_t hz)
                 ol_pit_calculate_freq(pit_chan0);           
         }
         ol_pit_program_pit(pit_chan0);
+#ifdef __MEMTEST
+        free(pit_chan0);
+#endif
 }
 
 static ol_pit_reload_val_t

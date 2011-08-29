@@ -87,8 +87,10 @@ void kmain(ol_mmap_register_t mmr)
 #endif
 	println("Waiting for service interrupts.. \n");
 
-        
+#ifdef __MEMTEST
+        free(cpu);
         ol_detach_all_devices();
+#endif
         ol_dbg_heap();
 
 	while(1) halt();

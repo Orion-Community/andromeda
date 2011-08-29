@@ -19,14 +19,37 @@
 #include <stdlib.h>
 #include <arch/x86/cpu.h>
 
-extern ol_lock_t lock;
+static ol_lock_t lock;
 
-uint8_t
+int
 ol_cpuid_available(ol_cpu_t cpu)
 {
+        register uint32_t flags;
+        register uint32_t flags2;
+        
         cpu->lock(lock);
-        return cpu->geteflags();
+        flags = ol_get_eflags();
+        ol_set_eflags(flags^OL_CPUID_TEST_BIT);
+        flags2 = ol_get_eflags();
+        
+        if((flags>>21)&1)
+        {
+                ol_set_eflags(flags);
+                goto ok;
+        }
+        else
+        {
+                ol_set_eflags(flags);
+                goto fail;
+        }
+        
         cpu->unlock(lock);
+        
+        fail:
+        return 1;
+        
+        ok:
+        return 0;
 }
 
 ol_cpu_t 
@@ -38,9 +61,8 @@ ol_cpuid(void)
 void
 ol_cpu_init(ol_cpu_t cpu)
 {
-        cpu->geteflags = &geteflags;
         cpu->flags = 0;
-        cpu->lock = &mutex_lock;
-        cpu->unlock &mutex_release;
+        cpu->lock = &ol_mutex_lock;
+        cpu->unlock = &ol_mutex_release;
         cpu->flags |= ol_cpuid_available(cpu);
 }

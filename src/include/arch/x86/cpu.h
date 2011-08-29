@@ -27,6 +27,7 @@ extern "C"
 #endif
     
 #define OL_CPUID_AVAILABLE 0x1
+#define OL_CPUID_TEST_BIT 0x200000
 
         typedef uint8_t ol_lock_t;
     
@@ -48,21 +49,16 @@ extern "C"
                 const uint8_t * vendor;
                                 
                 /* CPU device info */
-                
                 uint8_t flags;
-                uint32_t (*geteflags)(void);
+
                 void (*lock)(ol_lock_t);
                 void (*unlock)(ol_lock_t);
                 
         } *ol_cpu_t;
-        
-        
-        
-        uint8_t
-        static ol_cpuid_available(ol_cpu_t cpu);
 
-        static uint32_t
-        ol_get_eflags(void);
+/* CPU feature functions */        
+        static int
+        ol_cpuid_available(ol_cpu_t cpu);
 
         void
         ol_cpu_init(ol_cpu_t);
@@ -71,13 +67,16 @@ extern "C"
         ol_cpuid(void);
         
         extern uint32_t
-        geteflags(void);
+        ol_get_eflags(void);
         
         extern void
-        mutex_lock(ol_lock_t);
+        ol_set_eflags(uint32_t);
+        
+        extern void
+        ol_mutex_lock(ol_lock_t);
 
         extern void
-        mutex_release(ol_lock_t);
+        ol_mutex_release(ol_lock_t);
 
 #ifdef	__cplusplus
 }

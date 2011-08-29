@@ -16,13 +16,9 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
-[SECTION .data]
-[GLOBAL lock]
-	lock db 0
-
 [SECTION .text]
-[GLOBAL geteflags]
-geteflags:
+[GLOBAL ol_get_eflags]
+ol_get_eflags:
 	push ebp
 	mov ebp, esp
 	
@@ -33,8 +29,21 @@ geteflags:
 	pop ebp
 	ret
 
-[GLOBAL mutex_lock]
-mutex_lock:
+[GLOBAL ol_set_eflags]
+ol_set_eflags:
+	push ebp
+	mov ebp, esp
+	
+	mov eax, [ebp+8]
+	push eax
+	popfd
+
+	mov esp, ebp
+	pop ebp
+	ret
+
+[GLOBAL ol_mutex_lock]
+ol_mutex_lock:
 	push ebp
 	mov ebp, esp
 
@@ -51,8 +60,8 @@ mutex_lock:
 	pop ebp
 	ret
 
-[GLOBAL mutex_release]
-mutex_release:
+[GLOBAL ol_mutex_release]
+ol_mutex_release:
 	push ebp
 	mov ebp, esp
 
