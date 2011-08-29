@@ -2,14 +2,14 @@
 
 function makeAll()
 {
-	make FLAGS="$eflags -D __HDD -O0" -C ../src all
+	make FLAGS="$eflags -D __HDD -O0 -D __PCI_DEBUG" -C ../src all
 	make -C ../src install
 	exit 0
 }
 
 function makeTest()
 {
-	make FLAGS="$eflags -D __HDD -D __DEBUG -O0" -C ../src all
+	make FLAGS="$eflags -D __HDD -D __DEBUG -O0 -D __PCI_DEBUG" -C ../src all
 	make -C ../src test
 	exit 0
 }

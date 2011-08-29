@@ -81,14 +81,14 @@ void
 ol_pci_init()
 {
         ol_pci_dev_t dev = kalloc(sizeof(struct ol_pci_dev));
-#ifdef __DEBUG
+#ifdef __PCI_DEBUG
         dev->hook = &ol_pci_dbg_print_info;
 #endif
         ol_pci_iterate(dev);
         free(dev);
 }
 
-#ifdef __DEBUG
+#ifdef __PCI_DEBUG
 static int 
 ol_pci_dbg_print_info(ol_pci_dev_t dev)
 {
