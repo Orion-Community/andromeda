@@ -16,6 +16,9 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+#include <arch/x86/cpu.h>
+
 static int
 ol_cpuid_available(void)
 {
@@ -28,7 +31,8 @@ ol_get_eflags(void)
         
 }
 
-void ol_cpuid(void)
+ol_cpu_t 
+ol_cpuid(void)
 {
         
 }
