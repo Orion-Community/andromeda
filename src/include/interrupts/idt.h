@@ -48,6 +48,6 @@ installExceptions(ol_idt_t);
 static void
 installInterrupts(uint16_t, uint16_t, ol_idt_t);
 
-extern void installIDT(ol_idt_t idt);
-void setIDT();
+extern void 
+installIDT(ol_idt_t);
 #endif
