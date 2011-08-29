@@ -19,16 +19,17 @@
 #include <stdlib.h>
 #include <arch/x86/cpu.h>
 
-static int
-ol_cpuid_available(void)
+int
+ol_cpuid_available(ol_cpu_t cpu)
 {
-        
+     // mutex_lock(&lock);
+        cpu->flags = geteflags();
+        // mutex_release(&lock);
 }
 
 static uint32_t
 ol_get_eflags(void)
 {
-        
 }
 
 ol_cpu_t 

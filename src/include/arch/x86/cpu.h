@@ -51,14 +51,17 @@ extern "C"
                 
         } *ol_cpu_t;
         
-        static int
-        ol_cpuid_available(void);
+        int
+        ol_cpuid_available(ol_cpu_t cpu);
 
         static uint32_t
         ol_get_eflags(void);
 
         ol_cpu_t 
         ol_cpuid(void);
+        
+        extern uint32_t
+        geteflags(void);
 
 
 #ifdef	__cplusplus

@@ -15,9 +15,13 @@ MAKE=make
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
+## local sources
 CPU=cpu.c
+CPUID=cpuid.asm
+
+## targets
 INTEL=i386.o
-INTEL_DEPS=cpu.o
+INTEL_DEPS=cpu.o cpuid.o
 
 all: $(INTEL)
 
@@ -29,7 +33,8 @@ $(INTEL): $(INTEL_DEPS)
 cpu.o: $(CPU)
 	$(CC) $(CCFLAGS) -o cpu.o $(CPU)
 
-
+cpuid.o: $(CPUID)
+	$(AS) $(ASFLAGS) -o cpuid.o $(CPUID)
 #### Clean target deletes all generated files ####
 clean:
 	rm -rfv *.o
