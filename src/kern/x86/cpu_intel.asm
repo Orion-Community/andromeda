@@ -31,6 +31,36 @@ geteflags:
 
 [GLOBAL mutex_lock]
 mutex_lock:
+	push ebp
+	mov ebp, esp
+
+	mov eax, 1
+	
+.lock:
+	xor eax, [ebp+8]
+	xor [ebp+8], eax
+	xor eax, [ebp+8]
+	test eax, eax
+	jnz .lock
+
+	mov esp, ebp
+	pop ebp
+	ret
 
 [GLOBAL mutex_release]
 mutex_release:
+	push ebp
+	mov ebp, esp
+
+	mov eax, 0
+	
+.lock:
+	xor eax, [ebp+8]
+	xor [ebp+8], eax
+	xor eax, [ebp+8]
+	test eax, eax
+	jnz .lock
+
+	mov esp, ebp
+	pop ebp
+	ret
