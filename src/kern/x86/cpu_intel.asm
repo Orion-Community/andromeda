@@ -77,3 +77,6 @@ ol_mutex_release:
 	mov esp, ebp
 	pop ebp
 	ret
+
+[GLOBAL __ol_cpuid]
+__ol_cpuid:

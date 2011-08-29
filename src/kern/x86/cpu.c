@@ -31,25 +31,18 @@ ol_cpuid_available(ol_cpu_t cpu)
         flags = ol_get_eflags();
         ol_set_eflags(flags^OL_CPUID_TEST_BIT);
         flags2 = ol_get_eflags();
+        ol_set_eflags(flags); /* restore flags */
         
         if((flags>>21)&1)
         {
-                ol_set_eflags(flags);
-                goto ok;
+                cpu->unlock(lock);
+                return 0;
         }
         else
         {
-                ol_set_eflags(flags);
-                goto fail;
+                cpu->unlock(lock);
+                return -1;
         }
-        
-        cpu->unlock(lock);
-        
-        fail:
-        return 1;
-        
-        ok:
-        return 0;
 }
 
 ol_cpu_t 
