@@ -71,8 +71,6 @@ void *realloc(void* ptr, size_t size)
   memNode_t* ptrInfo = ptr - sizeof(memNode_t);
   size_t currentSize = ptrInfo->size;
   memcpy(new, ptr, (size > currentSize) ? currentSize : size);
-  free(ptr);
-  ptr = new;
   return new;
 }
 

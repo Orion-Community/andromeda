@@ -146,7 +146,12 @@ int write (FILE* fp, char* buf, size_t num)
   
   printf("fp size %i\n", *fp->size);
   
-  fp -> start = realloc(fp -> start, *fp -> size);
+  char* tmp=realloc(fp->start, *fp->size);
+  if (tmp != 0)
+  {
+    free(fp->start);
+    fp -> start = tmp;
+  }
   if (fp -> start == NULL) goto nomem;
   fp -> end   = (char*)((long)fp -> start + *fp -> size);
   fp -> read  = (char*)((long)fp -> start + readOffset);

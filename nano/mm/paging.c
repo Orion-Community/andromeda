@@ -41,7 +41,7 @@
  *
  * Another issue this system has, is that it isn't finished yet. This can
  * be a good thing as if a complete redesign is necessary, it can still
- * be done.
+ * be done easilly.
  */
 
 boolean state = COMPRESSED;
@@ -49,9 +49,12 @@ boolean pageDbg = FALSE;
 void cPageFault(isrVal_t regs)
 {
   if (pageDbg)
+  {
     printf("PG\n");
+  }
   if (pageDbg)
   {
+    getCR2();
     printf("Pagefault: %X\n", getCR2());
     panic("Stopping here!");
   }
@@ -112,6 +115,11 @@ void cPageFault(isrVal_t regs)
   }
   else if (!PRESENT && !WRITE)
   {
+    if (pageDbg)
+    {
+      int i = 0;
+      for (; i < 0x4FFFFFFF; i++);
+    }
     if (!DATA)
     {
       printf("Trying to execute an invalid location in memory\n");

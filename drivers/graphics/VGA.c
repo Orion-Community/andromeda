@@ -34,11 +34,11 @@ struct videoMode_s
   bool          chain4;
 };
 
-const struct videoMode_s videoModes[2] = {
+const struct videoMode_s videoModes[3] = {
     { 320, 200, 1, true }, // 320 x 200 x 256 (linear) <-- Highest linear resolution!
     { 320, 200, 1, false}, // 320 x 200 x 256 (planar)
     { 600, 400, 1, false}, // 600 x 400 x 256 (planar) <-- Highest VGA resolution!
-  };
+};
 char* screenbuf; // sreen buffer, containing all pixels that should be written to the screen.
 int videoMode;   // the current video mode.
 
@@ -82,20 +82,28 @@ extern boolean pageDbg;
 
 int setVideoMode(int mode)
 {
+	int size = videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth;
 	free(screenbuf);
-	screenbuf = kalloc( videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth );
+	if (size != 0)
+		screenbuf = kalloc(size);
+	else
+		screenbuf = NULL;
+	
+	printf("Check 1\n");
 
 	if(screenbuf==NULL)
-		{screenbuf = 0xA0000;printf("kalloc(%i) returned NULL!\n",videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);return -1;}
-
+		{screenbuf = 0xA0000;printf("kalloc(%i) returned NULL!\n",size);return -1;}
 // 	if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
 // 		{printf("setModeViaPorts(%i,%i,%i) failed!\n",videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0);return -1;}
+	printf("Check 1.1\n");
 	memset(0xA0000,11,16);
-	printf("Screenbuf: %X\nESP: %X\nValue: %X\n", screenbuf, getESP(), videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth);
+	printf("Check 2\n");
+	printf("Screenbuf: %X\nESP: %X\nValue: %X\n", screenbuf, getESP(), size);
+	int i = 0;
+	for (; i < 0x4FFFFFFF; i++);
 	pageDbg = TRUE;
-	memset(screenbuf,0,videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth); //hangs
-// 	for (;;);
-	printf("Reached!\n");
+	memset(screenbuf,0,size); //hangs
+	printf("Check 3\n");
 	for(;;);	
 	memset(0xA0010,11,16);
 	

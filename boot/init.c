@@ -58,6 +58,20 @@ int init(unsigned short memorymap[], module_t mods[])
     list(_fs_root);
   #endif
   
+  #ifdef MEMTEST
+  int* a = kalloc(0x10);
+  int* b = kalloc(0x1000);
+  int* c = kalloc(0x100000);
+  
+  printf("A%X\n", a);
+  memset(a, 'A', 0x10);
+  printf("B%X\n", b);
+  memset(b, 'B', 0x1000);
+  printf("C%X\n", c);
+  memset(c, 'C', 0x100000);
+  #endif
+  
+  
   #ifdef BEEP
     printf("Beep...");
     beep();
