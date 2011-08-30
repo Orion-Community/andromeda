@@ -79,9 +79,6 @@ extern "C"
         void /* spin release */
         ol_mutex_release(ol_lock_t*);
         
-        static void
-        ol_mutex_toggle(ol_lock_t lock, uint8_t direction);
-        
         /* CPUID */
         extern uint8_t
         __ol_cpuid(ol_registers_t);

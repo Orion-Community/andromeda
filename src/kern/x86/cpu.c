@@ -91,24 +91,9 @@ ol_mutex_lock(ol_lock_t *lock)
 void
 ol_mutex_release(ol_lock_t *lock)
 {
-        asm volatile("movb $0, %%al \n\t"
-                "l2: xchgb %%al, (%0) \n\t"
-                "testb %%al, %%al \n\t"
-                "jnz l2"
+        asm volatile("movb $0, (%0)"
                 : /* no output */
                 : "r" (lock)
-                : "%eax");
-}
-
-static void
-ol_mutex_toggle(ol_lock_t lock, uint8_t direction)
-{
-        asm volatile("movb %1, %%al \n\t"
-                "l1: xchgb %%al, %0 \n\t"
-                "testb %%al, %%al \n\t"
-                "jnz l1"
-                : /* no output */
-                : "r" (lock), "r" (direction)
                 : "%eax");
 }
 
