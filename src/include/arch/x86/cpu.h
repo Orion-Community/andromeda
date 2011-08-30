@@ -31,16 +31,18 @@ extern "C"
 
         typedef uint8_t ol_lock_t;
     
-        typedef struct ol_gen_regs
+        struct ol_gen_regs
         {
                 uint32_t eax, ebx, ecx, edx;
-        } *ol_gen_registers_t;
+        } __attribute__((packed));
+        typedef struct ol_gen_regs *ol_gen_registers_t;
         
         typedef struct ol_cpu_model
         {
                 uint32_t vendor_id, family;
                 const uint8_t *model_name;
         }*ol_cpu_model_t;
+        
         
         typedef struct ol_cpu
         {
@@ -58,13 +60,13 @@ extern "C"
 
 /* CPU feature functions */        
         static int
-        ol_cpuid_available(ol_cpu_t cpu);
+        ol_cpuid_available(ol_cpu_t);
 
         void
         ol_cpu_init(ol_cpu_t);
         
         ol_cpu_t 
-        ol_cpuid(void);
+        ol_cpuid(uint32_t func);
         
         uint32_t
         ol_get_eflags(void);
@@ -80,8 +82,8 @@ extern "C"
         ol_mutex_release(ol_lock_t*);
         
         /* CPUID */
-        extern uint8_t
-        __ol_cpuid(ol_registers_t);
+        static uint8_t
+        __ol_cpuid(volatile ol_gen_registers_t);
 
 #ifdef	__cplusplus
 }

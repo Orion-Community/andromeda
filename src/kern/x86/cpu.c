@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <arch/x86/cpu.h>
 
+#include "mm/heap.h"
+
 ol_lock_t lock = 0;
 
 int
@@ -47,15 +49,20 @@ ol_cpuid_available(ol_cpu_t cpu)
 }
 
 ol_cpu_t 
-ol_cpuid(void)
+ol_cpuid(uint32_t func)
 {
-        
+        ol_gen_registers_t regs = kalloc(sizeof(*regs));
+        regs->eax = func;
+        regs->ecx = 0;
+        regs->edx = 0;
+        regs->ebx = 0;
+        free(regs);
 }
 
 void
 ol_set_eflags(uint32_t flags)
 {
-        asm volatile("movl %0, %%eax \n\t"
+        __asm__ __volatile__("movl %0, %%eax \n\t"
                         "pushl %%eax \n\t"
                         "popfl"
                         : /* no output */
@@ -104,4 +111,16 @@ ol_cpu_init(ol_cpu_t cpu)
         cpu->lock = &ol_mutex_lock;
         cpu->unlock = &ol_mutex_release;
         cpu->flags |= ol_cpuid_available(cpu) ? 0 : 1;
+}
+
+static uint8_t
+__ol_cpuid(volatile ol_gen_registers_t regs)
+{
+        register uint8_t ret;
+        __asm__ __volatile__("movb (%1), %%eax"
+                                : "=r" (ret) /* output in register */
+                                : "r" (regs)
+                                : "%eax", "%ecx", "%edx", "%ebx" /*
+                                                                  * clobbered regs
+                                                                  */);
 }
