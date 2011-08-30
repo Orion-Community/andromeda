@@ -60,7 +60,7 @@ DetectAPIC:
   mov eax, 1 ; prepare CPUID
   cpuid ; Issue CPUID
   
-  xor edx, 0x100 ; mask the flag out
+  and edx, 1<<9 ; mask the flag out
   mov eax, edx ; return value to eax
   
   return
