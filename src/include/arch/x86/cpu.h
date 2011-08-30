@@ -65,7 +65,7 @@ extern "C"
         void
         ol_cpu_init(ol_cpu_t);
         
-        ol_cpu_t 
+        ol_gen_registers_t 
         ol_cpuid(uint32_t func);
         
         uint32_t
@@ -82,7 +82,7 @@ extern "C"
         ol_mutex_release(ol_lock_t*);
         
         /* CPUID */
-        static uint8_t
+        static inline ol_gen_registers_t
         __ol_cpuid(volatile ol_gen_registers_t);
 
 #ifdef	__cplusplus

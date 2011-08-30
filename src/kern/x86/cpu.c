@@ -48,7 +48,7 @@ ol_cpuid_available(ol_cpu_t cpu)
         }
 }
 
-ol_cpu_t 
+ol_gen_registers_t 
 ol_cpuid(uint32_t func)
 {
         ol_gen_registers_t regs = kalloc(sizeof(*regs));
@@ -56,7 +56,10 @@ ol_cpuid(uint32_t func)
         regs->ecx = 0;
         regs->edx = 0;
         regs->ebx = 0;
+        ol_gen_registers_t ret = __ol_cpuid(regs);
         free(regs);
+        
+        return ret;
 }
 
 void
@@ -113,14 +116,22 @@ ol_cpu_init(ol_cpu_t cpu)
         cpu->flags |= ol_cpuid_available(cpu) ? 0 : 1;
 }
 
-static uint8_t
+static ol_gen_registers_t
 __ol_cpuid(volatile ol_gen_registers_t regs)
 {
-        register uint8_t ret;
-        __asm__ __volatile__("movb (%1), %%eax"
-                                : "=r" (ret) /* output in register */
+        __asm__ __volatile__("movl (%1), %%eax \n\t"
+                                "movl 4(%1), %%ebx \n\t"
+                                "movl 8(%1), %%ecx \n\t"
+                                "movl 12(%1), %%edx \n\t"
+                                "cpuid \n\t"
+                                "movl %%eax, (%0) \n\t"
+                                "movl %%ebx, 4(%0) \n\t"
+                                "movl %%ecx, 8(%0) \n\t"
+                                "movl %%edx, 12(%0) \n\t"
+                                : "=r" (regs) /* output in register */
                                 : "r" (regs)
                                 : "%eax", "%ecx", "%edx", "%ebx" /*
                                                                   * clobbered regs
                                                                   */);
+        return regs;
 }

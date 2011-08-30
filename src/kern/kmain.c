@@ -45,7 +45,7 @@ void kmain(ol_mmap_register_t mmr)
         
         ol_cpu_t cpu = kalloc(sizeof(*cpu));
         ol_cpu_init(cpu);
-
+        printnum(ol_cpuid(0x800), 16,0,0);
         
 	print("Current stack pointer: ");
 	ol_registers_t regs = getregs();
