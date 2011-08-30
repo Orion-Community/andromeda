@@ -58,7 +58,6 @@ ol_cpuid(uint32_t func)
         regs->ebx = 0;
         ol_gen_registers_t ret = __ol_cpuid(regs);
         free(regs);
-        
         return ret;
 }
 
@@ -114,24 +113,35 @@ ol_cpu_init(ol_cpu_t cpu)
         cpu->lock = &ol_mutex_lock;
         cpu->unlock = &ol_mutex_release;
         cpu->flags |= ol_cpuid_available(cpu) ? 0 : 1;
+        
+        if(cpu->flags & 0x1)
+        {
+                ol_gen_registers_t regs = ol_cpuid(0);
+
+                if(regs->ebx == 0x756e6547 || regs->ebx == 0x756e6567) 
+                        cpu->vendor = "INTEL";
+                else if(regs->ebx == 0x96444D41 || regs->ebx == 0x68747541)
+                        cpu->vendor = "AMD";
+
+                else cpu->vendor = "UNKNOWN";
+        }
 }
 
 static ol_gen_registers_t
 __ol_cpuid(volatile ol_gen_registers_t regs)
 {
-        __asm__ __volatile__("movl (%1), %%eax \n\t"
-                                "movl 4(%1), %%ebx \n\t"
-                                "movl 8(%1), %%ecx \n\t"
-                                "movl 12(%1), %%edx \n\t"
-                                "cpuid \n\t"
-                                "movl %%eax, (%0) \n\t"
-                                "movl %%ebx, 4(%0) \n\t"
-                                "movl %%ecx, 8(%0) \n\t"
-                                "movl %%edx, 12(%0) \n\t"
-                                : "=r" (regs) /* output in register */
+        static struct ol_gen_regs ret;
+        __asm__ __volatile__("movl (%4), %%eax \n\t"
+                                "movl 4(%4), %%ebx \n\t"
+                                "movl 8(%4), %%ecx \n\t"
+                                "movl 12(%4), %%edx \n\t"
+                                "cpuid"
+
+                                : "=a" (ret.eax), /* output in register */
+                                  "=b" (ret.ebx),
+                                  "=c" (ret.ecx),
+                                  "=d" (ret.edx)
                                 : "r" (regs)
-                                : "%eax", "%ecx", "%edx", "%ebx" /*
-                                                                  * clobbered regs
-                                                                  */);
-        return regs;
+                                : );
+        return &ret;
 }

@@ -48,7 +48,7 @@ extern "C"
         {
                 /* model info*/
                 ol_cpu_model_t cpu_models[4];
-                const uint8_t * vendor;
+                const uint8_t *vendor;
                                 
                 /* CPU device info */
                 uint8_t flags;
@@ -82,7 +82,7 @@ extern "C"
         ol_mutex_release(ol_lock_t*);
         
         /* CPUID */
-        static inline ol_gen_registers_t
+        static ol_gen_registers_t
         __ol_cpuid(volatile ol_gen_registers_t);
 
 #ifdef	__cplusplus
