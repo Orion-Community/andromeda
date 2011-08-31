@@ -19,6 +19,8 @@
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
 
+#include <textio.h>
+
 static int 
 ol_detect_apic(ol_cpu_t cpu)
 {
@@ -41,6 +43,6 @@ ol_apic_init(ol_cpu_t cpu)
 {
         if(!ol_detect_apic(cpu))
         {
-                
+                println("Apic detected");
         }
 }

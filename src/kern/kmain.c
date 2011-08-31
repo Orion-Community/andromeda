@@ -33,6 +33,7 @@
 
 #include <sys/disk/ide.h>
 #include <arch/x86/cpu.h>
+#include <arch/x86/apic/apic.h>
 
 extern ol_lock_t lock;
 void kmain(ol_mmap_register_t mmr)
@@ -86,12 +87,14 @@ void kmain(ol_mmap_register_t mmr)
         free(ata);
         putc(0xa);
 #endif
+        ol_apic_init(cpu);
 	println("Waiting for service interrupts.. \n");
 
 #ifdef __MEMTEST
         free(cpu);
         ol_detach_all_devices();
 #endif
+
         ol_dbg_heap();
 
 	while(1) halt();

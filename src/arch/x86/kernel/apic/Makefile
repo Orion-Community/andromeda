@@ -25,3 +25,7 @@ all: $(APIC_DEPS)
 
 $(APIC_): $(APIC_S)
 	$(CC) $(CCFLAGS) $(APIC_S) -o $(APIC_)
+
+.PHONY: clean
+clean:
+	rm -rfv *.o
