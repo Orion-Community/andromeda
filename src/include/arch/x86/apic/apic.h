@@ -21,6 +21,17 @@
 #ifndef __APIC_H
 #define	__APIC_H
 
+/* I/O registers */
+#define OL_APIC_IMCR_COMMAND 0x22
+#define OL_APIC_IMCR_DATA 0x23
+
+/* I/O commands */
+#define OL_APIC_IMCR_SELECT 0x70
+#define OL_APIC_IMCR_PASSTROUGH_APIC 0x1
+
+/* APIC constants */
+#define OL_APIC_BASE_ADDRESS 0x0FEC00000
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -32,6 +43,9 @@ extern "C" {
     
     static int 
     ol_detect_apic(ol_cpu_t cpu);
+
+	static void
+	ol_apic_set_mode(ol_apic_t apic, uint16_t mode);
     
     void
     ol_apic_init(ol_cpu_t cpu);
