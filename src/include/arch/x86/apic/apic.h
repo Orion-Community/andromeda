@@ -16,6 +16,8 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <arch/x86/cpu.h>
+
 #ifndef __APIC_H
 #define	__APIC_H
 
@@ -28,11 +30,11 @@ extern "C" {
         
     }*ol_apic_t;
     
-    static int
-    ol_detect_apic();
+    static int 
+    ol_detect_apic(ol_cpu_t cpu);
     
     void
-    ol_apic_init();
+    ol_apic_init(ol_cpu_t cpu);
 
 #ifdef	__cplusplus
 }

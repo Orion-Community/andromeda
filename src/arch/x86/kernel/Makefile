@@ -4,6 +4,8 @@ ASFLAGS=-felf32 -I"../../../include/" $(FLAGS)
 CC=gcc
 CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
  -fno-builtin -nostdinc -finline-functions-called-once -fno-weak $(FLAGS)
+LD=ld
+LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 # targets
 IDT=idt.o
@@ -14,6 +16,8 @@ ISR=isr.o
 ISR2=isr2.o
 PIC=pic.o
 PIT=pit.o
+APIC=apic.o
+KERN=kernel.o
 
 # sources
 
@@ -25,10 +29,16 @@ ISR_SRC=isr.asm
 ISR2_SRC=isr.c
 PIC_SRC=pic.c
 PIT_SRC=pit.c
+KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC)
 
 
 .PHONY: all
-all: $(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT)
+all: $(KERNEL_DEPS)
+	$(LD) $(LDFLAGS) $(KERNEL_DEPS) -o $(KERN)
+
+$(APIC):
+	$(MAKE) -C apic/ all
+	mv -v apic/$(APIC) ./
 
 $(IDT): $(IDT_SRC)
 	$(AS) $(ASFLAGS) $(IDT_SRC) -o $(IDT)

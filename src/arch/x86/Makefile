@@ -15,13 +15,17 @@ ARCH=arch.o
 all: $(ARCH)
 
 $(ARCH):
-	$(MAKE) FLAGS="$(FLAGS)" -C diskio
-	$(MAKE) FLAGS="$(FLAGS)" -C interrupts
+	$(MAKE) FLAGS="$(FLAGS)" -C disk
+	$(MAKE) FLAGS="$(FLAGS)" -C kernel
 	$(MAKE) FLAGS="$(FLAGS)" -C mm
-	$(LD) $(LDFLAGS) -o $(ARCH) */*.o
+	mv kernel/kernel.o ./
+	mv disk/disk.o ./
+	mv mm/mm.o ./
+	$(LD) $(LDFLAGS) -o $(ARCH) *.o
 
 .PHONY: clean
 clean:
-	$(MAKE) -C diskio clean
-	$(MAKE) -C interrupts clean
+	$(MAKE) -C disk clean
+	$(MAKE) -C kernel clean
 	$(MAKE) -C mm clean
+	rm -rfv *.o

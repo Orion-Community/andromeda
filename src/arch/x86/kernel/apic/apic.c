@@ -16,3 +16,31 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <arch/x86/cpu.h>
+#include <arch/x86/apic/apic.h>
+
+static int 
+ol_detect_apic(ol_cpu_t cpu)
+{
+        if((cpu->flags & 0x1))
+        {
+                ol_gen_registers_t regs = ol_cpuid(1);
+                if(regs->edx & (1<<9))
+                {
+                        /* apic is available */
+                        return 0;
+                }
+                goto fail;
+        }
+        fail:
+        return -1;
+}
+
+void
+ol_apic_init(ol_cpu_t cpu)
+{
+        if(!ol_detect_apic(cpu))
+        {
+                
+        }
+}
