@@ -17,6 +17,7 @@
  */
 
 #include <arch/x86/cpu.h>
+#include <stdlib.h>
 
 #ifndef __APIC_H
 #define	__APIC_H
@@ -36,9 +37,11 @@
 extern "C" {
 #endif
 
+	typedef uint32_t ol_apic_reg_t;
     typedef struct apic
     {
-        
+        const uint8_t id;
+		void (*ol_apic_write) (ol_apic_reg_t, uint32_t);
     }*ol_apic_t;
     
     static int 
