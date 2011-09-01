@@ -18,6 +18,13 @@
 
 #include <stdlib.h>
 
+#define OL_CPUID_AVAILABLE 0x1
+#define OL_CPUID_TEST_BIT 0x200000
+
+/* MultiProcessor defines */
+#define OL_CPU_MP_FPS_SIGNATURE 0x5f4d505f
+#define OL_CPU_MP_CONFIG_TABLE_HEADER_SIGNATURE 0x50434d50
+
 #ifndef CPU_H
 #define	CPU_H
 
@@ -25,9 +32,6 @@
 extern "C"
 {
 #endif
-    
-#define OL_CPUID_AVAILABLE 0x1
-#define OL_CPUID_TEST_BIT 0x200000
 
         typedef uint8_t ol_lock_t;
     
@@ -57,6 +61,21 @@ extern "C"
                 void (*unlock)(ol_lock_t*);
                 
         } *ol_cpu_t;
+        
+        struct ol_mp_config_table_header
+        {
+                
+        } __attribute__((packed));
+        typedef struct ol_mp_config_table_header *ol_mp_config_table_header_t;
+        
+        struct ol_cpu_mp_fps
+        {
+                uint32_t signature;
+                ol_mp_config_table_header_t conf_table;
+                uint8_t len, spec_rev, checksum, mp_feat1;
+                uint8_t mp_feat2, mp_feat3, mp_feat4, mp_feat5;
+        } __attribute__((packed));
+        typedef struct ol_cpu_mp_fps *ol_cpu_mp_fps_t;
 
 /* CPU feature functions */        
         static int
@@ -84,6 +103,12 @@ extern "C"
         /* CPUID */
         static ol_gen_registers_t
         __ol_cpuid(volatile ol_gen_registers_t);
+        
+        static void *
+        ol_cpu_mp_search_config_table(void *, uint16_t);
+        
+        ol_mp_config_table_header_t
+        ol_get_mp_config_header();
 
 #ifdef	__cplusplus
 }

@@ -34,24 +34,32 @@
 #define OL_APIC_BASE_ADDRESS 0x0FEC00000
 
 #ifdef	__cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-	typedef uint32_t ol_apic_reg_t;
-    typedef struct apic
-    {
-        const uint8_t id;
-		void (*ol_apic_write) (ol_apic_reg_t, uint32_t);
-    }*ol_apic_t;
-    
-    static int 
-    ol_detect_apic(ol_cpu_t cpu);
+        typedef uint32_t ol_apic_reg_t;
 
-	static void
-	ol_apic_set_mode(ol_apic_t apic, uint16_t mode);
-    
-    void
-    ol_apic_init(ol_cpu_t cpu);
+        typedef struct apic
+        {
+                const uint8_t id;
+                void (*ol_apic_write) (ol_apic_reg_t, uint32_t);
+        } *ol_apic_t;
+
+        static int
+        ol_detect_apic(ol_cpu_t cpu);
+
+        static void
+        ol_apic_set_mode(ol_apic_t apic, uint16_t mode);
+        
+        static void
+        ol_apic_enable(ol_apic_t);
+
+        static void
+        ol_apic_disable(ol_apic_t);
+        
+        void
+        ol_apic_init(ol_cpu_t cpu);
 
 #ifdef	__cplusplus
 }

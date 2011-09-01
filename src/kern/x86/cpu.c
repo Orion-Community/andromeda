@@ -19,7 +19,8 @@
 #include <stdlib.h>
 #include <arch/x86/cpu.h>
 
-#include "mm/heap.h"
+#include <mm/heap.h>
+#include <textio.h>
 
 ol_lock_t lock = 0;
 
@@ -145,3 +146,37 @@ __ol_cpuid(volatile ol_gen_registers_t regs)
                                 : );
         return &ret;
 }
+
+static void *
+ol_cpu_mp_search_config_table(void * base, uint16_t i /* amount of tries */)
+{
+        ol_cpu_mp_fps_t fps;
+        
+        while(i--)
+        {
+                if( *((uint32_t *)base) == OL_CPU_MP_FPS_SIGNATURE)
+                {
+                        return base;
+                }
+                else
+                {
+                        printnum(*((uint32_t *)base), 16, 0, 0);
+                        putc(0xa);
+                        base += 16;
+                }
+        }
+        return NULL;
+}
+
+ol_mp_config_table_header_t
+ol_get_mp_config_header()
+{
+        /* check the first byte of the extended bios data area */
+        if(ol_cpu_mp_search_config_table((void*)0xF0000, 4096) != NULL)
+        {
+                putc(0x42);
+                return 0;
+        }
+        return 1;                
+}
+

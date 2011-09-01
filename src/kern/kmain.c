@@ -94,7 +94,7 @@ void kmain(ol_mmap_register_t mmr)
         free(cpu);
         ol_detach_all_devices();
 #endif
-
+        ol_get_mp_config_header();
         ol_dbg_heap();
 
 	while(1) halt();
