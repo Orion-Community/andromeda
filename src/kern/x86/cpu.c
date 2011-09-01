@@ -160,7 +160,7 @@ ol_cpu_mp_search_config_table(void * base, uint16_t i /* amount of tries */)
                 }
                 else
                 {
-                        printnum(*((uint32_t *)base), 16, 0, 0);
+                        printnum(((uint32_t *)base), 16, 0, 0);
                         putc(0xa);
                         base += 16;
                 }
@@ -172,7 +172,7 @@ ol_mp_config_table_header_t
 ol_get_mp_config_header()
 {
         /* check the first byte of the extended bios data area */
-        if(ol_cpu_mp_search_config_table((void*)0xF0000, 4096) != NULL)
+        if(ol_cpu_mp_search_config_table((void*)(*((uint16_t *)0x40e)<<4), 64) != NULL)
         {
                 putc(0x42);
                 return 0;
