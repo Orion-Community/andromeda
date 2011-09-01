@@ -56,7 +56,7 @@ void cPageFault(isrVal_t regs)
   {
     getCR2();
     printf("Pagefault: %X\n", getCR2());
-    panic("Stopping here!");
+//     panic("Stopping here!");
   }
   if (regs.cs != 0x8 && regs.cs != 0x18)
   {
@@ -76,7 +76,9 @@ void cPageFault(isrVal_t regs)
   #endif
   unsigned char err = (unsigned char) (regs.errCode & 0x7);
   if (pageDbg)
+  {
     printf("The pagefault was caused by: %X\n", page);
+  }
   if (RESERVED)
   {
     panic("A reserved bit was set!");
@@ -88,37 +90,37 @@ void cPageFault(isrVal_t regs)
   }
   else if (!PRESENT && WRITE)
   {
+    if (pageDbg)
+      printf("Allocating!\n");
     // Allocate page here!
     pageState_t* phys = allocPage(state);
-    #ifdef DBG
-    printf("Virt: 0x%x\n", page);
-    #endif
+    if (pageDbg)
+      printf("Virt: 0x%X\n", page);
+    
     if (phys->usable == FALSE)
     {
       panic("No more free memory!");
     }
     #ifdef DBG
-    printf("Virt: 0x%x\n", page);
+    printf("Virt: 0x%X\n", page);
     #endif
     boolean test = setPage((void*)(page), (void*)phys->addr, FALSE, TRUE);
     if (!test)
     {
       #ifdef DBG
-      printf("Virt: 0x%x\n", page);
+      printf("Virt: 0x%X\n", page);
       #endif
       freePage((void*)phys->addr, state);
       panic("Setting the page failed dramatically!");
     }
-    #ifdef DBG
-    printf("Success!\n");
-    #endif
+    if (pageDbg)
+      printf("Success!\n");
   }
   else if (!PRESENT && !WRITE)
   {
     if (pageDbg)
     {
-      int i = 0;
-      for (; i < 0x4FFFFFFF; i++);
+      panic("Something went wrong!");
     }
     if (!DATA)
     {
@@ -134,11 +136,13 @@ void cPageFault(isrVal_t regs)
     // Kill process trying to access this page!
   }
   #ifdef DBG
-  printf("Err code: %x\n",err);
+  printf("Err code: %X\n",err);
   #endif
   #ifdef WARN
   printf("WARNING:\tPaging isn't finished yet!\n");
   #endif
+  if (pageDbg)
+    printf("Return!\n");
 }
 
 boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode)
@@ -150,7 +154,7 @@ boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode)
     printf("Argument allignement\n");
     #endif
     #ifdef MODS
-    printf("virt: 0x%x\nphys: 0x%x\n", virtAddr, physAddr);
+    printf("virt: 0X%x\nphys: 0x%X\n", virtAddr, physAddr);
     int idx = 0;
     for (; idx < 0xFFFFFFF; idx++);
     #endif

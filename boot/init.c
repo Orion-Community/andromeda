@@ -42,8 +42,9 @@ int init(unsigned short memorymap[], module_t mods[])
   // Set up the new screen
   textInit();
   // Install a new heap at the right location.
-  heapStub();
-  extendHeap(&end, HEAPSIZE);
+//   heapStub();
+//   extendHeap(&end, HEAPSIZE);
+  heapCoreBlocks();
   
   // Set up the new interrupts
   intInit();
@@ -59,16 +60,36 @@ int init(unsigned short memorymap[], module_t mods[])
   #endif
   
   #ifdef MEMTEST
-  int* a = kalloc(0x10);
-  int* b = kalloc(0x1000);
-  int* c = kalloc(0x100000);
   
-  printf("A%X\n", a);
-  memset(a, 'A', 0x10);
-  printf("B%X\n", b);
-  memset(b, 'B', 0x1000);
-  printf("C%X\n", c);
-  memset(c, 'C', 0x100000);
+  // This eliminates the alloc system and the memset system has already been eliminated.
+  // That leaves the less obvious as the cause.
+  
+  extern boolean pageDbg;
+  pageDbg = TRUE;
+  
+  int* a = (int*)0xC021C000;
+  printf("Reached!\n");
+  memset(a, 'A', 0x1000);
+  printf("Reached!\n");
+  
+//   int* a = kalloc(0x10);
+//   int* b = kalloc(0x1000);
+//   int* c = kalloc(0x2593); // Maximum allocatable without issues on memset
+//   int* d = kalloc(0x2593);
+//   
+//   extern boolean pageDbg;
+//   pageDbg = true;
+//   
+//   printf("END: %X\nSTACK: %X\n", &end, &stack);
+//   
+//   printf("A%X\n", a);
+//   memset(a, 'A', 0x10);
+//   printf("B%X\n", b);
+//   memset(b, 'B', 0x1000);
+//   printf("C%X\n", c);
+//   memset(c, 'C', 0x1000);
+//   printf("D%X\n", d);
+//   memset(d, 'D', 0x241);
   #endif
   
   

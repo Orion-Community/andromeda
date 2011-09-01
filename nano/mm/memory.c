@@ -37,9 +37,6 @@ int initHeap(long size)
       }
     }
   }
-  /*#ifdef DBG
-  examineHeap(); // Doesn't work!
-  #endif*/
   initPaging();
   return 0;
 }
@@ -51,63 +48,63 @@ int initHeap(long size)
  * Long mode:     64-bits // Makes the most of register size
  */
 
-// void memset(void *dest, int sval, size_t count)
-// {
-//   if(!count){return;}
-//   sval &= 0x000000ff;
-// #ifndef X86 //64 bit int is only faster at X86, X64 prefers 2 time 32 int
-//   unsigned long long val = (unsigned long long)sval;
-//   char i = 8;
-//   for(;i<64;i+=8)
-//   {
-//     val |= (sval << i);
-//   }
-//   while(count >= 8)
-//   {
-//     *(unsigned long long*)dest = (unsigned long long)val;
-//     dest += 8;
-//     count -= 8;
-//   }
-//   if(count >= 4)
-//   {
-//     *(unsigned int*)dest = (unsigned int)val;
-//     dest += 4;
-//     count -= 4;
-//   }
-// #else
-//   unsigned int val = (unsigned int)sval;
-//   char i = 8;
-//   for(;i<32;i+=8)
-//   {
-//     val |= (sval << i);
-//   }
-//   while(count >= 4)
-//   {
-//     *(unsigned int*)dest = (unsigned int)val;
-//     dest += 4;
-//     count -= 4;
-//   }
-// #endif
-//   if(count >= 2)
-//   {
-//     *(unsigned short*)dest = (unsigned short)val;
-//     dest += 2;
-//     count -= 2;
-//   }
-//   if(count >= 1)
-//   {
-//     *(unsigned char*)dest = (unsigned char)val;
-//   }
-//   return;
-// }
-
-void memset(void* var, int val, size_t count)
+void memset(void *dest, int sval, size_t count)
 {
-  for (;count != 0; count --)
+  if(!count){return;}
+  sval &= 0x000000ff;
+#ifndef X86 //64 bit int is only faster at X86, X64 prefers 2 time 32 int
+  unsigned long long val = (unsigned long long)sval;
+  char i = 8;
+  for(;i<64;i+=8)
   {
-    *(char*)((long)var+count) = (char) val;
+    val |= (sval << i);
   }
+  while(count >= 8)
+  {
+    *(unsigned long long*)dest = (unsigned long long)val;
+    dest += 8;
+    count -= 8;
+  }
+  if(count >= 4)
+  {
+    *(unsigned int*)dest = (unsigned int)val;
+    dest += 4;
+    count -= 4;
+  }
+#else
+  unsigned int val = (unsigned int)sval;
+  char i = 8;
+  for(;i<32;i+=8)
+  {
+    val |= (sval << i);
+  }
+  while(count >= 4)
+  {
+    *(unsigned int*)dest = (unsigned int)val;
+    dest += 4;
+    count -= 4;
+  }
+#endif
+  if(count >= 2)
+  {
+    *(unsigned short*)dest = (unsigned short)val;
+    dest += 2;
+    count -= 2;
+  }
+  if(count >= 1)
+  {
+    *(unsigned char*)dest = (unsigned char)val;
+  }
+  return;
 }
+
+// void memset(void* var, int val, size_t count)
+// {
+//   for (;count != 0; count --)
+//   {
+//     *(char*)((long)var+count) = (char) val;
+//   }
+// }
 
 void memcpy(void *dest, void *src, size_t count)
 {

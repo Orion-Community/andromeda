@@ -33,15 +33,21 @@ void heapStub()
   mutexRelease(prot);
 }
 
-extendHeap(void* base, int size)
+void extendHeap(void* base, int size)
 {
   mutexEnter(prot);
   memNode_t* node = (memNode_t*)base;
   initHdr(node, size-sizeof(memNode_t));
+  if (blocks == NULL)
+  {
+    blocks = node;
+    mutexRelease(prot);
+    return;
+  }
   memNode_t* tmp;
   for (tmp = blocks; tmp->next < node && tmp->next != NULL; tmp = tmp->next);
   memNode_t* tmpNext = tmp->next;
   tmp->next = node;
-  node ->next = tmpNext;
+  node->next = tmpNext;
   mutexRelease(prot);
 }

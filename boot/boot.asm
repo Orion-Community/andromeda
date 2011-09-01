@@ -23,6 +23,7 @@ CORE_MAGIC	equ	0xC0DEBABE	; Lolz
 [EXTERN code]                   ; Start of the '.text' section.
 [EXTERN bss]                    ; Start of the .bss section.
 [EXTERN end]
+[EXTERN halt]
 mboot:
   dd CORE_MAGIC
   dd start
@@ -45,4 +46,6 @@ start:
   
   cli
   call init
-  jmp $
+.1:
+;   call halt
+  jmp .1

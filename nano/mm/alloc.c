@@ -31,17 +31,17 @@
 #define HDRMAGIC 0xAF00BEA8
 #define PAGEBOUNDARY 0x1000
 
-memNode_t* blocks = NULL; // Head pointer of the linked list maintaining the heap
+volatile memNode_t* blocks = NULL; // Head pointer of the linked list maintaining the heap
 
 mutex_t prot;
 
 
 // Some random headers used later in the code
-boolean useBlock(memNode_t* block);
-void returnBlock(memNode_t* block);
-memNode_t* split(memNode_t* block, size_t size);
-memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned);
-memNode_t* merge(memNode_t* alpha, memNode_t* beta);
+inline static boolean useBlock(memNode_t* block);
+inline static void returnBlock(memNode_t* block);
+inline static memNode_t* split(memNode_t* block, size_t size);
+inline static memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned);
+inline static memNode_t* merge(memNode_t* alpha, memNode_t* beta);
 
 // Debugging function used to examine the heap
 void examineHeap()
