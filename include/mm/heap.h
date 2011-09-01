@@ -58,7 +58,7 @@ void examineHeap();
 extern long heapBase;
 extern long heapSize;
 
-extern memNode_t* blocks;
-extern mutex_t prot;
+extern volatile memNode_t* blocks;
+extern volatile mutex_t prot;
 
 #endif

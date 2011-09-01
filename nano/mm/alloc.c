@@ -33,7 +33,7 @@
 
 volatile memNode_t* blocks = NULL; // Head pointer of the linked list maintaining the heap
 
-mutex_t prot;
+volatile mutex_t prot;
 
 
 // Some random headers used later in the code
@@ -245,7 +245,7 @@ int free (void* ptr)
 	return 0; // Return success
 }
 
-boolean useBlock(memNode_t* block)
+inline static boolean useBlock(memNode_t* block)
 {
 	// mark the block as used and remove it from the heap list
 	if(block->used == FALSE)
@@ -271,7 +271,7 @@ boolean useBlock(memNode_t* block)
 		return TRUE;
 	}
 }
-void returnBlock(memNode_t* block)
+inline static void returnBlock(memNode_t* block)
 {
 	// This code marks the block as unused and puts it back in the list.
 	if (block->hdrMagic != HDRMAGIC) // Make sure we're not corrupting the heap
@@ -316,7 +316,7 @@ void returnBlock(memNode_t* block)
 		}
 	}
 }
-memNode_t* split(memNode_t* block, size_t size)
+inline static memNode_t* split(memNode_t* block, size_t size)
 {
 	// This code splits the block into two parts, the lower of which is returned
 	// to the caller.
@@ -332,7 +332,8 @@ memNode_t* split(memNode_t* block, size_t size)
 	block->size = size;
 	return block; // return the bottom block
 }
-memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
+
+inline static memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 {
 	// if the block should be pageAlligned
 	if (pageAlligned)
@@ -398,7 +399,8 @@ memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
 		return split(block, size);
 	}
 }
-memNode_t* merge(memNode_t* alpha, memNode_t* beta)
+
+inline static memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 {
 	// First we check for possible corruption
 	if (alpha->hdrMagic != HDRMAGIC || beta->hdrMagic != HDRMAGIC)
