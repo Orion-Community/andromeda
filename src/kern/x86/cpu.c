@@ -137,11 +137,10 @@ __ol_cpuid(volatile ol_gen_registers_t regs) {
 }
 
 static void *
-ol_cpu_mp_search_config_table(char* ptr, int count) {
-        char * mem = (unsigned char *) 0xf0000;
+ol_cpu_mp_search_config_table(char* mem, int count) {
         int length, i;
         unsigned char checksum;
-        while ((unsigned int) mem < 0x100000) {
+        while (i < count) {
                 if (mem[0] == 'R' && mem[1] == 'S' && mem[2] == 'D' &&
                         mem[3] == ' ' && mem[4] == 'P' && mem[5] == 'T' &&
                         mem[6] == 'R' && mem[7] == ' ') {
@@ -149,19 +148,24 @@ ol_cpu_mp_search_config_table(char* ptr, int count) {
                         return mem;
                 }
                 mem += 16;
+                i+=16;
         }
         return NULL;
 }
 
 int
 ol_get_mp_config_header() {
-        if (ol_cpu_mp_search_config_table((void*) 0xe0000, (void*) 0xfffff) != NULL) {
-                putc(0x42);
+        char * x;
+        if ((x = ol_cpu_mp_search_config_table((char*) 0xe0000, 0x100000-0xe0000)) 
+                != NULL) {
+                uint32_t * y = (uint32_t*)(x+16);
+                printnum(*(y), 16, 0,0);
                 return 0;
         }
 
         uint16_t ebda = *((uint16_t*) ((uint32_t) (0x040E)));
-        if (ol_cpu_mp_search_config_table((void*) (ebda << 4), (void*) ((ebda << 4) + 0x400))
+        uint16_t len = ((ebda<<4)+0x400)-(ebda<<4);
+        if (ol_cpu_mp_search_config_table((char*) (ebda << 4), len)
                 != NULL) {
                 putc(0x42);
                 return 0;
