@@ -20,6 +20,7 @@
 #include <arch/x86/cpu.h>
 
 #include <mm/heap.h>
+#include <mm/memory.h>
 #include <textio.h>
 
 ol_lock_t lock = 0;
@@ -148,31 +149,31 @@ __ol_cpuid(volatile ol_gen_registers_t regs)
 }
 
 static void *
-ol_cpu_mp_search_config_table(void * base, uint16_t i /* amount of tries */)
+ol_cpu_mp_search_config_table(void * base, void* end)
 {
-        ol_cpu_mp_fps_t fps;
-        
-        while(i--)
+        void* i = base;
+        for(; i < end; i+=16)
         {
-                if( *((uint32_t *)base) == OL_CPU_MP_FPS_SIGNATURE)
-                {
-                        return base;
-                }
-                else
-                {
-                        printnum(((uint32_t *)base), 16, 0, 0);
-                        putc(0xa);
-                        base += 16;
-                }
+                if(memcmp(i, "RSD PTR ", 8) == 0) return base;
+                putc(0x41);
+                putc(0xa);
         }
         return NULL;
 }
 
-ol_mp_config_table_header_t
+int
 ol_get_mp_config_header()
 {
         /* check the first byte of the extended bios data area */
-        if(ol_cpu_mp_search_config_table((void*)(*((uint16_t *)0x40e)<<4), 64) != NULL)
+        if(ol_cpu_mp_search_config_table((void*)0xe0000, (void*)0xfffff) != NULL)
+        {
+                putc(0x42);
+                return 0;
+        }
+        
+        uint16_t ebda = *((uint16_t*) ((uint32_t)(0x040E)));
+        if(ol_cpu_mp_search_config_table((void*)(ebda<<4), (void*)((ebda<<4)+0x400)) 
+                != NULL)
         {
                 putc(0x42);
                 return 0;

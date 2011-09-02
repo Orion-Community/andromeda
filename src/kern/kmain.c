@@ -46,6 +46,7 @@ void kmain(ol_mmap_register_t mmr)
         
         ol_cpu_t cpu = kalloc(sizeof(*cpu));
         ol_cpu_init(cpu);
+        ol_get_mp_config_header();
         
 	print("Current stack pointer: ");
 	ol_registers_t regs = getregs();
@@ -69,7 +70,9 @@ void kmain(ol_mmap_register_t mmr)
 	display_mmap(mmr);
 
         putc(0xa);
+/*
         ol_pci_init();
+*/
         
         
 #if 0
@@ -94,7 +97,7 @@ void kmain(ol_mmap_register_t mmr)
         free(cpu);
         ol_detach_all_devices();
 #endif
-        ol_get_mp_config_header();
+        
         ol_dbg_heap();
 
 	while(1) halt();

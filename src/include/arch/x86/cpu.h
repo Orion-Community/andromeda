@@ -22,7 +22,7 @@
 #define OL_CPUID_TEST_BIT 0x200000
 
 /* MultiProcessor defines */
-#define OL_CPU_MP_FPS_SIGNATURE 0x5f4d505f
+#define OL_CPU_MP_FPS_SIGNATURE 0x5F504D5F
 #define OL_CPU_MP_CONFIG_TABLE_HEADER_SIGNATURE 0x50434d50
 
 #ifndef CPU_H
@@ -105,7 +105,7 @@ extern "C"
         __ol_cpuid(volatile ol_gen_registers_t);
         
         static void *
-        ol_cpu_mp_search_config_table(void *, uint16_t);
+        ol_cpu_mp_search_config_table(void *, void*);
         
         ol_mp_config_table_header_t
         ol_get_mp_config_header();
