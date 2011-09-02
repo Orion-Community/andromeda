@@ -26,8 +26,7 @@
 ol_lock_t lock = 0;
 
 int
-ol_cpuid_available(ol_cpu_t cpu)
-{
+ol_cpuid_available(ol_cpu_t cpu) {
         uint32_t flags;
         uint32_t flags2;
 
@@ -37,23 +36,19 @@ ol_cpuid_available(ol_cpu_t cpu)
 
         flags2 = ol_get_eflags();
         ol_set_eflags(flags); /* restore flags */
-        
-        if((flags2>>21)&1)
-        {
+
+        if ((flags2 >> 21)&1) {
                 cpu->unlock(&lock);
                 return 0;
-        }
-        else
-        {
+        } else {
                 cpu->unlock(&lock);
                 return 1;
         }
 }
 
-ol_gen_registers_t 
-ol_cpuid(uint32_t func)
-{
-        ol_gen_registers_t regs = kalloc(sizeof(*regs));
+ol_gen_registers_t
+ol_cpuid(uint32_t func) {
+        ol_gen_registers_t regs = kalloc(sizeof (*regs));
         regs->eax = func;
         regs->ecx = 0;
         regs->edx = 0;
@@ -64,32 +59,29 @@ ol_cpuid(uint32_t func)
 }
 
 void
-ol_set_eflags(uint32_t flags)
-{
+ol_set_eflags(uint32_t flags) {
         __asm__ __volatile__("movl %0, %%eax \n\t"
-                        "pushl %%eax \n\t"
-                        "popfl"
-                        : /* no output */
-                        : "r" (flags) 
-                        : "%eax");    
+                "pushl %%eax \n\t"
+                "popfl"
+                : /* no output */
+                : "r" (flags)
+                : "%eax");
 }
 
 uint32_t
-ol_get_eflags(void)
-{
+ol_get_eflags(void) {
         uint32_t ret;
         asm volatile("pushfl \n\t"
-                        "popl %%eax \n\t"
-                        "movl %%eax, %0"
-                        : "=r" (ret)
-                        : /* no input */
-                        : "%eax" /* eax is clobbered */);
+                "popl %%eax \n\t"
+                "movl %%eax, %0"
+                : "=r" (ret)
+                : /* no input */
+                : "%eax" /* eax is clobbered */);
         return ret;
 }
 
 void
-ol_mutex_lock(ol_lock_t *lock)
-{
+ol_mutex_lock(ol_lock_t *lock) {
         asm volatile("movb $1, %%al \n\t"
                 "l3: xchgb %%al, (%0) \n\t"
                 "testb %%al, %%al \n\t"
@@ -100,8 +92,7 @@ ol_mutex_lock(ol_lock_t *lock)
 }
 
 void
-ol_mutex_release(ol_lock_t *lock)
-{
+ol_mutex_release(ol_lock_t *lock) {
         asm volatile("movb $0, (%0)"
                 : /* no output */
                 : "r" (lock)
@@ -109,20 +100,18 @@ ol_mutex_release(ol_lock_t *lock)
 }
 
 void
-ol_cpu_init(ol_cpu_t cpu)
-{
+ol_cpu_init(ol_cpu_t cpu) {
         cpu->flags = 0;
         cpu->lock = &ol_mutex_lock;
         cpu->unlock = &ol_mutex_release;
         cpu->flags |= ol_cpuid_available(cpu) ? 0 : 1;
-        
-        if(cpu->flags & 0x1)
-        {
+
+        if (cpu->flags & 0x1) {
                 ol_gen_registers_t regs = ol_cpuid(0);
 
-                if(regs->ebx == 0x756e6547 || regs->ebx == 0x756e6567) 
+                if (regs->ebx == 0x756e6547 || regs->ebx == 0x756e6567)
                         cpu->vendor = "INTEL";
-                else if(regs->ebx == 0x96444D41 || regs->ebx == 0x68747541)
+                else if (regs->ebx == 0x96444D41 || regs->ebx == 0x68747541)
                         cpu->vendor = "AMD";
 
                 else cpu->vendor = "UNKNOWN";
@@ -130,54 +119,54 @@ ol_cpu_init(ol_cpu_t cpu)
 }
 
 static ol_gen_registers_t
-__ol_cpuid(volatile ol_gen_registers_t regs)
-{
+__ol_cpuid(volatile ol_gen_registers_t regs) {
         static struct ol_gen_regs ret;
         __asm__ __volatile__("movl (%4), %%eax \n\t"
-                                "movl 4(%4), %%ebx \n\t"
-                                "movl 8(%4), %%ecx \n\t"
-                                "movl 12(%4), %%edx \n\t"
-                                "cpuid"
+                "movl 4(%4), %%ebx \n\t"
+                "movl 8(%4), %%ecx \n\t"
+                "movl 12(%4), %%edx \n\t"
+                "cpuid"
 
-                                : "=a" (ret.eax), /* output in register */
-                                  "=b" (ret.ebx),
-                                  "=c" (ret.ecx),
-                                  "=d" (ret.edx)
-                                : "r" (regs)
-                                : );
+                : "=a" (ret.eax), /* output in register */
+                "=b" (ret.ebx),
+                "=c" (ret.ecx),
+                "=d" (ret.edx)
+                : "r" (regs)
+                :);
         return &ret;
 }
 
 static void *
-ol_cpu_mp_search_config_table(void * base, void* end)
-{
-        void* i = base;
-        for(; i < end; i+=16)
-        {
-                if(memcmp(i, "RSD PTR ", 8) == 0) return base;
-                putc(0x41);
-                putc(0xa);
+ol_cpu_mp_search_config_table(char* ptr, int count) {
+        char * mem = (unsigned char *) 0xf0000;
+        int length, i;
+        unsigned char checksum;
+        while ((unsigned int) mem < 0x100000) {
+                if (mem[0] == 'R' && mem[1] == 'S' && mem[2] == 'D' &&
+                        mem[3] == ' ' && mem[4] == 'P' && mem[5] == 'T' &&
+                        mem[6] == 'R' && mem[7] == ' ') {
+
+                        return mem;
+                }
+                mem += 16;
         }
         return NULL;
 }
 
 int
-ol_get_mp_config_header()
-{
-        /* check the first byte of the extended bios data area */
-        if(ol_cpu_mp_search_config_table((void*)0xe0000, (void*)0xfffff) != NULL)
-        {
+ol_get_mp_config_header() {
+        if (ol_cpu_mp_search_config_table((void*) 0xe0000, (void*) 0xfffff) != NULL) {
                 putc(0x42);
                 return 0;
         }
-        
-        uint16_t ebda = *((uint16_t*) ((uint32_t)(0x040E)));
-        if(ol_cpu_mp_search_config_table((void*)(ebda<<4), (void*)((ebda<<4)+0x400)) 
-                != NULL)
-        {
+
+        uint16_t ebda = *((uint16_t*) ((uint32_t) (0x040E)));
+        if (ol_cpu_mp_search_config_table((void*) (ebda << 4), (void*) ((ebda << 4) + 0x400))
+                != NULL) {
                 putc(0x42);
                 return 0;
         }
-        return 1;                
+        return 1;
+        ;
 }
 

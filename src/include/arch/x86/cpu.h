@@ -105,9 +105,9 @@ extern "C"
         __ol_cpuid(volatile ol_gen_registers_t);
         
         static void *
-        ol_cpu_mp_search_config_table(void *, void*);
+        ol_cpu_mp_search_config_table(char* , int);
         
-        ol_mp_config_table_header_t
+        int
         ol_get_mp_config_header();
 
 #ifdef	__cplusplus
