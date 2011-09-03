@@ -138,13 +138,15 @@ __ol_cpuid(volatile ol_gen_registers_t regs) {
 
 static void *
 ol_cpu_mp_search_config_table(char* mem, int count) {
-        int length, i;
-        unsigned char checksum;
-        while (i < count) {
+        int i = 0;
+
+        while (i < count) 
+        {
                 if (mem[0] == 'R' && mem[1] == 'S' && mem[2] == 'D' &&
                         mem[3] == ' ' && mem[4] == 'P' && mem[5] == 'T' &&
-                        mem[6] == 'R' && mem[7] == ' ') {
-
+                        mem[6] == 'R' && mem[7] == ' ') 
+                {
+                        putc(0x41);
                         return mem;
                 }
                 mem += 16;
@@ -156,10 +158,18 @@ ol_cpu_mp_search_config_table(char* mem, int count) {
 int
 ol_get_mp_config_header() {
         char * x;
+        uint8_t checksum, length;
+        
         if ((x = ol_cpu_mp_search_config_table((char*) 0xe0000, 0x100000-0xe0000)) 
-                != NULL) {
-                uint32_t * y = (uint32_t*)(x+16);
-                printnum(*(y), 16, 0,0);
+                != NULL) 
+        {
+                        for(length = 0; length < 20; length++)
+                        {
+                                checksum += x[length];
+                        }
+                        uint32_t ** y = (uint32_t*)(x+16);
+                        printnum(checksum , 16, 0,0);
+                        putc(0xa);
                 return 0;
         }
 
