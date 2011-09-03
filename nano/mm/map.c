@@ -20,7 +20,7 @@
 #include <boot/mboot.h>
 #include <stdlib.h>
 
-mutex_t pageLock = 0;
+volatile mutex_t pageLock = 0;
 
 module_t modules[MAX_MODS];
 unsigned short bitmap[PAGES];
@@ -36,6 +36,12 @@ boolean claimPage(unsigned long page, unsigned short owner)
   return TRUE;
 }
 
+extern boolean pageDbg;
+/**
+ * Returns the address of the new page in bytes or
+ * 0 if the boolean usable is false, which occurs
+ * when no page could be allocated.
+ */
 pageState_t* allocPage(unsigned short owner)
 {
   if (pageLock != 0)
@@ -56,6 +62,8 @@ pageState_t* allocPage(unsigned short owner)
 	addr->addr = i*PAGESIZE;
 	addr->usable = TRUE;
 	mutexRelease(pageLock);
+	if (pageDbg)
+	  printf("Page idx: %X\n", i);
 	return addr;
       }
     }

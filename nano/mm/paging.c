@@ -95,7 +95,7 @@ void cPageFault(isrVal_t regs)
     // Allocate page here!
     pageState_t* phys = allocPage(state);
     if (pageDbg)
-      printf("Virt: 0x%X\n", page);
+      printf("Virt: 0x%X\nPhys: 0x%X\nUsable? %X\n", page, phys->addr, phys->usable);
     
     if (phys->usable == FALSE)
     {
@@ -114,7 +114,10 @@ void cPageFault(isrVal_t regs)
       panic("Setting the page failed dramatically!");
     }
     if (pageDbg)
+    {
+      printf("Set: Phys: %X\n", getPhysAddr(page));
       printf("Success!\n");
+    }
   }
   else if (!PRESENT && !WRITE)
   {
@@ -309,6 +312,7 @@ void initPaging ()
   unsigned long cr3 = (unsigned long)kernDir;
   cr3 -= (cr3 % 0x1000);
   setCR3(cr3);
-  toglePGbit();
+  if (state == COMPRESSED)
+    toglePGbit();
 }
 #endif

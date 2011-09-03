@@ -26,11 +26,22 @@ extern mutex_t pageLock;
 extern boolean pageDbg;
 extern boolean state;
 
-void corePaging()
+extern unsigned short bitmap[];
+
+/// Put some page table structure here ...
+volatile struct pageTable page_tables[0x400][0x400];
+volatile struct pageDirectory page_direcotry[0x400];
+
+void corePaging(short mmap[])
 {
   state = CORE;
-  pageLock = 0;
-  pageDbg = FALSE;
+  pageDbg = TRUE;
+  memcpy(bitmap, mmap, PAGES); // Get that memory map here
+  printf("Memcpy done\n");
+  
+  // Re do the page table set up, which turns out to be a little bit tricky ...
+  // Maybe we should do a rewrite with the GDT trick in it
+  
   printf("Warning! Page tables haven't been implemented in high memory yet!\n");
 }
 #endif

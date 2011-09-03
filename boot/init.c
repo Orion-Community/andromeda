@@ -36,20 +36,18 @@ unsigned char stack[0x10000];
 int init(unsigned short memorymap[], module_t mods[])
 {
   // Install all the necessary data for complex memory management
-  memcpy(bitmap, memorymap, PAGES);
   memcpy(modules, mods, MAX_MODS);
   
   // Set up the new screen
   textInit();
-  // Install a new heap at the right location.
-//   heapStub();
-//   extendHeap(&end, HEAPSIZE);
-  heapCoreBlocks();
+//   Install a new heap at the right location.
+  heapStub(); // Installs some of the heap in data section, required for early paging
+  extendHeap(&end, HEAPSIZE); // Add the rest of the heap for the rest of the kernel, this can be dynamic
   
   // Set up the new interrupts
   intInit();
   // Let's create our own page tables and directory
-  corePaging();
+  corePaging(memorymap);
   
   // Set the CPU up so that it no longer requires the nano image
   setGDT();
@@ -67,7 +65,7 @@ int init(unsigned short memorymap[], module_t mods[])
   extern boolean pageDbg;
   pageDbg = TRUE;
   
-  int* a = (int*)0xC021C000;
+  int* a = (int*)0xC021D000;
   printf("Reached!\n");
   memset(a, 'A', 0x1000);
   printf("Reached!\n");
