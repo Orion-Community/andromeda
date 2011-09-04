@@ -60,6 +60,8 @@ extern "C"
         
         void
         ol_apic_init(ol_cpu_t cpu);
+        
+        extern ol_apic_t apic;
 
 #ifdef	__cplusplus
 }

@@ -24,6 +24,7 @@
 #include <textio.h>
 
 ol_lock_t lock = 0;
+ol_cpu_mp_fps_t mp = NULL;
 
 int
 ol_cpuid_available(ol_cpu_t cpu)
@@ -147,71 +148,68 @@ __ol_cpuid(volatile ol_gen_registers_t regs)
         return &ret;
 }
 
-static void *
-ol_cpu_search_signature(void* mem, uint32_t c, char *sign)
+void
+ol_cpu_search_signature(void* mem, uint32_t c)
 {
-        int i;
+        int i, j = 0;
         for (i = 0; i < c; i++, mem += 16)
         {
-                if (memcmp(mem, sign, strlen(sign)) == 0)
+                if (!memcmp(mem, "RSD PTR ", strlen("RSD PTR ")) || !memcmp(
+                        mem, "_MP_", strlen("_MP_")) || !memcmp(mem, "_SM_", 
+                        strlen("_SM_")))
                 {
-                        return mem;
+                        ol_validate_table((char*)mem);
                 }
         }
-        return NULL;
 }
 
-static void*
-ol_get_config_header(void* start, void* end, char * sign)
-{
-        char * x;
-
-        if ((x = ol_cpu_search_signature(start, end - start, sign)) != NULL)
-        {
-
-                return x;
-        }
-        else return NULL;
-}
-
-void **
+void
 ol_get_system_tables()
-{
-        void ** n = kalloc(sizeof(void*)*3);
-
+{       /* get the ebda pointer */
         uint16_t ebda = *((uint16_t*) ((uint32_t) (0x040E)));
         uint16_t len = ((ebda << 4) + 0x400)-(ebda << 4);
-        
-        /* Start with the ACPI RSDP */
-        char * x = ol_get_config_header((void*)(ebda<<4), (void*)(ebda<<4)+len, 
-                "RSD PTR ");
-        if(x == NULL)
-        {
-                x = ol_get_config_header((void*)0xe0000, (void*)
-                        0x100000-0xe0000, "RSD PTR ");
-        }
-        n[0] = x;
-        
-        /* Next is the MPS */
-        x = ol_get_config_header((void*)(ebda<<4), (void*)(ebda<<4)+len, 
-                "_MP_");
-        if(x == NULL)
-        {
-                x = ol_get_config_header((void*)0x9fc00, (void*)
-                                (0x9fc00+0x400)-0x9fc00, "_MP_");
-                
-                if(x == NULL)
-                {
-                        x = ol_get_config_header((void*)0xf0000, (void*)
-                                0x100000-0xf0000, "_MP_");
 
-                        n[1] = x;
+        /* search */
+        ol_cpu_search_signature((void*)(ebda<<4), len);
+        ol_cpu_search_signature((void*)0x9fc00, 0x400);
+        ol_cpu_search_signature((void*)0xe0000, 0x10000);
+}
+
+static int
+ol_validate_table(char* table)
+{
+        int i;
+        uint8_t checksum = 0, length;
+        if(!memcmp(table, "_MP_", 4))
+        {
+                length = *(table+8)*16;
+                for(i = 0; i < length; i++)
+                {
+                        checksum += *(table+i);
                 }
+                if(!checksum)
+                        mp = (ol_cpu_mp_fps_t)table;
         }
-        n[1] = x;
-                
+        else if(!memcmp(table, "_SM_", 4))
+        {           
+                length = *(table+5);
+                for(i = 0; i < length; i++)
+                {
+                        checksum += *(table+i);
+                }
+                if(!checksum)
+                        putc('c');
+        }
+        else if(!memcmp(table, "RSD PTR ", 8))
+        {
+                length = 20;
+                for(i = 0; i < length; i++)
+                {
+                        checksum += *(table+i);
+                }
+                if(!checksum)
+                        putc('b');
+        }
         
-        /* And last but not least, the SMBIOS */
-        
-        return n;
+        return checksum;
 }

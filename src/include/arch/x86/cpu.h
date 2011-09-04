@@ -102,14 +102,16 @@ extern "C"
         static ol_gen_registers_t
         __ol_cpuid(volatile ol_gen_registers_t);
 
-        static void *
-        ol_cpu_search_signature(void*, uint32_t, char*);
-
-        static void*
-        ol_get_config_header(void*, void*, char*);
+        static void
+        ol_cpu_search_signature(void*, uint32_t);
         
-        void **
+        void
         ol_get_system_tables();
+        
+        static int
+        ol_validate_table(char*);
+        
+        extern ol_cpu_mp_fps_t mp;
 
 #ifdef	__cplusplus
 }
