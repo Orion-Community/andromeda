@@ -146,7 +146,8 @@ void memcpy(void *dest, void *src, size_t count)
   return;
 }
 
-int memcmp(void *ptr1, void* ptr2, size_t count)
+int 
+memcmp(void *ptr1, void* ptr2, size_t count)
 {
 #ifndef X86 //64 bit int is only faster at X86, X64 prefers 2 time 32 int
   if( diff >= 8)
@@ -184,7 +185,7 @@ int memcmp(void *ptr1, void* ptr2, size_t count)
     ptr2 += 2;
     count -= 2;
   }
-  if( (count = 1) && (*(unsigned long long*)ptr1 - *(unsigned long long*)ptr2) )
+  if( (count == 1) && (*(unsigned long long*)ptr1 - *(unsigned long long*)ptr2) )
   {
       return 1;
   }
