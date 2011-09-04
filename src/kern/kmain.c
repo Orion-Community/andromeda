@@ -46,7 +46,11 @@ void kmain(ol_mmap_register_t mmr)
         
         ol_cpu_t cpu = kalloc(sizeof(*cpu));
         ol_cpu_init(cpu);
-        ol_get_system_tables();
+        char ** x = (char**)ol_get_system_tables();
+        uint32_t ** y = (uint32_t**)(x[0]+16);
+        printnum(**y, 16, 0, 0);
+        putc(0xa);
+        free(x);
 
         
 	print("Current stack pointer: ");

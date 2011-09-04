@@ -174,20 +174,44 @@ ol_get_config_header(void* start, void* end, char * sign)
         else return NULL;
 }
 
-void *
+void **
 ol_get_system_tables()
 {
+        void ** n = kalloc(sizeof(void*)*3);
+
         uint16_t ebda = *((uint16_t*) ((uint32_t) (0x040E)));
         uint16_t len = ((ebda << 4) + 0x400)-(ebda << 4);
+        
+        /* Start with the ACPI RSDP */
         char * x = ol_get_config_header((void*)(ebda<<4), (void*)(ebda<<4)+len, 
                 "RSD PTR ");
         if(x == NULL)
         {
                 x = ol_get_config_header((void*)0xe0000, (void*)
                         0x100000-0xe0000, "RSD PTR ");
-                uint32_t ** y = (uint32_t**)(x+16);
-                printnum(**y, 16, 0,0);
-                putc(0xa);
-                return x;
         }
+        n[0] = x;
+        
+        /* Next is the MPS */
+        x = ol_get_config_header((void*)(ebda<<4), (void*)(ebda<<4)+len, 
+                "_MP_");
+        if(x == NULL)
+        {
+                x = ol_get_config_header((void*)0x9fc00, (void*)
+                                (0x9fc00+0x400)-0x9fc00, "_MP_");
+                
+                if(x == NULL)
+                {
+                        x = ol_get_config_header((void*)0xf0000, (void*)
+                                0x100000-0xf0000, "_MP_");
+
+                        n[1] = x;
+                }
+        }
+        n[1] = x;
+                
+        
+        /* And last but not least, the SMBIOS */
+        
+        return n;
 }

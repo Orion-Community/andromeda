@@ -108,7 +108,7 @@ extern "C"
         static void*
         ol_get_config_header(void*, void*, char*);
         
-        void *
+        void **
         ol_get_system_tables();
 
 #ifdef	__cplusplus
