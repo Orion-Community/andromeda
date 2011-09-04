@@ -26,7 +26,8 @@
 ol_lock_t lock = 0;
 
 int
-ol_cpuid_available(ol_cpu_t cpu) {
+ol_cpuid_available(ol_cpu_t cpu)
+{
         uint32_t flags;
         uint32_t flags2;
 
@@ -37,17 +38,20 @@ ol_cpuid_available(ol_cpu_t cpu) {
         flags2 = ol_get_eflags();
         ol_set_eflags(flags); /* restore flags */
 
-        if ((flags2 >> 21)&1) {
+        if ((flags2 >> 21)&1)
+        {
                 cpu->unlock(&lock);
                 return 0;
-        } else {
+        } else
+        {
                 cpu->unlock(&lock);
                 return 1;
         }
 }
 
 ol_gen_registers_t
-ol_cpuid(uint32_t func) {
+ol_cpuid(uint32_t func)
+{
         ol_gen_registers_t regs = kalloc(sizeof (*regs));
         regs->eax = func;
         regs->ecx = 0;
@@ -59,7 +63,8 @@ ol_cpuid(uint32_t func) {
 }
 
 void
-ol_set_eflags(uint32_t flags) {
+ol_set_eflags(uint32_t flags)
+{
         __asm__ __volatile__("movl %0, %%eax \n\t"
                 "pushl %%eax \n\t"
                 "popfl"
@@ -69,7 +74,8 @@ ol_set_eflags(uint32_t flags) {
 }
 
 uint32_t
-ol_get_eflags(void) {
+ol_get_eflags(void)
+{
         uint32_t ret;
         asm volatile("pushfl \n\t"
                 "popl %%eax \n\t"
@@ -81,7 +87,8 @@ ol_get_eflags(void) {
 }
 
 void
-ol_mutex_lock(ol_lock_t *lock) {
+ol_mutex_lock(ol_lock_t *lock)
+{
         asm volatile("movb $1, %%al \n\t"
                 "l3: xchgb %%al, (%0) \n\t"
                 "testb %%al, %%al \n\t"
@@ -92,7 +99,8 @@ ol_mutex_lock(ol_lock_t *lock) {
 }
 
 void
-ol_mutex_release(ol_lock_t *lock) {
+ol_mutex_release(ol_lock_t *lock)
+{
         asm volatile("movb $0, (%0)"
                 : /* no output */
                 : "r" (lock)
@@ -100,13 +108,15 @@ ol_mutex_release(ol_lock_t *lock) {
 }
 
 void
-ol_cpu_init(ol_cpu_t cpu) {
+ol_cpu_init(ol_cpu_t cpu)
+{
         cpu->flags = 0;
         cpu->lock = &ol_mutex_lock;
         cpu->unlock = &ol_mutex_release;
         cpu->flags |= ol_cpuid_available(cpu) ? 0 : 1;
 
-        if (cpu->flags & 0x1) {
+        if (cpu->flags & 0x1)
+        {
                 ol_gen_registers_t regs = ol_cpuid(0);
 
                 if (regs->ebx == 0x756e6547 || regs->ebx == 0x756e6567)
@@ -119,7 +129,8 @@ ol_cpu_init(ol_cpu_t cpu) {
 }
 
 static ol_gen_registers_t
-__ol_cpuid(volatile ol_gen_registers_t regs) {
+__ol_cpuid(volatile ol_gen_registers_t regs)
+{
         static struct ol_gen_regs ret;
         __asm__ __volatile__("movl (%4), %%eax \n\t"
                 "movl 4(%4), %%ebx \n\t"
@@ -137,50 +148,46 @@ __ol_cpuid(volatile ol_gen_registers_t regs) {
 }
 
 static void *
-ol_cpu_mp_search_config_table(char* mem, int count) {
-        int i = 0;
-
-        while (i < count) 
+ol_cpu_search_signature(void* mem, uint32_t c, char *sign)
+{
+        int i;
+        for (i = 0; i < c; i++, mem += 16)
         {
-                if (mem[0] == 'R' && mem[1] == 'S' && mem[2] == 'D' &&
-                        mem[3] == ' ' && mem[4] == 'P' && mem[5] == 'T' &&
-                        mem[6] == 'R' && mem[7] == ' ') 
+                if (memcmp(mem, sign, strlen(sign)) == 0)
                 {
-                        putc(0x41);
                         return mem;
                 }
-                mem += 16;
-                i+=16;
         }
         return NULL;
 }
 
-int
-ol_get_mp_config_header() {
+static void*
+ol_get_config_header(void* start, void* end, char * sign)
+{
         char * x;
-        uint8_t checksum, length;
-        
-        if ((x = ol_cpu_mp_search_config_table((char*) 0xe0000, 0x100000-0xe0000)) 
-                != NULL) 
-        {
-                        for(length = 0; length < 20; length++)
-                        {
-                                checksum += x[length];
-                        }
-                        uint32_t ** y = (uint32_t*)(x+16);
-                        printnum(checksum , 16, 0,0);
-                        putc(0xa);
-                return 0;
-        }
 
-        uint16_t ebda = *((uint16_t*) ((uint32_t) (0x040E)));
-        uint16_t len = ((ebda<<4)+0x400)-(ebda<<4);
-        if (ol_cpu_mp_search_config_table((char*) (ebda << 4), len)
-                != NULL) {
-                putc(0x42);
-                return 0;
+        if ((x = ol_cpu_search_signature(start, end - start, sign)) != NULL)
+        {
+
+                return x;
         }
-        return 1;
-        ;
+        else return NULL;
 }
 
+void *
+ol_get_system_tables()
+{
+        uint16_t ebda = *((uint16_t*) ((uint32_t) (0x040E)));
+        uint16_t len = ((ebda << 4) + 0x400)-(ebda << 4);
+        char * x = ol_get_config_header((void*)(ebda<<4), (void*)(ebda<<4)+len, 
+                "RSD PTR ");
+        if(x == NULL)
+        {
+                x = ol_get_config_header((void*)0xe0000, (void*)
+                        0x100000-0xe0000, "RSD PTR ");
+                uint32_t ** y = (uint32_t**)(x+16);
+                printnum(**y, 16, 0,0);
+                putc(0xa);
+                return x;
+        }
+}

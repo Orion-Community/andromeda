@@ -19,9 +19,12 @@ extern "C"
         extern volatile ol_memnode_t heap;
         void
         ol_memcpy(void*, void*, size_t);
-        
+
         int
-        ol_memcmp(void*,void*,size_t);
+        ol_memcmp(void*, void*, size_t);
+
+        size_t
+        strlen(char *);
 
 #ifdef	__cplusplus
 }

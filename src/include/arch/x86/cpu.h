@@ -34,40 +34,38 @@ extern "C"
 #endif
 
         typedef uint8_t ol_lock_t;
-    
+
         struct ol_gen_regs
         {
                 uint32_t eax, ebx, ecx, edx;
         } __attribute__((packed));
         typedef struct ol_gen_regs *ol_gen_registers_t;
-        
+
         typedef struct ol_cpu_model
         {
                 uint32_t vendor_id, family;
                 const uint8_t *model_name;
-        }*ol_cpu_model_t;
-        
-        
+        } *ol_cpu_model_t;
+
         typedef struct ol_cpu
         {
                 /* model info*/
                 ol_cpu_model_t cpu_models[4];
                 const uint8_t *vendor;
-                                
+
                 /* CPU device info */
                 uint8_t flags;
 
                 void (*lock)(ol_lock_t*);
                 void (*unlock)(ol_lock_t*);
-                
+
         } *ol_cpu_t;
-        
+
         struct ol_mp_config_table_header
         {
-                
         } __attribute__((packed));
         typedef struct ol_mp_config_table_header *ol_mp_config_table_header_t;
-        
+
         struct ol_cpu_mp_fps
         {
                 uint32_t signature;
@@ -77,38 +75,41 @@ extern "C"
         } __attribute__((packed));
         typedef struct ol_cpu_mp_fps *ol_cpu_mp_fps_t;
 
-/* CPU feature functions */        
+        /* CPU feature functions */
         static int
         ol_cpuid_available(ol_cpu_t);
 
         void
         ol_cpu_init(ol_cpu_t);
-        
-        ol_gen_registers_t 
+
+        ol_gen_registers_t
         ol_cpuid(uint32_t func);
-        
+
         uint32_t
         ol_get_eflags(void);
-        
+
         void
         ol_set_eflags(uint32_t);
 
         /* LOCKS */
         void /* lock spin lock */
         ol_mutex_lock(ol_lock_t*);
-        
+
         void /* spin release */
         ol_mutex_release(ol_lock_t*);
-        
+
         /* CPUID */
         static ol_gen_registers_t
         __ol_cpuid(volatile ol_gen_registers_t);
-        
+
         static void *
-        ol_cpu_mp_search_config_table(char* , int);
+        ol_cpu_search_signature(void*, uint32_t, char*);
+
+        static void*
+        ol_get_config_header(void*, void*, char*);
         
-        int
-        ol_get_mp_config_header();
+        void *
+        ol_get_system_tables();
 
 #ifdef	__cplusplus
 }
