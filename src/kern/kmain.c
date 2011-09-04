@@ -30,8 +30,9 @@
 #include <interrupts/idt.h>
 
 #include <sys/dev/pci.h>
-
 #include <sys/disk/ide.h>
+#include <sys/sys.h>
+
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
 

@@ -11,13 +11,14 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 # targets
 SYS=sys.o
 #subtargets
-SYS_DEPS=stdlib.o io.o keyboard.o dev.o disk.o
+SYS_DEPS=stdlib.o io.o keyboard.o dev.o disk.o sys_.o
 
 # source files
 IO_SRC=io.asm
 STDLIB_SRC=stdlib.asm
 KB_SRC=keyboard.c
 PS2_SRC=ps2controller.asm
+SYS_SRC=sys.c
 
 
 .PHONY: all
@@ -40,6 +41,9 @@ dev.o:
 disk.o:
 	$(MAKE) -C disk/ all
 	mv -v disk/disk.o ./
+
+sys_.o:
+	$(CC) $(CCFLAGS) $(SYS_SRC) -o sys_.o
 
 .PHONY: clean
 clean:
