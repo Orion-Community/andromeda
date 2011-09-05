@@ -42,6 +42,7 @@
 #include <boot/mboot.h>
 #include <mm/map.h>
 #include <tty/tty.h>
+#include <fs/fs.h>
 
 #include <kern/cpu.h>
 
@@ -158,6 +159,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   testAlloc();
   printf("End test\n");
   #endif
+
+  fsInit(NULL);
+  list(_fs_root);
   
 //   #ifndef TESTING
 //   if (setupCore(modules[0]))
