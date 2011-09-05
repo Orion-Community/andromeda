@@ -1,4 +1,4 @@
-include ../make/makeIncl
+include ../../make/makeIncl
 
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 TARGETS=

@@ -21,6 +21,8 @@ $(OUTC):
 	$(MAKE) -C text $(MAKEEND)
 	$(MAKE) -C boot $(MAKEEND)
 	$(MAKE) -C math $(MAKEEND)
+	$(MAKE) -C fs $(MAKEEND)
+	$(MAKE) -C drivers $(MAKEEND)
 	
 	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
 

@@ -8,30 +8,15 @@ all: new
 new: $(OUTD)
 
 $(OUTD):
-	$(MAKE) -C drivers/ $(MAKEEND)
-	$(MAKE) -C kern/ $(MAKEEND)
-	$(MAKE) -C mm/ $(MAKEEND)
 	$(MAKE) -C nano/ $(MAKEEND)
-	$(MAKE) -C math/ $(MAKEEND)
-	$(MAKE) -C boot/ $(MAKEEND)
-	$(MAKE) -C fs/ $(MAKEEND)
-	
-	rm -fv nano/boot.o nano/kmain.o nano/map.o
 	
 	mv -v nano/$(OUTC) ./
-	
-	$(LD) $(LDFLAGS) $(LDCORE) -o $(OUTD) *.o
+	cp -v $(OUTC) $(OUTD)
 
 .PHONY: clean
 clean:
-	$(MAKE) -C drivers/ clean
-	$(MAKE) -C kern/ clean
-	$(MAKE) -C mm/ clean
 	$(MAKE) -C nano/ clean
-	$(MAKE) -C math/ clean
-	$(MAKE) -C fs/ clean
 	
-	rm -fv *.o
 	rm -fv $(OUTC)
 	rm -fv $(OUTD)
 
