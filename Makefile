@@ -1,28 +1,45 @@
 include make/makeIncl
 include make/x86
 
+MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
+
 .PHONY: all
-all: new
-
-.PHONY: new
-new: $(OUTD)
-
-$(OUTD):
-	$(MAKE) -C nano/ $(MAKEEND)
-	
-	mv -v nano/$(OUTC) ./
-	cp -v $(OUTC) $(OUTD)
-
-.PHONY: clean
-clean:
-	$(MAKE) -C nano/ clean
-	
-	rm -fv $(OUTC)
-	rm -fv $(OUTD)
+all: x86
 
 .PHONY: amd64
 amd64:
 	@echo "Not yet implemented"
+
+.PHONY: x86
+x86: $(OUTC)
+
+$(OUTC):
+	$(MAKE) -C error $(MAKEEND)
+	$(MAKE) -C mm $(MAKEEND)
+	$(MAKE) -C kern $(MAKEEND)
+	$(MAKE) -C arch $(MAKEEND)
+	$(MAKE) -C text $(MAKEEND)
+	$(MAKE) -C boot $(MAKEEND)
+	$(MAKE) -C math $(MAKEEND)
+	$(MAKE) -C fs $(MAKEEND)
+	$(MAKE) -C drivers $(MAKEEND)
+	
+	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
+	cp -v compressed core
+
+.PHONY: localClean
+localClean: clean
+	rm -fv *.o
+	rm $(OUTC)
+	
+.PHONY: clean
+clean:
+	$(MAKE) -C error clean
+	$(MAKE) -C mm clean
+	$(MAKE) -C kern clean
+	$(MAKE) -C arch clean
+	$(MAKE) -C boot clean
+	rm -f $(OUTC)
 
 .PHONY: all
 test: all

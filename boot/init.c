@@ -89,11 +89,6 @@ boolean setupCore(module_t mod)
   }
   coreAugment(mod.addr);
   
-  #ifdef ELFDBG
-  // Stop execution to make debugging messages readable
-  for (;;)
-    halt();
-  #endif
   // Jump into the high memory image
   elfJmp(mod.addr);
   

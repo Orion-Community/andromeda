@@ -2,16 +2,17 @@ CC=gcc
 LD=ld
 CFLAGS=-I../../include/ -nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 -D __INTEL -mtune=i686 -march=i386
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
+MAKE=make
 
-TARGETS=alloc.c heap.c map.c memory.c paging.c test.c
+TARGETS=fs.c
 
 .PHONY: all
-all: mm.o
-	mv -fv mm.o ../
+all: vfs.o
+	mv -fv vfs.o ../
 
-mm.o: $(TARGETS)
+vfs.o: $(TARGETS)
 	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)
-	$(LD) -o mm.o *.o $(LDFLAGS)
+	$(LD) -o vfs.o *.o $(LDFLAGS)
 	
 .PHONY: clean
 clean:

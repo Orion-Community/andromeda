@@ -1,6 +1,6 @@
 AS=nasm
 
-ASFLAGS=-felf -D X86 -I../../../../include/
+ASFLAGS=-felf -D X86 -I../../../include/
 
 IO=io.asm
 IRQ=irq.asm
