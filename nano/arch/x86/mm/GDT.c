@@ -20,7 +20,7 @@
 #include <arch/x86/GDT.h>
 #include <stdlib.h>
 
-gdtEntry_t *GDT = NULL;
+gdtEntry_t GDT[5];
 
 /*
  * The code below holds a reference called BRANS. This is because the code that is between those statements
@@ -55,22 +55,12 @@ void setGDT()
    * Set up a GDT. (1)
    */
   #ifdef FAST
-  GDT = kalloc(sizeof(gdtEntry_t)*ENTRIES);
-  if (GDT == NULL)
-  {
-    panic("Aiee, NULL pointer!!!");
-  }
   setEntry(0, 0, 0, 0, 0);                // Null segment
   setEntry(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); // Code segment
   setEntry(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data segment
   setEntry(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
   setEntry(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
   #else
-  GDT = kalloc(sizeof(gdtEntry_t)*ENTRIES);
-  if (GDT == NULL)
-  {
-    panic("Aiee, NULL pointer!!!");
-  }
   //void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type, unsigned int dpl)
   setEntry (0, 0, 0, 0, 0);
   setEntry (1, 0, 0xFFFFFFFF, 0xA, 0x0);
@@ -83,9 +73,9 @@ void setGDT()
    * Load the GDT into the CPU.(1)
    */
   
-  gdt_t *gdt = kalloc (sizeof(gdt_t));
-  gdt->limit = sizeof(gdtEntry_t)*ENTRIES;
-  gdt->baseAddr = (unsigned int)((void*)GDT);
+  struct gdtPtr gdt;
+  gdt.limit = sizeof(gdtEntry_t)*ENTRIES;
+  gdt.baseAddr = (unsigned int)((void*)GDT);
   #ifdef GDTTEST
   printhex(gdt->limit); putc('\t');
   printhex(gdt->baseAddr); putc('\n');
@@ -99,7 +89,7 @@ void setGDT()
   }
   
   #endif
-  lgdt(gdt);  
+  lgdt(&gdt);  
   #ifdef GDTTEST
   printf("checkpoint 2\n");
   #endif

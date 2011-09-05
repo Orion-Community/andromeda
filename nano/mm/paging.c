@@ -44,7 +44,6 @@
  * be done easilly.
  */
 
-boolean state = COMPRESSED;
 boolean pageDbg = FALSE;
 void cPageFault(isrVal_t regs)
 {
@@ -93,7 +92,7 @@ void cPageFault(isrVal_t regs)
     if (pageDbg)
       printf("Allocating!\n");
     // Allocate page here!
-    pageState_t* phys = allocPage(state);
+    pageState_t* phys = allocPage(COMPRESSED);
     if (pageDbg)
       printf("Virt: 0x%X\nPhys: 0x%X\nUsable? %X\n", page, phys->addr, phys->usable);
     
@@ -110,7 +109,7 @@ void cPageFault(isrVal_t regs)
       #ifdef DBG
       printf("Virt: 0x%X\n", page);
       #endif
-      freePage((void*)phys->addr, state);
+      freePage((void*)phys->addr, COMPRESSED);
       panic("Setting the page failed dramatically!");
     }
     if (pageDbg)
@@ -312,7 +311,5 @@ void initPaging ()
   unsigned long cr3 = (unsigned long)kernDir;
   cr3 -= (cr3 % 0x1000);
   setCR3(cr3);
-  if (state == COMPRESSED)
-    toglePGbit();
 }
 #endif

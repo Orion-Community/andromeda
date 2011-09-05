@@ -5,10 +5,6 @@ MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 
 .PHONY: all
 all: x86
-	rm -fv boot.o
-	rm -fv map.o
-	rm -fv kmain.o
-	mv -v *.o ../
 
 .PHONY: amd64
 amd64:
@@ -23,7 +19,7 @@ $(OUTC):
 	$(MAKE) -C kern $(MAKEEND)
 	$(MAKE) -C arch $(MAKEEND)
 	$(MAKE) -C text $(MAKEEND)
-	$(MAKE) -C nano $(MAKEEND)
+	$(MAKE) -C boot $(MAKEEND)
 	$(MAKE) -C math $(MAKEEND)
 	
 	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
@@ -39,7 +35,8 @@ clean:
 	$(MAKE) -C mm clean
 	$(MAKE) -C kern clean
 	$(MAKE) -C arch clean
-	$(MAKE) -C nano clean
+	$(MAKE) -C boot clean
+	rm -f $(OUTC)
 
 .PHONY: all
 test: all

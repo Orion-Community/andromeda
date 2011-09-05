@@ -117,23 +117,27 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid memory map");
   }
-  if (hdr->flags && MULTIBOOT_INFO_MODS && hdr->mods_count > 0)
-  {
-    addModules((multiboot_module_t*)hdr->mods_addr, (int)hdr->mods_count);
-    addCompressed();
-  }
-  else
-  {
-    panic("Invalid modules");
-  }
+  
+//   if (hdr->flags && MULTIBOOT_INFO_MODS && hdr->mods_count > 0)
+//   {
+//     addModules((multiboot_module_t*)hdr->mods_addr, (int)hdr->mods_count);
+//     addCompressed();
+//   }
+//   else
+//   {
+//     panic("Invalid modules");
+//   }
 
+
+  setGDT();
+  
   // Initialise the heap
   initHeap(HEAPSIZE);
   
-  setGDT();
   intInit(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
 		     // been disabled.
+  
   // If in the compressed image
   announce(); // print welcome message
   #ifdef VENDORTELL
@@ -155,17 +159,12 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printf("End test\n");
   #endif
   
-  #ifndef TESTING
-  if (setupCore(modules[0]))
-  {
-    panic("Core image couldn't be loaded!");
-  }
-  #endif
-  
-  int* a = (int*)0xc022000000;
-  printf("Reached!\n");
-  memset(a, 'A', 0x1000);
-  printf("Reached!\n");
+//   #ifndef TESTING
+//   if (setupCore(modules[0]))
+//   {
+//     panic("Core image couldn't be loaded!");
+//   }
+//   #endif
 
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
