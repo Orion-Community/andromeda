@@ -20,7 +20,9 @@
 #include <textio.h>
 
 #include <sys/sys.h>
+
 #include <arch/x86/cpu.h>
+#include <arch/x86/acpi/acpi.h>
 
 void
 ol_cpu_search_signature(void* mem, uint32_t c)
@@ -46,7 +48,7 @@ ol_get_system_tables()
         /* search */
         ol_cpu_search_signature((void*)(ebda<<4), len);
         ol_cpu_search_signature((void*)0x9fc00, 0x400);
-        ol_cpu_search_signature((void*)0xe0000, 0x10000);
+        ol_cpu_search_signature((void*)0xe0000, 0x20000);
 }
 
 static int
@@ -56,6 +58,7 @@ ol_validate_table(char* table)
         uint8_t checksum = 0, length;
         if(!memcmp(table, "_MP_", 4))
         {
+                putc('a');
                 length = *(table+8)*16;
                 for(i = 0; i < length; i++)
                 {
@@ -82,7 +85,7 @@ ol_validate_table(char* table)
                         checksum += *(table+i);
                 }
                 if(!checksum)
-                        putc('b');
+                        rsdp = (ol_acpi_rsdp_t)table;
         }
         
         return checksum;

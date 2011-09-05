@@ -35,6 +35,7 @@
 
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
+#include <arch/x86/acpi/acpi.h>
 
 extern ol_lock_t lock;
 void kmain(ol_mmap_register_t mmr)
@@ -48,8 +49,6 @@ void kmain(ol_mmap_register_t mmr)
         ol_cpu_t cpu = kalloc(sizeof(*cpu));
         ol_cpu_init(cpu);
         ol_get_system_tables();
-        printnum(mp->signature, 16, 0, 0);
-        putc(0xa);
         
 	print("Current stack pointer: ");
 	ol_registers_t regs = getregs();
@@ -100,6 +99,11 @@ void kmain(ol_mmap_register_t mmr)
         free(cpu);
         ol_detach_all_devices();
 #endif
+        
+        printnum(*((uint32_t*)rsdp->signature), 16, 0, 0);
+        putc(0x20);
+        printnum(*(((uint32_t*)rsdp->signature)+1), 16, 0, 0);
+        putc(0xa);
         
         ol_dbg_heap();
 

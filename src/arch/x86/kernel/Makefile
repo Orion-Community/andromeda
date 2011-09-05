@@ -18,6 +18,7 @@ PIC=pic.o
 PIT=pit.o
 APIC=apic.o
 KERN=kernel.o
+ACPI=acpi.o
 
 # sources
 
@@ -29,7 +30,8 @@ ISR_SRC=isr.asm
 ISR2_SRC=isr.c
 PIC_SRC=pic.c
 PIT_SRC=pit.c
-KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC)
+KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC) \
+$(ACPI)
 
 
 .PHONY: all
@@ -39,6 +41,10 @@ all: $(KERNEL_DEPS)
 $(APIC):
 	$(MAKE) -C apic/ all
 	mv -v apic/$(APIC) ./
+	
+$(ACPI):
+	$(MAKE) -C acpi/ all
+	mv -v acpi/$(ACPI) ./
 
 $(IDT): $(IDT_SRC)
 	$(AS) $(ASFLAGS) $(IDT_SRC) -o $(IDT)
