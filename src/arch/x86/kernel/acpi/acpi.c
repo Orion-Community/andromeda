@@ -21,14 +21,15 @@
 
 ol_acpi_rsdp_t rsdp;
 
-static ol_acpi_rsdp_t
+static inline ol_acpi_madt_t
 ol_acpi_get_madt()
 {
-        return (void*)rsdp->rsdt;
+        ol_acpi_rsdt_t rsdt = (void*)rsdp->rsdt;
+        
 }
 
 ol_madt_apic_t
 ol_acpi_enumerate_apics()
 {
-
+        
 }

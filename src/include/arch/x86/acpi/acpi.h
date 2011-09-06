@@ -32,30 +32,31 @@ extern "C"
 {
 #endif
 
+    struct ol_madt_field_header
+    {
+        uint8_t type, length;
+    } __attribute__((packed));
+    typedef ol_madt_field_header *ol_madt_field_header_t;
+    
     struct ol_madt_apic
     {
-        uint8_t type, length, proc_id, apic_id;
+        ol_madt_field_header_t header;
+        uint8_t proc_id, apic_id;
         int flags : 1;
     } __attribute__((packed));
     typedef struct ol_madt_apic *ol_madt_apic_t;
     
-    struct ol_madt_header
+    struct ol_madt
     {
         uint32_t signature, length;
         uint8_t rev, checksum;
         char oemid[6];
         uint32_t rev_id, creator_id, creator_rev;
-    } __attribute__((packed));
-    typedef struct ol_madt_header *ol_madt_header_t;
-    
-    struct ol_madt
-    {
-        ol_madt_header_t madt_header;
         uint32_t lapic_addr;
         uint32_t flags;
         void * apic_fields;
     } __attribute__((packed));
-    typedef struct ol_madt *ol_madt_t;
+    typedef struct ol_madt *ol_acpi_madt_t;
     
     struct ol_rsdt
     {
@@ -92,7 +93,7 @@ extern "C"
 
     extern ol_acpi_rsdp_t rsdp;
 
-    static ol_acpi_rsdp_t
+    static inline ol_acpi_rsdp_t
     ol_acpi_get_madt();
     
     ol_madt_apic_t
