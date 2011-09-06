@@ -47,13 +47,17 @@ extern "C"
 
     struct ol_madt
     {
-        uint32_t signature, length;
-        uint8_t rev, checksum;
+        char signature[4];
+        uint32_t length;
+        uint8_t rev;
+        uint8_t checksum;
         char oemid[6];
-        uint32_t rev_id, creator_id, creator_rev;
+        char oem_table_id[8];
+        uint32_t rev_id;
+        char creatorid[4];
+        uint32_t creator_rev;
         uint32_t lapic_addr;
         uint32_t flags;
-        void * apic_fields;
     } __attribute__((packed));
     typedef struct ol_madt *ol_acpi_madt_t;
 

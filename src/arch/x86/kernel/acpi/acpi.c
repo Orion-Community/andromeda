@@ -29,10 +29,9 @@ static ol_acpi_madt_t
 ol_acpi_get_madt()
 {
         ol_acpi_rsdt_t rsdt = (void*)rsdp->rsdt;
-        //printnum(**((uint32_t**)((void*)rsdt+36)), 16, FALSE, FALSE);
         
         void * table;
-        uint32_t len = (rsdt->length - 36) / 4, i = 0; /* default length */
+        uint32_t len = (rsdt->length - sizeof(*rsdt)) / 4, i = 0; /* default length */
         
         for(table = (void*)rsdt+sizeof(*rsdt); i<len; i++, table+=4)
         {
@@ -48,5 +47,14 @@ void
 ol_acpi_enumerate_apics()
 {
         ol_acpi_madt_t madt = ol_acpi_get_madt();
-        printnum(madt->signature, 16, FALSE, FALSE);
+        void * header = madt+sizeof(*madt);
+
+/*
+        for(header = madt->apic_fields; (void*)header < ((void*)(madt+
+                madt->length)); header+=header->length)
+        {
+                putc(0x41);
+        }
+*/
+        printnum(*(uint8_t*)header-1, 16, FALSE, FALSE);
 }
