@@ -4,17 +4,19 @@ CFLAGS=-I../include/ -nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 MAKE=make
 
-TARGETS=io.c
+# TARGETS=io.c
 
 .PHONY: all
 all: fs.o
 	mv -v vfs.o ../
 
+io.c:
+	$(CC) io.c $(FLAGS) $(CFLAGS)
+
 vfs.o:
 	$(MAKE) -C vfs
 
-fs.o: $(TARGETS) vfs.o
-	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)
+fs.o: io.c vfs.o
 	$(LD) -o fs.o *.o $(LDFLAGS)
 	
 .PHONY: clean

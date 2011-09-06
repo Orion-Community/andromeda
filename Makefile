@@ -40,6 +40,7 @@ clean:
 	$(MAKE) -C arch clean
 	$(MAKE) -C boot clean
 	rm -f $(OUTC)
+	rm -f *.o
 
 .PHONY: all
 test: all
