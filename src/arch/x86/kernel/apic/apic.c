@@ -32,10 +32,8 @@ ol_detect_apic(ol_cpu_t cpu)
                         /* apic is available */
                         return 0;
                 }
-                goto fail;
+                return -1;
         }
-        fail:
-        return -1;
 }
 
 void

@@ -72,5 +72,6 @@ $(PIT): $(PIT_SRC)
 
 .PHONY: clean
 clean:
+	$(MAKE) -C acpi/ clean
 	$(MAKE) -C apic/ clean
 	rm -v *.o

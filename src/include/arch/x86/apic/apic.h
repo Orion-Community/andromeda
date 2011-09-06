@@ -39,7 +39,7 @@ extern "C"
 #endif
 
         typedef uint32_t ol_apic_reg_t;
-
+        
         typedef struct apic
         {
                 const uint8_t id;

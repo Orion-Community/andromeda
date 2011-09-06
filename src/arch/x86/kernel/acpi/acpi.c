@@ -20,3 +20,15 @@
 #include <arch/x86/acpi/acpi.h>
 
 ol_acpi_rsdp_t rsdp;
+
+static ol_acpi_rsdp_t
+ol_acpi_get_madt()
+{
+        return (void*)rsdp->rsdt;
+}
+
+ol_madt_apic_t
+ol_acpi_enumerate_apics()
+{
+
+}
