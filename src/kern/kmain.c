@@ -72,6 +72,8 @@ void kmain(ol_mmap_register_t mmr)
 	display_mmap(mmr);
 
         putc(0xa);
+        ol_acpi_enumerate_apics();
+        putc(0xa);
 /*
         ol_pci_init();
 */

@@ -17,19 +17,36 @@
  */
 
 #include <stdlib.h>
+#include <textio.h>
+
+#include <mm/memory.h>
+
 #include <arch/x86/acpi/acpi.h>
 
 ol_acpi_rsdp_t rsdp;
 
-static inline ol_acpi_madt_t
+static ol_acpi_madt_t
 ol_acpi_get_madt()
 {
         ol_acpi_rsdt_t rsdt = (void*)rsdp->rsdt;
+        //printnum(**((uint32_t**)((void*)rsdt+36)), 16, FALSE, FALSE);
         
+        void * table;
+        uint32_t len = (rsdt->length - 36) / 4, i = 0; /* default length */
+        
+        for(table = (void*)rsdt+sizeof(*rsdt); i<len; i++, table+=4)
+        {
+                if(!memcmp((void*)*((uint32_t*)table), "APIC", 4))
+                {
+                        /* go party, we found the madt - bail out */
+                        return (ol_acpi_madt_t) *((uint32_t*)table);
+                }
+        }
 }
 
-ol_madt_apic_t
+void
 ol_acpi_enumerate_apics()
 {
-        
+        ol_acpi_madt_t madt = ol_acpi_get_madt();
+        printnum(madt->signature, 16, FALSE, FALSE);
 }

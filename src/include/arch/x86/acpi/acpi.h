@@ -36,16 +36,15 @@ extern "C"
     {
         uint8_t type, length;
     } __attribute__((packed));
-    typedef ol_madt_field_header *ol_madt_field_header_t;
+    typedef struct ol_madt_field_header *ol_madt_field_header_t;
     
     struct ol_madt_apic
     {
-        ol_madt_field_header_t header;
-        uint8_t proc_id, apic_id;
+        uint8_t type, length, proc_id, apic_id;
         int flags : 1;
     } __attribute__((packed));
     typedef struct ol_madt_apic *ol_madt_apic_t;
-    
+
     struct ol_madt
     {
         uint32_t signature, length;
@@ -57,19 +56,14 @@ extern "C"
         void * apic_fields;
     } __attribute__((packed));
     typedef struct ol_madt *ol_acpi_madt_t;
-    
+
     struct ol_rsdt
     {
         char signature[4];
         uint32_t length;
         uint8_t rev, checksum;
-        char oemid[4], oemtableid[4];
+        char oemid[6], oemtableid[8];
         uint32_t oem_rev, creatorid, creator_rev;
-#ifdef ACPI2 /* on newer systems, the xsdt should be used */
-        uint64_t sdt;
-#else
-        uint32_t sdt;
-#endif
     } __attribute__((packed));
     typedef struct ol_rsdt *ol_acpi_rsdt_t;
 
@@ -93,12 +87,12 @@ extern "C"
 
     extern ol_acpi_rsdp_t rsdp;
 
-    static inline ol_acpi_rsdp_t
+    static ol_acpi_madt_t
     ol_acpi_get_madt();
-    
-    ol_madt_apic_t
+
+    void
     ol_acpi_enumerate_apics();
-    
+
 #ifdef __cplusplus
 }
 #endif
