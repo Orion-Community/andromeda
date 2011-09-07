@@ -20,6 +20,7 @@
 #include <textio.h>
 
 #include <mm/memory.h>
+#include <mm/heap.h>
 
 #include <arch/x86/acpi/acpi.h>
 
@@ -43,25 +44,23 @@ ol_acpi_get_madt()
         }
 }
 
-void
+ol_madt_apic_t*
 ol_acpi_enumerate_apics()
 {
         ol_acpi_madt_t madt = ol_acpi_get_madt();
         ol_madt_field_header_t header;
+        ol_madt_apic_t* apics = kalloc(sizeof(ol_madt_apic_t));
         uint32_t i = 0;
-/*
-        uint32_t i = 0, length = (uint32_t)(((void*)madt)+madt->length) - (uint32_t)header;
-*/
-        for(header = ((void*)madt)+sizeof(*madt); (void*)header < ((void*)madt)+
-            madt->length; header = (ol_madt_field_header_t)(((void*)header)+header->length))
-        {
-                printnum(header->type, 16, FALSE, FALSE);
-                putc(0xa);
-        }
-        
-        putc(0xa);
-        printnum(header->type, 16, FALSE, FALSE);
-        putc(' ');
-        printnum(header->length, 16, FALSE, FALSE);
 
+        for(header = ((void*)madt)+sizeof(*madt); (void*)header < ((void*)madt)+
+            madt->length; header = (ol_madt_field_header_t)(((void*)header)+
+                                                            header->length))
+        {
+                if(!header->type) /* processor apics have type number 0 */
+                {
+                        apics[i] = (ol_madt_apic_t)header;
+                        i++;
+                }
+        }
+        return apics;
 }

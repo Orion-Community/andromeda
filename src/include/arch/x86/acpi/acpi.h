@@ -37,7 +37,7 @@ extern "C"
         uint8_t type, length;
     } __attribute__((packed));
     typedef struct ol_madt_field_header *ol_madt_field_header_t;
-    
+
     struct ol_madt_apic
     {
         uint8_t type, length, proc_id, apic_id;
@@ -94,7 +94,7 @@ extern "C"
     static ol_acpi_madt_t
     ol_acpi_get_madt();
 
-    void
+    ol_madt_apic_t*
     ol_acpi_enumerate_apics();
 
 #ifdef __cplusplus

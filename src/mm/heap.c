@@ -163,9 +163,9 @@ alloc(size_t size, bool check)
                 if(!(x->magic ^ OL_HEAP_MAGIC)) panic("Heap corruption! - Invalid"
                         "block header magic detected!");
                 
-                else if(x == x->next) panic("Heap corruption detected!");
+                if(x == x->next) panic("Heap corruption detected!");
                 
-                else if((x->size < size+sizeof(struct ol_memory_node)) 
+                if((x->size < (size+sizeof(struct ol_memory_node))) 
                         && (x->size >= size))
                 {
                         /*
@@ -178,10 +178,11 @@ alloc(size_t size, bool check)
                                                   * if it is in use, try it all
                                                   * again from the beginning
                                                   */
+                        ol_use_heap_block(x);
                         return (void *) x->base;
                 }
                 
-                else if(x->size > (size+sizeof(struct ol_memory_node)))
+                if(x->size > (size+sizeof(struct ol_memory_node)))
                 {
                         /*
                          * Well done, you found a block which is large enough to
