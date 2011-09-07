@@ -42,8 +42,9 @@ extern "C"
         
         typedef struct apic
         {
-                const uint8_t id;
+                const uint8_t id, cpu_id;
                 void (*ol_apic_write) (ol_apic_reg_t, uint32_t);
+                uint32_t (*ol_apic_read) (ol_apic_reg_t);
         } *ol_apic_t;
 
         static int
