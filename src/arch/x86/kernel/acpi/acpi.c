@@ -47,14 +47,21 @@ void
 ol_acpi_enumerate_apics()
 {
         ol_acpi_madt_t madt = ol_acpi_get_madt();
-        ol_madt_field_header_t header = ((void*)madt)+44;
-
+        ol_madt_field_header_t header;
+        uint32_t i = 0;
 /*
-        for(header = madt->apic_fields; (void*)header < ((void*)(madt+
-                madt->length)); header+=header->length)
-        {
-                putc(0x41);
-        }
+        uint32_t i = 0, length = (uint32_t)(((void*)madt)+madt->length) - (uint32_t)header;
 */
+        for(header = ((void*)madt)+sizeof(*madt); (void*)header < ((void*)madt)+
+            madt->length; header = (ol_madt_field_header_t)(((void*)header)+header->length))
+        {
+                printnum(header->type, 16, FALSE, FALSE);
+                putc(0xa);
+        }
+        
+        putc(0xa);
+        printnum(header->type, 16, FALSE, FALSE);
+        putc(' ');
         printnum(header->length, 16, FALSE, FALSE);
+
 }
