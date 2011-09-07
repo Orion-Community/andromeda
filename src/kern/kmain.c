@@ -74,7 +74,7 @@ void kmain(ol_mmap_register_t mmr)
         putc(0xa);
         ol_madt_apic_t* apics = ol_acpi_enumerate_apics();
         printnum(apics[0]->type, 16, FALSE, FALSE); putc(' ');
-        printnum(apics[0]->length, 16, FALSE, FALSE);
+        printnum(apics[0]->flags, 16, FALSE, FALSE);
         free(apics);
         putc(0xa);
 /*

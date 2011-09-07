@@ -41,7 +41,7 @@ extern "C"
     struct ol_madt_apic
     {
         uint8_t type, length, proc_id, apic_id;
-        int flags : 1;
+        uint32_t flags : 1;
     } __attribute__((packed));
     typedef struct ol_madt_apic *ol_madt_apic_t;
 
