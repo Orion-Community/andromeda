@@ -1,0 +1,56 @@
+﻿What is done:
+
+	* Fixed A20 line on 15th of april..
+	* Rewrite of the A20 Line enabling code
+	* device reset
+	* Reading a sector with int 013H
+	* Created a shell script to assembly the first and second stage.
+	* Jumping to the second stage bootloader.
+	* Shell scripts to build and clean
+	* Rewrite of the image loaders
+	* GDT and pm implemented
+	* Makefile(s) --> Thank you Bart v. Kuivenhoven for first version.
+	* implemented chs + partition table
+	* Masterboot can handle more then one partition now.
+	* Obtain a mmap in differt ways.
+	* Test the mmap pointer
+	* added support for more then one partition.
+	* Keyboard is working
+	* memory can also be probed now, using an interrupt
+	* added a keyboard table
+	* update the floppy drive support
+	* Made a load buffer for int 0x13, so the kernel size isn't bound to
+	  the 1MiB limit anymore.
+	* wrote code to reprogram the pit.
+	* Improved the Makefile system with 10000%
+	* Implemented a memory controller.
+
+What should be improved:
+
+Next item:
+	* Rewrite all assembly code to C, if that is possible.
+
+What has to be done:
+
+	* implement ATI PIO mode
+		* implement 28-bit lba
+		* implement 48-bit lba
+	* implement  PCI, USB, SCSI, AHCI
+	* Make the bootloader multiboot compatible
+
+Notes:
+­eerst image loading met interrupts, dan far jump, ­dan GDT
+­opnieuw far jump
+­en dan de pm
+
+//-----//
+In real mode, you obtain a linear address by adding the segment * 0x10 to the offset, so:
+
+la = (seg * 0x10) + offset
+
+0x1000:0x0002 == 0x10002 linear.
+
+[SECTION .below]
+Ontwerp van de bootloader:
+
+Stage 1 word ingeladen door de bios op 0x7C00. Deze stage zal zichzelf verder inladen ('stage 1.5'). Hierin zal de A20 bit worden enabled en dynamisch stage 2 worden in geladen. Deze zal recht achter stage 1.5 komen. Dan zal stage 2 worden uitgevoerd. Deze zal PE op 1 zetten en een GDT implementeren. Tot slot zal er een hele simpele kernel worden uitgevoerd (welke in stage 2 zit ingelinkt). Deze kernel zal een file system implementeren die het echte OS kan laden. Stage 1 kan direct tot flat binary worden gecompiled, maar stage 1.5, stage 2 en de kernel worden in elkaar gelinkt zodat stage 1.5 de end pointer in stage 2 kan zien.
