@@ -3,17 +3,20 @@ LD=ld
 CFLAGS=-I../include/ -nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 -D __INTEL -mtune=i686 -march=i386
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-DEPS=sched.c
-HEADERS=
-TARGETS=kern.o
+ELF=elf.c exec.c
+TIMER=timer.c
 
 .PHONY: all
-all: $(TARGETS)
-	mv -v kern.o ../
+all: kern.o
+	mv -fv kern.o ../
 
-$(TARGETS): $(DEPS) $(HEADERS)
-	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)
-	$(LD) $(LDFLAGS) -o $(TARGETS) *.o
+kern.o: load.o timer.o
+	$(LD) $(LDFLAGS) *.o -o kern.o
+load.o: $(ELF)
+	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
+
+timer.o: $(TIMER)
+	$(CC) $(CFLAGS) $(FLAGS) $(TIMER)
 
 .PHONY: clean
 clean:

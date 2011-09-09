@@ -15,10 +15,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #include <math/math.h>
 #include <mm/memory.h>
 
-#define __COMPRESSED
+long abs(long num)
+{
+  return (num>0)?num:-num;
+}
 
 #ifndef __COMPRESSED
 extern long long timer;
@@ -40,13 +44,8 @@ void randomize(unsigned int s) // Create the seed
   }
   else
   {
-    #ifndef __COMPRESSED
-    seedTwo = timer;
-    seedOne = timer;
-    #else
     seedTwo = 0xDEADBEEF;
     seedOne = 0xCAFEBABE;
-    #endif
   }
 }
 
