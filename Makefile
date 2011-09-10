@@ -36,6 +36,7 @@ localClean: clean
 clean:
 	$(MAKE) -C error clean
 	$(MAKE) -C mm clean
+	$(MAKE) -C fs clean
 	$(MAKE) -C kern clean
 	$(MAKE) -C arch clean
 	$(MAKE) -C boot clean

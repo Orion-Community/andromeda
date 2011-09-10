@@ -1,13 +1,7 @@
-<<<<<<< HEAD
 *.o
 compressed
 core
 *.project
 *~
 scripts/floppy.img
-=======
-src/*.o
-src/start.sh
-src/build/*.bin
 /nbproject/
->>>>>>> 75381e4d899b3ed83b0599f0026533b18b68145a
