@@ -5,14 +5,14 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 AS=nasm
 
-ASFLAGS=-felf -D X86 -I../include/
+ASFLAGS=-felf -D X86 -I../../include/
 
 .PHONY: all
-all: coreboot.o
-	mv -v coreboot.o ../
+all: init.o boot.o map.o
+	mv -fv *.o ../
 
-coreboot.o: init.o boot.o 
-	$(LD) $(LDFLAGS) *.o -o coreboot.o
+map.o:
+	$(CC) $(CFLAGS) $(FLAGS) map.c
 
 init.o: init.c
 	$(CC) $(CFLAGS) $(FLAGS) init.c
@@ -22,4 +22,4 @@ boot.o: boot.asm
 
 .PHONY: clean
 clean:
-	#rm -v *.o
+	#rm -fv *.o

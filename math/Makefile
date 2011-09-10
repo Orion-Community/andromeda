@@ -9,7 +9,7 @@ HEADERS=
 
 .PHONY: all
 all: $(TARGETS)
-	mv -v maths.o ../
+	mv -fv maths.o ../
 
 $(TARGETS): $(DEPS) $(HEADERS)
 	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)
@@ -17,4 +17,4 @@ $(TARGETS): $(DEPS) $(HEADERS)
 
 .PHONY: clean
 clean:
-	rm -fv *.o
+	rm -v *.o

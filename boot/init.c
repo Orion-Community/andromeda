@@ -15,109 +15,160 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+/*
+ * This is the main function for the nano kernel.
+ * What this thing does is interpret the arguments handed to us by the bootloader.
+ * Next it will load in the module received from the bootloader.
+ * This module is actually the main kernel with all the drivers and
+ * the less basic tasks, along with a copy of this kernel, all situated
+ * at 3 GiB. This is always possible due to the virtual memory possibilities
+ * opened up to us by paged memory.
+ *
+ * This kernel will produce:
+ * - A memory map
+ * - A paging system to enable virtual memory
+ * - A piece of the VGA driver to enable writing text to screen.
+ */
+
+// Basic includes
 #include <stdlib.h>
-#include <tty/tty.h>
+#include <unistd.h>
+#include <kern/cpu.h>
+#include <kern/elf.h>
+#include <mm/paging.h>
 #include <mm/map.h>
+#include <interrupts/int.h>
+#include <boot/mboot.h>
+#include <mm/map.h>
+#include <tty/tty.h>
 #include <fs/fs.h>
-#include <kern/sched.h>
-#ifdef GRAPHICS
-#include "../drivers/graphics/Include/VGA.h"
-//#include "../drivers/graphics/Include/graphics.h"
-#endif
-#ifdef BEEP
-#include "../drivers/system beep/Include/beep.h"
-#endif
 
-// Heap of 256 MiB
-#define HEAPSIZE 0x10000000
+#include <kern/cpu.h>
 
-unsigned char stack[0x10000];
+unsigned char stack[0x8000];
 
-int init(unsigned short memorymap[], module_t mods[])
+// Define the place of the heap
+
+void testMMap(multiboot_info_t* hdr);
+
+multiboot_memory_map_t* mmap;
+size_t mmap_size;
+
+#define HEAPSIZE 0x1000000
+
+int vendor = 0;
+
+// Print a welcome message
+void announce()
 {
-  // Install all the necessary data for complex memory management
-  memcpy(modules, mods, MAX_MODS);
-  
-  // Set up the new screen
-  textInit();
-//   Install a new heap at the right location.
-  heapStub(); // Installs some of the heap in data section, required for early paging
-  extendHeap(&end, HEAPSIZE); // Add the rest of the heap for the rest of the kernel, this can be dynamic
-  
-  // Set up the new interrupts
-  intInit();
-  // Let's create our own page tables and directory
-  corePaging(memorymap);
-  
-  // Set the CPU up so that it no longer requires the nano image
-  setGDT();
-  // Set up the filesystem
-  #ifndef NOFS
-    fsInit(NULL);
-    list(_fs_root);
-  #endif
-  
-  #ifdef MEMTEST
-  
-  // This eliminates the alloc system and the memset system has already been eliminated.
-  // That leaves the less obvious as the cause.
-  
-  extern boolean pageDbg;
-  pageDbg = TRUE;
-  
-  int* a = (int*)0xC021D000;
-  printf("Reached!\n");
-  memset(a, 'A', 0x1000);
-  printf("Reached!\n");
-  
-//   int* a = kalloc(0x10);
-//   int* b = kalloc(0x1000);
-//   int* c = kalloc(0x2593); // Maximum allocatable without issues on memset
-//   int* d = kalloc(0x2593);
-//   
-//   extern boolean pageDbg;
-//   pageDbg = true;
-//   
-//   printf("END: %X\nSTACK: %X\n", &end, &stack);
-//   
-//   printf("A%X\n", a);
-//   memset(a, 'A', 0x10);
-//   printf("B%X\n", b);
-//   memset(b, 'B', 0x1000);
-//   printf("C%X\n", c);
-//   memset(c, 'C', 0x1000);
-//   printf("D%X\n", d);
-//   memset(d, 'D', 0x241);
-  #endif
-  
-  
-  #ifdef BEEP
-    printf("Beep...");
-    beep();
-    printf("Done\n");
-  #endif
-  
-  #ifdef GRAPHICS
-    if (!vgaInit())
-      panic("Initizing VGA driver failed!");
-    /**
-     * Test vga driver...
-     */
-    imageBuffer img = newImageBuffer(32,32);         // Create a new image buffer (25 x 20 pixels)
-    int i = 0;
-    for (;i<32;i++)
-    {
-      memset((void*)((int)img.buffer+i*32),(i+1),i); // Make a figure.
-    }
-    drawBuffer(img,64,64);                           // Draw the buffer at [64,64]!
-    drawBufferPart(img,46,64,16,32,0,0);             // Draw buffer from [0,0] to [16,32] at [46,64]!
-    updateScreen();                                  // As we have no timer jet, manual screen refresh.
-  #endif
-  
-  // In the future this will do a little more
-  printf("You can now shutdown your PC\n");
-  for (;;) // Infinite loop, to make the kernel schedule when there is nothing to do
+//   textInit();
+  println("Compressed kernel loaded");
+  println("Decompressing the kernel");
+}
+
+boolean setupCore(module_t mod)
+{
+  // Examine and augment the elf image here, return true if faulty
+  switch(coreCheck((void*)mod.addr))
   {
-    halt();
+    case 0:
+      break;
+    case -1:
+      printf("Invalid elf image\n");
+      return TRUE;
+    case -2:
+      printf("Entry point too low\n");
+      return TRUE;
+    case -3:
+      printf("Kernel magic invalid\n");
+      return TRUE;;
+    default:
+      printf("Unknown return value");
+      return TRUE;
   }
+  coreAugment(mod.addr);
+  
+  // Jump into the high memory image
+  elfJmp(mod.addr);
+  
+  return FALSE; //Doesn't get reached, ever, if all goes well
+}
+
+// The main function
+int init(unsigned long magic, multiboot_info_t* hdr)
+{
+  textInit();
+  if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
+  {
+    printf("\nInvalid magic word: %X\n", magic);
+    panic("");
+  }
+  if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
+  {
+    mmap = (multiboot_memory_map_t*)hdr->mmap_addr;
+    buildMap(mmap, (int)hdr->mmap_length);
+  }
+  else
+  {
+    panic("Invalid memory map");
+  }
+  
+//   if (hdr->flags && MULTIBOOT_INFO_MODS && hdr->mods_count > 0)
+//   {
+//     addModules((multiboot_module_t*)hdr->mods_addr, (int)hdr->mods_count);
+//     addCompressed();
+//   }
+//   else
+//   {
+//     panic("Invalid modules");
+//   }
+
+
+  setGDT();
+  
+  // Initialise the heap
+  initHeap(HEAPSIZE);
+  
+  intInit(); 	     // Interrupts are allowed again.
+		     // Up untill this point they have
+		     // been disabled.
+  
+  // If in the compressed image
+  announce(); // print welcome message
+  #ifdef VENDORTELL
+  switch(getVendor())
+  {
+    case VENDOR_INTEL:
+      printf("You're using a Genuine Intel\n");
+      break;
+    case VENDOR_AMD:
+      printf("You're using an authentic AMD\n");
+      break;
+    default:
+      printf("You're using a system not officially supported\n");
+  }
+  #endif
+  
+  #ifdef MMTEST
+  testAlloc();
+  printf("End test\n");
+  #endif
+
+  fsInit(NULL);
+  list(_fs_root);
+  
+//   #ifndef TESTING
+//   if (setupCore(modules[0]))
+//   {
+//     panic("Core image couldn't be loaded!");
+//   }
+//   #endif
+
+  printf("You can now shutdown your PC\n");
+  for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
+  {
+     halt();
+  }
+  return 0; // To keep the compiler happy.
 }

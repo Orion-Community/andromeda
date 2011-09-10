@@ -16,38 +16,43 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <mm/memory.h>
-#include <thread.h>
 #include <stdlib.h>
+#include <thread.h>
+#define SIZE ((size <= ALLOC_MAX) ? size : ALLOC_MAX)
 
-#define STUBSIZE 0x4000
-
-char stub[STUBSIZE];
-
-void heapStub()
+//Makes use of the memory bitmap to select the pages that are usable.
+//Since the heap has only limited allocation space, there also needs
+//to be a regeon that's used for memory mapping.
+void heapAddBlocks(void* base, int size) // Requests size in bytes
 {
   mutexEnter(prot);
-  memNode_t* node = (memNode_t*)stub;
-  initHdr(node, STUBSIZE-sizeof(memNode_t));
-  blocks=node;
+  while (size > 0)
+  {
+    initHdr(base, SIZE-sizeof(memNode_t));
+    size -= SIZE;
+    if (blocks == NULL)
+    {
+      blocks = base;
+      #ifdef DBG
+      printf("Creating head of heap\n");
+      #endif
+    }
+    else
+    {
+      mutexRelease(prot); // To prevent the mutex from conflicting with itself basically
+      free((void*)base+sizeof(memNode_t));
+      mutexEnter(prot);
+    }
+    base += SIZE;
+  }
   mutexRelease(prot);
 }
 
-void extendHeap(void* base, int size)
+void heapCoreBlocks(void* base, int size)
 {
   mutexEnter(prot);
   memNode_t* node = (memNode_t*)base;
   initHdr(node, size-sizeof(memNode_t));
-  if (blocks == NULL)
-  {
-    blocks = node;
-    mutexRelease(prot);
-    return;
-  }
-  memNode_t* tmp;
-  for (tmp = blocks; tmp->next < node && tmp->next != NULL; tmp = tmp->next);
-  memNode_t* tmpNext = tmp->next;
-  tmp->next = node;
-  node->next = tmpNext;
+  blocks=node;
   mutexRelease(prot);
 }

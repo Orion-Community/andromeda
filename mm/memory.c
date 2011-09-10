@@ -22,21 +22,23 @@
 
 int initHeap(long size)
 {
-  long done = 0;
-  int i = 0x100;
-  for (; i < PAGES; i++)
-  {
-    if (bitmap[i] == FREE)
-    {
-      heapAddBlocks((void*)(i*PAGESIZE), PAGESIZE);
-      done += PAGESIZE;
-      claimPage((long)i, COMPRESSED);
-      if (size <= done)
-      {
-        break;
-      }
-    }
-  }
+//   long done = 0;
+//   int i = 0x0;
+//   for (; i < PAGES; i++)
+//   {
+//     if (bitmap[i] == FREE)
+//     {
+//       heapAddBlocks((void*)(i*PAGESIZE), PAGESIZE);
+//       done += PAGESIZE;
+//       claimPage((long)i, COMPRESSED);
+//       if (size <= done)
+//       {
+//         break;
+//       }
+//     }
+//   }
+  
+  heapCoreBlocks(&end, size);
   initPaging();
   return 0;
 }
