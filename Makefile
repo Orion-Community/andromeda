@@ -11,9 +11,9 @@ amd64:
 	@echo "Not yet implemented"
 
 .PHONY: x86
-x86: $(OUTC)
+x86: $(OUT)
 
-$(OUTC):
+$(OUT):
 	$(MAKE) -C error $(MAKEEND)
 	$(MAKE) -C mm $(MAKEEND)
 	$(MAKE) -C kern $(MAKEEND)
@@ -24,8 +24,7 @@ $(OUTC):
 	$(MAKE) -C fs $(MAKEEND)
 	$(MAKE) -C drivers $(MAKEEND)
 	
-	$(LD) $(LDFLAGS) $(LDCOMPRESSED) -o $(OUTC) *.o
-	cp -v compressed core
+	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) *.o
 
 .PHONY: localClean
 localClean: clean

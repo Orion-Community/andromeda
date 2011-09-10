@@ -1,6 +1,7 @@
 *.o
 compressed
 core
+andromeda
 *.project
 *~
 scripts/floppy.img
