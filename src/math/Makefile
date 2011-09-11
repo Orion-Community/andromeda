@@ -17,4 +17,4 @@ $(TARGETS): $(DEPS) $(HEADERS)
 
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -fv *.o

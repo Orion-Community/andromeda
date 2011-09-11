@@ -39,7 +39,8 @@ clean:
 	$(MAKE) -C kern clean
 	$(MAKE) -C arch clean
 	$(MAKE) -C boot clean
-	rm -f $(OUTC)
+	$(MAKE) -C math clean
+	rm -f $(OUT)
 	rm -f *.o
 
 .PHONY: all
