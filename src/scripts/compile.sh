@@ -37,7 +37,7 @@ do
 	fi
 done
 cd `dirname $0`/..
-FLAGS="-g"
+FLAGS=""
 DEFS=""
 for i in $*
 do
