@@ -81,13 +81,17 @@ void fsInit(inode_t* root)
     _fs_root -> data -> buffered = TRUE;
     _fs_root -> data -> dirty = FALSE;
     _fs_root -> data -> size = &(_fs_root -> size);
-    
+    #ifdef FSDBG
     printf("Root size: %i\n", _fs_root -> size);
-    
+    #endif
     mkdir ("proc", _fs_root, _FS_ROOT_RIGHTS, 0, 0);
+    #ifdef FSDBG
     printf("Root size: %i\n", _fs_root -> size);
+    #endif
     mkdir ("dev",  _fs_root, _FS_ROOT_RIGHTS, 0, 0);
+    #ifdef FSDBG
     printf("Root size: %i\n", _fs_root -> size);
+    #endif
     
   }
   else
@@ -136,16 +140,18 @@ int write (FILE* fp, char* buf, size_t num)
   
   size_t readOffset  = (long)fp -> read -  (long)fp -> start;
   size_t writeOffset = (long)fp -> write - (long)fp -> start;
-  
+  #ifdef FSDBG
   printf("fp size %i\n", *fp->size);
-  
+  #endif
   long toAdd = (long) fp -> write - (long) fp -> end + num;
+  #ifdef FSDBG
   printf("To add: %i\n", toAdd);
+  #endif
   toAdd = (toAdd <= 0) ? 0 : toAdd;
   *(fp -> size) += toAdd;
-  
+  #ifdef FSDBG
   printf("fp size %i\n", *fp->size);
-  
+  #endif
   char* tmp=realloc(fp->start, *fp->size);
   if (tmp != 0)
   {

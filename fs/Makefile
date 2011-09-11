@@ -8,7 +8,7 @@ MAKE=make
 
 .PHONY: all
 all: fs.o
-	mv -v vfs.o ../
+	mv -v fs.o ../
 
 io.c:
 	$(CC) io.c $(FLAGS) $(CFLAGS)
@@ -16,7 +16,7 @@ io.c:
 vfs.o:
 	$(MAKE) -C vfs
 
-fs.o: io.c vfs.o
+fs.o: io.o vfs.o
 	$(LD) -o fs.o *.o $(LDFLAGS)
 	
 .PHONY: clean
