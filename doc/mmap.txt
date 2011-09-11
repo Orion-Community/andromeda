@@ -1,0 +1,95 @@
+With the words written below I will try to explain you how the memory map will be made if you are running GEBL on a dinosaur PC.
+
+When you run GEBL on a dinosaur pc (before ~2002), bios interrupt 0x15/0xe820 will fail. There is no need to panic, GEBL will try to provide the operating system a memory obtained in another way. First it will try bios interrupt 0x15/0xe801. If that fails to, the operating system gets a small memory map made by using int 0x12 + 0x15/0x88.
+
+mmap_entry:
+  dq base
+  dq length
+  dd type
+  dd acpi_3
+
+Example memory map:
+
+Low = INT12 to detect low memory
+Mid = extended memory between 1M and 16M
+High = extended memory above 16M
+
+Base Address       | Length             | Type
+0x0000000000000000 | Low                | Free Memory (1)
+Low                | 1M - Low           | Reserved Memory
+0x0000000000100000 | Mid                | Free Memory between 1M and 16M
+0x0000000001000000 | High               | Free Memory above 16M
+
+In pseudo code:
+
+struct mmap_entry
+{
+	unsigned int size;
+	unsigned long base;
+	unsigned long length;
+	unsigned int type;
+} __attribute__((packed));
+
+struct mmap_entry entry[4];
+
+entry[0].size = 20;
+entry[0].base = 0;
+entry[0].length = Low;
+entry[0].type = kFree;
+
+entry[1].size = 20;
+entry[1].base = Low;
+entry[1].length = 1M - Low;
+entry[1].type = kReserved;
+
+entry[2].size = 20;
+entry[2].base = 1M;
+entry[2].length = Mid;
+entry[2].type = kFree;
+
+entry[3].size = 20;
+entry[3].base = 16M;
+entry[3].length = High;
+entry[3].type = kFree;
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+int 0x15/ah=0x88
+
+This functions is from before the stone age. So it can run on almost every pc, but it will return the extended memory in kiB in AX. Which means that it can return max. (2^16-1) kiB of extended memory (little less then 64M). A typical memory map returned using this function:
+
+low = memory detected by int 0x12
+ext = memory between 1M and 64M
+
+Base Address       | Length             | Type
+0x0000000000000000 | Low                | Free Memory (1)
+Low                | 1M - Low           | Reserved Memory (2)
+0x0000000000100000 | ext                | Free Memory (1)
+
+Punching that into pseudo code, you get:
+
+struct mmap_entry
+{
+	unsigned int size;
+	unsigned long base;
+	unsigned long length;
+	unsigned int type;
+} __attribute__((packed));
+
+struct mmap_entry entry[3];
+
+entry[0].size = 20;
+entry[0].base = 0;
+entry[0].length = Low;
+entry[0].type = 1;
+
+entry[1].size = 20;
+entry[1].base = Low;
+entry[1].length = 1M - Low;
+entry[1].type = 2;
+
+entry[2].size = 20;
+entry[2].base = 0x00100000;
+entry[2].length = ext;
+entry[2].type = 1;
+

@@ -1,0 +1,12 @@
+config_interface: wx
+display_library: wx
+romimage: file=/usr/share/bochs/BIOS-bochs-latest
+megs:	512 
+vgaromimage: file=/usr/share/vgabios/vgabios.bin
+ata0: enabled=1
+ata0-master: type=disk, path="../src/build/testimage.bin", mode=flat, cylinders=16, heads=16, spt=63
+boot: disk
+#gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
+#keyboard_mapping: enabled=1, map=/usr/share/bochs/keymaps/x11-pc-us.map
+info: action=ignore
+log: /home/michel/osdev/goldeneagle/bochs.log 

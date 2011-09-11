@@ -5,3 +5,4 @@ andromeda
 *.project
 *~
 scripts/floppy.img
+/nbproject/
