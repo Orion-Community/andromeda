@@ -1,7 +1,0 @@
-CC=gcc
-LD=ld
-MAKE=make
-OUT=andromeda
-COMPRESSED=-D\ __COMPRESSED
-MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
-test=$(foreach T,$($(1)),$(if $($(firstword $(subst :, ,$T))),$(lastword $(subst :, ,$T)),))

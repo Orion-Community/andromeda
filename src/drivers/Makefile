@@ -1,9 +1,9 @@
-include ../make/makeIncl
-
+include ../scripts/makeIncl
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 TARGETS=
 CONDITIONAL=GRAPHICS:graphics.o BEEP:beep.o
 TARGETS+=$(call test,CONDITIONAL)
+CFLAGS+= -I../include
 
 .PHONY: all
 all: drivers.o

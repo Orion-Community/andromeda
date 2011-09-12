@@ -1,5 +1,5 @@
-include make/makeIncl
-include make/x86
+include scripts/makeIncl
+include scripts/x86
 
 MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 
