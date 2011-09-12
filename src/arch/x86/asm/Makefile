@@ -8,11 +8,15 @@ ISR=isr.asm
 GDT=lgdt.asm
 ASM=asm.asm
 
+ASM=io.o irq.o isr.o lgdt.o asm.o
+OUT=asm.o
+
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 .PHONY: all
 all: io.o irq.o isr.o lgdt.o asm.o
+	$(LD) $(LDFLAGS) $(ASM) -o $(OUT)
 
 io.o: io.asm
 	$(AS) $(ASFLAGS) $(FLAGS) $(IO)
