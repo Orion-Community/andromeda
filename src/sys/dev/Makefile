@@ -32,4 +32,4 @@ pci.o: $(PCI)
 	
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -vf *.o

@@ -20,6 +20,7 @@
 #define STDLIB_H
 
 #include <text.h>
+#include <io.h>
 #include <types.h>
 #include <error/panic.h>
 #include <mm/memory.h>

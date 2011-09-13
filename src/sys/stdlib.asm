@@ -43,15 +43,11 @@ segs:
 %include "stdlib.asmh"
 
 [GLOBAL endprogram]
+[EXTERN halt]
 endprogram:
 	cli
 	hlt
 	jmp halt
-	ret
-
-[GLOBAL halt]
-halt:
-	hlt
 	ret
 
 [GLOBAL getregs]

@@ -40,53 +40,53 @@ struct __kern_sig
 
 boolean scheduling = FALSE;
 
-struct __kern_timer *pit_timer;
+struct __kern_timer *timer;
 
 void setupTimer(unsigned int freq, void* scheduler, void* hwInit)
 {
-  pit_timer->sentinels = FALSE;
-  pit_timer->signals = FALSE;
-  pit_timer->hwInit = hwInit;
-  pit_timer->scheduler = scheduler;
-  pit_timer->time = 0;
-  pit_timer->freq = freq;
-  pit_timer->microtime = 0;
-  pit_timer->quantum = 0;
-  pit_timer->hwInit(pit_timer->freq);
+  timer->sentinels = FALSE;
+  timer->signals = FALSE;
+  timer->hwInit = hwInit;
+  timer->scheduler = scheduler;
+  timer->time = 0;
+  timer->freq = freq;
+  timer->microtime = 0;
+  timer->quantum = 0;
+  timer->hwInit(timer->freq);
 }
 
 void setTimerFreq(int frequency)
 {
   if (frequency > _TIME_FREQ_MIN && frequency < _TIME_FREQ_MAX)
   {
-    pit_timer->freq = frequency;
-    pit_timer->hwInit(frequency);
+    timer->freq = frequency;
+    timer->hwInit(frequency);
   }
   else
   {
-    pit_timer->freq = _TIME_FREQ_MIN;
-    pit_timer->hwInit(_TIME_FREQ_MIN);
+    timer->freq = _TIME_FREQ_MIN;
+    timer->hwInit(_TIME_FREQ_MIN);
   }
 }
 
 void timerTick()
 {
-  pit_timer->microtime ++;
-  if (pit_timer->microtime%pit_timer->freq == 0)
+  timer->microtime ++;
+  if (timer->microtime%timer->freq == 0)
   {
-    pit_timer->time++;
-    pit_timer->microtime = 0;
+    timer->time++;
+    timer->microtime = 0;
   }
   if (scheduling)
   {
-    pit_timer->quantum--;
-    if (pit_timer->quantum == 0)
-      pit_timer->scheduler(pit_timer);
+    timer->quantum--;
+    if (timer->quantum == 0)
+      timer->scheduler(timer);
   }
-  if (pit_timer->sentinels)
+  if (timer->sentinels)
   {
   }
-  if (pit_timer->signals)
+  if (timer->signals)
   {
   }
 }

@@ -18,11 +18,13 @@
 
 #ifndef __TEXT_H
 #define __TEXT_H
+
 #include <types.h>
 void println(unsigned char*);
 void printf(unsigned char*, ...);
 void putc(unsigned char);
 void printNum(int index, unsigned int base, boolean sInt, boolean capital);
+#define printnum(a,b,c,d) printNum(a,b,c,d)
 void printDecimalNum(double index, unsigned int base);
 void scroll(unsigned char);
 void textInit();

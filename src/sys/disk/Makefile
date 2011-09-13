@@ -34,7 +34,7 @@ disk.o: ata.o
 #### Clean target deletes all generated files ####
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -fv *.o
 
 # Enable dependency checking
 .KEEP_STATE:

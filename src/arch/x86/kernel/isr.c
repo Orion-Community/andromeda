@@ -60,7 +60,7 @@ void cNmi(isrVal_t regs)
   panic("Don't know what a non-maskable interrupt does!!!");
 }
 
-void cbp(isrVal_t regs)
+void cBreakp(isrVal_t regs)
 {
   printf("BP\n");
   boolean PG = FALSE;
@@ -86,7 +86,7 @@ void cbp(isrVal_t regs)
   }
 }
 
-void coverflow(isrVal_t regs)
+void cOverflow(isrVal_t regs)
 {
   printf("OF\n");
   checkFrame(&regs);
@@ -121,7 +121,7 @@ void cDoubleFault(isrVal_t regs)
   panic("Double fault");
 }
 
-void ignore(isrVal_t regs)
+void cDepricated(isrVal_t regs)
 {
   checkFrame(&regs);
 }

@@ -43,6 +43,7 @@
 #include <mm/map.h>
 #include <tty/tty.h>
 #include <fs/fs.h>
+#include <arch/x86/pic.h>
 
 #include <kern/cpu.h>
 
@@ -130,7 +131,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   // Initialise the heap
   initHeap(HEAPSIZE);
   
-  intInit(); 	     // Interrupts are allowed again.
+  pic_init(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
 		     // been disabled.
   

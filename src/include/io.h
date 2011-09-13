@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 #ifndef __IO_H_
 #define __IO_H_
 
@@ -24,6 +25,12 @@ extern unsigned char inb(unsigned short port);
 extern void outb(unsigned short port, unsigned char msg);
 extern void outw(unsigned short port, unsigned short msg);
 extern void ioWait(void);
+
+extern uint8_t inl(uint16_t port);
+
+extern void outl(uint16_t port, uint8_t msg);
+
+#define iowait(void) ioWait(void)
 
 extern unsigned int readCR0(void);
 extern unsigned int readCR3(void);

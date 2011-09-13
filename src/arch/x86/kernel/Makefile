@@ -3,7 +3,7 @@ AS=nasm
 ASFLAGS=-felf32 -I"../../../include/" $(FLAGS)
 CC=gcc
 CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
- -fno-builtin -nostdinc -finline-functions-called-once -fno-weak $(FLAGS)
+ -fno-builtin -nostdinc -finline-functions-called-once $(FLAGS)
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
@@ -19,6 +19,7 @@ PIT=pit.o
 APIC=apic.o
 KERN=kernel.o
 ACPI=acpi.o
+CPU=i386.o
 
 # sources
 
@@ -31,7 +32,7 @@ ISR2_SRC=isr.c
 PIC_SRC=pic.c
 PIT_SRC=pit.c
 KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC) \
-$(ACPI)
+$(ACPI) $(CPU)
 
 
 .PHONY: all
@@ -45,6 +46,10 @@ $(APIC):
 $(ACPI):
 	$(MAKE) FLAGS="$(FLAGS)" -C acpi/ all
 	mv -v acpi/$(ACPI) ./
+
+$(CPU):
+	$(MAKE) FLAGS="$(FLAGS)" -C cpu/ all
+	mv -vf cpu/$(CPU) ./
 
 $(IDT): $(IDT_SRC)
 	$(AS) $(ASFLAGS) $(IDT_SRC) -o $(IDT)
