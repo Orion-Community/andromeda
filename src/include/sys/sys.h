@@ -16,6 +16,8 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+
 /* MultiProcessor defines */
 #define OL_CPU_MP_FPS_SIGNATURE 0x5F504D5F
 #define OL_CPU_MP_CONFIG_TABLE_HEADER_SIGNATURE 0x50434d50

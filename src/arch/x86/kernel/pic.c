@@ -18,9 +18,9 @@
 
 #include <stdlib.h>
 #include <error/panic.h>
-#include <interrupts/pic.h>
-#include <interrupts/pit.h>
-#include <textio.h>
+#include <arch/x86/pic.h>
+#include <arch/x86/pit.h>
+#include <text.h>
 
 void pic_remap(uint32_t offset1, uint32_t offset2)
 {

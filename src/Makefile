@@ -1,7 +1,7 @@
 include scripts/makeIncl
 include scripts/x86
 
-MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
+MAKEEND=FLAGS="$(FLAGS)"
 
 .PHONY: all
 all: x86

@@ -25,7 +25,7 @@
 #include <sys/dev/ps2.h>
 
 
-uint64_t timer = 0;
+uint64_t pit_timer = 0;
 uint64_t sleepTime = 0;
 bool isSleeping = FALSE;
 void cIRQ0(ol_irq_stack_t regs)
@@ -34,7 +34,7 @@ void cIRQ0(ol_irq_stack_t regs)
 	{
 		if(!(sleepTime == 0)) sleepTime--;
 	}
-	timer += 1;
+	pit_timer += 1;
 	pic_eoi(0);
 	
 	return;

@@ -25,7 +25,7 @@ long abs(long num)
 }
 
 #ifndef __COMPRESSED
-extern long long timer;
+extern long long pit_timer;
 #endif
 
 unsigned int seedTwo = 1; // Store the seeds

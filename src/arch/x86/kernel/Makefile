@@ -39,11 +39,11 @@ all: $(KERNEL_DEPS)
 	$(LD) $(LDFLAGS) $(KERNEL_DEPS) -o $(KERN)
 
 $(APIC):
-	$(MAKE) -C apic/ all
+	$(MAKE) FLAGS="$(FLAGS)" -C apic/ all
 	mv -v apic/$(APIC) ./
 	
 $(ACPI):
-	$(MAKE) -C acpi/ all
+	$(MAKE) FLAGS="$(FLAGS)" -C acpi/ all
 	mv -v acpi/$(ACPI) ./
 
 $(IDT): $(IDT_SRC)
@@ -74,4 +74,4 @@ $(PIT): $(PIT_SRC)
 clean:
 	$(MAKE) -C acpi/ clean
 	$(MAKE) -C apic/ clean
-	rm -v *.o
+	rm -vf *.o

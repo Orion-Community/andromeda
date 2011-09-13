@@ -19,7 +19,7 @@
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
 
-#include <textio.h>
+#include <text.h>
 
 static int 
 ol_detect_apic(ol_cpu_t cpu)

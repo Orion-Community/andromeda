@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 #include <text.h>
-
 #include <sys/sys.h>
 
 #include <arch/x86/cpu.h>

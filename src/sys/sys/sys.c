@@ -17,7 +17,6 @@
  */
 
 #include <stdlib.h>
-#include <textio.h>
 
 #include <sys/sys.h>
 

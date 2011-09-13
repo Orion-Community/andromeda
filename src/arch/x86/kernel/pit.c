@@ -16,11 +16,10 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <interrupts/pit.h>
+#include <arch/x86/pit.h>
 #include <stdlib.h>
 #include <sys/io.h>
-#include <mm/heap.h>
-#include <textio.h>
+#include <text.h>
 
 static ol_pit_system_timer_t pit_chan0 = NULL;
 
