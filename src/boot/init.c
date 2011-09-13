@@ -39,11 +39,14 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 #include <interrupts/int.h>
+#include <arch/x86/idt.h>
 #include <boot/mboot.h>
 #include <mm/map.h>
 #include <tty/tty.h>
 #include <fs/fs.h>
 #include <arch/x86/pic.h>
+
+#include <sys/dev/ps2.h>
 
 #include <kern/cpu.h>
 
@@ -134,6 +137,8 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   pic_init(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
 		     // been disabled.
+  setIDT();
+  ol_ps2_init_keyboard();
   
   // If in the compressed image
   announce(); // print welcome message
