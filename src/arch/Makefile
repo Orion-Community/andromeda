@@ -8,6 +8,7 @@ all: x86
 .PHONY: x86
 x86:
 	$(MAKE) $(MAKEEND) -C x86
+	mv -fv x86/arch.o ./
 
 .PHONY: clean
 clean:

@@ -21,7 +21,9 @@
 #include <mm/paging.h>
 #include <kern/cpu.h>
 
+/*
 extern uint32_t pgbit;
+*/
 void checkFrame(isrVal_t* regs)
 {
   if ((regs->cs&0xFFFF) != 0x8 && (regs->cs&0xFFFF) != 0x18)

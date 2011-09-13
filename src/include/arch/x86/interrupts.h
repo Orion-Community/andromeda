@@ -72,8 +72,6 @@ extern void simd();
  * Exception implementation headers
  */
 extern void cDivByZero();
-extern void cNmi();
-extern void cBreakp();
 extern void cOverflow();
 extern void cBound();
 extern void cInvalOp();
