@@ -48,6 +48,10 @@
 
 #include <sys/dev/ps2.h>
 
+#include <arch/x86/cpu.h>
+#include <arch/x86/apic/apic.h>
+#include <arch/x86/acpi/acpi.h>
+
 #include <kern/cpu.h>
 
 unsigned char stack[0x8000];
@@ -133,6 +137,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   
   // Initialise the heap
   initHeap(HEAPSIZE);
+  ol_cpu_t cpu = kalloc(sizeof(*cpu));
+  ol_cpu_init(cpu);
+  ol_get_system_tables();
   
   pic_init(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
@@ -170,6 +177,11 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 //     panic("Core image couldn't be loaded!");
 //   }
 //   #endif
+  
+  printnum(*((uint32_t*)rsdp->signature), 16, 0, 0);
+  putc(0x20);
+  printnum(*(((uint32_t*)rsdp->signature)+1), 16, 0, 0);
+  putc(0xa);
 
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
