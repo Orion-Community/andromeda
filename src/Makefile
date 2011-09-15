@@ -1,7 +1,8 @@
 include scripts/makeIncl
 include scripts/x86
 
-MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
+MAKEEND=FLAGS="$(FLAGS)"
+MAKEEND+=FLAGS="-D X86 -D __INTEL"
 
 .PHONY: all
 all: x86
@@ -12,6 +13,8 @@ amd64:
 
 .PHONY: x86
 x86: $(OUT)
+	mv -fv sys/sys.o ./
+	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) *.o
 
 $(OUT):
 	$(MAKE) -C error $(MAKEEND)
@@ -22,9 +25,8 @@ $(OUT):
 	$(MAKE) -C boot $(MAKEEND)
 	$(MAKE) -C math $(MAKEEND)
 	$(MAKE) -C fs $(MAKEEND)
+	$(MAKE) -C sys $(MAKEEND)
 	$(MAKE) -C drivers $(MAKEEND)
-	
-	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) *.o
 
 .PHONY: localClean
 localClean: clean
@@ -40,6 +42,7 @@ clean:
 	$(MAKE) -C arch clean
 	$(MAKE) -C boot clean
 	$(MAKE) -C math clean
+	$(MAKE) -C sys clean
 	rm -f $(OUT)
 	rm -f *.o
 

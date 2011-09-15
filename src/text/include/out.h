@@ -16,16 +16,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 #ifndef VGA_H
 #define VGA_H
 #define KEYBUF 0xB8000
-#define WIDTH 80
-#define HEIGHT 25
+#define VGA_WIDTH 80
+#define VGA_HEIGHT 25
+#define OL_WHITE_TXT 0x7
 
 struct curPos
 {
-	int x;
-	int y;
+	uint32_t x;
+	uint32_t y;
+//        uint16_t *vidmem;
 	int tabwidth;
 };
 
