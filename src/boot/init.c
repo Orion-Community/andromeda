@@ -160,13 +160,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   fsInit(NULL);
   list(_fs_root);
   
-//   #ifndef TESTING
-//   if (setupCore(modules[0]))
-//   {
-//     panic("Core image couldn't be loaded!");
-//   }
-//   #endif
-  
   printnum(*((uint32_t*)rsdp->signature), 16, 0, 0);
   putc(0x20);
   printnum(*(((uint32_t*)rsdp->signature)+1), 16, 0, 0);
