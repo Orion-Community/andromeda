@@ -1,0 +1,38 @@
+;
+;    Stage 1.5 header file.
+;    Copyright (C) 2011 Michel Megens
+;
+;    This program is free software: you can redistribute it and/or modify
+;    it under the terms of the GNU General Public License as published by
+;    the Free Software Foundation, either version 3 of the License, or
+;    (at your option) any later version.
+;
+;    This program is distributed in the hope that it will be useful,
+;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;    GNU General Public License for more details.
+;
+;    You should have received a copy of the GNU General Public License
+;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+;
+
+%ifndef __STAGE15_H
+%define __STAGE15_H
+
+%define OL_DESTINATION_BUFFER 0x2000
+%define OL_SECTOR_BUFFER 0x600
+
+%define OL_SECTOR_BLOCK 4
+%define OL_PTABLE_PTR 0xf00
+%define OL_REALMODE_STACK 0x2000
+
+%define linearaddr(segaddr, offaddr) segaddr * 0x10 + offaddr
+
+%macro jmp32 2	; jmp32 <code selector>, address
+	db 0x66	; size prefix
+	db 0xea	; far jump
+	dd %2	; address
+	dw %1	; selector
+%endmacro
+
+%endif
