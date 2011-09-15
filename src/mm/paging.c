@@ -114,7 +114,7 @@ void cPageFault(isrVal_t regs)
     }
     if (pageDbg)
     {
-      printf("Set: Phys: %X\n", getPhysAddr(page));
+      printf("Set: Phys: %X\n", (uint32_t)getPhysAddr((void*)page));
       printf("Success!\n");
     }
   }

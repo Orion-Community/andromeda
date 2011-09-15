@@ -79,4 +79,5 @@ $(PIT): $(PIT_SRC)
 clean:
 	$(MAKE) -C acpi/ clean
 	$(MAKE) -C apic/ clean
+	$(MAKE) -C cpu clean
 	rm -vf *.o
