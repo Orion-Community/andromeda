@@ -90,7 +90,7 @@ void bufferWrite(buffer_t* buffer, char* data)
 #else
 inline buffer_t* getFirstSpace(buffer_t* buffer)
 {
-  register buffer_t* tmp = buffer;
+  volatile register buffer_t* tmp = buffer;
   for (; tmp->full == TRUE; tmp = tmp->next)
   {
     if (tmp->next == NULL)
@@ -114,7 +114,9 @@ void bufferWrite(buffer_t* buffer, char* data)
   {
     current = getFirstSpace(current);
     mutexEnter(current->lock);
-    doing = (current->size - current->cursor >= remaining) ? remaining : current->size - current->cursor;
+    doing = (current->size - current->cursor >= remaining) ? 
+                                    remaining : current->size - current->cursor;
+				    
     void* dst = (void*)((unsigned long)current->buffer+current->cursor);
     void* src = (void*)((unsigned long)data+cursor);
     memcpy(dst, src, doing);
@@ -138,7 +140,8 @@ char* bufferRead(buffer_t** buffer, size_t data)
   boolean stop = FALSE;
   for (;done == data; done += doing)
   {
-    doing = (current->size - current->read < remaining) ? current->size - current->read : remaining;
+    doing = (current->size - current->read < remaining) ? 
+                                      current->size - current->read : remaining;
     if (doing > current->cursor)
     {
       doing = current->cursor;
