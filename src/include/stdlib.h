@@ -20,10 +20,36 @@
 #define STDLIB_H
 
 #include <text.h>
+#include <io.h>
 #include <types.h>
 #include <error/panic.h>
 #include <mm/memory.h>
 #include <kern/timer.h>
 #include <math/math.h>
+
+struct registers
+{
+	uint32_t eax;
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
+	uint32_t esi;
+	uint32_t edi;
+	uint32_t ebp;
+	uint32_t esp;
+} __attribute__((packed));
+typedef struct registers *and_registers_t;
+
+struct segments
+{
+	uint16_t ds;
+	uint16_t cs;
+	uint16_t es;
+	uint16_t fs;
+	uint16_t gs;
+	uint16_t ss;
+	
+} __attribute__((packed));
+typedef struct segments *and_segments_t;
 
 #endif

@@ -5,19 +5,34 @@ CFLAGS+=-I../../include/
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-INTERRUPTS=interrupts/APIC.c interrupts/IDT.c interrupts/irq.c interrupts/isr.c interrupts/PIC.c
-MM=mm/GDT.c
+## TARGETS
+ARCH=arch.o
+
+## DEPS
+DEPS=kernel.o mm.o asm.o
 
 .PHONY: all
 all: arch.o
-	mv -fv arch.o ../
 
-arch.o: $(INTERRUPTS) $(MM)
-	$(CC) $(CFLAGS) $(FLAGS) */*.c
+
+arch.o: $(DEPS)
+	$(LD) -o arch.o $(DEPS) $(LDFLAGS)
+
+mm.o:
+	$(MAKE) $(MAKEEND) -C mm/
+	mv -fv mm/mm.o ./
+
+kernel.o:
+	$(MAKE) $(MAKEEND) -C kernel/
+	mv kernel/kernel.o ./
+
+asm.o:
 	$(MAKE) -C asm $(MAKEEND)
-	$(LD) -o arch.o asm/*.o *.o $(LDFLAGS)
+	mv -fv asm/asm.o ./
 
 .PHONY: clean
 clean:
+	$(MAKE) -C kernel clean
 	$(MAKE) -C asm clean
+	$(MAKE) -C mm clean
 	rm -fv *.o

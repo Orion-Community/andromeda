@@ -39,10 +39,18 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 #include <interrupts/int.h>
+#include <arch/x86/idt.h>
 #include <boot/mboot.h>
 #include <mm/map.h>
 #include <tty/tty.h>
 #include <fs/fs.h>
+#include <arch/x86/pic.h>
+
+#include <sys/dev/ps2.h>
+
+#include <arch/x86/cpu.h>
+#include <arch/x86/apic/apic.h>
+#include <arch/x86/acpi/acpi.h>
 
 #include <kern/cpu.h>
 
@@ -113,26 +121,20 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid memory map");
   }
-  
-//   if (hdr->flags && MULTIBOOT_INFO_MODS && hdr->mods_count > 0)
-//   {
-//     addModules((multiboot_module_t*)hdr->mods_addr, (int)hdr->mods_count);
-//     addCompressed();
-//   }
-//   else
-//   {
-//     panic("Invalid modules");
-//   }
-
 
   setGDT();
   
   // Initialise the heap
   initHeap(HEAPSIZE);
+  ol_cpu_t cpu = kalloc(sizeof(*cpu));
+  ol_cpu_init(cpu);
+  ol_get_system_tables();
   
-  intInit(); 	     // Interrupts are allowed again.
+  pic_init(); 	     // Interrupts are allowed again.
 		     // Up untill this point they have
 		     // been disabled.
+  setIDT();
+  ol_ps2_init_keyboard();
   
   // If in the compressed image
   announce(); // print welcome message
@@ -158,12 +160,10 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   fsInit(NULL);
   list(_fs_root);
   
-//   #ifndef TESTING
-//   if (setupCore(modules[0]))
-//   {
-//     panic("Core image couldn't be loaded!");
-//   }
-//   #endif
+  printnum(*((uint32_t*)rsdp->signature), 16, 0, 0);
+  putc(0x20);
+  printnum(*(((uint32_t*)rsdp->signature)+1), 16, 0, 0);
+  putc(0xa);
 
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do

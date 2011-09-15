@@ -19,7 +19,11 @@
 #include <arch/x86/interrupts.h>
 #include <stdlib.h>
 #include <mm/paging.h>
+#include <kern/cpu.h>
 
+/*
+extern uint32_t pgbit;
+*/
 void checkFrame(isrVal_t* regs)
 {
   if ((regs->cs&0xFFFF) != 0x8 && (regs->cs&0xFFFF) != 0x18)
@@ -56,7 +60,7 @@ void cNmi(isrVal_t regs)
   panic("Don't know what a non-maskable interrupt does!!!");
 }
 
-void cbp(isrVal_t regs)
+void cBreakp(isrVal_t regs)
 {
   printf("BP\n");
   boolean PG = FALSE;
@@ -82,7 +86,7 @@ void cbp(isrVal_t regs)
   }
 }
 
-void coverflow(isrVal_t regs)
+void cOverflow(isrVal_t regs)
 {
   printf("OF\n");
   checkFrame(&regs);
@@ -117,7 +121,7 @@ void cDoubleFault(isrVal_t regs)
   panic("Double fault");
 }
 
-void ignore(isrVal_t regs)
+void cDepricated(isrVal_t regs)
 {
   checkFrame(&regs);
 }

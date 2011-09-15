@@ -152,7 +152,7 @@ int write (FILE* fp, char* buf, size_t num)
   #ifdef FSDBG
   printf("fp size %i\n", *fp->size);
   #endif
-  char* tmp=realloc(fp->start, *fp->size);
+  char* tmp = (void*)realloc(fp->start, *(fp->size));
   if (tmp != 0)
   {
     free(fp->start);
