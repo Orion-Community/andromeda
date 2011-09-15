@@ -37,17 +37,17 @@ volatile mutex_t prot;
 
 
 // Some random headers used later in the code
-inline static boolean useBlock(memNode_t* block);
-inline static void returnBlock(memNode_t* block);
-inline static memNode_t* split(memNode_t* block, size_t size);
-inline static memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned);
-inline static memNode_t* merge(memNode_t* alpha, memNode_t* beta);
+inline static boolean useBlock(volatile memNode_t* block);
+inline static void returnBlock(volatile memNode_t* block);
+inline static volatile memNode_t* split(volatile memNode_t* block, size_t size);
+inline static volatile memNode_t* splitMul(volatile memNode_t* block, size_t size, boolean pageAlligned);
+inline static volatile memNode_t* merge(volatile memNode_t* alpha, volatile memNode_t* beta);
 
 // Debugging function used to examine the heap
 void examineHeap()
 {
 	printf("Head\n0x%X\n", (int) blocks);
-	memNode_t* carige;
+	volatile memNode_t* carige;
 	for (carige = blocks; carige!=NULL; carige=carige->next)
 	{
 		printf("node: 0x%X\tsize: 0x%X\n", (int)carige, carige->size);
@@ -56,7 +56,7 @@ void examineHeap()
 
 // This code is called whenever a new block header needs to be created.
 // It initialises the header to a good position and simplifies the code a bit.
-void initHdr(memNode_t* block, size_t size)
+void initHdr(volatile memNode_t* block, size_t size)
 {
 	block->size = size;
 	block->previous = NULL;
@@ -68,7 +68,7 @@ void initHdr(memNode_t* block, size_t size)
 void *realloc(void* ptr, size_t size)
 {
   void* new = alloc(size, FALSE);
-  memNode_t* ptrInfo = ptr - sizeof(memNode_t);
+  volatile memNode_t* ptrInfo = ptr - sizeof(memNode_t);
   size_t currentSize = ptrInfo->size;
   memcpy(new, ptr, (size > currentSize) ? currentSize : size);
   return new;
@@ -92,7 +92,7 @@ void* alloc (size_t size, boolean pageAlligned)
 		return NULL;
 	}
 	mutexEnter(prot);
-	memNode_t* carige;
+	volatile memNode_t* carige;
 	for(carige = blocks; carige!=NULL; carige=carige->next)
 	{
 		if (pageAlligned == TRUE)
@@ -114,7 +114,7 @@ void* alloc (size_t size, boolean pageAlligned)
 				if (carige->size >= blockSize) // if the size is large enough to be split into
 								// page alligned blocks, then do it.
 				{
-					memNode_t* ret = splitMul(carige, size, TRUE); // Split the block
+					volatile memNode_t* ret = splitMul(carige, size, TRUE); // Split the block
 					useBlock(ret); // Mark the block as used
 
 					//return the desired block
@@ -153,7 +153,7 @@ void* alloc (size_t size, boolean pageAlligned)
 				continue;
 			}
 			
-			memNode_t* tmp = split(carige, size);  // split the block
+			volatile memNode_t* tmp = split(carige, size);  // split the block
 			if(useBlock(tmp) == TRUE) // mark the block used.
 			{
 				continue;
@@ -183,8 +183,8 @@ int free (void* ptr)
 	if (ptr == NULL)
 	  return -1;
 	mutexEnter(prot);
-	memNode_t* block = (void*)ptr-sizeof(memNode_t);
-	memNode_t* carige;
+	volatile memNode_t* block = (void*)ptr-sizeof(memNode_t);
+	volatile memNode_t* carige;
 	if (block->hdrMagic != HDRMAGIC)
 	{
 		mutexRelease(prot);
@@ -214,7 +214,7 @@ int free (void* ptr)
 		// if we found the right spot, merge the lot.
 		if ((void*)block+block->size+sizeof(memNode_t) == (void*)carige || (void*)carige+carige->size+sizeof(memNode_t) == (void*)block)
 		{
-			memNode_t* test = merge(block, carige); // merging code
+			volatile memNode_t* test = merge(block, carige); // merging code
 			if (test == NULL) // if the merge failed
 			{
 				printf("Merge failed\n");
@@ -245,7 +245,7 @@ int free (void* ptr)
 	return 0; // Return success
 }
 
-inline static boolean useBlock(memNode_t* block)
+inline static boolean useBlock(volatile memNode_t* block)
 {
 	// mark the block as used and remove it from the heap list
 	if(block->used == FALSE)
@@ -271,7 +271,7 @@ inline static boolean useBlock(memNode_t* block)
 		return TRUE;
 	}
 }
-inline static void returnBlock(memNode_t* block)
+inline static void returnBlock(volatile memNode_t* block)
 {
 	// This code marks the block as unused and puts it back in the list.
 	if (block->hdrMagic != HDRMAGIC) // Make sure we're not corrupting the heap
@@ -282,7 +282,7 @@ inline static void returnBlock(memNode_t* block)
 		return;
 	}
 	block->used = FALSE;
-	memNode_t* carige;
+	volatile memNode_t* carige;
 	if ((void*)block < (void*)blocks)
 	{// if we're at the top of the heap list add the block there.
 		blocks -> previous = block;
@@ -316,12 +316,12 @@ inline static void returnBlock(memNode_t* block)
 		}
 	}
 }
-inline static memNode_t* split(memNode_t* block, size_t size)
+inline static volatile memNode_t* split(volatile memNode_t* block, size_t size)
 {
 	// This code splits the block into two parts, the lower of which is returned
 	// to the caller.
 
-	memNode_t* second = (memNode_t*)((void*)(block)+size+sizeof(memNode_t)); // find out what the address of the upper block should be
+	volatile memNode_t* second = (volatile memNode_t*)((void*)(block)+size+sizeof(memNode_t)); // find out what the address of the upper block should be
 
 	initHdr(second, block->size-size-sizeof(memNode_t)); // initialise the second block to the right size
 
@@ -333,7 +333,7 @@ inline static memNode_t* split(memNode_t* block, size_t size)
 	return block; // return the bottom block
 }
 
-inline static memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAlligned)
+inline static volatile memNode_t* splitMul(volatile memNode_t* block, size_t size, boolean pageAlligned)
 {
 	// if the block should be pageAlligned
 	if (pageAlligned)
@@ -363,8 +363,8 @@ inline static memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAll
 			unsigned long offset = PAGEBOUNDARY-(base%PAGEBOUNDARY); // the addrress is used to figure out the offset to the page boundary
 			secondAddr = (unsigned long)((void*)block+sizeof(memNode_t)); // put the base address into second
 			secondAddr += offset; // add the offset to second
-			memNode_t* second = (void*)secondAddr; // put the actual address in second
-			memNode_t* next = block->next; // Temporarilly store next
+			volatile memNode_t* second = (void*)secondAddr; // put the actual address in second
+			volatile memNode_t* next = block->next; // Temporarilly store next
 			
 			int secondSize = block->size - ((void*)second - (void*)block); // second's temporary size gets calculated.
 			initHdr(second, secondSize); // init the second block with the temporary size
@@ -377,7 +377,7 @@ inline static memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAll
 				#ifdef MMTEST
 				printf("Split in three\n");
 				#endif
-				memNode_t *ret = split(second, size);
+				volatile memNode_t *ret = split(second, size);
 				#ifdef MMTEST
 				printf("Split successful\n");
 				#endif
@@ -400,7 +400,7 @@ inline static memNode_t* splitMul(memNode_t* block, size_t size, boolean pageAll
 	}
 }
 
-inline static memNode_t* merge(memNode_t* alpha, memNode_t* beta)
+inline static volatile memNode_t* merge(volatile memNode_t* alpha, volatile memNode_t* beta)
 {
 	// First we check for possible corruption
 	if (alpha->hdrMagic != HDRMAGIC || beta->hdrMagic != HDRMAGIC)
@@ -414,7 +414,7 @@ inline static memNode_t* merge(memNode_t* alpha, memNode_t* beta)
 	{ // if the pointers don't match, we should not proceed.
 		return NULL; // return error
 	}
-	memNode_t* tmp;
+	volatile memNode_t* tmp;
 	if ((void*)alpha+alpha->size+sizeof(memNode_t) == (void*)beta)
 	{	// if the blocks are in reversed order, put them in the right order
 		tmp = alpha;
