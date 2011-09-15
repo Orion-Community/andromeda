@@ -22,7 +22,7 @@ CPU=cpu.c
 
 ## targets
 INTEL=i386.o
-INTEL_DEPS=cpu.o #cpu_intel.o
+INTEL_DEPS=cpu.o
 
 all: $(INTEL)
 

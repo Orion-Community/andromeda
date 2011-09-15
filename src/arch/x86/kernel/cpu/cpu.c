@@ -144,6 +144,6 @@ __ol_cpuid(volatile ol_gen_registers_t regs)
                 "=c" (ret.ecx),
                 "=d" (ret.edx)
                 : "r" (regs)
-                :);
+                );
         return &ret;
 }
