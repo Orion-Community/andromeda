@@ -32,7 +32,6 @@
 boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode);
 void* getPhysAddr(void* addr);
 void initPaging();
-void corePaging(short mmap[]);
 
 struct pageDir
 {
