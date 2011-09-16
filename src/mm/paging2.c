@@ -19,6 +19,7 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 #include <stdlib.h>
+#include <mm/heap.h>
 
 #define PRESENTBIT    0x01
 #define WRITEBIT      0x02
@@ -34,9 +35,6 @@
 
 boolean pageDbg = false;
 
-struct pageDir pd[0x400];
-struct pageTable pt[0x400][0x400];
-
 void cPageFault(isrVal_t registers)
 {
   unsigned long page = getCR2();
@@ -48,16 +46,30 @@ void cPageFault(isrVal_t registers)
   {
     panic("Incorrect frame!");
   }
-  #ifdef PAGDBG
+  #ifdef PAGEDBG
   printf("Type of error: 0x%X\n", registers.errCode);
   #endif
 
   panic("Page faults currently under construction");
 }
 
+extern uint32_t mboot;
+extern uint32_t end;
+
 void setupPageDir()
 {
-  panic("Paging currently under construction");
+  struct pageDir* pd = alloc(sizeof(pd)*PAGEDIRS, TRUE);
+  memset(pd, 0, sizeof(pd)*PAGEDIRS);
+  
+  uint32_t kSize = (uint32_t)&end - (uint32_t)&mboot;
+  #ifdef PAGEDBG
+  printf("Kern size in bytes: %X\n", kSize);
+  #endif
+  
+  volatile addr_t baseAddr = (addr_t)&mboot % PAGESIZE;
+  volatile addr_t end = ((addr_t)&end + (addr_t)HEAPSIZE);
+  end += (PAGESIZE-(((addr_t)&end + (addr_t)HEAPSIZE)%PAGESIZE));
+  printf("Absolute size in bytes: %X\n", (end - baseAddr));
 }
 
 void initPaging()

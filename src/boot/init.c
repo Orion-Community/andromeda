@@ -63,8 +63,6 @@ void testMMap(multiboot_info_t* hdr);
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-#define HEAPSIZE 0x1000000
-
 int vendor = 0;
 
 // Print a welcome message

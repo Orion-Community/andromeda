@@ -22,7 +22,6 @@
 #include <types.h>
 #include <thread.h>
 
-
 struct memNode
 {
   unsigned int size;
@@ -46,6 +45,7 @@ void heapStub();
 
 // Alloc_max = 1 MB
 #define ALLOC_MAX 0x100000
+#define HEAPSIZE 0x1000000
 
 #ifdef MMTEST
 void examineHeap();
