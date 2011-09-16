@@ -63,12 +63,6 @@ void cNmi(isrVal_t regs)
 void cBreakp(isrVal_t regs)
 {
   printf("BP\n");
-  boolean PG = FALSE;
-  if (pgbit)
-  {
-    PG = TRUE;
-    toglePGbit();
-  }
   checkFrame(&regs);
   printf("Debug:\n");
 
@@ -79,11 +73,6 @@ void cBreakp(isrVal_t regs)
   printf("\nerr_code\tfunc_ptr\n%X\t%X\n", regs.errCode, regs.funcPtr);
   printf("\n\nCurrent:\n");
   printf("CS\tDS\tSS\tESP\n%X\t%X\t%X\t%X\n", getCS(), getDS(), getSS(), getESP());
-  if (PG)
-  {
-    toglePGbit();
-    PG = FALSE;
-  }
 }
 
 void cOverflow(isrVal_t regs)

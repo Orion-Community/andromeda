@@ -34,7 +34,7 @@ extern unsigned int 	getESP();
 extern unsigned long	getCR2();
 extern unsigned long 	getCR3();
 extern void 		setCR3(long);
-extern void 		toglePGbit();
+extern void 		setPGBit();
 #ifdef DBG
 extern void 		intdbg();
 #endif

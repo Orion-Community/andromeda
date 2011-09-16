@@ -23,6 +23,7 @@
 #include <io.h>
 #include <types.h>
 #include <error/panic.h>
+#include <error/error.h>
 #include <mm/memory.h>
 #include <kern/timer.h>
 #include <math/math.h>

@@ -26,7 +26,7 @@
 [GLOBAL getCR2]
 [GLOBAL getCR3]
 [GLOBAL setCR3]
-[GLOBAL toglePGbit]
+[GLOBAL setPGBit]
 [GLOBAL pgbit]
 [GLOBAL intdbg]
 [GLOBAL elfJump]
@@ -147,21 +147,10 @@ setCR3:
   add esp, 4
   return
   
-toglePGbit:
-  mov eax, [mutex]
-  push eax
-  call mutexEnter
-  add esp, 4
+setPGBit:
   mov eax, cr0
-  xor eax, 0x80000000
+  or eax, 0x80000000
   mov cr0, eax
-  mov eax, [pgbit]
-  not eax
-  mov [pgbit], eax
-  mov eax, [mutex]
-  push eax
-  call mutexRelease
-  add esp, 4
   ret
   
 intdbg:

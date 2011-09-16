@@ -33,6 +33,7 @@
 #define RESERVED ((err & RESERVEDBIT) ? TRUE : FALSE)
 #define DATA     ((err & DATABIT)     ? FALSE : TRUE)
 
+extern volatile mutex_t pageLock;
 boolean pageDbg = false;
 
 void cPageFault(isrVal_t registers)
@@ -53,12 +54,106 @@ void cPageFault(isrVal_t registers)
   panic("Page faults currently under construction");
 }
 
-extern uint32_t mboot;
-extern uint32_t end;
+uint16_t page_map[PAGETABLES];
 
-void setupPageDir()
+int mapPage(addr_t virtual, addr_t physical, struct pageDir *pd, 
+                                                               boolean userMode)
 {
-  struct pageDir* pd = alloc(sizeof(pd)*PAGEDIRS, TRUE);
+  while(mutexTest(pageLock))
+  {
+    #ifdef PAGEDBG
+    printf("Paging is locked!\n");
+    #endif
+  }
+  struct pageTable* pt;
+  addr_t pd_entry = virtual >> 22;
+  addr_t pt_entry = (virtual >> 12) & 0x3FF;
+  
+  if (pd[pd_entry].present == FALSE)
+  {
+    pt = alloc(sizeof(pt)*PAGETABLES, TRUE);
+    if (pt == NULL)
+    {
+      mutexRelease(pageLock);
+      return -E_NOMEM;
+    }
+    memset(pt, 0, sizeof(pt)*PAGETABLES);
+    pd[pd_entry].pageIdx  = ((addr_t)pt)/PAGESIZE;
+    pd[pd_entry].present  = TRUE;
+    pd[pd_entry].rw       = TRUE;
+    pd[pd_entry].userMode = userMode;
+  }
+  else
+  {
+    if (pd[pd_entry].userMode == FALSE)
+      pd[pd_entry].userMode = userMode;
+    
+    pt = (struct pageTable*)(pd[pd_entry].pageIdx*PAGESIZE);
+    if (pt == NULL)
+    {
+      mutexRelease(pageLock);
+      return -E_PAGE_MAPPING;
+    }
+  }
+  if (pt[pt_entry].present != FALSE)
+  {
+    mutexRelease(pageLock);
+    return -E_PAGE_MAPPING;
+  }
+  
+  pt[pt_entry].pageIdx  = physical >> 0x12;
+  pt[pt_entry].present  = TRUE;
+  pt[pt_entry].rw       = TRUE;
+  pt[pt_entry].userMode = userMode;
+  
+  page_map[pd_entry]++;
+  mutexRelease(pageLock);
+  return -E_SUCCESS;
+}
+
+int releasePage(addr_t virtual, struct pageDir *pd)
+{
+  while (mutexTest(pageLock))
+  {
+    #ifdef PAGEDBG
+    printf("Paging is locked!\n");
+    #endif
+  }
+  addr_t pd_entry = virtual >> 22;
+  addr_t pt_entry = virtual >> 12;
+  
+  if (pd[pd_entry].present == FALSE)
+  {
+    mutexRelease(pageLock);
+    return -E_PAGE_NOPAGE;
+  }
+  
+  struct pageTable *pt = (struct pageTable*)(pd[pd_entry].pageIdx*PAGESIZE);
+  
+  if (pt[pt_entry].present == FALSE)
+  {
+    mutexRelease(pageLock);
+    return -E_PAGE_NOPAGE;
+  }
+  
+  pt[pt_entry].present = FALSE;
+  pt[pt_entry].pageIdx = 0;
+  
+  page_map[pd_entry]--;
+  if (page_map[pd_entry] == 0)
+  {
+    pd[pd_entry].present = FALSE;
+    free((void*)(pd[pd_entry].pageIdx*PAGESIZE));
+    pd[pd_entry].pageIdx = 0;
+  }
+  mutexRelease(pageLock);
+}
+
+int setupPageDir()
+{
+  struct pageDir *pd = alloc(sizeof(pd)*PAGEDIRS, TRUE);
+  if (pd == NULL)
+    return -E_NOMEM;
   memset(pd, 0, sizeof(pd)*PAGEDIRS);
   
   uint32_t kSize = (uint32_t)&end - (uint32_t)&mboot;
@@ -69,10 +164,16 @@ void setupPageDir()
   volatile addr_t baseAddr = (addr_t)&mboot % PAGESIZE;
   volatile addr_t end = ((addr_t)&end + (addr_t)HEAPSIZE);
   end += (PAGESIZE-(((addr_t)&end + (addr_t)HEAPSIZE)%PAGESIZE));
+  #ifdef PAGEDBG
   printf("Absolute size in bytes: %X\n", (end - baseAddr));
+  #endif
+  return pd;
 }
 
 void initPaging()
 {
-  setupPageDir();
+  memset(page_map, 0, PAGETABLES*2); /* While the map is of 16 bits entries the
+                                                      2 must remain in place!!*/
+  setCR3(setupPageDir());
+  setPGBit();
 }

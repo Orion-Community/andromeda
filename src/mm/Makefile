@@ -2,7 +2,7 @@ include ../scripts/makeIncl
 CFLAGS+=-I../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-TARGETS=alloc.c heap.c map.c memory.c paging2.c test.c
+TARGETS=alloc.c heap.c map.c memory.c paging2.c test.c map2.c
 
 .PHONY: all
 all: mm.o
