@@ -77,9 +77,9 @@ void printf(unsigned char *line, ...)
     else
     {
       i++;
-      if (line[i + 1] == '\0')
+      if (line[i] == '\0')
       {
-        putc(line[i]);
+        putc(line[i-1]);
         break;
       }
       switch (line[i])
