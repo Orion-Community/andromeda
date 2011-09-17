@@ -20,6 +20,7 @@
 #include <mm/map.h>
 #include <stdlib.h>
 #include <mm/heap.h>
+#include <error/error.h>
 
 #define PRESENTBIT    0x01
 #define WRITEBIT      0x02
@@ -175,5 +176,7 @@ void initPaging()
   memset(page_map, 0, PAGETABLES*2); /* While the map is of 16 bits entries the
                                                       2 must remain in place!!*/
   setCR3(setupPageDir());
+/*
   setPGBit();
+*/
 }
