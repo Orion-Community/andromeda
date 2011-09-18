@@ -26,6 +26,8 @@ void memset(void*, int, size_t);
 void memcpy(void*, void*, size_t);
 int memcmp(void*, void*, size_t);
 int initHeap(long size);
+void
+ol_dbg_heap();
 
 size_t strlen(char* string);
 

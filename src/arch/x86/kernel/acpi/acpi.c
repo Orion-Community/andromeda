@@ -26,38 +26,54 @@ ol_acpi_rsdp_t rsdp;
 static ol_acpi_madt_t
 ol_acpi_get_madt()
 {
-        ol_acpi_rsdt_t rsdt = (void*)rsdp->rsdt;
-        
-        void * table;
-        uint32_t len = (rsdt->length - sizeof(*rsdt)) / 4, i = 0; /* default length */
-        
-        for(table = (void*)rsdt+sizeof(*rsdt); i<len; i++, table+=4)
-        {
-                if(!memcmp((void*)*((uint32_t*)table), "APIC", 4))
-                {
-                        /* go party, we found the madt - bail out */
-                        return (ol_acpi_madt_t) *((uint32_t*)table);
-                }
-        }
+  ol_acpi_rsdt_t rsdt = (void*) rsdp->rsdt;
+
+  void * table;
+  uint32_t len = (rsdt->length - sizeof (*rsdt)) / 4, i = 0; /* default length */
+
+  for (table = (void*) rsdt + sizeof (*rsdt); i < len; i++, table += 4)
+  {
+    if (!memcmp((void*) *((uint32_t*) table), "APIC", 4))
+    {
+      ol_acpi_madt_t madt = (ol_acpi_madt_t) *((uint32_t*) table);
+      int i = 0;
+      uint8_t checksum = 0;
+      for(; i < madt->length; i++)
+      {
+        checksum += *(((uint8_t*)madt)+i); /* check the checksum */
+      }
+      if(!checksum)
+        return (ol_acpi_madt_t) *((uint32_t*) table);
+      else
+        return NULL;
+    }
+  }
 }
 
-ol_madt_apic_t*
-ol_acpi_enumerate_apics()
+static void**
+ol_acpi_enumerate(uint8_t type)
 {
-        ol_acpi_madt_t madt = ol_acpi_get_madt();
-        ol_madt_field_header_t header;
-        ol_madt_apic_t* apics = kalloc(sizeof(ol_madt_apic_t));
-        uint32_t i = 0;
+  ol_acpi_madt_t madt = ol_acpi_get_madt();
+  ol_madt_field_header_t header;
+  void ** ret = alloc(sizeof(void*)*4, TRUE);
 
-        for(header = ((void*)madt)+sizeof(*madt); (void*)header < ((void*)madt)+
-            madt->length; header = (ol_madt_field_header_t)(((void*)header)+
-                                                            header->length))
-        {
-                if(!header->type) /* processor apics have type number 0 */
-                {
-                        apics[i] = (ol_madt_apic_t)header;
-                        i++;
-                }
-        }
-        return apics;
+  uint32_t i = 0;
+
+  for (header = ((void*) madt) + sizeof (*madt); (void*) header < ((void*) madt) +
+       madt->length; header = (ol_madt_field_header_t) (((void*) header) +
+                                                        header->length))
+  {
+    if (header->type == type) /* processor apics have type number 0 */
+    {
+      ret[i] = (void*) header;
+      i++;
+    }
+  }
+  return ret;
+}
+
+ol_madt_ioapic_t*
+ol_acpi_get_ioapic()
+{
+  return (ol_madt_ioapic_t*)ol_acpi_enumerate(1);
 }

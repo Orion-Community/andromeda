@@ -18,7 +18,22 @@
 
 #include <stdlib.h>
 #include <thread.h>
+#include <mm/heap.h>
 #define SIZE ((size <= ALLOC_MAX) ? size : ALLOC_MAX)
+
+void
+ol_dbg_heap()
+{
+        println("List of all current heap block base pointers");
+        memNode_t* x = blocks;
+        for(; x != NULL; x = x->next)
+        {
+                printnum((uint32_t)x+sizeof(struct memNode), 16, FALSE, FALSE);
+                printf("  -  Length: ");
+                printnum((uint32_t)x->size, 16, FALSE, FALSE);
+                putc('\n');
+        }
+}
 
 //Makes use of the memory bitmap to select the pages that are usable.
 //Since the heap has only limited allocation space, there also needs
