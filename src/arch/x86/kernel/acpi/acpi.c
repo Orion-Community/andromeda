@@ -17,10 +17,7 @@
  */
 
 #include <stdlib.h>
-#include <textio.h>
-
-#include <mm/memory.h>
-#include <mm/heap.h>
+#include <text.h>
 
 #include <arch/x86/acpi/acpi.h>
 

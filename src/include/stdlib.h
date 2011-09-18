@@ -1,34 +1,32 @@
 /*
- *   The OL standard library.
- *   Copyright (C) 2011  Michel Megens
- *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+    Orion OS, The educational operatingsystem
+    Copyright (C) 2011  Bart Kuivenhoven
 
-#ifndef __STDLIB_H
-#define __STDLIB_H
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-#define NULL (void *)0  // the notorious null pointer
-#define FALSE 0
-#define TRUE !FALSE
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-typedef unsigned long long uint64_t;
-typedef unsigned int uint32_t;
-typedef unsigned short uint16_t;
-typedef unsigned char uint8_t;
-typedef unsigned char bool;
-typedef unsigned long size_t;
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#ifndef STDLIB_H
+#define STDLIB_H
+
+#include <text.h>
+#include <io.h>
+#include <types.h>
+#include <error/panic.h>
+//#include <error/error.h>
+#include <mm/memory.h>
+#include <kern/timer.h>
+#include <math/math.h>
 
 struct registers
 {
@@ -41,7 +39,7 @@ struct registers
 	uint32_t ebp;
 	uint32_t esp;
 } __attribute__((packed));
-typedef struct registers *ol_registers_t;
+typedef struct registers *and_registers_t;
 
 struct segments
 {
@@ -53,24 +51,6 @@ struct segments
 	uint16_t ss;
 	
 } __attribute__((packed));
-typedef struct segments *ol_segments_t;
-
-/*
- * Halt the system until it is interrupted.
- */
-extern void halt();
-extern void endprogram();
-
-/**
- * WARNING: This is NOT a safe reboot. It actually forces the system to crash 
- * (triple fault), which results in a CPU reset.
- */
-extern void reboot();
-
-extern ol_registers_t getregs();
-extern ol_segments_t getsegs();
-// extern void testIDT();
-extern void setInterrupts();
-extern void clearInterrupts();
+typedef struct segments *and_segments_t;
 
 #endif

@@ -1,23 +1,22 @@
-# compiler sizzle
-MAKE=make
+CC=gcc
+LD=ld
+CFLAGS=-I../include/ -nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 -D __INTEL -mtune=i686 -march=i386
+LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-# disk images
-MASTERBOOT=masterboot.bin
-STAGE1=stage1.bin
+AS=nasm
 
-# linker meat
-BOOT=boot.o
+ASFLAGS=-felf -D X86 -I../../include/
 
 .PHONY: all
-all: x86
+all: init.o boot.o
+	mv -fv *.o ../
 
-.PHONY: x86
-x86:
-	$(MAKE) FLAGS="$(FLAGS)" -C x86
-	mv -v x86/$(MASTERBOOT) ./
-	mv -v x86/$(STAGE1) ./
-	mv -v x86/$(BOOT) ./
+init.o: init.c
+	$(CC) $(CFLAGS) $(FLAGS) init.c
+
+boot.o: boot.asm
+	$(AS) $(ASFLAGS) $(FLAGS) boot.asm
 
 .PHONY: clean
 clean:
-	$(MAKE) -C x86 clean
+	#rm -fv *.o

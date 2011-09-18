@@ -1,6 +1,6 @@
 
-    <Name of the project>
-    Copyright (C) <Date> <Author>
+    Andromeda
+    Copyright (C) 2011 Michel Megens and Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,7 +25,11 @@ The authors and their works should be noted below in the following form:
 	
 Bart Kuivenhoven
 	bemkuivenhoven@gmail.com
-	Just about everything up-to-now, not claimed by others.
+	Paging and (virtual) systems.
+
+Michel Megens
+	dev@michelmegens.net
+	booting and hardware interfaceing
 
 Steven van der Schoot
 	<E-mail>

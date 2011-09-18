@@ -1,22 +1,15 @@
-# compliler shizle
-AS=nasm
-ASFLAGS=-felf32 -I"include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-weak -fno-builtin -nostdinc $(FLAGS)
-LD=ld
-LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
+MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 MAKE=make
 
 .PHONY: all
 all: x86
+	mv -fv arch.o ../
 
 .PHONY: x86
 x86:
-	$(MAKE) FLAGS="$(FLAGS)" -C x86
-	mv -v x86/arch.o ./
+	$(MAKE) $(MAKEEND) -C x86
+	mv -fv x86/arch.o ./
 
 .PHONY: clean
 clean:
 	$(MAKE) -C x86 clean
-

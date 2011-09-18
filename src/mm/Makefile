@@ -1,45 +1,17 @@
-# compliler shizle
-AS=nasm
-ASFLAGS=-felf32 -I"../include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../include" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-weak -fno-builtin -nostdinc $(FLAGS)
-MAKE=make
-LD=ld
+include ../scripts/makeIncl
+CFLAGS+=-I../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-# targets
-MM=mm.o
-MM_DEPS=mmap.o mmap2.o heap.o memory.o
-
-# source files
-MMAP=mmap.asm
-MMAP2=mmap.c
-ALLOC=alloc.c
-HEAP=heap.c
-MEMORY=memory.c
+TARGETS=alloc.c heap.c map.c memory.c paging2.c test.c map2.c
 
 .PHONY: all
-all: $(MM)
+all: mm.o
+	mv -fv mm.o ../
 
-$(MM): $(MM_DEPS)
-	$(LD) $(LDFLAGS) $(MM_DEPS) -o $(MM)
-
-mmap.o:
-	$(AS) $(ASFLAGS) $(MMAP) -o mmap.o
-
-mmap2.o:
-	$(CC) $(CCFLAGS) $(MMAP2) -o mmap2.o
+mm.o: $(TARGETS)
+	$(CC) $(TARGETS) $(FLAGS) $(CFLAGS)
+	$(LD) -o mm.o *.o $(LDFLAGS)
 	
-alloc.o: $(ALLOC)
-	$(CC) $(CCFLAGS) $(ALLOC) -o alloc.o
-	
-heap.o: $(HEAP)
-	$(CC) $(CCFLAGS) $(HEAP) -o heap.o
-	
-memory.o: $(MEMORY)
-	$(CC) $(CCFLAGS) $(MEMORY) -o memory.o
-
 .PHONY: clean
 clean:
-	rm -v *.o
+	rm -fv *.o

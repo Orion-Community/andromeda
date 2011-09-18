@@ -21,7 +21,7 @@
 #include <sys/dev/ps2.h>
 #include <sys/io.h>
 
-#include <textio.h>
+#include <text.h>
 
 static ol_ps2_dev_t ol_ps2_controller = NULL;
 static ol_ps2_dev_t ol_ps2_keyboard = NULL;

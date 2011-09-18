@@ -28,8 +28,8 @@
 
 [SECTION .text]
 
-[EXTERN iowait]
-[EXTERN inKernelRing]
+[EXTERN ioWait]
+[EXTERN checkFrame]
 [EXTERN panic]
 
 [GLOBAL cIRQ30]
@@ -37,7 +37,7 @@ cIRQ30:
 	mov ebp, esp
 	push ebp
 
-	call inKernelRing
+	call checkFrame
 	test eax, eax
 	jnz .continue
 
@@ -151,7 +151,7 @@ createmmap:
 .highmem:
 	mov al, OL_CMOS_EXT_MEM_LOW_ORDER_REGISTER
 	out OL_CMOS_OUTPUT, al	; tell the cmos we want to read the high memory
-	call iowait
+	call ioWait
 
 	xor eax, eax
 	in al, OL_CMOS_INPUT ; get the low bytes
@@ -159,7 +159,7 @@ createmmap:
 
 	mov al, OL_CMOS_EXT_MEM_HIGH_ORDER_REGISTER
 	out OL_CMOS_OUTPUT, al	; get most significant byte
-	call iowait
+	call ioWait
 
 	xor ax, ax
 	in al, OL_CMOS_INPUT
@@ -201,7 +201,7 @@ cmoslowmmap:
 
 	mov al, OL_CMOS_LOW_MEM_LOW_ORDER_REGISTER ; get least sig byte
 	out OL_CMOS_OUTPUT, al
-	call iowait	; wait
+	call ioWait	; wait
 
 	xor ax, ax
 	in al, OL_CMOS_INPUT
@@ -209,7 +209,7 @@ cmoslowmmap:
 	
 	mov al, OL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; most sig byte
 	out OL_CMOS_OUTPUT, al
-	call iowait
+	call ioWait
 
 	xor ax, ax
 	in al, OL_CMOS_INPUT	; collect data
@@ -346,7 +346,7 @@ updatecmos:
 
 	mov al, bh
 	out OL_CMOS_OVERWRITE, al	; overwrite with better value
-	call iowait
+	call ioWait
 
 .highmem:
 	and edx, 0x3f00000
@@ -363,7 +363,7 @@ updatecmos:
 
 	mov al, dh
 	out OL_CMOS_OVERWRITE, al
-	call iowait
+	call ioWait
 
 .end:
 	pop ebp

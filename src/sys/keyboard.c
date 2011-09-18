@@ -16,8 +16,8 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <textio.h>
-#include <interrupts/interrupts.h>
+#include <text.h>
+#include <arch/x86/interrupts.h>
 #include <sys/keyboard.h>
 #include <stdlib.h>
 #include <sys/io.h>

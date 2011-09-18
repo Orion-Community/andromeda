@@ -31,4 +31,4 @@ acpi_.o: acpi.c
 
 #### Clean target deletes all generated files ####
 clean:
-	rm -v *.o
+	rm -vf *.o

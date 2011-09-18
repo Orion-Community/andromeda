@@ -1,117 +1,169 @@
 /*
- *   GoldenEagle Bootloader C entry point.
- *   Copyright (C) 2011  Michel Megens
- *
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
- *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
- *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+    Orion OS, The educational operatingsystem
+    Copyright (C) 2011  Bart Kuivenhoven
 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <arch/x86/interrupts.h>
 #include <stdlib.h>
-#include <error/panic.h>
-#include <interrupts/interrupts.h>
-#include <textio.h>
+#include <mm/paging.h>
+#include <kern/cpu.h>
 
-bool inKernelRing()
+/*
+extern uint32_t pgbit;
+*/
+void checkFrame(isrVal_t* regs)
 {
-	ol_segments_t segs = getsegs();
-	
-	if((segs->cs & 0x8) == 0 || (segs->ds & 0x10) == 0)
-	{
-		return FALSE;
-	}
-	
-	return TRUE;
+  if ((regs->cs&0xFFFF) != 0x8 && (regs->cs&0xFFFF) != 0x18)
+  {
+    printf("%X\n", regs->cs);
+    panic("Incorrect CS!");
+  }
+  else if ((regs->ds&0xFFFF) != 0x10 && (regs->ds&0xFFFF) != 0x20)
+  {
+    printf("%X\n", regs->ds);
+    panic("Incorrect DS!");
+  }
+}
+void cDivByZero(isrVal_t regs)
+{
+  printf("D0\n");
+  checkFrame(&regs);
+  if (regs.cs != 0x8)
+  {
+    panic("No process killing code yet");
+  }
+  printf("\nDiv by 0\neip\tcs\teflags\tprocesp\tss\n");
+  printf("%X\t%X\t%X\t%X\t%X\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
+  printf("\nCurrent:\n");
+  printf("CS\tDS\tSS\tESP\n");
+  printf("%X\t%X\t%X\t%X\n", getCS(), getDS(), getSS(), getESP());
+  panic ("Devide by zero");
 }
 
-void cDivByZero(ol_isr_stack_t regs)
+void cNmi(isrVal_t regs)
 {
-	print("\nI define you as idiot. You just tried to divede by zero. Code \nfailed at EIP: ");
-	printnum(regs.eip, 16, FALSE, FALSE);
-	putc(0xa);
-	panic("");
+  printf("NMI\n");
+  checkFrame(&regs);
+  panic("Don't know what a non-maskable interrupt does!!!");
 }
-void cNmi()
+
+void cBreakp(isrVal_t regs)
 {
-	panic("Unknown interrupt!");
+  printf("BP\n");
+  checkFrame(&regs);
+  printf("Debug:\n");
+
+  printf("eax\tebx\tecx\tedx\n%X\t%X\t%X\t%X\n", regs.eax, regs.ebx, regs.ecx, regs.edx);
+  printf("\nds\n%X\n", regs.ds);
+  printf("\nedi\tesi\tebp\tesp\n%X\t%X\t%X\t%X\n", regs.edi, regs.esi, regs.ebp, regs.esp);
+  printf("\neip\tcs\teflags\tuseresp\tss\n%X\t%X\t%X\t%X\t%X\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
+  printf("\nerr_code\tfunc_ptr\n%X\t%X\n", regs.errCode, regs.funcPtr);
+  printf("\n\nCurrent:\n");
+  printf("CS\tDS\tSS\tESP\n%X\t%X\t%X\t%X\n", getCS(), getDS(), getSS(), getESP());
 }
-void cBreakp()
+
+void cOverflow(isrVal_t regs)
 {
-	panic("Break point!");
+  printf("OF\n");
+  checkFrame(&regs);
+  panic("Overflow");
 }
-void cOverflow()
+
+void cBound(isrVal_t regs)
 {
-	panic("Overflow panic");
+  printf("BD\n");
+  checkFrame(&regs);
+  panic("Bounds");
 }
-void cBound()
+
+void cInvalOp(isrVal_t regs)
 {
-	panic("Out of bounds!");
+  printf("IV\n");
+  checkFrame(&regs);
+  panic("Invalid Opcode!");
 }
-void cInvalOp()
+
+void cNoMath(isrVal_t regs)
 {
-	panic("Invalid opcode!");
+  printf("NM\n");
+  checkFrame(&regs);
+  panic("No math coprocessor");
 }
-void cNoMath()
+
+void cDoubleFault(isrVal_t regs)
 {
-	panic("NM panic!");
+  printf("DF\n");
+  checkFrame(&regs);
+  panic("Double fault");
 }
-void cDoubleFault()
+
+void cDepricated(isrVal_t regs)
 {
-	panic("Double fault!");
+  checkFrame(&regs);
 }
-void cDepricated()
+
+void cInvalidTSS(isrVal_t regs)
 {
-	println("depricated");
+  printf("IT\n");
+  checkFrame(&regs);
+  panic("Invalid TSS");
 }
-void cInvalidTSS()
+
+void cSnp(isrVal_t regs)
 {
-	panic("Invalid TSS!");
+  printf("FF\n");
+  checkFrame(&regs);
+  panic("Stack not present!");
 }
-void cSnp()
+void cStackFault(isrVal_t regs)
 {
-	panic("SNP panic!");
+  printf("SF\n");
+  checkFrame(&regs);
+  panic("Stack fault!");
 }
-void cStackFault()
+
+void cGenProt(isrVal_t regs)
 {
-	panic("Stack fault!");
+  printf("GP\n");
+  checkFrame(&regs);
+  printf("\nGeneral Protection Fault\neip\tcs\teflags\tprocesp\tss\n");
+  printf("%X\t%X\t%X\t%X\t%X\n", regs.eip, regs.cs, regs.eflags, regs.procesp, regs.ss);
+  printf("\nCurrent:\n");
+  printf("CS\tDS\tSS\tESP\n");
+  printf("%X\t%X\t%X\t%X\n", getCS(), getDS(), getSS(), getESP());
+//   panic("General Protection fault");
 }
-void cGenProt(ol_isr_stack_t regs)
+
+void cFpu(isrVal_t regs)
 {
-	print("General protection fault! Fault occured at: ");
-	printnum(regs.eip, 16, FALSE, FALSE);
-	putc(0xa);
-	panic("");
+  printf("FP\n");
+  checkFrame(&regs);
+  panic("Floating point exception");
 }
-void cPageFault()
+
+void cAlligned(isrVal_t regs)
 {
-	panic("Page fault");
+  printf("AL\n");
+  checkFrame(&regs);
+  panic("Alligned exception");
 }
-void cFpu(ol_isr_stack_t regs)
+
+void cSimd(isrVal_t regs)
 {
-	putc(0xa);
-	print("Floating point fault at EIP ");
-	printnum(regs.eip, 16, FALSE, FALSE);
-	putc(0xa);
-	panic("");
-}
-void cAlligned()
-{
-	panic("Not alligned!");
-}
-void cMachine()
-{
-	panic("Machine error!");
-}
-void cSimd()
-{
-	panic("SIMD error!");
+  printf("SIMD\n");
+  checkFrame(&regs);
+  panic("SSE exception");
 }

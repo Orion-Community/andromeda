@@ -1,32 +1,22 @@
-# compliler shizle
-AS=nasm
-ASFLAGS=-felf32 -I"../include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-weak -fno-builtin -nostdinc $(FLAGS)
-MAKE=make
-LD=ld
+include ../scripts/makeIncl
+CFLAGS+=-I../include
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-# targets
-KERN=main.o i386.o
-
-# source files
-MAIN_SRC=kmain.c
+ELF=elf.c exec.c
+TIMER=timer.c
 
 .PHONY: all
-all: $(KERN)
-	$(LD) $(LDFLAGS) -o kern.o $(KERN)
+all: kern.o
+	mv -fv kern.o ../
 
-main.o: $(MAIN_SRC)
-	$(CC) $(CCFLAGS) -o main.o $(MAIN_SRC)
-	
-i386.o:
-	$(MAKE) -C x86/ all
-	mv -fv x86/i386.o ./
+kern.o: load.o timer.o
+	$(LD) $(LDFLAGS) *.o -o kern.o
+load.o: $(ELF)
+	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
+
+timer.o: $(TIMER)
+	$(CC) $(CFLAGS) $(FLAGS) $(TIMER)
 
 .PHONY: clean
 clean:
-	$(MAKE) -C x86/ clean
-	rm -v *.o
-
+	rm -fv *.o

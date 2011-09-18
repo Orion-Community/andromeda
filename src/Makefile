@@ -1,88 +1,82 @@
-# Tools
-AS=nasm
-LD=ld
-CC=gcc
-MAKE=make
+include scripts/makeIncl
+include scripts/x86
 
-# Flags
-ASFLAGS=-felf32 -I"include/" $(FLAGS)
-BINARYASFLAGS=-f bin -I"include/" $(FLAGS)
-CCFLAGS=-c -m32 -nostdlib -nodefaultlibs -fno-stack-protector -fno-builtin \
--finline-functions-called-once -fno-weak -nostdinc -Iinclude $(FLAGS)
-LDFLAGS=-Tlink.ld --oformat binary -melf_i386
-FLAGS=-D __HDD -D __DEBUG
-
-# Deps
-BOOTBLOCK_DEPS=boot.o kern.o arch.o mm.o sys.o video.o error.o
-
-# Images
-MBR=masterboot.bin
-BIN1=stage1.bin
-TEMPBIN=temp.bin
-BOOTBLOCK=openloader.bin
-TESTIMG=testimage.bin
+MAKEEND=FLAGS="$(FLAGS)"
+MAKEEND+=FLAGS="-D X86 -D __INTEL"
 
 .PHONY: all
 all: x86
 
+.PHONY: amd64
+amd64:
+	@echo "Not yet implemented"
+
 .PHONY: x86
-x86: $(BOOTBLOCK)
+x86: $(OUT)
+	mv -fv sys/sys.o ./
+	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) *.o
+
+$(OUT):
+	$(MAKE) -C error $(MAKEEND)
+	$(MAKE) -C mm $(MAKEEND)
+	$(MAKE) -C kern $(MAKEEND)
+	$(MAKE) -C arch $(MAKEEND)
+	$(MAKE) -C text $(MAKEEND)
+	$(MAKE) -C boot $(MAKEEND)
+	$(MAKE) -C math $(MAKEEND)
+	$(MAKE) -C fs $(MAKEEND)
+	$(MAKE) -C sys $(MAKEEND)
+	$(MAKE) -C drivers $(MAKEEND)
+
+.PHONY: localClean
+localClean: clean
+	rm -fv *.o
+	rm $(OUTC)
 	
-
-$(BOOTBLOCK):
-	$(MAKE) FLAGS="$(FLAGS)" -C boot x86
-	$(MAKE) FLAGS="$(FLAGS)" -C arch x86
-	$(MAKE) FLAGS="$(FLAGS)" -C kern
-	$(MAKE) FLAGS="$(FLAGS)" -C error
-	$(MAKE) FLAGS="$(FLAGS)" -C sys
-	$(MAKE) FLAGS="$(FLAGS)" -C mm
-	$(MAKE) FLAGS="$(FLAGS)" -C video
-	mv -v boot/boot.o ./
-	mv -v boot/masterboot.bin ./$(MBR)
-	mv -v boot/stage1.bin ./$(BIN1)
-	mv -v arch/arch.o ./
-	mv -v sys/sys.o ./
-	mv -v error/error.o ./
-	mv -v mm/mm.o ./
-	mv -v kern/kern.o ./
-	mv -v video/video.o ./
-	$(LD) $(LDFLAGS) $(BOOTBLOCK_DEPS) -o $(TEMPBIN)
-	@echo "\n"
-	@echo "The openLoader project has been builded for the intel x86 architecture."
-	@echo "Issue a make install to complete the process."
-
-.PHONE: install
-install: $(BIN1) $(TEMPBIN)
-	mkdir -v build/
-	mv -v $(MBR) build/
-	dd if=$(BIN1) of=build/$(BOOTBLOCK) seek=0
-	dd if=$(TEMPBIN) of=build/$(BOOTBLOCK) seek=5 ibs=512 conv=sync
-	@echo "\n"
-	@echo "Thank you for using the openLoader project, \n OpenLoader development team"
-
-.PHONE: test
-test: install
-	dd if=build/$(MBR) of=build/$(TESTIMG) seek=0
-	dd if=build/$(BOOTBLOCK) of=build/$(TESTIMG) seek=2048
-
 .PHONY: clean
 clean:
-	$(MAKE) -C boot clean
-	$(MAKE) -C arch clean
-	$(MAKE) -C kern clean
 	$(MAKE) -C error clean
-	$(MAKE) -C sys clean
 	$(MAKE) -C mm clean
-	$(MAKE) -C video clean
-	rm -v *.o *.bin
-	rm -Rfv build/
-	@echo "\nWorking directory is clean"
+	$(MAKE) -C fs clean
+	$(MAKE) -C kern clean
+	$(MAKE) -C arch clean
+	$(MAKE) -C boot clean
+	$(MAKE) -C math clean
+	$(MAKE) -C sys clean
+	rm -f $(OUT)
+	rm -f *.o
 
-#$(BOOTBLOCK): $(BIN1) $(BIN2)
-#	dd if=$(BIN1) of=$(BOOTBLOCK) seek=0
-#	dd if=$(BIN2) of=$(BOOTBLOCK) seek=1 ibs=512 conv=sync
+.PHONY: all
+test: all
+	qemu -m 600M -kernel $(OUTC)
+	
+.PHONY: ctest
+ctest: clean test
 
-#$(OL): $(MBR_IMG) $(BOOTBLOCK)
-#	dd if=$(MBR_IMG) of=$(OL) seek=0
-#	dd if=$(BOOTBLOCK) of=$(OL) seek=2048
-
+.PHONY: usage
+usage:
+	@echo "USAGE"
+	@echo "Target all (default target)"
+	@echo "	Same as x86."
+	@echo "Target x86:"
+	@echo "	makes for the x86 PC."
+	@echo "Target amd64:"
+	@echo "	not supported."
+	@echo "Target clean:"
+	@echo "	Removes all object files."
+	@echo "Target test:"
+	@echo "	Same as x86, and run in KVM."
+	@echo "Target ctest:"
+	@echo "	Clean followed by test"
+	@echo "Target usage:"
+	@echo "	Show this message."
+	@echo " "
+	@echo "FLAGS="
+	@echo "	-D\ MMTEST"
+	@echo "		Run the memory test suite when initialising the heap"
+	@echo "	-D\ GDTTEST"
+	@echo "		Test the GDT. Very simple test suite, just to check if your kernel can continue when the new GDT is installed"
+	@echo "	-D\ WARN"
+	@echo "		Give warnings instead of panics where possible"
+	@echo "	-D\ FAST"
+	@echo "		Use some functions which introduce slightly less overhead over the more readable functions"

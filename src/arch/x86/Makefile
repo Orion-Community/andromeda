@@ -1,31 +1,38 @@
-# compliler shizle
-AS=nasm
-ASFLAGS=-felf32 -I"include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-weak -fno-builtin -nostdinc $(FLAGS)
+include ../../scripts/makeIncl
+MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
+CFLAGS+=-I../../include/
+
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
-MAKE=make
 
-# targets
+## TARGETS
 ARCH=arch.o
 
-.PHONY: all
-all: $(ARCH)
+## DEPS
+DEPS=kernel.o mm.o asm.o
 
-$(ARCH):
-	$(MAKE) FLAGS="$(FLAGS)" -C disk
-	$(MAKE) FLAGS="$(FLAGS)" -C kernel
-	$(MAKE) FLAGS="$(FLAGS)" -C mm
+.PHONY: all
+all: arch.o
+
+
+arch.o: $(DEPS)
+	$(LD) -o arch.o $(DEPS) $(LDFLAGS)
+
+mm.o:
+	$(MAKE) $(MAKEEND) -C mm/
+	mv -fv mm/mm.o ./
+
+kernel.o:
+	$(MAKE) $(MAKEEND) -C kernel/
 	mv kernel/kernel.o ./
-	mv disk/disk.o ./
-	mv mm/mm.o ./
-	$(LD) $(LDFLAGS) -o $(ARCH) *.o
+
+asm.o:
+	$(MAKE) -C asm $(MAKEEND)
+	mv -fv asm/asm.o ./
 
 .PHONY: clean
 clean:
-	$(MAKE) -C disk clean
 	$(MAKE) -C kernel clean
+	$(MAKE) -C asm clean
 	$(MAKE) -C mm clean
-	rm -rfv *.o
+	rm -fv *.o

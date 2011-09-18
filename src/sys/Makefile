@@ -11,10 +11,9 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 # targets
 SYS=sys.o
 #subtargets
-SYS_DEPS=stdlib.o io.o keyboard.o dev.o disk.o sys_.o
+SYS_DEPS=stdlib.o keyboard.o dev.o disk.o sys_.o
 
 # source files
-IO_SRC=io.asm
 STDLIB_SRC=stdlib.asm
 KB_SRC=keyboard.c
 PS2_SRC=ps2controller.asm
@@ -27,9 +26,6 @@ all: $(SYS_DEPS)
 
 stdlib.o:
 	$(AS) $(ASFLAGS) $(STDLIB_SRC) -o stdlib.o
-
-io.o:
-	$(AS) $(ASFLAGS) $(IO_SRC) -o io.o
 
 keyboard.o:
 	$(CC) $(CCFLAGS) $(KB_SRC) -o keyboard.o
@@ -49,4 +45,4 @@ sys_.o:
 clean:
 	$(MAKE) -C dev/ clean
 	$(MAKE) -C disk/ clean
-	rm -v *.o
+	rm -fv *.o

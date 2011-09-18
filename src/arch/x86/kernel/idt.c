@@ -17,8 +17,8 @@
  */
 
 #include <stdlib.h>
-#include <interrupts/idt.h>
-#include <interrupts/interrupts.h>
+#include <arch/x86/idt.h>
+#include <arch/x86/interrupts.h>
 #include <mm/memory.h>
 
 static void
@@ -79,7 +79,7 @@ void setIDT()
 	installExceptions(idt);
 	installInterrupts(0x20, 0x28, idt);
 	installIDT(idt);
-	setInterrupts();
+	//setInterrupts();
         free(idt);
 }
 
