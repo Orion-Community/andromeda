@@ -16,18 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __THREAD_H
-#define __THREAD_H
+#ifndef __ERROR_ERROR_H
+#define __ERROR_ERROR_H
 
-#define __THREAD_MUTEX_FREE 0
-#define __THREAD_MUTEX_SHUT 1
+#define E_SUCCESS  0x0
 
+#define E_NOMEM    0x1
 
-
-typedef unsigned int mutex_t;
-
-extern void mutexEnter(mutex_t);
-extern unsigned int mutexTest(mutex_t);
-extern void mutexRelease(mutex_t);
+#define E_PAGE_MAPPING  0x1
+#define E_PAGE_NORIGHTS 0x2
+#define E_PAGE_NOPAGE   0x3
 
 #endif

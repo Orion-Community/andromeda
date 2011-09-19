@@ -45,6 +45,13 @@ extern "C"
     } __attribute__((packed));
     typedef struct ol_madt_apic *ol_madt_apic_t;
 
+    struct ol_madt_ioapic
+    {
+        uint8_t type, length, id, reserved;
+        uint32_t address, global_system_interrupt_base;
+    } __attribute__((packed));
+    typedef struct ol_madt_ioapic *ol_madt_ioapic_t;
+
     struct ol_madt
     {
         char signature[4];
@@ -94,8 +101,11 @@ extern "C"
     static ol_acpi_madt_t
     ol_acpi_get_madt();
 
-    ol_madt_apic_t*
-    ol_acpi_enumerate_apics();
+    static void**
+    ol_acpi_enumerate(uint8_t type);
+
+    ol_madt_ioapic_t*
+    ol_acpi_get_ioapic();
 
 #ifdef __cplusplus
 }

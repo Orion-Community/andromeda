@@ -28,10 +28,12 @@
 #include <stdlib.h>
 #include <thread.h>
 
+#include "kern/cpu.h"
+
 #define HDRMAGIC 0xAF00BEA8
 #define PAGEBOUNDARY 0x1000
 
-volatile memNode_t* blocks = NULL; // Head pointer of the linked list maintaining the heap
+volatile memNode_t* blocks; // Head pointer of the linked list maintaining the heap
 
 volatile mutex_t prot;
 
@@ -209,8 +211,10 @@ int free (void* ptr)
 	printf("\n");
 	#endif
 	// Now find a place for the block to fit into the heap list
-	for (carige = blocks; carige!=NULL; carige=carige->next) // Loop through the heap list
+	for (carige = blocks; carige!=NULL && carige->next != carige && 
+       carige->next != blocks; carige=carige->next) // Loop through the heap list
 	{
+
 		// if we found the right spot, merge the lot.
 		if ((void*)block+block->size+sizeof(memNode_t) == (void*)carige || (void*)carige+carige->size+sizeof(memNode_t) == (void*)block)
 		{
@@ -229,7 +233,7 @@ int free (void* ptr)
 			}
 			else
 			{
-				block = test;
+    		block = test;
 				carige = test;
 				// We can now continue trying to merge the rest of the list, which might be possible.
 			}
@@ -294,14 +298,15 @@ inline static void returnBlock(volatile memNode_t* block)
 	// We're apparently not at the top of the list
 	for (carige=blocks; carige!=NULL; carige=carige->next) // Loop through the heap list.
 	{
-		if ((void*)carige+sizeof(memNode_t)+carige->size == block) // if the carige connects to the bottom of our block
+		if ((void*)carige+sizeof(memNode_t)+carige->size <= (void*)block) // if the carige connects to the bottom of our block
 		{
 			block -> next = carige -> next;
 			block -> previous = carige;
 			carige -> next = block;
+
 			return; // add the block to the list after the carige
 		}
-		else if ((void*)block+sizeof(memNode_t)+block->size == carige) // if the block connects to the bottom of the carige
+		else if ((void*)block+sizeof(memNode_t)+block->size <= (void*)carige) // if the block connects to the bottom of the carige
 		{
 			block -> next = carige;
 			block -> previous = carige -> previous;
@@ -312,6 +317,7 @@ inline static void returnBlock(volatile memNode_t* block)
 		{
 			carige -> next = block;
 			block -> previous = carige;
+      carige->next->next = NULL;
 			return; // if we have gotten to the end of the heap we must add the block here
 		}
 	}
@@ -400,7 +406,7 @@ inline static volatile memNode_t* splitMul(volatile memNode_t* block, size_t siz
 	}
 }
 
-inline static volatile memNode_t* merge(volatile memNode_t* alpha, volatile memNode_t* beta)
+static volatile memNode_t* merge(volatile memNode_t* alpha, volatile memNode_t* beta)
 {
 	// First we check for possible corruption
 	if (alpha->hdrMagic != HDRMAGIC || beta->hdrMagic != HDRMAGIC)
@@ -415,14 +421,15 @@ inline static volatile memNode_t* merge(volatile memNode_t* alpha, volatile memN
 		return NULL; // return error
 	}
 	volatile memNode_t* tmp;
-	if ((void*)alpha+alpha->size+sizeof(memNode_t) == (void*)beta)
+	if (beta->next == alpha)
 	{	// if the blocks are in reversed order, put them in the right order
 		tmp = alpha;
 		alpha = beta;
 		beta = tmp;
 	}
-	beta->size = beta->size+alpha->size+sizeof(memNode_t); // do the actual merging
-	beta->next = alpha->next;
-	beta->used = FALSE;
-	return beta; // return success
+        
+        alpha->size += beta->size+sizeof(memNode_t);
+        alpha->next = beta->next;
+        alpha->used = FALSE;
+        return alpha;
 }

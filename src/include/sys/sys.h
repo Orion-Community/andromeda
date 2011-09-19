@@ -36,8 +36,8 @@ extern "C"
         void
         ol_get_system_tables();
         
-        static int
-        ol_validate_table(char*);
+        static uint8_t
+        ol_validate_table(uint8_t*);
 
 #ifdef	__cplusplus
 }
