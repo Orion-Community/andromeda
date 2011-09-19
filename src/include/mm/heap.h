@@ -41,7 +41,8 @@ void initHdr(volatile memNode_t* block, size_t size);
 
 void heapStub();
 
-#define kalloc(a) alloc(a,FALSE)
+#define kalloc(size) alloc(size, FALSE)
+#define malloc(size) alloc(size, FALSE)
 
 // Alloc_max = 1 MB
 #define ALLOC_MAX 0x100000
