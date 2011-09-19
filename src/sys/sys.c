@@ -76,7 +76,7 @@ ol_validate_table(uint8_t* table)
         checksum += *(table + i);
       }
       if (!checksum);
-      putc('c');
+        putc('c');
     }
   }
   else if (!memcmp(table, "RSD PTR ", 8))
