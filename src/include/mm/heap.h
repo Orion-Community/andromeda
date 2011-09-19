@@ -14,7 +14,10 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+
+#define MM_NODE_MAGIC 0xAF00BEA8
+#define PAGEBOUNDARY 0x1000
 
 #ifndef __HEAP_H
 #define __HEAP_H
@@ -30,14 +33,31 @@ struct memNode
   volatile struct memNode* previous;
   unsigned int hdrMagic;
 };
-typedef struct memNode memNode_t;
+typedef struct memNode memory_node_t;
 
 void heapAddBlocks(void*, int);
 
-void* alloc (size_t,boolean);
-void* nalloc (size_t);
-int free (void* ptr);
-void initHdr(volatile memNode_t* block, size_t size);
+void* alloc(size_t, boolean);
+void* nalloc(size_t);
+int free(void*);
+
+void
+initHdr(volatile memory_node_t*, size_t);
+
+static boolean
+use_memnode_block(volatile memory_node_t* block);
+
+static void
+return_memnode_block(volatile memory_node_t*);
+
+static volatile memory_node_t*
+split(volatile memory_node_t*, size_t);
+
+static volatile memory_node_t*
+splitMul(volatile memory_node_t*, size_t, boolean);
+
+static volatile memory_node_t*
+merge_memnode(volatile memory_node_t*, volatile memory_node_t*);
 
 void heapStub();
 
@@ -60,7 +80,7 @@ void examineHeap();
 extern long heapBase;
 extern long heapSize;
 
-extern volatile memNode_t* blocks;
+extern volatile memory_node_t* blocks;
 extern volatile mutex_t prot;
 
 #endif

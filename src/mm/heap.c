@@ -25,7 +25,7 @@ void
 ol_dbg_heap()
 {
         println("List of all current heap block base pointers");
-        volatile memNode_t* x = blocks;
+        volatile memory_node_t* x = blocks;
         for(; x != NULL; x = x->next)
         {
                 printnum((uint32_t)x+sizeof(struct memNode), 16, FALSE, FALSE);
@@ -43,7 +43,7 @@ void heapAddBlocks(void* base, int size) // Requests size in bytes
   mutexEnter(prot);
   while (size > 0)
   {
-    initHdr(base, SIZE-sizeof(memNode_t));
+    initHdr(base, SIZE-sizeof(memory_node_t));
     size -= SIZE;
     if (blocks == NULL)
     {
@@ -55,7 +55,7 @@ void heapAddBlocks(void* base, int size) // Requests size in bytes
     else
     {
       mutexRelease(prot); // To prevent the mutex from conflicting with itself basically
-      free((void*)base+sizeof(memNode_t));
+      free((void*)base+sizeof(memory_node_t));
       mutexEnter(prot);
     }
     base += SIZE;
@@ -66,8 +66,8 @@ void heapAddBlocks(void* base, int size) // Requests size in bytes
 void heapCoreBlocks(void* base, int size)
 {
   mutexEnter(prot);
-  memNode_t* node = (memNode_t*)base;
-  initHdr(node, size-sizeof(memNode_t));
+  memory_node_t* node = (memory_node_t*)base;
+  initHdr(node, size-sizeof(memory_node_t));
   blocks=node;
   mutexRelease(prot);
 }
