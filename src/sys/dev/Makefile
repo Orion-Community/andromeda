@@ -1,12 +1,10 @@
+include ../../scripts/makeIncl
+CFLAGS+=-I../../include/
+LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
+
 # compliler shizle
 AS=nasm
 ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../../include" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-weak -fno-builtin -nostdinc $(FLAGS)
-MAKE=make
-LD=ld
-LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 # targets
 
@@ -25,10 +23,10 @@ $(DEV): $(DEV_D)
 	$(LD) $(LDFLAGS) $(DEV_D) -o $(DEV)
 
 ps2.o: $(PS2)
-	$(CC) $(CCFLAGS) $(PS2) -o ps2.o
+	$(CC) $(CFLAGS) $(FLAGS) $(PS2) -o ps2.o
 	
 pci.o: $(PCI)
-	$(CC) $(CCFLAGS) $(PCI) -o pci.o
+	$(CC) $(CFLAGS) $(FLAGS) $(PCI) -o pci.o
 	
 .PHONY: clean
 clean:

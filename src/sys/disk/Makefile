@@ -7,14 +7,13 @@
 ##
 ##
 
+include ../../scripts/makeIncl
+CFLAGS+=-I../../include/
+LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
+
+# compliler shizle
 AS=nasm
 ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../../include" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-weak -fno-builtin -nostdinc $(FLAGS)
-MAKE=make
-LD=ld
-LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 ## Sources
 ATA=ata.c
@@ -25,7 +24,7 @@ all: disk.o
 
 ## Target: ata.o
 ata.o: ata.c
-	$(CC) $(CCFLAGS) $(ATA) -o ata.o
+	$(CC) $(CFLAGS) $(FLAGS) $(ATA) -o ata.o
 
 ## Target: disk.o
 disk.o: ata.o
