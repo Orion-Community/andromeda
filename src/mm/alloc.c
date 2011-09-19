@@ -421,14 +421,15 @@ static volatile memNode_t* merge(volatile memNode_t* alpha, volatile memNode_t* 
 		return NULL; // return error
 	}
 	volatile memNode_t* tmp;
-	if ((void*)alpha+alpha->size+sizeof(memNode_t) == (void*)beta)
+	if (beta->next == alpha)
 	{	// if the blocks are in reversed order, put them in the right order
 		tmp = alpha;
 		alpha = beta;
 		beta = tmp;
 	}
-	beta->size += alpha->size+sizeof(memNode_t); // do the actual merging
-	beta->next = alpha->next;
-	beta->used = FALSE;
-	return beta; // return success
+        
+        alpha->size += beta->size+sizeof(memNode_t);
+        alpha->next = beta->next;
+        alpha->used = FALSE;
+        return alpha;
 }
