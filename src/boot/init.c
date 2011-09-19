@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 /*
  * This is the main function for the nano kernel.
@@ -63,14 +63,13 @@ void testMMap(multiboot_info_t* hdr);
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-#define HEAPSIZE 0x1000000
-
 int vendor = 0;
 
 // Print a welcome message
+
 void announce()
 {
-//   textInit();
+  //   textInit();
   println("Compressed kernel loaded");
   println("Decompressing the kernel");
 }
@@ -78,7 +77,7 @@ void announce()
 boolean setupCore(module_t mod)
 {
   // Examine and augment the elf image here, return true if faulty
-  switch(coreCheck((void*)mod.addr))
+  switch (coreCheck((void*) mod.addr))
   {
     case 0:
       break;
@@ -90,20 +89,22 @@ boolean setupCore(module_t mod)
       return TRUE;
     case -3:
       printf("Kernel magic invalid\n");
-      return TRUE;;
+      return TRUE;
+      ;
     default:
       printf("Unknown return value");
       return TRUE;
   }
   coreAugment(mod.addr);
-  
+
   // Jump into the high memory image
   elfJmp(mod.addr);
-  
+
   return FALSE; //Doesn't get reached, ever, if all goes well
 }
 
 // The main function
+
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
@@ -114,8 +115,8 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   }
   if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
   {
-    mmap = (multiboot_memory_map_t*)hdr->mmap_addr;
-    buildMap(mmap, (int)hdr->mmap_length);
+    mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
+    buildMap(mmap, (int) hdr->mmap_length);
   }
   else
   {
@@ -123,23 +124,30 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   }
 
   setGDT();
-  
+
   // Initialise the heap
   initHeap(HEAPSIZE);
-  ol_cpu_t cpu = kalloc(sizeof(*cpu));
+  ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
   ol_get_system_tables();
-  
-  pic_init(); 	     // Interrupts are allowed again.
-		     // Up untill this point they have
-		     // been disabled.
+
+  pic_init(); // Interrupts are allowed again.
+  // Up untill this point they have
+  // been disabled.
   setIDT();
   ol_ps2_init_keyboard();
-  
+  ol_madt_ioapic_t* io = ol_acpi_get_ioapic();
+  if (io != NULL)
+  {
+    printf("\n%x\n", io);
+    free(io);
+  }
+
+
   // If in the compressed image
   announce(); // print welcome message
-  #ifdef VENDORTELL
-  switch(getVendor())
+#ifdef VENDORTELL
+  switch (getVendor())
   {
     case VENDOR_INTEL:
       printf("You're using a Genuine Intel\n");
@@ -150,25 +158,30 @@ int init(unsigned long magic, multiboot_info_t* hdr)
     default:
       printf("You're using a system not officially supported\n");
   }
-  #endif
-  
-  #ifdef MMTEST
+#endif
+
+#ifdef MMTEST
   testAlloc();
   printf("End test\n");
-  #endif
+#endif
 
   fsInit(NULL);
+  free(cpu);
   list(_fs_root);
-  
-  printnum(*((uint32_t*)rsdp->signature), 16, 0, 0);
+
+  printnum(*((uint32_t*) rsdp->signature), 16, 0, 0);
   putc(0x20);
-  printnum(*(((uint32_t*)rsdp->signature)+1), 16, 0, 0);
+  printnum(*(((uint32_t*) rsdp->signature) + 1), 16, 0, 0);
   putc(0xa);
+
+
+  ol_detach_all_devices();
+  ol_dbg_heap();
 
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
   {
-     halt();
+    halt();
   }
   return 0; // To keep the compiler happy.
 }

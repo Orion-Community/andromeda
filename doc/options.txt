@@ -1,0 +1,23 @@
+The andromeda FLAGS variable has the following useful options:
+  -D DBG
+    Enables generic debugging symbols
+  
+  -D FSDBG
+    Enables File system debugging symbols
+  
+  -D PAGEDBG
+    Enables paging debugging symbols
+  
+  -D MMTEST
+    Enables the memory allocation test suite
+  
+  -D GDTTEST
+    Enables the GDT test suite
+    
+  -D WARN
+    Show warnings where possible, doesn't affect the panics in any way and might
+    result in a slightly reduced stability.
+  
+  -D FAST
+    Should use faster code, however for some things such as in the file system
+    the effect hasn't been tested.

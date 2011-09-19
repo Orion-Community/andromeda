@@ -217,8 +217,10 @@ void list(inode_t *dir)
   int size = dir -> size / sizeof (struct _FS_DIR_ENTRY);
   int i = 0;
   struct _FS_DIR_ENTRY *entries = (struct _FS_DIR_ENTRY *)dir -> data -> start;
+  #ifdef FSDBG
   printf("Entries: %X\n", entries);
   printf("Entries.name: %X\n", entries -> name);
+  #endif
   printf("%i Directory entries\n", size);
   for (; i < size; i++)
   {
