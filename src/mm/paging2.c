@@ -37,6 +37,10 @@
 extern volatile mutex_t pageLock;
 boolean pageDbg = false;
 
+/**
+ * Called when a pagefault occurs, is in charge of fixing the fault and swapping
+ * if necessary.
+ */
 void cPageFault(isrVal_t registers)
 {
   unsigned long page = getCR2();
@@ -55,8 +59,16 @@ void cPageFault(isrVal_t registers)
   panic("Page faults currently under construction");
 }
 
+/**
+ * A bitmap of the ammount of pages in use in every pagetable
+ */
 uint16_t page_map[PAGETABLES];
 
+/**
+ * Used to map a page to a physical addess, with the option to put it in
+ * usermode and to choose a different page directory than the current (usefull
+ * when using multiple processors).
+ */
 int mapPage(addr_t virtual, addr_t physical, struct pageDir *pd, 
                                                                boolean userMode)
 {
@@ -112,6 +124,9 @@ int mapPage(addr_t virtual, addr_t physical, struct pageDir *pd,
   return -E_SUCCESS;
 }
 
+/**
+ * Function does exactly what it says on the tin (or header for that matter)
+ */
 int releasePage(addr_t virtual, struct pageDir *pd)
 {
   while (mutexTest(pageLock))
@@ -150,30 +165,54 @@ int releasePage(addr_t virtual, struct pageDir *pd)
   mutexRelease(pageLock);
 }
 
+/**
+ * This is ought to set up the basic paging system, for the code to be remapped
+ * to higher half.
+ */
 int setupPageDir()
 {
+  /**
+   * Make the page directory
+   */
   struct pageDir *pd = alloc(sizeof(pd)*PAGEDIRS, TRUE);
   if (pd == NULL)
     return -E_NOMEM;
   memset(pd, 0, sizeof(pd)*PAGEDIRS);
   
-  uint32_t kSize = (uint32_t)&end - (uint32_t)&mboot;
+  /**
+   * Get the start and end address of the total image with heap
+   */
+  volatile addr_t base_addr = (addr_t)&mboot % PAGESIZE;
+  volatile addr_t abs_end = ((addr_t)&end + (addr_t)HEAPSIZE);
+  abs_end += (PAGESIZE-(((addr_t)&end + (addr_t)HEAPSIZE)%PAGESIZE));
   #ifdef PAGEDBG
-  printf("Kern size in bytes: %X\n", kSize);
+  printf("Absolute size in bytes: %X\n", (abs_end - base_addr));
+  int i = 0;
   #endif
   
-  volatile addr_t baseAddr = (addr_t)&mboot % PAGESIZE;
-  volatile addr_t end = ((addr_t)&end + (addr_t)HEAPSIZE);
-  end += (PAGESIZE-(((addr_t)&end + (addr_t)HEAPSIZE)%PAGESIZE));
-  #ifdef PAGEDBG
-  printf("Absolute size in bytes: %X\n", (end - baseAddr));
-  #endif
+  /**
+   * Set up the page tables in the page directory to the absolute addresses
+   */
+  addr_t idx;
+  for (idx = base_addr; idx < abs_end; idx += PAGESIZE)
+  {
+    #ifdef PAGEDBG
+    i++;
+    printf("Set page %X\n", i);
+    #endif
+  }
+  
   return pd;
+}
+
+int page_copy_image(addr_t from, size_t size, addr_t to)
+{
+  return -E_NOFUNCTION;
 }
 
 void initPaging()
 {
-  memset(page_map, 0, PAGETABLES*2); /* While the map is of 16 bits entries the
+  memset(page_map, 0, PAGETABLES*2); /** While the map is of 16 bits entries the
                                                       2 must remain in place!!*/
   setCR3(setupPageDir());
 /*
