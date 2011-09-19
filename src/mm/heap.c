@@ -25,7 +25,7 @@ void
 ol_dbg_heap()
 {
         println("List of all current heap block base pointers");
-        memNode_t* x = blocks;
+        volatile memNode_t* x = blocks;
         for(; x != NULL; x = x->next)
         {
                 printnum((uint32_t)x+sizeof(struct memNode), 16, FALSE, FALSE);

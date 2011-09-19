@@ -168,7 +168,7 @@ int setupPageDir()
   #ifdef PAGEDBG
   printf("Absolute size in bytes: %X\n", (end - baseAddr));
   #endif
-  return pd;
+  return (int)pd;
 }
 
 void initPaging()

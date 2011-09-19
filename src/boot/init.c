@@ -143,10 +143,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
     free(io);
   }
 
-  /*
-    void** x = kalloc(sizeof(void*));
-    free(x);
-   */
 
   // If in the compressed image
   announce(); // print welcome message
@@ -170,6 +166,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #endif
 
   fsInit(NULL);
+  free(cpu);
   list(_fs_root);
 
   printnum(*((uint32_t*) rsdp->signature), 16, 0, 0);
@@ -177,9 +174,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printnum(*(((uint32_t*) rsdp->signature) + 1), 16, 0, 0);
   putc(0xa);
 
-/*
-  free(cpu);
-*/
+
   ol_detach_all_devices();
   ol_dbg_heap();
 

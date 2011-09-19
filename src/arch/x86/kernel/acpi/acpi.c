@@ -55,7 +55,7 @@ ol_acpi_enumerate(uint8_t type)
 {
   ol_acpi_madt_t madt = ol_acpi_get_madt();
   ol_madt_field_header_t header;
-  void ** ret = alloc(sizeof(void*)*4, TRUE);
+  void ** ret = kalloc(sizeof(void*)*4);
 
   uint32_t i = 0;
 
