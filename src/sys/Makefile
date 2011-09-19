@@ -1,12 +1,10 @@
+include ../scripts/makeIncl
+CFLAGS+=-I../include/
+LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
+
 # compliler shizle
 AS=nasm
 ASFLAGS=-felf32 -I"../include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../include" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-builtin -nostdinc $(FLAGS)
-MAKE=make
-LD=ld
-LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 # targets
 SYS=sys.o
@@ -28,21 +26,21 @@ stdlib.o:
 	$(AS) $(ASFLAGS) $(STDLIB_SRC) -o stdlib.o
 
 keyboard.o:
-	$(CC) $(CCFLAGS) $(KB_SRC) -o keyboard.o
+	$(CC) $(CFLAGS) $(FLAGS) $(KB_SRC) -o keyboard.o
 
 dev.o:
-	$(MAKE) -C dev/ all
+	$(MAKE) -C dev/ $(MAKEEND)
 	mv -v dev/dev.o ./
 	
 disk.o:
-	$(MAKE) -C disk/ all
+	$(MAKE) -C disk/ $(MAKEEND)
 	mv -v disk/disk.o ./
 
 sys_.o:
-	$(CC) $(CCFLAGS) $(SYS_SRC) -o sys_.o
+	$(CC) $(CFLAGS) $(FLAGS) $(SYS_SRC) -o sys_.o
 
 .PHONY: clean
 clean:
-	$(MAKE) -C dev/ clean
-	$(MAKE) -C disk/ clean
+	$(MAKE) $(MAKEEND) -C dev/ clean
+	$(MAKE) $(MAKEEND) -C disk/ clean
 	rm -fv *.o
