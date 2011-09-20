@@ -373,7 +373,19 @@ void putc(uint8_t c)
         vidmem[i-1] = ((OL_WHITE_TXT<<8)| ' ');
       }
       break;
-
+    case '\t':
+      cursor.x += (cursor.tabwidth - cursor.x%cursor.tabwidth);
+      if (cursor.x > VGA_WIDTH)
+      {
+	cursor.x = 0;
+	cursor.y ++;
+	if (cursor.y > VGA_HEIGHT)
+	{
+	  scroll(1);
+	}
+      }
+      break;
+      
     default:
       vidmem[i] = ((OL_WHITE_TXT<<8) | c);
       cursor.x += 1;
