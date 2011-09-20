@@ -27,11 +27,6 @@ $(OUT):
 	$(MAKE) -C fs $(MAKEEND)
 	$(MAKE) -C sys $(MAKEEND)
 	$(MAKE) -C drivers $(MAKEEND)
-
-.PHONY: localClean
-localClean: clean
-	rm -fv *.o
-	rm $(OUTC)
 	
 .PHONY: clean
 clean:
@@ -50,7 +45,7 @@ clean:
 
 .PHONY: all
 test: all
-	qemu -m 600M -kernel $(OUTC)
+	qemu -m 600M -kernel $(OUT)
 	
 .PHONY: ctest
 ctest: clean test
