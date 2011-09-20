@@ -375,11 +375,11 @@ void putc(uint8_t c)
       break;
     case '\t':
       cursor.x += (cursor.tabwidth - cursor.x%cursor.tabwidth);
-      if (cursor.x > VGA_WIDTH)
+      if (cursor.x >= VGA_WIDTH)
       {
 	cursor.x = 0;
 	cursor.y ++;
-	if (cursor.y > VGA_HEIGHT)
+	if (cursor.y >= VGA_HEIGHT)
 	{
 	  scroll(1);
 	}
