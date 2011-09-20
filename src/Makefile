@@ -35,16 +35,18 @@ localClean: clean
 	
 .PHONY: clean
 clean:
-	$(MAKE) -C error clean
-	$(MAKE) -C mm clean
-	$(MAKE) -C fs clean
-	$(MAKE) -C kern clean
-	$(MAKE) -C arch clean
-	$(MAKE) -C boot clean
-	$(MAKE) -C math clean
-	$(MAKE) -C sys clean
-	rm -f $(OUT)
-	rm -f *.o
+# 	$(MAKE) -C error clean
+# 	$(MAKE) -C mm clean
+# 	$(MAKE) -C fs clean
+# 	$(MAKE) -C kern clean
+# 	$(MAKE) -C arch clean
+# 	$(MAKE) -C boot clean
+# 	$(MAKE) -C math clean
+# 	$(MAKE) -C sys clean
+	rm -fv $(OUT)
+# 	rm -f *.o
+	rm -fv `find -name "*.bin"`
+	rm -fv `find -name "*.o"`
 
 .PHONY: all
 test: all

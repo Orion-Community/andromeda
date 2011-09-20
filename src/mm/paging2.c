@@ -169,7 +169,7 @@ int releasePage(addr_t virtual, struct pageDir *pd)
  * This is ought to set up the basic paging system, for the code to be remapped
  * to higher half.
  */
-int setupPageDir()
+addr_t setupPageDir()
 {
   /**
    * Make the page directory
@@ -202,7 +202,7 @@ int setupPageDir()
     #endif
   }
   
-  return pd;
+  return (addr_t)pd;
 }
 
 int page_copy_image(addr_t from, size_t size, addr_t to)
