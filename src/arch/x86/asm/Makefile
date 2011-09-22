@@ -2,13 +2,18 @@ AS=nasm
 
 ASFLAGS=-felf -D X86 -I../../../include/
 
+CC=gcc
+CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
+ -fno-builtin -nostdinc -finline-functions-called-once $(FLAGS)
+
 IO=io.asm
+IO_INLINE=io.c
 IRQ=irq.asm
 ISR=isr.asm
 GDT=lgdt.asm
 ASM_=asm.asm
 
-ASM=io.o lgdt.o asm_.o
+ASM=io.o io_inline.o lgdt.o asm_.o
 OUT=asm.o
 
 LD=ld
@@ -20,7 +25,9 @@ all: $(ASM)
 
 io.o: io.asm
 	$(AS) $(ASFLAGS) $(FLAGS) $(IO)
-
+	
+io_inline.o: io.c
+	$(CC) $(CCFLAGS) $(FLAGS) $(IO_INLINE) -o io_inline.o
 #irq.o: irq.asm
 #	$(AS) $(ASFLAGS) $(FLAGS) $(IRQ)
 
