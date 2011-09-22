@@ -46,9 +46,12 @@ extern "C"
 #define OL_PCI_NUM_BUS 256
 #define OL_PCI_NUM_DEV 32
 #define OL_PCI_NUM_FUNC 10-1-1 /* PCI has a max of 10 loads minus one for the
-                                        the pci device counts as one, and the 
+                                        the pci device, and the 
                                         connector also as one, leaving 8 
                                         functions. */
+    
+#define PCI_MECH_1 0x1
+#define PCI_MECH_2 0x2
         
         typedef uint32_t ol_pci_addr_t;
         typedef uint32_t ol_pci_id_t;
@@ -86,20 +89,21 @@ extern "C"
         /* PCI communication functions - They are inline (something like assembly
          macro's */
         static inline uint32_t
-        ol_pci_read_dword(ol_pci_addr_t addr)
+        ol_pci_read_dword(ol_pci_addr_t addr, uint16_t reg)
         {
                 register uint32_t ret;
                 outl(OL_PCI_CONFIG_ADDRESS, addr);
+                iowait();
                 ret = inl(OL_PCI_CONFIG_DATA);
                 return ret;
         }
         
         static inline uint8_t
-        ol_pci_read_byte(ol_pci_addr_t addr)
+        ol_pci_read_byte(ol_pci_addr_t addr, uint16_t reg)
         {
                 register uint8_t ret;
                 outl(OL_PCI_CONFIG_ADDRESS, addr & ~3);
-                ret = inb(OL_PCI_CONFIG_DATA);
+                ret = inb(OL_PCI_CONFIG_DATA+(reg&3));
                 return ret;
         }
 

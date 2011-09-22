@@ -79,7 +79,7 @@ void printf(unsigned char *line, ...)
       i++;
       if (line[i] == '\0')
       {
-        putc(line[i-1]);
+        putc(line[i - 1]);
         break;
       }
       switch (line[i])
@@ -343,58 +343,58 @@ void putc(unsigned char i)
   }
   reloc(cursor.x, cursor.y);
 }
-*/
+ */
 
 void putc(uint8_t c)
 {
-  uint16_t *vidmem = (uint16_t*)KEYBUF;
+  uint16_t *vidmem = (uint16_t*) KEYBUF;
   uint32_t i = (cursor.y * VGA_WIDTH) + cursor.x;
-  switch(c)
+  switch (c)
   {
     case '\0':
       break;
-			
+
     case '\n':
-			
+
       cursor.x = 0;
       cursor.y++;
       break;
 
     case '\b':
-      if(cursor.x == 0)
+      if (cursor.x == 0)
       {
         cursor.y--;
         cursor.x = 79;
       }
-			
+
       else
       {
         cursor.x -= 1;
-        vidmem[i-1] = ((OL_WHITE_TXT<<8)| ' ');
+        vidmem[i - 1] = ((OL_WHITE_TXT << 8) | ' ');
       }
       break;
     case '\t':
-      cursor.x += (cursor.tabwidth - cursor.x%cursor.tabwidth);
+      cursor.x += (cursor.tabwidth - cursor.x % cursor.tabwidth);
       if (cursor.x >= VGA_WIDTH)
       {
-	cursor.x = 0;
-	cursor.y ++;
-	if (cursor.y >= VGA_HEIGHT)
-	{
-	  scroll(1);
-	}
+        cursor.x = 0;
+        cursor.y++;
+        if (cursor.y >= VGA_HEIGHT)
+        {
+          scroll(1);
+        }
       }
       break;
-      
+
     default:
-      vidmem[i] = ((OL_WHITE_TXT<<8) | c);
+      vidmem[i] = ((OL_WHITE_TXT << 8) | c);
       cursor.x += 1;
       break;
   }
-	
-  if(cursor.y >= VGA_HEIGHT)
+
+  if (cursor.y >= VGA_HEIGHT)
   {
-    scroll(cursor.y%VGA_HEIGHT+1);
+    scroll(cursor.y % VGA_HEIGHT + 1);
   }
   reloc(cursor.x, cursor.y);
 }
