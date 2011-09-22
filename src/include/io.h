@@ -20,15 +20,14 @@
 #ifndef __IO_H_
 #define __IO_H_
 
-extern unsigned char inb(unsigned short port);
+extern unsigned char inb(unsigned short);
 //extern unsigned char inw(unsigned short port);
-extern void outb(unsigned short port, unsigned char msg);
-extern void outw(unsigned short port, unsigned short msg);
+extern void outb(unsigned short, unsigned char);
+extern void outw(unsigned short, unsigned short);
 extern void ioWait(void);
 
-extern uint8_t inl(uint16_t port);
-
-extern void outl(uint16_t port, uint8_t msg);
+extern uint32_t inl(uint16_t);
+extern void outl(uint16_t, uint32_t);
 
 #define iowait(void) ioWait(void)
 

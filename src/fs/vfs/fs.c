@@ -34,7 +34,7 @@ void fsInit(inode_t* root)
 {
   if (root == NULL)
   {
-    printf("WARNING: File systems not complete!\n");
+    printf("\nWARNING: File systems not complete!\n");
     /*
     _fs_root = kalloc(sizeof(inode_t));
     if (_fs_root == NULL) goto nomem;
