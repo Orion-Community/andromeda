@@ -14,27 +14,45 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include <stdlib.h>
 #ifndef __IO_H_
 #define __IO_H_
 
-extern unsigned char inb(unsigned short);
-//extern unsigned char inw(unsigned short port);
-extern void outb(unsigned short, unsigned char);
-extern void outw(unsigned short, unsigned short);
-extern void ioWait(void);
+void
+outb(uint16_t, uint8_t);
 
-extern uint32_t inl(uint16_t);
-extern void outl(uint16_t, uint32_t);
+void
+outw(uint16_t, uint16_t);
 
-#define iowait(void) ioWait(void)
+void
+outl(uint16_t, uint32_t);
 
-extern unsigned int readCR0(void);
-extern unsigned int readCR3(void);
+uint8_t
+inb(uint16_t);
 
-extern void writeCR0(unsigned int);
-extern void writeCR3(unsigned int);
+uint16_t
+inw(uint16_t);
+
+uint32_t
+inl(uint16_t);
+
+void
+iowait(void);
+#define ioWait(void) iowait(void);
+
+
+extern unsigned int
+readCR0(void);
+
+extern unsigned int
+readCR3(void);
+
+extern void
+writeCR0(unsigned int);
+
+extern void
+writeCR3(unsigned int);
 
 #endif
