@@ -12,7 +12,7 @@ AS=nasm
 ASFLAGS=-felf32 -I"../../../../include/" $(FLAGS)
 CC=gcc
 CCFLAGS=-I"../../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
- -fno-builtin -nostdinc -finline-functions-called-once -fno-weak $(FLAGS)
+ -fno-builtin -nostdinc -finline-functions-called-once $(FLAGS)
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 

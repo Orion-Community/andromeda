@@ -5,6 +5,7 @@ MAKEEND=FLAGS="$(FLAGS)"
 MAKEEND+=FLAGS="-D X86 -D __INTEL -D __PCI_DEBUG"
 #MAKEEND+="-s"
 
+
 .PHONY: all
 all: x86
 
@@ -28,28 +29,25 @@ $(OUT):
 	$(MAKE) -C fs $(MAKEEND)
 	$(MAKE) -C sys $(MAKEEND)
 	$(MAKE) -C drivers $(MAKEEND)
-
-.PHONY: localClean
-localClean: clean
-	rm -fv *.o
-	rm $(OUTC)
 	
 .PHONY: clean
 clean:
-	$(MAKE) -C error clean
-	$(MAKE) -C mm clean
-	$(MAKE) -C fs clean
-	$(MAKE) -C kern clean
-	$(MAKE) -C arch clean
-	$(MAKE) -C boot clean
-	$(MAKE) -C math clean
-	$(MAKE) -C sys clean
-	rm -f $(OUT)
-	rm -f *.o
+# 	$(MAKE) -C error clean
+# 	$(MAKE) -C mm clean
+# 	$(MAKE) -C fs clean
+# 	$(MAKE) -C kern clean
+# 	$(MAKE) -C arch clean
+# 	$(MAKE) -C boot clean
+# 	$(MAKE) -C math clean
+# 	$(MAKE) -C sys clean
+	rm -fv $(OUT)
+# 	rm -f *.o
+	rm -fv `find -name "*.bin"`
+	rm -fv `find -name "*.o"`
 
 .PHONY: all
 test: all
-	qemu -m 600M -kernel $(OUTC)
+	qemu -m 600M -kernel $(OUT)
 	
 .PHONY: ctest
 ctest: clean test

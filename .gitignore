@@ -1,8 +1,9 @@
 *.o
+*.bin
 compressed
 core
-andromeda
+src/andromeda
 *.project
 *~
-scripts/floppy.img
+src/scripts/floppy.img
 /nbproject/
