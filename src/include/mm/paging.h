@@ -33,7 +33,7 @@ boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode);
 void* getPhysAddr(void* addr);
 void initPaging();
 
-struct pageDir
+struct page_dir
 {
   unsigned int present	: 1; // Must be 1 to be able to access
   unsigned int rw	: 1; // if 0, can not be written to
@@ -49,7 +49,7 @@ struct pageDir
 } __attribute__((packed));
 typedef struct pageDir pageDir_t;
 
-struct pageTable
+struct page_table
 {
   unsigned int present	: 1; // Must be 1 to be able to access
   unsigned int rw	: 1; // if 0, can not be written
