@@ -26,7 +26,7 @@ outb (uint16_t port, uint8_t data)
                        : /* no output */
                        : "a" (data),
                        "d" (port)
-                       :);
+                       );
 }
 
 void
@@ -36,7 +36,7 @@ outw (uint16_t port, uint16_t data)
                        : /* no output */
                        : "a" (data),
                        "d" (port)
-                       :);
+                       );
 }
 
 void
@@ -46,7 +46,7 @@ outl (uint16_t port, uint32_t data)
                        : /* no output */
                        : "a" (data),
                        "d" (port)
-                       :);
+                       );
 }
 
 uint8_t
