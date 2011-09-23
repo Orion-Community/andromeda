@@ -115,7 +115,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
     printf("\nInvalid magic word: %X\n", magic);
     panic("");
   }
-  if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
+  if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
   {
     mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
     buildMap(mmap, (int) hdr->mmap_length);
@@ -123,6 +123,11 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   else
   {
     panic("Invalid memory map");
+  }
+  if (hdr->flags & MULTIBOOT_INFO_MEMORY)
+  {
+    memsize = hdr->mem_upper;
+    memsize += 1024;
   }
 
   setGDT();

@@ -47,7 +47,7 @@ done
 make clean -B $DEFS
 RET=$?
 if [ ${RET} -eq 0 ]; then
-make FLAGS="$FLAGS" DEFS="$DEFS" CC=distcc -B $DEFS
+make FLAGS="$FLAGS" DEFS="$DEFS" -B $DEFS -j 2
 RET=$?
 exit $RET
 else

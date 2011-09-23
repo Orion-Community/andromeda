@@ -34,7 +34,7 @@
 #define RESERVED ((err & RESERVEDBIT) ? TRUE : FALSE)
 #define DATA     ((err & DATABIT)     ? FALSE : TRUE)
 
-extern volatile mutex_t pageLock;
+extern volatile mutex_t page_lock;
 boolean pageDbg = false;
 
 /**
@@ -79,7 +79,7 @@ uint16_t page_map[PAGETABLES];
 int map_page(addr_t virtual, addr_t physical, struct page_dir *pd, 
                                                                boolean userMode)
 {
-  while(mutexTest(pageLock))
+  while(mutexTest(page_lock))
   {
     #ifdef PAGEDBG
     printf("Paging is locked!\n");
@@ -94,7 +94,7 @@ int map_page(addr_t virtual, addr_t physical, struct page_dir *pd,
     pt = alloc(sizeof(pt)*PAGETABLES, TRUE);
     if (pt == NULL)
     {
-      mutexRelease(pageLock);
+      mutexRelease(page_lock);
       return -E_NOMEM;
     }
     memset(pt, 0, sizeof(pt)*PAGETABLES);
@@ -111,13 +111,13 @@ int map_page(addr_t virtual, addr_t physical, struct page_dir *pd,
     pt = (struct page_table*)(pd[pd_entry].pageIdx*PAGESIZE);
     if (pt == NULL)
     {
-      mutexRelease(pageLock);
+      mutexRelease(page_lock);
       return -E_PAGE_MAPPING;
     }
   }
   if (pt[pt_entry].present != FALSE)
   {
-    mutexRelease(pageLock);
+    mutexRelease(page_lock);
     return -E_PAGE_MAPPING;
   }
   
@@ -127,7 +127,7 @@ int map_page(addr_t virtual, addr_t physical, struct page_dir *pd,
   pt[pt_entry].userMode = userMode;
   
   page_map[pd_entry]++;
-  mutexRelease(pageLock);
+  mutexRelease(page_lock);
   return -E_SUCCESS;
 }
 
@@ -136,7 +136,7 @@ int map_page(addr_t virtual, addr_t physical, struct page_dir *pd,
  */
 int release_page(addr_t virtual, struct page_dir *pd)
 {
-  while (mutexTest(pageLock))
+  while (mutexTest(page_lock))
   {
     #ifdef PAGEDBG
     printf("Paging is locked!\n");
@@ -147,7 +147,7 @@ int release_page(addr_t virtual, struct page_dir *pd)
   
   if (pd[pd_entry].present == FALSE)
   {
-    mutexRelease(pageLock);
+    mutexRelease(page_lock);
     return -E_PAGE_NOPAGE;
   }
   
@@ -155,7 +155,7 @@ int release_page(addr_t virtual, struct page_dir *pd)
   
   if (pt[pt_entry].present == FALSE)
   {
-    mutexRelease(pageLock);
+    mutexRelease(page_lock);
     return -E_PAGE_NOPAGE;
   }
   
@@ -169,7 +169,7 @@ int release_page(addr_t virtual, struct page_dir *pd)
     free((void*)(pd[pd_entry].pageIdx*PAGESIZE));
     pd[pd_entry].pageIdx = 0;
   }
-  mutexRelease(pageLock);
+  mutexRelease(page_lock);
 }
 
 /**
@@ -198,7 +198,7 @@ addr_t setup_page_dir()
   #endif
   
   /**
-   * Set up the page tables in the page directory to the absolute addresses
+   * Configure the page tables to point to the absolute image address space.
    */
   addr_t idx;
   for (idx = base_addr; idx < abs_end; idx += PAGESIZE)
@@ -212,7 +212,7 @@ addr_t setup_page_dir()
   return (addr_t)pd;
 }
 
-int page_copy_image(addr_t phys, size_t size, addr_t to)
+int page_copy_image(addr_t from, size_t size, addr_t to)
 {
   return -E_NOFUNCTION;
 }
@@ -222,7 +222,7 @@ addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
   int directory_idx = virt >> 22;
   int table_idx = (virt >> 12) & 0x3FF;
   
-  struct page_table* pt = pd[directory_idx].pageIdx << 12;
+  struct page_table* pt = (void*)(pd[directory_idx].pageIdx << 12);
   addr_t phys = pt[table_idx].pageIdx << 12 | (virt & 0x3FF);
   return phys;
 }
