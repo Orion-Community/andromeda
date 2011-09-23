@@ -104,7 +104,7 @@ extern "C"
     static void**
     ol_acpi_enumerate(uint8_t type);
 
-    ol_madt_ioapic_t*
+    ol_madt_ioapic_t
     ol_acpi_get_ioapic();
 
 #ifdef __cplusplus

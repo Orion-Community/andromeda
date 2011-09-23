@@ -55,6 +55,8 @@
 
 #include <kern/cpu.h>
 
+#include "arch/x86/apic/ioapic.h"
+
 unsigned char stack[0x8000];
 
 // Define the place of the heap
@@ -136,12 +138,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   pic_init(); 
   setIDT();
   ol_ps2_init_keyboard();
-  ol_madt_ioapic_t* io = ol_acpi_get_ioapic();
-  if (io != NULL)
-  {
-    printf("The address of the I/O APIC is: 0x%x\n", io[0]->address);
-    free(io);
-  }
+  init_ioapic();
 
 #ifdef VENDORTELL
   switch (getVendor())

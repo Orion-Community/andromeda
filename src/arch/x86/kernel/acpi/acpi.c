@@ -68,12 +68,13 @@ ol_acpi_enumerate(uint8_t type)
       ret[i] = (void*) header;
       i++;
     }
+    ret[i] = NULL;
   }
   return ret;
 }
 
-ol_madt_ioapic_t*
+ol_madt_ioapic_t
 ol_acpi_get_ioapic()
 {
-  return (ol_madt_ioapic_t*)ol_acpi_enumerate(1);
+  return ((ol_madt_ioapic_t*)ol_acpi_enumerate(1))[0];
 }

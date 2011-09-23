@@ -83,8 +83,13 @@ extern "C"
 	void
 	ol_pci_init();
         
+#ifdef __PCI_DEBUG
         static int 
         ol_pci_dbg_print_info(ol_pci_dev_t dev);
+#else
+        static void
+        dummy(ol_pci_dev_t dev);
+#endif
         
         /* PCI communication functions - They are inline (something like assembly
          macro's */

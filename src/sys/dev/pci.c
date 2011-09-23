@@ -43,7 +43,8 @@ ol_pci_iterate(ol_pci_dev_t dev)
         if ((id>>16) == 0xffff)
           continue;
         
-        if (dev->hook(dev)) return;
+        if(dev->hook != NULL)
+          if (dev->hook(dev)) return;
 
         if(dev->func == 0)
           if (!ol_pci_is_mf(dev)) break;
@@ -76,6 +77,8 @@ ol_pci_init()
   ol_pci_dev_t dev = kalloc(sizeof (struct ol_pci_dev));
 #ifdef __PCI_DEBUG
   dev->hook = &ol_pci_dbg_print_info;
+#else
+  dev->hook = NULL;
 #endif
   ol_pci_iterate(dev);
   free(dev);
@@ -94,5 +97,11 @@ ol_pci_dbg_print_info(ol_pci_dev_t dev)
 
   return FALSE; /* we want to list all devices */
 
+}
+#else
+static void
+dummy(ol_pci_dev_t dev)
+{
+  printf("PCI debug info is disabled");
 }
 #endif
