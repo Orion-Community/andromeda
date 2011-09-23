@@ -24,6 +24,7 @@
 
 #define map_idx(a) (a / (sizeof(bitmap[0])*8))
 #define map_off(a) (a % (sizeof(bitmap[0])*8))
+#define map_size   ((memsize/0x80) + ((memsize % 0x80) ? 1 : 0))
 
 volatile mutex_t page_lock = 0;
 module_t modules[MAX_MODS];
@@ -34,9 +35,12 @@ size_t memsize;
 void build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
   addr_t memory_map_end;
-  bitmap = kalloc(memsize*0x20);
+  bitmap = kalloc(map_size);
   
-  
+  memset(bitmap, 0, map_size);
+//   #ifdef PAGEDBG
+  printf("Map size: %X\tMemsize: %X\n", map_size, memsize);
+//   #endif
 }
 
 int page_get_bit(addr_t addr)
@@ -55,8 +59,8 @@ int page_reset_bit(addr_t addr)
 {
   if (bitmap == NULL) return -E_BMP_NOMAP;
   /**
-   * bitmap[index] and is not 0 xor (1 shift left map_offset) or in human
+   * bitmap[index] and is ((not 0) xor (1 shift left map_offset)) or in human
    * english: set this bit to 0;
    */
-  bitmap[map_idx(addr)] &= ~0^(1 << map_off(addr));
+  bitmap[map_idx(addr)] &= ((~0)^(1 << map_off(addr)));
 }
