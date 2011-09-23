@@ -61,10 +61,6 @@ extern module_t modules[];
 extern uint32_t* bitmap;
 extern size_t memsize;
 
-#define buildMap build_map
-#define freePage reset_page
-#define allocPage set_page
-
 pageState_t* set_page(addr_t page);
 void reset_page(addr_t page);
 

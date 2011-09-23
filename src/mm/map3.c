@@ -20,6 +20,10 @@
 #include <thread.h>
 #include <boot/mboot.h>
 #include <stdlib.h>
+#include <error/error.h>
+
+#define map_idx(a) (a / (sizeof(bitmap[0])*8))
+#define map_off(a) (a % (sizeof(bitmap[0])*8))
 
 volatile mutex_t page_lock = 0;
 module_t modules[MAX_MODS];
@@ -27,7 +31,32 @@ module_t modules[MAX_MODS];
 uint32_t* bitmap = NULL;
 size_t memsize;
 
-void build_map(multiboot_memory_map_t*, int map_size)
+void build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
+  addr_t memory_map_end;
+  bitmap = kalloc(memsize*0x20);
   
+  
+}
+
+int page_get_bit(addr_t addr)
+{
+  if (bitmap == NULL) return -E_BMP_NOMAP;
+  return bitmap[map_idx(addr)] & (1 << map_off(addr));
+}
+
+int page_set_bit(addr_t addr)
+{
+  if (bitmap == NULL) return -E_BMP_NOMAP;
+  bitmap[map_idx(addr)] |= (1 << map_off(addr));
+}
+
+int page_reset_bit(addr_t addr)
+{
+  if (bitmap == NULL) return -E_BMP_NOMAP;
+  /**
+   * bitmap[index] and is not 0 xor (1 shift left map_offset) or in human
+   * english: set this bit to 0;
+   */
+  bitmap[map_idx(addr)] &= ~0^(1 << map_off(addr));
 }

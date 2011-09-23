@@ -118,7 +118,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
   {
     mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
-    buildMap(mmap, (int) hdr->mmap_length);
+    build_map(mmap, (unsigned int) hdr->mmap_length);
   }
   else
   {

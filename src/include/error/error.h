@@ -28,4 +28,6 @@
 #define E_PAGE_NORIGHTS 0x2
 #define E_PAGE_NOPAGE   0x3
 
+#define E_BMP_NOMAP     0x1
+
 #endif
