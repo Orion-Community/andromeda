@@ -5,6 +5,7 @@ Andromeda History
 -----------------
 
 The andromeda kernel is a system built by:
+
  * Bart Kuivenhoven.
  * Michel Megens
  * Steven van der Schoot.
