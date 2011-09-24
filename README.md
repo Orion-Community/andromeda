@@ -45,13 +45,14 @@ kernel and send us a pull request. You're welcome to do so.
 Bootloader info
 ---------------
 
-Error table
-0x0 -> Error in the masterboot, probably because you haven't marked a partition 
+Error table:
+
+* 0x0 -> Error in the masterboot, probably because you haven't marked a partition 
     as active.
-0x1 -> Stage 1 error. Serious failure, checks which succeeded in the masterboot 
+* 0x1 -> Stage 1 error. Serious failure, checks which succeeded in the masterboot 
     failed in stage 1. Should not occur, actually pure a leftover from early 
     debugging.
-0x1.5 -> Look above
-0x2 -> The second stage loader couldn't enable a feature such as the A20 line.
+* 0x1.5 -> Look above
+* 0x2 -> The second stage loader couldn't enable a feature such as the A20 line.
     This might indicate hardware problems if it occurs, or your hardware doesn't
     support the way they are supported.
