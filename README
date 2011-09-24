@@ -1,3 +1,19 @@
+Andromeda Readme
+================
+
+Andromeda History
+-----------------
+
+Copying
+-------
+
+Contributing
+------------
+
+Bootloader info
+---------------
+
+
 The andromeda kernel was built for educational purposes and as a part of the Orion
 operating system. The work is licenced as GNU General Public Licence version 3 or
 newer.
