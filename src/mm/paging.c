@@ -28,11 +28,11 @@
 #define RESERVEDBIT   0x08
 #define DATABIT       0x10
 
-#define PRESENT  ((err & PRESENTBIT)  ? TRUE : FALSE)
-#define WRITE    ((err & WRITEBIT)    ? TRUE : FALSE)
-#define USER	 ((err & USERBIT)     ? TRUE : FALSE)
-#define RESERVED ((err & RESERVEDBIT) ? TRUE : FALSE)
-#define DATA     ((err & DATABIT)     ? FALSE : TRUE)
+#define PRESENT(a)  ((a & PRESENTBIT)  ? TRUE : FALSE)
+#define WRITE(a)    ((a & WRITEBIT)    ? TRUE : FALSE)
+#define USER(a)     ((a & USERBIT)     ? TRUE : FALSE)
+#define RESERVED(a) ((a & RESERVEDBIT) ? TRUE : FALSE)
+#define DATA(a)     ((a & DATABIT)     ? FALSE : TRUE)
 
 extern volatile mutex_t page_lock;
 boolean pageDbg = false;
@@ -55,7 +55,7 @@ void cPageFault(isrVal_t registers)
   printf("PG\n");
   #endif
   
-  if (registers.cs != 0x8 || registers.cs != 0x18)
+  if (registers.cs != 0x8 && registers.cs != 0x18)
   {
     panic("Incorrect frame!");
   }
