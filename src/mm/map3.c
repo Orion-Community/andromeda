@@ -24,43 +24,21 @@
 
 #define map_idx(a) (a / (sizeof(bitmap[0])*8))
 #define map_off(a) (a % (sizeof(bitmap[0])*8))
-#define map_size   ((memsize/0x80) + ((memsize % 0x80) ? 1 : 0))
+#define map_size   (memsize/0x4)
 
 volatile mutex_t page_lock = 0;
 module_t modules[MAX_MODS];
 
-uint32_t* bitmap = NULL;
+struct page *page_map = NULL;
 size_t memsize;
 
 void build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
   addr_t memory_map_end;
-  bitmap = kalloc(map_size);
+  page_map = kalloc(map_size*sizeof(page_map));
   
-  memset(bitmap, 0, map_size);
-//   #ifdef PAGEDBG
-  printf("Map size: %X\tMemsize: %X\n", map_size, memsize);
-//   #endif
-}
-
-int page_get_bit(addr_t addr)
-{
-  if (bitmap == NULL) return -E_BMP_NOMAP;
-  return bitmap[map_idx(addr)] & (1 << map_off(addr));
-}
-
-int page_set_bit(addr_t addr)
-{
-  if (bitmap == NULL) return -E_BMP_NOMAP;
-  bitmap[map_idx(addr)] |= (1 << map_off(addr));
-}
-
-int page_reset_bit(addr_t addr)
-{
-  if (bitmap == NULL) return -E_BMP_NOMAP;
-  /**
-   * bitmap[index] and is ((not 0) xor (1 shift left map_offset)) or in human
-   * english: set this bit to 0;
-   */
-  bitmap[map_idx(addr)] &= ((~0)^(1 << map_off(addr)));
+  memset(page_map, 0, sizeof(page_map)*map_size);
+  #ifdef PAGEDBG
+  printf("Map size: %XB\tMap size: %X entries\tMemsize: %XB\n", map_size*sizeof(page_map), map_size, memsize*1024);
+  #endif
 }

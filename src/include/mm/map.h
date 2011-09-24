@@ -44,21 +44,26 @@ struct module_s
   unsigned long addr;
   unsigned long end;
 };
-/**
- * The page_region object can be used to mark a region of memory for a specific
- * goal. E.g. reserved for memory mapped IO or dedicated for a process.
- */
-struct page_region
-{
-  addr_t start;
-  addr_t end;
-  struct page_region* next;
-};
 
 typedef struct module_s module_t;
 
+/**
+ * This bitmap entry will look a bit like a FAT structure, with the main
+ * difference that we're talking pages here, instead of files.
+ *
+ * If the next index = 0, it's the last page in the list, if the previous index
+ * = 0, it's the first page in the list. Somewhere is a pointer that refers to
+ * the first page and tells us who/what owns this region in memory
+ */
+
+struct page
+{
+  addr_t next_idx;
+  addr_t prev_idx;
+};
+
+
 extern module_t modules[];
-extern uint32_t* bitmap;
 extern size_t memsize;
 
 pageState_t* set_page(addr_t page);
