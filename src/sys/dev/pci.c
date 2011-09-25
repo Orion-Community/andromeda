@@ -26,7 +26,6 @@ ol_pci_iterate (ol_pci_dev_t dev)
 {
   ol_pci_id_t id;
   register ol_pci_addr_t addr;
-  uint32_t header;
 
   for (dev->bus = 0; dev->bus < OL_PCI_NUM_BUS; dev->bus++)
   {
@@ -73,7 +72,6 @@ ol_pci_calculate_address (ol_pci_dev_t dev, uint16_t reg)
 void
 ol_pci_init ()
 {
-  printf("\nPCI debug info:\n");
   ol_pci_dev_t dev = kalloc(sizeof (struct ol_pci_dev));
 #ifdef __PCI_DEBUG
   dev->hook = &ol_pci_dbg_print_info;

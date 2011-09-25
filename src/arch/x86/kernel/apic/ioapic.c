@@ -20,28 +20,35 @@
 
 #include <arch/x86/acpi/acpi.h>
 #include <arch/x86/apic/ioapic.h>
+#include <arch/x86/cpu.h>
 
 static volatile ioapic_t ioapic;
 
 static int
-create_ioapic(ol_madt_ioapic_t madt_io)
+create_ioapic (ol_madt_ioapic_t madt_io)
 {
-  ioapic = kalloc(sizeof(*ioapic));
-
-  if(ioapic != NULL)
+  ioapic = kalloc(sizeof (*ioapic));
+  cpus->lock(&cpu_lock);
+  if (ioapic != NULL)
   {
-    ioapic->address = madt_io[0].address;
+    
+    ioapic->address = (ioapic_addr_t*) madt_io[0].address;
     ioapic->int_base = madt_io[0].global_system_interrupt_base;
     ioapic->id = madt_io[0].id;
   }
   else
+  {
+    cpus->unlock(&cpu_lock);
     return -1;
+  }
+  cpus->unlock(&cpu_lock);
+  return 0;
 }
 
 int
-init_ioapic()
+init_ioapic ()
 {
   ol_madt_ioapic_t madt_io = ol_acpi_get_ioapic();
   create_ioapic(madt_io);
-  printf("The address of the I/O APIC is: 0x%x\n", ioapic->address);
+  printf("The address of the I/O APIC is: 0x%x\n", (uint32_t) ioapic->address);
 }

@@ -156,7 +156,7 @@ void* alloc(size_t size, boolean pageAlligned)
     }
     if (carige->next == NULL || carige->next == carige)
     {
-      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tnext: %X\n", (int) blocks, (int) carige, (int) carige->next);
+      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tsize: %X\n", (int) blocks, (int) carige, (int) carige->size);
       if (carige->next == carige)
         printf("Loop in list!\n");
       break; // If we haven't found anything but we're at the end of the list

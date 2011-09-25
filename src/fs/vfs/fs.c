@@ -105,10 +105,9 @@ nomem:
 
 int mkdir (char* name, inode_t* parent, unsigned int prot, int usrid, int grpid)
 {
-  char* buf = kalloc(sizeof(struct _FS_DIR_ENTRY));
-  
   inode_t *virtInode = kalloc(sizeof(inode_t));
   char* tmpName = kalloc(strlen(name)+1);
+
   memcpy(tmpName, name, strlen(name)+1);
   if (virtInode == NULL || tmpName == NULL) goto nomem;
   

@@ -55,7 +55,7 @@
 
 #include <kern/cpu.h>
 
-#include "arch/x86/apic/ioapic.h"
+#include <arch/x86/apic/ioapic.h>
 
 unsigned char stack[0x8000];
 
@@ -131,6 +131,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
   // Initialise the heap
   initHeap(HEAPSIZE);
+  printf("End pointer address: 0x%x\n", &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
   ol_get_system_tables();
@@ -162,6 +163,8 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   fsInit(NULL);
   free(cpu);
   list(_fs_root);
+  char* x = kalloc(0x100);
+  printf("test: 0x%x", x);
   
 #ifdef __MMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
