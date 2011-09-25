@@ -69,7 +69,7 @@ void cPageFault(isrVal_t registers)
 /**
  * A bitmap of the ammount of pages in use in every pagetable
  */
-uint16_t page_map[PAGETABLES];
+uint16_t page_cnt[PAGETABLES];
 
 /**
  * Used to map a page to a physical addess, with the option to put it in
@@ -126,7 +126,7 @@ int map_page(addr_t virtual, addr_t physical, struct page_dir *pd,
   pt[pt_entry].rw       = TRUE;
   pt[pt_entry].userMode = userMode;
   
-  page_map[pd_entry]++;
+  page_cnt[pd_entry]++;
   mutexRelease(page_lock);
   return -E_SUCCESS;
 }
@@ -162,8 +162,8 @@ int release_page(addr_t virtual, struct page_dir *pd)
   pt[pt_entry].present = FALSE;
   pt[pt_entry].pageIdx = 0;
   
-  page_map[pd_entry]--;
-  if (page_map[pd_entry] == 0)
+  page_cnt[pd_entry]--;
+  if (page_cnt[pd_entry] == 0)
   {
     pd[pd_entry].present = FALSE;
     free((void*)(pd[pd_entry].pageIdx*PAGESIZE));
@@ -229,7 +229,7 @@ addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
 
 void initPaging()
 {
-  memset(page_map, 0, PAGETABLES*sizeof(uint16_t));
+  memset(page_cnt, 0, PAGETABLES*sizeof(uint16_t));
   setCR3(setup_page_dir());
 /*
   setPGBit();
