@@ -34,7 +34,7 @@
 #define RESERVED(a) ((a & RESERVEDBIT) ? TRUE : FALSE)
 #define DATA(a)     ((a & DATABIT)     ? FALSE : TRUE)
 
-extern volatile mutex_t page_lock;
+volatile mutex_t page_lock = 0;
 boolean pageDbg = false;
 
 /**
