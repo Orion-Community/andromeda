@@ -16,19 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * This is the main function for the nano kernel.
- * What this thing does is interpret the arguments handed to us by the bootloader.
- * Next it will load in the module received from the bootloader.
- * This module is actually the main kernel with all the drivers and
- * the less basic tasks, along with a copy of this kernel, all situated
- * at 3 GiB. This is always possible due to the virtual memory possibilities
- * opened up to us by paged memory.
+/**
+ * This file holds the entry point to the C level kernel. What's done here is
+ * the basic intialisation of for example:
+ * - Paging,
+ * - ACPI and
+ * - Hardware abstraction.
  *
- * This kernel will produce:
- * - A memory map
- * - A paging system to enable virtual memory
- * - A piece of the VGA driver to enable writing text to screen.
+ * The init function also displays the welcome message.
  */
 
 // Basic includes
@@ -55,6 +50,8 @@
 
 #include <kern/cpu.h>
 
+#include <arch/x86/apic/ioapic.h>
+
 unsigned char stack[0x8000];
 
 // Define the place of the heap
@@ -64,16 +61,13 @@ void testMMap(multiboot_info_t* hdr);
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
+char *welcome = "Andromeda - Copyright (C) 2010, 2011 - Michel Megens, \
+Bart Kuivenhoven\nThis program comes with ABSOLUTELY NO WARRANTY;\n\
+This is free software, and you are welcome to redistribute it.\n\
+For more info refer to the COPYING file in the source repository or look at\n\
+http://www.gnu.org/licenses/gpl-3.0.html";
+
 int vendor = 0;
-
-// Print a welcome message
-
-void announce()
-{
-  //   textInit();
-  println("ANDROMEDA kernel has been loaded!");
-  println("Copyleft Michel Megens and Bart Kuivenhoven");
-}
 
 boolean setupCore(module_t mod)
 {
@@ -109,26 +103,37 @@ boolean setupCore(module_t mod)
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
-  announce(); // print welcome message
+  printf("%s\n", welcome);
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
     printf("\nInvalid magic word: %X\n", magic);
     panic("");
   }
-  if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
+  if (hdr->flags & MULTIBOOT_INFO_MEMORY)
+  {
+    memsize = hdr->mem_upper;
+    memsize += 1024;
+  }
+  else
+  {
+    panic("No memory flags!");
+  }
+  if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
   {
     mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
-    buildMap(mmap, (int) hdr->mmap_length);
+    build_map(mmap, (unsigned int) hdr->mmap_length);
   }
   else
   {
     panic("Invalid memory map");
   }
+  
 
   setGDT();
 
   // Initialise the heap
   initHeap(HEAPSIZE);
+  printf("End pointer address: 0x%x\n", &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
   ol_get_system_tables();
@@ -136,12 +141,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   pic_init(); 
   setIDT();
   ol_ps2_init_keyboard();
-  ol_madt_ioapic_t* io = ol_acpi_get_ioapic();
-  if (io != NULL)
-  {
-    printf("The address of the I/O APIC is: 0x%x\n", io[0]->address);
-    free(io);
-  }
+  init_ioapic();
 
 #ifdef VENDORTELL
   switch (getVendor())
@@ -165,6 +165,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   fsInit(NULL);
   free(cpu);
   list(_fs_root);
+  char* x = kalloc(0x100);
+  printf("test: 0x%x", x);
+  free(x);
   
 #ifdef __MMTEST
   ol_detach_all_devices(); /* free's al the pci devices */

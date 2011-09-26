@@ -23,7 +23,6 @@
 #define ELFMAGIC 0x7F454C46
 
 //Needed for the core image
-extern unsigned short bitmap[];
 
 // Used to check the validity of the Elf header
 boolean elfCheck(Elf32_Ehdr* hdr)
@@ -138,7 +137,7 @@ void elfJmp(void* image)
   #ifdef ELFDBG
   printf("entry point: 0x%X\n", addr);
   #endif
-  elfJump(addr, bitmap, modules);
+//   elfJump(addr, bitmap, modules);
 }
 
 /*

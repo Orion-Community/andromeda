@@ -28,77 +28,79 @@
 extern "C"
 {
 #endif
+  extern mutex_t cpu_lock;
+  
+  typedef uint8_t ol_lock_t;
 
-        typedef uint8_t ol_lock_t;
+  struct ol_gen_regs
+  {
+    uint32_t eax, ebx, ecx, edx;
+  } __attribute__((packed));
+  typedef struct ol_gen_regs *ol_gen_registers_t;
 
-        struct ol_gen_regs
-        {
-                uint32_t eax, ebx, ecx, edx;
-        } __attribute__((packed));
-        typedef struct ol_gen_regs *ol_gen_registers_t;
+  typedef struct ol_cpu_model
+  {
+    uint32_t vendor_id, family;
+    const uint8_t *model_name;
+  } *ol_cpu_model_t;
 
-        typedef struct ol_cpu_model
-        {
-                uint32_t vendor_id, family;
-                const uint8_t *model_name;
-        } *ol_cpu_model_t;
+  typedef struct ol_cpu
+  {
+    /* model info*/
+    ol_cpu_model_t cpu_models[4];
+    const uint8_t *vendor;
 
-        typedef struct ol_cpu
-        {
-                /* model info*/
-                ol_cpu_model_t cpu_models[4];
-                const uint8_t *vendor;
+    /* CPU device info */
+    uint8_t flags;
 
-                /* CPU device info */
-                uint8_t flags;
+    void (*lock)(mutex_t*);
+    void (*unlock)(mutex_t*);
 
-                void (*lock)(ol_lock_t*);
-                void (*unlock)(ol_lock_t*);
+  } *ol_cpu_t;
 
-        } *ol_cpu_t;
+  struct ol_mp_config_table_header
+  {
+  } __attribute__((packed));
+  typedef struct ol_mp_config_table_header *ol_mp_config_table_header_t;
 
-        struct ol_mp_config_table_header
-        {
-        } __attribute__((packed));
-        typedef struct ol_mp_config_table_header *ol_mp_config_table_header_t;
+  struct ol_cpu_mp_fps
+  {
+    uint32_t signature;
+    ol_mp_config_table_header_t conf_table;
+    uint8_t len, spec_rev, checksum, mp_feat1;
+    uint8_t mp_feat2, mp_feat3, mp_feat4, mp_feat5;
+  } __attribute__((packed));
+  typedef struct ol_cpu_mp_fps *ol_cpu_mp_fps_t;
 
-        struct ol_cpu_mp_fps
-        {
-                uint32_t signature;
-                ol_mp_config_table_header_t conf_table;
-                uint8_t len, spec_rev, checksum, mp_feat1;
-                uint8_t mp_feat2, mp_feat3, mp_feat4, mp_feat5;
-        } __attribute__((packed));
-        typedef struct ol_cpu_mp_fps *ol_cpu_mp_fps_t;
+  /* CPU feature functions */
+  static int
+  ol_cpuid_available(ol_cpu_t);
 
-        /* CPU feature functions */
-        static int
-        ol_cpuid_available(ol_cpu_t);
+  void
+  ol_cpu_init(ol_cpu_t);
 
-        void
-        ol_cpu_init(ol_cpu_t);
+  ol_gen_registers_t
+  ol_cpuid(uint32_t func);
 
-        ol_gen_registers_t
-        ol_cpuid(uint32_t func);
+  uint32_t
+  ol_get_eflags(void);
 
-        uint32_t
-        ol_get_eflags(void);
+  void
+  ol_set_eflags(uint32_t);
 
-        void
-        ol_set_eflags(uint32_t);
+  /* LOCKS */
+  void /* lock spin lock */
+  ol_mutex_lock(mutex_t*);
 
-        /* LOCKS */
-        void /* lock spin lock */
-        ol_mutex_lock(ol_lock_t*);
+  void /* spin release */
+  ol_mutex_release(mutex_t*);
 
-        void /* spin release */
-        ol_mutex_release(ol_lock_t*);
+  /* CPUID */
+  static ol_gen_registers_t
+  __ol_cpuid(volatile ol_gen_registers_t);
 
-        /* CPUID */
-        static ol_gen_registers_t
-        __ol_cpuid(volatile ol_gen_registers_t);
-
-        extern ol_cpu_mp_fps_t mp;
+  extern ol_cpu_mp_fps_t mp;
+  extern volatile ol_cpu_t cpus;
 
 #ifdef	__cplusplus
 }

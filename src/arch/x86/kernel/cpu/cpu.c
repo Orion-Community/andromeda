@@ -23,8 +23,9 @@
 #include <mm/memory.h>
 #include <text.h>
 
-ol_lock_t lock = 0;
+mutex_t cpu_lock = 0;
 ol_cpu_mp_fps_t mp = NULL;
+volatile ol_cpu_t cpus;
 
 int
 ol_cpuid_available(ol_cpu_t cpu)
@@ -32,7 +33,7 @@ ol_cpuid_available(ol_cpu_t cpu)
         uint32_t flags;
         uint32_t flags2;
 
-        cpu->lock(&lock);
+        cpu->lock(&cpu_lock);
         flags = ol_get_eflags();
         ol_set_eflags(flags^OL_CPUID_TEST_BIT);
 
@@ -41,11 +42,11 @@ ol_cpuid_available(ol_cpu_t cpu)
 
         if ((flags2 >> 21)&1)
         {
-                cpu->unlock(&lock);
+                cpu->unlock(&cpu_lock);
                 return 0;
         } else
         {
-                cpu->unlock(&lock);
+                cpu->unlock(&cpu_lock);
                 return 1;
         }
 }
@@ -88,7 +89,7 @@ ol_get_eflags(void)
 }
 
 void
-ol_mutex_lock(ol_lock_t *lock)
+ol_mutex_lock(mutex_t *lock)
 {
         asm volatile("movb $1, %%al \n\t"
                 "l3: xchgb %%al, (%0) \n\t"
@@ -100,7 +101,7 @@ ol_mutex_lock(ol_lock_t *lock)
 }
 
 void
-ol_mutex_release(ol_lock_t *lock)
+ol_mutex_release(mutex_t *lock)
 {
         asm volatile("movb $0, (%0)"
                 : /* no output */
@@ -127,6 +128,7 @@ ol_cpu_init(ol_cpu_t cpu)
 
                 else cpu->vendor = "UNKNOWN";
         }
+        cpus = cpu;
 }
 
 static ol_gen_registers_t
