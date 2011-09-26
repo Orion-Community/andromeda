@@ -181,7 +181,7 @@ free(void* ptr)
     return -1;
   mutexEnter(prot);
   volatile memory_node_t* block = (void*) ptr - sizeof (memory_node_t);
-  volatile memory_node_t* carige;
+  volatile memory_node_t* carriage;
   if (block->hdrMagic != MM_NODE_MAGIC)
   {
     mutexRelease(prot);
@@ -206,14 +206,14 @@ free(void* ptr)
   printf("\n");
 #endif
   // Now find a place for the block to fit into the heap list
-  for (carige = heap; carige != NULL && carige->next != carige &&
-       carige->next != heap; carige = carige->next) // Loop through the heap list
+  for (carriage = heap; carriage != NULL && carriage->next != carriage &&
+       carriage->next != heap; carriage = carriage->next) // Loop through the heap list
   {
 
     // if we found the right spot, merge the lot.
-    if ((void*) block + block->size + sizeof (memory_node_t) == (void*) carige || (void*) carige + carige->size + sizeof (memory_node_t) == (void*) block)
+    if ((void*) block + block->size + sizeof (memory_node_t) == (void*) carriage || (void*) carriage + carriage->size + sizeof (memory_node_t) == (void*) block)
     {
-      volatile memory_node_t* test = merge_memnode(block, carige); // merging code
+      volatile memory_node_t* test = merge_memnode(block, carriage); // merging code
       if (test == NULL) // if the merge failed
       {
         printf("Merge failed\n");
@@ -230,7 +230,7 @@ free(void* ptr)
       else
       {
         block = test;
-        carige = test;
+        carriage = test;
         // We can now continue trying to merge the rest of the list, which might be possible.
       }
     }
