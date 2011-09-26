@@ -33,7 +33,7 @@ boolean setPage(void* virtAddr, void* physAddr, boolean ro, boolean usermode);
 void* getPhysAddr(void* addr);
 void initPaging();
 
-struct pageDir
+struct page_dir
 {
   unsigned int present	: 1; // Must be 1 to be able to access
   unsigned int rw	: 1; // if 0, can not be written to
@@ -47,9 +47,9 @@ struct pageDir
   unsigned int ignored	: 3; // Ignored
   unsigned int pageIdx	: 20; // Pointer to either page in 4MB pages or page table in 4 KB pages
 } __attribute__((packed));
-typedef struct pageDir pageDir_t;
+typedef struct page_dir page_dir_t;
 
-struct pageTable
+struct page_table
 {
   unsigned int present	: 1; // Must be 1 to be able to access
   unsigned int rw	: 1; // if 0, can not be written
@@ -63,5 +63,5 @@ struct pageTable
   unsigned int ignored	: 3; // Ignored
   unsigned int pageIdx	: 20; // Pointer to page
 } __attribute__((packed));
-typedef struct pageTable pageTable_t;
+typedef struct page_table page_table_t;
 #endif

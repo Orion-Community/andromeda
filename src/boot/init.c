@@ -66,16 +66,13 @@ void testMMap(multiboot_info_t* hdr);
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
+char *welcome = "Andromeda - Copyright (C) 2010, 2011 - Michel Megens, \
+Bart Kuivenhoven\nThis program comes with ABSOLUTELY NO WARRANTY;\n\
+This is free software, and you are welcome to redistribute it.\n\
+For more info refer to the COPYING file in the source repository or look at\n\
+http://www.gnu.org/licenses/gpl-3.0.html";
+
 int vendor = 0;
-
-// Print a welcome message
-
-void announce()
-{
-  //   textInit();
-  println("ANDROMEDA kernel has been loaded!");
-  println("Copyleft Michel Megens and Bart Kuivenhoven");
-}
 
 boolean setupCore(module_t mod)
 {
@@ -111,21 +108,31 @@ boolean setupCore(module_t mod)
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
-  announce(); // print welcome message
+  printf("%s\n", welcome);
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
     printf("\nInvalid magic word: %X\n", magic);
     panic("");
   }
-  if (hdr->flags && MULTIBOOT_INFO_MEM_MAP)
+  if (hdr->flags & MULTIBOOT_INFO_MEMORY)
+  {
+    memsize = hdr->mem_upper;
+    memsize += 1024;
+  }
+  else
+  {
+    panic("No memory flags!");
+  }
+  if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
   {
     mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
-    buildMap(mmap, (int) hdr->mmap_length);
+    build_map(mmap, (unsigned int) hdr->mmap_length);
   }
   else
   {
     panic("Invalid memory map");
   }
+  
 
   setGDT();
 

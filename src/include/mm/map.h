@@ -44,16 +44,25 @@ struct module_s
   unsigned long addr;
   unsigned long end;
 };
+/**
+ * The page_region object can be used to mark a region of memory for a specific
+ * goal. E.g. reserved for memory mapped IO or dedicated for a process.
+ */
+struct page_region
+{
+  addr_t start;
+  addr_t end;
+  struct page_region* next;
+};
 
 typedef struct module_s module_t;
 
 extern module_t modules[];
-extern unsigned short bitmap[];
+extern uint32_t* bitmap;
+extern size_t memsize;
 
-boolean claimPage(unsigned long page, unsigned short owner);
-pageState_t* allocPage(unsigned short owner);
-void freePage(void* page, unsigned short owner);
+pageState_t* set_page(addr_t page);
+void reset_page(addr_t page);
 
-void buildMap(multiboot_memory_map_t*, int);
-
+void build_map(multiboot_memory_map_t*, int);
 #endif
