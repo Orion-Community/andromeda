@@ -25,8 +25,8 @@ void
 ol_dbg_heap()
 {
         println("List of all current heap block base pointers");
-        volatile memory_node_t* x = blocks;
-        for(; x != NULL, x == x->next; x = x->next)
+        volatile memory_node_t* x = heap;
+        for(; x != NULL; x = x->next)
         {
                 printnum((uint32_t)x+sizeof(struct memNode), 16, FALSE, FALSE);
                 printf("  -  Length: ");
@@ -45,9 +45,9 @@ void heapAddBlocks(void* base, int size) // Requests size in bytes
   {
     initHdr(base, SIZE-sizeof(memory_node_t));
     size -= SIZE;
-    if (blocks == NULL)
+    if (heap == NULL)
     {
-      blocks = base;
+      heap = base;
       #ifdef DBG
       printf("Creating head of heap\n");
       #endif
@@ -68,6 +68,6 @@ void heapCoreBlocks(void* base, int size)
   mutexEnter(prot);
   memory_node_t* node = (memory_node_t*)base;
   initHdr(node, size-sizeof(memory_node_t));
-  blocks=node;
+  heap=node;
   mutexRelease(prot);
 }
