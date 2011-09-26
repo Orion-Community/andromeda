@@ -5,7 +5,6 @@ MAKEEND=FLAGS="$(FLAGS)"
 MAKEEND+=FLAGS=" -D X86 -D __INTEL -D __PCI_DEBUG"
 #MAKEEND+="-s"
 
-
 .PHONY: all
 all: x86
 
