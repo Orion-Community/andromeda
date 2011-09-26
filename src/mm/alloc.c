@@ -30,16 +30,11 @@
 
 #include "kern/cpu.h"
 
-
-
-volatile memory_node_t* heap; // Head pointer of the linked list maintaining the heap
-
+volatile memory_node_t* heap; /* heap pointer */
 volatile mutex_t prot;
 
-
-// Debugging function used to examine the heap
-
-void examineHeap()
+void 
+examineHeap()
 {
   printf("Head\n0x%X\n", (int) heap);
   volatile memory_node_t* carige;
@@ -52,7 +47,8 @@ void examineHeap()
 // This code is called whenever a new block header needs to be created.
 // It initialises the header to a good position and simplifies the code a bit.
 
-void initHdr(volatile memory_node_t* block, size_t size)
+void 
+initHdr(volatile memory_node_t* block, size_t size)
 {
   block->size = size;
   block->previous = NULL;
@@ -61,7 +57,8 @@ void initHdr(volatile memory_node_t* block, size_t size)
   block->hdrMagic = MM_NODE_MAGIC;
 }
 
-void *realloc(void* ptr, size_t size)
+void*
+realloc(void* ptr, size_t size)
 {
   void* new = alloc(size, FALSE);
   volatile memory_node_t* ptrInfo = ptr - sizeof (memory_node_t);
@@ -70,7 +67,8 @@ void *realloc(void* ptr, size_t size)
   return new;
 }
 
-void* nalloc(size_t size)
+void*
+nalloc(size_t size)
 {
   void* tmp = alloc(size, FALSE);
   if (tmp != NULL);
@@ -82,7 +80,8 @@ void* nalloc(size_t size)
 // In the case that pageAlligned is enabled the block also has to hold
 // page alligned data (usefull for the page directory).
 
-void* alloc(size_t size, boolean pageAlligned)
+void* 
+alloc(size_t size, boolean pageAlligned)
 {
   if (size > ALLOC_MAX)
   {
@@ -172,7 +171,8 @@ void* alloc(size_t size, boolean pageAlligned)
   return NULL;
 }
 
-int free(void* ptr)
+int 
+free(void* ptr)
 {
 #ifdef MMTEST
   printf("Free!!!\n");
@@ -244,7 +244,8 @@ int free(void* ptr)
   return 0; // Return success
 }
 
-static boolean use_memnode_block(volatile memory_node_t* x)
+static boolean
+use_memnode_block(volatile memory_node_t* x)
 {
   // mark the block as used and remove it from the heap list
   if (x->used == FALSE)
@@ -275,7 +276,8 @@ static boolean use_memnode_block(volatile memory_node_t* x)
   }
 }
 
-inline static void return_memnode_block(volatile memory_node_t* block)
+static void 
+return_memnode_block(volatile memory_node_t* block)
 {
   // This code marks the block as unused and puts it back in the list.
   if (block->hdrMagic != MM_NODE_MAGIC) // Make sure we're not corrupting the heap
@@ -323,7 +325,8 @@ inline static void return_memnode_block(volatile memory_node_t* block)
   }
 }
 
-inline static volatile memory_node_t* split(volatile memory_node_t* block, size_t size)
+static volatile memory_node_t*
+split(volatile memory_node_t* block, size_t size)
 {
   // This code splits the block into two parts, the lower of which is returned
   // to the caller.
@@ -340,7 +343,8 @@ inline static volatile memory_node_t* split(volatile memory_node_t* block, size_
   return block; // return the bottom block
 }
 
-inline static volatile memory_node_t* splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
+static volatile memory_node_t* 
+splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
 {
   // if the block should be pageAlligned
   if (pageAlligned)
@@ -407,7 +411,8 @@ inline static volatile memory_node_t* splitMul(volatile memory_node_t* block, si
   }
 }
 
-static volatile memory_node_t* merge_memnode(volatile memory_node_t* alpha, volatile memory_node_t* beta)
+static volatile memory_node_t* 
+merge_memnode(volatile memory_node_t* alpha, volatile memory_node_t* beta)
 {
   // First we check for possible corruption
   if (alpha->hdrMagic != MM_NODE_MAGIC || beta->hdrMagic != MM_NODE_MAGIC)
