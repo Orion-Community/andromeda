@@ -45,6 +45,9 @@ kernel and send us a pull request. You're welcome to do so.
 Bootloader info
 ---------------
 
+This is a legacy field, still in place for the possibility that the kernel will
+once be made bootable, without extra bootloader
+
 Error table:
 
 * 0x0 -> Error in the masterboot, probably because you haven't marked a partition 
