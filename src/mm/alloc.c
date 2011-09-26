@@ -28,8 +28,6 @@
 #include <stdlib.h>
 #include <thread.h>
 
-#include "kern/cpu.h"
-
 volatile memory_node_t* heap; /* heap pointer */
 volatile mutex_t prot;
 
