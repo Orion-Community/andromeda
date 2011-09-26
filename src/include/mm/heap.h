@@ -66,7 +66,7 @@ void heapStub();
 
 // Alloc_max = 1 MB
 #define ALLOC_MAX 0x100000
-#define HEAPSIZE 0x100000
+#define HEAPSIZE 0x100000 * 8
 
 #ifdef MMTEST
 void examineHeap();

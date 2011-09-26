@@ -20,7 +20,8 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 
-int initHeap(long size)
+int 
+initHeap(long size)
 {
   //   long done = 0;
   //   int i = 0x0;

@@ -12,13 +12,13 @@ SECTIONS
     {
         code = .; _code = .; __code = .;
         *(.text)
+        *(.rodata)
         . = ALIGN(0x1000);
     }
     .data :
     {
         data = .; _data = .; __data = .;
         *(.data)
-        *(.rodata)
         . = ALIGN(0x1000);
 	stack = ALIGN(0x1000);
     }
@@ -26,6 +26,7 @@ SECTIONS
     {
         bss = .; _bss = .; __bss = .;
         *(.bss)
+	*(COMMON)
         . = ALIGN(0x1000);
     }
     end = .; _end = .; __end = .;
