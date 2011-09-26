@@ -47,6 +47,7 @@
 #include <arch/x86/pic.h>
 
 #include <sys/dev/ps2.h>
+#include <sys/dev/pci.h>
 
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
@@ -70,8 +71,8 @@ int vendor = 0;
 void announce()
 {
   //   textInit();
-  println("Compressed kernel loaded");
-  println("Decompressing the kernel");
+  println("ANDROMEDA kernel has been loaded!");
+  println("Copyleft Michel Megens and Bart Kuivenhoven");
 }
 
 boolean setupCore(module_t mod)
@@ -108,6 +109,7 @@ boolean setupCore(module_t mod)
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
+  announce(); // print welcome message
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
     printf("\nInvalid magic word: %X\n", magic);
@@ -131,21 +133,16 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   ol_cpu_init(cpu);
   ol_get_system_tables();
 
-  pic_init(); // Interrupts are allowed again.
-  // Up untill this point they have
-  // been disabled.
+  pic_init(); 
   setIDT();
   ol_ps2_init_keyboard();
   ol_madt_ioapic_t* io = ol_acpi_get_ioapic();
   if (io != NULL)
   {
-    printf("\n%x\n", io);
+    printf("The address of the I/O APIC is: 0x%x\n", io[0]->address);
     free(io);
   }
 
-
-  // If in the compressed image
-  announce(); // print welcome message
 #ifdef VENDORTELL
   switch (getVendor())
   {
@@ -162,20 +159,23 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
 #ifdef MMTEST
   testAlloc();
-  printf("End test\n");
 #endif
-
+  
+  ol_pci_init();
   fsInit(NULL);
   free(cpu);
   list(_fs_root);
+  
+#ifdef __MMTEST
+  ol_detach_all_devices(); /* free's al the pci devices */
+#endif
+  
+  printf("\nSome (temp) debug info:\n");
 
-  printnum(*((uint32_t*) rsdp->signature), 16, 0, 0);
-  putc(0x20);
-  printnum(*(((uint32_t*) rsdp->signature) + 1), 16, 0, 0);
-  putc(0xa);
+  printf("RSDP ASCII signature: 0x%x%x\n",*(((uint32_t*) rsdp->signature) + 1),
+          *(((uint32_t*) rsdp->signature)));
 
 
-  ol_detach_all_devices();
   ol_dbg_heap();
 
   printf("You can now shutdown your PC\n");
