@@ -131,12 +131,14 @@ alloc(size_t size, boolean pageAlligned)
     }
     else if (carige->size >= size && carige->size < size + sizeof (memory_node_t))
     {
-      if (use_memnode_block(carige)) // check the usage of the block
+      if (carige->used) // check the usage of the block
       {
         continue;
       }
       // If the block is the right size or too small to hold 2 separate blocks,
       // In which one of them is the size allocated, then allocate the entire block.
+      printf("%x\n", use_memnode_block(carige));
+      
       mutexRelease(prot);
       return (void*) carige + sizeof (memory_node_t);
     }
@@ -221,6 +223,7 @@ free(void* ptr)
         printf("\n");
         wait();
 #endif
+        continue;
         mutexRelease(prot);
         return -1;
       }
@@ -263,7 +266,7 @@ use_memnode_block(volatile memory_node_t* x)
     }
     else
     {
-      x->previous->next = NULL;
+      x->next->previous = NULL;
     }
     // Over here the block should be removed from the heap lists.
     return FALSE; // return that the block wasn't used.
@@ -420,12 +423,13 @@ merge_memnode(volatile memory_node_t* alpha, volatile memory_node_t* beta)
 #endif
     return NULL; // return error
   }
-  if ((alpha->next != beta) && (beta->next != alpha))
+  if ((((void*)alpha)+alpha->size+sizeof(memory_node_t) != beta) && 
+    (((void*)beta)+beta->size+sizeof(memory_node_t) != alpha))
   { // if the pointers don't match, we should not proceed.
     return NULL; // return error
   }
   volatile memory_node_t* tmp;
-  if (beta->next == alpha)
+  if (((void*)beta)+beta->size+sizeof(memory_node_t) == alpha)
   { // if the blocks are in reversed order, put them in the right order
     tmp = alpha;
     alpha = beta;

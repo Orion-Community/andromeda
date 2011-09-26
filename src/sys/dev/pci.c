@@ -20,7 +20,7 @@
 #include <sys/dev/pci.h>
 
 uint8_t pci_mechanism;
-
+char x[0x1000];
 static int
 ol_pci_iterate (ol_pci_dev_t dev)
 {

@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2011  Bart Kuivenhoven, Michel Megens
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -172,8 +172,8 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   list(_fs_root);
   char* x = kalloc(0x100);
   printf("test: 0x%x", x);
-  free (x);
-  
+  free(x);
+  x = kalloc(0x956);
 #ifdef __MMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
 #endif
