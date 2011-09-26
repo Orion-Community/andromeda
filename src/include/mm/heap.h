@@ -66,7 +66,7 @@ void heapStub();
 
 // Alloc_max = 1 MB
 #define ALLOC_MAX 0x100000
-#define HEAPSIZE 0x1000000
+#define HEAPSIZE 0x100000
 
 #ifdef MMTEST
 void examineHeap();
@@ -80,7 +80,7 @@ void examineHeap();
 extern long heapBase;
 extern long heapSize;
 
-extern volatile memory_node_t* blocks;
+extern volatile memory_node_t* heap;
 extern volatile mutex_t prot;
 
 #endif

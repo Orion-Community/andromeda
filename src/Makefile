@@ -5,6 +5,8 @@ MAKEEND=FLAGS="$(FLAGS)"
 MAKEEND+=FLAGS=" -D X86 -D __INTEL -D __PCI_DEBUG"
 #MAKEEND+="-s"
 
+DEPS=boot.o init.o arch.o kern.o mm.o text.o maths.o fs.o sys.o panic.o
+
 .PHONY: all
 all: x86
 
@@ -15,7 +17,7 @@ amd64:
 .PHONY: x86
 x86: $(OUT)
 	mv -fv sys/sys.o ./
-	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) *.o
+	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) $(DEPS)
 
 $(OUT):
 	$(MAKE) -C error $(MAKEEND)

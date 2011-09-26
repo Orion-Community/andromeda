@@ -31,7 +31,9 @@ extern "C"
         uint8_t id;
         uint8_t apic_id:4;
         uint32_t int_base /* system interrupt base */, num_intr;
-        volatile ioapic_addr_t address;
+        volatile ioapic_addr_t* address;
+        void (*write)(const ioapic_addr_t*, const uint8_t, const uint32_t);
+        uint32_t (*read)(const ioapic_addr_t*, const uin8_t);
     } *ioapic_t;
 
 static int
