@@ -24,7 +24,7 @@
 #include <boot/mboot.h>
 #include <thread.h>
 
-#define FREE (~0)
+#define BMP_FREE (~0)
 
 #define MAX_MODS 0x20
 
@@ -64,8 +64,8 @@ struct page
 extern module_t modules[];
 extern size_t memsize;
 
-int map_add_page(uint32_t list_start, uint32_t page_index);
-int map_rm_page(uint32_t page_index);
+uint32_t map_alloc_page(uint32_t list_idx);
+uint32_t map_rm_page(uint32_t page_index);
 
 int build_map(multiboot_memory_map_t*, int);
 

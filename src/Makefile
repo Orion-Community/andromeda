@@ -69,12 +69,13 @@ clean:
 	rm -fv `find -name "*.bin"`
 	rm -fv `find -name "*.o"`
 
-.PHONY: all
+.PHONY: test
 test: all
-	qemu -m 600M -kernel $(OUT)
+	qemu -m 64M -kernel $(OUT)
 	
 .PHONY: ctest
-ctest: clean test
+ctest: clean all
+	qemu -m 64M -kernel $(OUT)
 
 .PHONY: usage
 usage:
@@ -90,7 +91,7 @@ usage:
 	@echo "Target test:"
 	@echo "	Same as x86, and run in KVM."
 	@echo "Target ctest:"
-	@echo "	Clean followed by test"
+	@echo "	Clean followed by test, does not work with the -j option"
 	@echo "Target usage:"
 	@echo "	Show this message."
 	@echo " "

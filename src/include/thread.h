@@ -22,7 +22,9 @@
 #define __THREAD_MUTEX_FREE 0
 #define __THREAD_MUTEX_SHUT 1
 
-
+#define mutex_lock mutexEnter
+#define mutex_test mutexTest
+#define mutex_unlock mutexRelease
 
 typedef unsigned int mutex_t;
 
