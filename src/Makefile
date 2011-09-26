@@ -5,7 +5,7 @@ MAKEEND=FLAGS="$(FLAGS)"
 MAKEEND+=FLAGS=" -D X86 -D __INTEL -D __PCI_DEBUG"
 #MAKEEND+="-s"
 
-DEPS=boot.o init.o arch.o kern.o mm.o text.o maths.o fs.o sys.o panic.o
+DEPS=start.o arch.o kern.o mm.o text.o maths.o fs.o sys.o panic.o
 
 .PHONY: all
 all: x86
@@ -16,19 +16,51 @@ amd64:
 
 .PHONY: x86
 x86: $(OUT)
-	mv -fv sys/sys.o ./
+
+$(OUT): $(DEPS)
 	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) $(DEPS)
 
-$(OUT):
-	$(MAKE) -C error $(MAKEEND)
-	$(MAKE) -C mm $(MAKEEND)
-	$(MAKE) -C kern $(MAKEEND)
-	$(MAKE) -C arch $(MAKEEND)
-	$(MAKE) -C text $(MAKEEND)
+# 	$(MAKE) -C error $(MAKEEND)
+# 	$(MAKE) -C mm $(MAKEEND)
+# 	$(MAKE) -C kern $(MAKEEND)
+# 	$(MAKE) -C arch $(MAKEEND)
+# 	$(MAKE) -C text $(MAKEEND)
+# 	$(MAKE) -C boot $(MAKEEND)
+# 	$(MAKE) -C math $(MAKEEND)
+# 	$(MAKE) -C fs $(MAKEEND)
+# 	$(MAKE) -C sys $(MAKEEND)
+# 	$(MAKE) -C drivers $(MAKEEND)
+
+start.o:
 	$(MAKE) -C boot $(MAKEEND)
+	mv -vf boot/start.o ./
+
+arch.o:
+	$(MAKE) -C arch $(MAKEEND)
+
+kern.o:
+	$(MAKE) -C kern $(MAKEEND)
+
+mm.o:
+	$(MAKE) -C mm $(MAKEEND)
+
+text.o:
+	$(MAKE) -C text $(MAKEEND)
+
+maths.o:
 	$(MAKE) -C math $(MAKEEND)
+
+fs.o:
 	$(MAKE) -C fs $(MAKEEND)
+
+sys.o:
 	$(MAKE) -C sys $(MAKEEND)
+	mv -vf sys/sys.o ./
+
+panic.o:
+	$(MAKE) -C error $(MAKEEND)
+
+driver.o:
 	$(MAKE) -C drivers $(MAKEEND)
 	
 .PHONY: clean
