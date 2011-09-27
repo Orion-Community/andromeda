@@ -165,10 +165,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   fsInit(NULL);
   free(cpu);
   list(_fs_root);
-  char* x = kalloc(0x100);
-  printf("test: 0x%x", x);
+
+  char *x = kalloc(0x956);
   free(x);
-  x = kalloc(0x956);
 #ifdef __MMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
 #endif
