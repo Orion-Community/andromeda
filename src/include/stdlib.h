@@ -19,6 +19,8 @@
 #ifndef STDLIB_H
 #define STDLIB_H
 
+#define ANDROMEDA_VERSION "0.0.4"
+
 #include <text.h>
 #include <io.h>
 #include <types.h>
