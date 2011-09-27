@@ -165,17 +165,16 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   ol_pci_init();
   fsInit(NULL);
   list(_fs_root);
+#ifdef __MEMTEST
 
-
-  ol_detach_all_devices(); /* free's al the pci devices */
-  free(cpu);
-
+#endif
 #ifdef __DBG_HEAP
-  char *x = kalloc(0x500);
-  char *y = kalloc(0x750);
-  free(x);
+    ol_detach_all_devices(); /* free's al the pci devices */
+/*
+  free(cpu);
+*/
+  char *x = kalloc(0x2000);
   ol_dbg_heap();
-
 #endif
   
   printf("\nSome (temp) debug info:\n");

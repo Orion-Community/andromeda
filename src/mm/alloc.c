@@ -265,6 +265,7 @@ use_memnode_block(volatile memory_node_t* x)
     }
     if (x->next != NULL) // if we're not at the end of the list
     {
+
       x->next->previous = x->previous; // set the next block to hold the previous block
     }
     else
@@ -310,7 +311,6 @@ return_memnode_block(volatile memory_node_t* block)
       block->previous = carige;
       block->next = carige->next;
       carige->next = block;
-      block->next->previous = block;
       return;
     }
     else if (carige->next == NULL)
@@ -330,7 +330,6 @@ split(volatile memory_node_t* block, size_t size)
 {
   // This code splits the block into two parts, the lower of which is returned
   // to the caller.
-
   volatile memory_node_t* second = ((void*) block) + sizeof (memory_node_t) + size;
 
   initHdr(second, block->size - size - sizeof (memory_node_t));
