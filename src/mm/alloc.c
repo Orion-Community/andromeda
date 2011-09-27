@@ -310,6 +310,7 @@ return_memnode_block(volatile memory_node_t* block)
       block->previous = carige;
       block->next = carige->next;
       carige->next = block;
+      block->next->previous = block;
       return;
     }
     else if (carige->next == NULL)

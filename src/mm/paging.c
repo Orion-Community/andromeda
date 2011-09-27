@@ -180,8 +180,9 @@ addr_t setup_page_dir()
 {
   /**
    * Make the page directory
-   */
+   */ 
   struct page_dir *pd = alloc(sizeof(pd)*PAGEDIRS, TRUE);
+                        
   if (pd == NULL)
     return -E_NOMEM;
   memset(pd, 0, sizeof(pd)*PAGEDIRS);
@@ -208,7 +209,7 @@ addr_t setup_page_dir()
     printf("Set page %X\n", i);
     #endif
   }
-  
+
   return (addr_t)pd;
 }
 

@@ -28,9 +28,7 @@ ol_dbg_heap()
   volatile memory_node_t* x = heap;
   for (; x != NULL; x = x->next)
   {
-    if(x->size == 0x2000)
-      printf("\n%x\t%x\t%xn\n\n",x+sizeof(memory_node_t),x->previous,x->next);
-    printf("%x\t%x\t%x\n", x + sizeof (memory_node_t), x->size, x->used);
+    printf("%x\t%x\t%x\t%x\n", x, x->size, x->previous, x->next);
   }
 }
 

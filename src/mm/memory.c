@@ -40,7 +40,7 @@ initHeap(long size)
   //   }
 
   heapCoreBlocks(&end, size);
-  initPaging();
+  //initPaging();
   return 0;
 }
 
