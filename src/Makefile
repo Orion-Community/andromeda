@@ -57,7 +57,7 @@ sys.o:
 	$(MAKE) -C sys $(MAKEEND)
 	mv -vf sys/sys.o ./
 
-panic.o:
+error.o:
 	$(MAKE) -C error $(MAKEEND)
 
 driver.o:

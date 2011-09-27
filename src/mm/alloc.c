@@ -320,7 +320,7 @@ return_memnode_block(volatile memory_node_t* block)
       return; // if we have gotten to the end of the heap we must add the block here
       carriage -> next = block;
       block -> previous = carriage;
-      carige->next->next = NULL;
+      carriage->next->next = NULL;
       return; /* if we have gotten to the end of the heap we must 
                * add the block here 
                */
