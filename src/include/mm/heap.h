@@ -41,7 +41,7 @@ void* alloc(size_t, boolean);
 void* nalloc(size_t);
 int free(void*);
 
-void
+int
 initHdr(volatile memory_node_t*, size_t);
 
 static boolean
@@ -62,11 +62,10 @@ merge_memnode(volatile memory_node_t*, volatile memory_node_t*);
 void heapStub();
 
 #define kalloc(size) alloc(size, FALSE)
-#define malloc(size) alloc(size, FALSE)
 
 // Alloc_max = 1 MB
 #define ALLOC_MAX 0x100000
-#define HEAPSIZE 0x100000 * 8
+#define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end))
 
 #ifdef MMTEST
 void examineHeap();
@@ -77,8 +76,10 @@ void testAlloc();
 void examineHeap();
 #endif
 
+#if 0
 extern long heapBase;
 extern long heapSize;
+#endif
 
 extern volatile memory_node_t* heap;
 extern volatile mutex_t prot;

@@ -66,11 +66,11 @@ void testMMap(multiboot_info_t* hdr);
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-char *welcome = "Andromeda - Copyright (C) 2010, 2011 - Michel Megens, \
+char *welcome = "Andromeda 0.0.4 - Copyright (C) 2010, 2011 - Michel Megens, \
 Bart Kuivenhoven\nThis program comes with ABSOLUTELY NO WARRANTY;\n\
 This is free software, and you are welcome to redistribute it.\n\
 For more info refer to the COPYING file in the source repository or look at\n\
-http://www.gnu.org/licenses/gpl-3.0.html";
+http://www.gnu.org/licenses/gpl-3.0.html\n";
 
 int vendor = 0;
 
@@ -138,7 +138,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
   // Initialise the heap
   initHeap(HEAPSIZE);
-  printf("End pointer address: 0x%x\n", &end);
+  printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE,&end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
   ol_get_system_tables();
@@ -161,6 +161,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
       printf("You're using a system not officially supported\n");
   }
 #endif
+
   ol_pci_init();
   fsInit(NULL);
   list(_fs_root);
@@ -168,11 +169,11 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
 #ifdef __MEMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
-  char *x = kalloc(0x97e - 0x14);
-/*
-  free(x);
-*/
   free(cpu);
+#endif
+#ifdef __DBG_HEAP
+  char *x = kalloc(0x2000);
+  ol_dbg_heap();
 #endif
   
   printf("\nSome (temp) debug info:\n");
@@ -181,7 +182,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
           *(((uint32_t*) rsdp->signature)));
 
 
-  ol_dbg_heap();
+
 
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do

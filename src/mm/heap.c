@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include <stdlib.h>
 #include <thread.h>
@@ -24,38 +24,38 @@
 void
 ol_dbg_heap()
 {
-        println("List of all current heap block base pointers");
-        volatile memory_node_t* x = heap;
-        for(; x != NULL; x = x->next)
-        {
-                printnum((uint32_t)x+sizeof(struct memNode), 16, FALSE, FALSE);
-                printf("  -  Length: ");
-                printnum((uint32_t)x->size, 16, FALSE, FALSE);
-                putc('\n');
-        }
+  println("List of all current heap block base pointers");
+  volatile memory_node_t* x = heap;
+  for (; x != NULL; x = x->next)
+  {
+    if(x->size == 0x2000)
+      printf("\n%x\t%x\t%xn\n\n",x+sizeof(memory_node_t),x->previous,x->next);
+    printf("%x\t%x\t%x\n", x + sizeof (memory_node_t), x->size, x->used);
+  }
 }
 
 //Makes use of the memory bitmap to select the pages that are usable.
 //Since the heap has only limited allocation space, there also needs
 //to be a regeon that's used for memory mapping.
+
 void heapAddBlocks(void* base, int size) // Requests size in bytes
 {
   mutexEnter(prot);
   while (size > 0)
   {
-    initHdr(base, SIZE-sizeof(memory_node_t));
+    initHdr(base, SIZE - sizeof (memory_node_t));
     size -= SIZE;
     if (heap == NULL)
     {
       heap = base;
-      #ifdef DBG
+#ifdef DBG
       printf("Creating head of heap\n");
-      #endif
+#endif
     }
     else
     {
       mutexRelease(prot); // To prevent the mutex from conflicting with itself basically
-      free((void*)base+sizeof(memory_node_t));
+      free((void*) base + sizeof (memory_node_t));
       mutexEnter(prot);
     }
     base += SIZE;
@@ -66,8 +66,8 @@ void heapAddBlocks(void* base, int size) // Requests size in bytes
 void heapCoreBlocks(void* base, int size)
 {
   mutexEnter(prot);
-  memory_node_t* node = (memory_node_t*)base;
-  initHdr(node, size-sizeof(memory_node_t));
-  heap=node;
+  memory_node_t* node = (memory_node_t*) base;
+  initHdr(node, size - sizeof (memory_node_t));
+  heap = node;
   mutexRelease(prot);
 }

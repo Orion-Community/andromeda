@@ -2,9 +2,9 @@ include scripts/makeIncl
 include scripts/x86
 
 MAKEEND=FLAGS="$(FLAGS)"
-MAKEEND+=FLAGS="-D X86 -D __INTEL -D __MEMTEST"
+MAKEEND+=FLAGS="-D X86 -D __INTEL -D __DBG_HEAP"
 
-DEPS=boot.o init.o arch.o kern.o mm.o text.o maths.o fs.o sys.o panic.o
+DEPS=boot.o init.o arch.o kern.o mm.o text.o maths.o fs.o sys.o error.o
 
 .PHONY: all
 all: x86

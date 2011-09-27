@@ -45,14 +45,17 @@ examineHeap()
 // This code is called whenever a new block header needs to be created.
 // It initialises the header to a good position and simplifies the code a bit.
 
-void
+int
 initHdr(volatile memory_node_t* block, size_t size)
 {
+  if (size <= 0)
+    return 1;
   block->size = size;
   block->previous = NULL;
   block->next = NULL;
   block->used = FALSE;
   block->hdrMagic = MM_NODE_MAGIC;
+  return 0;
 }
 
 void*
@@ -81,17 +84,18 @@ nalloc(size_t size)
 void*
 alloc(size_t size, boolean pageAlligned)
 {
+
   if (size > ALLOC_MAX)
   {
     return NULL;
   }
   mutexEnter(prot);
-  volatile memory_node_t* carige;
-  for (carige = heap; carige != NULL; carige = carige->next)
+  volatile memory_node_t* carriage = heap;
+  for (;carriage != NULL; carriage = carriage->next)
   {
     if (pageAlligned == TRUE)
     {
-      if (!carige->used)
+      if (!carriage->used)
       {
         /* 
          * If the block isn't used and the block should be alligned with the page boundary
@@ -101,14 +105,14 @@ alloc(size_t size, boolean pageAlligned)
          * The code figures out the required offset for the block to be able to hold the desired
          * block.
          */
-        unsigned long offset = PAGEBOUNDARY - ((long) carige + sizeof (memory_node_t)) % PAGEBOUNDARY;
+        unsigned long offset = PAGEBOUNDARY - ((long) carriage + sizeof (memory_node_t)) % PAGEBOUNDARY;
         offset %= PAGEBOUNDARY;
         unsigned long blockSize = offset + size;
 
-        if (carige->size >= blockSize) // if the size is large enough to be split into
+        if (carriage->size >= blockSize) // if the size is large enough to be split into
           // page alligned blocks, then do it.
         {
-          volatile memory_node_t* ret = splitMul(carige, size, TRUE); // Split the block
+          volatile memory_node_t* ret = splitMul(carriage, size, TRUE); // Split the block
           use_memnode_block(ret); // Mark the block as used
 
           //return the desired block
@@ -129,35 +133,32 @@ alloc(size_t size, boolean pageAlligned)
         continue;
       }
     }
-    else if (carige->size >= size && carige->size < size + sizeof (memory_node_t))
+    else if (carriage->size >= size && carriage->size < size + sizeof (memory_node_t))
     {
-      if (use_memnode_block(carige)) // check the usage of the block
+      if (use_memnode_block(carriage)) // check the usage of the block
       {
         continue;
       }
-
       mutexRelease(prot);
-      return (void*) carige + sizeof (memory_node_t);
+      return (void*) carriage + sizeof (memory_node_t);
     }
-    else if (carige->size >= size + sizeof (memory_node_t)) // the block is too large
+    else if (carriage->size >= size + sizeof (memory_node_t)) // the block is too large
     {
-      if (carige->used) // assert that the block isn't used
+      if (carriage->used) // assert that the block isn't used
       {
         continue;
       }
 
-      volatile memory_node_t* tmp = split(carige, size); // split the block
-      if (use_memnode_block(tmp)) // mark the block used.
-      {
-        continue;
-      }
+      volatile memory_node_t* tmp = split(carriage, size); // split the block
+
+      use_memnode_block(tmp);
       mutexRelease(prot);
       return (void*) tmp + sizeof (memory_node_t);
     }
-    if (carige->next == NULL || carige->next == carige)
+    if (carriage->next == NULL || carriage->next == carriage)
     {
-      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tsize: %X\n", (int) heap, (int) carige, (int) carige->size);
-      if (carige->next == carige)
+      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tsize: %X\n", (int) heap, (int) carriage, (int) carriage->size);
+      if (carriage->next == carriage)
         printf("Loop in list!\n");
       break; // If we haven't found anything but we're at the end of the list
       // or heap corruption occured we break out of the loop and return
@@ -208,7 +209,8 @@ free(void* ptr)
   {
 
     // if we found the right spot, merge the lot.
-    if ((void*) block + block->size + sizeof (memory_node_t) == (void*) carriage || (void*) carriage + carriage->size + sizeof (memory_node_t) == (void*) block)
+    if ((void*) block + block->size + sizeof (memory_node_t) == (void*) carriage
+        || (void*) carriage + carriage->size + sizeof (memory_node_t) == (void*) block)
     {
       volatile memory_node_t* test = merge_memnode(block, carriage); // merging code
       if (test == NULL) // if the merge failed
@@ -248,6 +250,10 @@ use_memnode_block(volatile memory_node_t* x)
   // mark the block as used and remove it from the heap list
   if (x->used == FALSE)
   {
+/*
+    if(x->size == 0x2000)
+      printf("%x\t%x",x->previous->next, x->size);
+*/
     x->used = TRUE;
     if (x->previous != NULL) // if we're not at the top of the list
     {
@@ -289,9 +295,10 @@ return_memnode_block(volatile memory_node_t* block)
   volatile memory_node_t* carige;
   if ((void*) block < (void*) heap)
   {// if we're at the top of the heap list add the block there.
-    heap -> previous = block;
-    block -> next = heap;
-    block -> previous = NULL;
+    
+    heap->previous = block;
+    block->next = heap;
+    block->previous = NULL;
     heap = block;
     return;
   }
@@ -310,7 +317,9 @@ return_memnode_block(volatile memory_node_t* block)
       carige -> next = block;
       block -> previous = carige;
       carige->next->next = NULL;
-      return; // if we have gotten to the end of the heap we must add the block here
+      return; /* if we have gotten to the end of the heap we must 
+               * add the block here 
+               */
     }
   }
 }
@@ -321,9 +330,11 @@ split(volatile memory_node_t* block, size_t size)
   // This code splits the block into two parts, the lower of which is returned
   // to the caller.
 
-  volatile memory_node_t* second = (volatile memory_node_t*)((void*) (block) + size + sizeof (memory_node_t)); // find out what the address of the upper block should be
+  volatile memory_node_t* second = ((void*) block) + sizeof (memory_node_t) + size;
 
-  initHdr(second, block->size - size - sizeof (memory_node_t)); // initialise the second block to the right size
+  initHdr(second, block->size - size - sizeof (memory_node_t));
+    //return block;
+  /* initialise the second block to the right size */
 
   second->previous = block; // fix the heap lists
   second->next = block->next;
