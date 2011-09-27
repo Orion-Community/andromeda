@@ -284,26 +284,22 @@ use_memnode_block(volatile memory_node_t* x)
 static void
 return_memnode_block(volatile memory_node_t* block)
 {
-  // This code marks the block as unused and puts it back in the list.
-  if (block->hdrMagic != MM_NODE_MAGIC) // Make sure we're not corrupting the heap
-  {
-#ifdef MMTEST
-    printf("WARNING\n");
-#endif
-    return;
-  }
+  /* This code marks the block as unused and puts it back in the list. */
+  if (block->hdrMagic != MM_NODE_MAGIC) 
+    return;                             /* Make sure we're not corrupting the
+                                         * heap
+                                         */
   block->used = FALSE;
   volatile memory_node_t* carige;
   if ((void*) block < (void*) heap)
-  {// if we're at the top of the heap list add the block there.
-    
+  {/* if we're at the top of the heap list add the block there. */
     heap->previous = block;
     block->next = heap;
     block->previous = NULL;
     heap = block;
     return;
   }
-  // We're apparently not at the top of the list
+  /* We're apparently not at the top of the list */
   for (carige = heap; carige != NULL; carige = carige->next) // Loop through the heap list.
   {
     if (carige < block && carige->next > block)
@@ -330,7 +326,7 @@ split(volatile memory_node_t* block, size_t size)
    * This code splits the block into two parts, the lower of which is returned
    * to the caller.
    */
-  volatile memory_node_t* second = ((void*) block) + sizeof (memory_node_t) + size;
+  volatile memory_node_t* second = ((void*)block) + sizeof(memory_node_t) + size;
 
   if(initHdr(second, block->size - size - sizeof (memory_node_t)))
     return block;
@@ -377,33 +373,31 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
       unsigned long base = (unsigned int) ((void*) block + 2 *
         sizeof(memory_node_t)); /* base address */
 
-      unsigned long offset = PAGEBOUNDARY - (base % PAGEBOUNDARY); /* the
-               addrress is used to figure out the offset to the page boundary */
+      unsigned long offset = PAGEBOUNDARY - (base % PAGEBOUNDARY); /* the addrress 
+                        is used to figure out the offset to the page boundary */
       secondAddr = (unsigned long) ((void*) block + sizeof(memory_node_t)); 
       /* put the base address into second */
       
       secondAddr += offset; /* add the offset to second */
-      volatile memory_node_t* second = (void*) secondAddr; // put the actual address in second
-      volatile memory_node_t* next = block->next; // Temporarilly store next
+      volatile memory_node_t* second = (void*) secondAddr;
+      volatile memory_node_t* next = block->next; /* Temporarilly store next */
 
-      int secondSize = block->size - ((void*) second - (void*) block); // second's temporary size gets calculated.
-      initHdr(second, secondSize); // init the second block with the temporary size
-      block->size = (void*) second - ((void*) block + sizeof (memory_node_t)); // fix the original block size as it isn't correct anymore.
-      block->next = second; // fix the heap lists to make a split or return possible
+      int secondSize = block->size - ((void*) second - (void*) block); 
+      initHdr(second, secondSize); /* init the second block with the temp size */
+      block->size = (void*) second - ((void*) block + sizeof (memory_node_t));
+      block->next = second; /* fix the heap lists to make a split or return possible */
       second->previous = block;
       second->next = next;
       if (second->size > size + sizeof (memory_node_t))
       {
         volatile memory_node_t *ret = split(second, size);
-        return ret; // if the second block still is too large do a normal split because this will return the
-        // right address anyways.
+        return ret; /* if the second block still is too large do a normal split 
+                because this will return the right address anyways. */
       }
       else
       {
-#ifdef MMTEST
-        printf("Split in two\n");
-#endif
-        return second; // the size is right and at the right address, what more could we want.
+        return second; /* the size is right and at the right address, 
+                          what more could we want. */
       }
     }
   }

@@ -171,7 +171,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 	free(cpu);
 #endif
 #ifdef __DBG_HEAP
-	kalloc(0x941);
   ol_dbg_heap();
 #endif
   
