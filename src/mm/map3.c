@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <error/error.h>
 
-#define map_size   (memsize/0x4)
+#define map_size (memsize/0x4)
 
 module_t modules[MAX_MODS];
 
@@ -73,7 +73,7 @@ uint32_t map_find_headoflist(uint32_t idx)
   return idx;
 }
 
-/**
+/** 
  * map_add_page adds a page to the list you've specified. DO NOT MAKE IT USE THE
  * MUTEX as it is supposed to be locked by higher level functions
  */
@@ -120,8 +120,6 @@ uint32_t map_rm_page(uint32_t page_index)
   
   if (prev_idx != BMP_FREE)
     page_map[prev_idx].next_idx = next_idx;
-  else
-    list_start = next_idx;
   if (next_idx != BMP_FREE)
     page_map[next_idx].prev_idx = prev_idx;
   
@@ -130,15 +128,12 @@ uint32_t map_rm_page(uint32_t page_index)
   
   mutex_unlock(map_lock);
   
-  if (list_start != BMP_FREE)
-    return list_start;
-  
   return map_find_headoflist(prev_idx);
-  
 }
 
 /**
- * 
+ * map_alloc_page allocates a page and adds it to the list. Please keep the
+ * mutexes as granual as possible.
  */
 uint32_t map_alloc_page(uint32_t list_idx)
 {
