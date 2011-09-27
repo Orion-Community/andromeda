@@ -35,10 +35,10 @@ void
 examineHeap()
 {
   printf("Head\n0x%X\n", (int) heap);
-  volatile memory_node_t* carige;
-  for (carige = heap; carige != NULL; carige = carige->next)
+  volatile memory_node_t* carriage;
+  for (carriage = heap; carriage != NULL; carriage = carriage->next)
   {
-    printf("node: 0x%X\tsize: 0x%X\n", (int) carige, carige->size);
+    printf("node: 0x%X\tsize: 0x%X\n", (int) carriage, carriage->size);
   }
 }
 
@@ -86,12 +86,12 @@ alloc(size_t size, boolean pageAlligned)
     return NULL;
   }
   mutexEnter(prot);
-  volatile memory_node_t* carige;
-  for (carige = heap; carige != NULL; carige = carige->next)
+  volatile memory_node_t* carriage;
+  for (carriage = heap; carriage != NULL; carriage = carriage->next)
   {
     if (pageAlligned == TRUE)
     {
-      if (!carige->used)
+      if (!carriage->used)
       {
         /* 
          * If the block isn't used and the block should be alligned with the page boundary
@@ -101,14 +101,14 @@ alloc(size_t size, boolean pageAlligned)
          * The code figures out the required offset for the block to be able to hold the desired
          * block.
          */
-        unsigned long offset = PAGEBOUNDARY - ((long) carige + sizeof (memory_node_t)) % PAGEBOUNDARY;
+        unsigned long offset = PAGEBOUNDARY - ((long) carriage + sizeof (memory_node_t)) % PAGEBOUNDARY;
         offset %= PAGEBOUNDARY;
         unsigned long blockSize = offset + size;
 
-        if (carige->size >= blockSize) // if the size is large enough to be split into
+        if (carriage->size >= blockSize) // if the size is large enough to be split into
           // page alligned blocks, then do it.
         {
-          volatile memory_node_t* ret = splitMul(carige, size, TRUE); // Split the block
+          volatile memory_node_t* ret = splitMul(carriage, size, TRUE); // Split the block
           use_memnode_block(ret); // Mark the block as used
 
           //return the desired block
@@ -129,27 +129,27 @@ alloc(size_t size, boolean pageAlligned)
         continue;
       }
     }
-    else if (carige->size >= size && carige->size < size + sizeof (memory_node_t))
+    else if (carriage->size >= size && carriage->size < size + sizeof (memory_node_t))
     {
-      if (carige->used) // check the usage of the block
+      if (carriage->used) // check the usage of the block
       {
         continue;
       }
       // If the block is the right size or too small to hold 2 separate blocks,
       // In which one of them is the size allocated, then allocate the entire block.
-      printf("%x\n", use_memnode_block(carige));
+      printf("%x\n", use_memnode_block(carriage));
       
       mutexRelease(prot);
-      return (void*) carige + sizeof (memory_node_t);
+      return (void*) carriage + sizeof (memory_node_t);
     }
-    else if (carige->size >= size + sizeof (memory_node_t)) // the block is too large
+    else if (carriage->size >= size + sizeof (memory_node_t)) // the block is too large
     {
-      if (carige->used) // assert that the block isn't used
+      if (carriage->used) // assert that the block isn't used
       {
         continue;
       }
 
-      volatile memory_node_t* tmp = split(carige, size); // split the block
+      volatile memory_node_t* tmp = split(carriage, size); // split the block
       if (use_memnode_block(tmp)) // mark the block used.
       {
         continue;
@@ -157,10 +157,10 @@ alloc(size_t size, boolean pageAlligned)
       mutexRelease(prot);
       return (void*) tmp + sizeof (memory_node_t);
     }
-    if (carige->next == NULL || carige->next == carige)
+    if (carriage->next == NULL || carriage->next == carriage)
     {
-      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tsize: %X\n", (int) heap, (int) carige, (int) carige->size);
-      if (carige->next == carige)
+      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tsize: %X\n", (int) heap, (int) carriage, (int) carriage->size);
+      if (carriage->next == carriage)
         printf("Loop in list!\n");
       break; // If we haven't found anything but we're at the end of the list
       // or heap corruption occured we break out of the loop and return
@@ -289,7 +289,7 @@ return_memnode_block(volatile memory_node_t* block)
     return;
   }
   block->used = FALSE;
-  volatile memory_node_t* carige;
+  volatile memory_node_t* carriage;
   if ((void*) block < (void*) heap)
   {// if we're at the top of the heap list add the block there.
     heap -> previous = block;
@@ -299,28 +299,28 @@ return_memnode_block(volatile memory_node_t* block)
     return;
   }
   // We're apparently not at the top of the list
-  for (carige = heap; carige != NULL; carige = carige->next) // Loop through the heap list.
+  for (carriage = heap; carriage != NULL; carriage = carriage->next) // Loop through the heap list.
   {
-    if ((void*) carige + sizeof (memory_node_t) + carige->size <= (void*) block) // if the carige connects to the bottom of our block
+    if ((void*) carriage + sizeof (memory_node_t) + carriage->size <= (void*) block) // if the carriage connects to the bottom of our block
     {
-      block -> next = carige -> next;
-      block -> previous = carige;
-      carige -> next = block;
-
-      return; // add the block to the list after the carige
+      block -> next = carriage -> next;
+      block -> previous = carriage;
+      carriage -> next = block;
+      block -> next -> previous = block;
+      return; // add the block to the list after the carriage
     }
-    else if ((void*) block + sizeof (memory_node_t) + block->size <= (void*) carige) // if the block connects to the bottom of the carige
+    else if ((void*) block + sizeof (memory_node_t) + block->size <= (void*) carriage) // if the block connects to the bottom of the carriage
     {
-      block -> next = carige;
-      block -> previous = carige -> previous;
-      carige -> previous = block;
-      return; // add the block to the list before the carige
+      block -> next = carriage;
+      block -> previous = carriage -> previous;
+      carriage -> previous = block;
+      return; // add the block to the list before the carriage
     }
-    else if (carige->next == NULL)
+    else if (carriage->next == NULL)
     {
-      carige -> next = block;
-      block -> previous = carige;
-      carige->next->next = NULL;
+      carriage -> next = block;
+      block -> previous = carriage;
+      carriage->next->next = NULL;
       return; // if we have gotten to the end of the heap we must add the block here
     }
   }
