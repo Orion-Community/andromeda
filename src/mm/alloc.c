@@ -314,13 +314,11 @@ return_memnode_block(volatile memory_node_t* block)
       return;
     }
     else if (carige->next == NULL)
-    {
+    { /* we are at the end of the list, add the block here */
       carige -> next = block;
       block -> previous = carige;
       carige->next->next = NULL;
-      return; /* if we have gotten to the end of the heap we must 
-               * add the block here 
-               */
+      return; 
     }
   }
 }
@@ -328,19 +326,23 @@ return_memnode_block(volatile memory_node_t* block)
 static volatile memory_node_t*
 split(volatile memory_node_t* block, size_t size)
 {
-  // This code splits the block into two parts, the lower of which is returned
-  // to the caller.
+  /* 
+   * This code splits the block into two parts, the lower of which is returned
+   * to the caller.
+   */
   volatile memory_node_t* second = ((void*) block) + sizeof (memory_node_t) + size;
 
-  initHdr(second, block->size - size - sizeof (memory_node_t));
-    //return block;
+  if(initHdr(second, block->size - size - sizeof (memory_node_t)))
+    return block;
   /* initialise the second block to the right size */
 
   second->previous = block; // fix the heap lists
   second->next = block->next;
+	second->next->previous = second;
 
   block->next = second;
   block->size = size;
+	block->next->previous = block;
   return block; // return the bottom block
 }
 
@@ -356,7 +358,7 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
 #ifdef MMTEST
       printf("Simple split\n");
 #endif
-      // If this block gets reached the block is at the offset in memory.
+      /* If this block gets reached the block is at the offset in memory.*/
       return split(block, size);
     }
     else if ((long) ((void*) block + sizeof (memory_node_t)) % PAGEBOUNDARY != 0)
@@ -364,17 +366,23 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
 #ifdef MMTEST
       printf("Complex split\n");
 #endif
-      // If we get here the base address of the block isn't alligned with the offset.
-      // Split the block and then use split on the higher block so the middle is
-      // pageAlligned.
-      // Below we figure out where the second block should start using some algorithms
-      // of which it isn't if a shame a beginner doesn't fully get it.
+      /* If we get here the base address of the block isn't alligned with the
+         offset.
+         Split the block and then use split on the higher block so the middle is
+         pageAlligned.
+         Below we figure out where the second block should start using some
+         algorithms of which it isn't if a shame a beginner doesn't
+         fully get it. */
       unsigned long secondAddr;
-      unsigned long base = (unsigned int) ((void*) block + 2 * sizeof (memory_node_t)); // the base address is put in an int with some header
-      // sizes because the calculation requires them.
-      unsigned long offset = PAGEBOUNDARY - (base % PAGEBOUNDARY); // the addrress is used to figure out the offset to the page boundary
-      secondAddr = (unsigned long) ((void*) block + sizeof (memory_node_t)); // put the base address into second
-      secondAddr += offset; // add the offset to second
+      unsigned long base = (unsigned int) ((void*) block + 2 *
+        sizeof(memory_node_t)); /* base address */
+
+      unsigned long offset = PAGEBOUNDARY - (base % PAGEBOUNDARY); /* the
+               addrress is used to figure out the offset to the page boundary */
+      secondAddr = (unsigned long) ((void*) block + sizeof(memory_node_t)); 
+      /* put the base address into second */
+      
+      secondAddr += offset; /* add the offset to second */
       volatile memory_node_t* second = (void*) secondAddr; // put the actual address in second
       volatile memory_node_t* next = block->next; // Temporarilly store next
 
@@ -386,13 +394,7 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
       second->next = next;
       if (second->size > size + sizeof (memory_node_t))
       {
-#ifdef MMTEST
-        printf("Split in three\n");
-#endif
         volatile memory_node_t *ret = split(second, size);
-#ifdef MMTEST
-        printf("Split successful\n");
-#endif
         return ret; // if the second block still is too large do a normal split because this will return the
         // right address anyways.
       }
