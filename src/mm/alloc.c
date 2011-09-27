@@ -31,7 +31,7 @@
 volatile memory_node_t* heap; /* heap pointer */
 volatile mutex_t prot;
 
-void 
+void
 examineHeap()
 {
   printf("Head\n0x%X\n", (int) heap);
@@ -45,7 +45,7 @@ examineHeap()
 // This code is called whenever a new block header needs to be created.
 // It initialises the header to a good position and simplifies the code a bit.
 
-void 
+void
 initHdr(volatile memory_node_t* block, size_t size)
 {
   block->size = size;
@@ -78,7 +78,7 @@ nalloc(size_t size)
 // In the case that pageAlligned is enabled the block also has to hold
 // page alligned data (usefull for the page directory).
 
-void* 
+void*
 alloc(size_t size, boolean pageAlligned)
 {
   if (size > ALLOC_MAX)
@@ -131,14 +131,11 @@ alloc(size_t size, boolean pageAlligned)
     }
     else if (carige->size >= size && carige->size < size + sizeof (memory_node_t))
     {
-      if (carige->used) // check the usage of the block
+      if (use_memnode_block(carige)) // check the usage of the block
       {
         continue;
       }
-      // If the block is the right size or too small to hold 2 separate blocks,
-      // In which one of them is the size allocated, then allocate the entire block.
-      printf("%x\n", use_memnode_block(carige));
-      
+
       mutexRelease(prot);
       return (void*) carige + sizeof (memory_node_t);
     }
@@ -171,7 +168,7 @@ alloc(size_t size, boolean pageAlligned)
   return NULL;
 }
 
-int 
+int
 free(void* ptr)
 {
 #ifdef MMTEST
@@ -277,7 +274,7 @@ use_memnode_block(volatile memory_node_t* x)
   }
 }
 
-static void 
+static void
 return_memnode_block(volatile memory_node_t* block)
 {
   // This code marks the block as unused and puts it back in the list.
@@ -301,20 +298,12 @@ return_memnode_block(volatile memory_node_t* block)
   // We're apparently not at the top of the list
   for (carige = heap; carige != NULL; carige = carige->next) // Loop through the heap list.
   {
-    if ((void*) carige + sizeof (memory_node_t) + carige->size <= (void*) block) // if the carige connects to the bottom of our block
+    if (carige < block && carige->next > block)
     {
-      block -> next = carige -> next;
-      block -> previous = carige;
-      carige -> next = block;
-
-      return; // add the block to the list after the carige
-    }
-    else if ((void*) block + sizeof (memory_node_t) + block->size <= (void*) carige) // if the block connects to the bottom of the carige
-    {
-      block -> next = carige;
-      block -> previous = carige -> previous;
-      carige -> previous = block;
-      return; // add the block to the list before the carige
+      block->previous = carige;
+      block->next = carige->next;
+      carige->next = block;
+      return;
     }
     else if (carige->next == NULL)
     {
@@ -344,7 +333,7 @@ split(volatile memory_node_t* block, size_t size)
   return block; // return the bottom block
 }
 
-static volatile memory_node_t* 
+static volatile memory_node_t*
 splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
 {
   // if the block should be pageAlligned
@@ -412,7 +401,7 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
   }
 }
 
-static volatile memory_node_t* 
+static volatile memory_node_t*
 merge_memnode(volatile memory_node_t* alpha, volatile memory_node_t* beta)
 {
   // First we check for possible corruption
@@ -423,13 +412,13 @@ merge_memnode(volatile memory_node_t* alpha, volatile memory_node_t* beta)
 #endif
     return NULL; // return error
   }
-  if ((((void*)alpha)+alpha->size+sizeof(memory_node_t) != beta) && 
-    (((void*)beta)+beta->size+sizeof(memory_node_t) != alpha))
+  if ((((void*) alpha) + alpha->size + sizeof (memory_node_t) != beta) &&
+      (((void*) beta) + beta->size + sizeof (memory_node_t) != alpha))
   { // if the pointers don't match, we should not proceed.
     return NULL; // return error
   }
   volatile memory_node_t* tmp;
-  if (((void*)beta)+beta->size+sizeof(memory_node_t) == alpha)
+  if (((void*) beta) + beta->size + sizeof (memory_node_t) == alpha)
   { // if the blocks are in reversed order, put them in the right order
     tmp = alpha;
     alpha = beta;

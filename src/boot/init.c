@@ -161,20 +161,18 @@ int init(unsigned long magic, multiboot_info_t* hdr)
       printf("You're using a system not officially supported\n");
   }
 #endif
-
-#ifdef MMTEST
-  testAlloc();
-#endif
-  
   ol_pci_init();
   fsInit(NULL);
-  free(cpu);
   list(_fs_root);
 
-  char *x = kalloc(0x956);
-  free(x);
-#ifdef __MMTEST
+
+#ifdef __MEMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
+  char *x = kalloc(0x97e - 0x14);
+/*
+  free(x);
+*/
+  free(cpu);
 #endif
   
   printf("\nSome (temp) debug info:\n");
