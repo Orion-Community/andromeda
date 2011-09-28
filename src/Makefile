@@ -60,13 +60,8 @@ clean:
 	rm -fv `find -name "*.o"`
 
 .PHONY: test
-<<<<<<< HEAD
 test: all
 	qemu -m 64M -kernel $(OUT)
-=======
-test:
-	qemu -m 600M -kernel $(OUT)
->>>>>>> a43597007cff81d0ec7a7b6a1646b71b152d750a
 	
 .PHONY: ctest
 ctest: clean all
