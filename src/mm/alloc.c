@@ -90,7 +90,7 @@ alloc(size_t size, boolean pageAlligned)
   }
   mutexEnter(prot);
   volatile memory_node_t* carriage = heap;
-  for (;carriage != NULL; carriage = carriage->next)
+  for (; carriage != NULL; carriage = carriage->next)
   {
     if (pageAlligned == TRUE)
     {
@@ -156,8 +156,8 @@ alloc(size_t size, boolean pageAlligned)
     }
     if (carriage->next == NULL || carriage->next == carriage)
     {
-      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tsize: %X\n", 
-             (int) heap, (int) carriage, (int) carriage->size);
+      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tsize: %X\n",
+              (int) heap, (int) carriage, (int) carriage->size);
       if (carriage->next == carriage)
         printf("Loop in list!\n");
       break; /* If we haven't found anything but we're at the end of the list
@@ -253,10 +253,6 @@ use_memnode_block(volatile memory_node_t* x)
   // mark the block as used and remove it from the heap list
   if (x->used == FALSE)
   {
-/*
-    if(x->size == 0x2000)
-      printf("%x\t%x",x->previous->next, x->size);
-*/
     x->used = TRUE;
     if (x->previous != NULL) // if we're not at the top of the list
     {
@@ -288,8 +284,8 @@ static void
 return_memnode_block(volatile memory_node_t* block)
 {
   /* This code marks the block as unused and puts it back in the list. */
-  if (block->hdrMagic != MM_NODE_MAGIC) 
-    return;                             /* Make sure we're not corrupting the
+  if (block->hdrMagic != MM_NODE_MAGIC)
+    return; /* Make sure we're not corrupting the
                                          * heap
                                          */
   block->used = FALSE;
@@ -317,7 +313,7 @@ return_memnode_block(volatile memory_node_t* block)
       carriage -> next = block;
       block -> previous = carriage;
       carriage->next->next = NULL;
-      return; 
+      return;
     }
   }
 }
@@ -329,9 +325,9 @@ split(volatile memory_node_t* block, size_t size)
    * This code splits the block into two parts, the lower of which is returned
    * to the caller.
    */
-  volatile memory_node_t* second = ((void*)block) + sizeof(memory_node_t) + size;
+  volatile memory_node_t* second = ((void*) block) + sizeof (memory_node_t) + size;
 
-  if(initHdr(second, block->size - size - sizeof (memory_node_t)))
+  if (initHdr(second, block->size - size - sizeof (memory_node_t)))
     return block;
   /* initialise the second block to the right size */
 
@@ -373,18 +369,18 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
          fully get it. */
       addr_t secondAddr;
       addr_t base = (unsigned int) ((void*) block + 2 *
-        sizeof(memory_node_t)); /* base address */
+                                    sizeof (memory_node_t)); /* base address */
 
       addr_t offset = PAGEBOUNDARY - (base % PAGEBOUNDARY); /* the addrress
                         is used to figure out the offset to the page boundary */
-      secondAddr = (addr_t) ((void*) block + sizeof(memory_node_t));
+      secondAddr = (addr_t) ((void*) block + sizeof (memory_node_t));
       /* put the base address into second */
-      
+
       secondAddr += offset; /* add the offset to second */
       volatile memory_node_t* second = (void*) secondAddr;
       volatile memory_node_t* next = block->next; /* Temporarilly store next */
 
-      int secondSize = block->size - ((void*) second - (void*) block); 
+      int secondSize = block->size - ((void*) second - (void*) block);
       initHdr(second, secondSize); /* init the second block with the temp size */
       block->size = (void*) second - ((void*) block + sizeof (memory_node_t));
       block->next = second; /* fix the heap lists to make a split or return possible */

@@ -61,7 +61,7 @@ void testMMap(multiboot_info_t* hdr);
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-char *welcome = "Andromeda 0.0.4 - Copyright (C) 2010, 2011 - Michel Megens, \
+char *welcome = "Andromeda 0.1.0 - Copyright (C) 2010, 2011 - Michel Megens, \
 Bart Kuivenhoven\nThis program comes with ABSOLUTELY NO WARRANTY;\n\
 This is free software, and you are welcome to redistribute it.\n\
 For more info refer to the COPYING file in the source repository or look at\n\
@@ -127,18 +127,18 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid memory map");
   }
-  
+
 
   setGDT();
 
   // Initialise the heap
   initHeap(HEAPSIZE);
-  printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE,&end);
+  printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
   ol_get_system_tables();
 
-  pic_init(); 
+  pic_init();
   setIDT();
   ol_ps2_init_keyboard();
   init_ioapic();
@@ -151,17 +151,18 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #endif
 #endif
 
-#ifdef __MEMTEST
-	ol_detach_all_devices(); /* free's al the pci devices */
-	free(cpu);
+#ifndef __MEMTEST
+  ol_detach_all_devices(); /* free's al the pci devices */
+  free(cpu);
 #endif
 #ifdef __DBG_HEAP
+  printf("Heap list:\n");
   ol_dbg_heap();
 #endif
-  
+
   printf("\nSome (temp) debug info:\n");
-  printf("%s\n", cpus[0].vendor);
-  printf("RSDP ASCII signature: 0x%x%x\n",*(((uint32_t*) rsdp->signature) + 1),
+  printf("CPU vendor: %s\n", cpus->vendor);
+  printf("RSDP ASCII signature: 0x%x%x\n", *(((uint32_t*) rsdp->signature) + 1),
           *(((uint32_t*) rsdp->signature)));
 
   printf("You can now shutdown your PC\n");

@@ -14,7 +14,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include <fs/fs.h>
 #include <fs/file.h>
@@ -63,36 +63,36 @@ void fsInit(inode_t* root)
     root[1].nameSize = strlen(devPath);
     root[1].name = devPath;
 
-    */
-    
-    _fs_root = kalloc(sizeof(inode_t));
+     */
+
+    _fs_root = kalloc(sizeof (inode_t));
     if (_fs_root == NULL) goto nomem;
     _fs_root -> inode = _FS_ROOT_INODE;
-    _fs_root -> size  = 0;
-    _fs_root -> prot  = _FS_PROT_DIR | _FS_ROOT_RIGHTS;
+    _fs_root -> size = 0;
+    _fs_root -> prot = _FS_PROT_DIR | _FS_ROOT_RIGHTS;
     _fs_root -> usrid = 0;
     _fs_root -> grpid = 0;
-    _fs_root -> data  = kalloc(sizeof(FILE));
+    _fs_root -> data = kalloc(sizeof (FILE));
     if (_fs_root -> data == NULL) goto nomem;
     _fs_root -> data -> start = NULL;
-    _fs_root -> data -> end   = NULL;
-    _fs_root -> data -> read  = NULL;
+    _fs_root -> data -> end = NULL;
+    _fs_root -> data -> read = NULL;
     _fs_root -> data -> write = NULL;
     _fs_root -> data -> buffered = TRUE;
     _fs_root -> data -> dirty = FALSE;
     _fs_root -> data -> size = &(_fs_root -> size);
-    #ifdef FSDBG
+#ifdef FSDBG
     printf("Root size: %i\n", _fs_root -> size);
-    #endif
-    mkdir ("proc", _fs_root, _FS_ROOT_RIGHTS, 0, 0);
-    #ifdef FSDBG
+#endif
+    mkdir("proc", _fs_root, _FS_ROOT_RIGHTS, 0, 0);
+#ifdef FSDBG
     printf("Root size: %i\n", _fs_root -> size);
-    #endif
-    mkdir ("dev",  _fs_root, _FS_ROOT_RIGHTS, 0, 0);
-    #ifdef FSDBG
+#endif
+    mkdir("dev", _fs_root, _FS_ROOT_RIGHTS, 0, 0);
+#ifdef FSDBG
     printf("Root size: %i\n", _fs_root -> size);
-    #endif
-    
+#endif
+
   }
   else
   {
@@ -103,26 +103,26 @@ nomem:
   panic("Not enough memory in fsInit!");
 }
 
-int mkdir (char* name, inode_t* parent, unsigned int prot, int usrid, int grpid)
+int mkdir(char* name, inode_t* parent, unsigned int prot, int usrid, int grpid)
 {
-  inode_t *virtInode = kalloc(sizeof(inode_t));
-  char* tmpName = kalloc(strlen(name)+1);
+  inode_t *virtInode = kalloc(sizeof (inode_t));
+  char* tmpName = kalloc(strlen(name) + 1);
 
   if (virtInode == NULL || tmpName == NULL) goto nomem;
-  memcpy(tmpName, name, strlen(name)+1);
+  memcpy(tmpName, name, strlen(name) + 1);
 
   struct _FS_DIR_ENTRY dir = {parent -> drv, 0, virtInode, strlen(name), tmpName};
-  
-  write (parent -> data, &dir, sizeof(struct _FS_DIR_ENTRY));
-  
+
+  write(parent -> data, &dir, sizeof (struct _FS_DIR_ENTRY));
+
   return 0;
-  
+
 nomem:
   panic("Not enough memory in mkdir");
   return -1;
 }
 
-int write (FILE* fp, char* buf, size_t num)
+int write(FILE* fp, char* buf, size_t num)
 {
   if (fp -> buffered == FALSE) panic("Unbuffered files not supported yet!");
   if (fp -> start == NULL)
@@ -131,53 +131,53 @@ int write (FILE* fp, char* buf, size_t num)
       panic("Uninitialised dirty file!!!");
     fp -> start = kalloc(num);
     if (fp -> start == NULL) goto nomem;
-    fp -> end     = (char*)((unsigned long)fp -> start + num);
-    fp -> read    = fp -> start;
-    fp -> write   = fp -> start;
+    fp -> end = (char*) ((unsigned long) fp -> start + num);
+    fp -> read = fp -> start;
+    fp -> write = fp -> start;
     *(fp -> size) = num;
   }
-  
-  size_t readOffset  = (long)fp -> read -  (long)fp -> start;
-  size_t writeOffset = (long)fp -> write - (long)fp -> start;
-  #ifdef FSDBG
+
+  size_t readOffset = (long) fp -> read - (long) fp -> start;
+  size_t writeOffset = (long) fp -> write - (long) fp -> start;
+#ifdef FSDBG
   printf("fp size %i\n", *fp->size);
-  #endif
+#endif
   long toAdd = (long) fp -> write - (long) fp -> end + num;
-  #ifdef FSDBG
+#ifdef FSDBG
   printf("To add: %i\n", toAdd);
-  #endif
+#endif
   toAdd = (toAdd <= 0) ? 0 : toAdd;
   *(fp -> size) += toAdd;
-  #ifdef FSDBG
+#ifdef FSDBG
   printf("fp size %i\n", *fp->size);
-  #endif
-  char* tmp = (void*)realloc(fp->start, *(fp->size));
+#endif
+  char* tmp = (void*) realloc(fp->start, *(fp->size));
   if (tmp != 0)
   {
     free(fp->start);
     fp -> start = tmp;
   }
   if (fp -> start == NULL) goto nomem;
-  fp -> end   = (char*)((long)fp -> start + *fp -> size);
-  fp -> read  = (char*)((long)fp -> start + readOffset);
-  fp -> write = (char*)((long)fp -> start + writeOffset);
-  
+  fp -> end = (char*) ((long) fp -> start + *fp -> size);
+  fp -> read = (char*) ((long) fp -> start + readOffset);
+  fp -> write = (char*) ((long) fp -> start + writeOffset);
+
   int idx = 0;
-  
+
   for (; idx < num; idx++)
   {
-    *(char*)((long)fp -> write) = *(char*)((long)buf + idx);
-    (long)fp -> write ++;
+    *(char*) ((long) fp -> write) = *(char*) ((long) buf + idx);
+    (long) fp -> write++;
   }
-  
+
   return 0;
-  
-  nomem:
+
+nomem:
   panic("Not enough memory in mkdir");
   return -1;
 }
 
-int read (FILE* fp, char* buf, size_t num)
+int read(FILE* fp, char* buf, size_t num)
 {
   if (fp -> read > fp -> end || fp -> read > fp -> write)
     return -1;
@@ -185,29 +185,29 @@ int read (FILE* fp, char* buf, size_t num)
   return -1;
 }
 
-int seek (FILE* fp, long offset, int from)
+int seek(FILE* fp, long offset, int from)
 {
   unsigned long position = 0;
   switch (from)
   {
     case SEEK_SET:
-      position = (unsigned long)fp -> start;
+      position = (unsigned long) fp -> start;
       break;
     case SEEK_RD:
-      position = (unsigned long)fp -> read;
+      position = (unsigned long) fp -> read;
       break;
     case SEEK_WRT:
-      position = (unsigned long)fp -> write;
+      position = (unsigned long) fp -> write;
       break;
     case SEEK_END:
-      position = (unsigned long)fp -> end;
+      position = (unsigned long) fp -> end;
       break;
   }
   position += offset;
-  if (position > (unsigned long)fp -> end)
+  if (position > (unsigned long) fp -> end)
     return -1;
-  fp -> write = (char*)(position);
-  fp -> read  = (char*)(position);
+  fp -> write = (char*) (position);
+  fp -> read = (char*) (position);
   return 0;
 }
 
@@ -215,15 +215,15 @@ void list(inode_t *dir)
 {
   int size = dir -> size / sizeof (struct _FS_DIR_ENTRY);
   int i = 0;
-  struct _FS_DIR_ENTRY *entries = (struct _FS_DIR_ENTRY *)dir -> data -> start;
-  #ifdef FSDBG
+  struct _FS_DIR_ENTRY *entries = (struct _FS_DIR_ENTRY *) dir -> data -> start;
+#ifdef FSDBG
   printf("Entries: %X\n", entries);
   printf("Entries.name: %X\n", entries -> name);
-  #endif
+#endif
   printf("%i Directory entries:\n", size);
   for (; i < size; i++)
   {
-    printf("%i. %s\n",i+1, entries[i].name);
+    printf("%i. %s\n", i + 1, entries[i].name);
   }
   putc(0xa);
 }

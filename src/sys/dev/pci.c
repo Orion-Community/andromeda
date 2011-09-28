@@ -22,7 +22,7 @@
 uint8_t pci_mechanism;
 
 static int
-ol_pci_iterate (ol_pci_dev_t dev)
+ol_pci_iterate(ol_pci_dev_t dev)
 {
   ol_pci_id_t id;
   register ol_pci_addr_t addr;
@@ -37,7 +37,7 @@ ol_pci_iterate (ol_pci_dev_t dev)
            dev->func++)
       {
         addr = ol_pci_calculate_address(dev,
-          OL_PCI_REG_ID);
+                OL_PCI_REG_ID);
         id = ol_pci_read_dword(addr, OL_PCI_REG_ID);
         if ((id >> 16) == 0xffff)
           continue;
@@ -53,16 +53,16 @@ ol_pci_iterate (ol_pci_dev_t dev)
 }
 
 static int
-ol_pci_is_mf (ol_pci_dev_t dev)
+ol_pci_is_mf(ol_pci_dev_t dev)
 {
   ol_pci_id_t header = ol_pci_read_dword(ol_pci_calculate_address(
-    dev, OL_PCI_REG_CACHELINE), OL_PCI_REG_CACHELINE);
+          dev, OL_PCI_REG_CACHELINE), OL_PCI_REG_CACHELINE);
   if ((header >> 16) & OL_PCI_MF) return TRUE;
   else return FALSE;
 }
 
 static ol_pci_addr_t
-ol_pci_calculate_address (ol_pci_dev_t dev, uint16_t reg)
+ol_pci_calculate_address(ol_pci_dev_t dev, uint16_t reg)
 {
   return ((1 << 31)
           | (dev->bus << 16) | (dev->device << 11)
@@ -70,7 +70,7 @@ ol_pci_calculate_address (ol_pci_dev_t dev, uint16_t reg)
 }
 
 void
-ol_pci_init ()
+ol_pci_init()
 {
   ol_pci_dev_t dev = kalloc(sizeof (struct ol_pci_dev));
 #ifdef __PCI_DEBUG
@@ -87,10 +87,10 @@ ol_pci_init ()
 #ifdef __PCI_DEBUG
 
 static int
-ol_pci_dbg_print_info (ol_pci_dev_t dev)
+ol_pci_dbg_print_info(ol_pci_dev_t dev)
 {
   ol_pci_id_t class = ol_pci_read_dword(ol_pci_calculate_address(dev,
-    OL_PCI_REG_CLASS), OL_PCI_REG_CLASS);
+          OL_PCI_REG_CLASS), OL_PCI_REG_CLASS);
 
 
   printf("%x     %x\n", class >> 16, ol_pci_calculate_address(dev, OL_PCI_REG_CLASS));
@@ -101,10 +101,10 @@ ol_pci_dbg_print_info (ol_pci_dev_t dev)
 #else
 
 static int
-show_pci_dev (ol_pci_dev_t dev)
+show_pci_dev(ol_pci_dev_t dev)
 {
   ol_pci_id_t class = ol_pci_read_dword(ol_pci_calculate_address(dev,
-    OL_PCI_REG_CLASS), OL_PCI_REG_CLASS);
+          OL_PCI_REG_CLASS), OL_PCI_REG_CLASS);
   uint8_t subclass = (class >> 16) & 0xff;
   class >>= 24;
 
