@@ -22,15 +22,11 @@
 #include <mm/paging.h>
 #include <types.h>
 #include <boot/mboot.h>
+#include <thread.h>
 
-#define FREE	   0x0000
-#define MODULE	   0x0001
-#define COMPRESSED 0x0002
-#define MAPPEDIO   0x0003
-#define CORE       0x0004
-#define NOTUSABLE  0xFFFF
+#define BMP_FREE (~0)
 
-#define MAX_MODS   0x20
+#define MAX_MODS 0x20
 
 
 typedef struct
@@ -44,25 +40,34 @@ struct module_s
   unsigned long addr;
   unsigned long end;
 };
-/**
- * The page_region object can be used to mark a region of memory for a specific
- * goal. E.g. reserved for memory mapped IO or dedicated for a process.
- */
-struct page_region
-{
-  addr_t start;
-  addr_t end;
-  struct page_region* next;
-};
 
 typedef struct module_s module_t;
 
+/**
+ * This bitmap entry will look a bit like a FAT structure, with the main
+ * difference that we're talking pages here, instead of files.
+ *
+ * If the next index = 0, it's the last page in the list, if the previous index
+ * = 0, it's the first page in the list. Somewhere is a pointer that refers to
+ * the first page and tells us who/what owns this region in memory
+ * If both indexes are equal to the FREE value, the page is free, if only one
+ * bit is different, we'll call it used.
+ */
+
+struct page
+{
+  uint32_t next_idx;
+  uint32_t prev_idx;
+};
+
+
 extern module_t modules[];
-extern uint32_t* bitmap;
 extern size_t memsize;
 
-pageState_t* set_page(addr_t page);
-void reset_page(addr_t page);
+uint32_t map_alloc_page(uint32_t list_idx);
+uint32_t map_rm_page(uint32_t page_index);
 
-void build_map(multiboot_memory_map_t*, int);
+int build_map(multiboot_memory_map_t*, int);
+
+extern volatile mutex_t map_lock;
 #endif

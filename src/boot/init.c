@@ -16,19 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * This is the main function for the nano kernel.
- * What this thing does is interpret the arguments handed to us by the bootloader.
- * Next it will load in the module received from the bootloader.
- * This module is actually the main kernel with all the drivers and
- * the less basic tasks, along with a copy of this kernel, all situated
- * at 3 GiB. This is always possible due to the virtual memory possibilities
- * opened up to us by paged memory.
+/**
+ * This file holds the entry point to the C level kernel. What's done here is
+ * the basic intialisation of for example:
+ * - Paging,
+ * - ACPI and
+ * - Hardware abstraction.
  *
- * This kernel will produce:
- * - A memory map
- * - A paging system to enable virtual memory
- * - A piece of the VGA driver to enable writing text to screen.
+ * The init function also displays the welcome message.
  */
 
 // Basic includes
@@ -149,9 +144,13 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   init_ioapic();
 
   ol_pci_init();
+#ifndef NOFS
   fsInit(NULL);
+#ifdef FSTEST
   list(_fs_root);
-	
+#endif
+#endif
+
 #ifdef __MEMTEST
 	ol_detach_all_devices(); /* free's al the pci devices */
 	free(cpu);

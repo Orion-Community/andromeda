@@ -8,8 +8,10 @@ AS=nasm
 ASFLAGS=-felf -D X86 -I../../include/
 
 .PHONY: all
-all: init.o boot.o
-	mv -fv *.o ../
+all: start.o
+
+start.o: init.o boot.o
+	$(LD) $(LDFLAGS) -o start.o *.o
 
 init.o: init.c
 	$(CC) $(CFLAGS) $(FLAGS) init.c

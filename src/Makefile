@@ -2,9 +2,11 @@ include scripts/makeIncl
 include scripts/x86
 
 MAKEEND=FLAGS="$(FLAGS)"
-MAKEEND+=FLAGS="-D X86 -D __INTEL -D __DBG_HEAP -D __MEMTEST"
+MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __DBG_HEAP -D __MEMTEST"
+DEPS=start.o arch.o kern.o mm.o text.o maths.o fs.o sys.o error.o
 
-DEPS=boot.o init.o arch.o kern.o mm.o text.o maths.o fs.o sys.o error.o
+
+
 
 .PHONY: all
 all: x86
@@ -15,41 +17,55 @@ amd64:
 
 .PHONY: x86
 x86: $(OUT)
-	mv -fv sys/sys.o ./
+
+$(OUT): $(DEPS)
 	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) $(DEPS)
 
-$(OUT):
-	$(MAKE) -C error $(MAKEEND)
-	$(MAKE) -C mm $(MAKEEND)
-	$(MAKE) -C kern $(MAKEEND)
-	$(MAKE) -C arch $(MAKEEND)
-	$(MAKE) -C text $(MAKEEND)
+start.o:
 	$(MAKE) -C boot $(MAKEEND)
+	mv -vf boot/start.o ./
+
+arch.o:
+	$(MAKE) -C arch $(MAKEEND)
+
+kern.o:
+	$(MAKE) -C kern $(MAKEEND)
+
+mm.o:
+	$(MAKE) -C mm $(MAKEEND)
+
+text.o:
+	$(MAKE) -C text $(MAKEEND)
+
+maths.o:
 	$(MAKE) -C math $(MAKEEND)
+
+fs.o:
 	$(MAKE) -C fs $(MAKEEND)
+
+sys.o:
 	$(MAKE) -C sys $(MAKEEND)
+	mv -vf sys/sys.o ./
+
+error.o:
+	$(MAKE) -C error $(MAKEEND)
+
+driver.o:
 	$(MAKE) -C drivers $(MAKEEND)
 	
 .PHONY: clean
 clean:
-# 	$(MAKE) -C error clean
-# 	$(MAKE) -C mm clean
-# 	$(MAKE) -C fs clean
-# 	$(MAKE) -C kern clean
-# 	$(MAKE) -C arch clean
-# 	$(MAKE) -C boot clean
-# 	$(MAKE) -C math clean
-# 	$(MAKE) -C sys clean
 	rm -fv $(OUT)
 	rm -fv `find -name "*.bin"`
 	rm -fv `find -name "*.o"`
 
 .PHONY: test
-test:
-	qemu -m 600M -kernel $(OUT)
+test: all
+	qemu -m 64M -kernel $(OUT)
 	
 .PHONY: ctest
-ctest: clean test
+ctest: clean all
+	qemu -m 64M -kernel $(OUT)
 
 .PHONY: usage
 usage:
@@ -65,7 +81,7 @@ usage:
 	@echo "Target test:"
 	@echo "	Same as x86, and run in KVM."
 	@echo "Target ctest:"
-	@echo "	Clean followed by test"
+	@echo "	Clean followed by test, does not work with the -j option"
 	@echo "Target usage:"
 	@echo "	Show this message."
 	@echo " "

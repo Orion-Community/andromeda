@@ -137,7 +137,7 @@ void elfJmp(void* image)
   #ifdef ELFDBG
   printf("entry point: 0x%X\n", addr);
   #endif
-  elfJump(addr, bitmap, modules);
+//   elfJump(addr, bitmap, modules);
 }
 
 /*
