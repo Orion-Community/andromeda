@@ -16,13 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// This code still needs improvement.
-/*
- * Right now the code assumes all of the memory is available, as in reality
- * it isn't. The memory needs to be limited, to what is available.
- * This requires growing the heap dynamically to it's maximum size, if possible.
- * We need the multi-boot-header for that though, and that requires a little
- * more investigation.
+/**
+ * The memory allocation file is here. This code requires the heap to be at the
+ * end of the binary image, and just beyond the variables.
+ *
+ * As of now the heap has a fixed size, which isn't an issue, as long as the
+ * memory required is free. As of now, we require about 10 MiB.
  */
 
 #include <stdlib.h>
