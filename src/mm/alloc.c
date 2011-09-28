@@ -157,12 +157,13 @@ alloc(size_t size, boolean pageAlligned)
     }
     if (carriage->next == NULL || carriage->next == carriage)
     {
-      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tsize: %X\n", (int) heap, (int) carriage, (int) carriage->size);
+      printf("Allocation at end of list!\nblocks: %X\tCarrige: %X\tsize: %X\n", 
+             (int) heap, (int) carriage, (int) carriage->size);
       if (carriage->next == carriage)
         printf("Loop in list!\n");
-      break; // If we haven't found anything but we're at the end of the list
-      // or heap corruption occured we break out of the loop and return
-      // the default pointer (which is NULL).
+      break; /* If we haven't found anything but we're at the end of the list
+        or heap corruption occured we break out of the loop and return
+        the default pointer (which is NULL). */
     }
   }
   mutexRelease(prot);
@@ -230,7 +231,10 @@ free(void* ptr)
       {
         block = test;
         carriage = test;
-        // We can now continue trying to merge the rest of the list, which might be possible.
+        /*
+         * We can now continue trying to merge the rest of the list, 
+         * which might be possible.
+         */
       }
     }
   }
@@ -334,11 +338,10 @@ split(volatile memory_node_t* block, size_t size)
 
   second->previous = block; // fix the heap lists
   second->next = block->next;
-	second->next->previous = second;
+  second->next->previous = second;
 
   block->next = second;
   block->size = size;
-	block->next->previous = block;
   return block; // return the bottom block
 }
 

@@ -148,20 +148,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   ol_ps2_init_keyboard();
   init_ioapic();
 
-#ifdef VENDORTELL
-  switch (getVendor())
-  {
-    case VENDOR_INTEL:
-      printf("You're using a Genuine Intel\n");
-      break;
-    case VENDOR_AMD:
-      printf("You're using an authentic AMD\n");
-      break;
-    default:
-      printf("You're using a system not officially supported\n");
-  }
-#endif
-
   ol_pci_init();
   fsInit(NULL);
   list(_fs_root);
@@ -175,7 +161,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #endif
   
   printf("\nSome (temp) debug info:\n");
-
+  printf("%s\n", cpus[0].vendor);
   printf("RSDP ASCII signature: 0x%x%x\n",*(((uint32_t*) rsdp->signature) + 1),
           *(((uint32_t*) rsdp->signature)));
 

@@ -89,10 +89,10 @@ extern "C"
   ol_set_eflags(uint32_t);
 
   /* LOCKS */
-  void /* lock spin lock */
+  static void /* lock spin lock */
   ol_mutex_lock(mutex_t*);
 
-  void /* spin release */
+  static void /* spin release */
   ol_mutex_release(mutex_t*);
 
   /* CPUID */
