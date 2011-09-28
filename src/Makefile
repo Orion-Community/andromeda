@@ -2,7 +2,7 @@ include scripts/makeIncl
 include scripts/x86
 
 MAKEEND=FLAGS="$(FLAGS)"
-MAKEEND+=FLAGS="-D X86 -D __INTEL -D __DBG_HEAP"
+MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __DBG_HEAP"
 DEPS=start.o arch.o kern.o mm.o text.o maths.o fs.o sys.o error.o
 
 
@@ -19,17 +19,6 @@ x86: $(OUT)
 
 $(OUT): $(DEPS)
 	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) $(DEPS)
-
-# 	$(MAKE) -C error $(MAKEEND)
-# 	$(MAKE) -C mm $(MAKEEND)
-# 	$(MAKE) -C kern $(MAKEEND)
-# 	$(MAKE) -C arch $(MAKEEND)
-# 	$(MAKE) -C text $(MAKEEND)
-# 	$(MAKE) -C boot $(MAKEEND)
-# 	$(MAKE) -C math $(MAKEEND)
-# 	$(MAKE) -C fs $(MAKEEND)
-# 	$(MAKE) -C sys $(MAKEEND)
-# 	$(MAKE) -C drivers $(MAKEEND)
 
 start.o:
 	$(MAKE) -C boot $(MAKEEND)

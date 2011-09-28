@@ -158,8 +158,12 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #endif
 
   ol_pci_init();
+#ifndef NOFS
   fsInit(NULL);
+#ifdef FSTEST
   list(_fs_root);
+#endif
+#endif
 #ifdef __MEMTEST
 
 #endif
