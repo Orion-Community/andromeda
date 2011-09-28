@@ -24,11 +24,11 @@
 void
 ol_dbg_heap()
 {
-  println("List of all current heap block base pointers");
+  printf("%s\t%s\t%s\t%s\n", "Base","Prev","Next","Size");
   volatile memory_node_t* x = heap;
   for (; x != NULL; x = x->next)
   {
-    printf("%x\t%x\t%x\t%x\n", x, x->size, x->previous, x->next);
+    printf("%x\t%x\t%x\t%x\n", x, x->previous, x->next, x->size);
   }
 }
 

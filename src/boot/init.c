@@ -164,15 +164,12 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   list(_fs_root);
 #endif
 #endif
-#ifdef __MEMTEST
 
+#ifdef __MEMTEST
+	ol_detach_all_devices(); /* free's al the pci devices */
+	free(cpu);
 #endif
 #ifdef __DBG_HEAP
-    ol_detach_all_devices(); /* free's al the pci devices */
-/*
-  free(cpu);
-*/
-  char *x = kalloc(0x2000);
   ol_dbg_heap();
 #endif
   
@@ -180,9 +177,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
   printf("RSDP ASCII signature: 0x%x%x\n",*(((uint32_t*) rsdp->signature) + 1),
           *(((uint32_t*) rsdp->signature)));
-
-
-
 
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do

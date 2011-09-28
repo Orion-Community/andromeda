@@ -220,11 +220,12 @@ void list(inode_t *dir)
   printf("Entries: %X\n", entries);
   printf("Entries.name: %X\n", entries -> name);
   #endif
-  printf("%i Directory entries\n", size);
+  printf("%i Directory entries:\n", size);
   for (; i < size; i++)
   {
-    printf("%s\n",  entries[i].name);
+    printf("%i. %s\n",i+1, entries[i].name);
   }
+  putc(0xa);
 }
 
 FILE* open()

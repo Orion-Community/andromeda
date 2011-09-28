@@ -105,7 +105,7 @@ alloc(size_t size, boolean pageAlligned)
          * The code figures out the required offset for the block to be able to hold the desired
          * block.
          */
-        addr_t offset = PAGEBOUNDARY - ((long) carriage + sizeof (memory_node_t)) % PAGEBOUNDARY;
+        addr_t offset = PAGEBOUNDARY - ((addr_t) carriage + sizeof (memory_node_t)) % PAGEBOUNDARY;
         offset %= PAGEBOUNDARY;
         addr_t blockSize = offset + size;
 
@@ -284,25 +284,22 @@ use_memnode_block(volatile memory_node_t* x)
 static void
 return_memnode_block(volatile memory_node_t* block)
 {
-  // This code marks the block as unused and puts it back in the list.
-  if (block->hdrMagic != MM_NODE_MAGIC) // Make sure we're not corrupting the heap
-  {
-#ifdef MMTEST
-    printf("WARNING\n");
-#endif
-    return;
-  }
+  /* This code marks the block as unused and puts it back in the list. */
+  if (block->hdrMagic != MM_NODE_MAGIC) 
+    return;                             /* Make sure we're not corrupting the
+                                         * heap
+                                         */
   block->used = FALSE;
   volatile memory_node_t* carriage;
   if ((void*) block < (void*) heap)
-  {// if we're at the top of the heap list add the block there.
+  {/* if we're at the top of the heap list add the block there. */
     heap->previous = block;
     block->next = heap;
     block->previous = NULL;
     heap = block;
     return;
   }
-  // We're apparently not at the top of the list
+  /* We're apparently not at the top of the list */
   for (carriage = heap; carriage != NULL; carriage = carriage->next) // Loop through the heap list.
   {
     if (carriage < block && carriage->next > block)
@@ -313,17 +310,11 @@ return_memnode_block(volatile memory_node_t* block)
       return;
     }
     else if (carriage->next == NULL)
-    {
+    { /* we are at the end of the list, add the block here */
       carriage -> next = block;
       block -> previous = carriage;
       carriage->next->next = NULL;
-      return; // if we have gotten to the end of the heap we must add the block here
-      carriage -> next = block;
-      block -> previous = carriage;
-      carriage->next->next = NULL;
-      return; /* if we have gotten to the end of the heap we must 
-               * add the block here 
-               */
+      return; 
     }
   }
 }
@@ -331,19 +322,23 @@ return_memnode_block(volatile memory_node_t* block)
 static volatile memory_node_t*
 split(volatile memory_node_t* block, size_t size)
 {
-  // This code splits the block into two parts, the lower of which is returned
-  // to the caller.
-  volatile memory_node_t* second = ((void*) block) + sizeof (memory_node_t) + size;
+  /* 
+   * This code splits the block into two parts, the lower of which is returned
+   * to the caller.
+   */
+  volatile memory_node_t* second = ((void*)block) + sizeof(memory_node_t) + size;
 
-  initHdr(second, block->size - size - sizeof (memory_node_t));
-    //return block;
+  if(initHdr(second, block->size - size - sizeof (memory_node_t)))
+    return block;
   /* initialise the second block to the right size */
 
   second->previous = block; // fix the heap lists
   second->next = block->next;
+	second->next->previous = second;
 
   block->next = second;
   block->size = size;
+	block->next->previous = block;
   return block; // return the bottom block
 }
 
@@ -354,57 +349,55 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
   if (pageAlligned)
   {
     // figure out whether or not the block is at the right place
-    if (((long) ((void*) block + sizeof (memory_node_t))) % PAGEBOUNDARY == 0)
+    if (((addr_t) ((void*) block + sizeof (memory_node_t))) % PAGEBOUNDARY == 0)
     { // if so we can manage with a simple split
 #ifdef MMTEST
       printf("Simple split\n");
 #endif
-      // If this block gets reached the block is at the offset in memory.
+      /* If this block gets reached the block is at the offset in memory.*/
       return split(block, size);
     }
-    else if ((long) ((void*) block + sizeof (memory_node_t)) % PAGEBOUNDARY != 0)
+    else if ((addr_t) ((void*) block + sizeof (memory_node_t)) % PAGEBOUNDARY != 0)
     { // if not we must do a bit more complex
 #ifdef MMTEST
       printf("Complex split\n");
 #endif
-      // If we get here the base address of the block isn't alligned with the offset.
-      // Split the block and then use split on the higher block so the middle is
-      // pageAlligned.
-      // Below we figure out where the second block should start using some algorithms
-      // of which it isn't if a shame a beginner doesn't fully get it.
+      /* If we get here the base address of the block isn't alligned with the
+         offset.
+         Split the block and then use split on the higher block so the middle is
+         pageAlligned.
+         Below we figure out where the second block should start using some
+         algorithms of which it isn't if a shame a beginner doesn't
+         fully get it. */
       addr_t secondAddr;
-      addr_t base = (addr_t) ((void*) block + 2 * sizeof (memory_node_t)); // the base address is put in an int with some header
-      // sizes because the calculation requires them.
-      addr_t offset = PAGEBOUNDARY - (base % PAGEBOUNDARY); // the addrress is used to figure out the offset to the page boundary
-      secondAddr = (addr_t) ((void*) block + sizeof (memory_node_t)); // put the base address into second
-      secondAddr += offset; // add the offset to second
-      volatile memory_node_t* second = (void*) secondAddr; // put the actual address in second
-      volatile memory_node_t* next = block->next; // Temporarilly store next
+      addr_t base = (unsigned int) ((void*) block + 2 *
+        sizeof(memory_node_t)); /* base address */
 
-      int secondSize = block->size - ((void*) second - (void*) block); // second's temporary size gets calculated.
-      initHdr(second, secondSize); // init the second block with the temporary size
-      block->size = (void*) second - ((void*) block + sizeof (memory_node_t)); // fix the original block size as it isn't correct anymore.
-      block->next = second; // fix the heap lists to make a split or return possible
+      addr_t offset = PAGEBOUNDARY - (base % PAGEBOUNDARY); /* the addrress
+                        is used to figure out the offset to the page boundary */
+      secondAddr = (addr_t) ((void*) block + sizeof(memory_node_t));
+      /* put the base address into second */
+      
+      secondAddr += offset; /* add the offset to second */
+      volatile memory_node_t* second = (void*) secondAddr;
+      volatile memory_node_t* next = block->next; /* Temporarilly store next */
+
+      int secondSize = block->size - ((void*) second - (void*) block); 
+      initHdr(second, secondSize); /* init the second block with the temp size */
+      block->size = (void*) second - ((void*) block + sizeof (memory_node_t));
+      block->next = second; /* fix the heap lists to make a split or return possible */
       second->previous = block;
       second->next = next;
       if (second->size > size + sizeof (memory_node_t))
       {
-#ifdef MMTEST
-        printf("Split in three\n");
-#endif
         volatile memory_node_t *ret = split(second, size);
-#ifdef MMTEST
-        printf("Split successful\n");
-#endif
-        return ret; // if the second block still is too large do a normal split because this will return the
-        // right address anyways.
+        return ret; /* if the second block still is too large do a normal split 
+                because this will return the right address anyways. */
       }
       else
       {
-#ifdef MMTEST
-        printf("Split in two\n");
-#endif
-        return second; // the size is right and at the right address, what more could we want.
+        return second; /* the size is right and at the right address, 
+                          what more could we want. */
       }
     }
   }
