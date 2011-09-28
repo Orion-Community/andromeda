@@ -17,6 +17,8 @@
  */
 
 #include <stdlib.h>
+#include <arch/x86/acpi/acpi.h>
+
 #ifndef IOAPIC_H
 #define	IOAPIC_H
 

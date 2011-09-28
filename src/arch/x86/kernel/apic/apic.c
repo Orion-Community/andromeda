@@ -24,16 +24,19 @@
 static int 
 ol_detect_apic(ol_cpu_t cpu)
 {
-        if((cpu->flags & 0x1))
-        {
-                ol_gen_registers_t regs = ol_cpuid(1);
-                if(regs->edx & (1<<9))
-                {
-                        /* apic is available */
-                        return 0;
-                }
-                return -1;
-        }
+  cpu->lock(&cpu_lock);
+  if((cpu->flags & 0x1))
+  {
+    ol_gen_registers_t regs = ol_cpuid(1);
+    if(regs->edx & (1<<9))
+    {
+      /* apic is available */
+      cpu->unlock(&cpu_lock);
+      return 0;
+    }
+    cpu->unlock(&cpu_lock);
+    return -1;
+  }
 }
 
 void

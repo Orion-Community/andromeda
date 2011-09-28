@@ -17,6 +17,7 @@
  */
 
 #include <stdlib.h>
+#include <arch/x86/apic/ioapic.h>
 
 #ifndef __INTERRUPT_H
 #define __INTERRUPT_H
@@ -43,6 +44,12 @@ struct irq_stack
 	uint16_t ss;
 } __attribute__((packed));
 typedef struct irq_stack ol_irq_stack_t;
+
+typedef struct int_src
+{
+  ioapic_t src;
+  void (*handler)(ol_isr_stack_t);
+} *int_src_t;
 
 bool inKernelRing();
 
