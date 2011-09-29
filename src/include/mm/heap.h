@@ -61,6 +61,8 @@ merge_memnode(volatile memory_node_t*, volatile memory_node_t*);
 
 void heapStub();
 
+void heap_add_blocks(void* base, uint32_t size);
+
 #define kalloc(size) alloc(size, FALSE)
 
 // Alloc_max = 1 MB

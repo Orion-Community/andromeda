@@ -27,6 +27,7 @@
 #define E_PAGE_MAPPING  0x1
 #define E_PAGE_NORIGHTS 0x2
 #define E_PAGE_NOPAGE   0x3
+#define E_PAGE_NOMEM    0x4
 
 #define E_BMP_NOMAP     0x1
 #define E_BMP_NOLIST    0x2

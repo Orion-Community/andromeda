@@ -35,7 +35,7 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
   addr_t memory_map_end;
   page_map = kalloc(map_size*sizeof(page_map));
-  
+
   memset(page_map, 0, sizeof(page_map)*map_size);
   #ifdef PAGEDBG
   printf("Map size: %X B\tMemsize: %X B\n", 
@@ -49,7 +49,7 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
  * supposed to be locked by higher level functions
  */
 
-uint32_t map_find_endoflist(uint32_t idx)
+addr_t map_find_endoflist(addr_t idx)
 {
   for (; page_map[idx].next_idx != BMP_FREE; idx = page_map[idx].next_idx)
   {
@@ -63,7 +63,7 @@ uint32_t map_find_endoflist(uint32_t idx)
  * map_find_headoflist does what is says. DO NOT MAKE IT USE THE MUTEX as it is
  * supposed to be locked by higher level functions
  */
-uint32_t map_find_headoflist(uint32_t idx)
+addr_t map_find_headoflist(addr_t idx)
 {
   for (; page_map[idx].prev_idx != BMP_FREE; idx = page_map[idx].prev_idx)
   {
@@ -78,7 +78,7 @@ uint32_t map_find_headoflist(uint32_t idx)
  * MUTEX as it is supposed to be locked by higher level functions
  */
 
-int map_add_page(uint32_t list_start, uint32_t page_index)
+int map_add_page(addr_t list_start, addr_t page_index)
 {
   if (list_start >= map_size)
     return -E_BMP_NOIDX;
@@ -86,17 +86,17 @@ int map_add_page(uint32_t list_start, uint32_t page_index)
     return -E_BMP_NOIDX;
   else if (page_map == NULL)
     return -E_BMP_NOMAP;
-  
-  uint32_t list_end = map_find_endoflist(list_start);
-  
-  if (list_end == (uint32_t)-E_BMP_CORRUPT)
+
+  addr_t list_end = map_find_endoflist(list_start);
+
+  if (list_end == (addr_t)-E_BMP_CORRUPT)
     return -E_BMP_CORRUPT;
-  
+
   page_map[list_end].next_idx = page_index;
-  
+
   page_map[page_index].prev_idx = list_end;
   page_map[page_index].next_idx = 0;
-  
+
   return -E_SUCCESS;
 }
 
@@ -104,30 +104,31 @@ int map_add_page(uint32_t list_start, uint32_t page_index)
  * map_rm_page removes a page from the list and ALWAYS returns the head of the
  * list. Please keep the mutexes as granual as possible!
  */
-uint32_t map_rm_page(uint32_t page_index)
+addr_t map_rm_page(addr_t page_index)
 {
+  page_index = page_index >> 12;
   if (page_index >= map_size)
-    return (uint32_t)-E_BMP_NOIDX;
+    return (addr_t)-E_BMP_NOIDX;
   else if (page_map == NULL)
-    return (uint32_t)-E_BMP_NOMAP;
- 
+    return (addr_t)-E_BMP_NOMAP;
+
   mutex_lock(map_lock);
-  
-  uint32_t prev_idx = page_map[page_index].prev_idx;
-  uint32_t next_idx = page_map[page_index].next_idx;
-  
-  uint32_t list_start = BMP_FREE;
-  
+
+  addr_t prev_idx = page_map[page_index].prev_idx;
+  addr_t next_idx = page_map[page_index].next_idx;
+
+  addr_t list_start = BMP_FREE;
+
   if (prev_idx != BMP_FREE)
     page_map[prev_idx].next_idx = next_idx;
   if (next_idx != BMP_FREE)
     page_map[next_idx].prev_idx = prev_idx;
-  
+
   page_map[page_index].prev_idx = BMP_FREE;
   page_map[page_index].next_idx = BMP_FREE;
-  
+
   mutex_unlock(map_lock);
-  
+
   return map_find_headoflist(prev_idx);
 }
 
@@ -135,9 +136,9 @@ uint32_t map_rm_page(uint32_t page_index)
  * map_alloc_page allocates a page and adds it to the list. Please keep the
  * mutexes as granual as possible.
  */
-uint32_t map_alloc_page(uint32_t list_idx)
+addr_t map_alloc_page(addr_t list_idx)
 {
-  uint32_t idx = 0;
+  addr_t idx = 0;
   mutex_lock(map_lock);
   for (; idx < map_size; idx++)
   {
@@ -145,9 +146,9 @@ uint32_t map_alloc_page(uint32_t list_idx)
     {
       map_add_page(list_idx, idx);
       mutex_unlock(map_lock);
-      return idx;
+      return idx << 12;
     }
   }
   mutex_unlock(map_lock);
-  return (uint32_t)-E_BMP_NOMEM;
+  return (addr_t)-E_BMP_NOMEM;
 }
