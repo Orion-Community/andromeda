@@ -1,10 +1,16 @@
 Changes Andromeda 0.1.0
 
-Started implementation of an APIC architecture
-Beginning support for ACPI
-Started support for MultiProcessor specification
-Data structures for CPU's
-PS/2 controller
-PCI support
-A ton of bug fixes in the heap
-Started on ATA support
+ * Started implementation of an APIC architecture
+ * Beginning support for ACPI
+ * Started support for MultiProcessor specification
+ * Data structures for CPU's
+ * PS/2 controller
+ * PCI support
+ * A ton of bug fixes in the heap
+ * Started on ATA support
+
+ * An paging subsystem rewrite
+ * A basic VFS
+ * Low resolution graphics
+ * Error code centralisation
+ * No more floppy.img

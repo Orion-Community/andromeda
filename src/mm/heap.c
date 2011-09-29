@@ -61,7 +61,7 @@ void heapAddBlocks(void* base, int size) // Requests size in bytes
   mutexRelease(prot);
 }
 
-void heapCoreBlocks(void* base, int size)
+void heap_add_blocks(void* base, uint32_t size)
 {
   mutexEnter(prot);
   memory_node_t* node = (memory_node_t*) base;

@@ -54,7 +54,7 @@ void cPageFault(isrVal_t registers)
   #ifdef PAGEDBG
   printf("PG\n");
   #endif
-  
+
   if (registers.cs != 0x8 && registers.cs != 0x18)
   {
     panic("Incorrect frame!");
@@ -76,7 +76,7 @@ uint16_t page_cnt[PAGETABLES];
  * usermode and to choose a different page directory than the current (usefull
  * when using multiple processors).
  */
-int map_page(addr_t virtual, addr_t physical, struct page_dir *pd, 
+int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
                                                                boolean userMode)
 {
   while(mutexTest(page_lock))
@@ -88,7 +88,7 @@ int map_page(addr_t virtual, addr_t physical, struct page_dir *pd,
   struct page_table* pt;
   addr_t pd_entry = virtual >> 22;
   addr_t pt_entry = (virtual >> 12) & 0x3FF;
-  
+
   if (pd[pd_entry].present == FALSE)
   {
     pt = alloc(sizeof(pt)*PAGETABLES, TRUE);
@@ -107,7 +107,7 @@ int map_page(addr_t virtual, addr_t physical, struct page_dir *pd,
   {
     if (pd[pd_entry].userMode == FALSE)
       pd[pd_entry].userMode = userMode;
-    
+
     pt = (struct page_table*)(pd[pd_entry].pageIdx*PAGESIZE);
     if (pt == NULL)
     {
@@ -120,12 +120,12 @@ int map_page(addr_t virtual, addr_t physical, struct page_dir *pd,
     mutexRelease(page_lock);
     return -E_PAGE_MAPPING;
   }
-  
+
   pt[pt_entry].pageIdx  = physical >> 0x12;
   pt[pt_entry].present  = TRUE;
   pt[pt_entry].rw       = TRUE;
   pt[pt_entry].userMode = userMode;
-  
+
   page_cnt[pd_entry]++;
   mutexRelease(page_lock);
   return -E_SUCCESS;
@@ -134,7 +134,7 @@ int map_page(addr_t virtual, addr_t physical, struct page_dir *pd,
 /**
  * Function does exactly what it says on the tin (or header for that matter)
  */
-int release_page(addr_t virtual, struct page_dir *pd)
+int page_release_entry(addr_t virtual, struct page_dir *pd)
 {
   while (mutexTest(page_lock))
   {
@@ -144,24 +144,24 @@ int release_page(addr_t virtual, struct page_dir *pd)
   }
   addr_t pd_entry = virtual >> 22;
   addr_t pt_entry = virtual >> 12;
-  
+
   if (pd[pd_entry].present == FALSE)
   {
     mutexRelease(page_lock);
     return -E_PAGE_NOPAGE;
   }
-  
+
   struct page_table *pt = (struct page_table*)(pd[pd_entry].pageIdx*PAGESIZE);
-  
+
   if (pt[pt_entry].present == FALSE)
   {
     mutexRelease(page_lock);
     return -E_PAGE_NOPAGE;
   }
-  
+
   pt[pt_entry].present = FALSE;
   pt[pt_entry].pageIdx = 0;
-  
+
   page_cnt[pd_entry]--;
   if (page_cnt[pd_entry] == 0)
   {
@@ -185,7 +185,7 @@ addr_t setup_page_dir()
   if (pd == NULL)
     return -E_NOMEM;
   memset(pd, 0, sizeof(pd)*PAGEDIRS);
-  
+
   /**
    * Get the start and end address of the total image with heap
    */
@@ -196,7 +196,7 @@ addr_t setup_page_dir()
   printf("Absolute size in bytes: %X\n", (abs_end - base_addr));
   int i = 0;
   #endif
-  
+
   /**
    * Configure the page tables to point to the absolute image address space.
    */
@@ -208,7 +208,7 @@ addr_t setup_page_dir()
     printf("Set page %X\n", i);
     #endif
   }
-  
+
   return (addr_t)pd;
 }
 
@@ -217,17 +217,31 @@ int page_copy_image(addr_t from, size_t size, addr_t to)
   return -E_NOFUNCTION;
 }
 
+int page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
+                                                               boolean userMode)
+{
+  addr_t phys_addr = map_alloc_page(list_idx);
+  if (phys_addr != (addr_t)(-E_SUCCESS)) return -E_PAGE_NOMEM;
+
+  int map = page_map_entry(virt_addr, phys_addr, struct page_dir *pd, userMode);
+  if (map != -E_SUCCESS)
+  {
+    map_rm_page(phys_addr);
+    return map;
+  }
+}
+
 addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
 {
   int directory_idx = virt >> 22;
   int table_idx = (virt >> 12) & 0x3FF;
-  
+
   struct page_table* pt = (void*)(pd[directory_idx].pageIdx << 12);
   addr_t phys = pt[table_idx].pageIdx << 12 | (virt & 0x3FF);
   return phys;
 }
 
-void initPaging()
+void page_init()
 {
   memset(page_cnt, 0, PAGETABLES*sizeof(uint16_t));
   setCR3(setup_page_dir());

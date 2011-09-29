@@ -23,8 +23,8 @@
 int 
 initHeap(long size)
 {
-  heapCoreBlocks(&end, size);
-  initPaging();
+  heap_add_blocks(&end, size);
+  page_init();
   return 0;
 }
 
