@@ -29,20 +29,23 @@ create_ioapic (ol_madt_ioapic_t madt_io)
 {
   ioapic = kalloc(sizeof (*ioapic));
   cpus->lock(&cpu_lock);
-  if (ioapic != NULL)
+  if (ioapic == NULL) 
+    goto nomem;
+  else
   {
     
     ioapic->address = (ioapic_addr_t*) madt_io[0].address;
     ioapic->int_base = madt_io[0].global_system_interrupt_base;
     ioapic->id = madt_io[0].id;
-  }
-  else
-  {
-    cpus->unlock(&cpu_lock);
-    return -1;
+    ioapic->read = &ioapic_read_dword;
+    ioapic->write = &ioapic_write_dword;
   }
   cpus->unlock(&cpu_lock);
   return 0;
+  
+  nomem:
+  ol_dbg_heap();
+  panic("No free memory in heap in create_ioapic!");
 }
 
 int
@@ -51,4 +54,18 @@ init_ioapic ()
   ol_madt_ioapic_t madt_io = ol_acpi_get_ioapic();
   create_ioapic(madt_io);
   printf("The address of the I/O APIC is: 0x%x\n", (uint32_t) ioapic->address);
+}
+
+static uint32_t
+ioapic_read_dword(ioapic_t io, const uint8_t offset)
+{
+  *(io->address) = offset;
+  return *(ioapic_addr_t*)(((void*)io->address+0x10));
+}
+
+static void
+ioapic_write_dword(ioapic_t io, const uint8_t offset, const uint32_t value)
+{
+  *(io->address) = offset;
+  *(IOAPIC_DATA_ADDRESS(io->address)) = value;
 }

@@ -17,6 +17,8 @@
  */
 
 #include <stdlib.h>
+#include <arch/x86/acpi/acpi.h>
+
 #ifndef IOAPIC_H
 #define	IOAPIC_H
 
@@ -25,6 +27,8 @@ extern "C"
 {
 #endif
 
+#define IOAPIC_DATA_ADDRESS(x) (volatile uint32_t*)(((volatile void*)x)+0x10)
+
     typedef uint32_t ioapic_addr_t;
     typedef struct ioapic
     {
@@ -32,8 +36,8 @@ extern "C"
         uint8_t apic_id:4;
         uint32_t int_base /* system interrupt base */, num_intr;
         volatile ioapic_addr_t* address;
-        void (*write)(const ioapic_addr_t*, const uint8_t, const uint32_t);
-        uint32_t (*read)(const ioapic_addr_t*, const uin8_t);
+        void (*write)(struct ioapic*, const uint8_t, const uint32_t);
+        uint32_t (*read)(struct ioapic*, const uint8_t);
     } *ioapic_t;
 
 static int
@@ -41,6 +45,12 @@ create_ioapic(ol_madt_ioapic_t);
 
 int
 init_ioapic();
+
+static uint32_t
+ioapic_read_dword(ioapic_t io, const uint8_t offset);
+
+static void
+ioapic_write_dword(ioapic_t io, const uint8_t offset, const uint32_t value);
 #ifdef	__cplusplus
 }
 #endif
