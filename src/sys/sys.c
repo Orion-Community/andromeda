@@ -23,7 +23,7 @@
 #include <arch/x86/cpu.h>
 #include <arch/x86/acpi/acpi.h>
 
-struct system_tables * sys_tables;
+struct system_tables * systables;
 
 static void
 ol_cpu_search_signature(void* mem, uint32_t c)
@@ -38,10 +38,18 @@ ol_cpu_search_signature(void* mem, uint32_t c)
 int
 ol_get_system_tables()
 { /* get the ebda pointer */
-  if(sys_tables->magic != ANDROMEDA_MAGIC)
+  if(systables->magic != ANDROMEDA_MAGIC)
   {
-    sys_tables = kalloc(sizeof(*sys_tables));
+    systables = kalloc(sizeof(*systables));
   }
+  else
+  {
+    if(systables->flags) return;
+  }
+  
+  systables->rsdp = NULL;
+  systables->mp = NULL;
+  systables->smbios = NULL;
   uint16_t ebda = *((uint16_t*) ((uint32_t) (0x040E)));
   uint16_t len = ((ebda << 4) + 0x400)-(ebda << 4);
 
@@ -53,7 +61,8 @@ ol_get_system_tables()
   ol_cpu_search_signature((void*) (ebda << 4), len);
   ol_cpu_search_signature((void*) 0x9fc00, 0x400);
   ol_cpu_search_signature((void*) 0xe0000, 0x20000);
-  sys_tables->flags |= 1;
+  systables->magic = ANDROMEDA_MAGIC;
+  systables->flags |= 1;
 }
 
 static uint8_t
@@ -70,7 +79,7 @@ ol_validate_table(uint8_t* table)
       checksum += *(table + i);
     }
     if (!checksum)
-      mp = (ol_cpu_mp_fps_t) table;
+      systables->mp = (struct mp_fp_header*)table;
   }
   else if (!memcmp(table, "_SM_", 4))
   {
@@ -83,7 +92,7 @@ ol_validate_table(uint8_t* table)
         checksum += *(table + i);
       }
       if (!checksum);
-        /*putc('c');*/
+        systables->smbios = (void*)table;
     }
   }
   else if (!memcmp(table, "RSD PTR ", 8))
@@ -96,8 +105,7 @@ ol_validate_table(uint8_t* table)
     }
     if (!checksum)
     {
-      rsdp = (ol_acpi_rsdp_t) table;
-      sys_tables->rsdp = (ol_acpi_rsdp_t)table;
+      systables->rsdp = (ol_acpi_rsdp_t)table;
     }
   }
 

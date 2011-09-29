@@ -23,16 +23,16 @@
 
 #include <arch/x86/acpi/acpi.h>
 
-ol_acpi_rsdp_t rsdp;
-
 static ol_acpi_madt_t
 ol_acpi_get_madt()
 {
-  if(rsdp == NULL)
+  if(systables->magic != SYS_TABLE_MAGIC)
     if(ol_get_system_tables())
       return NULL;
+    else if(systables->magic != SYS_TABLE_MAGIC)
+      return NULL;
   
-  ol_acpi_rsdt_t rsdt = (void*) rsdp->rsdt;
+  ol_acpi_rsdt_t rsdt = (void*) systables->rsdp->rsdt;
 
   void * table;
   uint32_t len = (rsdt->length - sizeof (*rsdt)) / 4, i = 0; /* default length */

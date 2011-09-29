@@ -20,6 +20,7 @@
 
 #include <arch/x86/acpi/acpi.h>
 #include <arch/x86/cpu.h>
+#include <arch/x86/mp.h>
 
 #ifndef SYS_H
 #define	SYS_H
@@ -52,9 +53,11 @@ struct system_tables
                        * not search for them again.
 		       */
   struct ol_acpi_rsdp * rsdp;
+  struct mp_fp_header * mp;
+  void * smbios;
 } __attribute__((packed));
 
-extern struct system_tables* sys_tables;
+extern struct system_tables* systables;
 
 #ifdef	__cplusplus
 }
