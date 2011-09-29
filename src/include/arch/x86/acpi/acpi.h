@@ -78,7 +78,7 @@ extern "C"
     } __attribute__((packed));
     typedef struct ol_rsdt *ol_acpi_rsdt_t;
 
-    struct ol_rsdp
+    struct ol_acpi_rsdp
     {
         /* universal part */
         char signature[8];
@@ -94,7 +94,7 @@ extern "C"
         uint8_t reserved[3];
 #endif
     } __attribute__((packed));
-    typedef struct ol_rsdp *ol_acpi_rsdp_t;
+    typedef struct ol_acpi_rsdp *ol_acpi_rsdp_t;
 
     extern ol_acpi_rsdp_t rsdp;
 

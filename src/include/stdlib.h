@@ -21,6 +21,12 @@
 
 #define ANDROMEDA_VERSION "0.1.0"
 
+/* 
+ * ANDROMEDA_MAGIC can be used to identify several data structures within the
+ * kernel
+ */
+#define ANDROMEDA_MAGIC 0xc0debabe
+
 #include <text.h>
 #include <io.h>
 #include <types.h>

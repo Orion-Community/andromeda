@@ -18,9 +18,8 @@
 
 #include <stdlib.h>
 
-/* MultiProcessor defines */
-#define OL_CPU_MP_FPS_SIGNATURE 0x5F504D5F
-#define OL_CPU_MP_CONFIG_TABLE_HEADER_SIGNATURE 0x50434d50
+#include <arch/x86/acpi/acpi.h>
+#include <arch/x86/cpu.h>
 
 #ifndef SYS_H
 #define	SYS_H
@@ -29,19 +28,36 @@
 extern "C"
 {
 #endif
+   
+/* MultiProcessor defines */
+#define OL_CPU_MP_FPS_SIGNATURE 0x5F504D5F
+#define OL_CPU_MP_CONFIG_TABLE_HEADER_SIGNATURE 0x50434d50
 
-        static void
-        ol_cpu_search_signature(void*, uint32_t);
-        
-        void
-        ol_get_system_tables();
-        
-        static uint8_t
-        ol_validate_table(uint8_t*);
+#define SYS_TABLE_MAGIC ANDROMEDA_MAGIC
+
+static void
+ol_cpu_search_signature(void*, uint32_t);
+
+int
+ol_get_system_tables();
+
+static uint8_t
+ol_validate_table(uint8_t*);
+
+struct system_tables
+{
+  uint32_t magic;
+  uint32_t flags : 1; /* 
+                       * If set, the sys tables are already loaded and you should
+                       * not search for them again.
+		       */
+  struct ol_acpi_rsdp * rsdp;
+} __attribute__((packed));
+
+extern struct system_tables* sys_tables;
 
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* SYS_H */
-
