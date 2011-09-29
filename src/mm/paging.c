@@ -223,7 +223,7 @@ int page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
   addr_t phys_addr = map_alloc_page(list_idx);
   if (phys_addr != (addr_t)(-E_SUCCESS)) return -E_PAGE_NOMEM;
 
-  int map = page_map_entry(virt_addr, phys_addr, struct page_dir *pd, userMode);
+  int map = page_map_entry(virt_addr, phys_addr, pd, userMode);
   if (map != -E_SUCCESS)
   {
     map_rm_page(phys_addr);

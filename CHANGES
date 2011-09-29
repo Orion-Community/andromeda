@@ -9,7 +9,7 @@ Changes Andromeda 0.1.0
  * A ton of bug fixes in the heap
  * Started on ATA support
 
- * An paging subsystem rewrite
+ * A paging subsystem rewrite
  * A basic VFS
  * Low resolution graphics
  * Error code centralisation
