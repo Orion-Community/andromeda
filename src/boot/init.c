@@ -43,6 +43,7 @@
 
 #include <sys/dev/ps2.h>
 #include <sys/dev/pci.h>
+#include <sys/sys.h>
 
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
@@ -162,8 +163,13 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
   printf("\nSome (temp) debug info:\n");
   printf("CPU vendor: %s\n", cpus->vendor);
-  printf("RSDP ASCII signature: 0x%x%x\n", *(((uint32_t*) rsdp->signature) + 1),
-          *(((uint32_t*) rsdp->signature)));
+  
+  if(systables->magic == SYS_TABLE_MAGIC)
+  {
+    printf("RSDP ASCII signature: 0x%x%x\n", *(((uint32_t*) systables->rsdp->signature) + 1),
+	   *(((uint32_t*) systables->rsdp->signature)));
+    printf("MP specification signature: 0x%x\n", systables->mp->signature);
+  }
 
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do

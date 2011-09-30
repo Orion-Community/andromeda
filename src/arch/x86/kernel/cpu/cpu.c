@@ -24,7 +24,6 @@
 #include <text.h>
 
 mutex_t cpu_lock = 0;
-ol_cpu_mp_fps_t mp = NULL;
 volatile ol_cpu_t cpus;
 
 int
