@@ -244,8 +244,7 @@ addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
 void page_init()
 {
   memset(page_cnt, 0, PAGETABLES*sizeof(uint16_t));
+  sched_init_stack();
   setCR3(setup_page_dir());
-/*
-  setPGBit();
-*/
+//   setPGBit();
 }

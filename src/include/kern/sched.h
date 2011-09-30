@@ -19,23 +19,23 @@
 #ifndef __KERN_SCHED_H
 #define __KERN_SCHED_H
 #include <fs/fs.h>
+#include <stdlib.h>
 #include <types.h>
 void sched();
 void fork (int);
 void kill (int);
 
-struct __KERN_SCHED_PENT // Page directory entry for a certain process
+struct __kern_sched_page_entry // Page directory entry for a certain process
 {
-  struct __KERN_SCHED_PENT* next; // Next entry
-  boolean swapped; // Has this page been swapped?
-  unsigned int block; // In that case you need this block;
+  addr_t index_list;
+  struct __kern_sched_page_entry *next;
 };
 
-struct __KERN_SCHED_SEGMENT
+struct __kern_sched_segment
 {
   void* base; // Base address
   size_t length;
-  struct __KERN_SCHED_PENT* pagedir; // Page directory for segment
+  struct __kern_sched_page_entry* pagedir; // Page directory for segment
   boolean executable;
   boolean writable;
   boolean swappable;
@@ -46,7 +46,7 @@ struct __KERN_SCHED_SEGMENT
 #define _STATE_PAUSING 2
 #define _STATE_ZOMBIE  3
 
-struct __THREAD_STATE
+struct __thread_state
 {
   unsigned int tid;      // The id of the specific thread
   isrVal_t* registers;   // The registers as stored by the irq stub
@@ -55,13 +55,13 @@ struct __THREAD_STATE
   unsigned int used;     // The running time used by the thread
 };
 
-struct __TASK_STRUCT
+struct __task_struct
 {
   unsigned int pid; // Proccess ID
   unsigned int uid; // User ID
 
   unsigned int noThreads;
-  struct __THREAD_STATE *threads;
+  struct __thread_state *threads;
   struct __FS_INODE *procData; // Pointer to /proc/pid
 
   unsigned int ring; // Privilege level
@@ -70,9 +70,16 @@ struct __TASK_STRUCT
   unsigned int priority; // Priority level
   unsigned int spent; // Ammount of time spent in current epoch
 
-  struct _KERN_SCHED_SEGMENT* text;
-  struct _KERN_SCHED_SEGMENT* data;
-  struct _KERN_SCHED_SEGMENT* bss;
-  struct _KERN_SCHED_SEGMENT* stack;
+  struct __kern_sched_segment* text;
+  struct __kern_sched_segment* data;
+  struct __kern_sched_segment* bss;
+  struct __kern_sched_segment* stack;
+
+  struct __task_struct *previous;
+  struct __task_struct *next;
 };
+
+extern struct __task_struct* task_stack;
+
+int sched_init_stack();
 #endif

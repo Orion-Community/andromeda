@@ -23,6 +23,7 @@
 
 #define E_NOMEM      0x1
 #define E_NOFUNCTION 0x2
+#define E_UNFINISHED 0x3
 
 #define E_PAGE_MAPPING  0x1
 #define E_PAGE_NORIGHTS 0x2

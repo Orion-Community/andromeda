@@ -77,7 +77,6 @@ addr_t map_find_headoflist(addr_t idx)
  * map_add_page adds a page to the list you've specified. DO NOT MAKE IT USE THE
  * MUTEX as it is supposed to be locked by higher level functions
  */
-
 int map_add_page(addr_t list_start, addr_t page_index)
 {
   if (list_start >= map_size)

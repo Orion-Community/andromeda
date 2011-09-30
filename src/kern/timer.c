@@ -38,7 +38,7 @@ struct __kern_sig
   void (*function)();
 };
 
-boolean scheduling = FALSE;
+extern boolean scheduling;
 
 struct __kern_timer *timer;
 

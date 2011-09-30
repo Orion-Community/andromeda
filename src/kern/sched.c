@@ -19,7 +19,24 @@
 #include <kern/sched.h>
 #include <error/panic.h>
 
-extern boolean scheduling;
+volatile boolean scheduling = FALSE;
+struct __task_struct* task_stack = NULL;
+
+int sched_init_task(int user_id, boolean userspace, char* path_to_binary)
+{
+  struct __task_struct* new_task = kalloc(sizeof(struct __task_struct));
+  memset (new_task, 0, sizeof(struct __task_struct));
+
+  printf("sizeof new_task: %X\n", sizeof(struct __task_struct));
+  
+  return -E_UNFINISHED;
+}
+
+int sched_init_stack()
+{
+  sched_init_task(0, 0, NULL);
+  return -E_UNFINISHED;
+}
 
 void sched()
 {
