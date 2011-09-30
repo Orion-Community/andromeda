@@ -51,8 +51,10 @@ struct __thread_state
   unsigned int tid;      // The id of the specific thread
   isrVal_t* registers;   // The registers as stored by the irq stub
   unsigned int state;    // The state of the current thread
-  unsigned int priority; // The thread based priority
+  unsigned int nice; // The thread based priority
   unsigned int used;     // The running time used by the thread
+  struct __thread_state *next;
+  struct __thread_state *previous;
 };
 
 struct __task_struct
@@ -60,14 +62,13 @@ struct __task_struct
   unsigned int pid; // Proccess ID
   unsigned int uid; // User ID
 
-  unsigned int noThreads;
   struct __thread_state *threads;
-  struct __FS_INODE *procData; // Pointer to /proc/pid
+  struct __FS_INODE *proc_data; // Pointer to /proc/pid
 
-  unsigned int ring; // Privilege level
+  boolean userspace; // false for kernel mode
   char *ptb; // Path to binary (to look up new data)
-  char *workingDir;
-  unsigned int priority; // Priority level
+  char *working_dir;
+  unsigned int nice; // Priority level
   unsigned int spent; // Ammount of time spent in current epoch
 
   struct __kern_sched_segment* text;
@@ -81,5 +82,5 @@ struct __task_struct
 
 extern struct __task_struct* task_stack;
 
-int sched_init_stack();
+int sched_init();
 #endif
