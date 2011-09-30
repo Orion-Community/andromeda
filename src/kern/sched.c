@@ -32,8 +32,6 @@ sched_init_task(int user_id, boolean userspace, char* path_to_binary, int pid)
   if(new_task == NULL) return NULL;
   memset (new_task, 0, sizeof(struct __task_struct));
 
-  printf("sizeof new_task: %X\n", sizeof(struct __task_struct));
-
   new_task->uid       = user_id;
   new_task->pid       = pid;
   new_task->userspace = userspace;
@@ -88,10 +86,15 @@ int sched_init()
 {
   struct __task_struct* proc_init = sched_init_task(0, FALSE, "/", 0);
 
+  if (proc_init == NULL)
+    panic("No memory for init process");
+
   uint32_t cpus = /* get_no_cpus() */1;
   if (cpus == 0)
     cpus = 1;
   current_tasks = kalloc(sizeof(struct __task_struct) * cpus);
+  if (current_tasks == NULL)
+    panic("No memory for the current tasks structure");
   int i = 0;
   for (; i < cpus; i++)
   {
