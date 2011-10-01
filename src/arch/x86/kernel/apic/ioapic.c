@@ -33,7 +33,6 @@ create_ioapic (ol_madt_ioapic_t madt_io)
     goto nomem;
   else
   {
-    
     ioapic->address = (ioapic_addr_t*) madt_io[0].address;
     ioapic->int_base = madt_io[0].global_system_interrupt_base;
     ioapic->id = madt_io[0].id;

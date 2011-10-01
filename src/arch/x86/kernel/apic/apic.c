@@ -16,10 +16,16 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
 
+#include <sys/sys.h>
+
 #include <text.h>
+
+struct apic* apic;
 
 static int 
 ol_detect_apic(ol_cpu_t cpu)
@@ -39,11 +45,26 @@ ol_detect_apic(ol_cpu_t cpu)
   }
 }
 
-void
+int
 ol_apic_init(ol_cpu_t cpu)
 {
-        if(!ol_detect_apic(cpu))
-        {
-                println("Apic detected");
-        }
+  if(!ol_detect_apic(cpu))
+  {
+    println("Apic detected");
+  }
+  else
+    goto fail;
+  
+  struct ol_madt_apic* acpiapic;
+  int i = 0;
+//   while((acpiapic+i) != NULL) i++;
+  
+  for(i = 0, acpiapic = acpi_get_apic(); *((void**)acpiapic+i) != NULL; i++) 
+  {
+    printf("%x\t%i\n", acpiapic+i, acpiapic[i].length);
+  }
+  
+  return 0;
+  fail:
+    return -1;
 }

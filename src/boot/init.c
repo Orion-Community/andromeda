@@ -129,7 +129,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
     panic("Invalid memory map");
   }
 
-
   setGDT();
 
   // Initialise the heap
@@ -142,8 +141,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   pic_init();
   setIDT();
   ol_ps2_init_keyboard();
+  ol_apic_init(cpu);
   init_ioapic();
-
+  
   ol_pci_init();
 #ifndef NOFS
   fsInit(NULL);

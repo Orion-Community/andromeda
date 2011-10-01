@@ -106,6 +106,9 @@ extern "C"
 
     ol_madt_ioapic_t
     ol_acpi_get_ioapic();
+    
+    struct ol_madt_apic *
+    acpi_get_apic();
 
 #ifdef __cplusplus
 }

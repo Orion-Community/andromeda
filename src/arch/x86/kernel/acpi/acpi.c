@@ -82,5 +82,15 @@ ol_acpi_enumerate(uint8_t type)
 ol_madt_ioapic_t
 ol_acpi_get_ioapic()
 {
-  return ((ol_madt_ioapic_t*)ol_acpi_enumerate(1))[0];
+  return ((ol_madt_ioapic_t*)ol_acpi_enumerate(1))[0]; /* return address of the 
+							* first entry */
+}
+
+struct ol_madt_apic*
+acpi_get_apic()
+{
+  return ((ol_madt_apic_t*)ol_acpi_enumerate(0))[0]; /* 
+						      * return the address
+						      * of the first entry
+						      */
 }
