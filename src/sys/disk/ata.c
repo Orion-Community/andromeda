@@ -17,6 +17,7 @@
  */
 
 #include <stdlib.h>
+#include <sys/dev/pci.h>
 #include <sys/disk/ide.h>
 
 int 

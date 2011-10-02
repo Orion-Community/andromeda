@@ -104,7 +104,7 @@ boolean setupCore(module_t mod)
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
-  printf("%s\n", welcome);
+
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
     printf("\nInvalid magic word: %X\n", magic);
@@ -128,7 +128,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid memory map");
   }
-
+  printf("%s\n", welcome);
   setGDT();
 
   // Initialise the heap

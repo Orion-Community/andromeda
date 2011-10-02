@@ -56,63 +56,71 @@ extern "C"
   typedef uint32_t ol_pci_addr_t;
   typedef uint32_t ol_pci_id_t;
 
+  typedef struct ol_pci_iterate_dev
+  {
+    uint32_t func; /* device function */
+    uint32_t device; /* device type */
+    uint32_t bus; /* pci bus */
+    int (*hook)(struct ol_pci_iterate_dev*);
+  } *ol_pci_iterate_dev_t;
+
   typedef struct ol_pci_dev
   {
     uint32_t func; /* device function */
     uint32_t device; /* device type */
     uint32_t bus; /* pci bus */
-    int (*hook)(struct ol_pci_dev*);
+    uint16_t id;
+    uint16_t vendorID;
+    uint16_t class;
+    uint16_t subclass;
+    uint32_t flags : 1; /*
+                         * bit 0: if set -> dev is mf
+                         */
+    uint32_t (*read)(struct ol_pci_dev*, uint16_t);
   } *ol_pci_dev_t;
-
-
+  
+  typedef struct ol_pci_node
+  {
+    struct ol_pci_node* next;
+    struct ol_pci_node* previous;
+    struct ol_pci_dev* dev;
+  } *ol_pci_node_t;
+  
   static int
   ol_pci_iterate();
 
   static ol_pci_addr_t
-  ol_pci_calculate_address(ol_pci_dev_t, uint16_t);
+  ol_pci_calculate_address(ol_pci_iterate_dev_t, uint16_t);
 
   static int
-  ol_pci_is_mf(ol_pci_dev_t);
+  ol_pci_is_mf(ol_pci_iterate_dev_t);
 
-  static ol_pci_dev_t
-  ol_pci_init_device(ol_pci_dev_t);
+  static ol_pci_iterate_dev_t
+  ol_pci_init_device(ol_pci_iterate_dev_t);
 
   static int
-  ol_pci_dev_exist(ol_pci_dev_t);
+  ol_pci_dev_exist(ol_pci_iterate_dev_t);
 
   void
   ol_pci_init();
 
+  static int
+  pci_add_list(ol_pci_iterate_dev_t);
+  
 #ifdef __PCI_DEBUG
   static int
-  ol_pci_dbg_print_info(ol_pci_dev_t dev);
-#else
-
-  static int
-  show_pci_dev(ol_pci_dev_t dev);
+  show_pci_dev(ol_pci_iterate_dev_t);
 #endif
 
-  /* PCI communication functions - They are inline (something like assembly
-   macro's */
-  static inline uint32_t
-  ol_pci_read_dword(ol_pci_addr_t addr, uint16_t reg)
-  {
-    register uint32_t ret;
-    outl(OL_PCI_CONFIG_ADDRESS, addr);
-    iowait();
-    ret = inl(OL_PCI_CONFIG_DATA);
-    return ret;
-  }
+  /* PCI communication functions */
+  static uint32_t
+  __ol_pci_read_dword(ol_pci_addr_t);
 
-  static inline uint8_t
-  ol_pci_read_byte(ol_pci_addr_t addr, uint16_t reg)
-  {
-    register uint8_t ret;
-    outl(OL_PCI_CONFIG_ADDRESS, addr & ~3);
-    ret = inb(OL_PCI_CONFIG_DATA + (reg & 3));
-    return ret;
-  }
-
+  static uint8_t
+  __ol_pci_read_byte(ol_pci_addr_t, uint16_t);
+  
+  inline uint32_t
+  ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg);
 #ifdef	__cplusplus
 }
 #endif

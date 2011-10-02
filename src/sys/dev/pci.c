@@ -19,10 +19,10 @@
 #include <stdlib.h>
 #include <sys/dev/pci.h>
 
-uint8_t pci_mechanism;
+struct ol_pci_node* pcidevs = NULL;
 
 static int
-ol_pci_iterate(ol_pci_dev_t dev)
+ol_pci_iterate(ol_pci_iterate_dev_t dev)
 {
   ol_pci_id_t id;
   register ol_pci_addr_t addr;
@@ -38,7 +38,7 @@ ol_pci_iterate(ol_pci_dev_t dev)
       {
         addr = ol_pci_calculate_address(dev,
                 OL_PCI_REG_ID);
-        id = ol_pci_read_dword(addr, OL_PCI_REG_ID);
+        id = __ol_pci_read_dword(addr);
         if ((id >> 16) == 0xffff)
           continue;
 
@@ -53,16 +53,16 @@ ol_pci_iterate(ol_pci_dev_t dev)
 }
 
 static int
-ol_pci_is_mf(ol_pci_dev_t dev)
+ol_pci_is_mf(ol_pci_iterate_dev_t dev)
 {
-  ol_pci_id_t header = ol_pci_read_dword(ol_pci_calculate_address(
-          dev, OL_PCI_REG_CACHELINE), OL_PCI_REG_CACHELINE);
+  ol_pci_id_t header = __ol_pci_read_dword(ol_pci_calculate_address(
+          dev, OL_PCI_REG_CACHELINE));
   if ((header >> 16) & OL_PCI_MF) return TRUE;
   else return FALSE;
 }
 
-static ol_pci_addr_t
-ol_pci_calculate_address(ol_pci_dev_t dev, uint16_t reg)
+static inline ol_pci_addr_t
+ol_pci_calculate_address(ol_pci_iterate_dev_t dev, uint16_t reg)
 {
   return ((1 << 31)
           | (dev->bus << 16) | (dev->device << 11)
@@ -72,39 +72,55 @@ ol_pci_calculate_address(ol_pci_dev_t dev, uint16_t reg)
 void
 ol_pci_init()
 {
-  ol_pci_dev_t dev = kalloc(sizeof (struct ol_pci_dev));
-#ifdef __PCI_DEBUG
-  dev->hook = &ol_pci_dbg_print_info;
-#elif __PCI_SHOW_INFO
-  dev->hook = &show_pci_dev;
-#else
-  dev->hook = NULL;
-#endif
+  ol_pci_iterate_dev_t dev = kalloc(sizeof (*dev));
+  dev->hook = &pci_add_list;
   ol_pci_iterate(dev);
   free(dev);
 }
 
-#ifdef __PCI_DEBUG
-
 static int
-ol_pci_dbg_print_info(ol_pci_dev_t dev)
+pci_add_list(ol_pci_iterate_dev_t itdev)
 {
-  ol_pci_id_t class = ol_pci_read_dword(ol_pci_calculate_address(dev,
-          OL_PCI_REG_CLASS), OL_PCI_REG_CLASS);
-
-
-  printf("%x     %x\n", class >> 16, ol_pci_calculate_address(dev, OL_PCI_REG_CLASS));
-
+  ol_pci_id_t class = __ol_pci_read_dword(ol_pci_calculate_address(itdev,
+          OL_PCI_REG_CLASS)); /* get class and sub class */
+  ol_pci_id_t id = __ol_pci_read_dword(ol_pci_calculate_address(itdev,
+          OL_PCI_REG_ID)); /* id and vendor id */
+  /* 
+   * we don't have to check the values anymore since the iterator did that for
+   * us..
+   */
+  if(pcidevs == NULL)
+  {
+    /* 
+     * this is the first time that this function is called, so the list should
+     * be initialized
+     */
+    pcidevs = kalloc(sizeof(*pcidevs));
+    pcidevs->next = NULL;
+    pcidevs->previous = NULL;
+    pcidevs->dev = NULL;
+  }
+  struct ol_pci_dev * dev = kalloc(sizeof(*dev));
+  dev->device = itdev->device;
+  dev->func = itdev->func;
+  dev->bus = itdev->bus;
+  dev->id = (id>>16)&0xffff;
+  dev->vendorID = id&0xffff;
+  
+  
+  /*
+   * create the actual device which will be added to the list
+   */
   return FALSE; /* we want to list all devices */
 
 }
-#else
 
+#ifdef __PCI_DEBUG
 static int
-show_pci_dev(ol_pci_dev_t dev)
+show_pci_dev(ol_pci_iterate_dev_t dev)
 {
   ol_pci_id_t class = ol_pci_read_dword(ol_pci_calculate_address(dev,
-          OL_PCI_REG_CLASS), OL_PCI_REG_CLASS);
+          OL_PCI_REG_CLASS));
   uint8_t subclass = (class >> 16) & 0xff;
   class >>= 24;
 
@@ -146,3 +162,29 @@ show_pci_dev(ol_pci_dev_t dev)
   return 0; /* list all devices */
 }
 #endif
+
+static uint32_t
+__ol_pci_read_dword(ol_pci_addr_t addr)
+{
+  register uint32_t ret;
+  outl(OL_PCI_CONFIG_ADDRESS, addr);
+  iowait();
+  ret = inl(OL_PCI_CONFIG_DATA);
+  return ret;
+}
+
+static uint8_t
+__ol_pci_read_byte(ol_pci_addr_t addr, uint16_t reg)
+{
+  register uint8_t ret;
+  outl(OL_PCI_CONFIG_ADDRESS, addr & ~3);
+  ret = inb(OL_PCI_CONFIG_DATA + (reg & 3));
+  return ret;
+}
+
+inline uint32_t
+ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg)
+{
+  return __ol_pci_read_dword(ol_pci_calculate_address((ol_pci_iterate_dev_t)dev, 
+                                                      reg));
+}
