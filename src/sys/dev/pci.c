@@ -100,13 +100,21 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
     pcidevs->previous = NULL;
     pcidevs->dev = NULL;
   }
+  else
+    struct ol_pci_node * node = kalloc(sizeof(*node));
+    
   struct ol_pci_dev * dev = kalloc(sizeof(*dev));
   dev->device = itdev->device;
   dev->func = itdev->func;
   dev->bus = itdev->bus;
   dev->id = (id>>16)&0xffff;
   dev->vendorID = id&0xffff;
+  dev->class = (class>>24)&0xff;
+  dev->subclass = (class>>16)&0xff;
+  dev->flags &= 0 | ol_pci_is_mf(dev);
+  dev->read = &ol_pci_read_dword;
   
+//   init list here
   
   /*
    * create the actual device which will be added to the list
