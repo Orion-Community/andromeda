@@ -64,8 +64,8 @@ struct page
 extern module_t modules[];
 extern size_t memsize;
 
-uint32_t map_alloc_page(uint32_t list_idx);
-uint32_t map_rm_page(uint32_t page_index);
+addr_t map_alloc_page(addr_t list_idx);
+addr_t map_rm_page(addr_t page_index);
 
 int build_map(multiboot_memory_map_t*, int);
 
