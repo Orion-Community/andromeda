@@ -104,6 +104,10 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
   printf("%s\n", welcome);
+  printf("Addr of hdr: %X\tAddr init: %X\n", (addr_t)hdr + 0xc0000000, &init);
+  addr_t tmp = hdr;
+  tmp += 0xC0000000;
+  hdr = (multiboot_info_t*)tmp;
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
     printf("\nInvalid magic word: %X\n", magic);
@@ -128,11 +132,11 @@ int init(unsigned long magic, multiboot_info_t* hdr)
     panic("Invalid memory map");
   }
 
-
-  setGDT();
-
   // Initialise the heap
   initHeap(HEAPSIZE);
+
+  for (;;);
+//   setGDT();
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);

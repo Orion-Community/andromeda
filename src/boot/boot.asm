@@ -40,19 +40,48 @@ mboot:
                                 ; 4-byte boundary in your kernel file
     dd  MBOOT_HEADER_FLAGS      ; How GRUB should load your file / settings
     dd  MBOOT_CHECKSUM          ; To ensure that the above values are correct
-    
+
     dd  mboot                   ; Location of this descriptor
     dd  code                    ; Start of kernel '.text' (code) section.
     dd  bss                     ; End of kernel '.data' section.
     dd  end                     ; End of kernel.
     dd  start                   ; Kernel entry point (initial EIP).
 
+[GLOBAL start]
+start:
+  lgdt [trickgdt]
+  mov dx, 0x10
+  mov ds, dx
+  mov es, dx
+  mov fs, dx
+  mov gs, dx
+  mov ss, dx
+
+  ; jump to the higher half kernel
+  jmp 0x08:high_start
+
+trickgdt:
+        dw gdt_end - gdt - 1 ; size of the GDT
+        dd gdt ; linear address of GDT
+
+gdt:
+        dd 0, 0                                                 ; null gate
+        db 0xFF, 0xFF, 0, 0, 0, 10011010b, 11001111b, 0x40      ; code selector 0x08: base 0x40000000, limit 0xFFFFFFFF, type 0x9A, granularity 0xCF
+        db 0xFF, 0xFF, 0, 0, 0, 10010010b, 11001111b, 0x40      ; data selector 0x10: base 0x40000000, limit 0xFFFFFFFF, type 0x92, granularity 0xCF
+
+gdt_end:
+
+[SECTION .higherhalf]           ; Defined as start of image for the C kernel
+[GLOBAL begin]
+begin:
+  dd 0
+
 [SECTION .text]
-[GLOBAL  start]                  ; Kernel entry point.
+[GLOBAL  high_start]                  ; Kernel entry point.
 [EXTERN  init]                  ; This is the entry point of our C code
 [EXTERN  stack]
 
-start:
+high_start:
     ; Load multiboot information:
     mov ecx, 0x10
     mov ss, ecx

@@ -241,10 +241,14 @@ addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
   return phys;
 }
 
+extern uint32_t begin;
+extern void start();
+
 void page_init()
 {
   memset(page_cnt, 0, PAGETABLES*sizeof(uint16_t));
   sched_init();
+  printf("Image start: %X\tStart ptr: %X\n", &begin, &start);
   setCR3(setup_page_dir());
 //   setPGBit();
 }
