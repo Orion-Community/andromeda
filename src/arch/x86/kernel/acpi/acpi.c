@@ -19,6 +19,8 @@
 #include <stdlib.h>
 #include <text.h>
 
+#include <sys/sys.h>
+
 #include <arch/x86/acpi/acpi.h>
 
 ol_acpi_rsdp_t rsdp;
@@ -26,6 +28,10 @@ ol_acpi_rsdp_t rsdp;
 static ol_acpi_madt_t
 ol_acpi_get_madt()
 {
+  if(rsdp == NULL)
+    if(ol_get_system_tables())
+      return NULL;
+  
   ol_acpi_rsdt_t rsdt = (void*) rsdp->rsdt;
 
   void * table;

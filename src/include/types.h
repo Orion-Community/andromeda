@@ -114,5 +114,5 @@ typedef unsigned char uint8_t;
 typedef unsigned long addr_t;
 
 
-#define NULL (void *)0
+#define NULL (void*)0
 #endif

@@ -20,7 +20,7 @@
 #define MAP_H
 
 #include <mm/paging.h>
-#include <types.h>
+#include <stdlib.h>
 #include <boot/mboot.h>
 #include <thread.h>
 
