@@ -36,6 +36,7 @@
 
 volatile mutex_t page_lock = 0;
 boolean pageDbg = false;
+volatile addr_t offset = 0xC0000000;
 
 /**
  * The andromeda paging system is set up here.
@@ -98,17 +99,16 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
       return -E_NOMEM;
     }
     memset(pt, 0, sizeof(pt)*PAGETABLES);
-    pd[pd_entry].pageIdx  = ((addr_t)pt)/PAGESIZE;
+    pd[pd_entry].pageIdx  = ((addr_t)(pt)-offset)>>12;
     pd[pd_entry].present  = TRUE;
     pd[pd_entry].rw       = TRUE;
-    pd[pd_entry].userMode = userMode;
+    pd[pd_entry].userMode = TRUE;
   }
   else
   {
-    if (pd[pd_entry].userMode == FALSE)
-      pd[pd_entry].userMode = userMode;
+    pd[pd_entry].userMode = TRUE;
 
-    pt = (struct page_table*)(pd[pd_entry].pageIdx*PAGESIZE);
+    pt = (struct page_table*)((pd[pd_entry].pageIdx << 12) + offset);
     if (pt == NULL)
     {
       mutexRelease(page_lock);
@@ -143,7 +143,7 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
     #endif
   }
   addr_t pd_entry = virtual >> 22;
-  addr_t pt_entry = virtual >> 12;
+  addr_t pt_entry = (virtual >> 12) & 0x3FF;
 
   if (pd[pd_entry].present == FALSE)
   {
@@ -151,7 +151,8 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
     return -E_PAGE_NOPAGE;
   }
 
-  struct page_table *pt = (struct page_table*)(pd[pd_entry].pageIdx*PAGESIZE);
+  struct page_table *pt = (struct page_table*)
+                                      (((pd[pd_entry].pageIdx) + offset) >> 12);
 
   if (pt[pt_entry].present == FALSE)
   {
@@ -166,7 +167,7 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
   if (page_cnt[pd_entry] == 0)
   {
     pd[pd_entry].present = FALSE;
-    free((void*)(pd[pd_entry].pageIdx*PAGESIZE));
+    free((void*)((pd[pd_entry].pageIdx+offset)*PAGESIZE));
     pd[pd_entry].pageIdx = 0;
   }
   mutexRelease(page_lock);
@@ -189,11 +190,10 @@ addr_t setup_page_dir()
   /**
    * Get the start and end address of the total image with heap
    */
-  volatile addr_t base_addr = (addr_t)&mboot % PAGESIZE;
-  volatile addr_t abs_end = ((addr_t)&end + (addr_t)HEAPSIZE);
-  abs_end += (PAGESIZE-(((addr_t)&end + (addr_t)HEAPSIZE)%PAGESIZE));
+  volatile addr_t base_addr = (addr_t)&begin;
+  volatile addr_t img_end = (addr_t)&end;
   #ifdef PAGEDBG
-  printf("Absolute size in bytes: %X\n", (abs_end - base_addr));
+  printf("Absolute size in bytes: %X\n", (img_end - base_addr));
   int i = 0;
   #endif
 
@@ -201,20 +201,27 @@ addr_t setup_page_dir()
    * Configure the page tables to point to the absolute image address space.
    */
   addr_t idx;
-  for (idx = base_addr; idx < abs_end; idx += PAGESIZE)
+  addr_t kern_size = 0xDFF000;
+  addr_t phys_start = base_addr - offset /** lea phys_start, cs[base_addr] */;
+
+#ifdef PAGEDBG
+  printf("Base addr: %X\tEnd addr: %X\tImg size: %X\n",
+         base_addr, img_end, kern_size);
+//   for(;;);
+#endif
+  for (idx = 0; idx <= kern_size; idx += PAGESIZE)
   {
     #ifdef PAGEDBG
     i++;
-    printf("Set page %X\n", i);
+    printf("Virtual: %X\tPhysical: %X\n", base_addr+idx, phys_start+idx);
     #endif
+
+    page_map_entry(base_addr+idx, phys_start+idx, pd, false);
   }
-
+#ifdef PAGEDBG
+  printf("Base addr: %X\tStart addr: %X\n", base_addr, phys_start);
+#endif
   return (addr_t)pd;
-}
-
-int page_copy_image(addr_t from, size_t size, addr_t to)
-{
-  return -E_NOFUNCTION;
 }
 
 int page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
@@ -236,19 +243,21 @@ addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
   int directory_idx = virt >> 22;
   int table_idx = (virt >> 12) & 0x3FF;
 
-  struct page_table* pt = (void*)(pd[directory_idx].pageIdx << 12);
+  struct page_table* pt = (void*)((pd[directory_idx].pageIdx << 12)+offset);
   addr_t phys = pt[table_idx].pageIdx << 12 | (virt & 0x3FF);
   return phys;
 }
 
-extern uint32_t begin;
-extern void start();
+extern int init(unsigned long, void*);
 
 void page_init()
 {
   memset(page_cnt, 0, PAGETABLES*sizeof(uint16_t));
   sched_init();
-  printf("Image start: %X\tStart ptr: %X\n", &begin, &start);
-  setCR3(setup_page_dir());
+  addr_t tmp = setup_page_dir();
+  printf("Image start: %X\tStart ptr: %X\n", &begin, &init);
+  printf("CR3: %X\tinit_phys: %X\n", tmp-offset, page_phys_addr((addr_t)&init, (void*)tmp));
+  setCR3((addr_t)(tmp-offset));
 //   setPGBit();
+  for (;;);
 }

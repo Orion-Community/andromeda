@@ -104,9 +104,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 {
   textInit();
   printf("%s\n", welcome);
-  printf("Addr of hdr: %X\tAddr init: %X\n", (addr_t)hdr + 0xc0000000, &init);
-  addr_t tmp = hdr;
-  tmp += 0xC0000000;
+  addr_t tmp = (addr_t)hdr + offset;
   hdr = (multiboot_info_t*)tmp;
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
@@ -134,9 +132,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
   // Initialise the heap
   initHeap(HEAPSIZE);
-
-  for (;;);
-//   setGDT();
+  setGDT();
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
@@ -167,12 +163,12 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printf("\nSome (temp) debug info:\n");
   printf("CPU vendor: %s\n", cpus->vendor);
   printf("RSDP ASCII signature: 0x%x%x\n", *(((uint32_t*) rsdp->signature) + 1),
-          *(((uint32_t*) rsdp->signature)));
+                                              *(((uint32_t*) rsdp->signature)));
 
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
   {
-    halt();
+//     halt();
   }
   return 0; // To keep the compiler happy.
 }

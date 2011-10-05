@@ -61,4 +61,7 @@ struct segments
 } __attribute__((packed));
 typedef struct segments *and_segments_t;
 
+extern uint32_t begin;
+extern void start();
+
 #endif

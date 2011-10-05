@@ -63,4 +63,6 @@ struct page_table
   unsigned int pageIdx	: 20; // Pointer to page
 } __attribute__((packed));
 typedef struct page_table page_table_t;
+
+extern volatile addr_t offset;
 #endif

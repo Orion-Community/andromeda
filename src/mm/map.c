@@ -38,7 +38,7 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 
   memset(page_map, 0, sizeof(page_map)*map_size);
   #ifdef PAGEDBG
-  printf("Map size: %X B\tMemsize: %X B\n", 
+  printf("Mem map size: %X B\tMem map size: %X B\n",
                                        map_size*sizeof(page_map), memsize*1024);
   #endif
   return -E_BMP_NOMAP;

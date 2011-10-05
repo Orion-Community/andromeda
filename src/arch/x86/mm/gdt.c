@@ -19,6 +19,7 @@
 #ifdef __INTEL
 #include <arch/x86/GDT.h>
 #include <stdlib.h>
+#include <mm/paging.h>
 
 gdtEntry_t GDT[5];
 
@@ -50,7 +51,9 @@ void setGDT()
   printhex(sizeof(gdt_t)); printf("\t\t");
   printhex(sizeof(gdtEntry_t)); putc('\n');
   #endif
-  
+
+  offset = 0;
+
   /*
    * Set up a GDT. (1)
    */
@@ -153,9 +156,9 @@ void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type
     figure out to which address the address given should be mapped.
     The addresses on the intel machine are built up out of segment registers
     and the pointer itself.
-    
+
     The segment registers hold an index into the GDT.
-    
+
     For more info on segmentation, read volume 1 of the basic architecture
     documentation by intel.
 */
