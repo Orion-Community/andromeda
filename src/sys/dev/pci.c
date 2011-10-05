@@ -20,6 +20,7 @@
 #include <sys/dev/pci.h>
 
 struct ol_pci_node* pcidevs = NULL;
+int iterate = 0;
 
 static int
 ol_pci_iterate(ol_pci_iterate_dev_t dev)
@@ -81,6 +82,7 @@ ol_pci_init()
 static int
 pci_add_list(ol_pci_iterate_dev_t itdev)
 {
+  iterate++;
   ol_pci_id_t class = __ol_pci_read_dword(ol_pci_calculate_address(itdev,
           OL_PCI_REG_CLASS)); /* get class and sub class */
   ol_pci_id_t id = __ol_pci_read_dword(ol_pci_calculate_address(itdev,
@@ -101,9 +103,13 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
     pcidevs->dev = NULL;
   }
   else
+  {
     struct ol_pci_node * node = kalloc(sizeof(*node));
-    
+    if (node == NULL) goto fail;
+  }
+  
   struct ol_pci_dev * dev = kalloc(sizeof(*dev));
+  if (dev == NULL) goto fail;
   dev->device = itdev->device;
   dev->func = itdev->func;
   dev->bus = itdev->bus;
@@ -120,6 +126,10 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
    * create the actual device which will be added to the list
    */
   return FALSE; /* we want to list all devices */
+  fail:
+  printf("%i\n", iterate);
+  ol_dbg_heap();
+  return TRUE;
 
 }
 

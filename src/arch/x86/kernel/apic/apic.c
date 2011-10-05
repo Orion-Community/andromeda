@@ -61,7 +61,9 @@ ol_apic_init(ol_cpu_t cpu)
   
   for(i = 0, acpiapic = acpi_get_apic(); *((void**)acpiapic+i) != NULL; i++) 
   {
+#ifdef __APIC_DBG
     printf("%x\t%i\n", acpiapic+i, acpiapic[i].length);
+#endif
   }
   
   return 0;
