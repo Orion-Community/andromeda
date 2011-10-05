@@ -17,6 +17,9 @@
  */
 
 #include <stdlib.h>
+
+#include <mm/heap.h>
+
 #include <sys/dev/pci.h>
 
 struct ol_pci_node* pcidevs = NULL;
@@ -75,9 +78,16 @@ ol_pci_init()
 {
   iterate = 0;
   ol_pci_iterate_dev_t dev = kalloc(sizeof (*dev));
+  if(dev == NULL)
+    goto fail;
   dev->hook = &pci_add_list;
   ol_pci_iterate(dev);
   free(dev);
+  return;
+  
+  fail:
+  ol_dbg_heap();
+  endProg();
 }
 
 static int
@@ -99,6 +109,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
      * be initialized
      */
     pcidevs = kalloc(sizeof(*pcidevs));
+    if(pcidevs == NULL) goto fail;
     pcidevs->next = NULL;
     pcidevs->previous = NULL;
     pcidevs->dev = NULL;
@@ -118,7 +129,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
   dev->vendorID = id&0xffff;
   dev->class = (class>>24)&0xff;
   dev->subclass = (class>>16)&0xff;
-  dev->flags &= 0 | ol_pci_is_mf(dev);
+  dev->flags = ol_pci_is_mf(itdev);
   dev->read = &ol_pci_read_dword;
   
 //   init list here
