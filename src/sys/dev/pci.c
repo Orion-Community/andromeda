@@ -73,6 +73,7 @@ ol_pci_calculate_address(ol_pci_iterate_dev_t dev, uint16_t reg)
 void
 ol_pci_init()
 {
+  iterate = 0;
   ol_pci_iterate_dev_t dev = kalloc(sizeof (*dev));
   dev->hook = &pci_add_list;
   ol_pci_iterate(dev);
@@ -127,8 +128,9 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
    */
   return FALSE; /* we want to list all devices */
   fail:
-  printf("%i\n", iterate);
+  printf("Iterate number: %i\n", iterate);
   ol_dbg_heap();
+  endProg();
   return TRUE;
 
 }

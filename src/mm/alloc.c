@@ -337,6 +337,7 @@ split(volatile memory_node_t* block, size_t size)
 
   block->next = second;
   block->size = size;
+  block->previous->next = block;
   return block; // return the bottom block
 }
 
