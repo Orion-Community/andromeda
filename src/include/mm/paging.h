@@ -22,10 +22,14 @@
 #include <kern/cpu.h>
 
 #ifdef X86
-#define PAGES      PAGETABLES*PAGEDIRS
-#define PAGESIZE   0x1000
-#define PAGETABLES 0x400
-#define PAGEDIRS   PAGETABLES
+#define PAGES       0x100000
+#define PAGESIZE    0x1000
+#define PAGETABLES  0x400
+#define PAGEDIRS    0x400
+#define PAGEENTRIES 0x400
+
+#define PAGE_BITS   0xFFF
+
 #endif
 
 #define CHECKALLIGN(a) ((a%PAGESIZE) ? FALSE : TRUE)
