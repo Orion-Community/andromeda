@@ -389,6 +389,11 @@ void putc(uint8_t c)
     default:
       vidmem[i] = ((OL_WHITE_TXT << 8) | c);
       cursor.x += 1;
+      if (cursor.x >= VGA_WIDTH)
+      {
+        cursor.y += (cursor.x / VGA_WIDTH);
+        cursor.x %= VGA_WIDTH;
+      }
       break;
   }
 
