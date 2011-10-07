@@ -33,9 +33,9 @@ create_ioapic (ol_madt_ioapic_t madt_io)
     goto nomem;
   else
   {
-    ioapic->address = (ioapic_addr_t*) madt_io[0].address;
-    ioapic->int_base = madt_io[0].global_system_interrupt_base;
-    ioapic->id = madt_io[0].id;
+    ioapic->address = (ioapic_addr_t*) madt_io->address;
+    ioapic->int_base = madt_io->global_system_interrupt_base;
+    ioapic->id = madt_io->id;
     ioapic->read = &ioapic_read_dword;
     ioapic->write = &ioapic_write_dword;
   }

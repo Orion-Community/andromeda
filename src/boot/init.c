@@ -128,7 +128,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid memory map");
   }
-  printf("%s\n", welcome);
+  //printf("%s\n", welcome);
   setGDT();
 
   // Initialise the heap

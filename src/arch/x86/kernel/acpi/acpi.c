@@ -61,7 +61,7 @@ ol_acpi_enumerate(uint8_t type)
 {
   ol_acpi_madt_t madt = ol_acpi_get_madt();
   ol_madt_field_header_t header;
-  void ** ret = kalloc(sizeof(void*)*4);
+  void ** ret = kalloc(sizeof(void*)*32);
 
   uint32_t i = 0;
 
@@ -79,17 +79,17 @@ ol_acpi_enumerate(uint8_t type)
   return ret;
 }
 
-ol_madt_ioapic_t
+struct ol_madt_ioapic*
 ol_acpi_get_ioapic()
 {
-  return ((ol_madt_ioapic_t*)ol_acpi_enumerate(1))[0]; /* return address of the 
+  return ((struct ol_madt_ioapic*)ol_acpi_enumerate(1)[0]); /* return address of the 
 							* first entry */
 }
 
-struct ol_madt_apic*
+struct ol_madt_apic *
 acpi_get_apic()
 {
-  return ((ol_madt_apic_t*)ol_acpi_enumerate(0))[0]; /* 
+  return ((ol_madt_apic_t)ol_acpi_enumerate(0)[0]); /* 
 						      * return the address
 						      * of the first entry
 						      */

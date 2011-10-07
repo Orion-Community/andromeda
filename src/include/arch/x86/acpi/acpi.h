@@ -104,10 +104,10 @@ extern "C"
     static void**
     ol_acpi_enumerate(uint8_t type);
 
-    ol_madt_ioapic_t
+    struct ol_madt_ioapic*
     ol_acpi_get_ioapic();
     
-    struct ol_madt_apic *
+    struct ol_madt_apic*
     acpi_get_apic();
 
 #ifdef __cplusplus
