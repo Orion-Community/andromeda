@@ -53,9 +53,12 @@ mboot:
 [EXTERN  stack]
 
 start:
+;     mov edi, 0xb8000
+;     mov [edi], dword 0x07690748
+;     jmp $
     ; Load multiboot information:
     mov ecx, 0x10
-    mov ss, ecx
+    mov ss, cx
     mov ecx, stack		; Set the new stack frame
     add ecx, 0x8000		; Add the size of the stack to the pointer
     mov ebp, ecx
@@ -70,21 +73,3 @@ start:
     jmp $                       ; Enter an infinite loop, to stop the processor
                                 ; executing whatever rubbish is in the memory
                                 ; after our kernel!
-; %else
-; CORE_MAGIC	equ	0xC0DEBABE	; Lolz
-; 
-; [SECTION .boot]
-; [EXTERN  code]                   ; Start of the '.text' section.
-; [EXTERN  bss]                    ; Start of the .bss section.
-; [EXTERN  end]
-;   dd CORE_MAGIC
-;   dd end
-; 
-; [SECTION .text]
-; [GLOBAL  start]
-; [EXTERN  kmain]
-; start:
-;   cli
-;   call kmain
-;   jmp $
-; %endif

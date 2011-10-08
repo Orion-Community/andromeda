@@ -103,6 +103,8 @@ boolean setupCore(module_t mod)
 
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
+  // Initialise the heap
+  initHeap(HEAPSIZE);
   textInit();
 
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
@@ -128,11 +130,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid memory map");
   }
-  //printf("%s\n", welcome);
+  printf("%s\n", welcome);
   setGDT();
 
-  // Initialise the heap
-  initHeap(HEAPSIZE);
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);

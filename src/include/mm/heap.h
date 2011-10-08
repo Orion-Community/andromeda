@@ -66,8 +66,8 @@ void heap_add_blocks(void* base, uint32_t size);
 #define kalloc(size) alloc(size, FALSE)
 
 // Alloc_max = 1 MB
-#define ALLOC_MAX 0x100000
 #define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end))
+#define ALLOC_MAX HEAPSIZE
 
 #ifdef MMTEST
 void examineHeap();

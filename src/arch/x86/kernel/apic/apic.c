@@ -55,18 +55,19 @@ ol_apic_init(ol_cpu_t cpu)
   else
     goto fail;
   
-#ifdef __APIC_DBG
+
   struct ol_madt_apic* acpiapic;
   int i = 0;
 //   while((acpiapic+i) != NULL) i++;
   
   for(i = 0, acpiapic = acpi_get_apic(); *((void**)acpiapic+i) != NULL; i++) 
   {
-
+#ifdef __APIC_DBG
     printf("%x\t%i\n", acpiapic+i, acpiapic[i].length);
+#endif
 
   }
-#endif
+
 
   return 0;
   fail:

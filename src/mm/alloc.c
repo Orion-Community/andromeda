@@ -83,7 +83,6 @@ nalloc(size_t size)
 void*
 alloc(size_t size, boolean pageAlligned)
 {
-
   if (size > ALLOC_MAX)
   {
     return NULL;

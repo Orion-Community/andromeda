@@ -61,7 +61,7 @@ ol_acpi_enumerate(uint8_t type)
 {
   ol_acpi_madt_t madt = ol_acpi_get_madt();
   ol_madt_field_header_t header;
-  void ** ret = kalloc(sizeof(void*)*32);
+  void ** ret = kalloc(sizeof(void*));
 
   uint32_t i = 0;
 
@@ -71,6 +71,7 @@ ol_acpi_enumerate(uint8_t type)
   {
     if (header->type == type) /* processor apics have type number 0 */
     {
+      ret[i] = kalloc(sizeof(header));
       ret[i] = (void*) header;
       i++;
     }
