@@ -55,13 +55,15 @@ ol_apic_init(ol_cpu_t cpu)
   else
     goto fail;
   
-  if(acpi_apics == NULL)
-    acpi_apics = kalloc(sizeof(*acpi_apics));
-  
-  acpi_apics->apic = kalloc(sizeof(struct ol_madt_apic_node));
-  acpi_apics->apic->next = NULL;
-  acpi_apics->apic->previous = NULL;
-  acpi_apics->apic->apic = NULL;
+  struct ol_madt_apic_node *node;
+  for(node = acpi_apics->apic; node != NULL; node = node->next)
+  {
+    printf("MADT APIC length: 0x%x\n", node->apic->length);
+    break;
+    if(node->next == NULL)
+      break;
+  }
+
   return 0;
   fail:
     return -1;

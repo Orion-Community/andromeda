@@ -136,7 +136,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
-  ol_get_system_tables();
+  acpi_init();
 
   pic_init();
   setIDT();
