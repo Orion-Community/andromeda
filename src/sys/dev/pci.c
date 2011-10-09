@@ -173,7 +173,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
 
 }
 
-static const char*
+static void
 print_pci_dev(uint16_t class, uint16_t subclass)
 {
   switch (class)

@@ -112,7 +112,7 @@ extern "C"
   show_pci_dev(ol_pci_iterate_dev_t);
 #endif
 
-  static const char*
+  static void
   print_pci_dev(uint16_t class, uint16_t subclass);
   
   /* PCI communication functions */
