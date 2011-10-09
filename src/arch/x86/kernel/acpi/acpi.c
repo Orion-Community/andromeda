@@ -31,12 +31,19 @@ acpi_init()
   ol_get_system_tables();
   acpi_apics = kalloc(sizeof(*acpi_apics));
 
+  /* reserve memory for at least one apic and i/o apic */
   acpi_apics->apic = kalloc(sizeof(struct ol_madt_apic_node));
   acpi_apics->apic->next = NULL;
   acpi_apics->apic->previous = NULL;
   acpi_apics->apic->apic = NULL;
   
+  acpi_apics->ioapic = kalloc(sizeof(*(acpi_apics->ioapic)));
+  acpi_apics->ioapic->next = NULL;
+  acpi_apics->ioapic->previous = NULL;
+  acpi_apics->ioapic->ioapic = NULL;
+  
   ol_acpi_enumerate(0, &acpi_apic_add_list);
+  ol_acpi_enumerate(1, &acpi_ioapic_add_list);
   return 0;
 }
 
@@ -85,7 +92,6 @@ ol_acpi_enumerate(uint8_t type, acpi_enum_hook_t hook)
   {
     if (header->type == type) /* processor apics have type number 0 */
     {
-
       hook((void*)header);
     }
   }
@@ -124,6 +130,30 @@ acpi_apic_add_list(void *apic)
 static void
 acpi_ioapic_add_list(void *io)
 {
+  /* we're at the top of the list, initialise it */
+  if(acpi_apics->ioapic->ioapic == NULL)
+  {
+    acpi_apics->ioapic->ioapic = (struct ol_madt_ioapic*)io;   
+    goto end;
+  }
+  else
+  {
+    struct ol_madt_ioapic_node *carriage;
+    for(carriage = acpi_apics->ioapic; carriage != NULL, carriage != carriage->next;
+      carriage = carriage->next)
+    {
+      if(carriage->next == NULL)
+      {
+        carriage->next = kalloc(sizeof(struct ol_madt_ioapic_node));
+        carriage->next->previous = carriage;
+        carriage->next->next = NULL;
+        carriage->next->ioapic = (struct ol_madt_ioapic*)io;
+        goto end;
+      }
+    }
+  }
+  end:
+  return;
 }
 
 void*

@@ -61,9 +61,9 @@ extern "C"
      */
     struct ol_madt_ioapic_node
     {
-      struct ol_madt_apic *ioapic;
-      struct ol_madt_apic_node *next;
-      struct ol_madt_apic_node *previous;
+      struct ol_madt_ioapic *ioapic;
+      struct ol_madt_ioapic_node *next;
+      struct ol_madt_ioapic_node *previous;
       uint32_t magic;
     } __attribute__((packed));
     

@@ -56,10 +56,12 @@ ol_apic_init(ol_cpu_t cpu)
     goto fail;
   
   struct ol_madt_apic_node *node;
-  for(node = acpi_apics->apic; node != NULL; node = node->next)
+  for(node = acpi_apics->apic; node != NULL, node != node->next; node = node->next)
   {
+#ifdef __APIC_DBG
     printf("APIC data len: %x\t%x\t%x\t%x\n", node->apic->length,node, node->next, 
            node->previous);
+#endif
     if(node->next == NULL)
       break;
   }
