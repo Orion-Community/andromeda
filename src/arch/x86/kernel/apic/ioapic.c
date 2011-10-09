@@ -51,8 +51,11 @@ int
 init_ioapic ()
 {
   ol_madt_ioapic_t madt_io = ol_acpi_get_ioapic();
+  if(madt_io == NULL)
+    return -1;
   create_ioapic(madt_io);
   printf("The address of the I/O APIC is: 0x%x\n", (uint32_t) ioapic->address);
+  return 0;
 }
 
 static uint32_t

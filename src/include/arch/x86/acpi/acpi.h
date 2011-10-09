@@ -26,7 +26,7 @@
                               a PC-AT-compatible dual-8259 setup. The 8259 
                               vectors must be disabled (that is, masked) when 
                               enabling the ACPI APIC operation. */
-
+#define APIC_MAGIC ANDROMEDA_MAGIC
 #ifdef __cplusplus
 extern "C"
 {
@@ -44,7 +44,41 @@ extern "C"
         uint32_t flags : 1;
     } __attribute__((packed));
     typedef struct ol_madt_apic *ol_madt_apic_t;
+    
+    /*
+     * linked list node for the apic's
+     */
+    struct ol_madt_apic_node
+    {
+      struct ol_madt_apic *apic;
+      struct ol_madt_apic_node *next;
+      struct ol_madt_apic_node *previous;
+      uint32_t magic;
+    } __attribute__((packed));
+    
+    /*
+     * linked list node for the io apic's
+     */
+    struct ol_madt_ioapic_node
+    {
+      struct ol_madt_apic *ioapic;
+      struct ol_madt_apic_node *next;
+      struct ol_madt_apic_node *previous;
+      uint32_t magic;
+    } __attribute__((packed));
+    
+    /*
+     * This structure is used to access the madt lists
+     */
+    struct acpi_apic_lists
+    {
+      struct ol_madt_apic_node *apic;
+      struct ol_madt_ioapic_node *ioapic;
+    };
 
+    /*
+     * ioapic data structure
+     */
     struct ol_madt_ioapic
     {
         uint8_t type, length, id, reserved;
@@ -95,21 +129,25 @@ extern "C"
 #endif
     } __attribute__((packed));
     typedef struct ol_acpi_rsdp *ol_acpi_rsdp_t;
-
-    extern ol_acpi_rsdp_t rsdp;
-
+    
+    typedef void (*acpi_enum_hook_t)(void* structure);
+    
     static ol_acpi_madt_t
     ol_acpi_get_madt();
-
-    static void**
-    ol_acpi_enumerate(uint8_t type);
-
-    struct ol_madt_ioapic*
-    ol_acpi_get_ioapic();
     
-    struct ol_madt_apic*
-    acpi_get_apic();
+    extern struct acpi_apic_lists *acpi_apics;
 
+  void
+  ol_acpi_enumerate(uint8_t type, acpi_enum_hook_t hook);
+
+    static void
+    acpi_apic_add_list(void*);
+
+    static void
+    acpi_ioapic_add_list(void*);
+    
+    void*
+    ol_acpi_get_ioapic();
 #ifdef __cplusplus
 }
 #endif

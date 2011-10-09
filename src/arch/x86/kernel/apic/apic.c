@@ -20,7 +20,7 @@
 
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
-
+#include <arch/x86/acpi/acpi.h>
 #include <sys/sys.h>
 
 #include <text.h>
@@ -55,20 +55,13 @@ ol_apic_init(ol_cpu_t cpu)
   else
     goto fail;
   
-
-  struct ol_madt_apic* acpiapic;
-  int i = 0;
-//   while((acpiapic+i) != NULL) i++;
+  if(acpi_apics == NULL)
+    acpi_apics = kalloc(sizeof(*acpi_apics));
   
-  for(i = 0, acpiapic = acpi_get_apic(); *((void**)acpiapic+i) != NULL; i++) 
-  {
-#ifdef __APIC_DBG
-    printf("%x\t%i\n", acpiapic+i, acpiapic[i].length);
-#endif
-
-  }
-
-
+  acpi_apics->apic = kalloc(sizeof(struct ol_madt_apic_node));
+  acpi_apics->apic->next = NULL;
+  acpi_apics->apic->previous = NULL;
+  acpi_apics->apic->apic = NULL;
   return 0;
   fail:
     return -1;

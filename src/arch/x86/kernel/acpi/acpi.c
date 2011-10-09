@@ -23,6 +23,8 @@
 
 #include <arch/x86/acpi/acpi.h>
 
+struct acpi_apic_lists *acpi_apics = NULL;
+
 static ol_acpi_madt_t
 ol_acpi_get_madt()
 {
@@ -56,14 +58,11 @@ ol_acpi_get_madt()
   }
 }
 
-static void**
-ol_acpi_enumerate(uint8_t type)
+void
+ol_acpi_enumerate(uint8_t type, acpi_enum_hook_t hook)
 {
   ol_acpi_madt_t madt = ol_acpi_get_madt();
   ol_madt_field_header_t header;
-  void ** ret = kalloc(sizeof(void*));
-
-  uint32_t i = 0;
 
   for (header = ((void*) madt) + sizeof (*madt); (void*) header < ((void*) madt) +
        madt->length; header = (ol_madt_field_header_t) (((void*) header) +
@@ -71,27 +70,35 @@ ol_acpi_enumerate(uint8_t type)
   {
     if (header->type == type) /* processor apics have type number 0 */
     {
-      ret[i] = kalloc(sizeof(header));
-      ret[i] = (void*) header;
-      i++;
+      hook((void*)header);
     }
-    ret[i] = NULL;
   }
-  return ret;
+  return;
 }
 
-struct ol_madt_ioapic*
+static void
+acpi_apic_add_list(void *apic)
+{
+  if(acpi_apics->apic->next == NULL)
+  {
+    /* we're at the top of the list */
+    if(acpi_apics->apic->apic == NULL)
+      acpi_apics->apic->apic = (struct ol_madt_apic*)apic;
+    else
+    {
+      acpi_apics->apic->next = kalloc(sizeof(struct ol_madt_apic_node));
+      acpi_apics->apic->next->previous = acpi_apics->apic;
+      acpi_apics->apic->next->next = NULL
+      acpi_apics->apic->next->apic = (struct ol_madt_apic*)apic;
+    }
+  }
+}
+
+static void
+acpi_ioapic_add_list(void *io)
+{
+}
+
+void*
 ol_acpi_get_ioapic()
-{
-  return ((struct ol_madt_ioapic*)ol_acpi_enumerate(1)[0]); /* return address of the 
-							* first entry */
-}
-
-struct ol_madt_apic *
-acpi_get_apic()
-{
-  return ((ol_madt_apic_t)ol_acpi_enumerate(0)[0]); /* 
-						      * return the address
-						      * of the first entry
-						      */
-}
+{return NULL;}
