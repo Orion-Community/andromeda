@@ -60,18 +60,19 @@ init_ioapic ()
       node = node->next)
   {
     i++;
-#ifdef __APIC_DBG
-    printf("APIC data len: %x\t%x\t%x\t%x\n", node->ioapic->address,node, node->next, 
+#ifdef __IOAPIC_DBG
+    printf("I/O APIC address: %x\t%x\t%x\t%x\n", node->ioapic->address,node, node->next, 
            node->previous);
 #endif
     if(node->next == NULL)
       break;
   }
-  
-      
+
   create_ioapic(madt_io);
-  printf("Found %i I/O APICS. The base address of the I/O APIC is: 0x%x\n", i,
+#ifndef __IOAPIC_DBG
+  printf("Found %i I/O APIC(s). The base address of the I/O APIC is: 0x%x\n", i,
          (uint32_t) ioapic->address);
+#endif
   return 0;
 }
 

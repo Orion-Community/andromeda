@@ -48,24 +48,24 @@ ol_detect_apic(ol_cpu_t cpu)
 int
 ol_apic_init(ol_cpu_t cpu)
 {
-  if(!ol_detect_apic(cpu))
-  {
-    println("Apic detected");
-  }
-  else
+  if(ol_detect_apic(cpu))
     goto fail;
   
   struct ol_madt_apic_node *node;
+  int i = 0;
   for(node = acpi_apics->apic; node != NULL, node != node->next; node = node->next)
   {
+    i++;
 #ifdef __APIC_DBG
-    printf("APIC data len: %x\t%x\t%x\t%x\n", node->apic->length,node, node->next, 
-           node->previous);
+    printf("APIC data len: %x\t%x\t%x\t%x\n", node->apic->length, node->apic->apic_id, 
+           node->apic->proc_id, node);
 #endif
     if(node->next == NULL)
       break;
   }
-
+#ifndef __APIC_DBG
+  printf("Found %i APIC(s)\n", i);
+#endif
   return 0;
   fail:
     return -1;

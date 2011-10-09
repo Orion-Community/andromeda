@@ -80,7 +80,11 @@ ol_pci_init()
   ol_pci_iterate_dev_t dev = kalloc(sizeof (*dev));
   if(dev == NULL)
     goto fail;
+#ifdef __PCI_DEBUG
+  dev->hook = &show_pci_dev;
+#else
   dev->hook = &pci_add_list;
+#endif
   ol_pci_iterate(dev);
   free(dev);
   return;
@@ -150,7 +154,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
 static int
 show_pci_dev(ol_pci_iterate_dev_t dev)
 {
-  ol_pci_id_t class = ol_pci_read_dword(ol_pci_calculate_address(dev,
+  ol_pci_id_t class = __ol_pci_read_dword(ol_pci_calculate_address(dev,
           OL_PCI_REG_CLASS));
   uint8_t subclass = (class >> 16) & 0xff;
   class >>= 24;
@@ -164,8 +168,10 @@ show_pci_dev(ol_pci_iterate_dev_t dev)
         printf("PCI: Found IDE controller\n");
       else if (subclass == 0x2)
         printf("PCI: Found floppy disk controller\n");
-      else if (subclass == 0x5)
+      else if (subclass == 0x6)
         printf("PCI: Found SATA controller\n");
+      else
+        printf("Unknown subclass. Class %i - subclass %i\n", class, subclass);
       break;
 
     case 0x2:
