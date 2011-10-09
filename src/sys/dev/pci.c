@@ -22,8 +22,7 @@
 
 #include <sys/dev/pci.h>
 
-struct ol_pci_node* pcidevs = NULL;
-int iterate = 0;
+struct ol_pci_node* pcidevs;
 
 static int
 ol_pci_iterate(ol_pci_iterate_dev_t dev)
@@ -76,17 +75,29 @@ ol_pci_calculate_address(ol_pci_iterate_dev_t dev, uint16_t reg)
 void
 ol_pci_init()
 {
-  iterate = 0;
+  /* initialise the list */
+  pcidevs = kalloc(sizeof(*pcidevs));
+  if(pcidevs == NULL)
+    goto fail;
+  
+  pcidevs->next = NULL;
+  pcidevs->previous = NULL;
+  pcidevs->dev = NULL;
+  
   ol_pci_iterate_dev_t dev = kalloc(sizeof (*dev));
   if(dev == NULL)
     goto fail;
-#ifdef __PCI_DEBUG
+#if 0
   dev->hook = &show_pci_dev;
 #else
   dev->hook = &pci_add_list;
 #endif
   ol_pci_iterate(dev);
   free(dev);
+  
+#ifdef __PCI_DEBUG
+  debug_pci_list();
+#endif
   return;
   
   fail:
@@ -97,35 +108,15 @@ ol_pci_init()
 static int
 pci_add_list(ol_pci_iterate_dev_t itdev)
 {
-  iterate++;
   ol_pci_id_t class = __ol_pci_read_dword(ol_pci_calculate_address(itdev,
           OL_PCI_REG_CLASS)); /* get class and sub class */
   ol_pci_id_t id = __ol_pci_read_dword(ol_pci_calculate_address(itdev,
           OL_PCI_REG_ID)); /* id and vendor id */
-  /* 
-   * we don't have to check the values anymore since the iterator did that for
-   * us..
-   */
-  if(pcidevs == NULL)
-  {
-    /* 
-     * this is the first time that this function is called, so the list should
-     * be initialized
-     */
-    pcidevs = kalloc(sizeof(*pcidevs));
-    if(pcidevs == NULL) goto fail;
-    pcidevs->next = NULL;
-    pcidevs->previous = NULL;
-    pcidevs->dev = NULL;
-  }
-  else
-  {
-    struct ol_pci_node * node = kalloc(sizeof(*node));
-    if (node == NULL) goto fail;
-  }
+    
+  struct ol_pci_dev *dev = kalloc(sizeof(*dev));
+  if (dev == NULL) 
+    goto fail;
   
-  struct ol_pci_dev * dev = kalloc(sizeof(*dev));
-  if (dev == NULL) goto fail;
   dev->device = itdev->device;
   dev->func = itdev->func;
   dev->bus = itdev->bus;
@@ -135,30 +126,56 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
   dev->subclass = (class>>16)&0xff;
   dev->flags = ol_pci_is_mf(itdev);
   dev->read = &ol_pci_read_dword;
-  
-//   init list here
+
+  /* we're at the top of the list */
+  if(pcidevs->dev == NULL)
+  {
+    /* 
+     * this is the first time that this function is called, so the list should
+     * be initialized
+     */
+    pcidevs->dev = dev;
+    pcidevs->next = NULL;
+    pcidevs->previous = NULL;
+    goto end;
+  }
+  else
+  {
+    struct ol_pci_node *node;
+    for(node = pcidevs; node != NULL, node != node->next; node = node->next)
+    {
+      if(node->next == NULL)
+      {
+
+        node->next = kalloc(sizeof(struct ol_pci_node));
+        if(node->next == NULL)
+          goto fail;
+        
+        node->next->dev = dev;
+        node->next->next = NULL;
+        node->next->previous = node;
+        goto end;
+      }
+    }
+  }
   
   /*
    * create the actual device which will be added to the list
    */
+  end:
   return FALSE; /* we want to list all devices */
+  
   fail:
-  printf("Iterate number: %i\n", iterate);
+  printf("Out of memory in pci_add_list!\n");
   ol_dbg_heap();
   endProg();
   return TRUE;
 
 }
 
-#ifdef __PCI_DEBUG
-static int
-show_pci_dev(ol_pci_iterate_dev_t dev)
+static const char*
+print_pci_dev(uint16_t class, uint16_t subclass)
 {
-  ol_pci_id_t class = __ol_pci_read_dword(ol_pci_calculate_address(dev,
-          OL_PCI_REG_CLASS));
-  uint8_t subclass = (class >> 16) & 0xff;
-  class >>= 24;
-
   switch (class)
   {
     case 0x1:
@@ -170,8 +187,6 @@ show_pci_dev(ol_pci_iterate_dev_t dev)
         printf("PCI: Found floppy disk controller\n");
       else if (subclass == 0x6)
         printf("PCI: Found SATA controller\n");
-      else
-        printf("Unknown subclass. Class %i - subclass %i\n", class, subclass);
       break;
 
     case 0x2:
@@ -193,12 +208,10 @@ show_pci_dev(ol_pci_iterate_dev_t dev)
       break;
 
     default:
+      printf("Unknown class. Class %i - subclass %i\n", class, subclass);
       break;
   }
-
-  return 0; /* list all devices */
 }
-#endif
 
 static uint32_t
 __ol_pci_read_dword(ol_pci_addr_t addr)
@@ -225,3 +238,17 @@ ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg)
   return __ol_pci_read_dword(ol_pci_calculate_address((ol_pci_iterate_dev_t)dev, 
                                                       reg));
 }
+
+#ifdef __PCI_DEBUG
+static void
+debug_pci_list()
+{
+  struct ol_pci_node *node;
+  for(node = pcidevs; node != NULL, node != node->next; node = node->next)
+  {
+    print_pci_dev(node->dev->class, node->dev->subclass);
+    if(node->next == NULL)
+      break;
+  }
+}
+#endif

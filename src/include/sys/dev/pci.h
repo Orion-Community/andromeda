@@ -112,6 +112,9 @@ extern "C"
   show_pci_dev(ol_pci_iterate_dev_t);
 #endif
 
+  static const char*
+  print_pci_dev(uint16_t class, uint16_t subclass);
+  
   /* PCI communication functions */
   static uint32_t
   __ol_pci_read_dword(ol_pci_addr_t);
@@ -121,6 +124,9 @@ extern "C"
   
   inline uint32_t
   ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg);
+  
+  static void
+  debug_pci_list();
 #ifdef	__cplusplus
 }
 #endif
