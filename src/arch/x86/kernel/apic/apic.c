@@ -58,8 +58,8 @@ ol_apic_init(ol_cpu_t cpu)
   struct ol_madt_apic_node *node;
   for(node = acpi_apics->apic; node != NULL; node = node->next)
   {
-    printf("MADT APIC length: 0x%x\n", node->apic->length);
-    break;
+    printf("APIC data len: %x\t%x\t%x\t%x\n", node->apic->length,node, node->next, 
+           node->previous);
     if(node->next == NULL)
       break;
   }

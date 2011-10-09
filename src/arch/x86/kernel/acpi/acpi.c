@@ -95,19 +95,11 @@ ol_acpi_enumerate(uint8_t type, acpi_enum_hook_t hook)
 static void
 acpi_apic_add_list(void *apic)
 {
-  if(acpi_apics->apic->next == NULL)
+    /* we're at the top of the list, initialise it */
+  if(acpi_apics->apic->apic == NULL)
   {
-    /* we're at the top of the list */
-    if(acpi_apics->apic->apic == NULL)
-      acpi_apics->apic->apic = (struct ol_madt_apic*)apic;
-    else
-    {
-      acpi_apics->apic->next = kalloc(sizeof(struct ol_madt_apic_node));
-      acpi_apics->apic->next->previous = acpi_apics->apic;
-      acpi_apics->apic->next->next = NULL;
-      acpi_apics->apic->next->apic = (struct ol_madt_apic*)apic;
-    }
-    return;
+    acpi_apics->apic->apic = (struct ol_madt_apic*)apic;   
+    goto end;
   }
   else
   {
@@ -121,9 +113,12 @@ acpi_apic_add_list(void *apic)
         carriage->next->previous = carriage;
         carriage->next->next = NULL;
         carriage->next->apic = (struct ol_madt_apic*)apic;
+        goto end;
       }
     }
   }
+  end:
+  return;
 }
 
 static void
