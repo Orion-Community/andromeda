@@ -43,6 +43,7 @@
 
 #include <sys/dev/ps2.h>
 #include <sys/dev/pci.h>
+#include <sys/sys.h>
 
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
@@ -102,10 +103,13 @@ boolean setupCore(module_t mod)
 
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
+  // Initialise the heap
+  initHeap(HEAPSIZE);
   textInit();
-  printf("%s\n", welcome);
   addr_t tmp = (addr_t)hdr + offset;
   hdr = (multiboot_info_t*)tmp;
+
+
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
     printf("\nInvalid magic word: %X\n", magic);
@@ -130,18 +134,19 @@ int init(unsigned long magic, multiboot_info_t* hdr)
     panic("Invalid memory map");
   }
 
-  // Initialise the heap
-  initHeap(HEAPSIZE);
-  for(;;);
+  page_init();
+  printf("%s\n", welcome);
   setGDT();
+
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
-  ol_get_system_tables();
+  acpi_init();
 
   pic_init();
   setIDT();
   ol_ps2_init_keyboard();
+  ol_apic_init(cpu);
   init_ioapic();
 
   ol_pci_init();
@@ -163,13 +168,19 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
   printf("\nSome (temp) debug info:\n");
   printf("CPU vendor: %s\n", cpus->vendor);
-  printf("RSDP ASCII signature: 0x%x%x\n", *(((uint32_t*) rsdp->signature) + 1),
-                                              *(((uint32_t*) rsdp->signature)));
+
+  if(systables->magic == SYS_TABLE_MAGIC)
+  {
+    printf("RSDP ASCII signature: 0x%x%x\n",
+                                *(((uint32_t*) systables->rsdp->signature) + 1),
+                                   *(((uint32_t*) systables->rsdp->signature)));
+    printf("MP specification signature: 0x%x\n", systables->mp->signature);
+  }
 
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
   {
-//     halt();
+    halt();
   }
   return 0; // To keep the compiler happy.
 }

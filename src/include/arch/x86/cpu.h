@@ -58,20 +58,6 @@ extern "C"
 
   } *ol_cpu_t;
 
-  struct ol_mp_config_table_header
-  {
-  } __attribute__((packed));
-  typedef struct ol_mp_config_table_header *ol_mp_config_table_header_t;
-
-  struct ol_cpu_mp_fps
-  {
-    uint32_t signature;
-    ol_mp_config_table_header_t conf_table;
-    uint8_t len, spec_rev, checksum, mp_feat1;
-    uint8_t mp_feat2, mp_feat3, mp_feat4, mp_feat5;
-  } __attribute__((packed));
-  typedef struct ol_cpu_mp_fps *ol_cpu_mp_fps_t;
-
   /* CPU feature functions */
   static int
   ol_cpuid_available(ol_cpu_t);
@@ -99,7 +85,6 @@ extern "C"
   static ol_gen_registers_t
   __ol_cpuid(volatile ol_gen_registers_t);
 
-  extern ol_cpu_mp_fps_t mp;
   extern volatile ol_cpu_t cpus;
 
 #ifdef	__cplusplus

@@ -21,12 +21,15 @@
 #include <text.h>
 #include "include/out.h"
 
-struct curPos cursor = {0, 0, 16};
+struct curPos cursor;
 const uint8_t col = 0x07;
 
 void textInit()
 {
   scroll(VGA_HEIGHT);
+  cursor.x = 0;
+  cursor.y = 0;
+  cursor.tabwidth = 16;
 }
 
 void scroll(unsigned char lines)

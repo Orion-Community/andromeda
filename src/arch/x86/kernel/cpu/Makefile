@@ -18,11 +18,12 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 ## local sources
 CPU=cpu.c
+MP=mp.c
 #CPU_INTEL=cpu_intel.asm
 
 ## targets
 INTEL=i386.o
-INTEL_DEPS=cpu.o
+INTEL_DEPS=cpu.o mp.o
 
 all: $(INTEL)
 
@@ -34,8 +35,8 @@ $(INTEL): $(INTEL_DEPS)
 cpu.o: $(CPU)
 	$(CC) $(CCFLAGS) -o cpu.o $(CPU)
 
-cpu_intel.o: $(CPU_INTEL)
-	$(AS) $(ASFLAGS) -o cpu_intel.o $(CPU_INTEL)
+mp.o: $(MP)
+	$(CC) $(CCFLAGS) -o mp.o $(MP)
 #### Clean target deletes all generated files ####
 clean:
 	rm -rfv *.o

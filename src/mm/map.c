@@ -34,8 +34,12 @@ volatile mutex_t map_lock = __THREAD_MUTEX_FREE;
 int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
   addr_t memory_map_end;
+  struct page page_map_temp;
+  char * test = kalloc(20);
   page_map = kalloc(map_size*sizeof(page_map));
-
+  if(map == NULL) 
+    panic("No memory in build_map");
+  
   memset(page_map, 0, sizeof(page_map)*map_size);
   #ifdef PAGEDBG
   printf("Mem map size: %X B\tMem map size: %X B\n",

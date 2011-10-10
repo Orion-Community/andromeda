@@ -83,7 +83,6 @@ nalloc(size_t size)
 void*
 alloc(size_t size, boolean pageAlligned)
 {
-
   if (size > ALLOC_MAX)
   {
     return NULL;
@@ -362,6 +361,7 @@ split(volatile memory_node_t* block, size_t size)
 
   block->next = second;
   block->size = size;
+  block->previous->next = block;
   return block; // return the bottom block
 }
 

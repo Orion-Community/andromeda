@@ -33,10 +33,9 @@ create_ioapic (ol_madt_ioapic_t madt_io)
     goto nomem;
   else
   {
-    
-    ioapic->address = (ioapic_addr_t*) madt_io[0].address;
-    ioapic->int_base = madt_io[0].global_system_interrupt_base;
-    ioapic->id = madt_io[0].id;
+    ioapic->address = (ioapic_addr_t*) madt_io->address;
+    ioapic->int_base = madt_io->global_system_interrupt_base;
+    ioapic->id = madt_io->id;
     ioapic->read = &ioapic_read_dword;
     ioapic->write = &ioapic_write_dword;
   }
@@ -51,9 +50,30 @@ create_ioapic (ol_madt_ioapic_t madt_io)
 int
 init_ioapic ()
 {
-  ol_madt_ioapic_t madt_io = ol_acpi_get_ioapic();
+  ol_madt_ioapic_t madt_io = acpi_apics->ioapic->ioapic;
+  if(madt_io == NULL)
+    return -1;
+  
+  int i = 0;
+  struct ol_madt_ioapic_node *node = acpi_apics->ioapic;
+  for(node = acpi_apics->ioapic; node != NULL, node != node->next; 
+      node = node->next)
+  {
+    i++;
+#ifdef __IOAPIC_DBG
+    printf("I/O APIC address: %x\t%x\t%x\t%x\n", node->ioapic->address,node, node->next, 
+           node->previous);
+#endif
+    if(node->next == NULL)
+      break;
+  }
+
   create_ioapic(madt_io);
-  printf("The address of the I/O APIC is: 0x%x\n", (uint32_t) ioapic->address);
+#ifndef __IOAPIC_DBG
+  printf("Found %i I/O APIC(s). The base address of the I/O APIC is: 0x%x\n", i,
+         (uint32_t) ioapic->address);
+#endif
+  return 0;
 }
 
 static uint32_t

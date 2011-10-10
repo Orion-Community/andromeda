@@ -21,13 +21,13 @@ SECTIONS
     {
         code = .; _code = .; __code = .;
         *(.text)
-        *(.rodata)
         . = ALIGN(0x1000);
     }
     .data : AT (ADDR(.data) - 0xC0000000)
     {
         data = .; _data = .; __data = .;
         *(.data)
+        *(.rodata)
         . = ALIGN(0x1000);
 	stack = ALIGN(0x1000);
     }

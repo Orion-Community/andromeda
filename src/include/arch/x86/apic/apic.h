@@ -38,31 +38,31 @@ extern "C"
 {
 #endif
 
-        typedef uint32_t ol_apic_reg_t;
-        
-        typedef struct apic
-        {
-                const uint8_t id, cpu_id;
-                void (*ol_apic_write) (ol_apic_reg_t, uint32_t);
-                uint32_t (*ol_apic_read) (ol_apic_reg_t);
-        } *ol_apic_t;
+typedef uint32_t ol_apic_reg_t;
 
-        static int
-        ol_detect_apic(ol_cpu_t cpu);
+typedef struct apic
+{
+  const uint8_t id, cpu_id;
+  void (*write) (ol_apic_reg_t, uint32_t);
+  uint32_t (*read) (ol_apic_reg_t);
+} *ol_apic_t;
 
-        static void
-        ol_apic_set_mode(ol_apic_t apic, uint16_t mode);
-        
-        static void
-        ol_apic_enable(ol_apic_t);
+static int
+ol_detect_apic(ol_cpu_t cpu);
 
-        static void
-        ol_apic_disable(ol_apic_t);
-        
-        void
-        ol_apic_init(ol_cpu_t cpu);
-        
-        extern ol_apic_t apic;
+static void
+ol_apic_set_mode(ol_apic_t apic, uint16_t mode);
+
+static void
+ol_apic_enable(ol_apic_t);
+
+static void
+ol_apic_disable(ol_apic_t);
+
+int
+ol_apic_init(ol_cpu_t cpu);
+
+extern ol_apic_t apic;
 
 #ifdef	__cplusplus
 }
