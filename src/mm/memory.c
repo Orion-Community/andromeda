@@ -24,7 +24,6 @@ int
 initHeap(long size)
 {
   heap_add_blocks(&end, size);
-  page_init();
   return 0;
 }
 
