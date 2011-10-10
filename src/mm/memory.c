@@ -28,13 +28,6 @@ initHeap(long size)
   return 0;
 }
 
-/**
- * Algorithm below might be optimised by making the read addresses, data bus width alligned:
- * 32-bits PMode: 32-bits // Depends on CPU caching to get the speed equal to long mode
- * PAE mode:      32-bits // Does a similar trick to 32-bits PMode
- * Long mode:     64-bits // Makes the most of register size
- */
-
 void memset(void *dest, int sval, size_t count)
 {
   if (!count)
@@ -98,7 +91,8 @@ void memset(void *dest, int sval, size_t count)
 
 void memcpy(void *dest, void *src, size_t count)
 {
-#ifndef X86 //64 bit int is only faster at 64-bit PC's, 32 bits prefers 2 time 32 int
+#ifndef X86
+//64 bit int is only faster at 64-bit PC's, 32 bits prefers 2 time 32 int
   while (count >= 8)
   {
     *(unsigned long long*) dest = *(unsigned long long*) src;
@@ -139,7 +133,8 @@ void memcpy(void *dest, void *src, size_t count)
 int
 memcmp(void *ptr1, void* ptr2, size_t count)
 {
-#ifndef X86 //64 bit int is only faster at X86, X64 prefers 2 time 32 int
+#ifndef X86
+//64 bit int is only faster at X86, X64 prefers 2 time 32 int
   if (diff >= 8)
     while (count >= 8)
     {
@@ -176,7 +171,7 @@ memcmp(void *ptr1, void* ptr2, size_t count)
     ptr2 += 2;
     count -= 2;
   }
-  if ((count == 1) && (*(unsigned long long*) ptr1 - *(unsigned long long*) ptr2))
+  if ((count == 1)&&(*(unsigned long long*) ptr1 - *(unsigned long long*) ptr2))
   {
     return 1;
   }

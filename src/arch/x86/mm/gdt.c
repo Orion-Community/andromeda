@@ -23,26 +23,29 @@
 
 gdtEntry_t GDT[5];
 
-/*
- * The code below holds a reference called BRANS. This is because the code that is between those statements
- * is based on but not the code from Brans kernel development tutorial. Because of the limitations of the
- * GDT the code is pretty similar though.
+/**
+ * The code below holds ifdefs called FAST. This is because the code that's
+ * between those statements uses full registers at a time, in stead of the
+ * individual bits. The limitations opposed by both pieces of code are the same
+ * though.
  *
- * For performance reasons, I'd compile with the BRANS flag enabled, but it's default not to, for the other
- * code is more readable, as the header specifically defines each field.
+ * For performance reasons, compile with the FAST flag enabled. We've defaulted
+ * not to, because the other piece of code is better for educational use.
  */
 
 #ifdef FAST
-void setEntry(int num, unsigned int base, unsigned int limit, unsigned char access, unsigned char gran);
+void setEntry(int num, unsigned int base, unsigned int limit,
+                                      unsigned char access, unsigned char gran);
 #else
-void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type, unsigned int dpl);
+void setEntry(int num, unsigned int base, unsigned int limit,
+                                           unsigned int type, unsigned int dpl);
 #endif
 
 #define ENTRIES 5
 
-// All this does is set the general descriptor table to a flat memory model.
-// For all I know this is only necessary on intel machines as they support
-// segmentation. We'll use paging for our memory protection.
+/// All this does is set the general descriptor table to a flat memory model.
+/// For all I know this is only necessary on intel machines as they support
+/// segmentation. We'll use paging for our memory protection.
 
 void setGDT()
 {
@@ -64,7 +67,8 @@ void setGDT()
   setEntry(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
   setEntry(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
   #else
-  //void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type, unsigned int dpl)
+  //void setEntry (int num, unsigned int base,
+  //unsigned int limit, unsigned int type, unsigned int dpl)
   setEntry (0, 0, 0, 0, 0);
   setEntry (1, 0, 0xFFFFFFFF, 0xA, 0x0);
   setEntry (2, 0, 0xFFFFFFFF, 0x2, 0x0);
@@ -100,7 +104,8 @@ void setGDT()
 
 #ifdef X86
 #ifdef FAST
-void setEntry(int num, unsigned int base, unsigned int limit, unsigned char access, unsigned char gran)
+void setEntry(int num, unsigned int base, unsigned int limit,
+                                       unsigned char access, unsigned char gran)
 {
    GDT[num].base_low    = (base & 0xFFFFFF);
    GDT[num].base_high   = (base >> 24) & 0xFF;
@@ -112,7 +117,8 @@ void setEntry(int num, unsigned int base, unsigned int limit, unsigned char acce
    GDT[num].access      = access;
 }
 #else
-void setEntry (int num, unsigned int base, unsigned int limit, unsigned int type, unsigned int dpl)
+void setEntry (int num, unsigned int base, unsigned int limit,
+                                            unsigned int type, unsigned int dpl)
 {
   if (num == 0)
   {

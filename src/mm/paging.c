@@ -259,15 +259,13 @@ addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
   uint32_t directory_idx = virt >> 22;
   uint32_t table_idx = (virt >> 12) & 0x3FF;
 
-//   struct page_table* pt = (void*)((pd[directory_idx].pageIdx/0x1000)+offset);
-//   addr_t phys = (pt[table_idx].pageIdx /0x1000) | (virt & PAGE_BITS);
-
   struct page_table* pt=(void*)(((pd[directory_idx].pageIdx) << 12) + offset);
   addr_t phys = pt[table_idx].pageIdx << 12;
   phys += (virt & PAGE_BITS);
 #ifdef PAGEDBG
   printf("dir: %X\ttable: %X\n", directory_idx, table_idx);
-  printf("dir idx: %X\ttable idx: %X\n", pd[directory_idx].pageIdx, pt[table_idx].pageIdx);
+  printf("dir idx: %X\ttable idx: %X\n", pd[directory_idx].pageIdx,
+                                                         pt[table_idx].pageIdx);
   printf("dir addr: %X\ttable addr: %X\n", (addr_t)pd, (addr_t)pt);
 #endif
   return phys;

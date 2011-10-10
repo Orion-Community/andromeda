@@ -52,7 +52,8 @@ void heapAddBlocks(void* base, int size) // Requests size in bytes
     }
     else
     {
-      mutexRelease(prot); // To prevent the mutex from conflicting with itself basically
+      mutexRelease(prot);
+      // To prevent the mutex from conflicting with itself basically
       free((void*) base + sizeof (memory_node_t));
       mutexEnter(prot);
     }

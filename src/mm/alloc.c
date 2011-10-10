@@ -96,23 +96,26 @@ alloc(size_t size, boolean pageAlligned)
     {
       if (!carriage->used)
       {
-        /* 
-         * If the block isn't used and the block should be alligned with the page boundary
-         * this block is called. The ifdef below is just to get the syntax right for different
-         * kind of architectures.
+        /**
+         * If the block isn't used and the block should be alligned with the
+         * page boundary, the block is called.
          *
-         * The code figures out the required offset for the block to be able to hold the desired
-         * block.
+         * The code figures out the required offset for the block to be able to
+         * hold the desired block.
          */
-        addr_t offset = PAGEBOUNDARY - ((addr_t) carriage + sizeof (memory_node_t)) % PAGEBOUNDARY;
+        addr_t offset = PAGEBOUNDARY - ((addr_t) carriage +
+                                         sizeof (memory_node_t)) % PAGEBOUNDARY;
         offset %= PAGEBOUNDARY;
         addr_t blockSize = offset + size;
 
-        if (carriage->size >= blockSize) // if the size is large enough to be split into
+        if (carriage->size >= blockSize)
+          // if the size is large enough to be split into
           // page alligned blocks, then do it.
         {
-          volatile memory_node_t* ret = splitMul(carriage, size, TRUE); // Split the block
-          use_memnode_block(ret); // Mark the block as used
+          volatile memory_node_t* ret = splitMul(carriage, size, TRUE);
+          // Split the block
+          use_memnode_block(ret);
+          // Mark the block as used
 
           //return the desired block
           mutexRelease(prot);
@@ -126,13 +129,16 @@ alloc(size_t size, boolean pageAlligned)
       }
       else
       {
-        // The block is used, which may be the case in multi threaded environments.
-        // This means the other thread isn't done with this block and we need to
-        // leave it alone. This code still isn't thread safe, but it's a start.
+        /**
+         * The block is used, which may be the case in multi threaded
+         * environments. THis means the other thread isn't done with this block
+         * and we need to leave it alone.
+         */
         continue;
       }
     }
-    else if (carriage->size >= size && carriage->size < size + sizeof (memory_node_t))
+    else if (carriage->size >= size && carriage->size < size +
+                                                         sizeof (memory_node_t))
     {
       if (use_memnode_block(carriage)) // check the usage of the block
       {
@@ -141,14 +147,17 @@ alloc(size_t size, boolean pageAlligned)
       mutexRelease(prot);
       return (void*) carriage + sizeof (memory_node_t);
     }
-    else if (carriage->size >= size + sizeof (memory_node_t)) // the block is too large
+    else if (carriage->size >= size + sizeof (memory_node_t))
+    // the block is too large
     {
-      if (carriage->used) // assert that the block isn't used
+      if (carriage->used)
+      // assert that the block isn't used
       {
         continue;
       }
 
-      volatile memory_node_t* tmp = split(carriage, size); // split the block
+      volatile memory_node_t* tmp = split(carriage, size);
+      // split the block
 
       use_memnode_block(tmp);
       mutexRelease(prot);
@@ -160,9 +169,12 @@ alloc(size_t size, boolean pageAlligned)
               (int) heap, (int) carriage, (int) carriage->size);
       if (carriage->next == carriage)
         printf("Loop in list!\n");
-      break; /* If we haven't found anything but we're at the end of the list
-        or heap corruption occured we break out of the loop and return
-        the default pointer (which is NULL). */
+      break;
+      /**
+       * If we haven't found anything but we're at the end of the list or heap
+       * corruption occured we break out of the loop and return the default
+       * pointer (which is NULL).
+       */
     }
   }
   mutexRelease(prot);
@@ -205,15 +217,19 @@ free(void* ptr)
 #endif
   // Now find a place for the block to fit into the heap list
   for (carriage = heap; carriage != NULL && carriage->next != carriage &&
-       carriage->next != heap; carriage = carriage->next) // Loop through the heap list
+       carriage->next != heap; carriage = carriage->next)
+    // Loop through the heap list
   {
 
     // if we found the right spot, merge the lot.
     if ((void*) block + block->size + sizeof (memory_node_t) == (void*) carriage
-        || (void*) carriage + carriage->size + sizeof (memory_node_t) == (void*) block)
+                                          || (void*) carriage + carriage->size +
+                                        sizeof (memory_node_t) == (void*) block)
     {
-      volatile memory_node_t* test = merge_memnode(block, carriage); // merging code
-      if (test == NULL) // if the merge failed
+      volatile memory_node_t* test = merge_memnode(block, carriage);
+      // merging code
+      if (test == NULL)
+      // if the merge failed
       {
         printf("Merge failed\n");
 #ifdef MMTEST
@@ -230,9 +246,9 @@ free(void* ptr)
       {
         block = test;
         carriage = test;
-        /*
-         * We can now continue trying to merge the rest of the list, 
-         * which might be possible.
+        /**
+         * We can now continue trying to merge the rest of the list, which might
+         * be possible.
          */
       }
     }
@@ -254,18 +270,23 @@ use_memnode_block(volatile memory_node_t* x)
   if (x->used == FALSE)
   {
     x->used = TRUE;
-    if (x->previous != NULL) // if we're not at the top of the list
+    if (x->previous != NULL)
+    // if we're not at the top of the list
     {
-      x->previous->next = x->next; // set the previous block to hold the next block
+      x->previous->next = x->next;
+      // set the previous block to hold the next block
     }
-    else // if we are at the top of the list, move the top of the list to the next block
+    else
+    // if we are at the top of the list, move the top of the list to the next block
     {
       heap = x->next;
     }
-    if (x->next != NULL) // if we're not at the end of the list
+    if (x->next != NULL)
+    // if we're not at the end of the list
     {
 
-      x->next->previous = x->previous; // set the next block to hold the previous block
+      x->next->previous = x->previous;
+      // set the next block to hold the previous block
     }
     else
     {
@@ -286,12 +307,13 @@ return_memnode_block(volatile memory_node_t* block)
   /* This code marks the block as unused and puts it back in the list. */
   if (block->hdrMagic != MM_NODE_MAGIC)
     return; /* Make sure we're not corrupting the
-                                         * heap
-                                         */
+             * heap
+             */
   block->used = FALSE;
   volatile memory_node_t* carriage;
   if ((void*) block < (void*) heap)
-  {/* if we're at the top of the heap list add the block there. */
+  {
+    /* if we're at the top of the heap list add the block there. */
     heap->previous = block;
     block->next = heap;
     block->previous = NULL;
@@ -299,7 +321,8 @@ return_memnode_block(volatile memory_node_t* block)
     return;
   }
   /* We're apparently not at the top of the list */
-  for (carriage = heap; carriage != NULL; carriage = carriage->next) // Loop through the heap list.
+  for (carriage = heap; carriage != NULL; carriage = carriage->next)
+  // Loop through the heap list.
   {
     if (carriage < block && carriage->next > block)
     {
@@ -309,7 +332,8 @@ return_memnode_block(volatile memory_node_t* block)
       return;
     }
     else if (carriage->next == NULL)
-    { /* we are at the end of the list, add the block here */
+    {
+      /* we are at the end of the list, add the block here */
       carriage -> next = block;
       block -> previous = carriage;
       carriage->next->next = NULL;
@@ -325,7 +349,8 @@ split(volatile memory_node_t* block, size_t size)
    * This code splits the block into two parts, the lower of which is returned
    * to the caller.
    */
-  volatile memory_node_t* second = ((void*) block) + sizeof (memory_node_t) + size;
+  volatile memory_node_t* second = ((void*) block) +
+                                                  sizeof (memory_node_t) + size;
 
   if (initHdr(second, block->size - size - sizeof (memory_node_t)))
     return block;
@@ -348,7 +373,8 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
   {
     // figure out whether or not the block is at the right place
     if (((addr_t) ((void*) block + sizeof (memory_node_t))) % PAGEBOUNDARY == 0)
-    { // if so we can manage with a simple split
+    {
+      // if so we can manage with a simple split
 #ifdef MMTEST
       printf("Simple split\n");
 #endif
@@ -356,7 +382,8 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
       return split(block, size);
     }
     else if ((addr_t) ((void*) block + sizeof (memory_node_t)) % PAGEBOUNDARY != 0)
-    { // if not we must do a bit more complex
+    {
+      // if not we must do a bit more complex
 #ifdef MMTEST
       printf("Complex split\n");
 #endif
@@ -381,9 +408,11 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
       volatile memory_node_t* next = block->next; /* Temporarilly store next */
 
       int secondSize = block->size - ((void*) second - (void*) block);
-      initHdr(second, secondSize); /* init the second block with the temp size */
+      initHdr(second, secondSize);
+      /* init the second block with the temp size */
       block->size = (void*) second - ((void*) block + sizeof (memory_node_t));
-      block->next = second; /* fix the heap lists to make a split or return possible */
+      block->next = second;
+      /* fix the heap lists to make a split or return possible */
       second->previous = block;
       second->next = next;
       if (second->size > size + sizeof (memory_node_t))
@@ -401,7 +430,10 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
   }
   else
   {
-    // here we can just do a normal block split because there is no address requirement.
+    /**
+     * here we can just do a normal block split because there is no
+     * address requirement.
+     */
     return split(block, size);
   }
 }
@@ -413,18 +445,22 @@ merge_memnode(volatile memory_node_t* alpha, volatile memory_node_t* beta)
   if (alpha->hdrMagic != MM_NODE_MAGIC || beta->hdrMagic != MM_NODE_MAGIC)
   {
 #ifdef MMTEST
-    printf("HDR error\n"); // debugging code
+    printf("HDR error\n");
+    // debugging code
 #endif
     return NULL; // return error
   }
   if ((((void*) alpha) + alpha->size + sizeof (memory_node_t) != beta) &&
       (((void*) beta) + beta->size + sizeof (memory_node_t) != alpha))
-  { // if the pointers don't match, we should not proceed.
-    return NULL; // return error
+  {
+    // if the pointers don't match, we should not proceed.
+    return NULL;
+    // return error
   }
   volatile memory_node_t* tmp;
   if (((void*) beta) + beta->size + sizeof (memory_node_t) == alpha)
-  { // if the blocks are in reversed order, put them in the right order
+  {
+    // if the blocks are in reversed order, put them in the right order
     tmp = alpha;
     alpha = beta;
     beta = tmp;
