@@ -45,6 +45,8 @@ addr_t idx_kernel_heap;
 addr_t idx_kernel_bss;
 addr_t idx_kernel_stack;
 
+addr_t virt_page_dir[PAGETABLES];
+
 /**
  * The andromeda paging system is set up here.
  * 
@@ -98,7 +100,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
     #endif
   }
   struct page_table* pt;
-  addr_t pd_entry = (virtual >> 22) % 0x400;
+  addr_t pd_entry = virtual >> 22 % 0x400;
   addr_t pt_entry = (virtual >> 12) % 0x400;
 
   if (pd[pd_entry].present == FALSE)
@@ -107,6 +109,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
     pt_allocs++;
 #endif
     pt = alloc(sizeof(pt)*PAGETABLES, TRUE);
+    virt_page_dir[pd_entry] = (addr_t)pt;
     if (pt == NULL)
     {
       mutexRelease(page_lock);
@@ -124,17 +127,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
     pt_uses++;
 #endif
     pd[pd_entry].userMode = TRUE;
-
-    /**
-     * The code for fetching the address of the page table sort of works for
-     * now. But, mind you, that once paging is enabled, and physical addresses
-     * can not be mapped linearly to the virtual addresses, this will fail
-     * dramatically.
-     *
-     * Update required!!
-     */
-
-    pt = (void*)((pd[pd_entry].pageIdx << 12) + offset);
+    pt = (void*)virt_page_dir[pd_entry];
     if (pt == NULL)
     {
       mutexRelease(page_lock);
@@ -156,7 +149,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
 
   page_cnt[pd_entry]++;
   mutexRelease(page_lock);
-#ifdef PAGEDBG
+  #ifdef PAGEDBG
   printf("Virtual: %X\tPhys: %X\tidx: %X\n", virtual, physical,
                                                           pt[pt_entry].pageIdx);
 #endif
@@ -174,7 +167,7 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
     printf("Paging is locked!\n");
     #endif
   }
-  addr_t pd_entry = (virtual >> 22) % 0x400;
+  addr_t pd_entry = virtual >> 22;
   addr_t pt_entry = (virtual >> 12) % 0x400;
 
   if (pd[pd_entry].present == FALSE)
@@ -201,6 +194,7 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
     pd[pd_entry].present = FALSE;
     free((void*)((pd[pd_entry].pageIdx+offset)*PAGESIZE));
     pd[pd_entry].pageIdx = 0;
+    virt_page_dir[pd_entry] = 0;
   }
   mutexRelease(page_lock);
 }
@@ -292,6 +286,7 @@ extern int init(unsigned long, void*);
 void page_init()
 {
   memset(page_cnt, 0, PAGETABLES*sizeof(uint16_t));
+  memset(virt_page_dir, 0, PAGETABLES*sizeof(addr_t));
   sched_init();
   addr_t tmp = setup_page_dir();
 #ifdef PAGEDBG
