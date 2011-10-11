@@ -104,7 +104,12 @@ int sched_init()
   return -E_UNFINISHED;
 }
 
-void sched()
+int sched_start_switching()
+{
+  return -E_NOFUNCTION;
+}
+
+void sched_next_task()
 {
 	panic("Could not schedule");
 }

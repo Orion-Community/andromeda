@@ -36,6 +36,11 @@
 
 volatile mutex_t page_lock = 0;
 boolean pageDbg = false;
+addr_t idx_memory_mapped_io;
+addr_t idx_kernel_code;
+addr_t idx_kernel_heap;
+addr_t idx_kernel_bss;
+addr_t idx_kernel_stack;
 
 /**
  * The andromeda paging system is set up here.
