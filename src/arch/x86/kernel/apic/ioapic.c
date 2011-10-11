@@ -24,35 +24,36 @@
 
 static volatile ioapic_t ioapic;
 
-static int
+static struct ioapic*
 create_ioapic (ol_madt_ioapic_t madt_io)
 {
-  ioapic = kalloc(sizeof (*ioapic));
+  ioapic_t io = kalloc(sizeof(*io));
   cpus->lock(&cpu_lock);
-  if (ioapic == NULL) 
+  if (io == NULL) 
     goto nomem;
   else
   {
-    ioapic->address = (ioapic_addr_t*) madt_io->address;
-    ioapic->int_base = madt_io->global_system_interrupt_base;
-    ioapic->id = madt_io->id;
-    ioapic->read = &ioapic_read_dword;
-    ioapic->write = &ioapic_write_dword;
+    io->address = (ioapic_addr_t*) madt_io->address;
+    io->int_base = madt_io->global_system_interrupt_base;
+    io->id = madt_io->id;
+    io->read = &ioapic_read_dword;
+    io->write = &ioapic_write_dword;
   }
   cpus->unlock(&cpu_lock);
-  return 0;
+  return io;
   
   nomem:
   ol_dbg_heap();
   panic("No free memory in heap in create_ioapic!");
+  return NULL; /* to keep the compiler happy */
 }
 
 int
 init_ioapic ()
 {
-  ol_madt_ioapic_t madt_io = acpi_apics->ioapic->ioapic;
-  if(madt_io == NULL)
-    return -1;
+  ioapic = create_ioapic(acpi_apics->ioapic->ioapic);
+  ioapic->next = NULL;
+  add_ioapic();
   
   int i = 0;
   struct ol_madt_ioapic_node *node = acpi_apics->ioapic;
@@ -68,12 +69,43 @@ init_ioapic ()
       break;
   }
 
-  create_ioapic(madt_io);
 #ifndef __IOAPIC_DBG
   printf("Found %i I/O APIC(s). The base address of the I/O APIC is: 0x%x\n", i,
          (uint32_t) ioapic->address);
 #endif
   return 0;
+}
+
+/*
+ * Adds all the additional ioapics to the list.
+ * This function is called from init_ioapic after the master io apic has been
+ * created
+ */
+static void
+add_ioapic()
+{
+  struct ol_madt_ioapic_node *node;
+  struct ioapic *ionode;
+  /*
+   * Start searching for the second io apic, since the first one is already
+   * created by init_ioapic.
+   */
+  for(node = acpi_apics->ioapic->next; node != NULL, node != node->next; 
+      node = node->next)
+  {
+    struct ioapic *io = create_ioapic(node->ioapic);
+    for(ionode = ioapic; ionode != NULL, ionode != ionode->next; ionode = ionode->next)
+    {
+      if(ionode->next == NULL)
+      {
+        ionode->next = io;
+        ionode->next->next = NULL;
+        break;
+      }
+    }
+    if(node == NULL || node->next == NULL)
+      break;
+  }
 }
 
 static uint32_t
