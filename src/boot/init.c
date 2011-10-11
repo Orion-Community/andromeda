@@ -136,6 +136,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
   page_init();
   printf("%s\n", welcome);
+  page_init();
   setGDT();
 
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);

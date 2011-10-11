@@ -38,16 +38,20 @@ extern "C"
         volatile ioapic_addr_t* address;
         void (*write)(struct ioapic*, const uint8_t, const uint32_t);
         uint32_t (*read)(struct ioapic*, const uint8_t);
+        struct ioapic *next;
     } *ioapic_t;
 
-static int
-create_ioapic(ol_madt_ioapic_t);
+static struct ioapic*
+create_ioapic (ol_madt_ioapic_t madt_io);
 
 int
 init_ioapic();
 
 static uint32_t
 ioapic_read_dword(ioapic_t io, const uint8_t offset);
+
+static void
+add_ioapic();
 
 static void
 ioapic_write_dword(ioapic_t io, const uint8_t offset, const uint32_t value);
