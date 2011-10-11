@@ -93,6 +93,8 @@ uint32_t pt_uses = 0;
 int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
                                                                boolean userMode)
 {
+  if ((virtual % 0x1000) || (physical % 0x1000))
+    panic("AIEEE!!! Virtual or physical address not alligned!!!");
   while(mutexTest(page_lock))
   {
     #ifdef PAGEDBG
@@ -117,9 +119,16 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
     }
     memset(pt, 0, sizeof(pt)*PAGETABLES);
     pd[pd_entry].pageIdx  = ((addr_t)(pt)-offset) >> 12;
-    pd[pd_entry].present  = TRUE;
-    pd[pd_entry].rw       = TRUE;
-    pd[pd_entry].userMode = TRUE;
+    pd[pd_entry].present  = 1;
+    pd[pd_entry].rw       = 1;
+    pd[pd_entry].userMode = 1;
+    pd[pd_entry].pwt      = 0;
+    pd[pd_entry].pcd      = 0;
+    pd[pd_entry].accessed = 0;
+    pd[pd_entry].dirty    = 0;
+    pd[pd_entry].pageSize = 0;
+    pd[pd_entry].global   = 0;
+    pd[pd_entry].ignored  = 0;
   }
   else
   {
@@ -143,9 +152,16 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
   }
 
   pt[pt_entry].pageIdx  = physical >> 12;
-  pt[pt_entry].present  = TRUE;
-  pt[pt_entry].rw       = TRUE;
+  pt[pt_entry].present  = 1;
+  pt[pt_entry].rw       = 1;
   pt[pt_entry].userMode = userMode;
+  pt[pt_entry].pwt      = 0;
+  pt[pt_entry].pcd      = 0;
+  pt[pt_entry].dirty    = 0;
+  pt[pt_entry].accessed = 0;
+  pt[pt_entry].pat      = 0;
+  pt[pt_entry].global   = 0;
+  pt[pt_entry].ignored  = 0;
 
   page_cnt[pd_entry]++;
   mutexRelease(page_lock);
@@ -236,10 +252,11 @@ addr_t setup_page_dir()
 //                                          base_addr+idx, phys_start+idx, idx);
     #endif
 
-    int err = page_map_entry(base_addr+idx, phys_start+idx, pd, false);
-    if (err != -E_SUCCESS)
+    int err1 = page_map_entry(base_addr+idx, phys_start+idx, pd, false);
+    int err2 = page_map_entry(idx, phys_start+idx, pd, false);
+    if (err1 != -E_SUCCESS || err2 != -E_SUCCESS)
     {
-      printf("Error code: %X\n", err);
+      printf("Error code 1: %X\n Error code 2:&X\n", err1, err2);
       panic("Paging fails epicly!!!");
     }
   }
@@ -269,7 +286,7 @@ addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
   uint32_t directory_idx = virt >> 22;
   uint32_t table_idx = (virt >> 12) & 0x3FF;
 
-  struct page_table* pt=(void*)(((pd[directory_idx].pageIdx) << 12) + offset);
+  struct page_table* pt= (void*)virt_page_dir[directory_idx];
   addr_t phys = pt[table_idx].pageIdx << 12;
   phys += (virt & PAGE_BITS);
 #ifdef PAGEDBG
@@ -296,7 +313,6 @@ void page_init()
                                              (void*)tmp), (addr_t)&init-offset);
   printf("Pt_allocs: %X\t Pt_uses: %X\n", pt_allocs, pt_uses);
 #endif
-  setCR3((addr_t)(tmp-offset));
-//   setPGBit();
-  for (;;);
+  setCR3(((addr_t)(tmp-offset)) & 0xFFFFF000);
+  setPGBit();
 }
