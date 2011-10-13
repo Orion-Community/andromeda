@@ -84,6 +84,18 @@ extern "C"
   /* CPUID */
   static ol_gen_registers_t
   __ol_cpuid(volatile ol_gen_registers_t);
+  
+  /*
+   * Inside function to write to a Model Specific Register
+   */
+  static uint64_t
+  __read_msr(uint32_t);
+  
+  /*
+   * Inside function to read a Model Specific Register
+   */
+  static void
+  __write_msr(uint32_t, uint64_t);
 
   extern volatile ol_cpu_t cpus;
 

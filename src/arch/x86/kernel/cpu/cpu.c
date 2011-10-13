@@ -150,3 +150,27 @@ __ol_cpuid(volatile ol_gen_registers_t regs)
           );
   return &ret;
 }
+
+static uint64_t
+__read_msr(uint32_t msr)
+{
+  uint32_t eax, edx;
+  __asm__ __volatile__("RDMSR"
+                        : "=d" (edx),
+                          "=a" (eax)
+                        : "c" (msr)
+                        );
+  return (((uint64_t)eax)|edx);
+}
+
+static void
+__write_msr(uint32_t msr, uint64_t value)
+{
+  uint32_t edx = value & ((2^32)-1), eax = value >> 32;
+  __asm__ __volatile__("WRMSR"
+                        :
+                        : "c" (msr),
+                          "a" (eax),
+                          "d" (edx)
+                        );
+}
