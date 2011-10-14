@@ -24,10 +24,11 @@
 #include <boot/mboot.h>
 #include <thread.h>
 
-#define BMP_FREE (~0)
+#define BMP_FREE      (~0)
 
-#define MAX_MODS 0x20
-#define MAP_NOMAP (~0)
+#define MAX_MODS      0x20
+#define MAP_NOMAP     (~0x1)
+#define MAP_LAST_NODE (~0x2)
 
 typedef struct
 {

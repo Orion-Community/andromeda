@@ -55,6 +55,10 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 
 addr_t map_find_endoflist(addr_t idx)
 {
+  if (page_map[idx].next_idx == MAP_LAST_NODE &&
+                                        page_map[idx].prev_idx == MAP_LAST_NODE)
+    return idx;
+
   for (; page_map[idx].next_idx != BMP_FREE; idx = page_map[idx].next_idx)
   {
     if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx==BMP_FREE)
@@ -83,7 +87,7 @@ addr_t map_find_headoflist(addr_t idx)
  */
 int map_add_page(addr_t list_start, addr_t page_index)
 {
-  if (list_start >= map_size)
+  if (list_start >= map_size && list_start != MAP_NOMAP)
     return -E_BMP_NOIDX;
   else if (page_index >= map_size)
     return -E_BMP_NOIDX;
@@ -100,11 +104,11 @@ int map_add_page(addr_t list_start, addr_t page_index)
   page_map[list_end].next_idx = page_index;
 
   page_map[page_index].prev_idx = list_end;
-  page_map[page_index].next_idx = 0;
+  page_map[page_index].next_idx = BMP_FREE;
 
    addr_t ret = 0;
   if (list_start == MAP_NOMAP)
-    ret = map_find_headoflist(page_index);
+    ret = page_index;
   else
     ret = (addr_t)-E_SUCCESS;
 
@@ -118,37 +122,41 @@ int map_add_page(addr_t list_start, addr_t page_index)
  */
 addr_t map_set_page(addr_t list_start, addr_t page_index)
 {
-  if (list_start >= map_size)
+  if (list_start >= map_size && list_start != MAP_NOMAP)
     return -E_BMP_NOIDX;
   else if (page_index >= map_size)
     return -E_BMP_NOIDX;
   else if (page_map == NULL)
     return -E_BMP_NOMAP;
 
-  addr_t list_end = 0;
-  
+  addr_t list_end = page_index;
   mutex_lock(map_lock);
   if (list_start != MAP_NOMAP)
     list_end = map_find_endoflist(list_start);
-
   if (list_end == (addr_t)-E_BMP_CORRUPT)
   {
     mutex_unlock(map_lock);
     return -E_BMP_CORRUPT;
   }
+  if (list_end != page_index)
+  {
+    page_map[list_end].next_idx = page_index;
 
-  page_map[list_end].next_idx = page_index;
-
-  page_map[page_index].prev_idx = list_end;
-  page_map[page_index].next_idx = 0;
+    page_map[page_index].prev_idx = list_end;
+    page_map[page_index].next_idx = BMP_FREE;
+  }
+  else
+  {
+    page_map[list_end].next_idx = MAP_LAST_NODE;
+    page_map[list_end].prev_idx = MAP_LAST_NODE;
+  }
   mutex_unlock(map_lock);
 
   addr_t ret = 0;
   if (list_start == MAP_NOMAP)
-    ret = map_find_headoflist(page_index);
+    ret = page_index;
   else
     ret = (addr_t)-E_SUCCESS;
-
   return ret;
 }
 
