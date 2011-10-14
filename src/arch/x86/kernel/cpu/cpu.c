@@ -151,6 +151,18 @@ __ol_cpuid(volatile ol_gen_registers_t regs)
   return &ret;
 }
 
+uint64_t
+cpu_read_msr(uint32_t msr)
+{
+  return __read_msr(msr);
+}
+
+void
+cpu_write_msr(uint32_t msr, uint64_t val)
+{
+  __write_msr(msr, val);
+}
+
 static uint64_t
 __read_msr(uint32_t msr)
 {
@@ -160,7 +172,7 @@ __read_msr(uint32_t msr)
                           "=a" (eax)
                         : "c" (msr)
                         );
-  return (((uint64_t)eax)|edx);
+  return (((uint64_t)eax)|edx); /*value is returned in eax:edx*/
 }
 
 static void
