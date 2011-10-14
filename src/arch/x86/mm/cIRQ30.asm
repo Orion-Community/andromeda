@@ -1,4 +1,4 @@
-;
+; ;
 ;    This IRQ (30) serves the user some memory related services. Such as a ram prober,
 ;    a cmos update routine and a function which builds a mmap from the cmos.
 ;    Copyright (C) 2011 Michel Megens
@@ -30,7 +30,7 @@
 
 [EXTERN iowait]
 [EXTERN checkFrame]
-[EXTERN panic]
+[EXTERN asm_panic]
 
 [GLOBAL cIRQ30]
 cIRQ30:
@@ -43,7 +43,7 @@ cIRQ30:
 
 .panic:
 	push panicmsg
-	call panic
+	call asm_panic
 
 .continue:
 	mov eax, [ebp+36]

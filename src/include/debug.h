@@ -15,16 +15,32 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <stdlib.h>
 
-// Claim to have panicked, show the message and enter an infinite loop.
-void panicDebug(char * msg, char* file, int line)
-{
-  printf("Andromeda panic in %s at line %i\n%s\n", file, line, msg);
-  endProg(); // Halt and catch fire!
-}
+#ifndef __DEBUG_H
+#define __DEBUG_H
 
-void asm_panic(char* msg)
-{
-  printf("Andromeda panic in assembly file!\n%s\n", msg);
-}
+#ifdef UNDEFINED
+#undef UNDEFINED
+#endif // UNDEFINED
+
+#ifdef DBG
+
+#ifndef PAGEDBG
+#define PAGEDBG
+#endif // PAGEDBG
+
+#ifndef __DBG_HEAP
+#define __DBG_HEAP
+#endif // __DBG_HEAP
+
+#ifndef __PCI_DEBUG
+#define __PCI_DEBUG
+#endif // __PCI_DEBUG
+
+#define assert(a) if (a) {panic("Assertion failed!")}
+#else
+#define assert(a)
+
+#endif // DBG
+
+#endif // __DEBUG_H
