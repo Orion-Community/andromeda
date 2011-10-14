@@ -37,7 +37,7 @@
 #define __PCI_DEBUG
 #endif // __PCI_DEBUG
 
-#define assert(a) if (a) {panic("Assertion failed!")}
+#define assert(a) if (!a) {panic("Assertion failed!")}
 #else
 #define assert(a)
 
