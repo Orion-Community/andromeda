@@ -39,11 +39,8 @@ boolean pageDbg = false;
 
 volatile addr_t offset = 0xC0000000;
 
-addr_t idx_memory_mapped_io;
-addr_t idx_kernel_code;
-addr_t idx_kernel_heap;
-addr_t idx_kernel_bss;
-addr_t idx_kernel_stack;
+addr_t idx_memory_mapped_io = MAP_NOMAP;
+addr_t idx_kernel_space = MAP_NOMAP;
 
 addr_t virt_page_dir[PAGETABLES];
 
@@ -247,13 +244,19 @@ addr_t setup_page_dir()
 
   for (idx = 0; idx <= kern_size; idx += PAGESIZE)
   {
-    #ifdef PAGEDBG
-//     printf("Virtual: %X\tPhysical: %X\tEntry: %X\n",
-//                                          base_addr+idx, phys_start+idx, idx);
-    #endif
+#ifdef UNDEFINED
+    printf("Virtual: %X\tPhysical: %X\tEntry: %X\n",
+                                         base_addr+idx, phys_start+idx, idx);
+#endif
 
     int err1 = page_map_entry(base_addr+idx, phys_start+idx, pd, false);
     int err2 = page_map_entry(idx, phys_start+idx, pd, false);
+
+    if (idx_kernel_space == MAP_NOMAP)
+      idx_kernel_space = map_set_page(idx_kernel_space, idx);
+    else
+      map_set_page(idx_kernel_space, idx);
+
     if (err1 != -E_SUCCESS || err2 != -E_SUCCESS)
     {
       printf("Error code 1: %X\n Error code 2:&X\n", err1, err2);
@@ -261,8 +264,9 @@ addr_t setup_page_dir()
     }
   }
   #ifdef PAGEDBG
-  printf("Base addr: %X\tStart addr: %X\n",
-                                       (addr_t)&begin, (addr_t)&begin - offset);
+  printf("Base addr: %X\tStart addr: %X\tlist_start: %X\n",
+                                        (addr_t)&begin, (addr_t)&begin - offset,
+                                                              idx_kernel_space);
   #endif
   return (addr_t)pd;
 }
@@ -312,6 +316,7 @@ void page_init()
                                        tmp-offset, page_phys_addr((addr_t)&init,
                                              (void*)tmp), (addr_t)&init-offset);
   printf("Pt_allocs: %X\t Pt_uses: %X\n", pt_allocs, pt_uses);
+  printf("Kern IDX: %X\n", idx_kernel_space);
 #endif
   setCR3(((addr_t)(tmp-offset)) & 0xFFFFF000);
   setPGBit();

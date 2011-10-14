@@ -109,7 +109,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   addr_t tmp = (addr_t)hdr + offset;
   hdr = (multiboot_info_t*)tmp;
 
-
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
     printf("\nInvalid magic word: %X\n", magic);
@@ -141,14 +140,14 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
-  acpi_init();
+//   acpi_init();
 
   pic_init();
   setIDT();
   ol_ps2_init_keyboard();
-  ol_apic_init(cpu);
-  init_ioapic();
-
+//   ol_apic_init(cpu);
+//   init_ioapic();
+  
   ol_pci_init();
 #ifndef NOFS
   fsInit(NULL);

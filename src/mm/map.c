@@ -90,7 +90,9 @@ int map_add_page(addr_t list_start, addr_t page_index)
   else if (page_map == NULL)
     return -E_BMP_NOMAP;
 
-  addr_t list_end = map_find_endoflist(list_start);
+  addr_t list_end = 0;
+  if (list_start != MAP_NOMAP)
+    list_end = map_find_endoflist(list_start);
 
   if (list_end == (addr_t)-E_BMP_CORRUPT)
     return -E_BMP_CORRUPT;
@@ -100,7 +102,54 @@ int map_add_page(addr_t list_start, addr_t page_index)
   page_map[page_index].prev_idx = list_end;
   page_map[page_index].next_idx = 0;
 
-  return -E_SUCCESS;
+   addr_t ret = 0;
+  if (list_start == MAP_NOMAP)
+    ret = map_find_headoflist(page_index);
+  else
+    ret = (addr_t)-E_SUCCESS;
+
+  return ret;
+}
+
+/**
+ * map_set_page adds a page to the list you've specified. This function does use
+ * the mutex, since this is going to be called directly from other parts of the
+ * OS. Do not use map_add_page if setting a page from outside of the sub-system.
+ */
+addr_t map_set_page(addr_t list_start, addr_t page_index)
+{
+  if (list_start >= map_size)
+    return -E_BMP_NOIDX;
+  else if (page_index >= map_size)
+    return -E_BMP_NOIDX;
+  else if (page_map == NULL)
+    return -E_BMP_NOMAP;
+
+  addr_t list_end = 0;
+  
+  mutex_lock(map_lock);
+  if (list_start != MAP_NOMAP)
+    list_end = map_find_endoflist(list_start);
+
+  if (list_end == (addr_t)-E_BMP_CORRUPT)
+  {
+    mutex_unlock(map_lock);
+    return -E_BMP_CORRUPT;
+  }
+
+  page_map[list_end].next_idx = page_index;
+
+  page_map[page_index].prev_idx = list_end;
+  page_map[page_index].next_idx = 0;
+  mutex_unlock(map_lock);
+
+  addr_t ret = 0;
+  if (list_start == MAP_NOMAP)
+    ret = map_find_headoflist(page_index);
+  else
+    ret = (addr_t)-E_SUCCESS;
+
+  return ret;
 }
 
 /**

@@ -35,6 +35,7 @@
 #include <mm/memory.h>
 #include <kern/timer.h>
 #include <math/math.h>
+#include <debug.h>
 
 struct registers
 {

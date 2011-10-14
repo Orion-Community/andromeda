@@ -27,7 +27,7 @@
 #define BMP_FREE (~0)
 
 #define MAX_MODS 0x20
-
+#define MAP_NOMAP (~0)
 
 typedef struct
 {
@@ -68,6 +68,7 @@ addr_t map_alloc_page(addr_t list_idx);
 addr_t map_rm_page(addr_t page_index);
 
 int build_map(multiboot_memory_map_t*, int);
+addr_t map_set_page(addr_t list_start, addr_t page_index);
 
 extern volatile mutex_t map_lock;
 #endif
