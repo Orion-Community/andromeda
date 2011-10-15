@@ -127,7 +127,21 @@ ol_cpu_init(ol_cpu_t cpu)
       cpu->vendor = "AMD";
 
     else cpu->vendor = "UNKNOWN";
+    
+    regs = ol_cpuid(0x80000000);
+    if((regs->eax & 0xff) >= 8)
+    {
+      regs = ol_cpuid(0x80000008);
+      cpu->bus_width = regs->eax & 0xff;
+    }
+    else
+      cpu->bus_width = 36;
+    
+#ifdef __CPU_DBG
+    printf("CPU bus width: %i\n", cpu->bus_width);
+#endif
   }
+
   cpus = cpu;
   cpu->unlock(&cpu_lock);
 }
@@ -149,4 +163,40 @@ __ol_cpuid(volatile ol_gen_registers_t regs)
           : "r" (regs)
           );
   return &ret;
+}
+
+uint64_t
+cpu_read_msr(uint32_t msr)
+{
+  return __read_msr(msr);
+}
+
+void
+cpu_write_msr(uint32_t msr, uint64_t val)
+{
+  __write_msr(msr, val);
+}
+
+static uint64_t
+__read_msr(uint32_t msr)
+{
+  uint32_t eax, edx;
+  __asm__ __volatile__("RDMSR"
+                        : "=d" (edx),
+                          "=a" (eax)
+                        : "c" (msr)
+                        );
+  return (((uint64_t)eax)|edx); /*value is returned in eax:edx*/
+}
+
+static void
+__write_msr(uint32_t msr, uint64_t value)
+{
+  uint32_t edx = value & ((2^32)-1), eax = value >> 32;
+  __asm__ __volatile__("WRMSR"
+                        :
+                        : "c" (msr),
+                          "a" (eax),
+                          "d" (edx)
+                        );
 }
