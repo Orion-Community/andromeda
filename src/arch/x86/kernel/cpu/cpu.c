@@ -127,7 +127,21 @@ ol_cpu_init(ol_cpu_t cpu)
       cpu->vendor = "AMD";
 
     else cpu->vendor = "UNKNOWN";
+    
+    regs = ol_cpuid(0x80000000);
+    if((regs->eax & 0xff) >= 8)
+    {
+      regs = ol_cpuid(0x80000008);
+      cpu->bus_width = regs->eax & 0xff;
+    }
+    else
+      cpu->bus_width = 36;
+    
+#ifdef __CPU_DBG
+    printf("CPU bus width: %i\n", cpu->bus_width);
+#endif
   }
+
   cpus = cpu;
   cpu->unlock(&cpu_lock);
 }
