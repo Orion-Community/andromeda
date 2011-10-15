@@ -317,6 +317,7 @@ void page_init()
                                              (void*)tmp), (addr_t)&init-offset);
   printf("Pt_allocs: %X\t Pt_uses: %X\n", pt_allocs, pt_uses);
   printf("Kern IDX: %X\n", idx_kernel_space);
+  map_show_list(idx_kernel_space);
 #endif
   setCR3(((addr_t)(tmp-offset)) & 0xFFFFF000);
   setPGBit();

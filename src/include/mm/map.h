@@ -71,5 +71,7 @@ addr_t map_rm_page(addr_t page_index);
 int build_map(multiboot_memory_map_t*, int);
 addr_t map_set_page(addr_t list_start, addr_t page_index);
 
+void map_show_list(addr_t list_idx);
+
 extern volatile mutex_t map_lock;
 #endif

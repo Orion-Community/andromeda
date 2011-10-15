@@ -212,3 +212,19 @@ addr_t map_alloc_page(addr_t list_idx)
   mutex_unlock(map_lock);
   return (addr_t)-E_BMP_NOMEM;
 }
+
+void map_show_list(addr_t list_idx)
+{
+  if (page_map[list_idx].next_idx == MAP_LAST_NODE)
+  {
+    printf("Only node: %X\n", list_idx);
+    return;
+  }
+  int i = 1;
+  int idx = page_map[list_idx].next_idx;
+  printf("Node: %X\t IDX: %X\n", 0, list_idx);
+  for (; idx != BMP_FREE; idx = page_map[idx].next_idx, i++)
+  {
+    printf("Node: %X\t IDX: %X\n", i, idx);
+  }
+}
