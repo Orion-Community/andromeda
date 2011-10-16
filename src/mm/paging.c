@@ -255,7 +255,7 @@ addr_t setup_page_dir()
     if (idx_kernel_space == MAP_NOMAP)
       idx_kernel_space = map_set_page(idx_kernel_space, idx);
     else
-      map_set_page(idx_kernel_space, idx);
+      map_set_page(idx_kernel_space, idx/PAGESIZE);
 
     if (err1 != -E_SUCCESS || err2 != -E_SUCCESS)
     {
