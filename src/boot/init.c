@@ -137,17 +137,20 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printf("%s\n", welcome);
   setGDT();
 
+#ifdef DBG
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
-//   acpi_init();
+  acpi_init();
+#endif
 
   pic_init();
   setIDT();
   ol_ps2_init_keyboard();
-//   ol_apic_init(cpu);
-//   init_ioapic();
-  
+#ifdef DBG
+  ol_apic_init(cpu);
+  init_ioapic();
+#endif
   ol_pci_init();
 #ifndef NOFS
   fsInit(NULL);
@@ -158,13 +161,15 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
 #ifndef __MEMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
+#ifdef DBG
   free(cpu);
+#endif
 #endif
 #ifdef __DBG_HEAP
   printf("Heap list:\n");
   ol_dbg_heap();
 #endif
-
+#ifdef DBG
   printf("\nSome (temp) debug info:\n");
   printf("CPU vendor: %s\n", cpus->vendor);
 
@@ -175,7 +180,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                                    *(((uint32_t*) systables->rsdp->signature)));
     printf("MP specification signature: 0x%x\n", systables->mp->signature);
   }
-
+#endif
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
   {
