@@ -52,6 +52,7 @@ extern "C"
 
     /* CPU device info */
     uint8_t flags;
+    uint64_t bus_width;
 
     void (*lock)(mutex_t*);
     void (*unlock)(mutex_t*);
@@ -84,6 +85,30 @@ extern "C"
   /* CPUID */
   static ol_gen_registers_t
   __ol_cpuid(volatile ol_gen_registers_t);
+  
+  /*
+   * Inside function to write to a Model Specific Register
+   */
+  static uint64_t
+  __read_msr(uint32_t);
+  
+  /*
+   * Inside function to read a Model Specific Register
+   */
+  static void
+  __write_msr(uint32_t, uint64_t);
+  
+  /*
+   * Read a model specific register.
+   */
+  uint64_t
+  cpu_read_msr(uint32_t);
+  
+  /*
+   * Write a value to a model specific register.
+   */
+  void
+  cpu_write_msr(uint32_t, uint64_t);
 
   extern volatile ol_cpu_t cpus;
 

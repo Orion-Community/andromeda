@@ -79,8 +79,6 @@ void setIDT()
 	installExceptions(idt);
 	installInterrupts(0x20, 0x28, idt);
 	installIDT(idt);
-	//setInterrupts();
-        free(idt);
 }
 
 static void
