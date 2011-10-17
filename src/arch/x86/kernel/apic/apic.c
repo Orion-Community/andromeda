@@ -66,9 +66,23 @@ ol_apic_init(ol_cpu_t cpu)
 #ifndef __APIC_DBG
   printf("Found %i APIC(s)\n", i);
 #endif
-  cpu_write_msr(0x1b, 0xf0000);
-  printf("APIC base address: 0x%x\n", cpu_read_msr(0x1b)&0x1FFFFFFF000);
+  printf("APIC base address: 0x%x\n", correct_apic_address(cpu_read_msr(0x1b), cpu));
   return 0;
   fail:
     return -1;
+}
+
+static uint64_t
+correct_apic_address(uint64_t addr, ol_cpu_t cpu)
+{
+  uint64_t corval = 0; /* correction value */
+  int i = 0;
+  for(; i<cpu->bus_width; i++)
+  {
+    corval |= 1;
+    corval <<= 1;
+  }
+  corval <<= 11;
+  printf("%i\n", i);
+  return addr&corval;
 }
