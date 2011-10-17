@@ -271,6 +271,17 @@ addr_t setup_page_dir()
   return (addr_t)pd;
 }
 
+int page_unmap_low_mem()
+{
+  addr_t idx = 0;
+  addr_t kern_size = 0xE00000;
+  for (; idx < kern_size; idx += PAGESIZE)
+  {
+    page_release_entry(idx, (void*)getCR3());
+  }
+  return -E_SUCCESS;
+}
+
 int page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
                                                                boolean userMode)
 {

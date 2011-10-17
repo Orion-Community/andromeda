@@ -35,6 +35,7 @@
 #define CHECKALLIGN(a) ((a%PAGESIZE) ? FALSE : TRUE)
 
 void init_paging();
+int page_unmap_low_mem();
 
 struct page_dir
 {
@@ -69,4 +70,5 @@ struct page_table
 typedef struct page_table page_table_t;
 
 extern volatile addr_t offset;
+
 #endif
