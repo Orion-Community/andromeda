@@ -112,6 +112,8 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
     if (pt == NULL)
     {
       mutexRelease(page_lock);
+      ol_dbg_heap();
+      panic("NOMEM!");
       return -E_NOMEM;
     }
     memset(pt, 0, sizeof(pt)*PAGETABLES);
@@ -138,6 +140,8 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
     {
       mutexRelease(page_lock);
       printf("nomem\n");
+      ol_dbg_heap();
+      panic("NOMEM");
       return -E_PAGE_MAPPING;
     }
   }
@@ -145,6 +149,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
   {
     mutexRelease(page_lock);
     printf("Page already mapped! Unmap it first\n");
+    panic("MAPPED");
     return -E_PAGE_MAPPING;
   }
 
@@ -162,7 +167,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
 
   page_cnt[pd_entry]++;
   mutexRelease(page_lock);
-  #ifdef PAGEDBG
+#ifdef UNDEFINED
   printf("Virtual: %X\tPhys: %X\tidx: %X\n", virtual, physical,
                                                           pt[pt_entry].pageIdx);
 #endif
@@ -244,22 +249,30 @@ addr_t setup_page_dir()
 
   for (idx = 0; idx <= kern_size; idx += PAGESIZE)
   {
-#ifdef UNDEFINED
+#ifdef PAGEDBG
     printf("Virtual: %X\tPhysical: %X\tEntry: %X\n",
                                          base_addr+idx, phys_start+idx, idx);
 #endif
 
     int err1 = page_map_entry(base_addr+idx, phys_start+idx, pd, false);
     int err2 = page_map_entry(idx, phys_start+idx, pd, false);
+#ifdef PAGEDBG
+    printf("%X\t%X\n", err1, err2);
+#endif
 
     if (idx_kernel_space == MAP_NOMAP)
       idx_kernel_space = map_set_page(idx_kernel_space, idx);
     else
       map_set_page(idx_kernel_space, idx/PAGESIZE);
-
+#ifdef PAGEDBG
+    if (idx % (PAGESIZE*2) == 0)
+    {
+            ol_dbg_heap();
+    }
+#endif
     if (err1 != -E_SUCCESS || err2 != -E_SUCCESS)
     {
-      printf("Error code 1: %X\n Error code 2:&X\n", err1, err2);
+      printf("Error code 1: %X\nError code 2: %X\n", err1, err2);
       panic("Paging fails epicly!!!");
     }
   }
@@ -326,7 +339,7 @@ void page_init()
   printf("CR3: %X\tphys start ptr: %X\tActual start: %X\n",
                                        tmp-offset, page_phys_addr((addr_t)&init,
                                              (void*)tmp), (addr_t)&init-offset);
-  printf("Pt_allocs: %X\t Pt_uses: %X\n", pt_allocs, pt_uses);
+  printf("Pt_allocs: %X\tPt_uses: %X\n", pt_allocs, pt_uses);
   printf("Kern IDX: %X\n", idx_kernel_space);
   map_show_list(idx_kernel_space);
 #endif
