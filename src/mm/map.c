@@ -22,12 +22,12 @@
 #include <stdlib.h>
 #include <error/error.h>
 
-#define map_size (memsize/0x1000)
+#define map_size (memsize/0x4)
 
 module_t modules[MAX_MODS];
 
 struct page *page_map = NULL;
-size_t memsize;
+size_t memsize; // Size of memory in KiB
 
 volatile mutex_t map_lock = __THREAD_MUTEX_FREE;
 
@@ -35,8 +35,7 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
   addr_t memory_map_end;
   struct page page_map_temp;
-  char * test = kalloc(20);
-  page_map = kalloc(map_size*sizeof(page_map));
+  page_map = kalloc(map_size*sizeof(struct page));
   if(map == NULL) 
     panic("No memory in build_map");
 

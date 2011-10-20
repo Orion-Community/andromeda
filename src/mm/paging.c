@@ -256,6 +256,7 @@ addr_t setup_page_dir()
 
     int err1 = page_map_entry(base_addr+idx, phys_start+idx, pd, false);
     int err2 = page_map_entry(idx, phys_start+idx, pd, false);
+    int err3 = -E_SUCCESS;
 #ifdef PAGEDBG
     printf("%X\t%X\n", err1, err2);
 #endif
@@ -263,16 +264,12 @@ addr_t setup_page_dir()
     if (idx_kernel_space == MAP_NOMAP)
       idx_kernel_space = map_set_page(idx_kernel_space, idx);
     else
-      map_set_page(idx_kernel_space, idx/PAGESIZE);
-#ifdef PAGEDBG
-    if (idx % (PAGESIZE*2) == 0)
-    {
-            ol_dbg_heap();
-    }
-#endif
-    if (err1 != -E_SUCCESS || err2 != -E_SUCCESS)
+      err3 = map_set_page(idx_kernel_space, idx/PAGESIZE);
+
+    if (err1 != -E_SUCCESS || err2 != -E_SUCCESS || err3 != -E_SUCCESS)
     {
       printf("Error code 1: %X\nError code 2: %X\n", err1, err2);
+      printf("Error code 3: %X\n", err3);
       panic("Paging fails epicly!!!");
     }
   }
