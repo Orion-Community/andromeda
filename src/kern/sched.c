@@ -19,9 +19,97 @@
 #include <kern/sched.h>
 #include <error/panic.h>
 
-extern boolean scheduling;
+volatile boolean scheduling = FALSE;
+struct __task_struct *task_stack = NULL;
+struct __task_struct **current_tasks = NULL;
 
-void sched()
+uint32_t cpus = 0;
+
+struct __task_struct*
+sched_init_task(int user_id, boolean userspace, char* path_to_binary, int pid)
+{
+  struct __task_struct* new_task = kalloc(sizeof(struct __task_struct));
+  if(new_task == NULL) return NULL;
+  memset (new_task, 0, sizeof(struct __task_struct));
+
+  new_task->uid       = user_id;
+  new_task->pid       = pid;
+  new_task->userspace = userspace;
+  new_task->ptb       = path_to_binary;
+
+  new_task->text = kalloc(sizeof(struct __kern_sched_segment));
+  if (new_task->text == NULL)
+  {
+    free(new_task);
+    return NULL;
+  }
+  new_task->data = kalloc(sizeof(struct __kern_sched_segment));
+  if (new_task->data == NULL)
+  {
+    free(new_task->text); free(new_task);
+    return NULL;
+  }
+  new_task->bss = kalloc(sizeof(struct __kern_sched_segment));
+  if (new_task->bss == NULL)
+  {
+    free(new_task->text); free(new_task->data); free(new_task);
+    return NULL;
+  }
+  new_task->stack = kalloc(sizeof(struct __kern_sched_segment));
+  if (new_task->stack == NULL)
+  {
+    free(new_task->text); free(new_task->data); free(new_task->bss);
+    free(new_task);
+    return NULL;
+  }
+  new_task->threads = kalloc(sizeof(struct __thread_state));
+  if (new_task->threads == NULL)
+  {
+    free(new_task->text); free(new_task->data); free(new_task->bss);
+    free(new_task->stack); free(new_task);
+  }
+  new_task->threads->tid = 0;
+  new_task->threads->registers = NULL;
+  new_task->threads->nice = 0;
+  new_task->threads->used = 0;
+  new_task->threads->next = NULL;
+  new_task->threads->previous = NULL;
+
+  new_task->nice = 0;
+  new_task->spent = 0;
+  new_task->working_dir = "/";
+
+  return new_task;
+}
+
+int sched_init()
+{
+  struct __task_struct* proc_init = sched_init_task(0, FALSE, "/", 0);
+
+  if (proc_init == NULL)
+    panic("No memory for init process");
+
+  uint32_t cpus = /* get_no_cpus() */1;
+  if (cpus == 0)
+    cpus = 1;
+  current_tasks = kalloc(sizeof(struct __task_struct) * cpus);
+  if (current_tasks == NULL)
+    panic("No memory for the current tasks structure");
+  int i = 0;
+  for (; i < cpus; i++)
+  {
+    current_tasks[i] = proc_init;
+  }
+
+  return -E_UNFINISHED;
+}
+
+int sched_start_switching()
+{
+  return -E_NOFUNCTION;
+}
+
+void sched_next_task()
 {
 	panic("Could not schedule");
 }

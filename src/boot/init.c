@@ -106,6 +106,8 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   // Initialise the heap
   initHeap(HEAPSIZE);
   textInit();
+  addr_t tmp = (addr_t)hdr + offset;
+  hdr = (multiboot_info_t*)tmp;
 
   if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
   {
@@ -130,21 +132,25 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   {
     panic("Invalid memory map");
   }
-  printf("%s\n", welcome);
-  page_init();
-  setGDT();
 
+  page_init();
+  printf("%s\n", welcome);
+  setGDT();
+  page_unmap_low_mem();
+#ifdef DBG
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
   acpi_init();
+#endif
 
   pic_init();
   setIDT();
   ol_ps2_init_keyboard();
+#ifdef DBG
   ol_apic_init(cpu);
   init_ioapic();
-  
+#endif
   ol_pci_init();
 #ifndef NOFS
   fsInit(NULL);
@@ -155,23 +161,26 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
 #ifndef __MEMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
+#ifdef DBG
   free(cpu);
+#endif
 #endif
 #ifdef __DBG_HEAP
   printf("Heap list:\n");
   ol_dbg_heap();
 #endif
-
+#ifdef DBG
   printf("\nSome (temp) debug info:\n");
   printf("CPU vendor: %s\n", cpus->vendor);
-  
+
   if(systables->magic == SYS_TABLE_MAGIC)
   {
-    printf("RSDP ASCII signature: 0x%x%x\n", *(((uint32_t*) systables->rsdp->signature) + 1),
-	   *(((uint32_t*) systables->rsdp->signature)));
+    printf("RSDP ASCII signature: 0x%x%x\n",
+                                *(((uint32_t*) systables->rsdp->signature) + 1),
+                                   *(((uint32_t*) systables->rsdp->signature)));
     printf("MP specification signature: 0x%x\n", systables->mp->signature);
   }
-
+#endif
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
   {

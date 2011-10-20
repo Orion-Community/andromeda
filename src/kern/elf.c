@@ -31,14 +31,15 @@ boolean elfCheck(Elf32_Ehdr* hdr)
   int i;
   #ifdef MODS
   printf("Addr: 0x%x\n", (int)hdr);
-  printf("ELF magic: 0x%x%c%c%c\n", (unsigned int)e_ident[EI_MAG0], e_ident[EI_MAG1], e_ident[EI_MAG2], e_ident[EI_MAG3]);
+  printf("ELF magic: 0x%x%c%c%c\n", (unsigned int)e_ident[EI_MAG0],
+                          e_ident[EI_MAG1], e_ident[EI_MAG2], e_ident[EI_MAG3]);
   #endif
   if (*((unsigned int*)e_ident)==ELFMAGIC)
   {
     return FALSE;
   }
-  // Some things that have to be assesed individually. Hate this way of writing things but unfortunately
-  // the only way I can think of as of now.
+  // Some things that have to be assesed individually. Hate this way of writing
+  // things but unfortunately the only way I can think of as of now.
   if (e_ident[EI_CLASS]!=ELFCLASS32)
   {
     #ifdef MODS
@@ -76,7 +77,8 @@ int coreAugment(void* image)
   {
     return 0;
   }
-  void *programHeader = (void*)(((unsigned long)elfHeader) + ((unsigned long)address));
+  void *programHeader = (void*)(((unsigned long)elfHeader) +
+                                                      ((unsigned long)address));
   void *thisHeader = NULL;
   int noHdrs = elfHeader->e_phnum;
   int hdrSize = elfHeader->e_phentsize;
@@ -85,17 +87,20 @@ int coreAugment(void* image)
   {
     Elf32_Phdr* hdr = (Elf32_Phdr*)thisHeader;
     #ifdef ELFDBG
-    printf("Header: %X\tType: %X\tMemsz: %X\tFilesz: %X\n", (int)hdr, hdr->p_type, hdr->p_memsz, hdr->p_filesz);
+    printf("Header: %X\tType: %X\tMemsz: %X\tFilesz: %X\n", (int)hdr,
+                                      hdr->p_type, hdr->p_memsz, hdr->p_filesz);
     #endif
     if (hdr->p_type != 0x6474E551)
-      
+
     if (hdr->p_memsz == 0) continue;
-    memcpy((void*)hdr->p_vaddr, (void*)(hdr->p_offset+(unsigned int) image), hdr->p_filesz);
+    memcpy((void*)hdr->p_vaddr, (void*)(hdr->p_offset+(unsigned int) image),
+                                                                 hdr->p_filesz);
     if (hdr -> p_memsz > hdr -> p_filesz)
-      memset((void*)(hdr->p_vaddr + hdr->p_filesz), 0, hdr->p_memsz - hdr->p_filesz);
-    
+      memset((void*)(hdr->p_vaddr + hdr->p_filesz), 0, hdr->p_memsz -
+                                                                 hdr->p_filesz);
+
     // Memory protection flags should probably be set here.
-    
+
     thisHeader+=hdrSize;
   }
   return 0;
@@ -114,7 +119,8 @@ int coreCheck(void* image)
   {
     return 0;
   }
-  void *programHeader = (void*)(((unsigned long)elfHeader) + ((unsigned long)address));
+  void *programHeader = (void*)(((unsigned long)elfHeader) +
+                                                      ((unsigned long)address));
   void *thisHeader = NULL;
   int noHdrs = elfHeader->e_phnum;
   int hdrSize = elfHeader->e_phentsize;
@@ -156,7 +162,8 @@ int elfExec(void* image)
     {
       return 0;
     }
-    void *programHeader = (void*)(((unsigned long)elfHeader) + ((unsigned long)address));
+    void *programHeader = (void*)(((unsigned long)elfHeader) +
+                                                      ((unsigned long)address));
     void *thisHeader = NULL;
     int noHdrs = elfHeader->e_phnum;
     int hdrSize = elfHeader->e_phentsize;
@@ -165,9 +172,10 @@ int elfExec(void* image)
     for (thisHeader = programHeader; i < noHdrs; i++)
     {
       Elf32_Phdr* hdr = (Elf32_Phdr*)thisHeader;
-      printf("Type:\t0x%X\tOffset:\t0x%X\nvaddr:\t0x%X\tSize:\t0x%X\nAlign:\t0x%X\tFlags:\t0x%X\n\n",
-						hdr->p_type, hdr->p_offset, hdr->p_vaddr, 
-						hdr->p_memsz, hdr->p_align, hdr->p_flags);
+      printf("Type:\t0x%X\tOffset:\t0x%X\nvaddr:\t0x%X\tSize:\t0x%X\nAlign:\t"
+                                                       "0x%X\tFlags:\t0x%X\n\n",
+                                       hdr->p_type, hdr->p_offset, hdr->p_vaddr,
+                                      hdr->p_memsz, hdr->p_align, hdr->p_flags);
       thisHeader+=hdrSize;
     }
     #ifdef ELFDBG
@@ -177,7 +185,8 @@ int elfExec(void* image)
     Elf32_Off sectionAddress = elfHeader->e_shoff;
     if (address != 0 && FALSE)
     {
-      void *sectionHeader = (void*)(((unsigned long)elfHeader) + ((unsigned long)sectionAddress));
+      void *sectionHeader = (void*)(((unsigned long)elfHeader) +
+                                               ((unsigned long)sectionAddress));
       void *thisSection = NULL;
       int noSHdrs = elfHeader->e_shnum;
       int shdrSize = elfHeader->e_shentsize;
@@ -185,16 +194,16 @@ int elfExec(void* image)
       printf("Section header\n");
       for (thisSection = sectionHeader; i < noHdrs; i++)
       {
-	Elf32_Shdr* hdr = (Elf32_Shdr*)thisSection;
-	printf("Type:\t0x%X\tOffset:\t0x%X\nAddr:\t0x%X\tSize:\t0x%X\nAlign:\t0x%X\tFlags:\t0x%X\nName:\t0x%X\n\n",
-						hdr->sh_type, hdr->sh_offset, hdr->sh_addr,
-						hdr->sh_size, hdr->sh_addralign, hdr->sh_flags,
-						hdr->sh_name);
-	#ifdef ELFDBG
-	for (j = 0; j < 0xfffffff; j++);
-	#endif
+        Elf32_Shdr* hdr = (Elf32_Shdr*)thisSection;
+        printf("Type:\t0x%X\tOffset:\t0x%X\nAddr:\t0x%X\tSize:\t0x%X\nAlign:\t"
+                                          "0x%X\tFlags:\t0x%X\nName:\t0x%X\n\n",
+                                     hdr->sh_type, hdr->sh_offset, hdr->sh_addr,
+                                                hdr->sh_size, hdr->sh_addralign,
+                                                   hdr->sh_flags, hdr->sh_name);
+        #ifdef ELFDBG
+        for (j = 0; j < 0xfffffff; j++);
+        #endif
       }
-      
     }
   }
   return 1;

@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <error/error.h>
 
-#define map_size (memsize/0x4)
+#define map_size (memsize/0x1000)
 
 module_t modules[MAX_MODS];
 
@@ -39,10 +39,10 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
   page_map = kalloc(map_size*sizeof(page_map));
   if(map == NULL) 
     panic("No memory in build_map");
-  
+
   memset(page_map, 0, sizeof(page_map)*map_size);
   #ifdef PAGEDBG
-  printf("Map size: %X B\tMemsize: %X B\n", 
+  printf("Mem map size: %X B\tMem map size: %X B\n",
                                        map_size*sizeof(page_map), memsize*1024);
   #endif
   return -E_BMP_NOMAP;
@@ -55,9 +55,13 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 
 addr_t map_find_endoflist(addr_t idx)
 {
+  if (page_map[idx].next_idx == MAP_LAST_NODE &&
+                                        page_map[idx].prev_idx == MAP_LAST_NODE)
+    return idx;
+
   for (; page_map[idx].next_idx != BMP_FREE; idx = page_map[idx].next_idx)
   {
-    if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx == BMP_FREE)
+    if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx==BMP_FREE)
       return -E_BMP_CORRUPT;
   }
   return idx;
@@ -71,7 +75,7 @@ addr_t map_find_headoflist(addr_t idx)
 {
   for (; page_map[idx].prev_idx != BMP_FREE; idx = page_map[idx].prev_idx)
   {
-    if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx == BMP_FREE)
+    if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx==BMP_FREE)
       return -E_BMP_CORRUPT;
   }
   return idx;
@@ -81,17 +85,18 @@ addr_t map_find_headoflist(addr_t idx)
  * map_add_page adds a page to the list you've specified. DO NOT MAKE IT USE THE
  * MUTEX as it is supposed to be locked by higher level functions
  */
-
 int map_add_page(addr_t list_start, addr_t page_index)
 {
-  if (list_start >= map_size)
+  if (list_start >= map_size && list_start != MAP_NOMAP)
     return -E_BMP_NOIDX;
   else if (page_index >= map_size)
     return -E_BMP_NOIDX;
   else if (page_map == NULL)
     return -E_BMP_NOMAP;
 
-  addr_t list_end = map_find_endoflist(list_start);
+  addr_t list_end = 0;
+  if (list_start != MAP_NOMAP)
+    list_end = map_find_endoflist(list_start);
 
   if (list_end == (addr_t)-E_BMP_CORRUPT)
     return -E_BMP_CORRUPT;
@@ -99,9 +104,60 @@ int map_add_page(addr_t list_start, addr_t page_index)
   page_map[list_end].next_idx = page_index;
 
   page_map[page_index].prev_idx = list_end;
-  page_map[page_index].next_idx = 0;
+  page_map[page_index].next_idx = BMP_FREE;
 
-  return -E_SUCCESS;
+   addr_t ret = 0;
+  if (list_start == MAP_NOMAP)
+    ret = page_index;
+  else
+    ret = (addr_t)-E_SUCCESS;
+
+  return ret;
+}
+
+/**
+ * map_set_page adds a page to the list you've specified. This function does use
+ * the mutex, since this is going to be called directly from other parts of the
+ * OS. Do not use map_add_page if setting a page from outside of the sub-system.
+ */
+addr_t map_set_page(addr_t list_start, addr_t page_index)
+{
+  if (list_start >= map_size && list_start != MAP_NOMAP)
+    return -E_BMP_NOIDX;
+  else if (page_index >= map_size)
+    return -E_BMP_NOIDX;
+  else if (page_map == NULL)
+    return -E_BMP_NOMAP;
+
+  addr_t list_end = page_index;
+  mutex_lock(map_lock);
+  if (list_start != MAP_NOMAP)
+    list_end = map_find_endoflist(list_start);
+  if (list_end == (addr_t)-E_BMP_CORRUPT)
+  {
+    mutex_unlock(map_lock);
+    return -E_BMP_CORRUPT;
+  }
+  if (list_end != page_index)
+  {
+    page_map[list_end].next_idx = page_index;
+
+    page_map[page_index].prev_idx = list_end;
+    page_map[page_index].next_idx = BMP_FREE;
+  }
+  else
+  {
+    page_map[list_end].next_idx = MAP_LAST_NODE;
+    page_map[list_end].prev_idx = MAP_LAST_NODE;
+  }
+  mutex_unlock(map_lock);
+
+  addr_t ret = 0;
+  if (list_start == MAP_NOMAP)
+    ret = page_index;
+  else
+    ret = (addr_t)-E_SUCCESS;
+  return ret;
 }
 
 /**
@@ -146,7 +202,7 @@ addr_t map_alloc_page(addr_t list_idx)
   mutex_lock(map_lock);
   for (; idx < map_size; idx++)
   {
-    if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx == BMP_FREE)
+    if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx==BMP_FREE)
     {
       map_add_page(list_idx, idx);
       mutex_unlock(map_lock);
@@ -155,4 +211,20 @@ addr_t map_alloc_page(addr_t list_idx)
   }
   mutex_unlock(map_lock);
   return (addr_t)-E_BMP_NOMEM;
+}
+
+void map_show_list(addr_t list_idx)
+{
+  if (page_map[list_idx].next_idx == MAP_LAST_NODE)
+  {
+    printf("Only node: %X\n", list_idx);
+    return;
+  }
+  int i = 1;
+  int idx = page_map[list_idx].next_idx;
+  printf("Node: %X\t IDX: %X\n", 0, list_idx);
+  for (; idx != BMP_FREE; idx = page_map[idx].next_idx, i++)
+  {
+    printf("Node: %X\t IDX: %X\n", i, idx);
+  }
 }

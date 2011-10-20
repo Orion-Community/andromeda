@@ -22,15 +22,20 @@
 #include <kern/cpu.h>
 
 #ifdef X86
-#define PAGES      PAGETABLES*PAGEDIRS
-#define PAGESIZE   0x1000
-#define PAGETABLES 0x400
-#define PAGEDIRS   PAGETABLES
+#define PAGES       0x100000
+#define PAGESIZE    0x1000
+#define PAGETABLES  0x400
+#define PAGEDIRS    0x400
+#define PAGEENTRIES 0x400
+
+#define PAGE_BITS   0xFFF
+
 #endif
 
 #define CHECKALLIGN(a) ((a%PAGESIZE) ? FALSE : TRUE)
 
 void init_paging();
+int page_unmap_low_mem();
 
 struct page_dir
 {
@@ -63,4 +68,7 @@ struct page_table
   unsigned int pageIdx	: 20; // Pointer to page
 } __attribute__((packed));
 typedef struct page_table page_table_t;
+
+extern volatile addr_t offset;
+
 #endif

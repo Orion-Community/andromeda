@@ -24,10 +24,11 @@
 #include <boot/mboot.h>
 #include <thread.h>
 
-#define BMP_FREE (~0)
+#define BMP_FREE      (~0)
 
-#define MAX_MODS 0x20
-
+#define MAX_MODS      0x20
+#define MAP_NOMAP     (~0x1)
+#define MAP_LAST_NODE (~0x2)
 
 typedef struct
 {
@@ -68,6 +69,9 @@ addr_t map_alloc_page(addr_t list_idx);
 addr_t map_rm_page(addr_t page_index);
 
 int build_map(multiboot_memory_map_t*, int);
+addr_t map_set_page(addr_t list_start, addr_t page_index);
+
+void map_show_list(addr_t list_idx);
 
 extern volatile mutex_t map_lock;
 #endif

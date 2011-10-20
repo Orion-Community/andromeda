@@ -16,21 +16,35 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdlib.h>
-#ifndef VGA_H
-#define VGA_H
-// #define KEYBUF 0xB8000
-#define KEYBUF 0xC00B8000
-#define VGA_WIDTH 80
-#define VGA_HEIGHT 25
-#define OL_WHITE_TXT 0x7
+#ifndef __DEBUG_H
+#define __DEBUG_H
 
-struct curPos
-{
-	uint32_t x;
-	uint32_t y;
-//        uint16_t *vidmem;
-	int tabwidth;
-};
+#ifdef UNDEFINED
+#undef UNDEFINED
+#endif // UNDEFINED
 
-#endif
+#ifdef DBG
+
+#ifndef PAGEDBG
+#define PAGEDBG
+#endif // PAGEDBG
+
+#ifndef __DBG_HEAP
+#define __DBG_HEAP
+#endif // __DBG_HEAP
+
+#ifndef __PCI_DEBUG
+#define __PCI_DEBUG
+#endif // __PCI_DEBUG
+
+#ifndef __CPU_DEBUG
+#define __CPU_DEBUG
+#endif // __CPU_DEBUG
+
+#define assert(a) if (!a) {panic("Assertion failed!")}
+#else
+#define assert(a)
+
+#endif // DBG
+
+#endif // __DEBUG_H

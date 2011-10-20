@@ -17,17 +17,14 @@
 */
 #include <stdlib.h>
 
-// Claim to have paniced, show the message and enter an infinite loop.
-#ifdef DBG
-	void panicDebug(char * msg, char* file, int line)
-	{
-		printf("Andromeda panic in %s at line %i\n%s\n", file, line, msg);
-		endProg(); // Halt and catch fire!
-	}
-#else
-	void panic(char* msg)
-	{
-		printf("Andromeda panic!\n%s\n", msg);
-		endProg(); // Halt and catch fire!
-	}
-#endif
+// Claim to have panicked, show the message and enter an infinite loop.
+void panicDebug(char * msg, char* file, int line)
+{
+  printf("Andromeda panic in %s at line %i\n%s\n", file, line, msg);
+  endProg(); // Halt and catch fire!
+}
+
+void asm_panic(char* msg)
+{
+  printf("Andromeda panic in assembly file!\n%s\n", msg);
+}
