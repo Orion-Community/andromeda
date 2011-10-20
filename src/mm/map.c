@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <error/error.h>
 
-#define map_size (memsize/0x4)
+#define map_size (memsize/0x1000)
 
 module_t modules[MAX_MODS];
 
@@ -39,7 +39,7 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
   page_map = kalloc(map_size*sizeof(page_map));
   if(map == NULL) 
     panic("No memory in build_map");
-  
+
   memset(page_map, 0, sizeof(page_map)*map_size);
   #ifdef PAGEDBG
   printf("Mem map size: %X B\tMem map size: %X B\n",
