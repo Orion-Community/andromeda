@@ -30,7 +30,12 @@
 struct msi
 {
   uint32_t addr_low, addr_hi;
-  uint64_t data; /* message */
+  int vector : 8;
+  int delivery_mode : 3;
+  int reserved : 3;
+  int trigger_level : 1;
+  int trigger: 1;
+  uint64_t reserved2 : 48;
 } __attribute__((packed));
 typedef struct msi msi_msg;
 
