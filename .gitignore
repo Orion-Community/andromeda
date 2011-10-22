@@ -3,7 +3,7 @@
 compressed
 core
 src/andromeda
-*.project
+*.*project
 *~
 src/scripts/floppy.img
 /nbproject/

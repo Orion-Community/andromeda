@@ -20,6 +20,7 @@
 
 #include <arch/x86/acpi/acpi.h>
 #include <arch/x86/apic/ioapic.h>
+#include <arch/x86/apic/msi.h>
 #include <arch/x86/cpu.h>
 
 static volatile ioapic_t ioapic;
@@ -107,6 +108,15 @@ add_ioapic()
       break;
   }
 }
+
+#ifdef __IOAPIC_DBG
+void
+ioapic_debug()
+{
+  printf("Testing I/O apic at address 0x%x\n", ioapic->address);
+  printf("I/O apic version %x\n", ioapic_read_dword(ioapic, 0x1));
+}
+#endif
 
 static uint32_t
 ioapic_read_dword(ioapic_t io, const uint8_t offset)
