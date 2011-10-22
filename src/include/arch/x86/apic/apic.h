@@ -62,6 +62,12 @@ ol_apic_disable(ol_apic_t);
 int
 ol_apic_init(ol_cpu_t cpu);
 
+static uint64_t
+correct_apic_address();
+
+static uint64_t
+correct_apic_address(uint64_t, ol_cpu_t);
+
 extern ol_apic_t apic;
 
 #ifdef	__cplusplus

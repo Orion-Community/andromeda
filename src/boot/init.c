@@ -57,8 +57,6 @@ unsigned char stack[0x8000];
 
 // Define the place of the heap
 
-void testMMap(multiboot_info_t* hdr);
-
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
@@ -86,7 +84,7 @@ boolean setupCore(module_t mod)
     case -3:
       printf("Kernel magic invalid\n");
       return TRUE;
-      ;
+
     default:
       printf("Unknown return value");
       return TRUE;
@@ -147,8 +145,12 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   ol_ps2_init_keyboard();
 //   ol_apic_init(cpu);
 //   init_ioapic();
-  
+
   ol_pci_init();
+
+#ifdef __IOAPIC_DBG
+  ioapic_debug();
+#endif
 #ifndef NOFS
   fsInit(NULL);
 #ifdef FSTEST
@@ -171,8 +173,8 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   if(systables->magic == SYS_TABLE_MAGIC)
   {
     printf("RSDP ASCII signature: 0x%x%x\n",
-                                *(((uint32_t*) systables->rsdp->signature) + 1),
-                                   *(((uint32_t*) systables->rsdp->signature)));
+        *(((uint32_t*) systables->rsdp->signature) + 1),
+        *(((uint32_t*) systables->rsdp->signature)));
     printf("MP specification signature: 0x%x\n", systables->mp->signature);
   }
 

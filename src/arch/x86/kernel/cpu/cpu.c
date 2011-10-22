@@ -128,20 +128,19 @@ ol_cpu_init(ol_cpu_t cpu)
 
     else cpu->vendor = "UNKNOWN";
     
-    regs = ol_cpuid(0x80000000);
-    if((regs->eax & 0xff) >= 8)
-    {
+    regs = ol_cpuid(0x80000000); /*check the amount of extended functions*/
+    if((regs->eax & 0xff) >= 0x8)
+    { /*if function 0x8 is supported*/
       regs = ol_cpuid(0x80000008);
       cpu->bus_width = regs->eax & 0xff;
     }
     else
-      cpu->bus_width = 36;
+      cpu->bus_width = 36; /*default bus width*/
     
 #ifdef __CPU_DBG
     printf("CPU bus width: %i\n", cpu->bus_width);
 #endif
   }
-
   cpus = cpu;
   cpu->unlock(&cpu_lock);
 }
@@ -192,7 +191,7 @@ __read_msr(uint32_t msr)
 static void
 __write_msr(uint32_t msr, uint64_t value)
 {
-  uint32_t edx = value & ((2^32)-1), eax = value >> 32;
+  uint32_t eax = value & 0xffffffff, edx = value >> 32;
   __asm__ __volatile__("WRMSR"
                         :
                         : "c" (msr),
