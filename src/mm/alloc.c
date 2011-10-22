@@ -22,6 +22,13 @@
  *
  * As of now the heap has a fixed size, which isn't an issue, as long as the
  * memory required is free. As of now, we require about 10 MiB.
+ *
+ * In the future the heap should be made so it grows according to demand. This
+ * can be done through the use of a wilderness(1) block or just growing the heap
+ * when if we run out of memory.
+ *
+ * (1) For the definition of the wilderness block, look up documentation on Doug
+ * Leah's malloc (aka. dlmalloc).
  */
 
 #include <stdlib.h>

@@ -74,9 +74,8 @@ void examineHeap();
 void wait();
 void testAlloc();
 #endif
-#ifdef DBG
-void examineHeap();
-#endif
+#define examineHeap examine_heap
+#define ol_dbg_heap examine_heap
 
 #if 0
 extern long heapBase;
