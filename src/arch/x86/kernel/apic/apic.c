@@ -83,6 +83,5 @@ correct_apic_address(uint64_t addr, ol_cpu_t cpu)
     corval <<= 1;
   }
   corval <<= 11;
-  printf("%i\n", i);
   return addr&corval;
 }
