@@ -43,6 +43,8 @@ ol_detect_apic(ol_cpu_t cpu)
     cpu->unlock(&cpu_lock);
     return -1;
   }
+  cpu->unlock(&cpu_lock);
+  return -1;
 }
 
 int

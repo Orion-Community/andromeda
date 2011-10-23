@@ -1,20 +1,20 @@
 /*
-    Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+ Orion OS, The educational operatingsystem
+ Copyright (C) 2011  Bart Kuivenhoven
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <mm/paging.h>
 #include <mm/map.h>
@@ -48,20 +48,21 @@ boolean pageDbg = false;
  * Called when a pagefault occurs, is in charge of fixing the fault and swapping
  * if necessary.
  */
-void cPageFault(isrVal_t registers)
+void
+cPageFault(isrVal_t registers)
 {
   unsigned long page = getCR2();
-  #ifdef PAGEDBG
+#ifdef PAGEDBG
   printf("PG\n");
-  #endif
+#endif
 
   if (registers.cs != 0x8 && registers.cs != 0x18)
   {
     panic("Incorrect frame!");
   }
-  #ifdef PAGEDBG
+#ifdef PAGEDBG
   printf("Type of error: 0x%X\n", registers.errCode);
-  #endif
+#endif
 
   panic("Page faults currently under construction");
 }
@@ -76,14 +77,15 @@ uint16_t page_cnt[PAGETABLES];
  * usermode and to choose a different page directory than the current (usefull
  * when using multiple processors).
  */
-int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
-                                                               boolean userMode)
+int
+page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
+    boolean userMode)
 {
-  while(mutexTest(page_lock))
+  while (mutexTest(page_lock))
   {
-    #ifdef PAGEDBG
+#ifdef PAGEDBG
     printf("Paging is locked!\n");
-    #endif
+#endif
   }
   struct page_table* pt;
   addr_t pd_entry = virtual >> 22;
@@ -91,16 +93,16 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
 
   if (pd[pd_entry].present == FALSE)
   {
-    pt = alloc(sizeof(pt)*PAGETABLES, TRUE);
+    pt = alloc(sizeof(pt) * PAGETABLES, TRUE);
     if (pt == NULL)
     {
       mutexRelease(page_lock);
       return -E_NOMEM;
     }
-    memset(pt, 0, sizeof(pt)*PAGETABLES);
-    pd[pd_entry].pageIdx  = ((addr_t)pt)/PAGESIZE;
-    pd[pd_entry].present  = TRUE;
-    pd[pd_entry].rw       = TRUE;
+    memset(pt, 0, sizeof(pt) * PAGETABLES);
+    pd[pd_entry].pageIdx = ((addr_t) pt) / PAGESIZE;
+    pd[pd_entry].present = TRUE;
+    pd[pd_entry].rw = TRUE;
     pd[pd_entry].userMode = userMode;
   }
   else
@@ -108,7 +110,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
     if (pd[pd_entry].userMode == FALSE)
       pd[pd_entry].userMode = userMode;
 
-    pt = (struct page_table*)(pd[pd_entry].pageIdx*PAGESIZE);
+    pt = (struct page_table*) (pd[pd_entry].pageIdx * PAGESIZE);
     if (pt == NULL)
     {
       mutexRelease(page_lock);
@@ -121,9 +123,9 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
     return -E_PAGE_MAPPING;
   }
 
-  pt[pt_entry].pageIdx  = physical >> 0x12;
-  pt[pt_entry].present  = TRUE;
-  pt[pt_entry].rw       = TRUE;
+  pt[pt_entry].pageIdx = physical >> 0x12;
+  pt[pt_entry].present = TRUE;
+  pt[pt_entry].rw = TRUE;
   pt[pt_entry].userMode = userMode;
 
   page_cnt[pd_entry]++;
@@ -134,13 +136,14 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
 /**
  * Function does exactly what it says on the tin (or header for that matter)
  */
-int page_release_entry(addr_t virtual, struct page_dir *pd)
+int
+page_release_entry(addr_t virtual, struct page_dir *pd)
 {
   while (mutexTest(page_lock))
   {
-    #ifdef PAGEDBG
+#ifdef PAGEDBG
     printf("Paging is locked!\n");
-    #endif
+#endif
   }
   addr_t pd_entry = virtual >> 22;
   addr_t pt_entry = virtual >> 12;
@@ -151,7 +154,7 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
     return -E_PAGE_NOPAGE;
   }
 
-  struct page_table *pt = (struct page_table*)(pd[pd_entry].pageIdx*PAGESIZE);
+  struct page_table *pt = (struct page_table*) (pd[pd_entry].pageIdx * PAGESIZE);
 
   if (pt[pt_entry].present == FALSE)
   {
@@ -166,36 +169,38 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
   if (page_cnt[pd_entry] == 0)
   {
     pd[pd_entry].present = FALSE;
-    free((void*)(pd[pd_entry].pageIdx*PAGESIZE));
+    free((void*) (pd[pd_entry].pageIdx * PAGESIZE));
     pd[pd_entry].pageIdx = 0;
   }
   mutexRelease(page_lock);
+  return 0;
 }
 
 /**
  * This is ought to set up the basic paging system, for the code to be remapped
  * to higher half.
  */
-addr_t setup_page_dir()
+addr_t
+setup_page_dir()
 {
   /**
    * Make the page directory
    */
-  struct page_dir *pd = alloc(sizeof(pd)*PAGEDIRS, TRUE);
+  struct page_dir *pd = alloc(sizeof(pd) * PAGEDIRS, TRUE);
   if (pd == NULL)
     return -E_NOMEM;
-  memset(pd, 0, sizeof(pd)*PAGEDIRS);
+  memset(pd, 0, sizeof(pd) * PAGEDIRS);
 
   /**
    * Get the start and end address of the total image with heap
    */
-  volatile addr_t base_addr = (addr_t)&mboot % PAGESIZE;
-  volatile addr_t abs_end = ((addr_t)&end + (addr_t)HEAPSIZE);
-  abs_end += (PAGESIZE-(((addr_t)&end + (addr_t)HEAPSIZE)%PAGESIZE));
-  #ifdef PAGEDBG
+  volatile addr_t base_addr = (addr_t) &mboot % PAGESIZE;
+  volatile addr_t abs_end = ((addr_t) &end + (addr_t) HEAPSIZE);
+  abs_end += (PAGESIZE - (((addr_t) &end + (addr_t) HEAPSIZE) % PAGESIZE));
+#ifdef PAGEDBG
   printf("Absolute size in bytes: %X\n", (abs_end - base_addr));
   int i = 0;
-  #endif
+#endif
 
   /**
    * Configure the page tables to point to the absolute image address space.
@@ -203,25 +208,28 @@ addr_t setup_page_dir()
   addr_t idx;
   for (idx = base_addr; idx < abs_end; idx += PAGESIZE)
   {
-    #ifdef PAGEDBG
+#ifdef PAGEDBG
     i++;
     printf("Set page %X\n", i);
-    #endif
+#endif
   }
 
-  return (addr_t)pd;
+  return (addr_t) pd;
 }
 
-int page_copy_image(addr_t from, size_t size, addr_t to)
+int
+page_copy_image(addr_t from, size_t size, addr_t to)
 {
   return -E_NOFUNCTION;
 }
 
-int page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
-                                                               boolean userMode)
+int
+page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
+    boolean userMode)
 {
   addr_t phys_addr = map_alloc_page(list_idx);
-  if (phys_addr != (addr_t)(-E_SUCCESS)) return -E_PAGE_NOMEM;
+  if (phys_addr != (addr_t) (-E_SUCCESS))
+    return -E_PAGE_NOMEM;
 
   int map = page_map_entry(virt_addr, phys_addr, pd, userMode);
   if (map != -E_SUCCESS)
@@ -229,23 +237,26 @@ int page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
     map_rm_page(phys_addr);
     return map;
   }
+  return -1;
 }
 
-addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
+addr_t
+page_phys_addr(addr_t virt, struct page_dir *pd)
 {
   int directory_idx = virt >> 22;
   int table_idx = (virt >> 12) & 0x3FF;
 
-  struct page_table* pt = (void*)(pd[directory_idx].pageIdx << 12);
+  struct page_table* pt = (void*) (pd[directory_idx].pageIdx << 12);
   addr_t phys = pt[table_idx].pageIdx << 12 | (virt & 0x3FF);
   return phys;
 }
 
-void page_init()
+void
+page_init()
 {
-  memset(page_cnt, 0, PAGETABLES*sizeof(uint16_t));
+  memset(page_cnt, 0, PAGETABLES * sizeof(uint16_t));
   setCR3(setup_page_dir());
-/*
-  setPGBit();
-*/
+  /*
+   setPGBit();
+   */
 }

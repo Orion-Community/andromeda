@@ -74,8 +74,8 @@ extern "C"
     uint16_t class;
     uint16_t subclass;
     uint32_t flags; /*
-                         * bit 0: if set -> dev is mf
-                         */
+                     * bit 0: if set -> dev is mf
+                     */
     uint32_t (*read)(struct ol_pci_dev*, uint16_t);
   } *ol_pci_dev_t;
   

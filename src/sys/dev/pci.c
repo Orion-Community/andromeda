@@ -46,13 +46,14 @@ ol_pci_iterate(ol_pci_iterate_dev_t dev)
           continue;
 
         if (dev->hook != NULL)
-          if (dev->hook(dev)) return;
+          if (dev->hook(dev)) return 0;
 
         if (dev->func == 0)
           if (!ol_pci_is_mf(dev)) break;
       }
     }
   }
+  return -1;
 }
 
 static int
@@ -192,6 +193,7 @@ print_pci_dev(uint16_t class, uint16_t subclass)
     case 0x2:
       if (!subclass)
         printf("PCI: Found ethernet controller\n");
+      break;
 
     case 0x3:
       if (!subclass)

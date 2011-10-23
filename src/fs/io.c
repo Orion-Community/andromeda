@@ -88,7 +88,7 @@ void bufferWrite(buffer_t* buffer, char* data)
   }
 }
 #else
-inline buffer_t* getFirstSpace(buffer_t* buffer)
+buffer_t* getFirstSpace(buffer_t* buffer)
 {
   volatile register buffer_t* tmp = buffer;
   for (; tmp->full == TRUE; tmp = tmp->next)
@@ -100,6 +100,7 @@ inline buffer_t* getFirstSpace(buffer_t* buffer)
       mutexRelease(tmp->lock);
     }
   }
+  return tmp;
 }
 
 void bufferWrite(buffer_t* buffer, char* data)
