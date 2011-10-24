@@ -243,12 +243,34 @@ ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg)
 
 #ifdef __PCI_DEBUG
 static void
+debug_pci_print_cp_list(struct ol_pci_dev * dev)
+{
+  uint32_t cp = ol_pci_read_dword(dev, 0x34);
+  uint32_t cp_list = ol_pci_read_dword(dev, (uint16_t)cp&0xffff);
+  printf("test: %x\n", cp_list);
+  for(; (cp_list&0xffff)>>8 != 0; cp_list = ol_pci_read_dword(dev, 
+    (cp_list&0xffff)>>8))
+  {
+    printf("Capability pointer is found at: 0x%x and started at 0x%x\n", 
+             cp_list, 0xbeef);
+  }
+}
+#endif
+
+#ifdef __PCI_DEBUG
+static void
 debug_pci_list()
 {
   struct ol_pci_node *node;
   for(node = pcidevs; node != NULL, node != node->next; node = node->next)
   {
-    print_pci_dev(node->dev->class, node->dev->subclass);
+    //print_pci_dev(node->dev->class, node->dev->subclass);
+    if(node->dev->class == 0x2)
+    {
+      uint32_t cp = ol_pci_read_dword(node->dev, 0x34);
+      
+      debug_pci_print_cp_list(node->dev);
+    }
     if(node->next == NULL)
       break;
   }

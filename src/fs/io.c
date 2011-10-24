@@ -90,7 +90,7 @@ void bufferWrite(buffer_t* buffer, char* data)
 #else
 buffer_t* getFirstSpace(buffer_t* buffer)
 {
-  volatile register buffer_t* tmp = buffer;
+  register buffer_t* tmp = buffer;
   for (; tmp->full == TRUE; tmp = tmp->next)
   {
     if (tmp->next == NULL)
