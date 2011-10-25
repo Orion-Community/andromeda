@@ -183,6 +183,11 @@ int init(unsigned long magic, multiboot_info_t* hdr)
     printf("MP specification signature: 0x%x\n", systables->mp->signature);
   }
 #endif
+  printf("CS: %X\n", getCS());
+#ifdef PAGEDBG
+  int *i = (int *)0xC1000000;
+  printf("%X\n", *i);
+#endif
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
   {

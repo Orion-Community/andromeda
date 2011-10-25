@@ -211,6 +211,9 @@ addr_t map_alloc_page(addr_t list_idx)
   return (addr_t)-E_BMP_NOMEM;
 }
 
+/**
+ * Debug function for looking through a memory map list.
+ */
 void map_show_list(addr_t list_idx)
 {
   if (page_map[list_idx].next_idx == MAP_LAST_NODE)
