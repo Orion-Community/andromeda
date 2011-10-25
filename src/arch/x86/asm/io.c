@@ -57,6 +57,7 @@ inb (uint16_t port)
                        : "=a" (ret)
                        : "d" (port)
                        );
+  return ret;
 }
 
 uint16_t
@@ -67,6 +68,7 @@ inw (uint16_t port)
                        : "=a" (ret)
                        : "d" (port)
                        );
+  return ret;
 }
 
 uint32_t
@@ -77,6 +79,7 @@ inl (uint16_t port)
                        : "=a" (ret)
                        : "d" (port)
                        );
+  return ret;
 }
 
 void
