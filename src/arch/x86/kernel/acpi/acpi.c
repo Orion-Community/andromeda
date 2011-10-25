@@ -78,6 +78,7 @@ ol_acpi_get_madt()
         return NULL;
     }
   }
+  return(NULL);
 }
 
 static void

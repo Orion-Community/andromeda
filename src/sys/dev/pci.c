@@ -46,13 +46,14 @@ ol_pci_iterate(ol_pci_iterate_dev_t dev)
           continue;
 
         if (dev->hook != NULL)
-          if (dev->hook(dev)) return;
+          if (dev->hook(dev)) return 0;
 
         if (dev->func == 0)
           if (!ol_pci_is_mf(dev)) break;
       }
     }
   }
+  return -1;
 }
 
 static int
@@ -192,6 +193,7 @@ print_pci_dev(uint16_t class, uint16_t subclass)
     case 0x2:
       if (!subclass)
         printf("PCI: Found ethernet controller\n");
+      break;
 
     case 0x3:
       if (!subclass)
@@ -241,12 +243,34 @@ ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg)
 
 #ifdef __PCI_DEBUG
 static void
+debug_pci_print_cp_list(struct ol_pci_dev * dev)
+{
+  uint32_t cp = ol_pci_read_dword(dev, 0x34);
+  uint32_t cp_list = ol_pci_read_dword(dev, (uint16_t)cp&0xffff);
+  printf("test: %x\n", cp_list);
+  for(; (cp_list&0xffff)>>8 != 0; cp_list = ol_pci_read_dword(dev, 
+    (cp_list&0xffff)>>8))
+  {
+    printf("Capability pointer is found at: 0x%x and started at 0x%x\n", 
+             cp_list, 0xbeef);
+  }
+}
+#endif
+
+#ifdef __PCI_DEBUG
+static void
 debug_pci_list()
 {
   struct ol_pci_node *node;
   for(node = pcidevs; node != NULL, node != node->next; node = node->next)
   {
-    print_pci_dev(node->dev->class, node->dev->subclass);
+    //print_pci_dev(node->dev->class, node->dev->subclass);
+    if(node->dev->class == 0x2)
+    {
+      uint32_t cp = ol_pci_read_dword(node->dev, 0x34);
+      
+      debug_pci_print_cp_list(node->dev);
+    }
     if(node->next == NULL)
       break;
   }
