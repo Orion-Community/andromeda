@@ -58,47 +58,22 @@ addr_t virt_page_dir[PAGETABLES];
 void
 cPageFault(isrVal_t registers)
 {
-#ifdef PAGEDBG
-  printf("PG\n");
-  printf("eip: %X\tcs:%X\n", registers.eip, registers.cs);
-  printf("eflags: %X\tproc esp: %X\n", registers.eflags, registers.procesp);
-  printf("ss: %X\n", (registers.ss && 0xFF));
-  printf("funcPtr: %X\terrCode: %X\n", registers.funcPtr, registers.errCode);
-  printf("edi: %X\tesi: %X\n", registers.edi, registers.esi);
-  printf("ebp: %X\tesp: %X\n", registers.ebp, registers.esp);
-  printf("ebx: %X\tedx: %X\n", registers.ebx, registers.edx);
-  printf("ecx: %X\teax: %X\n", registers.ecx, registers.eax);
-  printf("ds: %X\n", (registers.ds & 0xFF));
-  printf("cPageFault addr: %X\n", (uint32_t)cPageFault);
-#endif
   unsigned long page = getCR2();
 #ifdef PAGEDBG
   printf("Fault addr: %X\n", page);
-  uint16_t var = 0;
-  __asm__ __volatile__("mov %%cs, %0"
-  : "=r" (var)
-  :
-  : );
-  printf("Current CS: %X\n", var);
+  printf("Fault type: %X\n", registers.errCode);
 #endif
-
-/**
-typedef struct
-{
-  unsigned int ds;
-  unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-  unsigned int funcPtr, errCode;
-  unsigned int eip, cs, eflags, procesp, ss;
-} isrVal_t;
- */
 
   if (registers.cs != 0x8 && registers.cs != 0x18)
   {
     panic("Incorrect frame!");
   }
-#ifdef PAGEDBG
-  printf("Type of error: 0x%X\n", registers.errCode);
-#endif
+
+  if (PRESENT(registers.errCode)) printf("Page was present!\n");
+  if (WRITE(registers.errCode)) printf("Faulted a write attempt!\n");
+  if (USER(registers.errCode)) printf("Userspace fault!\n");
+  if (RESERVED(registers.errCode)) printf("Reserved fault!\n");
+  if (DATA(registers.errCode)) printf("Fault caused in datasegment!\n");
 
   panic("Page faults currently under construction");
 }

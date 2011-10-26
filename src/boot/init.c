@@ -183,7 +183,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
     printf("MP specification signature: 0x%x\n", systables->mp->signature);
   }
 #endif
-  printf("CS: %X\n", getCS());
 #ifdef PAGEDBG
   int *i = (int *)0xC1000000;
   printf("%X\n", *i);
