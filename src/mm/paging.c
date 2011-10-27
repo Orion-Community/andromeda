@@ -128,7 +128,18 @@ void cPageFault(isrVal_t registers)
 #ifdef PAGEDBG
       printf("Faulted a read attempt!\n");
 #endif
-      panic("Not implemented yet!");
+      // Assume the page may be read!
+      if (idx_kernel_space == MAP_NOMAP)
+        panic("Kernel page map not correctly initialised!");
+      int ret = page_alloc_page(idx_kernel_space, page_addr, (void*)pd, FALSE);
+      if (ret != -E_SUCCESS)
+      {
+        printf("ERRCODE: %X\n", -ret);
+        panic("Couldn't alloc page!");
+      }
+#ifdef PAGEDBG
+      printf("Phys of %X = %X\n", page, page_phys_addr(page, (void*)pd));
+#endif
     }
   }
   else
@@ -138,7 +149,7 @@ void cPageFault(isrVal_t registers)
 #endif
   }
 
-  panic("Page faults currently under construction");
+  printf("Page faults currently under construction!\n");
 }
 
 /**

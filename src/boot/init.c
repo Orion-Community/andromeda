@@ -185,8 +185,8 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #endif
 #ifdef PAGEDBG
   int *i = (void*)0x12345678;
-  *i = 5;
-//   printf("%X\n", *i);
+//   *i = 5;
+  printf("%X\n", *i);
 #endif
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
