@@ -125,6 +125,25 @@ extern "C"
   inline uint32_t
   ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg);
   
+  /**
+   * Inner dword write function.
+   * 
+   * @param addr PCI configuration space address.
+   * @param reg PCI configuration space register.
+   * @param data Data to write.
+   */
+  static void __ol_pci_write_dword(ol_pci_addr_t, uint32_t);
+  
+  /**
+   * Writes a 32-bit value to the specified register in the specified pci
+   * device.
+   * 
+   * @param addr PCI configuration space address.
+   * @param reg PCI configuration space register.
+   * @param data Data to write.
+   */
+  inline void ol_pci_write_dword(struct ol_pci_dev*, uint16_t, uint32_t);
+  
   static void
   debug_pci_list();
 #ifdef	__cplusplus

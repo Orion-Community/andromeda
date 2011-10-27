@@ -230,7 +230,7 @@ __ol_pci_read_byte(ol_pci_addr_t addr, uint16_t reg)
 {
   register uint8_t ret;
   outl(OL_PCI_CONFIG_ADDRESS, addr & ~3);
-  ret = inb(OL_PCI_CONFIG_DATA + (reg & 3));
+  ret = inb(OL_PCI_CONFIG_DATA + (reg & ~3));
   return ret;
 }
 
@@ -241,18 +241,40 @@ ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg)
                                                       reg));
 }
 
+static void 
+__ol_pci_write_dword(ol_pci_addr_t addr, uint32_t data)
+{
+  outl(OL_PCI_CONFIG_ADDRESS, addr);
+  outl(OL_PCI_CONFIG_DATA, data);
+}
+  
+inline void 
+ol_pci_write_dword(struct ol_pci_dev* dev, uint16_t reg, 
+                                 uint32_t data)
+{
+  ol_pci_addr_t addr = ol_pci_calculate_address((ol_pci_iterate_dev_t)dev, reg);
+  __ol_pci_write_dword(addr, data);
+}
+
 #ifdef __PCI_DEBUG
 static void
 debug_pci_print_cp_list(struct ol_pci_dev * dev)
 {
-  uint32_t cp = ol_pci_read_dword(dev, 0x34);
-  uint32_t cp_list = ol_pci_read_dword(dev, (uint16_t)cp&0xffff);
-  printf("test: %x\n", cp_list);
-  for(; (cp_list&0xffff)>>8 != 0; cp_list = ol_pci_read_dword(dev, 
-    (cp_list&0xffff)>>8))
+  uint32_t cp = ol_pci_read_dword(dev, 0x34); /* value of the current pointer */
+  uint32_t cp_list = ol_pci_read_dword(dev, (uint16_t)cp&0xff); /* cp_list data */
+  cp = (cp_list>>8)&0xff;
+  for(; cp != 0x0; cp = (cp_list>>8)&0xff, cp_list =
+      ol_pci_read_dword(dev, (uint16_t)cp&0xff))
   {
-    printf("Capability pointer is found at: 0x%x and started at 0x%x\n", 
-             cp_list, 0xbeef);
+    if((cp_list & 0xff) == 0x5)
+    {
+      ol_pci_write_dword(dev, ((uint16_t)cp)+0x4, 0xfe000000);
+      addr_t  addr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4);
+      printf("Found correct cp at 0x%x at address 0x%x\n",
+          cp_list, addr);
+    }
+    else
+      continue;
   }
 }
 #endif
@@ -267,8 +289,6 @@ debug_pci_list()
     //print_pci_dev(node->dev->class, node->dev->subclass);
     if(node->dev->class == 0x2)
     {
-      uint32_t cp = ol_pci_read_dword(node->dev, 0x34);
-      
       debug_pci_print_cp_list(node->dev);
     }
     if(node->next == NULL)
