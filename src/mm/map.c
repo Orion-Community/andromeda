@@ -37,8 +37,12 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
   page_map = kalloc(map_size*sizeof(struct page));
   if(map == NULL) 
     panic("No memory in build_map");
-
-  memset(page_map, 0, sizeof(struct page)*map_size);
+  int idx = 0;
+  for (; idx < map_size; idx++)
+  {
+    page_map[idx].prev_idx = BMP_FREE;
+    page_map[idx].next_idx = BMP_FREE;
+  }
   #ifdef PAGEDBG
   printf("Mem map size: %X B\tMem map size: %X B\n",
                                        map_size*sizeof(struct page), memsize*1024);

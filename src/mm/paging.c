@@ -44,6 +44,8 @@ addr_t idx_kernel_space = MAP_NOMAP;
 
 addr_t virt_page_dir[PAGETABLES];
 
+int page_alloc_page(uint32_t, addr_t, struct page_dir*, boolean);
+
 /**
  * The andromeda paging system is set up here.
  * 
@@ -55,25 +57,81 @@ addr_t virt_page_dir[PAGETABLES];
  * Called when a pagefault occurs, is in charge of fixing the fault and swapping
  * if necessary.
  */
-void
-cPageFault(isrVal_t registers)
+void cPageFault(isrVal_t registers)
 {
-  unsigned long page = getCR2();
+  addr_t page = getCR2();
+  addr_t page_addr = page & ~(0xFFF);
+
 #ifdef PAGEDBG
-  printf("Fault addr: %X\n", page);
+  printf("Fault addr: %X\nPage index: %X\n", page, page_addr);
   printf("Fault type: %X\n", registers.errCode);
 #endif
 
   if (registers.cs != 0x8 && registers.cs != 0x18)
-  {
     panic("Incorrect frame!");
-  }
+  if (USER(registers.errCode))
+    panic("Userspace isn't implemented yet!");
+  if (RESERVED(registers.errCode))
+    panic("A reserved bit has been set!\n");
+  if (PRESENT(registers.errCode))
+    panic("Illegal operation!");
 
-  if (PRESENT(registers.errCode)) printf("Page was present!\n");
-  if (WRITE(registers.errCode)) printf("Faulted a write attempt!\n");
-  if (USER(registers.errCode)) printf("Userspace fault!\n");
-  if (RESERVED(registers.errCode)) printf("Reserved fault!\n");
-  if (DATA(registers.errCode)) printf("Fault caused in datasegment!\n");
+  addr_t pd = getCR3() + offset;
+
+  /**
+   * The data bit only works if a specific bit is set. See intel docs volume 3
+   * for more information.
+   */
+
+  if (DATA(registers.errCode))
+  {
+#ifdef PAGEDBG
+    printf("Trying to access unimplemented data!\n");
+#endif
+    if (WRITE(registers.errCode))
+    {
+#ifdef PAGEDBG
+      printf("Faulted a write attempt!\n");
+      printf("Adding page!\n");
+#endif
+      if (USER(registers.errCode))
+      {
+        //Add a user page!
+      }
+      else
+      {
+#ifdef PAGEDBG
+        printf("Adding a kernel page!\n");
+#endif
+        if (idx_kernel_space == MAP_NOMAP)
+          panic("Kernel page map not correctly initialised!");
+
+        int ret =
+                 page_alloc_page(idx_kernel_space, page_addr, (void*)pd, FALSE);
+        if (ret != -E_SUCCESS)
+        {
+          printf("ERRCODE: %X\n", ret);
+          panic("Couldn't alloc page!");
+        }
+#ifdef PAGEDBG
+        printf("Phys of %X = %X\n", page, page_phys_addr(page, (void*)pd));
+#endif
+      }
+    }
+    else
+    {
+#ifdef PAGEDBG
+      printf("Faulted a read attempt!\n");
+#endif
+      panic("Not implemented yet!");
+    }
+  }
+  else
+  {
+#ifdef PAGEDBG
+    panic("Trying to run unimplemented code!\n");
+#endif
+  }
 
   panic("Page faults currently under construction");
 }
@@ -92,9 +150,8 @@ uint32_t pt_uses = 0;
  * usermode and to choose a different page directory than the current (usefull
  * when using multiple processors).
  */
-int
-page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
-    boolean userMode)
+int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
+                                                                boolean userMode)
 {
   if ((virtual % 0x1000) || (physical % 0x1000))
     panic("AIEEE!!! Virtual or physical address not alligned!!!");
@@ -173,7 +230,7 @@ page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
 
   page_cnt[pd_entry]++;
   mutexRelease(page_lock);
-#ifdef UNDEFINED
+#ifdef PAGEDBG
   printf("Virtual: %X\tPhys: %X\tidx: %X\n", virtual, physical,
                                                           pt[pt_entry].pageIdx);
 #endif
@@ -183,8 +240,7 @@ page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
 /**
  * Function does exactly what it says on the tin (or header for that matter)
  */
-int
-page_release_entry(addr_t virtual, struct page_dir *pd)
+int page_release_entry(addr_t virtual, struct page_dir *pd)
 {
   while (mutexTest(page_lock))
   {
@@ -228,8 +284,7 @@ page_release_entry(addr_t virtual, struct page_dir *pd)
  * This is ought to set up the basic paging system, for the code to be remapped
  * to higher half.
  */
-addr_t
-setup_page_dir()
+addr_t setup_page_dir()
 {
   /**
    * Make the page directory
@@ -253,7 +308,7 @@ setup_page_dir()
    */
   addr_t idx;
   addr_t kern_size = 0xE00000;
-  addr_t phys_start = base_addr - offset /** lea phys_start, cs[base_addr] */;
+  addr_t phys_start = base_addr - offset;
 
   for (idx = 0; idx <= kern_size; idx += PAGESIZE)
   {
@@ -305,7 +360,10 @@ int page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
 {
   addr_t phys_addr = map_alloc_page(list_idx);
   if (phys_addr != (addr_t) (-E_SUCCESS))
+  {
+    printf("Out of memory exception\n");
     return -E_PAGE_NOMEM;
+  }
 
   int map = page_map_entry(virt_addr, phys_addr, pd, userMode);
   if (map != -E_SUCCESS)
@@ -313,11 +371,10 @@ int page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
     map_rm_page(phys_addr);
     return map;
   }
-  return -1;
+  return map;
 }
 
-addr_t
-page_phys_addr(addr_t virt, struct page_dir *pd)
+addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
 {
   uint32_t directory_idx = virt >> 22;
   uint32_t table_idx = (virt >> 12) & 0x3FF;
