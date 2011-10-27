@@ -45,7 +45,7 @@ int build_map(multiboot_memory_map_t* map, int mboot_map_size)
   }
   #ifdef PAGEDBG
   printf("Mem map size: %X B\tMem map size: %X B\n",
-                                       map_size*sizeof(struct page), memsize*1024);
+                                    map_size*sizeof(struct page), memsize*1024);
   #endif
   return -E_BMP_NOMAP;
 }
@@ -212,6 +212,7 @@ addr_t map_alloc_page(addr_t list_idx)
     }
   }
   mutex_unlock(map_lock);
+  printf("Out of memory!\n");
   return (addr_t)-E_BMP_NOMEM;
 }
 

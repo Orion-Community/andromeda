@@ -63,8 +63,13 @@ void cPageFault(isrVal_t registers)
   addr_t page_addr = page & ~(0xFFF);
 
 #ifdef PAGEDBG
+  printf("PG!\n");
   printf("Fault addr: %X\nPage index: %X\n", page, page_addr);
   printf("Fault type: %X\n", registers.errCode);
+  printf("EIP: %X\nESP: %X\nESP: %X\n",
+                               registers.eip, registers.procesp, registers.esp);
+  printf("eax: %X\tebx: %X\necx: %X\tedx: %X\n",
+                    registers.eax, registers.ebx, registers.ecx, registers.edx);
 #endif
 
   if (registers.cs != 0x8 && registers.cs != 0x18)
@@ -110,7 +115,7 @@ void cPageFault(isrVal_t registers)
                  page_alloc_page(idx_kernel_space, page_addr, (void*)pd, FALSE);
         if (ret != -E_SUCCESS)
         {
-          printf("ERRCODE: %X\n", ret);
+          printf("ERRCODE: %X\n", -ret);
           panic("Couldn't alloc page!");
         }
 #ifdef PAGEDBG
@@ -359,9 +364,9 @@ int page_alloc_page(uint32_t list_idx, addr_t virt_addr, struct page_dir *pd,
                                                                boolean userMode)
 {
   addr_t phys_addr = map_alloc_page(list_idx);
-  if (phys_addr != (addr_t) (-E_SUCCESS))
+  if (phys_addr == (addr_t) (-E_BMP_NOMEM))
   {
-    printf("Out of memory exception\n");
+    printf("Map error code: %X\n", (uint32_t)(phys_addr >> 12));
     return -E_PAGE_NOMEM;
   }
 
