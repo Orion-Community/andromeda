@@ -59,6 +59,7 @@ ol_acpi_get_madt()
   ol_acpi_rsdt_t rsdt = (void*) systables->rsdp->rsdt;
 
   void * table;
+  printf("%x\n", rsdt);
   uint32_t len = (rsdt->length - sizeof (*rsdt)) / 4, i = 0; /* default length */
 
   for (table = (void*) rsdt + sizeof (*rsdt); i < len; i++, table += 4)

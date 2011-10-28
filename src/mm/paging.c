@@ -148,8 +148,9 @@ void cPageFault(isrVal_t registers)
     panic("Trying to run unimplemented code!\n");
 #endif
   }
-
+#ifdef PAGEDBG
   printf("Page faults currently under construction!\n");
+#endif
 }
 
 /**

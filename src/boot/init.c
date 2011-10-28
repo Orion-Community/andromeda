@@ -135,20 +135,18 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printf("%s\n", welcome);
   setGDT();
   page_unmap_low_mem();
-#ifdef DBG
+  pic_init();
+  setIDT();
+  
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
   acpi_init();
-#endif
-
-  pic_init();
-  setIDT();
+  
   ol_ps2_init_keyboard();
-#ifdef DBG
   ol_apic_init(cpu);
   init_ioapic();
-#endif
+
   ol_pci_init();
 
 #ifdef __IOAPIC_DBG
