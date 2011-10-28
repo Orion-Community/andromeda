@@ -50,6 +50,7 @@
 #include <arch/x86/acpi/acpi.h>
 
 #include <kern/cpu.h>
+#include <kern/core.h>
 
 #include <arch/x86/apic/ioapic.h>
 
@@ -188,10 +189,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 //   *i = 5;
   printf("%X\n", *i);
 #endif
-  printf("You can now shutdown your PC\n");
-  for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
-  {
-    halt(); // Puts the CPU in idle state untill next interrupt
-  }
+  core_loop();
   return 0; // To keep the compiler happy.
 }

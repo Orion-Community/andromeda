@@ -167,7 +167,7 @@ uint32_t pt_uses = 0;
  * when using multiple processors).
  */
 int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
-                                                                boolean userMode)
+                                                               boolean userMode)
 {
   if ((virtual % 0x1000) || (physical % 0x1000))
     panic("AIEEE!!! Virtual or physical address not alligned!!!");
