@@ -83,8 +83,9 @@ int random()
   }
 }
 
-#define PI 3.14159265358979
+#define PI 3,141592653589793238462643383279502884197169399375105820974944592307816406286209 // Yes, I know the compiler will skip most of the decimals...
 
+  // This could be optemized a bit. Will do this later...
 double sin(double x)
 {
   int            i   =  5,
@@ -144,6 +145,7 @@ double sin(double x) // Doesn't work jet :(...
   return ret;
 }
 */
+
 float sinf(float x)
 {
   int    i   =  3,
@@ -212,3 +214,249 @@ long double sin(long double x)
   return ret;
 }
 */
+
+double asin(double r)
+{
+	double ret = r,
+	       r2 = r*r, // = r^2
+	       x = 1,
+	       c1 = 1,
+	       c2 = 2;
+	int i = 3;
+	for (;i<0xfffffffe;i+=2)
+	{
+		ret += (c1*x)/(c2*i); // = i! / (2^i * (i/2)!² )
+		if ( x*r2<=x )
+			break;
+		x *= r2; // = r^(1+2*i)
+		c1 *= i;
+		c2 *= i+1;
+	}
+	return ret;
+}
+
+float asinf(float r)
+{
+	float ret = r,
+	      r2 = r*r, // = r^2
+	      x = 1,
+	      c1 = 1,
+	      c2 = 2;
+	int i = 3;
+	for (;i<0xfffffffe;i+=2)
+	{
+		ret += (c1*x)/(c2*i); // = i! / (2^i * (i/2)!² )
+		if ( x*r2<=x )
+			break;
+		x *= r2; // = r^(1+2*i)
+		c1 *= i;
+		c2 *= i+1;
+	}
+	return ret;
+}
+
+long double asinl(long double r)
+{
+	long double ret = r,
+	            r2 = r*r, // = r^2
+	            x = 1,
+	            c1 = 1,
+	            c2 = 2;
+	int i = 3;
+	for (;i<0xfffffffe;i+=2)
+	{
+		ret += (c1*x)/(c2*i); // = i! / (2^i * (i/2)!² )
+		if ( x*r2<=x )
+			break;
+		x *= r2; // = r^(1+2*i)
+		c1 *= i;
+		c2 *= i+1;
+	}
+	return ret;
+}
+
+double sinh(double x)
+{
+	double tmp = exp(x);
+	return (tmp - 1/tmp)/2;
+}
+
+float sinhf(float x)
+{
+	float tmp = expf(x);
+	return (tmp - 1/tmp)/2;
+}
+
+long double sinhl(long double x)
+{
+	long double tmp = expl(x);
+	return (tmp - 1/tmp)/2;
+}
+
+double cosh(double x)
+{
+	double tmp = exp(x);
+	return (tmp + 1/tmp)/2;
+}
+
+float coshf(float x)
+{
+	float tmp = expf(x);
+	return (tmp + 1/tmp)/2;
+}
+
+long double coshl(long double x)
+{
+	long double tmp = expl(x);
+	return (tmp + 1/tmp)/2;
+}
+
+double exp(double n) //An other beatyfull taylor polynominal
+{
+	double ret = 1;
+	double x = n;
+	int fac = 1, i = 2;
+	for (; (fac<0xffffffff) ;i++) // stop if i is insane high 
+	{
+		ret += x/i;  // ret += (x^i)/(i!)
+		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
+			break;
+		fac *= i;  // making it (i+1)!
+	}
+	return ret;
+}
+
+float expf(float n) //An other beatyfull taylor polynominal
+{
+	float ret = 1;
+	float x = n;
+	int fac = 1, i = 2;
+	for (; (fac<0xffffffff) ;i++) // stop if i is insane high 
+	{
+		ret += x/i;  // ret += (x^i)/(i!)
+		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
+			break;
+		fac *= i;  // making it (i+1)!
+	}
+	return ret;
+}
+
+long double expl(long double n) //An other beatyfull taylor polynominal
+{
+	long double ret = 1;
+	long double x = n;
+	int fac = 1, i = 2;
+	for (; (fac<0xffffffff) ;i++) // stop if i is insane high 
+	{
+		ret += x/i;  // ret += (x^i)/(i!)
+		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
+			break;
+		fac *= i;  // making it (i+1)!
+	}
+	return ret;
+}
+
+double ln(double x)
+{
+	if (x < 0)
+		return -1; // e^x will never be less than 0
+	double ret = x,
+	       tmp = -x;
+	int i = 1;
+	x--; // actualy we calculate ln (1 + x)
+	for (;i<0xffffffff;i++)
+	{
+		ret += tmp/i;
+		if ( tmp==(tmp*-x) || ( (tmp>0)?(tmp*-x<tmp):(tmp*-x>tmp) ) ) // stop if tmp != relyable anymore
+			break;
+		tmp*=-x
+	}
+	return ret;
+}
+
+float lnf(float x)
+{
+	if (x < 0)
+		return -1; // e^x will never be less than 0
+	float ret = x,
+	       tmp = -x;
+	int i = 1;
+	x--; // actualy we calculate ln (1 + x)
+	for (;i<0xffffffff;i++)
+	{
+		ret += tmp/i;
+		if ( tmp==(tmp*-x) || ( (tmp>0)?(tmp*-x<tmp):(tmp*-x>tmp) ) ) // stop if tmp != relyable anymore
+			break;
+		tmp*=-x
+	}
+	return ret;
+}
+
+long double lnl(long double x)
+{
+	if (x < 0)
+		return -1; // e^x will never be less than 0
+	long double ret = x,
+	            tmp = -x;
+	int i = 1;
+	x--; // actualy we calculate ln (1 + x)
+	for (;i<0xffffffff;i++)
+	{
+		ret += tmp/i;
+		if ( tmp==(tmp*-x) || ( (tmp>0)?(tmp*-x<tmp):(tmp*-x>tmp) ) ) // stop if tmp != relyable anymore
+			break;
+		tmp*=-x
+	}
+	return ret;
+}
+
+double sqrt(double x)
+{
+	return exp(2*ln(x));
+}
+
+float sqrtf(float x)
+{
+	return expf(2*ln(x));
+}
+
+long double sqrtl(long double x)
+{
+	return expl(2*ln(x));
+}
+
+double pow(double x, double exp)
+{
+	double ret = 1;
+	for (;exp>=1;exp--)
+	{
+		ret *= x;
+	}
+	if (exp!=0) // i.a.w.: if exp was not a integer
+		ret *= exp(ln(x)*exp);
+	return ret;
+}
+
+float powf(float x, float exp)
+{
+	float ret = 1;
+	for (;exp>=1;exp--)
+	{
+		ret *= x;
+	}
+	if (exp!=0) // i.a.w.: if exp was not a integer
+		ret *= exp(ln(x)*exp);
+	return ret;
+}
+
+long double powl(long double x, long double exp)
+{
+	long double ret = 1;
+	for (;exp>=1;exp--)
+	{
+		ret *= x;
+	}
+	if (exp!=0) // i.a.w.: if exp was not a integer
+		ret *= exp(ln(x)*exp);
+	return ret;
+}
