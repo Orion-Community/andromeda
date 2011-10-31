@@ -169,7 +169,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printf("Heap list:\n");
   ol_dbg_heap();
 #endif
-#ifdef DBG
+#ifndef DBG
   printf("\nSome (temp) debug info:\n");
   printf("CPU vendor: %s\n", cpus->vendor);
 

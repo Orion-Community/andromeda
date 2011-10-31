@@ -64,11 +64,9 @@ ol_acpi_get_madt()
   
   page_map_kernel_entry(rsdt, rsdt);
   uint32_t len = (rsdt->length - sizeof (*rsdt)) / 4, i = 0; /* default length */
-
+  page_map_kernel_entry(0x1FF1000, 0x1FF1000);
   for (table = (void*) rsdt + sizeof (*rsdt); i < len; i++, table += 4)
   {
-    //page_map_kernel_entry(table, table);
-    printf("%x %x\n", **((uint32_t**) table), **((uint32_t**)table));
     if (!memcmp((void*) *((uint32_t*) table), "APIC", 4))
     {
       ol_acpi_madt_t madt = (ol_acpi_madt_t) *((uint32_t*) table);

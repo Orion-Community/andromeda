@@ -68,7 +68,9 @@ ol_apic_init(ol_cpu_t cpu)
 #ifndef __APIC_DBG
   printf("Found %i APIC(s)\n", i);
 #endif
-  printf("APIC base address: 0x%x\n", correct_apic_address(cpu_read_msr(0x1b), cpu));
+  addr_t apic_addr = correct_apic_address(cpu_read_msr(0x1b), cpu);
+  printf("APIC base address: 0x%x\n", apic_addr);
+  page_map_kernel_entry(apic_addr, apic_addr);
   return 0;
   fail:
     return -1;

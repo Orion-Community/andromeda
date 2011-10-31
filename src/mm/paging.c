@@ -165,7 +165,9 @@ uint32_t pt_uses = 0;
 void
 page_map_kernel_entry(addr_t virtual, addr_t phys)
 {
+#ifdef PAGEDBG
   printf("Mapping virt addr %x to %x.\n",virtual&(~0xfff),phys&(~0xfff));
+#endif
   page_map_entry(virtual&(~0xfff), phys&(~0xfff), (void*)getCR3(), FALSE);
 }
 
