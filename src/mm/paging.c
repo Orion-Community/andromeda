@@ -162,6 +162,13 @@ uint32_t pt_allocs = 0;
 uint32_t pt_uses = 0;
 #endif
 
+void
+page_map_kernel_entry(addr_t virtual, addr_t phys)
+{
+  printf("Mapping virt addr %x to %x.\n",virtual&(~0xfff),phys&(~0xfff));
+  page_map_entry(virtual&(~0xfff), phys&(~0xfff), (void*)getCR3(), FALSE);
+}
+
 /**
  * Used to map a page to a physical addess, with the option to put it in
  * usermode and to choose a different page directory than the current (usefull
@@ -229,8 +236,10 @@ page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
   if (pt[pt_entry].present == TRUE)
   {
     mutexRelease(page_lock);
+#if 0
     printf("Page already mapped! Unmap it first\n");
     panic("MAPPED");
+#endif
     return -E_PAGE_MAPPING;
   }
 

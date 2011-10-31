@@ -21,6 +21,8 @@
 
 #include <sys/sys.h>
 
+#include <mm/map.h>
+
 #include <arch/x86/acpi/acpi.h>
 
 struct acpi_apic_lists *acpi_apics = NULL;
@@ -59,11 +61,14 @@ ol_acpi_get_madt()
   ol_acpi_rsdt_t rsdt = (void*) systables->rsdp->rsdt;
 
   void * table;
-  printf("%x\n", rsdt);
+  
+  page_map_kernel_entry(rsdt, rsdt);
   uint32_t len = (rsdt->length - sizeof (*rsdt)) / 4, i = 0; /* default length */
 
   for (table = (void*) rsdt + sizeof (*rsdt); i < len; i++, table += 4)
   {
+    //page_map_kernel_entry(table, table);
+    printf("%x %x\n", **((uint32_t**) table), **((uint32_t**)table));
     if (!memcmp((void*) *((uint32_t*) table), "APIC", 4))
     {
       ol_acpi_madt_t madt = (ol_acpi_madt_t) *((uint32_t*) table);
