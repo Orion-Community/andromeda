@@ -167,7 +167,8 @@ uint32_t pt_uses = 0;
  * usermode and to choose a different page directory than the current (usefull
  * when using multiple processors).
  */
-int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
+static int 
+page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
                                                                 boolean userMode)
 {
   if ((virtual % 0x1000) || (physical % 0x1000))
