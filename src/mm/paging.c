@@ -53,6 +53,14 @@ int page_alloc_page(uint32_t, addr_t, struct page_dir*, boolean);
  * long shot. Feel free to contribute.
  */
 
+addr_t getPageDir()
+{
+#ifdef PAGEDBG
+  printf("WARNING! Page directory address not reliable!\n");
+#endif
+  return getCR3() + offset;
+}
+
 /**
  * Called when a pagefault occurs, is in charge of fixing the fault and swapping
  * if necessary.
@@ -81,7 +89,7 @@ void cPageFault(isrVal_t registers)
   if (PRESENT(registers.errCode))
     panic("Illegal operation!");
 
-  addr_t pd = getCR3() + offset;
+  addr_t pd = getPageDir();
 
   /**
    * The data bit only works if a specific bit is set. See intel docs volume 3
@@ -148,7 +156,7 @@ void cPageFault(isrVal_t registers)
     panic("Trying to run unimplemented code!\n");
 #endif
   }
-#ifdef PAGEDBG
+#ifdef UNDEFINED
   printf("Page faults currently under construction!\n");
 #endif
 }
@@ -165,10 +173,10 @@ uint32_t pt_uses = 0;
 void
 page_map_kernel_entry(addr_t virtual, addr_t phys)
 {
-#ifdef PAGEDBG
+#ifndef PAGEDBG
   printf("Mapping virt addr %x to %x.\n",virtual,phys);
 #endif
-  page_map_entry(virtual&(~0xfff), phys&(~0xfff), (void*)getCR3(), FALSE);
+  page_map_entry(virtual&(~0xfff), phys&(~0xfff), (void*)getPageDir(), FALSE);
 }
 
 /**
@@ -176,9 +184,8 @@ page_map_kernel_entry(addr_t virtual, addr_t phys)
  * usermode and to choose a different page directory than the current (usefull
  * when using multiple processors).
  */
-static int 
-page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
-                                                                boolean userMode)
+int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
+                                                               boolean userMode)
 {
   if ((virtual % 0x1000) || (physical % 0x1000))
     panic("AIEEE!!! Virtual or physical address not alligned!!!");
@@ -238,7 +245,7 @@ page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
   if (pt[pt_entry].present == TRUE)
   {
     mutexRelease(page_lock);
-#if 0
+#ifdef PAGEDBG
     printf("Page already mapped! Unmap it first\n");
     panic("MAPPED");
 #endif
@@ -379,7 +386,7 @@ int page_unmap_low_mem()
   addr_t kern_size = 0xE00000;
   for (; idx < kern_size; idx += PAGESIZE)
   {
-    page_release_entry(idx, (void*)getCR3());
+    page_release_entry(idx, (void*)getPageDir());
   }
   return -E_SUCCESS;
 }
@@ -407,6 +414,9 @@ addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
 {
   uint32_t directory_idx = virt >> 22;
   uint32_t table_idx = (virt >> 12) & 0x3FF;
+
+  if (virt_page_dir[directory_idx] == 0)
+    return ~0;
 
   struct page_table* pt= (void*)virt_page_dir[directory_idx];
   addr_t phys = pt[table_idx].pageIdx << 12;

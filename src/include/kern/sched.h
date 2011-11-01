@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <types.h>
 void sched();
-void fork (int);
+void fork ();
 void kill (int);
 
 struct __kern_sched_page_entry // Page directory entry for a certain process
@@ -83,4 +83,5 @@ struct __task_struct
 extern struct __task_struct* task_stack;
 
 int sched_init();
+void sched_next_task();
 #endif
