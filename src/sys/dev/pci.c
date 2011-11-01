@@ -268,7 +268,7 @@ debug_pci_print_cp_list(struct ol_pci_dev * dev)
   {
     if((cp_list & 0xff) == 0x5)
     {
-      ol_pci_write_dword(dev, ((uint16_t)cp)+0x4, 0xfe000000);
+      ol_pci_write_dword(dev, ((uint16_t)cp)+0x4, 0xfee000000);
       addr_t  addr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4);
       printf("Found correct cp at 0x%x at address 0x%x\n",
           cp_list, addr);

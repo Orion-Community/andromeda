@@ -47,6 +47,15 @@ typedef struct msi_attribute
 
 } *msi_attribute_t;
 
+struct msi_address
+{
+  uint32_t reserved : 2;
+  uint32_t dest_mode : 1;
+  uint32_t redir_hint : 1;
+  uint32_t reserved2 : 8;
+  uint32_t dest_id : 8;
+  uint32_t reserved3 : 12;
+}
 /*
  * Setup an MSI driven irq.
  */
