@@ -54,6 +54,8 @@ ol_apic_init(ol_cpu_t cpu)
   page_map_kernel_entry(OL_APIC_BASE_ADDRESS, OL_APIC_BASE_ADDRESS);
   addr_t apic_addr = correct_apic_address(cpu_read_msr(0x1b), cpu);
   printf("APIC base address: 0x%x\n", apic_addr);
+  uint16_t temp = __apic_read_register(APIC_SPURIOUS_INTERRUPT_REGISTER);
+  __apic_write_register(APIC_SPURIOUS_INTERRUPT_REGISTER, temp | 0x100);
   printf("Apic version: %x\tSIR: %x\n", __apic_read_register(APIC_VERSION_REGISTER),
          __apic_read_register(APIC_SPURIOUS_INTERRUPT_REGISTER));
   
