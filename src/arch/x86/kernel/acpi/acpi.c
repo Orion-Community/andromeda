@@ -66,7 +66,7 @@ ol_acpi_get_madt()
   uint32_t len = (rsdt->length - sizeof (*rsdt)) / 4, i = 0; /* default length */
   for (table = (void*) rsdt + sizeof (*rsdt); i < len; i++, table += 4)
   {
-    page_map_kernel_entry((addr_t)*(void**)table, (addr_t)*(void**)table);
+    page_map_kernel_entry((addr_t)(*(void**)table), (addr_t)(*(void**)table));
                                                            /* these addresses
                                                             * should be mapped
                                                             * 1:1.

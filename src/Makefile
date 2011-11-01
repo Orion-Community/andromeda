@@ -3,7 +3,7 @@ include scripts/x86
 
 MAKEEND=FLAGS="$(FLAGS)"
 
-MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __IOAPIC_DBG -D __APIC_DBG"
+MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __IOAPIC_DBG"
 #MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
 DEPS=start.o arch.o kern.o mm.o text.o maths.o fs.o sys.o error.o

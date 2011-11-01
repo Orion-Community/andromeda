@@ -30,21 +30,24 @@
 #define OL_APIC_IMCR_SELECT 0x70
 #define OL_APIC_IMCR_PASSTROUGH_APIC 0x1
 
-/* APIC constants */
-#define OL_APIC_BASE_ADDRESS 0x0FEC00000
+/* APIC registers */
+#define OL_APIC_BASE_ADDRESS 0x0fee00000
+#define APIC_ID_REGISTER (OL_APIC_BASE_ADDRESS+0x20)
+#define APIC_VERSION_REGISTER (OL_APIC_BASE_ADDRESS+0x30)
+#define APIC_SPURIOUS_INTERRUPT_REGISTER (OL_APIC_BASE_ADDRESS+0xf0)
 
 #ifdef	__cplusplus
 extern "C"
 {
 #endif
 
-typedef uint32_t ol_apic_reg_t;
+typedef size_t ol_apic_reg_t;
 
 typedef struct apic
 {
   const uint8_t id, cpu_id;
   void (*write) (ol_apic_reg_t, uint32_t);
-  uint32_t (*read) (ol_apic_reg_t);
+  uint16_t (*read) (ol_apic_reg_t);
 } *ol_apic_t;
 
 static int
@@ -67,6 +70,9 @@ correct_apic_address();
 
 static uint64_t
 correct_apic_address(uint64_t, ol_cpu_t);
+
+static uint16_t __apic_read_register(ol_apic_reg_t);
+static void __apic_write_register(ol_apic_reg_t, uint16_t);
 
 extern ol_apic_t apic;
 
