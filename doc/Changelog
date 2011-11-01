@@ -1,0 +1,17 @@
+1-11-'11: Bart Kuivenhoven
+ * mm/map.c:
+    This file holds the new memory map, which is responsible for keeping track
+    of which pages have been allocated, and which are free.
+    In the future we will connect our swapping deamon with this map, to keep
+    enough pages free.
+
+ * mm/paging.c:
+    We have implemented a new paging subsystem which only allocs a page-table
+    when it is required, keeping memory usage to a relative minimum.
+    What still needs to be done is keep better track of the location of the page
+    directory which is now approached with a fixed offset.
+
+ * kern/sched.c
+    Stubs are made for multiple threads. This enables us to keep track of
+    segments for individual processes. these segments are implemented as doubly-
+    linked lists in the memory map in mm/map.c.
