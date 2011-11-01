@@ -26,7 +26,7 @@
                               a PC-AT-compatible dual-8259 setup. The 8259 
                               vectors must be disabled (that is, masked) when 
                               enabling the ACPI APIC operation. */
-#define APIC_MAGIC ANDROMEDA_MAGIC
+#define ACPI_MAGIC ANDROMEDA_MAGIC
 #ifdef __cplusplus
 extern "C"
 {
