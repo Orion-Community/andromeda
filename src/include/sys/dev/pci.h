@@ -64,7 +64,7 @@ extern "C"
     int (*hook)(struct ol_pci_iterate_dev*);
   } *ol_pci_iterate_dev_t;
 
-  typedef struct ol_pci_dev
+  struct ol_pci_dev
   {
     uint32_t func; /* device function */
     uint32_t device; /* device type */
@@ -77,7 +77,8 @@ extern "C"
                      * bit 0: if set -> dev is mf
                      */
     uint32_t (*read)(struct ol_pci_dev*, uint16_t);
-  } *ol_pci_dev_t;
+  };
+  typedef struct ol_pci_dev *ol_pci_dev_t;
   
   typedef struct ol_pci_node
   {

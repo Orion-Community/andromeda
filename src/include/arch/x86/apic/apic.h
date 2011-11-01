@@ -45,9 +45,11 @@ typedef size_t ol_apic_reg_t;
 
 typedef struct apic
 {
-  void (*write) (ol_apic_reg_t, uint32_t);
+  void (*write) (ol_apic_reg_t, uint16_t);
   uint16_t (*read) (ol_apic_reg_t);
 } *ol_apic_t;
+
+static struct apic * apic;
 
 static int
 ol_detect_apic(ol_cpu_t cpu);

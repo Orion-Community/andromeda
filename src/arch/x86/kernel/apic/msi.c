@@ -21,3 +21,8 @@
 #include <arch/x86/apic/msi.h>
 #include <sys/dev/pci.h>
 
+static int
+msi_create_message(struct ol_pci_dev* dev, uint32_t irq)
+{
+  return 0;
+}

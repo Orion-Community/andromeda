@@ -55,10 +55,10 @@ struct msi_address
   uint32_t reserved2 : 8;
   uint32_t dest_id : 8;
   uint32_t reserved3 : 12;
-}
+};
 /*
  * Setup an MSI driven irq.
  */
-static int setup_msi_irq(struct ol_pci_dev*);
+static int msi_create_message(struct ol_pci_dev*, uint32_t);
 
 #endif
