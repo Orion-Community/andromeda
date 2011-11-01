@@ -61,6 +61,6 @@ struct msi_address
 /*
  * Setup an MSI driven irq.
  */
-static int msi_create_message(struct ol_pci_dev*, uint32_t);
+static int msi_create_interrupt(struct ol_pci_dev*, uint32_t);
 
 #endif

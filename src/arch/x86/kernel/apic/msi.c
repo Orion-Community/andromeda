@@ -20,9 +20,10 @@
 
 #include <arch/x86/apic/msi.h>
 #include <sys/dev/pci.h>
+#include <mm/map.h>
 
 static int
-msi_create_message(struct ol_pci_dev* dev, uint32_t irq)
+msi_create_interrupt(struct ol_pci_dev* dev, uint32_t irq)
 {
   return 0;
 }
