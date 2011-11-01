@@ -148,7 +148,7 @@ void cPageFault(isrVal_t registers)
     panic("Trying to run unimplemented code!\n");
 #endif
   }
-#ifdef PAGEDBG
+#ifdef UNDEFINED
   printf("Page faults currently under construction!\n");
 #endif
 }
@@ -237,7 +237,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
   if (pt[pt_entry].present == TRUE)
   {
     mutexRelease(page_lock);
-#ifdef UNDEFINED
+#ifdef PAGEDBG
     printf("Page already mapped! Unmap it first\n");
     panic("MAPPED");
 #endif
