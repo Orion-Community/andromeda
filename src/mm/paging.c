@@ -246,8 +246,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
   {
     mutexRelease(page_lock);
 #ifdef PAGEDBG
-    printf("Page already mapped! Unmap it first\n");
-    panic("MAPPED");
+    printf("WARNING! Page already mapped! Unmap it first\n");
 #endif
     return -E_PAGE_MAPPING;
   }
