@@ -71,6 +71,11 @@ addr_t map_rm_page(addr_t page_index);
 int build_map(multiboot_memory_map_t*, int);
 addr_t map_set_page(addr_t list_start, addr_t page_index);
 
+static int
+page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
+                                                                boolean userMode);
+void page_map_kernel_entry(addr_t virtual, addr_t phys);
+
 void map_show_list(addr_t list_idx);
 
 extern volatile mutex_t map_lock;

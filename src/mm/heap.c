@@ -21,17 +21,6 @@
 #include <mm/heap.h>
 #define SIZE ((size <= ALLOC_MAX) ? size : ALLOC_MAX)
 
-void
-ol_dbg_heap()
-{
-  printf("%s\t%s\t%s\t%s\n", "Base","Prev","Next","Size");
-  volatile memory_node_t* x = heap;
-  for (; x != NULL; x = x->next)
-  {
-    printf("%x\t%x\t%x\t%x\n", x, x->previous, x->next, x->size);
-  }
-}
-
 //Makes use of the memory bitmap to select the pages that are usable.
 //Since the heap has only limited allocation space, there also needs
 //to be a regeon that's used for memory mapping.

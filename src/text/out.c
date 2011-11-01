@@ -82,7 +82,7 @@ void printf(unsigned char *line, ...)
       i++;
       if (line[i] == '\0')
       {
-        putc(line[i - 1]);
+        putc('%');
         break;
       }
       switch (line[i])

@@ -41,6 +41,10 @@
 #define __CPU_DEBUG
 #endif // __CPU_DEBUG
 
+#ifndef __IOAPIC_DBG
+#define __IOAPIC_DBG
+#endif //__IOAPIC_DBG
+
 #define assert(a) if (!a) {panic("Assertion failed!")}
 #else
 #define assert(a)

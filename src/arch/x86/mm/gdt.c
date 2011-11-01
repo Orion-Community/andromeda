@@ -55,8 +55,6 @@ void setGDT()
   printhex(sizeof(gdtEntry_t)); putc('\n');
   #endif
 
-  offset = 0;
-
   /*
    * Set up a GDT. (1)
    */

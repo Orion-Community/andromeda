@@ -57,8 +57,6 @@ unsigned char stack[0x8000];
 
 // Define the place of the heap
 
-void testMMap(multiboot_info_t* hdr);
-
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
@@ -86,7 +84,7 @@ boolean setupCore(module_t mod)
     case -3:
       printf("Kernel magic invalid\n");
       return TRUE;
-      ;
+
     default:
       printf("Unknown return value");
       return TRUE;
@@ -137,21 +135,23 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printf("%s\n", welcome);
   setGDT();
   page_unmap_low_mem();
-#ifdef DBG
+  pic_init();
+  setIDT();
+  
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
   acpi_init();
-#endif
-
-  pic_init();
-  setIDT();
+  
   ol_ps2_init_keyboard();
-#ifdef DBG
   ol_apic_init(cpu);
   init_ioapic();
-#endif
+
   ol_pci_init();
+
+#ifdef __IOAPIC_DBG
+  ioapic_debug();
+#endif
 #ifndef NOFS
   fsInit(NULL);
 #ifdef FSTEST
@@ -169,22 +169,27 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   printf("Heap list:\n");
   ol_dbg_heap();
 #endif
-#ifdef DBG
+#ifndef DBG
   printf("\nSome (temp) debug info:\n");
   printf("CPU vendor: %s\n", cpus->vendor);
 
   if(systables->magic == SYS_TABLE_MAGIC)
   {
     printf("RSDP ASCII signature: 0x%x%x\n",
-                                *(((uint32_t*) systables->rsdp->signature) + 1),
-                                   *(((uint32_t*) systables->rsdp->signature)));
+        *(((uint32_t*) systables->rsdp->signature) + 1),
+        *(((uint32_t*) systables->rsdp->signature)));
     printf("MP specification signature: 0x%x\n", systables->mp->signature);
   }
+#endif
+#ifdef PAGEDBG
+  int *i = (void*)0x12345678;
+//   *i = 5;
+  printf("%X\n", *i);
 #endif
   printf("You can now shutdown your PC\n");
   for (;;) // Infinite loop, to make the kernel wait when there is nothing to do
   {
-    halt();
+    halt(); // Puts the CPU in idle state untill next interrupt
   }
   return 0; // To keep the compiler happy.
 }

@@ -81,6 +81,7 @@ int random()
   {
     ret *= -1;
   }
+  return ret;
 }
 
 #define PI 3.14159265358979

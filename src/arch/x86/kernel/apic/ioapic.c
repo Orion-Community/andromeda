@@ -18,8 +18,11 @@
 
 #include <stdlib.h>
 
+#include <mm/map.h>
+
 #include <arch/x86/acpi/acpi.h>
 #include <arch/x86/apic/ioapic.h>
+#include <arch/x86/apic/msi.h>
 #include <arch/x86/cpu.h>
 
 static volatile ioapic_t ioapic;
@@ -33,6 +36,7 @@ create_ioapic (ol_madt_ioapic_t madt_io)
     goto nomem;
   else
   {
+    page_map_kernel_entry(madt_io->address, madt_io->address);
     io->address = (ioapic_addr_t*) madt_io->address;
     io->int_base = madt_io->global_system_interrupt_base;
     io->id = madt_io->id;
@@ -107,6 +111,15 @@ add_ioapic()
       break;
   }
 }
+
+#ifdef __IOAPIC_DBG
+void
+ioapic_debug()
+{
+  printf("Testing I/O apic at address 0x%x\n", ioapic->address);
+  printf("I/O apic version %x\n", ioapic_read_dword(ioapic, 0x1));
+}
+#endif
 
 static uint32_t
 ioapic_read_dword(ioapic_t io, const uint8_t offset)

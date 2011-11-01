@@ -22,28 +22,30 @@
 #include <stdlib.h>
 #include <error/error.h>
 
-#define map_size (memsize/0x1000)
+#define map_size (memsize/0x4)
 
 module_t modules[MAX_MODS];
 
 struct page *page_map = NULL;
-size_t memsize;
+size_t memsize; // Size of memory in KiB
 
 volatile mutex_t map_lock = __THREAD_MUTEX_FREE;
 
 int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
   addr_t memory_map_end;
-  struct page page_map_temp;
-  char * test = kalloc(20);
-  page_map = kalloc(map_size*sizeof(page_map));
+  page_map = kalloc(map_size*sizeof(struct page));
   if(map == NULL) 
     panic("No memory in build_map");
-
-  memset(page_map, 0, sizeof(page_map)*map_size);
+  int idx = 0;
+  for (; idx < map_size; idx++)
+  {
+    page_map[idx].prev_idx = BMP_FREE;
+    page_map[idx].next_idx = BMP_FREE;
+  }
   #ifdef PAGEDBG
   printf("Mem map size: %X B\tMem map size: %X B\n",
-                                       map_size*sizeof(page_map), memsize*1024);
+                                    map_size*sizeof(struct page), memsize*1024);
   #endif
   return -E_BMP_NOMAP;
 }
@@ -210,9 +212,13 @@ addr_t map_alloc_page(addr_t list_idx)
     }
   }
   mutex_unlock(map_lock);
+  printf("Out of memory!\n");
   return (addr_t)-E_BMP_NOMEM;
 }
 
+/**
+ * Debug function for looking through a memory map list.
+ */
 void map_show_list(addr_t list_idx)
 {
   if (page_map[list_idx].next_idx == MAP_LAST_NODE)

@@ -55,6 +55,10 @@ add_ioapic();
 
 static void
 ioapic_write_dword(ioapic_t io, const uint8_t offset, const uint32_t value);
+
+#ifdef __IOAPIC_DBG
+void ioapic_debug();
+#endif
 #ifdef	__cplusplus
 }
 #endif
