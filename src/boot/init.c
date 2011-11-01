@@ -152,6 +152,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #ifdef __IOAPIC_DBG
   ioapic_debug();
 #endif
+
 #ifndef NOFS
   fsInit(NULL);
 #ifdef FSTEST
