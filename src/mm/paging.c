@@ -415,6 +415,9 @@ addr_t page_phys_addr(addr_t virt, struct page_dir *pd)
   uint32_t directory_idx = virt >> 22;
   uint32_t table_idx = (virt >> 12) & 0x3FF;
 
+  if (virt_page_dir[directory_idx] == 0)
+    return ~0;
+
   struct page_table* pt= (void*)virt_page_dir[directory_idx];
   addr_t phys = pt[table_idx].pageIdx << 12;
   phys += (virt & PAGE_BITS);
