@@ -90,6 +90,7 @@ clearInterrupts:
 reboot:
 	sti
 	lidt [fakeidt]
+        int3
 	ret
 
 [EXTERN isSleeping]

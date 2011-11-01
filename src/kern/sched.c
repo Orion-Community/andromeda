@@ -114,7 +114,7 @@ void sched_next_task()
 	panic("Could not schedule");
 }
 
-void fork(int pid)
+void fork()
 {
 	panic("Fork wasn't implemented");
 }

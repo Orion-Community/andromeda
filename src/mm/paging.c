@@ -176,9 +176,8 @@ page_map_kernel_entry(addr_t virtual, addr_t phys)
  * usermode and to choose a different page directory than the current (usefull
  * when using multiple processors).
  */
-static int 
-page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
-                                                                boolean userMode)
+int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
+                                                               boolean userMode)
 {
   if ((virtual % 0x1000) || (physical % 0x1000))
     panic("AIEEE!!! Virtual or physical address not alligned!!!");
@@ -238,7 +237,7 @@ page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
   if (pt[pt_entry].present == TRUE)
   {
     mutexRelease(page_lock);
-#if 0
+#ifdef UNDEFINED
     printf("Page already mapped! Unmap it first\n");
     panic("MAPPED");
 #endif

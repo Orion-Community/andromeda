@@ -64,5 +64,6 @@ typedef struct segments *and_segments_t;
 
 extern uint32_t begin;
 extern void start();
+void reboot();
 
 #endif
