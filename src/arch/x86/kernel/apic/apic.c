@@ -62,8 +62,8 @@ ol_apic_init(ol_cpu_t cpu)
   apic->write = &__apic_write_register;
   apic->read = &__apic_read_register;
   
-  uint16_t temp = __apic_read_register(APIC_SPURIOUS_INTERRUPT_REGISTER);
-  __apic_write_register(APIC_SPURIOUS_INTERRUPT_REGISTER, temp | 0x100);
+  uint16_t temp = apic->read(APIC_SPURIOUS_INTERRUPT_REGISTER);
+  apic->write(APIC_SPURIOUS_INTERRUPT_REGISTER, temp | 0x100);
   
   struct ol_madt_apic_node *node;
   int i = 0;
