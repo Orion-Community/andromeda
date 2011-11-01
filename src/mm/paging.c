@@ -53,6 +53,14 @@ int page_alloc_page(uint32_t, addr_t, struct page_dir*, boolean);
  * long shot. Feel free to contribute.
  */
 
+addr_t getPageDir()
+{
+#ifdef PAGEDBG
+  printf("WARNING! Page directory address not reliable!\n");
+#endif
+  return getCR3() + offset;
+}
+
 /**
  * Called when a pagefault occurs, is in charge of fixing the fault and swapping
  * if necessary.
@@ -81,7 +89,7 @@ void cPageFault(isrVal_t registers)
   if (PRESENT(registers.errCode))
     panic("Illegal operation!");
 
-  addr_t pd = getCR3() + offset;
+  addr_t pd = getPageDir();
 
   /**
    * The data bit only works if a specific bit is set. See intel docs volume 3
@@ -165,10 +173,10 @@ uint32_t pt_uses = 0;
 void
 page_map_kernel_entry(addr_t virtual, addr_t phys)
 {
-#ifdef PAGEDBG
+#ifndef PAGEDBG
   printf("Mapping virt addr %x to %x.\n",virtual,phys);
 #endif
-  page_map_entry(virtual&(~0xfff), phys&(~0xfff), (void*)getCR3(), FALSE);
+  page_map_entry(virtual&(~0xfff), phys&(~0xfff), (void*)getPageDir(), FALSE);
 }
 
 /**
@@ -378,7 +386,7 @@ int page_unmap_low_mem()
   addr_t kern_size = 0xE00000;
   for (; idx < kern_size; idx += PAGESIZE)
   {
-    page_release_entry(idx, (void*)getCR3());
+    page_release_entry(idx, (void*)getPageDir());
   }
   return -E_SUCCESS;
 }
