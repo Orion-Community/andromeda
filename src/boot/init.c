@@ -38,7 +38,6 @@
 #include <boot/mboot.h>
 #include <mm/map.h>
 #include <tty/tty.h>
-#include <fs/fs.h>
 #include <arch/x86/pic.h>
 
 #include <sys/dev/ps2.h>
@@ -152,13 +151,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
 #ifdef __IOAPIC_DBG
   ioapic_debug();
-#endif
-
-#ifndef NOFS
-  fsInit(NULL);
-#ifdef FSTEST
-  list(_fs_root);
-#endif
 #endif
 
 #ifndef __MEMTEST
