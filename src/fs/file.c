@@ -42,25 +42,60 @@ void stream_attach_file(stream* s, char* path)
   return;
 }
 
-stream* stream_seek(stream *s, uint32_t idx, uint32_t start)
+stream* stream_find_head(stream* s)
+{
+  if (s == NULL)
+    return NULL;
+  stream *carriage = s;
+  for (; carriage->prev_node != NULL; carriage = carriage->prev_node);
+  carriage->cursor = carriage->base;
+  return carriage;
+}
+
+stream* stream_find_tail(stream* s)
+{
+  if (s == NULL)
+    return NULL;
+  stream *carriage = s;
+  for (; carriage->next_node != NULL; carriage = carriage->next_node);
+  carriage->cursor = carriage->end;
+  return carriage;
+}
+
+stream* stream_seek(stream *s, int idx, uint32_t start)
 {
   switch(start)
   {
     case SEEK_BEGIN:
+      if (idx < 0)
+        return NULL;
+      break;
     case SEEK_END:
+      if (idx > 0)
+        return NULL;
+      break;
     case SEEK_CURSOR:
     default:
       printf("WARNING: Unimplemented seek option!\n");
+      return NULL;
       break;
   }
 }
 
 void stream_close(stream* s)
 {
-  stream *carriage = s;
+  if (s == NULL)
+    return;
   if (s->prev_node != NULL)
   {
     stream_close(stream_seek(s, 0, SEEK_BEGIN));
+  }
+  stream *carriage = s;
+  stream *tmp = s->next_node;
+
+  for (; carriage->next_node != NULL; carriage = tmp, tmp = tmp->next_node)
+  {
+    free(carriage);
   }
 
   return;
