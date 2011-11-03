@@ -270,19 +270,13 @@ debug_pci_print_cp_list(struct ol_pci_dev * dev)
   {
     if((cp_list & 0xff) == 0x11)
     {
-      uint8_t bar_nr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4) & 7;
-      volatile uint32_t *bar = (volatile uint32_t*)ol_pci_read_dword(dev, MSIX_BAR(bar_nr));
-      *bar = 0xfee00000;
-      printf("Found correct cp at 0x%x at address 0x%x\n",
-          cp_list, *bar);
+      msi_create_msix_entry(dev, cp);
     }
     else
       continue;
   }
 }
-#endif
 
-#ifdef __PCI_DEBUG
 static void
 debug_pci_list()
 {
@@ -298,4 +292,5 @@ debug_pci_list()
       break;
   }
 }
+
 #endif

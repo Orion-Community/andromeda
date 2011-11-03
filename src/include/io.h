@@ -20,6 +20,20 @@
 #ifndef __IO_H_
 #define __IO_H_
 
+/*
+ * Write a dword, word or byte towards memory space.
+ */
+#define writel(addr, value) (*((volatile uint32_t*)(addr)) = (value));
+#define writew(addr, value) (*((volatile uint16_t*)(addr)) = (value));
+#define writeb(addr, value) (*((volatile uint8_t*)(addr)) = (value));
+
+/*
+ * Read a dword, word or byte from memory space
+ */
+#define readl(addr) (*((volatile uint32_t*)(addr)))
+#define readw(addr) (*((volatile uint16_t*)(addr)))
+#define readb(addr) (*((volatile uint8_t*)(addr)))
+
 void
 outb(uint16_t, uint8_t);
 
