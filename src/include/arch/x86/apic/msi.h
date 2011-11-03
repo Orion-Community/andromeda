@@ -30,29 +30,14 @@
 
 #define MSIX_BAR(index) ((4*index)+0x10)
 
-struct msi
-{
-  int vector : 8;
-  int delivery_mode : 3;
-  int reserved : 3;
-  int trigger_level : 1;
-  int trigger: 1;
-  uint64_t reserved2 : 48;
-  struct msi_address *address;
-  struct msi_attribute *attributes;
-} __attribute__((packed));
-typedef struct msi *msi_msg;
-
-/*
- * Setup an MSI driven irq.
- */
-static int setup_msi_irq(struct ol_pci_dev*);
-
 struct msi_attribute
 {
   int is_64 : 1; /* 0 -> 32 bit addr bus, 1 -> 64 bit */
   int is_msix : 1; /* 0 -> no msix, 1 -> msi-x available */
   uint8_t cpos; /* position in the capabilities list */
+  
+  union { volatile void *base; uint8_t base_mask; };
+  struct ol_pci_dev *dev;
 } __attribute__((packed));
 
 struct msi_address
@@ -65,10 +50,29 @@ struct msi_address
   int reserved3 : 12;
   uint32_t addr_hi;
 } __attribute__((packed));
+
+struct msi
+{
+  int vector : 8;
+  int delivery_mode : 3;
+  int reserved : 3;
+  int trigger_level : 1;
+  int trigger: 1;
+  uint64_t reserved2 : 48;
+  struct msi_address addr;
+  struct msi_attribute attrib;
+} __attribute__((packed));
+typedef struct msi *msi_msg;
+
 /*
  * Setup an MSI driven irq.
  */
-static int msi_create_interrupt(struct ol_pci_dev*, uint32_t);
+static int __msi_create_msix_entry(struct ol_pci_dev*, uint8_t);
+static volatile void *msi_calc_msix_base(struct ol_pci_dev *, uint8_t);
+void msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp);
 
+#ifdef MSIX_DEBUG
+static void debug_msix_entry(struct msi*, uint8_t);
+#endif
 
 #endif
