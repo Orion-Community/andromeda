@@ -145,6 +145,8 @@ extern "C"
    */
   inline void ol_pci_write_dword(struct ol_pci_dev*, uint16_t, uint32_t);
   
+  static void config_msix(struct ol_pci_dev *, uint32_t, uint8_t);
+  
   static void
   debug_pci_list();
 #ifdef	__cplusplus

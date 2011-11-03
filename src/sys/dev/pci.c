@@ -270,11 +270,7 @@ debug_pci_print_cp_list(struct ol_pci_dev * dev)
   {
     if((cp_list & 0xff) == 0x11)
     {
-      uint8_t bar_nr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4) & 7;
-      volatile uint32_t *bar = (volatile uint32_t*)ol_pci_read_dword(dev, MSIX_BAR(bar_nr));
-      *bar = 0xfee00000;
-      printf("Found correct cp at 0x%x at address 0x%x\n",
-          cp_list, *bar);
+      config_msix(dev, cp_list, cp);
     }
     else
       continue;
@@ -297,5 +293,28 @@ debug_pci_list()
     if(node->next == NULL)
       break;
   }
+}
+
+static void
+config_msix(struct ol_pci_dev *dev, uint32_t cp_list, uint8_t cp)
+{
+  /* make sure that the device responds */
+  uint16_t command = ol_pci_read_dword(dev, OL_PCI_REG_COMMAND);
+  command |= 3;
+  ol_pci_write_dword(dev, OL_PCI_REG_COMMAND, command);
+  
+  uint8_t bar_nr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4) & 7;
+  uint32_t bar = ol_pci_read_dword(dev, MSIX_BAR(bar_nr));
+  if(bar & 0x1)
+    bar &= 0xfffffffc;
+  else
+    bar &= 0xfffffff0;
+  
+  page_map_kernel_entry(bar, bar);
+  
+  /* write and read back */
+  writel(bar, 0xfee00000);
+  printf("Found correct cp at 0x%x at address 0x%x\n",
+      cp_list, readl(bar));
 }
 #endif
