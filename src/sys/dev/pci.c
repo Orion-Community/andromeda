@@ -312,10 +312,10 @@ config_msix(struct ol_pci_dev *dev, uint32_t cp_list, uint8_t cp)
     bar &= 0xfffffff0;
   
   page_map_kernel_entry(bar, bar);
-  
+
   /* write and read back */
   writel(bar, 0xfee00000);
-  printf("Found correct cp at 0x%x at address 0x%x with a table size of %i.\n",
-      cp_list, readl(bar), (msi_ctl+1)/4);
+  printf("Found MSI-X entry; msg_addr: %x; vector_ctrl: %x; cfg_space_size: %i\n",
+      readl(bar), readl(bar+12), (msi_ctl+1)/4);
 }
 #endif
