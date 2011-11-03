@@ -64,15 +64,18 @@ stream* stream_find_tail(stream* s)
 
 stream* stream_seek(stream *s, int idx, uint32_t start)
 {
+  stream *tmp;
   switch(start)
   {
     case SEEK_BEGIN:
       if (idx < 0)
         return NULL;
+      tmp = stream_find_head(s);
       break;
     case SEEK_END:
       if (idx > 0)
         return NULL;
+      tmp = stream_find_tail(s);
       break;
     case SEEK_CURSOR:
     default:
@@ -80,6 +83,7 @@ stream* stream_seek(stream *s, int idx, uint32_t start)
       return NULL;
       break;
   }
+  return tmp;
 }
 
 void stream_close(stream* s)
