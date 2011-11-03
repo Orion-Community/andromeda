@@ -19,19 +19,49 @@
 #include <stdlib.h>
 #include <fs/file.h>
 
-stream *stream_open(char *path, char *rights)
+stream *stream_open()
 {
-  if (path == NULL)
-    return NULL;
-
   stream *s = kalloc(sizeof(stream));
   memset(s, 0, sizeof(stream));
 
+  s->segment_offset = 0;
+  s->segment_size = DEFAULT_STREAM_SIZE;
   s->base = kalloc(DEFAULT_STREAM_SIZE);
   s->end = (void*)((addr_t)s->base + DEFAULT_STREAM_SIZE);
   s->cursor = s->base;
+  s->path = NULL;
   s->next_node = NULL;
   s->prev_node = NULL;
 
   return s;
+}
+
+void stream_attach_file(stream* s, char* path)
+{
+  s->path = path;
+  return;
+}
+
+stream* stream_seek(stream *s, uint32_t idx, uint32_t start)
+{
+  switch(start)
+  {
+    case SEEK_BEGIN:
+    case SEEK_END:
+    case SEEK_CURSOR:
+    default:
+      printf("WARNING: Unimplemented seek option!\n");
+      break;
+  }
+}
+
+void stream_close(stream* s)
+{
+  stream *carriage = s;
+  if (s->prev_node != NULL)
+  {
+    stream_close(stream_seek(s, 0, SEEK_BEGIN));
+  }
+
+  return;
 }

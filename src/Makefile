@@ -6,7 +6,7 @@ MAKEEND=FLAGS="$(FLAGS)"
 MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __IOAPIC_DBG -D __PCI_DEBUG"
 #MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
-DEPS=start.o arch.o kern.o mm.o text.o maths.o sys.o error.o
+DEPS=start.o arch.o kern.o mm.o text.o maths.o sys.o error.o fs.o
 
 .PHONY: all
 all: x86

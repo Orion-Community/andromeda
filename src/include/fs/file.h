@@ -21,11 +21,17 @@
 
 #define DEFAULT_STREAM_SIZE 0x1000
 
+#define SEEK_END        0
+#define SEEK_CURSOR     1
+#define SEEK_BEGIN      2
+
 struct _STREAM
 {
   void *base;
   void *end;
   void *cursor;
+  uint32_t segment_offset;
+  uint32_t segment_size;
   struct _STREAM *prev_node;
   struct _STREAM *next_node;
   char *path;
