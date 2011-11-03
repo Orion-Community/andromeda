@@ -304,6 +304,7 @@ config_msix(struct ol_pci_dev *dev, uint32_t cp_list, uint8_t cp)
   ol_pci_write_dword(dev, OL_PCI_REG_COMMAND, command);
   
   uint8_t bar_nr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4) & 7;
+  uint16_t msi_ctl = (ol_pci_read_dword(dev, (uint16_t)cp) >> 16) & 0x3ff;
   uint32_t bar = ol_pci_read_dword(dev, MSIX_BAR(bar_nr));
   if(bar & 0x1)
     bar &= 0xfffffffc;
@@ -314,7 +315,7 @@ config_msix(struct ol_pci_dev *dev, uint32_t cp_list, uint8_t cp)
   
   /* write and read back */
   writel(bar, 0xfee00000);
-  printf("Found correct cp at 0x%x at address 0x%x\n",
-      cp_list, readl(bar));
+  printf("Found correct cp at 0x%x at address 0x%x with a table size of %i.\n",
+      cp_list, readl(bar), (msi_ctl+1)/4);
 }
 #endif
