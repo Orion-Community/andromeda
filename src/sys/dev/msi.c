@@ -23,6 +23,30 @@
 #include <mm/map.h>
 
 #ifdef MSI
+static int
+__msi_write_message(struct msi *msi)
+{
+  if(msi->attrib.is_msix)
+  {
+    writel(msi->attrib.base + MSIX_LOW_ADDR, msi->addr.addr_low);
+    writel(msi->attrib.base + MSIX_UPPER_ADDR, msi->addr.addr_hi);
+    writel(msi->attrib.base + MSIX_MESSAGE_DATA, msi_get_msg_data(msi));
+  }
+  else
+    return -1;
+  return 0;
+}
+
+static uint32_t
+msi_get_msg_data(struct msi *msi)
+{
+  uint32_t ret = 0;
+  ret |= msi->vector;
+  ret |= (msi->delivery_mode)<<8;
+  ret |= (msi->trigger_level)<<14;
+  ret |= (msi->trigger)<<15;
+  return ret;
+}
 #ifdef MSIX
 void
 msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
@@ -37,8 +61,14 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
   msi->attrib.cpos = cp;
   msi->attrib.dev = dev;
   msi->attrib.is_msix = 1;
+  msi->attrib.is_64 = 0;
   msi->attrib.base = msi_calc_msix_base(dev, cp);
   
+  msi->addr.addr_low = 0xfee00000; /* upper bits of the msi address are always 0xfee */
+  msi->addr.addr_hi = 0;
+  
+  __msi_write_message(msi);
+  writel(msi->attrib.base + MSIX_VECTOR_CTRL, 0);
   debug_msix_entry(msi, cp);
   return 0;
 }
@@ -53,7 +83,7 @@ msi_calc_msix_base(struct ol_pci_dev *dev, uint8_t cp)
   else
     bar &= 0xfffffff0;
   
-  page_map_kernel_entry(bar,bar);
+  page_map_kernel_entry(bar,bar); /* map the address 1:1 */
   return (volatile void*)bar;
 }
 
@@ -64,7 +94,7 @@ debug_msix_entry(struct msi *msi, uint8_t cp)
   volatile void *base = msi->attrib.base;
   uint16_t msi_ctl = (ol_pci_read_dword(msi->attrib.dev, (uint16_t)cp) >> 16) & 0x3ff;
     /* write and read back */
-  writel(base, 0xfee00000);
+
   printf("Found MSI-X entry; msg_addr: 0x%x; vector_ctrl: %i; cfg_space_size: %i\n",
       readl(base), readl(base+12), (msi_ctl+1)/4);
 }

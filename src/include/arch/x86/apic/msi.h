@@ -29,6 +29,10 @@
 #define __MSI_H
 
 #define MSIX_BAR(index) ((4*index)+0x10)
+#define MSIX_LOW_ADDR 0
+#define MSIX_UPPER_ADDR 4
+#define MSIX_MESSAGE_DATA 8
+#define MSIX_VECTOR_CTRL 12
 
 struct msi_attribute
 {
@@ -42,12 +46,13 @@ struct msi_attribute
 
 struct msi_address
 {
-  int reserved : 2;
-  int dest_mode : 1;
-  int redir_hint : 1;
-  int reserved2 : 8;
-  int dest_id : 8;
-  int reserved3 : 12;
+//   int reserved : 2;
+//   int dest_mode : 1;
+//   int redir_hint : 1;
+//   int reserved2 : 8;
+//   int dest_id : 8;
+//   int addr_base : 12;
+  uint32_t addr_low;
   uint32_t addr_hi;
 } __attribute__((packed));
 
@@ -70,6 +75,7 @@ typedef struct msi *msi_msg;
 static int __msi_create_msix_entry(struct ol_pci_dev*, uint8_t);
 static volatile void *msi_calc_msix_base(struct ol_pci_dev *, uint8_t);
 void msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp);
+static uint32_t msi_get_msg_data(struct msi *);
 
 #ifdef MSIX_DEBUG
 static void debug_msix_entry(struct msi*, uint8_t);
