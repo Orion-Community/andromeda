@@ -28,37 +28,47 @@
 #ifndef __MSI_H
 #define __MSI_H
 
+#define MSIX_BAR(index) ((4*index)+0x10)
+
 struct msi
 {
-  uint32_t addr_low, addr_hi;
   int vector : 8;
   int delivery_mode : 3;
   int reserved : 3;
   int trigger_level : 1;
   int trigger: 1;
   uint64_t reserved2 : 48;
+  struct msi_address *address;
+  struct msi_attribute *attributes;
 } __attribute__((packed));
 typedef struct msi *msi_msg;
 
-typedef struct msi_attribute
-{
-  int is_64 : 1; /* 0 -> 32 bit addr bus, 1 -> 64 bit */
-  int is_msix : 1; /* 0 -> no msix, 1 -> msi-x available */
-
-} *msi_attribute_t;
-
-struct msi_address
-{
-  uint32_t reserved : 2;
-  uint32_t dest_mode : 1;
-  uint32_t redir_hint : 1;
-  uint32_t reserved2 : 8;
-  uint32_t dest_id : 8;
-  uint32_t reserved3 : 12;
-};
 /*
  * Setup an MSI driven irq.
  */
-static int msi_create_message(struct ol_pci_dev*, uint32_t);
+static int setup_msi_irq(struct ol_pci_dev*);
+
+struct msi_attribute
+{
+  int is_64 : 1; /* 0 -> 32 bit addr bus, 1 -> 64 bit */
+  int is_msix : 1; /* 0 -> no msix, 1 -> msi-x available */
+  uint8_t cpos; /* position in the capabilities list */
+} __attribute__((packed));
+
+struct msi_address
+{
+  int reserved : 2;
+  int dest_mode : 1;
+  int redir_hint : 1;
+  int reserved2 : 8;
+  int dest_id : 8;
+  int reserved3 : 12;
+  uint32_t addr_hi;
+} __attribute__((packed));
+/*
+ * Setup an MSI driven irq.
+ */
+static int msi_create_interrupt(struct ol_pci_dev*, uint32_t);
+
 
 #endif
