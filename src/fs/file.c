@@ -21,5 +21,17 @@
 
 stream *stream_open(char *path, char *rights)
 {
-  
+  if (path == NULL)
+    return NULL;
+
+  stream *s = kalloc(sizeof(stream));
+  memset(s, 0, sizeof(stream));
+
+  s->base = kalloc(DEFAULT_STREAM_SIZE);
+  s->end = (void*)((addr_t)s->base + DEFAULT_STREAM_SIZE);
+  s->cursor = s->base;
+  s->next_node = NULL;
+  s->prev_node = NULL;
+
+  return s;
 }

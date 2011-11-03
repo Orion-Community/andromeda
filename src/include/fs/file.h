@@ -19,6 +19,8 @@
 #ifndef __FS_FILE_H
 #define __FS_FILE_H
 
+#define DEFAULT_STREAM_SIZE 0x1000
+
 struct _STREAM
 {
   void *base;

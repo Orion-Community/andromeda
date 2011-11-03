@@ -49,6 +49,9 @@ error.o:
 
 driver.o:
 	$(MAKE) -C drivers $(MAKEEND)
+
+fs.o:
+	$(MAKE) -C fs $(MAKEEND)
 	
 .PHONY: clean
 clean:
