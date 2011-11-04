@@ -80,6 +80,7 @@ struct _STREAM_NODE *stream_append_node(stream *s, size_t size)
     return NULL;
   }
   tmp->end = (void*)((addr_t)tmp->base + size);
+  memset(tmp->base, 0, size);
 
   carriage->next_node = tmp;
   return tmp;
@@ -199,6 +200,7 @@ char* stream_read(stream *s, size_t num)
   char* buffer = NULL;
   if (ret == NULL)
     return NULL;
+  memset(ret, 0, num);
 
   size_t idx = 0;
   size_t node_idx;

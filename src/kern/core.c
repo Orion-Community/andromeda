@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <kern/core.h>
 #include <kern/sched.h>
+#include <fs/stream.h>
 
 #define RL_BOOT     0x0
 #define RL_SHUTDOWN 0x1
@@ -33,11 +34,25 @@ void shutdown()
   printf("You can now shutdown your PC\n");
   for(;;)
   {
-    halt();
+    endProg();
   }
 }
 
 volatile uint32_t rl = 0;
+
+void init_set(uint32_t i)
+{
+  rl = i;
+}
+
+void stream_test()
+{
+  stream *test = stream_open();
+  stream_write(test, "Hello streams!\n");
+  stream_seek(test, 0, SEEK_SET);
+  printf("%s", stream_read(test, strlen("Hello streams!\n")));
+  stream_close(test);
+}
 
 void core_loop()
 {
@@ -49,18 +64,25 @@ void core_loop()
     {
       case RL_BOOT:
 //         pid = fork();
-        rl = RL_RUN0;
+        init_set(RL_RUN0);
         break;
+
       case RL_RUN0:
+#ifdef STREAM_DBG
+        stream_test();
+        init_set(RL_RUN1);
+#endif
       case RL_RUN1:
       case RL_RUN2:
       case RL_RUN3:
+//         halt();
 //         sched_next_task();
-        halt();
         break;
+
       case RL_REBOOT:
         reboot();
         break;
+
       case RL_SHUTDOWN:
         shutdown();
         break;
