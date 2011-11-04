@@ -25,16 +25,38 @@
 #define SEEK_CURSOR     1
 #define SEEK_BEGIN      2
 
-struct _STREAM
+#define OWNER_READ      0x001
+#define OWNER_WRITE     0x002
+#define OWNER_EXECUTE   0x004
+
+#define GROUP_READ      0x008
+#define GROUP_WRITE     0x010
+#define GROUP_EXECUTE   0x020
+
+#define ALL_READ        0x040
+#define ALL_WRITE       0X080
+#define ALL_EXECUTE     0x100
+
+#define DIRECTORY_DATA  0x200
+
+struct _STREAM_NODE
 {
   void *base;
   void *end;
-  void *cursor;
   uint32_t segment_offset;
   uint32_t segment_size;
-  struct _STREAM *prev_node;
-  struct _STREAM *next_node;
+  struct _STREAM_NODE *prev_node;
+  struct _STREAM_NODE *next_node;
+};
+
+struct _STREAM
+{
+  uint32_t size;
+  uint32_t cursor;
   char *path;
+  uint16_t rights;
+  struct _STREAM_NODE *data;
+  
 };
 
 typedef struct _STREAM stream;

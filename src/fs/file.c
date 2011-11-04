@@ -19,88 +19,44 @@
 #include <stdlib.h>
 #include <fs/file.h>
 
-stream *stream_open()
+struct _STREAM_NODE *stream_init_node(struct _STREAM_NODE* s, size_t size)
 {
-  stream *s = kalloc(sizeof(stream));
-  memset(s, 0, sizeof(stream));
-
+  if (s == NULL)
+    return NULL;
+  else if (size == 0)
+  {
+    s->base = NULL;
+    s->end = NULL;
+    s->segment_offset = 0;
+    s->segment_size = 0;
+    return s;
+  }
+  s->base = kalloc(size);
+  if (s->base == NULL)
+    return NULL;
+  s->end = (void*)((addr_t)s->base+size);
   s->segment_offset = 0;
-  s->segment_size = DEFAULT_STREAM_SIZE;
-  s->base = kalloc(DEFAULT_STREAM_SIZE);
-  s->end = (void*)((addr_t)s->base + DEFAULT_STREAM_SIZE);
-  s->cursor = s->base;
-  s->path = NULL;
-  s->next_node = NULL;
-  s->prev_node = NULL;
-
+  s->segment_size = size;
   return s;
 }
 
-void stream_attach_file(stream* s, char* path)
+stream* stream_open()
 {
-  s->path = path;
-  return;
-}
-
-stream* stream_find_head(stream* s)
-{
+  stream *s = kalloc(sizeof(stream));
   if (s == NULL)
     return NULL;
-  stream *carriage = s;
-  for (; carriage->prev_node != NULL; carriage = carriage->prev_node);
-  carriage->cursor = carriage->base;
-  return carriage;
-}
 
-stream* stream_find_tail(stream* s)
-{
-  if (s == NULL)
+  s->size = DEFAULT_STREAM_SIZE;
+  s->cursor = 0;
+  s->path = NULL;
+  s->rights = 0x2FF; // Grant ALL rights!
+
+  s->data = stream_init_node(kalloc(sizeof(struct _STREAM_NODE)),
+                                                           DEFAULT_STREAM_SIZE);
+  if (s->data == NULL)
+  {
+    free(s);
     return NULL;
-  stream *carriage = s;
-  for (; carriage->next_node != NULL; carriage = carriage->next_node);
-  carriage->cursor = carriage->end;
-  return carriage;
-}
-
-stream* stream_seek(stream *s, int idx, uint32_t start)
-{
-  stream *tmp;
-  switch(start)
-  {
-    case SEEK_BEGIN:
-      if (idx < 0)
-        return NULL;
-      tmp = stream_find_head(s);
-      break;
-    case SEEK_END:
-      if (idx > 0)
-        return NULL;
-      tmp = stream_find_tail(s);
-      break;
-    case SEEK_CURSOR:
-    default:
-      printf("WARNING: Unimplemented seek option!\n");
-      return NULL;
-      break;
   }
-  return tmp;
-}
-
-void stream_close(stream* s)
-{
-  if (s == NULL)
-    return;
-  if (s->prev_node != NULL)
-  {
-    stream_close(stream_seek(s, 0, SEEK_BEGIN));
-  }
-  stream *carriage = s;
-  stream *tmp = s->next_node;
-
-  for (; carriage->next_node != NULL; carriage = tmp, tmp = tmp->next_node)
-  {
-    free(carriage);
-  }
-
-  return;
+  return s;
 }
