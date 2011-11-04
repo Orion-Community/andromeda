@@ -35,6 +35,8 @@
 
 #define DIRECTORY_DATA  0x200
 
+#define EOF             0x19
+
 enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
 
 struct _STREAM_NODE

@@ -37,6 +37,9 @@ struct _STREAM_NODE *stream_init_node(struct _STREAM_NODE *s, size_t size)
   s->end = (void*)((addr_t)s->base+size);
   s->segment_offset = 0;
   s->segment_size = size;
+
+  char* buffer = (char*)s->base;
+  buffer[0] = EOF;
   return s;
 }
 
@@ -47,12 +50,40 @@ struct _STREAM_NODE *stream_close_node(struct _STREAM_NODE *s)
   return ret;
 }
 
+struct _STREAM_NODE *stream_append_node(stream *s, size_t size)
+{
+  struct _STREAM_NODE *carriage = s->data;
+  while (carriage->next_node != NULL)
+    carriage = carriage->next_node;
+
+  struct _STREAM_NODE *tmp = kalloc(sizeof(struct _STREAM_NODE));
+  if (tmp == NULL)
+    return NULL;
+
+  tmp->segment_offset = carriage->segment_offset + carriage->segment_size;
+  tmp->segment_size = size;
+  tmp->base = kalloc(size);
+  if (tmp->base == NULL)
+  {
+    free(tmp);
+    return NULL;
+  }
+  tmp->end = (void*)((addr_t)tmp->base + size);
+
+  carriage->next_node = tmp;
+  return tmp;
+}
+
 struct _STREAM_NODE *stream_find_node(stream *s, size_t offset)
 {
+  if (s == NULL)
+    return NULL;
   struct _STREAM_NODE *carriage = s->data;
   while (carriage->segment_offset + carriage->segment_size < offset)
   {
     carriage = carriage->next_node;
+    if (carriage == NULL)
+      return NULL;
   }
   return carriage;
 }
@@ -91,6 +122,44 @@ void stream_close(stream *s)
 
 void stream_write(stream *s, char *data)
 {
+  if (s == NULL || data == NULL)
+    return;
+
+  struct _STREAM_NODE *node = stream_find_node(s, s->cursor);
+  if (node == NULL)
+    return;
+  char *buffer = (char*)node->base;
+  size_t node_idx;
+  size_t idx = 0;
+  boolean endoffile = false;
+  for (; idx < strlen(data); node_idx++, idx ++)
+  {
+    if (node_idx >= node->segment_size)
+    {
+      if (node->next_node == NULL)
+        node = stream_append_node(s, strlen(data) - idx);
+      else
+        node = node->next_node;
+      if (node == NULL)
+        return;
+      buffer = (char*)node->base;
+      node_idx = 0;
+    }
+    if (buffer[node_idx] == EOF)
+      endoffile = true;
+    buffer[node_idx] = data[idx];
+  }
+  if (node_idx < node->segment_size)
+    buffer[node_idx++] = EOF;
+  else
+  {
+    node = stream_append_node(s, DEFAULT_STREAM_SIZE);
+    buffer = (char*)node->base;
+    buffer[0] = EOF;
+  }
+  s->cursor += strlen(data);
+  if (s->cursor > s->size)
+    s->size = s->cursor;
 }
 
 char* stream_read(stream *s, size_t num)
@@ -118,13 +187,16 @@ char* stream_read(stream *s, size_t num)
       node = stream_find_node(s, s->cursor + idx);
       if (node == NULL)
       {
-        free (ret);
+        free(ret);
         return NULL;
       }
       node_idx = (s->cursor + idx) - node->segment_offset;
     }
+    if (buffer[node_idx] == EOF)
+      break;
     ret[idx] = buffer[node_idx];
   }
+  s->cursor += idx;
 
   return ret;
 }
