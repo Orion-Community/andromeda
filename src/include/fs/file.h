@@ -21,10 +21,6 @@
 
 #define DEFAULT_STREAM_SIZE 0x1000
 
-#define SEEK_END        0
-#define SEEK_CURSOR     1
-#define SEEK_BEGIN      2
-
 #define OWNER_READ      0x001
 #define OWNER_WRITE     0x002
 #define OWNER_EXECUTE   0x004
@@ -38,6 +34,8 @@
 #define ALL_EXECUTE     0x100
 
 #define DIRECTORY_DATA  0x200
+
+enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
 
 struct _STREAM_NODE
 {

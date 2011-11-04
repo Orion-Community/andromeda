@@ -56,7 +56,7 @@ stream* stream_open()
   s->size = DEFAULT_STREAM_SIZE;
   s->cursor = 0;
   s->path = NULL;
-  s->rights = 0x2FF; // Grant ALL rights!
+  s->rights = 0x1FF; // Grant ALL rights!
 
   s->data = stream_init_node(kalloc(sizeof(struct _STREAM_NODE)),
                                                            DEFAULT_STREAM_SIZE);
@@ -77,4 +77,38 @@ void stream_close(stream *s)
       break;
   }
   free(s);
+}
+
+void stream_write(stream *s, char *data)
+{
+}
+
+char* stream_read(stream *s, size_t num)
+{
+  return NULL;
+}
+
+void stream_seek(stream *s, int offset, seektype origin)
+{
+  switch (origin)
+  {
+    case SEEK_SET:
+      if (offset > s->size || offset < 0)
+        return;
+      s->cursor = offset;
+      break;
+    case SEEK_CUR:
+      if ((offset > (s->size - s->cursor)) || (-offset > s->cursor))
+        return;
+      s->cursor += offset;
+      break;
+    case SEEK_END:
+      if (-offset > s->size)
+        return;
+      s->cursor = s->size + offset;
+      break;
+    default:
+      return;
+      break;
+  }
 }
