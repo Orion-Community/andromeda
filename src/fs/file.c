@@ -88,7 +88,7 @@ char* stream_read(stream *s, size_t num)
   return NULL;
 }
 
-void stream_seek(stream *s, int offset, seektype origin)
+void stream_seek(stream *s, int offset, enum seektype origin)
 {
   switch (origin)
   {
