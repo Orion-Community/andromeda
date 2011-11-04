@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <fs/file.h>
 
-struct _STREAM_NODE *stream_init_node(struct _STREAM_NODE* s, size_t size)
+struct _STREAM_NODE *stream_init_node(struct _STREAM_NODE *s, size_t size)
 {
   if (s == NULL)
     return NULL;
@@ -38,6 +38,13 @@ struct _STREAM_NODE *stream_init_node(struct _STREAM_NODE* s, size_t size)
   s->segment_offset = 0;
   s->segment_size = size;
   return s;
+}
+
+struct _STREAM_NODE *stream_close_node(struct _STREAM_NODE *s)
+{
+  struct _STREAM_NODE *ret = s->next_node;
+  free(s);
+  return ret;
 }
 
 stream* stream_open()
@@ -59,4 +66,15 @@ stream* stream_open()
     return NULL;
   }
   return s;
+}
+
+void stream_close(stream *s)
+{
+  while (TRUE)
+  {
+    s->data = stream_close_node(s->data);
+    if (s->data == NULL)
+      break;
+  }
+  free(s);
 }
