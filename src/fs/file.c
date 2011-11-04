@@ -47,6 +47,16 @@ struct _STREAM_NODE *stream_close_node(struct _STREAM_NODE *s)
   return ret;
 }
 
+struct _STREAM_NODE *stream_find_node(stream *s, size_t offset)
+{
+  struct _STREAM_NODE *carriage = s->data;
+  while (carriage->segment_offset + carriage->segment_size < offset)
+  {
+    carriage = carriage->next_node;
+  }
+  return carriage;
+}
+
 stream* stream_open()
 {
   stream *s = kalloc(sizeof(stream));
@@ -85,7 +95,38 @@ void stream_write(stream *s, char *data)
 
 char* stream_read(stream *s, size_t num)
 {
-  return NULL;
+  if (s == NULL || num == 0)
+    return NULL;
+
+  char* ret = kalloc(num);
+  char* buffer = NULL;
+  if (ret == NULL)
+    return NULL;
+
+  size_t idx = 0;
+  size_t node_idx;
+  struct _STREAM_NODE *node = stream_find_node(s, s->cursor);
+  if (node == NULL)
+    return NULL;
+  node_idx = s->cursor - node->segment_offset;
+  buffer = (char*)node->base;
+
+  for (; idx < num; idx++, node_idx++)
+  {
+    if (node_idx >= node->segment_size)
+    {
+      node = stream_find_node(s, s->cursor + idx);
+      if (node == NULL)
+      {
+        free (ret);
+        return NULL;
+      }
+      node_idx = (s->cursor + idx) - node->segment_offset;
+    }
+    ret[idx] = buffer[node_idx];
+  }
+
+  return ret;
 }
 
 void stream_seek(stream *s, int offset, enum seektype origin)
