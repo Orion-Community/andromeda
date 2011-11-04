@@ -17,7 +17,7 @@
 */
 
 #include <stdlib.h>
-#include <fs/file.h>
+#include <fs/stream.h>
 
 /**
  * stream_init_inode returns what should be the first node for the stream
