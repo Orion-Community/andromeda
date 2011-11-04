@@ -61,4 +61,9 @@ struct _STREAM
 
 typedef struct _STREAM stream;
 
+stream* stream_open();
+void stream_close(stream *s);
+void stream_write(stream *s, char *data);
+char* stream_read(stream *s, size_t num);
+void stream_seek(stream *s, int offset, enum seektype origin);
 #endif

@@ -19,6 +19,9 @@
 #include <stdlib.h>
 #include <fs/file.h>
 
+/**
+ * stream_init_inode returns what should be the first node for the stream
+ */
 struct _STREAM_NODE *stream_init_node(struct _STREAM_NODE *s, size_t size)
 {
   if (s == NULL)
@@ -43,6 +46,10 @@ struct _STREAM_NODE *stream_init_node(struct _STREAM_NODE *s, size_t size)
   return s;
 }
 
+/**
+ * stream_close_node closes an individual node and returns the pointer to the
+ * next node. The offsets aren't updated!!!
+ */
 struct _STREAM_NODE *stream_close_node(struct _STREAM_NODE *s)
 {
   struct _STREAM_NODE *ret = s->next_node;
@@ -50,6 +57,10 @@ struct _STREAM_NODE *stream_close_node(struct _STREAM_NODE *s)
   return ret;
 }
 
+/**
+ * stream_append_node appends a node to the end of the list so the size of the
+ * stream can be growed.
+ */
 struct _STREAM_NODE *stream_append_node(stream *s, size_t size)
 {
   struct _STREAM_NODE *carriage = s->data;
@@ -74,6 +85,9 @@ struct _STREAM_NODE *stream_append_node(stream *s, size_t size)
   return tmp;
 }
 
+/**
+ * stream_find_node finds the node to go with the cursor location.
+ */
 struct _STREAM_NODE *stream_find_node(stream *s, size_t offset)
 {
   if (s == NULL)
@@ -88,6 +102,9 @@ struct _STREAM_NODE *stream_find_node(stream *s, size_t offset)
   return carriage;
 }
 
+/**
+ * stream_open opens a new stream.
+ */
 stream* stream_open()
 {
   stream *s = kalloc(sizeof(stream));
@@ -109,6 +126,9 @@ stream* stream_open()
   return s;
 }
 
+/**
+ * Close the stream
+ */
 void stream_close(stream *s)
 {
   while (TRUE)
@@ -120,6 +140,10 @@ void stream_close(stream *s)
   free(s);
 }
 
+/**
+ * stream_write writes to the cursor location in the stream.
+ * The cursor is moved afterwards.
+ */
 void stream_write(stream *s, char *data)
 {
   if (s == NULL || data == NULL)
@@ -162,6 +186,10 @@ void stream_write(stream *s, char *data)
     s->size = s->cursor;
 }
 
+/**
+ * stream_read reads a number of characters from the cursor position in the
+ * stream. The cursor is moved afterwards.
+ */
 char* stream_read(stream *s, size_t num)
 {
   if (s == NULL || num == 0)
@@ -201,6 +229,9 @@ char* stream_read(stream *s, size_t num)
   return ret;
 }
 
+/**
+ * stream_seek moves the cursor to the requested location in the stream.
+ */
 void stream_seek(stream *s, int offset, enum seektype origin)
 {
   switch (origin)
