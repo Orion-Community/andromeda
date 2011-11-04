@@ -23,6 +23,20 @@
 #include <mm/map.h>
 
 #ifdef MSI
+struct msi *msgs;
+boolean msi_enabled = FALSE;
+
+int
+msi_enable_msi()
+{
+  msgs = kalloc(sizeof(*msgs));
+  if(msgs != NULL)
+    msi_enabled = true;
+  else return -1;
+  
+  return 0;
+}
+
 static int
 __msi_write_message(struct msi *msi)
 {
@@ -33,7 +47,17 @@ __msi_write_message(struct msi *msi)
     writel(msi->attrib.base + MSIX_MESSAGE_DATA, msi_get_msg_data(msi));
   }
   else
-    return -1;
+  {
+    struct ol_pci_dev *dev = msi->attrib.dev;
+    ol_pci_write_dword(dev, MSI_LOWER_ADDR(msi->attrib.cpos), msi->addr.addr_low);
+    if(msi->attrib.is_64)
+    {
+      ol_pci_write_dword(dev, MSI_UPPER_ADDR(msi->attrib.cpos), msi->addr.addr_hi);
+      ol_pci_write_dword(dev, MSI_MESSAGE_DATA(msi->attrib.cpos,1), msi_get_msg_data(msi));
+    }
+    else
+      ol_pci_write_dword(dev, MSI_MESSAGE_DATA(msi->attrib.cpos,0),msi_get_msg_data(msi));
+  }
   return 0;
 }
 
@@ -51,7 +75,20 @@ msi_get_msg_data(struct msi *msi)
 void
 msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
 {
+  if(!msi_enabled)
+    msi_enable_msi();
+    
   __msi_create_msix_entry(dev, cp);
+}
+
+/**
+ * Enable an msix entry. The entry count is encoded as entry number N-1.
+ */
+static void
+msi_enable_msix_entry(struct msi *msi, int entry)
+{
+  int index = entry*MSIX_ENTRY_SIZE;
+  writel(msi->attrib.base+index+MSIX_VECTOR_CTRL, 0);
 }
 
 static int
@@ -68,7 +105,8 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
   msi->addr.addr_hi = 0;
   
   __msi_write_message(msi);
-  writel(msi->attrib.base + MSIX_VECTOR_CTRL, 0);
+  msi_enable_msix_entry(msi, 0); /* enable first entry */
+  msgs[1] = *msi;
   debug_msix_entry(msi, cp);
   return 0;
 }
@@ -92,6 +130,7 @@ static void
 debug_msix_entry(struct msi *msi, uint8_t cp)
 {
   volatile void *base = msi->attrib.base;
+  printf("test: 0x%x\n", msgs[1].attrib.base);
   uint16_t msi_ctl = (ol_pci_read_dword(msi->attrib.dev, (uint16_t)cp) >> 16) & 0x3ff;
     /* write and read back */
 
