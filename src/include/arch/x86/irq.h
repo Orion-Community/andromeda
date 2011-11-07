@@ -40,18 +40,18 @@ extern void irq13();
 extern void irq14();
 extern void irq15();
 
-struct irq_data
-{
-	uint32_t irq_num;
-	union
-	{
-	/* 
-	 * An interrupt is sent to the cpu using either a msi or a hardware pin, but not both.
-	 */
-		uint8_t hw_pin; /* pin where the interrupt is sent to */
-		struct msi_cfg *msi; /* msi message */
-	}
-	struct irq_cfg *irq_config;
-}
+// struct irq_data
+// {
+//   uint32_t irq_num;
+//   union
+//   {
+//     /* 
+//      * An interrupt is sent to the cpu using either a msi or a hardware pin, but not both.
+//      */
+//     uint8_t hw_pin; /* pin where the interrupt is sent to */
+//     struct msi_cfg *msi; /* msi message */
+//   }
+//   struct irq_cfg *irq_config;
+// }
 
 #endif

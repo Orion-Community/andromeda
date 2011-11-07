@@ -46,51 +46,50 @@ struct msi_attribute
 {
   int is_64 : 1; /* 0 -> 32 bit addr bus, 1 -> 64 bit */
   int is_msix : 1; /* 0 -> no msix, 1 -> msi-x available */
+  uint8_t multiple : 3;
   int enabled : 1; /* 0 -> not enabled, 1 -> enabled (i.e. can send interrupts) */
   uint8_t cpos; /* position in the capabilities list */
   
-  union { volatile void *base; uint8_t base_mask; };
-  struct ol_pci_dev *dev;
-} __attribute__((packed));
-
-struct msi_address
-{
-//   int reserved : 2;
-//   int dest_mode : 1;
-//   int redir_hint : 1;
-//   int reserved2 : 8;
-//   int dest_id : 8;
-//   int addr_base : 12;
-  uint32_t addr_low;
-  uint32_t addr_hi;
+  union { 
+    volatile void *base; 
+    uint8_t mask_position; 
+  };
 } __attribute__((packed));
 
 struct msi
 {
-  int vector : 8;
-  int delivery_mode : 3;
-  int reserved : 3;
-  int trigger_level : 1;
-  int trigger: 1;
-  uint64_t reserved2 : 48;
-  struct msi_address addr;
-  struct msi_attribute attrib;
+//   int vector : 8;
+//   int delivery_mode : 3;
+//   int reserved : 3;
+//   int trigger_level : 1;
+//   int trigger: 1;
+//   uint64_t reserved2 : 48;
+  uint32_t addr;
+  uint32_t addr_hi;
+  uint32_t message;
 } __attribute__((packed));
 typedef struct msi *msi_msg;
+
+struct msi_cfg
+{
+  struct msi_attribute attrib;
+  struct ol_pci_dev * dev;
+  struct msi *msi;
+  int masked : 1;
+} __attribute__((packed));
 
 /*
  * Setup an MSI driven irq.
  */
 static int __msi_create_msix_entry(struct ol_pci_dev*, uint8_t);
 static volatile void *msi_calc_msix_base(struct ol_pci_dev *, uint8_t);
+static int __msi_write_message(struct msi_cfg *, struct msi *);
 void msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp);
-static uint32_t msi_get_msg_data(struct msi *);
-static void msi_enable_msix_entry(struct msi *, int);
+static void msi_enable_msix_entry(struct msi_cfg *, int);
 static struct msi* msi_resize_msi_data(struct msi *);
-static void msi_add_config_data(struct msi *, uint32_t);
 
 #ifdef MSIX_DEBUG
-static void debug_msix_entry(struct msi*, uint8_t);
+static void debug_msix_entry(struct msi_cfg *, struct msi *);
 #endif
 
 #endif
