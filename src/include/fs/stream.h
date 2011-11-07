@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __FS_FILE_H
-#define __FS_FILE_H
+#ifndef __FS_STREAM_H
+#define __FS_STREAM_H
 
 #define DEFAULT_STREAM_SIZE 0x1000
 

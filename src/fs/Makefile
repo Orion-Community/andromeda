@@ -2,12 +2,15 @@ include ../scripts/makeIncl
 CFLAGS+=-I../include
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-INCLUDES=../include/fs/stream.h
+INCLUDES=../include/fs/stream.h ../include/fs/file.h
 
 .PHONY: all
-all: stream.o
+all: stream.o file.o
 	$(LD) -o fs.o *.o $(LDFLAGS)
 	mv fs.o ../
 
 stream.o: stream.c
 	$(CC) $(FLAGS) $(CFLAGS) stream.c
+
+file.o: file.c
+	$(CC) $(FLAGS) $(CFLAGS) file.c
