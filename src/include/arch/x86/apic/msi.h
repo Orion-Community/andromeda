@@ -76,6 +76,7 @@ struct msi_cfg
   struct ol_pci_dev * dev;
   struct msi *msi;
   int masked : 1;
+  uint32_t irq;
 } __attribute__((packed));
 
 /*
