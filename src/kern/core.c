@@ -50,9 +50,10 @@ void stream_test()
   stream *test = stream_open();
   stream_write(test, "Hello streams!\n");
   stream_seek(test, 0, SEEK_SET);
-  printf("%s", stream_read(test, sizeof("Hello streams!\n")));
+  printf("Stream: %s\n", stream_read(test, sizeof("Hello streams!\n")));
   stream_close(test);
 }
+
 extern uint8_t key_pressed;
 void demand_key()
 {
@@ -78,7 +79,8 @@ void core_loop()
 
       case RL_RUN0:
 #ifdef STREAM_DBG
-//         demand_key();
+        demand_key();
+        printf("Resuming execution!\n");
         stream_test();
         init_set(RL_RUN1);
 #endif
