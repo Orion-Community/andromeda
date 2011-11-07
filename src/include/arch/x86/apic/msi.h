@@ -86,6 +86,8 @@ static volatile void *msi_calc_msix_base(struct ol_pci_dev *, uint8_t);
 void msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp);
 static uint32_t msi_get_msg_data(struct msi *);
 static void msi_enable_msix_entry(struct msi *, int);
+static struct msi* msi_resize_msi_data(struct msi *);
+static void msi_add_config_data(struct msi *, uint32_t);
 
 #ifdef MSIX_DEBUG
 static void debug_msix_entry(struct msi*, uint8_t);

@@ -23,13 +23,14 @@
 #include <mm/map.h>
 
 #ifdef MSI
-struct msi *msgs;
+static struct msi *msgs = NULL;
 boolean msi_enabled = FALSE;
 
 int
 msi_enable_msi()
 {
-  msgs = kalloc(sizeof(*msgs));
+  if(msgs == NULL)
+    msgs = kalloc(sizeof(*msgs));
   if(msgs != NULL)
     msi_enabled = true;
   else return -1;
@@ -71,6 +72,28 @@ msi_get_msg_data(struct msi *msi)
   ret |= (msi->trigger)<<15;
   return ret;
 }
+
+static void
+msi_add_config_data(struct msi *msi, uint32_t n)
+{
+  if(msgs == NULL)
+  {
+    msgs = kalloc(sizeof(*msi));
+    msgs[n] = *msi;
+  }
+  else
+  {
+    struct msi *temp = msi_resize_msi_data(msi);
+    msgs = temp;
+  }
+}
+
+static struct msi*
+msi_resize_msi_data(struct msi *msi)
+{
+  return NULL;
+}
+
 #ifdef MSIX
 void
 msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
@@ -106,7 +129,7 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
   
   __msi_write_message(msi);
   msi_enable_msix_entry(msi, 0); /* enable first entry */
-  msgs[1] = *msi;
+  msi_add_config_data(msi, 0);
   debug_msix_entry(msi, cp);
   return 0;
 }
@@ -130,7 +153,7 @@ static void
 debug_msix_entry(struct msi *msi, uint8_t cp)
 {
   volatile void *base = msi->attrib.base;
-  printf("test: 0x%x\n", msgs[1].attrib.base);
+  printf("test: 0x%x\n", msgs[0].attrib.base);
   uint16_t msi_ctl = (ol_pci_read_dword(msi->attrib.dev, (uint16_t)cp) >> 16) & 0x3ff;
     /* write and read back */
 
