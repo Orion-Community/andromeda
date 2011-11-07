@@ -154,8 +154,10 @@ bool endkey = FALSE;
 bool shiftkey = FALSE;
 bool capslock = FALSE;
 uint8_t leds = 0;
+uint8_t key_pressed = 0;
 void kb_handle(uint8_t c)
 {
+        key_pressed = 1;
 	if(c & 0x80)
 	{
 		/*

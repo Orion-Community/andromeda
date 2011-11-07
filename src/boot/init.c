@@ -153,7 +153,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   ioapic_debug();
 #endif
 
-#ifndef __MEMTEST
+#ifdef __MEMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
 #ifdef DBG
   free(cpu);
