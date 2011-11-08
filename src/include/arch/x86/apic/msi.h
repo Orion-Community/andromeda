@@ -58,12 +58,6 @@ struct msi_attribute
 
 struct msi
 {
-//   int vector : 8;
-//   int delivery_mode : 3;
-//   int reserved : 3;
-//   int trigger_level : 1;
-//   int trigger: 1;
-//   uint64_t reserved2 : 48;
   uint32_t addr;
   uint32_t addr_hi;
   uint32_t message;

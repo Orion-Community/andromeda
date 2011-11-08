@@ -83,7 +83,11 @@ struct irq_cfg
     struct msi_cfg *msi; /* msi message */
   };
   
-  uint8_t vector;
+  int vector : 8;
+  int delivery_mode : 3;
+  int reserved : 3;
+  int trigger_level : 1; /* indicates the state of level triggered interrupts */
+  int trigger: 1;
 };
 
 #endif
