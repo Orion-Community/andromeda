@@ -49,17 +49,16 @@ struct _STREAM_NODE
   struct _STREAM_NODE *next_node;
 };
 
-struct _STREAM
+struct __STREAM
 {
   uint32_t size;
   uint32_t cursor;
-  char *path;
-  uint16_t rights;
   struct _STREAM_NODE *data;
-  
+  struct __STREAM *next_stream;
+  struct __STREAM *prev_stream;
 };
 
-typedef struct _STREAM stream;
+typedef struct __STREAM stream;
 
 stream* stream_open();
 void stream_close(stream *s);

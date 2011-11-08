@@ -24,18 +24,12 @@
 
 struct __FILE
 {
-  uint32_t device;
-  uint32_t inode;
-  uint32_t cursor;
-  uint32_t stream_index;
+  char* path;
   stream *data;
-};
-
-struct __DIR_ENT
-{
-  char name[255];
-  uint32_t device;
-  uint32_t inode;
+  uint16_t file_rights;
+  uint16_t file_type;
+  uint32_t stream_idx;
+  uint32_t stream_cursor;
 };
 
 #endif
