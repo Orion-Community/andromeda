@@ -17,12 +17,25 @@
 */
 
 #include <stdlib.h>
-#include <pci.h>
-#include <msi.h>
+#include <sys/dev/pci.h>
+#include <arch/x86/apic/msi.h>
 
 #ifndef IRQ_H
 #define IRQ_H
 
+#define MAX_IRQ_NUM 255
+
+struct irq_data
+{
+  uint32_t irq_num;
+
+  struct irq_cfg *irq_config;
+};
+
+extern struct irq_data irq_data[MAX_IRQ_NUM];
+/*
+ * Interrupt headers
+ */
 extern void irq0();
 extern void irq1();
 extern void irq2();
@@ -39,19 +52,38 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+extern void irq30();
 
-// struct irq_data
-// {
-//   uint32_t irq_num;
-//   union
-//   {
-//     /* 
-//      * An interrupt is sent to the cpu using either a msi or a hardware pin, but not both.
-//      */
-//     uint8_t hw_pin; /* pin where the interrupt is sent to */
-//     struct msi_cfg *msi; /* msi message */
-//   }
-//   struct irq_cfg *irq_config;
-// }
+static inline struct irq_data*
+get_irq_data(uint32_t irq)
+{
+  return &irq_data[irq];
+}
+
+static inline struct irq_cfg*
+get_irq_cfg(uint32_t irq)
+{
+  return get_irq_data(irq)->irq_config;
+}
+
+static inline void
+init_irq_data()
+{
+  memset(irq_data, 0, sizeof(*irq_data)*MAX_IRQ_NUM);
+}
+
+struct irq_cfg
+{
+  union
+  {
+    /* 
+     * An interrupt is sent to the cpu using either a msi or a hardware pin, but not both.
+     */
+    uint8_t hw_pin; /* pin where the interrupt is sent to */
+    struct msi_cfg *msi; /* msi message */
+  };
+  
+  uint8_t vector;
+};
 
 #endif

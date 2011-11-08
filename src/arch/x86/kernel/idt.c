@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <arch/x86/idt.h>
+#include <arch/x86/irq.h>
 #include <arch/x86/interrupts.h>
 #include <mm/memory.h>
 

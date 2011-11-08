@@ -19,15 +19,18 @@
 #include <text.h>
 #include <arch/x86/idt.h>
 #include <arch/x86/interrupts.h>
+#include <arch/x86/irq.h>
 #include <arch/x86/pic.h>
 #include <sys/keyboard.h>
 #include <stdlib.h>
 #include <sys/dev/ps2.h>
+#include <sys/dev/pci.h>
 
 
 uint64_t pit_timer = 0;
 uint64_t sleepTime = 0;
 bool isSleeping = FALSE;
+struct irq_data irq_data[MAX_IRQ_NUM];
 
 void cIRQ0(ol_irq_stack_t regs)
 {
@@ -133,4 +136,9 @@ void cIRQ15(ol_irq_stack_t regs)
   putc('b');
   pic_eoi(15);
   return;
+}
+
+void create_irq_data(void)
+{
+  
 }
