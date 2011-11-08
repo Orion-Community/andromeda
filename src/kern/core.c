@@ -48,13 +48,17 @@ void init_set(uint32_t i)
 void stream_test()
 {
   stream *test = stream_open();
-  stream_write(test, "Hello streams!\n");
+  stream_write(test, "Hello streams!");
+  char *x = kalloc(sizeof("Hello streams!"));
   stream_seek(test, 0, SEEK_SET);
-  printf("Stream: %s\n", stream_read(test, sizeof("Hello streams!\n")));
+  stream_read(test, x, sizeof("Hello streams!"));
+  printf("Stream: %s\n", x);
+  free(x);
   stream_close(test);
 }
 
-extern uint8_t key_pressed;
+extern uint32_t key_pressed;
+
 void demand_key()
 {
   printf("Press any key to continue!\n");
@@ -80,7 +84,6 @@ void core_loop()
       case RL_RUN0:
 #ifdef STREAM_DBG
         demand_key();
-        printf("Resuming execution!\n");
         stream_test();
         init_set(RL_RUN1);
 #endif

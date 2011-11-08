@@ -154,7 +154,7 @@ void stream_write(stream *s, char *data)
   if (node == NULL)
     return;
   char *buffer = (char*)node->base;
-  size_t node_idx;
+  size_t node_idx = 0;
   size_t idx = 0;
   boolean endoffile = false;
   for (; idx < strlen(data); node_idx++, idx ++)
@@ -191,16 +191,13 @@ void stream_write(stream *s, char *data)
  * stream_read reads a number of characters from the cursor position in the
  * stream. The cursor is moved afterwards.
  */
-char* stream_read(stream *s, size_t num)
+char* stream_read(stream *s, char* buf, size_t num)
 {
-  if (s == NULL || num == 0)
+  if (s == NULL || num == 0 || buf == NULL)
     return NULL;
-
-  char* ret = kalloc(num);
+  
   char* buffer = NULL;
-  if (ret == NULL)
-    return NULL;
-  memset(ret, 0, num);
+  memset(buf, 0, num);
 
   size_t idx = 0;
   size_t node_idx;
@@ -217,18 +214,17 @@ char* stream_read(stream *s, size_t num)
       node = stream_find_node(s, s->cursor + idx);
       if (node == NULL)
       {
-        free(ret);
         return NULL;
       }
       node_idx = (s->cursor + idx) - node->segment_offset;
     }
     if (buffer[node_idx] == EOF)
       break;
-    ret[idx] = buffer[node_idx];
+    buf[idx] = buffer[node_idx];
   }
   s->cursor += idx;
 
-  return ret;
+  return buf;
 }
 
 /**
