@@ -43,12 +43,14 @@
 
 struct __FILE
 {
-  char* path;
+  char *path;
   stream *data;
   uint16_t file_rights;
   uint16_t file_type;
   uint32_t stream_idx;
   uint32_t stream_cursor;
 };
+
+typedef struct __FILE file;
 
 #endif

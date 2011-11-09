@@ -16,28 +16,38 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __ERROR_ERROR_H
-#define __ERROR_ERROR_H
+#ifndef __FS_VFS_H
+#define __FS_VFS_H
 
-#define E_SUCCESS       0x0
+#include <fs/file.h>
 
-#define E_NOMEM         0x1
-#define E_NOFUNCTION    0x2
-#define E_UNFINISHED    0x3
+#define MAX_NAME_LENGTH 0xff
 
-#define E_PAGE_MAPPING  0x4
-#define E_PAGE_NORIGHTS 0x5
-#define E_PAGE_NOPAGE   0x6
-#define E_PAGE_NOMEM    0x7
+struct __DIR_ENTRY
+{
+  char name[MAX_NAME_LENGTH];
+  struct __DIR *ptr;
+};
 
-#define E_BMP_NOMAP     0x8
-#define E_BMP_NOLIST    0x9
-#define E_BMP_NOIDX     0xA
-#define E_BMP_NOMEM     0xB
-#define E_BMP_CORRUPT   0xC
+struct __ENTRIES
+{
+  struct __DIR_ENTRY entries[0x20];
 
-#define E_FS_INIT       0xD
-#define E_FS_SYNC       0xE
-#define E_FS_UNKNOWN    0xF
+  struct __ENTRIES *next;
+  struct __ENTRIES *prev;
+};
+
+struct __DIR
+{
+  file *device;
+  uint32_t inode;
+
+  struct __ENTRIES *entries;
+  uint32_t no_entries;
+};
+
+typedef struct __DIR directory;
+
+extern directory *root;
 
 #endif

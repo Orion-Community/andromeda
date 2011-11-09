@@ -2,7 +2,7 @@ include ../scripts/makeIncl
 CFLAGS+=-I../include
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-INCLUDES=../include/fs/stream.h ../include/fs/file.h
+INCLUDES=../include/fs/stream.h ../include/fs/file.h ../include/fs/vfs.h
 
 .PHONY: all
 all: stream.o file.o
@@ -14,3 +14,6 @@ stream.o: stream.c
 
 file.o: file.c
 	$(CC) $(FLAGS) $(CFLAGS) file.c
+
+vfs.o: vfs.c
+	$(CC) $(FLAGS) $(CFLAGS) vfs.c
