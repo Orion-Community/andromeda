@@ -105,8 +105,10 @@ msi_calc_msix_base(struct ol_pci_dev *dev, uint8_t cp)
 static void
 debug_msix_entry(struct msi_cfg *cfg, struct msi *msi)
 {
+  struct ol_pci_dev *dev = cfg->dev;
+  uint8_t irq = ol_pci_read_dword(dev, OL_PCI_INTERRUPT_LINE) & 0xff;
   volatile void *base = cfg->attrib.base;
-  printf("test: 0x%x\n", base);
+  printf("test: 0x%x\n", irq);
   uint16_t msi_ctl = (ol_pci_read_dword(cfg->dev, (uint16_t)cfg->attrib.cpos) >> 16) & 0x3ff;
     /* write and read back */
 

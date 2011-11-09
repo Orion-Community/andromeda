@@ -40,6 +40,7 @@ extern "C"
 #define  OL_PCI_REG_HEADER_TYPE  0x0e
 #define  OL_PCI_REG_BIST         0x0f
 #define  OL_PCI_REG_ADDRESSES    0x10
+#define  OL_PCI_INTERRUPT_LINE   0x3c
 
   /* PCI properties */
 #define OL_PCI_MF 0x80
