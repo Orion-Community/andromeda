@@ -87,8 +87,6 @@ struct irq_cfg
   
   int vector : 8;
   int delivery_mode : 3;
-  int reserved : 3;
-  int trigger_level : 1; /* indicates the state of level triggered interrupts */
   int trigger: 1;
 };
 
