@@ -22,6 +22,25 @@
 #include <stdlib.h>
 #include <fs/stream.h>
 
+#define OWNER_READ      0x001
+#define OWNER_WRITE     0x002
+#define OWNER_EXECUTE   0x004
+
+#define GROUP_READ      0x008
+#define GROUP_WRITE     0x010
+#define GROUP_EXECUTE   0x020
+
+#define ALL_READ        0x040
+#define ALL_WRITE       0X080
+#define ALL_EXECUTE     0x100
+
+#define TYPE_DTND       0x001
+#define TYPE_LINK       0x002
+#define TYPE_CHAR       0x003
+#define TYPE_BLCK       0x004
+#define TYPE_PIPE       0x005
+#define TYPE_SOCK       0x006
+
 struct __FILE
 {
   char* path;

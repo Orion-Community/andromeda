@@ -21,20 +21,6 @@
 
 #define DEFAULT_STREAM_SIZE 0x1000
 
-#define OWNER_READ      0x001
-#define OWNER_WRITE     0x002
-#define OWNER_EXECUTE   0x004
-
-#define GROUP_READ      0x008
-#define GROUP_WRITE     0x010
-#define GROUP_EXECUTE   0x020
-
-#define ALL_READ        0x040
-#define ALL_WRITE       0X080
-#define ALL_EXECUTE     0x100
-
-#define DIRECTORY_DATA  0x200
-
 #define EOF             0x19
 
 enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
