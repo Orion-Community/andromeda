@@ -29,12 +29,26 @@ struct __DIR_ENTRY
   struct __DIR *ptr;
 };
 
-struct __ENTRIES
+struct __FILE_ENTRY
+{
+  char name[MAX_NAME_LENGTH];
+  file *ptr;
+};
+
+struct __DIR_ENTRIES
 {
   struct __DIR_ENTRY entries[0x20];
 
-  struct __ENTRIES *next;
-  struct __ENTRIES *prev;
+  struct __DIR_ENTRIES *next;
+  struct __DIR_ENTRIES *prev;
+};
+
+struct __FILE_ENTRIES
+{
+  struct __FILE_ENTRY entries[0x20];
+
+  struct __FILE_ENTRIES *next;
+  struct __FILE_ENTRIES *prev;
 };
 
 struct __DIR
@@ -42,8 +56,8 @@ struct __DIR
   file *device;
   uint32_t inode;
 
-  struct __ENTRIES *entries;
-  uint32_t no_entries;
+  struct __DIR_ENTRIES *directories;
+  struct __FILE_ENTRIES *files;
 };
 
 typedef struct __DIR directory;

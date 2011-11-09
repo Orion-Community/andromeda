@@ -21,26 +21,33 @@
 #include <fs/vfs.h>
 #include <error/error.h>
 
-directory *root = null;
+directory *root = NULL;
 
 int init_vfs(file *device, uint32_t inode)
 {
   if (root != NULL)
-    return -E_INIT;
-  directory vroot = kalloc(sizeof(directory));
+    return -E_FS_INIT;
+  directory *vroot = kalloc(sizeof(directory));
   if (vroot == NULL)
-    return -E_INIT;
+    return -E_FS_INIT;
   memset(vroot, 0, sizeof(directory));
-  vroot->no_entries = 0;
-  vroot->entries = kalloc(sizeof(struct __ENTRIES));
-  if (vroot == NULL)
+  vroot->directories = kalloc(sizeof(struct __DIR_ENTRIES));
+  if (vroot->directories == NULL)
   {
-    free (vroot);
-    return -E_INIT;
+    free(vroot);
+    return -E_FS_INIT;
   }
-  vroot->device = null;
+  vroot->files = kalloc(sizeof(struct __FILE_ENTRIES));
+  if (vroot->files == NULL)
+  {
+    free (vroot->directories);
+    free (vroot);
+    return -E_FS_INIT;
+  }
+  vroot->device = NULL;
   vroot->inode = 0;
-  memset(vroot->entries, 0, sizeof(struct __ENTRIES));
+  memset(vroot->files, 0, sizeof(struct __FILE_ENTRIES));
+  memset(vroot->directories, 0, sizeof(struct __DIR_ENTRIES));
 
   root = vroot;
   return -E_SUCCESS;
