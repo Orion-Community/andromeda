@@ -16,10 +16,26 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __COMPRESSED
+#include <stdlib.h>
+#include <sys/dev/pci.h>
+#include <arch/x86/apic/msi.h>
+
 #ifndef IRQ_H
 #define IRQ_H
 
+#define MAX_IRQ_NUM 255
+
+struct irq_data
+{
+  uint32_t irq_num;
+
+  struct irq_cfg *irq_config;
+};
+
+extern struct irq_data irq_data[MAX_IRQ_NUM];
+/*
+ * Interrupt headers
+ */
 extern void irq0();
 extern void irq1();
 extern void irq2();
@@ -36,6 +52,42 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+extern void irq30();
 
-#endif
+static inline struct irq_data*
+get_irq_data(uint32_t irq)
+{
+  return &irq_data[irq];
+}
+
+static inline struct irq_cfg*
+get_irq_cfg(uint32_t irq)
+{
+  return get_irq_data(irq)->irq_config;
+}
+
+static inline void
+init_irq_data()
+{
+  memset(irq_data, 0, sizeof(*irq_data)*MAX_IRQ_NUM);
+}
+
+struct irq_cfg
+{
+  union
+  {
+    /* 
+     * An interrupt is sent to the cpu using either a msi or a hardware pin, but not both.
+     */
+    uint8_t hw_pin; /* pin where the interrupt is sent to */
+    struct msi_cfg *msi; /* msi message */
+  };
+  
+  int vector : 8;
+  int delivery_mode : 3;
+  int reserved : 3;
+  int trigger_level : 1; /* indicates the state of level triggered interrupts */
+  int trigger: 1;
+};
+
 #endif
