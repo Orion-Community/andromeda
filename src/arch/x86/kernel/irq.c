@@ -138,7 +138,17 @@ void cIRQ15(ol_irq_stack_t regs)
   return;
 }
 
-void create_irq_data(void)
+void dbg_irq_data(void)
 {
-  
+  int entry = alloc_idt_entry();
+  struct irq_data *data = &irq_data[entry];
+  if(entry != -1)
+  {
+    data->irq = (uint32_t)&irq30;
+    data->irq_config = kalloc(sizeof(struct irq_cfg));
+    data->irq_config->vector = (uint16_t)entry;
+    install_irq_vector(data);
+  }
+  else
+    return;
 }

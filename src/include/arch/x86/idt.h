@@ -17,9 +17,13 @@
  */
 
 #include <stdlib.h>
+#include <arch/x86/irq.h>
 
 #ifndef __IDT_H
 #define __IDT_H
+
+#define IDT_PRESENT_BIT (1<<7)
+#define IDT_INTERRUPT_GATE 0xe
 
 struct idtentry
 {
@@ -42,12 +46,11 @@ static void
 ol_idt_install_entry(uint16_t, uint32_t, 
         uint16_t, uint8_t, ol_idt_t);
 
-static void
-installExceptions(ol_idt_t);
-
-static void
-installInterrupts(uint16_t, uint16_t, ol_idt_t);
-
-extern void 
-installIDT(ol_idt_t);
+static void installExceptions(ol_idt_t);
+static void installInterrupts(uint16_t, uint16_t, ol_idt_t);
+static int get_empty_idt_entry_number();
+int install_irq_vector(struct irq_data *);
+int alloc_idt_entry();
+extern void installIDT(ol_idt_t);
+extern addr_t get_idt();
 #endif

@@ -147,7 +147,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   ol_ps2_init_keyboard();
   ol_apic_init(cpu);
   init_ioapic();
-
+  dbg_irq_data();
   ol_pci_init();
 
 #ifdef __IOAPIC_DBG

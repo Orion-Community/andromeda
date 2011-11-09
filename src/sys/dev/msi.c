@@ -29,7 +29,8 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
   if(cfg->attrib.is_msix)
   {
     writel(cfg->attrib.base + MSIX_LOW_ADDR, msi->addr);
-    writel(cfg->attrib.base + MSIX_UPPER_ADDR, msi->addr_hi);
+    if(cfg->attrib.is_64)
+      writel(cfg->attrib.base + MSIX_UPPER_ADDR, msi->addr_hi);
     writel(cfg->attrib.base + MSIX_MESSAGE_DATA, msi->message);
   }
   else

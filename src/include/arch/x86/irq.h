@@ -27,7 +27,7 @@
 
 struct irq_data
 {
-  uint32_t irq_num;
+  uint32_t irq;
 
   struct irq_cfg *irq_config;
 };
@@ -71,6 +71,8 @@ init_irq_data()
 {
   memset(irq_data, 0, sizeof(*irq_data)*MAX_IRQ_NUM);
 }
+
+void dbg_irq_data(void);
 
 struct irq_cfg
 {
