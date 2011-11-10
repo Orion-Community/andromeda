@@ -28,6 +28,7 @@
 struct irq_data
 {
   uint32_t irq;
+  uint32_t irq_base;
 
   struct irq_cfg *irq_config;
 };

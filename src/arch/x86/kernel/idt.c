@@ -152,11 +152,11 @@ install_irq_vector(struct irq_data *data)
     ol_idt_t idt = (ol_idt_t)get_idt();
     if(data->irq_config->vector <= 0x28)
       return -1;
-    ol_idt_install_entry(entry, data->irq, 0x8, IDT_PRESENT_BIT | IDT_INTERRUPT_GATE,
+    ol_idt_install_entry(entry, data->irq_base, 0x8, IDT_PRESENT_BIT | IDT_INTERRUPT_GATE,
                          idt);
     installIDT(idt);
     
-    printf("IRQ base: %x | Next available entry: %x | Vector: %x\n", data->irq,
+    printf("IRQ base: %x | Next available entry: %x | Vector: %x\n", data->irq_base,
            get_empty_idt_entry_number(), data->irq_config->vector);
     return 0;
   }
