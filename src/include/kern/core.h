@@ -19,6 +19,7 @@
 #ifndef __KERN_CORE_H
 #define __KERN_CORE_H
 
+void demand_key();
 void core_loop();
 
 #endif

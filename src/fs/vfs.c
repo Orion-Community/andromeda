@@ -53,64 +53,7 @@ int init_vfs(file *device, uint32_t inode)
   return -E_SUCCESS;
 }
 
-void cleanup_parsed_path(char **path, uint32_t path_entries)
-{
-  if (path == NULL)
-    return;
-  uint32_t idx = 0;
-  for (; idx < path_entries; idx++)
-  {
-    if (path[idx] != NULL)
-      free(path[idx]);
-  }
-  free (path);
-}
 
-char** parse_path(char* path, char** buffer, uint32_t buffer_size)
-{
-  int i = 0;
-  int j = 0;
-  int k = 0;
-  int escaped = 0;
-  char* element = kalloc(MAX_NAME_LENGTH);
-  memset(element, 0, MAX_NAME_LENGTH);
-  for (; i < buffer_size; i++)
-  {
-    for (j = 0; j < 0xff; j++, k++)
-    {
-      switch(path[k])
-      {
-      case '\\':
-        if (escaped == 1)
-          element[j] = '\\';
-        else
-          escaped = 1;
-        break;
-      case '/':
-        if (escaped == 1)
-        {
-          escaped = 0;
-          element[j] = '/';
-        }
-        else
-          goto next_element;
-        break;
-      case '\0':
-        goto last_element;
-      default:
-        element[j] = path[k];
-        break;
-      }
-    }
-  next_element:
-    buffer[i] = element;
-    element = kalloc(MAX_NAME_LENGTH);
-    memset(element, 0, MAX_NAME_LENGTH);
-  }
-last_element:
-  buffer[i] = element;
-  return buffer;
-}
 
 int make_dir(char* path, char* name)
 {
