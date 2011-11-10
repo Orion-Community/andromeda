@@ -21,7 +21,9 @@
 
 #include <fs/file.h>
 
-#define MAX_NAME_LENGTH 0xff
+#define MAX_NAME_LENGTH         0xff
+#define VFS_DIR_ENTRIES         0x20
+#define VFS_FILE_ENTRIES        VFS_DIR_ENTRIES
 
 struct __DIR_ENTRY
 {
@@ -37,7 +39,7 @@ struct __FILE_ENTRY
 
 struct __DIR_ENTRIES
 {
-  struct __DIR_ENTRY entries[0x20];
+  struct __DIR_ENTRY entries[VFS_DIR_ENTRIES];
 
   struct __DIR_ENTRIES *next;
   struct __DIR_ENTRIES *prev;
@@ -45,7 +47,7 @@ struct __DIR_ENTRIES
 
 struct __FILE_ENTRIES
 {
-  struct __FILE_ENTRY entries[0x20];
+  struct __FILE_ENTRY entries[VFS_FILE_ENTRIES];
 
   struct __FILE_ENTRIES *next;
   struct __FILE_ENTRIES *prev;
@@ -63,5 +65,8 @@ struct __DIR
 typedef struct __DIR directory;
 
 extern directory *root;
+
+void cleanup_parsed_path(char **path, uint32_t path_entries);
+char** parse_path(char* path, char** buffer, uint32_t buffer_size);
 
 #endif

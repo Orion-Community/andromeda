@@ -57,6 +57,25 @@ void stream_test()
   stream_close(test);
 }
 
+void path_test()
+{
+  char* path = "/home/bemk";
+  char **parsed = kalloc(0xff*sizeof(char*));
+  memset(parsed, 0, 0xff*sizeof(char*));
+  parse_path(path, parsed, 0xff);
+
+  int idx = 0;
+  for (; idx < 0xff; idx++)
+  {
+    if (parsed[idx] != NULL)
+    {
+      printf("Node: %s\n", parsed[idx]);
+    }
+  }
+  cleanup_parsed_path(parsed, 0xff);
+  return;
+}
+
 extern uint32_t key_pressed;
 
 void demand_key()
@@ -85,6 +104,9 @@ void core_loop()
 #ifdef STREAM_DBG
         demand_key();
         stream_test();
+        demand_key();
+        path_test();
+        
         init_set(RL_RUN1);
 #endif
       case RL_RUN1:

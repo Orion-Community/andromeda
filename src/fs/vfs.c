@@ -53,6 +53,19 @@ int init_vfs(file *device, uint32_t inode)
   return -E_SUCCESS;
 }
 
+void cleanup_parsed_path(char **path, uint32_t path_entries)
+{
+  if (path == NULL)
+    return;
+  uint32_t idx = 0;
+  for (; idx < path_entries; idx++)
+  {
+    if (path[idx] != NULL)
+      free(path[idx]);
+  }
+  free (path);
+}
+
 char** parse_path(char* path, char** buffer, uint32_t buffer_size)
 {
   int i = 0;
