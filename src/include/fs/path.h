@@ -26,4 +26,7 @@ struct __PATH_ELEMENT
   uint8_t cursor;
 };
 
+void clean_path(struct __PATH_ELEMENT* elements);
+struct __PATH_ELEMENT *parse_path(char* path);
+
 #endif

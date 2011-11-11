@@ -20,6 +20,7 @@
 #include <kern/core.h>
 #include <kern/sched.h>
 #include <fs/stream.h>
+#include <fs/path.h>
 
 #define RL_BOOT     0x0
 #define RL_SHUTDOWN 0x1
@@ -58,6 +59,18 @@ void stream_test()
   stream_close(test);
 }
 
+void path_test()
+{
+  char* path = "/proc/1";
+  struct __PATH_ELEMENT *path_list = parse_path(path);
+  struct __PATH_ELEMENT *carriage = path_list;
+  for (; carriage != NULL; carriage = carriage->next)
+  {
+    printf("Element text: %s\n", carriage->name);
+  }
+  clean_path(path_list);
+}
+
 extern uint32_t key_pressed;
 
 void demand_key()
@@ -87,7 +100,7 @@ void core_loop()
         demand_key();
         stream_test();
         demand_key();
-
+        path_test();
         init_set(RL_RUN1);
 #endif
       case RL_RUN1:
