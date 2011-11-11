@@ -24,6 +24,8 @@
 #define IRQ_H
 
 #define MAX_IRQ_NUM 255
+#define MAX_ISA_IRQ_NUM 0x10
+#define MAX_ISA_IRQ_NUM 0x10
 
 struct irq_data
 {
@@ -34,6 +36,8 @@ struct irq_data
 };
 
 extern struct irq_data irq_data[MAX_IRQ_NUM];
+extern uint32_t irqs[MAX_ISA_IRQ_NUM];
+
 /*
  * Interrupt headers
  */
@@ -73,7 +77,14 @@ init_irq_data()
   memset(irq_data, 0, sizeof(*irq_data)*MAX_IRQ_NUM);
 }
 
+static inline uint32_t
+get_isa_irq_vector
+{
+  return irqs[x];
+}
+
 void dbg_irq_data(void);
+static void __list_all_irqs();
 
 struct irq_cfg
 {

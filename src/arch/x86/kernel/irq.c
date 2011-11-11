@@ -31,6 +31,7 @@ uint64_t pit_timer = 0;
 uint64_t sleepTime = 0;
 bool isSleeping = FALSE;
 struct irq_data irq_data[MAX_IRQ_NUM];
+uint32_t irqs[MAX_ISA_IRQ_NUM];
 
 void cIRQ0(ol_irq_stack_t regs)
 {
@@ -138,13 +139,44 @@ void cIRQ15(ol_irq_stack_t regs)
   return;
 }
 
-void
-setup_irq_data(void)
-{}
+static void
+__list_all_irqs()
+{
+  irqs[0] = (uint32_t)&irq0;
+  irqs[1] = (uint32_t)&irq1;
+  irqs[2] = (uint32_t)&irq2;
+  irqs[3] = (uint32_t)&irq3;
+  irqs[4] = (uint32_t)&irq4;
+  irqs[5] = (uint32_t)&irq5;
+  irqs[6] = (uint32_t)&irq6;
+  irqs[7] = (uint32_t)&irq7;
+  irqs[8] = (uint32_t)&irq8;
+  irqs[9] = (uint32_t)&irq9;
+  irqs[10] = (uint32_t)&irq10;
+  irqs[11] = (uint32_t)&irq11;
+  irqs[12] = (uint32_t)&irq12;
+  irqs[13] = (uint32_t)&irq13;
+  irqs[14] = (uint32_t)&irq14;
+  irqs[15] = (uint32_t)&irq15;
+}
 
 void
-setup_isr_data(void)
-{}
+setup_irq_data(void)
+{
+  __list_all_irqs();
+  int i = 0;
+  uint16_t entry;
+  for(; i < 16; i++)
+  {
+    entry = i + 0x20;
+    struct irq_data *data = &irq_data[entry];
+    data->irq_base = get_isa_irq_vector(i);
+    data->irq = entry;
+    data->irq_config = kalloc(sizeof(struct irq_cfg));
+    data->irq_config->vector = (uint16_t)entry;
+    install_irq_vector(data);
+  }
+}
 
 void dbg_irq_data(void)
 {
