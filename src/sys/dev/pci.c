@@ -19,8 +19,10 @@
 #include <stdlib.h>
 
 #include <mm/heap.h>
+#include <mm/map.h>
 
 #include <sys/dev/pci.h>
+#include <arch/x86/apic/msi.h>
 
 struct ol_pci_node* pcidevs;
 
@@ -266,20 +268,15 @@ debug_pci_print_cp_list(struct ol_pci_dev * dev)
   for(; cp != 0x0; cp = (cp_list>>8)&0xff, cp_list =
       ol_pci_read_dword(dev, (uint16_t)cp&0xff))
   {
-    if((cp_list & 0xff) == 0x5)
+    if((cp_list & 0xff) == 0x11)
     {
-      ol_pci_write_dword(dev, ((uint16_t)cp)+0x4, 0xfee00000);
-      addr_t  addr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4);
-      printf("Found correct cp at 0x%x at address 0x%x\n",
-          cp_list, addr);
+      msi_create_msix_entry(dev, cp);
     }
     else
       continue;
   }
 }
-#endif
 
-#ifdef __PCI_DEBUG
 static void
 debug_pci_list()
 {
@@ -295,4 +292,5 @@ debug_pci_list()
       break;
   }
 }
+
 #endif
