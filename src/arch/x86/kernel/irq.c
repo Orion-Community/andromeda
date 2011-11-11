@@ -169,13 +169,14 @@ setup_irq_data(void)
   for(; i < 16; i++)
   {
     entry = i + 0x20;
-    struct irq_data *data = &irq_data[entry];
+    struct irq_data *data = get_irq_data(entry);
     data->irq_base = get_isa_irq_vector(i);
     data->irq = entry;
     data->irq_config = kalloc(sizeof(struct irq_cfg));
     data->irq_config->vector = (uint16_t)entry;
     install_irq_vector(data);
   }
+  printf("Entry 2 vector: %x\n", get_irq_cfg(0x21)->vector);
 }
 
 void dbg_irq_data(void)

@@ -78,7 +78,7 @@ init_irq_data()
 }
 
 static inline uint32_t
-get_isa_irq_vector
+get_isa_irq_vector(uint32_t x)
 {
   return irqs[x];
 }

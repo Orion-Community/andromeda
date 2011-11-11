@@ -96,7 +96,7 @@ void setIDT()
   memset(idt->baseptr, 0, idt->limit);
 
   installExceptions(idt);
-  installInterrupts(0x20, 0x28, idt);
+  //installInterrupts(0x20, 0x28, idt);
 
   installIDT(idt);
   
@@ -150,8 +150,7 @@ install_irq_vector(struct irq_data *data)
   if(entry != -1)
   {
     ol_idt_t idt = (ol_idt_t)get_idt();
-    if(data->irq_config->vector <= 0x28)
-      return -1;
+
     ol_idt_install_entry(entry, data->irq_base, 0x8, IDT_PRESENT_BIT | IDT_INTERRUPT_GATE,
                          idt);
     installIDT(idt);
