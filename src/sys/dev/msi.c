@@ -48,6 +48,16 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
   return 0;
 }
 
+void
+setup_msi_entry(struct ol_pci_dev *dev, uint8_t cp)
+{
+#ifdef MSIX
+  uint8_t msix = (uint8_t)(ol_pci_read_dword(dev, cp) & 0xff);
+  printf("%x\n", msix);
+  __msi_create_msix_entry(dev, cp);
+#endif
+}
+
 #ifdef MSIX
 void
 msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)

@@ -270,7 +270,7 @@ debug_pci_print_cp_list(struct ol_pci_dev * dev)
   {
     if((cp_list & 0xff) == 0x11)
     {
-      msi_create_msix_entry(dev, cp);
+      setup_msi_entry(dev, cp);
     }
     else
       continue;

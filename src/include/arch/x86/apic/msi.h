@@ -33,6 +33,10 @@
 #define MSI_UPPER_ADDR(x) ((x)+8)
 #define MSI_MESSAGE_DATA(x,y) (y)?((x)+12):((x)+8)
 
+#define MSI_VECTOR_SHIFT 0
+#define MSI_VECTOR_DATA(x) (((x) << MSI_VECTOR_SHIFT) & MSI_VECTOR_MASK)
+#define MSI_VECTOR_MASK 0xff
+
 /* MSIX definitions */
 #define MSIX_BAR(index) ((4*(index))+0x10)
 #define MSIX_ENTRY_SIZE 16
@@ -81,6 +85,7 @@ static volatile void *msi_calc_msix_base(struct ol_pci_dev *, uint8_t);
 static int __msi_write_message(struct msi_cfg *, struct msi *);
 void msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp);
 static void msi_enable_msix_entry(struct msi_cfg *, int);
+void setup_msi_entry(struct ol_pci_dev *, uint8_t);
 
 #ifdef MSIX_DEBUG
 static void debug_msix_entry(struct msi_cfg *, struct msi *);
