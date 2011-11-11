@@ -56,7 +56,10 @@ struct __PATH_ELEMENT *parse_path(char* path)
     {
       case '\\':
         if (escaped)
+        {
           add_character(carriage, '\\');
+          escaped = FALSE;
+        }
         else
           escaped = TRUE;
         break;
@@ -73,9 +76,11 @@ struct __PATH_ELEMENT *parse_path(char* path)
           memset(carriage->next, 0, sizeof(struct __PATH_ELEMENT));
           carriage = carriage->next;
         }
+        escaped = FALSE;
         break;
       default:
         add_character(carriage, path[idx]);
+        escaped = FALSE;
     }
   }
   return list;
