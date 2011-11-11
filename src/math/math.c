@@ -83,7 +83,8 @@ int random()
   }
 }
 
-#define PI 3,141592653589793238462643383279502884197169399375105820974944592307816406286209 // Yes, I know the compiler will skip most of the decimals...
+#define PI (3,141592653589793238462643383279502884197169399375105820974944592307816406286209 // Yes, I know the compiler will skip most of the decimals...
+#define NAN (_Nan._Double)
 
 double sin(double x)
 {
@@ -325,6 +326,13 @@ long double tanl(long double x)
 	return sinl(x)/cosl(x);
 }
 
+double atanh(double x)
+{
+	if (abs(x)=>1)
+		return UNDEFINED;
+	return ln( (1+x) / (1-x) )/2;
+}
+
 double atan(double x)
 {
 	double ret = x,
@@ -371,6 +379,21 @@ long double atanl(long double x)
 		ret += lastRet;
 	}
 	return ret;
+}
+
+double tanh(double x)
+{
+	return sinh(x)/cosh(x);
+}
+
+float tanh(float x)
+{
+	return sinhf(x)/coshf(x);
+}
+
+long double tanhl(long double x)
+{
+	return sinhl(x)/coshl(x);
 }
 
 double exp(double n) //An other beatyfull taylor polynominal

@@ -45,7 +45,7 @@ long double asinhl(long double x);
 
 double cos(double x);
 float cosf(float x);
-long double cosl(long double x);cos
+long double cosl(long double x);
 
 double acos(double x);
 float acosf(float x);
@@ -66,9 +66,7 @@ long double tanl(long double x);
 double atan(double x);
 float atanf(float x);
 long double atanl(long double x);
-/* 
- * Still need to be made:
- * 
+
 double tanh(double x);
 float tanhf(float x);
 long double tanhl(long double x);
@@ -76,7 +74,7 @@ long double tanhl(long double x);
 double atanh(double x);
 float atanhf(float x);
 long double atanhl(long double x);
-*/
+
 double exp(double x);
 float expf(float x);
 long double expl(long double x);
