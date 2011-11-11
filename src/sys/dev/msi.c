@@ -29,7 +29,8 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
   if(cfg->attrib.is_msix)
   {
     writel(cfg->attrib.base + MSIX_LOW_ADDR, msi->addr);
-    writel(cfg->attrib.base + MSIX_UPPER_ADDR, msi->addr_hi);
+    if(cfg->attrib.is_64)
+      writel(cfg->attrib.base + MSIX_UPPER_ADDR, msi->addr_hi);
     writel(cfg->attrib.base + MSIX_MESSAGE_DATA, msi->message);
   }
   else
@@ -45,6 +46,16 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
       ol_pci_write_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,0),msi->message);
   }
   return 0;
+}
+
+void
+setup_msi_entry(struct ol_pci_dev *dev, uint8_t cp)
+{
+#ifdef MSIX
+  uint8_t msix = (uint8_t)(ol_pci_read_dword(dev, cp) & 0xff);
+  printf("%x\n", msix);
+  __msi_create_msix_entry(dev, cp);
+#endif
 }
 
 #ifdef MSIX

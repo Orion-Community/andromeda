@@ -24,15 +24,25 @@
 #define IRQ_H
 
 #define MAX_IRQ_NUM 255
+#define MAX_ISA_IRQ_NUM 0x10
+#define MAX_ISA_IRQ_NUM 0x10
 
+/*
+ * An IRQ is the index number of the IRQ (eg irq 0 is the timer by default).
+ * The irq vector is a the index number of the idt for that irq. So IRQ ==
+ * vector might not be true.
+ */
 struct irq_data
 {
-  uint32_t irq_num;
+  uint32_t irq;
+  uint32_t irq_base;
 
   struct irq_cfg *irq_config;
 };
 
 extern struct irq_data irq_data[MAX_IRQ_NUM];
+extern uint32_t irqs[MAX_ISA_IRQ_NUM];
+
 /*
  * Interrupt headers
  */
@@ -72,6 +82,15 @@ init_irq_data()
   memset(irq_data, 0, sizeof(*irq_data)*MAX_IRQ_NUM);
 }
 
+static inline uint32_t
+get_isa_irq_vector(uint32_t x)
+{
+  return irqs[x];
+}
+
+void dbg_irq_data(void);
+static void __list_all_irqs();
+
 struct irq_cfg
 {
   union
@@ -85,8 +104,6 @@ struct irq_cfg
   
   int vector : 8;
   int delivery_mode : 3;
-  int reserved : 3;
-  int trigger_level : 1; /* indicates the state of level triggered interrupts */
   int trigger: 1;
 };
 

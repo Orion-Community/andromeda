@@ -16,6 +16,10 @@
 ;    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;
 
+[SECTION .bss]
+  idt_ptr resq 1
+
+[SECTION .text]
 [GLOBAL installIDT]
 installIDT:
 	push ebp
@@ -26,3 +30,14 @@ installIDT:
 
 	pop ebp
 	ret
+
+[GLOBAL get_idt]
+get_idt:
+  push ebp
+  mov ebp, esp
+
+  sidt [idt_ptr]
+  mov eax, idt_ptr
+  
+  pop ebp
+  ret
