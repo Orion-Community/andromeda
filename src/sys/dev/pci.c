@@ -46,13 +46,14 @@ ol_pci_iterate(ol_pci_iterate_dev_t dev)
           continue;
 
         if (dev->hook != NULL)
-          if (dev->hook(dev)) return;
+          if (dev->hook(dev)) return 0;
 
         if (dev->func == 0)
           if (!ol_pci_is_mf(dev)) break;
       }
     }
   }
+  return -1;
 }
 
 static int
@@ -192,6 +193,7 @@ print_pci_dev(uint16_t class, uint16_t subclass)
     case 0x2:
       if (!subclass)
         printf("PCI: Found ethernet controller\n");
+      break;
 
     case 0x3:
       if (!subclass)
@@ -228,7 +230,7 @@ __ol_pci_read_byte(ol_pci_addr_t addr, uint16_t reg)
 {
   register uint8_t ret;
   outl(OL_PCI_CONFIG_ADDRESS, addr & ~3);
-  ret = inb(OL_PCI_CONFIG_DATA + (reg & 3));
+  ret = inb(OL_PCI_CONFIG_DATA + (reg & ~3));
   return ret;
 }
 
@@ -239,6 +241,44 @@ ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg)
                                                       reg));
 }
 
+static void 
+__ol_pci_write_dword(ol_pci_addr_t addr, uint32_t data)
+{
+  outl(OL_PCI_CONFIG_ADDRESS, addr);
+  outl(OL_PCI_CONFIG_DATA, data);
+}
+  
+inline void 
+ol_pci_write_dword(struct ol_pci_dev* dev, uint16_t reg, 
+                                 uint32_t data)
+{
+  ol_pci_addr_t addr = ol_pci_calculate_address((ol_pci_iterate_dev_t)dev, reg);
+  __ol_pci_write_dword(addr, data);
+}
+
+#ifdef __PCI_DEBUG
+static void
+debug_pci_print_cp_list(struct ol_pci_dev * dev)
+{
+  uint32_t cp = ol_pci_read_dword(dev, 0x34); /* value of the current pointer */
+  uint32_t cp_list = ol_pci_read_dword(dev, (uint16_t)cp&0xff); /* cp_list data */
+  cp = (cp_list>>8)&0xff;
+  for(; cp != 0x0; cp = (cp_list>>8)&0xff, cp_list =
+      ol_pci_read_dword(dev, (uint16_t)cp&0xff))
+  {
+    if((cp_list & 0xff) == 0x5)
+    {
+      ol_pci_write_dword(dev, ((uint16_t)cp)+0x4, 0xfee00000);
+      addr_t  addr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4);
+      printf("Found correct cp at 0x%x at address 0x%x\n",
+          cp_list, addr);
+    }
+    else
+      continue;
+  }
+}
+#endif
+
 #ifdef __PCI_DEBUG
 static void
 debug_pci_list()
@@ -246,7 +286,11 @@ debug_pci_list()
   struct ol_pci_node *node;
   for(node = pcidevs; node != NULL, node != node->next; node = node->next)
   {
-    print_pci_dev(node->dev->class, node->dev->subclass);
+    //print_pci_dev(node->dev->class, node->dev->subclass);
+    if(node->dev->class == 0x2)
+    {
+      debug_pci_print_cp_list(node->dev);
+    }
     if(node->next == NULL)
       break;
   }

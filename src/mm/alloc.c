@@ -78,8 +78,8 @@ void*
 nalloc(size_t size)
 {
   void* tmp = alloc(size, FALSE);
-  if (tmp != NULL);
-  memset(tmp, 0, size);
+  if (tmp != NULL)
+    memset(tmp, 0, size);
   return tmp;
 }
 
@@ -443,6 +443,7 @@ splitMul(volatile memory_node_t* block, size_t size, boolean pageAlligned)
      */
     return split(block, size);
   }
+  return NULL;
 }
 
 static volatile memory_node_t*

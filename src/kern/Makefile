@@ -5,12 +5,13 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 ELF=elf.c exec.c
 TIMER=timer.c
 SCHED=sched.c
+CORE=core.c
 
 .PHONY: all
 all: kern.o
 	mv -fv kern.o ../
 
-kern.o: load.o timer.o sched.o
+kern.o: load.o timer.o sched.o core.o
 	$(LD) $(LDFLAGS) *.o -o kern.o
 
 load.o: $(ELF)
@@ -21,6 +22,9 @@ timer.o: $(TIMER)
 
 sched.o: $(SCHED)
 	$(CC) $(CFLAGS) $(FLAGS) $(SCHED)
+
+core.o: $(CORE)
+	$(CC) $(CFLAGS) $(FLAGS) $(CORE)
 
 .PHONY: clean
 clean:

@@ -18,6 +18,8 @@
 
 #include <stdlib.h>
 
+#include <mm/map.h>
+
 #include <arch/x86/acpi/acpi.h>
 #include <arch/x86/apic/ioapic.h>
 #include <arch/x86/apic/msi.h>
@@ -34,6 +36,7 @@ create_ioapic (ol_madt_ioapic_t madt_io)
     goto nomem;
   else
   {
+    page_map_kernel_entry(madt_io->address, madt_io->address);
     io->address = (ioapic_addr_t*) madt_io->address;
     io->int_base = madt_io->global_system_interrupt_base;
     io->id = madt_io->id;

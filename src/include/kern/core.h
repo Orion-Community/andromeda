@@ -16,24 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __ERROR_ERROR_H
-#define __ERROR_ERROR_H
+#ifndef __KERN_CORE_H
+#define __KERN_CORE_H
 
-#define E_SUCCESS       0x0
-
-#define E_NOMEM         0x1
-#define E_NOFUNCTION    0x2
-#define E_UNFINISHED    0x3
-
-#define E_PAGE_MAPPING  0x4
-#define E_PAGE_NORIGHTS 0x5
-#define E_PAGE_NOPAGE   0x6
-#define E_PAGE_NOMEM    0x7
-
-#define E_BMP_NOMAP     0x8
-#define E_BMP_NOLIST    0x9
-#define E_BMP_NOIDX     0xA
-#define E_BMP_NOMEM     0xB
-#define E_BMP_CORRUPT   0xC
+void core_loop();
 
 #endif

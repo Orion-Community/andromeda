@@ -38,13 +38,13 @@ ol_cpu_search_signature(void* mem, uint32_t c)
 int
 ol_get_system_tables()
 { /* get the ebda pointer */
-  if(systables->magic != ANDROMEDA_MAGIC)
+  if((systables->magic ^ ANDROMEDA_MAGIC) != 0)
   {
     systables = kalloc(sizeof(*systables));
   }
   else
   {
-    if(systables->flags) return;
+    if(systables->flags) return -1;
   }
   
   systables->rsdp = NULL;
@@ -63,6 +63,7 @@ ol_get_system_tables()
   ol_cpu_search_signature((void*) 0xe0000, 0x20000);
   systables->magic = ANDROMEDA_MAGIC;
   systables->flags |= 1;
+  return 0;
 }
 
 static uint8_t
@@ -91,7 +92,7 @@ ol_validate_table(uint8_t* table)
       {
         checksum += *(table + i);
       }
-      if (!checksum);
+      if (!checksum)
         systables->smbios = (void*)table;
     }
   }

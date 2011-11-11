@@ -64,7 +64,7 @@ extern "C"
     int (*hook)(struct ol_pci_iterate_dev*);
   } *ol_pci_iterate_dev_t;
 
-  typedef struct ol_pci_dev
+  struct ol_pci_dev
   {
     uint32_t func; /* device function */
     uint32_t device; /* device type */
@@ -74,10 +74,11 @@ extern "C"
     uint16_t class;
     uint16_t subclass;
     uint32_t flags; /*
-                         * bit 0: if set -> dev is mf
-                         */
+                     * bit 0: if set -> dev is mf
+                     */
     uint32_t (*read)(struct ol_pci_dev*, uint16_t);
-  } *ol_pci_dev_t;
+  };
+  typedef struct ol_pci_dev *ol_pci_dev_t;
   
   typedef struct ol_pci_node
   {
@@ -124,6 +125,25 @@ extern "C"
   
   inline uint32_t
   ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg);
+  
+  /**
+   * Inner dword write function.
+   * 
+   * @param addr PCI configuration space address.
+   * @param reg PCI configuration space register.
+   * @param data Data to write.
+   */
+  static void __ol_pci_write_dword(ol_pci_addr_t, uint32_t);
+  
+  /**
+   * Writes a 32-bit value to the specified register in the specified pci
+   * device.
+   * 
+   * @param addr PCI configuration space address.
+   * @param reg PCI configuration space register.
+   * @param data Data to write.
+   */
+  inline void ol_pci_write_dword(struct ol_pci_dev*, uint16_t, uint32_t);
   
   static void
   debug_pci_list();
