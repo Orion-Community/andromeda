@@ -28,13 +28,11 @@
 struct __DIR_ENTRY
 {
   char name[MAX_NAME_LENGTH];
-  struct __DIR *ptr;
-};
-
-struct __FILE_ENTRY
-{
-  char name[MAX_NAME_LENGTH];
-  file *ptr;
+  uint32_t entry_type;
+  union {
+    struct __DIR *d;
+    file *f;
+  };
 };
 
 struct __DIR_ENTRIES
@@ -45,21 +43,12 @@ struct __DIR_ENTRIES
   struct __DIR_ENTRIES *prev;
 };
 
-struct __FILE_ENTRIES
-{
-  struct __FILE_ENTRY entries[VFS_FILE_ENTRIES];
-
-  struct __FILE_ENTRIES *next;
-  struct __FILE_ENTRIES *prev;
-};
-
 struct __DIR
 {
   file *device;
   uint32_t inode;
 
-  struct __DIR_ENTRIES *directories;
-  struct __FILE_ENTRIES *files;
+  struct __DIR_ENTRIES *entries;
 };
 
 typedef struct __DIR directory;

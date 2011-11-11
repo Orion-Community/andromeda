@@ -31,29 +31,19 @@ int init_vfs(file *device, uint32_t inode)
   if (vroot == NULL)
     return -E_FS_INIT;
   memset(vroot, 0, sizeof(directory));
-  vroot->directories = kalloc(sizeof(struct __DIR_ENTRIES));
-  if (vroot->directories == NULL)
+  vroot->entries = kalloc(sizeof(struct __DIR_ENTRIES));
+  if (vroot->entries == NULL)
   {
     free(vroot);
     return -E_FS_INIT;
   }
-  vroot->files = kalloc(sizeof(struct __FILE_ENTRIES));
-  if (vroot->files == NULL)
-  {
-    free (vroot->directories);
-    free (vroot);
-    return -E_FS_INIT;
-  }
   vroot->device = NULL;
   vroot->inode = 0;
-  memset(vroot->files, 0, sizeof(struct __FILE_ENTRIES));
-  memset(vroot->directories, 0, sizeof(struct __DIR_ENTRIES));
+  memset(vroot->entries, 0, sizeof(struct __DIR_ENTRIES));
 
   root = vroot;
   return -E_SUCCESS;
 }
-
-
 
 int make_dir(char* path, char* name)
 {
