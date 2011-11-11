@@ -59,9 +59,9 @@ void stream_test()
   stream_close(test);
 }
 
-void path_test()
+void path_test(char *path)
 {
-  char* path = "/proc/1";
+  printf("Path: %s\n", path);
   struct __PATH_ELEMENT *path_list = parse_path(path);
   struct __PATH_ELEMENT *carriage = path_list;
   for (; carriage != NULL; carriage = carriage->next)
@@ -69,6 +69,7 @@ void path_test()
     printf("Element text: %s\n", carriage->name);
   }
   clean_path(path_list);
+  printf("\n");
 }
 
 extern uint32_t key_pressed;
@@ -100,7 +101,9 @@ void core_loop()
         demand_key();
         stream_test();
         demand_key();
-        path_test();
+        path_test("/proc/1");
+        path_test("./test.sh");
+        path_test("~/hello\\\\ world!");
         init_set(RL_RUN1);
 #endif
       case RL_RUN1:
