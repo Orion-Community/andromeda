@@ -42,6 +42,7 @@ volatile uint32_t rl = 0;
 
 void init_set(uint32_t i)
 {
+  printf("Changing run level to %i\n", i);
   rl = i;
 }
 
@@ -86,7 +87,7 @@ void core_loop()
         demand_key();
         stream_test();
         demand_key();
-        
+
         init_set(RL_RUN1);
 #endif
       case RL_RUN1:
