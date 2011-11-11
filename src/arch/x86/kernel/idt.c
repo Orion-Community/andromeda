@@ -125,7 +125,7 @@ get_empty_idt_entry_number()
   /*
    * An entry is defined as 'empty' when the 32-bits base and flags are 0.
    */
-  int i = 0x20; /* start after exceptions */
+  int i = IDT_VECTOR_OFFSET; /* start after exceptions */
   for(; i < idt->limit/sizeof(ol_idt_entry_t); i++)
   {
     uint32_t base = idt->baseptr[i].base_low | ((idt->baseptr[i].base_high) >> 16);
@@ -155,8 +155,9 @@ install_irq_vector(struct irq_data *data)
                          idt);
     installIDT(idt);
     
-    printf("IRQ base: %x | Next available entry: %x | Vector: %x\n", data->irq_base,
-           get_empty_idt_entry_number(), data->irq_config->vector);
+    printf("IRQ num: %i | IRQ base: %x | Next available entry: %x | Vector: %x\n",
+	   data->irq, data->irq_base, get_empty_idt_entry_number(),
+	   data->irq_config->vector);
     return 0;
   }
   else

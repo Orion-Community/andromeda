@@ -165,18 +165,18 @@ setup_irq_data(void)
 {
   __list_all_irqs();
   int i = 0;
-  uint16_t entry;
+  uint16_t vector;
   for(; i < 16; i++)
   {
-    entry = i + 0x20;
-    struct irq_data *data = get_irq_data(entry);
+    vector = i + IDT_VECTOR_OFFSET;
+    struct irq_data *data = get_irq_data(i);
     data->irq_base = get_isa_irq_vector(i);
-    data->irq = entry;
+    data->irq = i;
     data->irq_config = kalloc(sizeof(struct irq_cfg));
-    data->irq_config->vector = (uint16_t)entry;
+    data->irq_config->vector = (uint16_t)vector;
     install_irq_vector(data);
   }
-  printf("Entry 2 vector: %x\n", get_irq_cfg(0x21)->vector);
+  printf("Entry 2 vector: %x\n", get_irq_cfg(1)->vector);
 }
 
 void dbg_irq_data(void)
@@ -186,7 +186,7 @@ void dbg_irq_data(void)
   if(entry != -1)
   {
     data->irq_base = (uint32_t)&irq30;
-    data->irq = entry;
+    data->irq = 17;
     data->irq_config = kalloc(sizeof(struct irq_cfg));
     data->irq_config->vector = (uint16_t)entry;
     install_irq_vector(data);

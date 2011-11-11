@@ -27,6 +27,11 @@
 #define MAX_ISA_IRQ_NUM 0x10
 #define MAX_ISA_IRQ_NUM 0x10
 
+/*
+ * An IRQ is the index number of the IRQ (eg irq 0 is the timer by default).
+ * The irq vector is a the index number of the idt for that irq. So IRQ ==
+ * vector might not be true.
+ */
 struct irq_data
 {
   uint32_t irq;

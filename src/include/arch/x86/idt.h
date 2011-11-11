@@ -24,6 +24,7 @@
 
 #define IDT_PRESENT_BIT (1<<7)
 #define IDT_INTERRUPT_GATE 0xe
+#define IDT_VECTOR_OFFSET 0x20
 
 struct idtentry
 {
