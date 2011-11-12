@@ -182,7 +182,7 @@ setup_irq_data(void)
 void dbg_irq_data(void)
 {
   int entry = alloc_idt_entry();
-  struct irq_data *data = &irq_data[entry];
+  struct irq_data *data = &irq_data[17];
   if(entry != -1)
   {
     data->irq_base = (uint32_t)&irq30;
