@@ -47,18 +47,6 @@ void init_set(uint32_t i)
   rl = i;
 }
 
-void stream_test()
-{
-  stream *test = stream_open();
-  stream_write(test, "Hello streams!");
-  char *x = kalloc(sizeof("Hello streams!"));
-  stream_seek(test, 0, SEEK_SET);
-  stream_read(test, x, sizeof("Hello streams!"));
-  printf("Stream: %s\n", x);
-  free(x);
-  stream_close(test);
-}
-
 void path_test(char *path)
 {
   printf("Path: %s\n", path);
@@ -98,8 +86,6 @@ void core_loop()
 
       case RL_RUN0:
 #ifdef STREAM_DBG
-        demand_key();
-        stream_test();
         demand_key();
         path_test("/proc/1");
         path_test("./test.sh");

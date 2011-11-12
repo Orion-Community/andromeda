@@ -25,14 +25,24 @@
 #define VFS_DIR_ENTRIES         0x20
 #define VFS_FILE_ENTRIES        VFS_DIR_ENTRIES
 
+enum entry_type_t {DIR_TYPE, FILE_TYPE};
+
 struct __DIR_ENTRY
 {
   char name[MAX_NAME_LENGTH];
-  uint32_t entry_type;
+  enum entry_type_t type;
   union {
     struct __DIR *d;
-    file *f;
+    struct __VFS_FILE *f;
   };
+};
+
+struct __VFS_FILE
+{
+  file *device;
+  uint32_t inode;
+
+  file *cache;
 };
 
 struct __DIR_ENTRIES
