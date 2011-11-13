@@ -20,10 +20,10 @@
 #include <fs/stream.h>
 
 /**
- * stream_init_inode returns what should be the first node for the stream
+ * stream_init_node returns what should be the first node for the stream
  */
-struct _STREAM_NODE
-*stream_init_node(struct _STREAM_NODE *s, size_t size)
+struct __STREAM_NODE
+*stream_init_node(struct __STREAM_NODE *s, size_t size)
 {
   if (s == NULL)
     return NULL;
@@ -51,10 +51,10 @@ struct _STREAM_NODE
  * stream_close_node closes an individual node and returns the pointer to the
  * next node. The offsets aren't updated!!!
  */
-struct _STREAM_NODE
-*stream_close_node(struct _STREAM_NODE *s)
+struct __STREAM_NODE
+*stream_close_node(struct __STREAM_NODE *s)
 {
-  struct _STREAM_NODE *ret = s->next_node;
+  struct __STREAM_NODE *ret = s->next_node;
   free(s);
   return ret;
 }
@@ -63,14 +63,14 @@ struct _STREAM_NODE
  * stream_append_node appends a node to the end of the list so the size of the
  * stream can be growed.
  */
-struct _STREAM_NODE
+struct __STREAM_NODE
 *stream_append_node(struct __STREAM_DATA *s, size_t size)
 {
-  struct _STREAM_NODE *carriage = s->data;
+  struct __STREAM_NODE *carriage = s->data;
   while (carriage->next_node != NULL)
     carriage = carriage->next_node;
 
-  struct _STREAM_NODE *tmp = kalloc(sizeof(struct _STREAM_NODE));
+  struct __STREAM_NODE *tmp = kalloc(sizeof(struct __STREAM_NODE));
   if (tmp == NULL)
     return NULL;
 
@@ -85,6 +85,7 @@ struct _STREAM_NODE
   tmp->end = (void*)((addr_t)tmp->base + size);
   memset(tmp->base, 0, size);
 
+
   carriage->next_node = tmp;
   return tmp;
 }
@@ -92,12 +93,12 @@ struct _STREAM_NODE
 /**
  * stream_find_node finds the node to go with the cursor location.
  */
-struct _STREAM_NODE
+struct __STREAM_NODE
 *stream_find_node(struct __STREAM_DATA *s, size_t offset)
 {
   if (s == NULL)
     return NULL;
-  struct _STREAM_NODE *carriage = s->data;
+  struct __STREAM_NODE *carriage = s->data;
   while (carriage->segment_offset + carriage->segment_size < offset)
   {
     carriage = carriage->next_node;
@@ -105,4 +106,31 @@ struct _STREAM_NODE
       return NULL;
   }
   return carriage;
+}
+
+stream* stream_open()
+{
+  stream* s = kalloc(sizeof(stream));
+  if (s == NULL)
+    goto no_clean_up;
+  memset(s, 0, sizeof(stream));
+
+  s->data = kalloc(sizeof(struct __STREAM_DATA));
+  if (s->data == NULL)
+    goto stream_clean_up;
+  memset(s->data, 0, sizeof(struct __STREAM_DATA));
+
+  s->data->size = DEFAULT_STREAM_SIZE;
+  s->data->data = kalloc(sizeof(struct __STREAM_NODE));
+  stream_init_node(s->data->data, DEFAULT_STREAM_SIZE);
+  
+
+  return s;
+
+data_clean_up:
+  free(s->data);
+stream_clean_up:
+  free(s);
+no_clean_up:
+  return NULL;
 }

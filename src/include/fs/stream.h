@@ -23,29 +23,30 @@
 
 #define EOF             0x19
 
-#define TYPE_DTND       0x001
-#define TYPE_LINK       0x002
-#define TYPE_CHAR       0x003
-#define TYPE_BLCK       0x004
-#define TYPE_PIPE       0x005
-#define TYPE_SOCK       0x006
+#define TYPE_CMMN       0x001 /* Common file type */
+#define TYPE_DIR        0x002 /* Directory file type */
+#define TYPE_LINK       0x003 /* Link file type */
+#define TYPE_CHAR       0x004 /* Character device file type */
+#define TYPE_BLCK       0x005 /* Block device file type */
+#define TYPE_PIPE       0x006 /* Pipe file type */
+#define TYPE_SOCK       0x007 /* Socket file type */
 
 enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
 
-struct _STREAM_NODE
+struct __STREAM_NODE
 {
   void *base;
   void *end;
   uint32_t segment_offset;
   uint32_t segment_size;
-  struct _STREAM_NODE *prev_node;
-  struct _STREAM_NODE *next_node;
+  struct __STREAM_NODE *prev_node;
+  struct __STREAM_NODE *next_node;
 };
 
 struct __STREAM_DATA
 {
   uint32_t size;
-  struct _STREAM_NODE *data;
+  struct __STREAM_NODE *data;
   struct __STREAM *next_stream;
   struct __STREAM *prev_stream;
   struct __STREAM *stream;
@@ -53,10 +54,12 @@ struct __STREAM_DATA
 
 struct __STREAM
 {
-  uint32_t start_cursor_low;
-  uint32_t start_cursor_hi;
-  uint32_t end_cursor_low;
-  uint32_t end_cursor_hi;
+  // 64 bits representation of the index at which the first legal data exists
+  uint32_t start_index_low;
+  uint32_t start_index_hi;
+  // 64 bits representation of the index at which the last legal data exists
+  uint32_t end_index_low;
+  uint32_t end_index_hi;
   uint32_t stream_type;
   struct __STREAM_DATA *data;
 };
