@@ -27,4 +27,5 @@ void panicDebug(char * msg, char* file, int line)
 void asm_panic(char* msg)
 {
   printf("Andromeda panic in assembly file!\n%s\n", msg);
+  endProg();
 }
