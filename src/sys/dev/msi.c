@@ -133,7 +133,6 @@ debug_msix_entry(struct msi_cfg *cfg, struct msi *msi)
   volatile void *base = cfg->attrib.base;
   //printf("test: 0x%x\n", irq);
   uint16_t msi_ctl = (ol_pci_read_dword(cfg->dev, (uint16_t)cfg->attrib.cpos) >> 16) & 0x3ff;
-  /* write and read back */
 
   printf("Found MSI-X entry; msg_addr: 0x%x; vector_ctrl: %i; cfg_space_size: %i\n",
       readl(base), readl(base+12), (msi_ctl+1)/4);
