@@ -23,6 +23,13 @@
 
 #define EOF             0x19
 
+#define TYPE_DTND       0x001
+#define TYPE_LINK       0x002
+#define TYPE_CHAR       0x003
+#define TYPE_BLCK       0x004
+#define TYPE_PIPE       0x005
+#define TYPE_SOCK       0x006
+
 enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
 
 struct _STREAM_NODE
@@ -35,13 +42,23 @@ struct _STREAM_NODE
   struct _STREAM_NODE *next_node;
 };
 
-struct __STREAM
+struct __STREAM_DATA
 {
   uint32_t size;
-  uint32_t cursor;
   struct _STREAM_NODE *data;
   struct __STREAM *next_stream;
   struct __STREAM *prev_stream;
+  struct __STREAM *stream;
+};
+
+struct __STREAM
+{
+  uint32_t start_cursor_low;
+  uint32_t start_cursor_hi;
+  uint32_t end_cursor_low;
+  uint32_t end_cursor_hi;
+  uint32_t stream_type;
+  struct __STREAM_DATA *data;
 };
 
 typedef struct __STREAM stream;

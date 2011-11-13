@@ -34,19 +34,11 @@
 #define ALL_WRITE       0X080
 #define ALL_EXECUTE     0x100
 
-#define TYPE_DTND       0x001
-#define TYPE_LINK       0x002
-#define TYPE_CHAR       0x003
-#define TYPE_BLCK       0x004
-#define TYPE_PIPE       0x005
-#define TYPE_SOCK       0x006
-
 struct __FILE
 {
   char *path;
   stream *data;
   uint16_t file_rights;
-  uint16_t file_type;
   uint32_t stream_idx;
   uint32_t stream_cursor;
 };
