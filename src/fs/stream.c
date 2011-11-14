@@ -25,21 +25,14 @@
 struct __STREAM_NODE
 *stream_init_node(struct __STREAM_NODE *s, size_t size)
 {
-  if (s == NULL)
+  if (s == NULL || size == 0)
     return NULL;
-  else if (size == 0)
-  {
-    s->base = NULL;
-    s->end = NULL;
-    s->segment_offset = 0;
-    s->segment_size = 0;
-    return s;
-  }
   s->base = kalloc(size);
   if (s->base == NULL)
     return NULL;
   s->end = (void*)((addr_t)s->base+size);
-  s->segment_offset = 0;
+  s->segment_base_hi = 0;
+  s->segment_base_lo = 0;
   s->segment_size = size;
 
   char* buffer = (char*)s->base;
@@ -64,7 +57,7 @@ struct __STREAM_NODE
  * stream can be growed.
  */
 struct __STREAM_NODE
-*stream_append_node(struct __STREAM_DATA *s, size_t size)
+*stream_append_node(stream *s, size_t size)
 {
   struct __STREAM_NODE *carriage = s->data;
   while (carriage->next_node != NULL)
@@ -74,7 +67,8 @@ struct __STREAM_NODE
   if (tmp == NULL)
     return NULL;
 
-  tmp->segment_offset = carriage->segment_offset + carriage->segment_size;
+  tmp->segment_base = carriage->segment_base + carriage->segment_size;
+
   tmp->segment_size = size;
   tmp->base = kalloc(size);
   if (tmp->base == NULL)
@@ -91,10 +85,10 @@ struct __STREAM_NODE
 }
 
 /**
- * stream_find_node finds the node to go with the cursor location.
+ * stream_find_node finds the node to go with the requested location.
  */
 struct __STREAM_NODE
-*stream_find_node(struct __STREAM_DATA *s, size_t offset)
+*stream_find_node(stream *s, size_t offset)
 {
   if (s == NULL)
     return NULL;
@@ -106,31 +100,4 @@ struct __STREAM_NODE
       return NULL;
   }
   return carriage;
-}
-
-stream* stream_open()
-{
-  stream* s = kalloc(sizeof(stream));
-  if (s == NULL)
-    goto no_clean_up;
-  memset(s, 0, sizeof(stream));
-
-  s->data = kalloc(sizeof(struct __STREAM_DATA));
-  if (s->data == NULL)
-    goto stream_clean_up;
-  memset(s->data, 0, sizeof(struct __STREAM_DATA));
-
-  s->data->size = DEFAULT_STREAM_SIZE;
-  s->data->data = kalloc(sizeof(struct __STREAM_NODE));
-  stream_init_node(s->data->data, DEFAULT_STREAM_SIZE);
-  
-
-  return s;
-
-data_clean_up:
-  free(s->data);
-stream_clean_up:
-  free(s);
-no_clean_up:
-  return NULL;
 }

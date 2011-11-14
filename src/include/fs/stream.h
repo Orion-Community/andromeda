@@ -37,31 +37,20 @@ struct __STREAM_NODE
 {
   void *base;
   void *end;
-  uint32_t segment_offset;
+  uint64_t segment_base;
   uint32_t segment_size;
   struct __STREAM_NODE *prev_node;
   struct __STREAM_NODE *next_node;
 };
 
-struct __STREAM_DATA
+struct __STREAM
 {
   uint32_t size;
   struct __STREAM_NODE *data;
-  struct __STREAM *next_stream;
-  struct __STREAM *prev_stream;
-  struct __STREAM *stream;
-};
 
-struct __STREAM
-{
-  // 64 bits representation of the index at which the first legal data exists
-  uint32_t start_index_low;
-  uint32_t start_index_hi;
-  // 64 bits representation of the index at which the last legal data exists
-  uint32_t end_index_low;
-  uint32_t end_index_hi;
-  uint32_t stream_type;
-  struct __STREAM_DATA *data;
+  uint64_t base_index;
+
+  uint32_t stream_size;
 };
 
 typedef struct __STREAM stream;
