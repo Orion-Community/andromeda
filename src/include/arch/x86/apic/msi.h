@@ -33,6 +33,25 @@
 #define MSI_UPPER_ADDR(x) ((x)+8)
 #define MSI_MESSAGE_DATA(x,y) (y)?((x)+12):((x)+8)
 
+/* Message shift defines */
+#define MSI_VECTOR_SHIFT 0
+#define MSI_VECTOR_DATA(x) (((x) & MSI_VECTOR_MASK) << MSI_VECTOR_SHIFT)
+#define MSI_VECTOR_MASK 0xff
+
+#define MSI_DELIVERY_MODE_SHIFT 8
+#define MSI_DELIVERY_MODE_DATA(x) (((x) & MSI_DELIVERY_MODE_MASK) << \
+                                            MSI_DELIVERY_MODE_SHIFT)
+#define MSI_DELIVERY_MODE_MASK 7                                            
+
+#define MSI_TRIGGER_LEVEL_SHIFT 14
+#define MSI_TRIGGER_LEVEL_DATA(x) (((x) & MSI_TRIGGER_LEVEL_MASK) << \
+                                            MSI_TRIGGER_LEVEL_SHIFT)
+#define MSI_TRIGGER_LEVEL_MASK 1
+
+#define MSI_TRIGGER_SHIFT 15
+#define MSI_TRIGGER_DATA(x) (((x) & MSI_TRIGGER_MASK) << MSI_TRIGGER_SHIFT)
+#define MSI_TRIGGER_MASK 1
+
 /* MSIX definitions */
 #define MSIX_BAR(index) ((4*(index))+0x10)
 #define MSIX_ENTRY_SIZE 16
@@ -46,51 +65,51 @@ struct msi_attribute
 {
   int is_64 : 1; /* 0 -> 32 bit addr bus, 1 -> 64 bit */
   int is_msix : 1; /* 0 -> no msix, 1 -> msi-x available */
+  uint8_t multiple : 3;
   int enabled : 1; /* 0 -> not enabled, 1 -> enabled (i.e. can send interrupts) */
   uint8_t cpos; /* position in the capabilities list */
   
-  union { volatile void *base; uint8_t base_mask; };
-  struct ol_pci_dev *dev;
-} __attribute__((packed));
-
-struct msi_address
-{
-//   int reserved : 2;
-//   int dest_mode : 1;
-//   int redir_hint : 1;
-//   int reserved2 : 8;
-//   int dest_id : 8;
-//   int addr_base : 12;
-  uint32_t addr_low;
-  uint32_t addr_hi;
+  union { 
+    volatile void *base; 
+    uint8_t mask_position; 
+  };
 } __attribute__((packed));
 
 struct msi
 {
-  int vector : 8;
-  int delivery_mode : 3;
-  int reserved : 3;
-  int trigger_level : 1;
-  int trigger: 1;
-  uint64_t reserved2 : 48;
-  struct msi_address addr;
-  struct msi_attribute attrib;
+  uint32_t addr;
+  uint32_t addr_hi;
+  struct msi_msg
+  {
+    int vector : 8;
+    int dm : 3;
+    int trig_lvl : 1;
+    int trigger : 1;
+  } msg;
 } __attribute__((packed));
-typedef struct msi *msi_msg;
+
+struct msi_cfg
+{
+  struct msi_attribute attrib;
+  struct ol_pci_dev * dev;
+  struct msi *msi;
+  int masked : 1;
+  uint32_t irq;
+} __attribute__((packed));
 
 /*
  * Setup an MSI driven irq.
  */
 static int __msi_create_msix_entry(struct ol_pci_dev*, uint8_t);
 static volatile void *msi_calc_msix_base(struct ol_pci_dev *, uint8_t);
+static uint32_t msi_convert_message(struct msi_msg *msg);
+static int __msi_write_message(struct msi_cfg *, struct msi *);
 void msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp);
-static uint32_t msi_get_msg_data(struct msi *);
-static void msi_enable_msix_entry(struct msi *, int);
-static struct msi* msi_resize_msi_data(struct msi *);
-static void msi_add_config_data(struct msi *, uint32_t);
+static void msi_enable_msix_entry(struct msi_cfg *, int);
+void setup_msi_entry(struct ol_pci_dev *, uint8_t);
 
 #ifdef MSIX_DEBUG
-static void debug_msix_entry(struct msi*, uint8_t);
+static void debug_msix_entry(struct msi_cfg *, struct msi *);
 #endif
 
 #endif

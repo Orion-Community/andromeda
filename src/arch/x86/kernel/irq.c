@@ -19,15 +19,19 @@
 #include <text.h>
 #include <arch/x86/idt.h>
 #include <arch/x86/interrupts.h>
+#include <arch/x86/irq.h>
 #include <arch/x86/pic.h>
 #include <sys/keyboard.h>
 #include <stdlib.h>
 #include <sys/dev/ps2.h>
+#include <sys/dev/pci.h>
 
 
 uint64_t pit_timer = 0;
 uint64_t sleepTime = 0;
 bool isSleeping = FALSE;
+struct irq_data irq_data[MAX_IRQ_NUM];
+uint32_t irqs[MAX_ISA_IRQ_NUM];
 
 void cIRQ0(ol_irq_stack_t regs)
 {
@@ -133,4 +137,60 @@ void cIRQ15(ol_irq_stack_t regs)
   putc('b');
   pic_eoi(15);
   return;
+}
+
+static void
+__list_all_irqs()
+{
+  irqs[0] = (uint32_t)&irq0;
+  irqs[1] = (uint32_t)&irq1;
+  irqs[2] = (uint32_t)&irq2;
+  irqs[3] = (uint32_t)&irq3;
+  irqs[4] = (uint32_t)&irq4;
+  irqs[5] = (uint32_t)&irq5;
+  irqs[6] = (uint32_t)&irq6;
+  irqs[7] = (uint32_t)&irq7;
+  irqs[8] = (uint32_t)&irq8;
+  irqs[9] = (uint32_t)&irq9;
+  irqs[10] = (uint32_t)&irq10;
+  irqs[11] = (uint32_t)&irq11;
+  irqs[12] = (uint32_t)&irq12;
+  irqs[13] = (uint32_t)&irq13;
+  irqs[14] = (uint32_t)&irq14;
+  irqs[15] = (uint32_t)&irq15;
+}
+
+void
+setup_irq_data(void)
+{
+  __list_all_irqs();
+  int i = 0;
+  uint16_t vector;
+  for(; i < 16; i++)
+  {
+    vector = i + IDT_VECTOR_OFFSET;
+    struct irq_data *data = get_irq_data(i);
+    data->irq_base = get_isa_irq_vector(i);
+    data->irq = i;
+    data->irq_config = kalloc(sizeof(struct irq_cfg));
+    data->irq_config->vector = (uint16_t)vector;
+    install_irq_vector(data);
+  }
+  printf("Entry 2 vector: %x\n", get_irq_cfg(1)->vector);
+}
+
+void dbg_irq_data(void)
+{
+  int entry = alloc_idt_entry();
+  struct irq_data *data = &irq_data[17];
+  if(entry != -1)
+  {
+    data->irq_base = (uint32_t)&irq30;
+    data->irq = 17;
+    data->irq_config = kalloc(sizeof(struct irq_cfg));
+    data->irq_config->vector = (uint16_t)entry;
+    install_irq_vector(data);
+  }
+  else
+    return;
 }
