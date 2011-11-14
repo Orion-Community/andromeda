@@ -203,9 +203,9 @@ free_irq_entry(struct irq_data* irq)
   void *base = (void*)irq_data;
   void *top = (void*)&irq_data[MAX_IRQ_NUM];
   if((void*)irq < base || (void*)irq > top) /*
-			       * the irq address should be in the irq address
-			       * range.
-			       */
+                                             * the irq address should be in the irq address
+                                             * range.
+                                             */
     return -1;
   else
   {

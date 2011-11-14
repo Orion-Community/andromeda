@@ -82,10 +82,14 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
 {
   struct msi_cfg *cfg = kalloc(sizeof(*cfg));
   struct msi msi;
+  uint16_t ctrl = ol_pci_read_dword(dev, cp) >> 16;
   cfg->attrib.cpos = cp;
   cfg->dev = dev;
   cfg->attrib.is_msix = 1;
-  cfg->attrib.is_64 = 0;
+  if(ctrl & (1 << 7))
+    cfg->attrib.is_64 = 1;
+  else
+    cfg->attrib.is_64 = 0;
   cfg->attrib.base = msi_calc_msix_base(dev, cp);
   
   msi.addr = 0xfee00000; /* upper bits of the msi address are always 0xfee */
@@ -134,8 +138,8 @@ debug_msix_entry(struct msi_cfg *cfg, struct msi *msi)
   //printf("test: 0x%x\n", irq);
   uint16_t msi_ctl = (ol_pci_read_dword(cfg->dev, (uint16_t)cfg->attrib.cpos) >> 16) & 0x3ff;
 
-  printf("Found MSI-X entry; msg_addr: 0x%x; vector_ctrl: %i; cfg_space_size: %i\n",
-      readl(base), readl(base+12), (msi_ctl+1)/4);
+  printf("msi-x: 64: %x; msg_addr: 0x%x; vector_ctrl: %i; cfg_space_size: %i\n",
+      cfg->attrib.is_64, readl(base), readl(base+12), (msi_ctl+1)/4);
 }
 #endif
 #endif
