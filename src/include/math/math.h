@@ -23,9 +23,14 @@
 
 void randomize(unsigned int seed);
 int random();
-long abs(long num);
 
-// Some funtions still have to be made...
+double abs(double num);
+float absf(float num);
+long double absl(long double num);
+
+inline char isNaN(double num);
+inline char isNaNf(float num);
+inline char isNaNl(long double num);
 
 double sin(double x);
 float sinf(float x);
@@ -87,8 +92,8 @@ double sqrt(double x);
 float sqrtf(float x);
 long double sqrtl(long double x);
 
-double pow(double x);
-float powf(float x);
-long double powl(long double x);
+double pow(double x, double exp);
+float powf(float x, float exp);
+long double powl(long double x, long double exp);
 
 #endif

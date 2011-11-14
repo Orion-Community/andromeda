@@ -19,7 +19,17 @@
 #include <math/math.h>
 #include <mm/memory.h>
 
-long abs(long num)
+double abs(double num)
+{
+  return (num>0)?num:-num;
+}
+
+float absf(float num)
+{
+  return (num>0)?num:-num;
+}
+
+long double absl(long double num)
 {
   return (num>0)?num:-num;
 }
@@ -84,8 +94,43 @@ int random()
   return ret;
 }
 
-#define PI (3,141592653589793238462643383279502884197169399375105820974944592307816406286209 // Yes, I know the compiler will skip most of the decimals...
-#define NAN (_Nan._Double)
+#define PI (3,141592653589793) //238462643383279502884197169399375105820974944592307816406286209 Yes, I know the compiler will skip most of the decimals...
+
+double NAN()
+{
+	double nan;
+	*((int*)&nan) = 0x7f800000;
+	return nan;
+}
+
+float NANf()
+{
+	float nan;
+	*((int*)&nan) = 0x7f800000;
+	return nan;
+}
+
+long double NANl()
+{
+	long double nan;
+	*((int*)&nan) = 0x7f800000;
+	return nan;
+}
+
+inline char isNaN(double num)
+{
+	return (num != num);
+}
+
+inline char isNaNf(float num)
+{
+	return (num != num);
+}
+
+inline char isNaNl(long double num)
+{
+	return (num != num);
+}
 
 double sin(double x)
 {
@@ -119,7 +164,7 @@ float sinf(float x)
 	return ret;
 }
 
-long double sinl(l ongdouble x)
+long double sinl(long double x)
 {
 	long double ret = x,
 	            x2  = x*x,
@@ -327,13 +372,6 @@ long double tanl(long double x)
 	return sinl(x)/cosl(x);
 }
 
-double atanh(double x)
-{
-	if (abs(x)=>1)
-		return UNDEFINED;
-	return ln( (1+x) / (1-x) )/2;
-}
-
 double atan(double x)
 {
 	double ret = x,
@@ -387,7 +425,7 @@ double tanh(double x)
 	return sinh(x)/cosh(x);
 }
 
-float tanh(float x)
+float tanhf(float x)
 {
 	return sinhf(x)/coshf(x);
 }
@@ -395,6 +433,27 @@ float tanh(float x)
 long double tanhl(long double x)
 {
 	return sinhl(x)/coshl(x);
+}
+
+double atanh(double x)
+{
+	if (abs(x)>=1)
+		return NAN();
+	return ln( (1+x) / (1-x) )/2;
+}
+
+float atanhf(float x)
+{
+	if (absf(x)>=1)
+		return NANf();
+	return lnf( (1+x) / (1-x) )/2;
+}
+
+long double atanhl(long double x)
+{
+	if (absl(x)>=1)
+		return NANl();
+	return lnl( (1+x) / (1-x) )/2;
 }
 
 double exp(double n) //An other beatyfull taylor polynominal
@@ -455,7 +514,7 @@ double ln(double x)
 		ret += tmp/i;
 		if ( tmp==(tmp*-x) || ( (tmp>0)?(tmp*-x<tmp):(tmp*-x>tmp) ) ) // stop if tmp != relyable anymore
 			break;
-		tmp*=-x
+		tmp*=-x;
 	}
 	return ret;
 }
@@ -473,7 +532,7 @@ float lnf(float x)
 		ret += tmp/i;
 		if ( tmp==(tmp*-x) || ( (tmp>0)?(tmp*-x<tmp):(tmp*-x>tmp) ) ) // stop if tmp != relyable anymore
 			break;
-		tmp*=-x
+		tmp*=-x;
 	}
 	return ret;
 }
@@ -491,7 +550,7 @@ long double lnl(long double x)
 		ret += tmp/i;
 		if ( tmp==(tmp*-x) || ( (tmp>0)?(tmp*-x<tmp):(tmp*-x>tmp) ) ) // stop if tmp != relyable anymore
 			break;
-		tmp*=-x
+		tmp*=-x;
 	}
 	return ret;
 }
@@ -511,38 +570,38 @@ long double sqrtl(long double x)
 	return expl(2*ln(x));
 }
 
-double pow(double x, double exp)
+double pow(double x, double exponent)
 {
 	double ret = 1;
-	for (;exp>=1;exp--)
+	for (;exponent>=1;exponent--)
 	{
 		ret *= x;
 	}
-	if (exp!=0) // i.a.w.: if exp was not a integer
-		ret *= exp(ln(x)*exp);
+	if (exponent!=0) // i.a.w.: if exp was not a integer
+		ret *= exp(ln(x)*exponent);
 	return ret;
 }
 
-float powf(float x, float exp)
+float powf(float x, float exponent)
 {
 	float ret = 1;
-	for (;exp>=1;exp--)
+	for (;exponent>=1;exponent--)
 	{
 		ret *= x;
 	}
-	if (exp!=0) // i.a.w.: if exp was not a integer
-		ret *= exp(ln(x)*exp);
+	if (exponent!=0) // i.a.w.: if exp was not a integer
+		ret *= exp(ln(x)*exponent);
 	return ret;
 }
 
-long double powl(long double x, long double exp)
+long double powl(long double x, long double exponent)
 {
 	long double ret = 1;
-	for (;exp>=1;exp--)
+	for (;exponent>=1;exponent--)
 	{
 		ret *= x;
 	}
-	if (exp!=0) // i.a.w.: if exp was not a integer
-		ret *= exp(ln(x)*exp);
+	if (exponent!=0) // i.a.w.: if exp was not a integer
+		ret *= exp(ln(x)*exponent);
 	return ret;
 }

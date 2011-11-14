@@ -49,6 +49,7 @@ void core_loop()
     {
       case RL_BOOT:
 //         pid = fork();
+				printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":"A number" );
         rl = RL_RUN0;
         break;
       case RL_RUN0:
