@@ -28,18 +28,18 @@
 
 struct idtentry
 {
-	uint16_t base_low;
-	uint16_t sel;
-	uint8_t zero;
-	uint8_t flags;
-	uint16_t base_high;
+  uint16_t base_low;
+  uint16_t sel;
+  uint8_t zero;
+  uint8_t flags;
+  uint16_t base_high;
 } __attribute__((packed));
 typedef struct idtentry *ol_idt_entry_t;
 
 struct idt
 {
-	uint16_t limit;
-	ol_idt_entry_t baseptr;
+  uint16_t limit;
+  ol_idt_entry_t baseptr;
 } __attribute__((packed));
 typedef struct idt *ol_idt_t;
 

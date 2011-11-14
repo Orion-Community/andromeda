@@ -197,6 +197,30 @@ get_empty_irq()
   return NULL;
 }
 
+static int
+free_irq_entry(struct irq_data* irq)
+{
+  void *base = (void*)irq_data;
+  void *top = (void*)&irq_data[MAX_IRQ_NUM];
+  if((void*)irq < base || (void*)irq > top) /*
+			       * the irq address should be in the irq address
+			       * range.
+			       */
+    return -1;
+  else
+  {
+    int ret = free(irq->irq_config);
+    if(ret != 0)
+      return ret;
+    else
+    {
+      memset((void*)irq, 0, sizeof(*irq));
+    }
+    return ret;
+  }
+  return -1;
+}
+
 void dbg_irq_data(void)
 {
   int entry = alloc_idt_entry();
@@ -204,11 +228,12 @@ void dbg_irq_data(void)
   if(entry != -1)
   {
     data->irq_base = (uint32_t)&irq30;
-    data->irq = 16;
     data->irq_config = kalloc(sizeof(struct irq_cfg));
     data->irq_config->vector = (uint16_t)entry;
     install_irq_vector(data);
-    printf("test: %x\n", data->irq);
+#ifdef __IRQ_DEBUG
+    printf("test: %x\t%x\n", data->irq,alloc_idt_entry());
+#endif
   }
   else
     return;

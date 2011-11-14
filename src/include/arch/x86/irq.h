@@ -90,6 +90,8 @@ get_isa_irq_vector(uint32_t x)
 
 void dbg_irq_data(void);
 static void __list_all_irqs();
+static struct irq_data *get_empty_irq();
+static int free_irq_entry(struct irq_data*);
 
 struct irq_cfg
 {
