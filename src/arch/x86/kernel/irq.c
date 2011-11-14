@@ -191,7 +191,7 @@ get_empty_irq()
   int i = 0;
   for(; i < MAX_IRQ_NUM; i++)
   {
-    if(irq_data[i].irq_base == 0 && irq_data[i].irq_config == 0)
+    if(irq_data[i].irq_base == 0 && irq_data[i].irq_config == NULL)
       return &irq_data[i];
   }
   return NULL;
@@ -214,7 +214,9 @@ free_irq_entry(struct irq_data* irq)
       return ret;
     else
     {
+      uint32_t irqnum = irq->irq;
       memset((void*)irq, 0, sizeof(*irq));
+      irq->irq = irqnum;
     }
     return ret;
   }
