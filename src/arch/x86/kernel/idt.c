@@ -144,6 +144,13 @@ alloc_idt_entry()
 }
 
 int
+free_idt_entry(uint16_t vector)
+{
+  ol_idt_t idt = (ol_idt_t)get_idt();
+  memset((void*)&(idt->baseptr[vector]), 0, sizeof(idt->baseptr[vector]));
+}
+
+int
 install_irq_vector(struct irq_data *data)
 {
   int entry = get_empty_idt_entry_number();

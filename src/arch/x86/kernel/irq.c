@@ -142,6 +142,7 @@ void cIRQ15(ol_irq_stack_t regs)
 static void
 __list_all_irqs()
 {
+  memset(irq_data, 0, MAX_IRQ_NUM*sizeof(*irq_data));
   irqs[0] = (uint32_t)&irq0;
   irqs[1] = (uint32_t)&irq1;
   irqs[2] = (uint32_t)&irq2;
@@ -158,6 +159,11 @@ __list_all_irqs()
   irqs[13] = (uint32_t)&irq13;
   irqs[14] = (uint32_t)&irq14;
   irqs[15] = (uint32_t)&irq15;
+  int i = 16;
+  for(; i < MAX_IRQ_NUM; i++)
+  {
+    irq_data[i].irq = i;
+  }
 }
 
 void
@@ -179,17 +185,57 @@ setup_irq_data(void)
   printf("Entry 2 vector: %x\n", get_irq_cfg(1)->vector);
 }
 
+static struct irq_data *
+get_empty_irq()
+{
+  int i = 0;
+  for(; i < MAX_IRQ_NUM; i++)
+  {
+    if(irq_data[i].irq_base == 0 && irq_data[i].irq_config == NULL)
+      return &irq_data[i];
+  }
+  return NULL;
+}
+
+static int
+free_irq_entry(struct irq_data* irq)
+{
+  void *base = (void*)irq_data;
+  void *top = (void*)&irq_data[MAX_IRQ_NUM];
+  if((void*)irq < base || (void*)irq > top) /*
+                                             * the irq address should be in the irq address
+                                             * range.
+                                             */
+    return -1;
+  else
+  {
+    int ret = free(irq->irq_config);
+    if(ret != 0)
+      return ret;
+    else
+    {
+      uint32_t irqnum = irq->irq;
+      memset((void*)irq, 0, sizeof(*irq));
+      irq->irq = irqnum;
+    }
+    return ret;
+  }
+  return -1;
+}
+
 void dbg_irq_data(void)
 {
   int entry = alloc_idt_entry();
-  struct irq_data *data = &irq_data[17];
+  struct irq_data *data = get_empty_irq();
   if(entry != -1)
   {
     data->irq_base = (uint32_t)&irq30;
-    data->irq = 17;
     data->irq_config = kalloc(sizeof(struct irq_cfg));
     data->irq_config->vector = (uint16_t)entry;
     install_irq_vector(data);
+#ifdef __IRQ_DEBUG
+    printf("test: %x\t%x\n", data->irq,alloc_idt_entry());
+#endif
   }
   else
     return;
