@@ -26,12 +26,14 @@
 static int
 __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
 {
+  uint32_t msg = msi_convert_message(&msi->msg);
+  printf("MSI message data: %x - IRQ vector: %x\n", msg, msi->msg.vector);
   if(cfg->attrib.is_msix)
   {
     writel(cfg->attrib.base + MSIX_LOW_ADDR, msi->addr);
     if(cfg->attrib.is_64)
       writel(cfg->attrib.base + MSIX_UPPER_ADDR, msi->addr_hi);
-    writel(cfg->attrib.base + MSIX_MESSAGE_DATA, msi->message);
+    writel(cfg->attrib.base + MSIX_MESSAGE_DATA, msg);
   }
   else
   {
@@ -40,10 +42,10 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
     if(cfg->attrib.is_64)
     {
       ol_pci_write_dword(dev, MSI_UPPER_ADDR(cfg->attrib.cpos), msi->addr_hi);
-      ol_pci_write_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,1),msi->message);
+      ol_pci_write_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,1),msg);
     }
     else
-      ol_pci_write_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,0),msi->message);
+      ol_pci_write_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,0),msg);
   }
   return 0;
 }
@@ -53,7 +55,7 @@ setup_msi_entry(struct ol_pci_dev *dev, uint8_t cp)
 {
 #ifdef MSIX
   uint8_t msix = (uint8_t)(ol_pci_read_dword(dev, cp) & 0xff);
-  printf("%x\n", msix);
+  //printf("%x\n", msix);
   __msi_create_msix_entry(dev, cp);
 #endif
 }
@@ -88,7 +90,10 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
   
   msi.addr = 0xfee00000; /* upper bits of the msi address are always 0xfee */
   msi.addr_hi = 0;
-  msi.message = 0;
+  msi.msg.vector = alloc_idt_entry();
+  msi.msg.dm = 1;
+  msi.msg.trig_lvl = 1;
+  msi.msg.trigger = 0;
   cfg->msi = &msi;
   
   __msi_write_message(cfg, &msi);
@@ -112,6 +117,13 @@ msi_calc_msix_base(struct ol_pci_dev *dev, uint8_t cp)
   return (volatile void*)bar;
 }
 
+static uint32_t
+msi_convert_message(struct msi_msg *msg)
+{
+  return (uint32_t)(MSI_VECTOR_DATA(msg->vector) | MSI_DELIVERY_MODE_DATA(msg->dm) |
+          MSI_TRIGGER_LEVEL_DATA(msg->trig_lvl) | MSI_TRIGGER_DATA(msg->trigger));
+}
+
 #ifdef MSIX_DEBUG
 static void
 debug_msix_entry(struct msi_cfg *cfg, struct msi *msi)
@@ -119,9 +131,8 @@ debug_msix_entry(struct msi_cfg *cfg, struct msi *msi)
   struct ol_pci_dev *dev = cfg->dev;
   uint8_t irq = ol_pci_read_dword(dev, OL_PCI_INTERRUPT_LINE) & 0xff;
   volatile void *base = cfg->attrib.base;
-  printf("test: 0x%x\n", irq);
+  //printf("test: 0x%x\n", irq);
   uint16_t msi_ctl = (ol_pci_read_dword(cfg->dev, (uint16_t)cfg->attrib.cpos) >> 16) & 0x3ff;
-    /* write and read back */
 
   printf("Found MSI-X entry; msg_addr: 0x%x; vector_ctrl: %i; cfg_space_size: %i\n",
       readl(base), readl(base+12), (msi_ctl+1)/4);

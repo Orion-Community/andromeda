@@ -33,9 +33,24 @@
 #define MSI_UPPER_ADDR(x) ((x)+8)
 #define MSI_MESSAGE_DATA(x,y) (y)?((x)+12):((x)+8)
 
+/* Message shift defines */
 #define MSI_VECTOR_SHIFT 0
-#define MSI_VECTOR_DATA(x) (((x) << MSI_VECTOR_SHIFT) & MSI_VECTOR_MASK)
+#define MSI_VECTOR_DATA(x) (((x) & MSI_VECTOR_MASK) << MSI_VECTOR_SHIFT)
 #define MSI_VECTOR_MASK 0xff
+
+#define MSI_DELIVERY_MODE_SHIFT 8
+#define MSI_DELIVERY_MODE_DATA(x) (((x) & MSI_DELIVERY_MODE_MASK) << \
+                                            MSI_DELIVERY_MODE_SHIFT)
+#define MSI_DELIVERY_MODE_MASK 7                                            
+
+#define MSI_TRIGGER_LEVEL_SHIFT 14
+#define MSI_TRIGGER_LEVEL_DATA(x) (((x) & MSI_TRIGGER_LEVEL_MASK) << \
+                                            MSI_TRIGGER_LEVEL_SHIFT)
+#define MSI_TRIGGER_LEVEL_MASK 1
+
+#define MSI_TRIGGER_SHIFT 15
+#define MSI_TRIGGER_DATA(x) (((x) & MSI_TRIGGER_MASK) << MSI_TRIGGER_SHIFT)
+#define MSI_TRIGGER_MASK 1
 
 /* MSIX definitions */
 #define MSIX_BAR(index) ((4*(index))+0x10)
@@ -64,9 +79,14 @@ struct msi
 {
   uint32_t addr;
   uint32_t addr_hi;
-  uint32_t message;
+  struct msi_msg
+  {
+    int vector : 8;
+    int dm : 3;
+    int trig_lvl : 1;
+    int trigger : 1;
+  } msg;
 } __attribute__((packed));
-typedef struct msi *msi_msg;
 
 struct msi_cfg
 {
@@ -82,6 +102,7 @@ struct msi_cfg
  */
 static int __msi_create_msix_entry(struct ol_pci_dev*, uint8_t);
 static volatile void *msi_calc_msix_base(struct ol_pci_dev *, uint8_t);
+static uint32_t msi_convert_message(struct msi_msg *msg);
 static int __msi_write_message(struct msi_cfg *, struct msi *);
 void msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp);
 static void msi_enable_msix_entry(struct msi_cfg *, int);
