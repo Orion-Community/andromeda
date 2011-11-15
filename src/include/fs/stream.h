@@ -38,7 +38,7 @@ struct __STREAM_NODE
   void *base;
   void *end;
   uint64_t segment_base;
-  uint32_t segment_size;
+  size_t segment_size;
   struct __STREAM_NODE *prev_node;
   struct __STREAM_NODE *next_node;
 };
@@ -50,7 +50,7 @@ struct __STREAM
 
   uint64_t base_index;
 
-  uint32_t stream_size;
+  size_t stream_size;
 };
 
 typedef struct __STREAM stream;

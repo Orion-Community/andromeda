@@ -31,8 +31,7 @@ struct __STREAM_NODE
   if (s->base == NULL)
     return NULL;
   s->end = (void*)((addr_t)s->base+size);
-  s->segment_base_hi = 0;
-  s->segment_base_lo = 0;
+  s->segment_base = 0;
   s->segment_size = size;
 
   char* buffer = (char*)s->base;
@@ -93,7 +92,7 @@ struct __STREAM_NODE
   if (s == NULL)
     return NULL;
   struct __STREAM_NODE *carriage = s->data;
-  while (carriage->segment_offset + carriage->segment_size < offset)
+  while (carriage->segment_base + carriage->segment_size < offset)
   {
     carriage = carriage->next_node;
     if (carriage == NULL)
