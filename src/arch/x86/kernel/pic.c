@@ -20,6 +20,7 @@
 #include <error/panic.h>
 #include <arch/x86/pic.h>
 #include <arch/x86/pit.h>
+#include <arch/x86/irq.h>
 #include <text.h>
 
 void pic_remap(uint32_t offset1, uint32_t offset2)
@@ -73,6 +74,8 @@ void pic_eoi(uint8_t irq)
 
 void pic_init()
 {
-	pic_remap(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE+8);
-	ol_pit_init(100); // program pic to 100 hertz
+  pic_remap(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE+8);
+  ol_pit_init(100); // program pic to 100 hertz
+  
+  init_irq_data();
 }

@@ -16,10 +16,36 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __COMPRESSED
+#include <stdlib.h>
+#include <sys/dev/pci.h>
+#include <arch/x86/apic/msi.h>
+
 #ifndef IRQ_H
 #define IRQ_H
 
+#define MAX_IRQ_NUM 255
+#define MAX_ISA_IRQ_NUM 0x10
+#define MAX_ISA_IRQ_NUM 0x10
+
+/*
+ * An IRQ is the index number of the IRQ (eg irq 0 is the timer by default).
+ * The irq vector is a the index number of the idt for that irq. So IRQ ==
+ * vector might not be true.
+ */
+struct irq_data
+{
+  uint32_t irq;
+  uint32_t irq_base;
+
+  struct irq_cfg *irq_config;
+};
+
+extern struct irq_data irq_data[MAX_IRQ_NUM];
+extern uint32_t irqs[MAX_ISA_IRQ_NUM];
+
+/*
+ * Interrupt headers
+ */
 extern void irq0();
 extern void irq1();
 extern void irq2();
@@ -36,6 +62,51 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+extern void irq30();
 
-#endif
+static inline struct irq_data*
+get_irq_data(uint32_t irq)
+{
+  return &irq_data[irq];
+}
+
+static inline struct irq_cfg*
+get_irq_cfg(uint32_t irq)
+{
+  return get_irq_data(irq)->irq_config;
+}
+
+static inline void
+init_irq_data()
+{
+  memset(irq_data, 0, sizeof(*irq_data)*MAX_IRQ_NUM);
+}
+
+static inline uint32_t
+get_isa_irq_vector(uint32_t x)
+{
+  return irqs[x];
+}
+
+void dbg_irq_data(void);
+static void __list_all_irqs();
+static struct irq_data *get_empty_irq();
+static int free_irq_entry(struct irq_data*);
+
+struct irq_cfg
+{
+  union
+  {
+    /* 
+     * An interrupt is sent to the cpu using either a msi or a hardware pin, but not both.
+     */
+    uint8_t hw_pin; /* pin where the interrupt is sent to */
+    struct msi_cfg *msi; /* msi message */
+  };
+  
+  int vector : 8;
+  int delivery_mode : 3;
+  int trigger: 1;
+};
+
 #endif
