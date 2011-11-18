@@ -33,11 +33,15 @@
 
 enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
 
+/**
+ * Needs a bit of rethinking, now this implements a random fragment size
+ * Might be more efficient to stick to disk block sizes
+ */
+
 struct __STREAM_NODE
 {
-  void *base;
-  void *end;
-  uint64_t segment_base;
+  void *base; /* Base address of stream data */
+  uint64_t segment_base; /*  */
   size_t segment_size;
   struct __STREAM_NODE *prev_node;
   struct __STREAM_NODE *next_node;
@@ -45,19 +49,15 @@ struct __STREAM_NODE
 
 struct __STREAM
 {
-  uint32_t size;
-  struct __STREAM_NODE *data;
+  struct __STREAM_NODE *data; /* Pointer to data */
 
-  uint64_t base_index;
+  uint64_t size; /* size of stream */
+  uint64_t buffer_index; /* start of buffered part of stream */
 
-  size_t stream_size;
+  size_t buffer_size; /* size of buffered part of stream */
 };
 
 typedef struct __STREAM stream;
 
-stream* stream_open();
-void stream_close(stream *s);
-void stream_write(stream *s, char *data);
-char* stream_read(stream *s, char* buf, size_t num);
-void stream_seek(stream *s, int offset, enum seektype origin);
+stream *stream_init(size_t stream_size, uint64_t offset);
 #endif

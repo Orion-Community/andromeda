@@ -30,7 +30,6 @@ struct __STREAM_NODE
   s->base = kalloc(size);
   if (s->base == NULL)
     return NULL;
-  s->end = (void*)((addr_t)s->base+size);
   s->segment_base = 0;
   s->segment_size = size;
 
@@ -75,7 +74,6 @@ struct __STREAM_NODE
     free(tmp);
     return NULL;
   }
-  tmp->end = (void*)((addr_t)tmp->base + size);
   memset(tmp->base, 0, size);
 
 
@@ -99,4 +97,10 @@ struct __STREAM_NODE
       return NULL;
   }
   return carriage;
+}
+
+
+stream *stream_init(size_t stream_size, uint64_t offset)
+{
+  return NULL;
 }

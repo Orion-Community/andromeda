@@ -19,3 +19,35 @@
 #include <fs/file.h>
 #include <stdlib.h>
 
+file *file_open(char *path)
+{
+  if (path != NULL)
+  {
+#ifdef STREAM_DBG
+    printf("WARNING: Paths not supported yet!\n");
+#endif
+    return NULL;
+  }
+
+  file *f = kalloc(sizeof(file));
+  if (f == NULL)
+    goto clean_up;
+  stream *s = kalloc(sizeof(stream));
+  if (s == NULL)
+    goto clean_file;
+
+  memset(s, 0, sizeof(stream));
+
+  stream *s2 = stream_init(DEFAULT_STREAM_SIZE, 0);
+  if (s2 == NULL)
+    goto clean_stream;
+
+  return f;
+
+clean_stream:
+  free(s);
+clean_file:
+  free(f);
+clean_up:
+  return NULL;
+}
