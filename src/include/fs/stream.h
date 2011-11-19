@@ -52,7 +52,7 @@ struct __STREAM
 {
   struct __STREAM_NODE *data; /* Pointer to data */
 
-  uint64_t size; /* size of stream */
+  uint64_t size; /* size of full stream */
   uint64_t buffer_index; /* start of buffered part of stream */
 
   size_t buffer_size; /* size of buffered part of stream */
@@ -60,5 +60,5 @@ struct __STREAM
 
 typedef struct __STREAM stream;
 
-stream *stream_init(size_t stream_size, uint64_t offset);
+stream *stream_init(stream *s, size_t stream_size, uint64_t offset);
 #endif

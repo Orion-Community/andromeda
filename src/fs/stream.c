@@ -23,14 +23,14 @@
  * stream_init_node returns what should be the first node for the stream
  */
 struct __STREAM_NODE
-*stream_init_node(struct __STREAM_NODE *s, size_t size)
+*stream_init_node(struct __STREAM_NODE *s, size_t size, uint64_t base)
 {
   if (s == NULL || size == 0)
     return NULL;
   s->base = kalloc(size*SECTOR_SIZE);
   if (s->base == NULL)
     return NULL;
-  s->segment_base = 0;
+  s->segment_base = base;
   s->segment_size = size*SECTOR_SIZE;
 
   char* buffer = (char*)s->base;
@@ -101,10 +101,23 @@ struct __STREAM_NODE
 
 
 stream
-*stream_init(size_t stream_size, uint64_t offset)
+*stream_init(stream *s, size_t stream_size, uint64_t offset)
 {
-  if (stream_size == 0)
+  if (stream_size == 0 || s == NULL)
     return NULL;
-  
-  return NULL;
+
+  s->size = stream_size-offset;
+  s->buffer_index = offset;
+  s->buffer_size = stream_size;
+
+  s->data = kalloc(sizeof(struct __STREAM_NODE));
+  if (s->data == NULL)
+    return NULL;
+
+  if (stream_init_node(s->data, s->size, s->buffer_index) == NULL)
+  {
+    free(s->data);
+    return NULL;
+  }
+  return s;
 }
