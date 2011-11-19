@@ -27,11 +27,11 @@ struct __STREAM_NODE
 {
   if (s == NULL || size == 0)
     return NULL;
-  s->base = kalloc(size);
+  s->base = kalloc(size*SECTOR_SIZE);
   if (s->base == NULL)
     return NULL;
   s->segment_base = 0;
-  s->segment_size = size;
+  s->segment_size = size*SECTOR_SIZE;
 
   char* buffer = (char*)s->base;
   buffer[0] = EOF;
@@ -68,7 +68,7 @@ struct __STREAM_NODE
   tmp->segment_base = carriage->segment_base + carriage->segment_size;
 
   tmp->segment_size = size;
-  tmp->base = kalloc(size);
+  tmp->base = kalloc(size*SECTOR_SIZE);
   if (tmp->base == NULL)
   {
     free(tmp);
@@ -100,7 +100,11 @@ struct __STREAM_NODE
 }
 
 
-stream *stream_init(size_t stream_size, uint64_t offset)
+stream
+*stream_init(size_t stream_size, uint64_t offset)
 {
+  if (stream_size == 0)
+    return NULL;
+  
   return NULL;
 }

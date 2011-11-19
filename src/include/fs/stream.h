@@ -19,7 +19,8 @@
 #ifndef __FS_STREAM_H
 #define __FS_STREAM_H
 
-#define DEFAULT_STREAM_SIZE 0x1000
+#define DEFAULT_STREAM_SIZE 0x4 /* Defined as multiple of SECTOR_SIZE */
+#define SECTOR_SIZE 0x100
 
 #define EOF             0x19
 
@@ -41,10 +42,10 @@ enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
 struct __STREAM_NODE
 {
   void *base; /* Base address of stream data */
-  uint64_t segment_base; /*  */
-  size_t segment_size;
-  struct __STREAM_NODE *prev_node;
-  struct __STREAM_NODE *next_node;
+  uint64_t segment_base; /* Base index in number of sectors */
+  size_t segment_size; /* size of segment in multiple of SECTOR_SIZE */
+  struct __STREAM_NODE *prev_node; /* Pointer to the previous block */
+  struct __STREAM_NODE *next_node; /* Pointer to the next block */
 };
 
 struct __STREAM
