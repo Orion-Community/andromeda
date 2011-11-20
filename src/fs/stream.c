@@ -52,10 +52,10 @@ struct __STREAM_NODE
 
 /**
  * stream_append_node appends a node to the end of the list so the size of the
- * stream can be growed.
+ * stream_t can be growed.
  */
 struct __STREAM_NODE
-*stream_append_node(stream *s, size_t size)
+*stream_append_node(stream_t *s, size_t size)
 {
   struct __STREAM_NODE *carriage = s->data;
   while (carriage->next_node != NULL)
@@ -85,7 +85,7 @@ struct __STREAM_NODE
  * stream_find_node finds the node to go with the requested location.
  */
 struct __STREAM_NODE
-*stream_find_node(stream *s, size_t offset)
+*stream_find_node(stream_t *s, size_t offset)
 {
   if (s == NULL)
     return NULL;
@@ -100,8 +100,8 @@ struct __STREAM_NODE
 }
 
 
-stream
-*stream_init(stream *s, size_t stream_size, uint64_t offset)
+stream_t
+*stream_init(stream_t *s, size_t stream_size, uint64_t offset)
 {
   if (stream_size == 0 || s == NULL)
     return NULL;

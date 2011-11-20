@@ -58,7 +58,7 @@ struct __STREAM
   size_t buffer_size; /* size of buffered part of stream */
 };
 
-typedef struct __STREAM stream;
+typedef struct __STREAM stream_t;
 
-stream *stream_init(stream *s, size_t stream_size, uint64_t offset);
+stream_t *stream_init(stream_t *s, size_t stream_size, uint64_t offset);
 #endif

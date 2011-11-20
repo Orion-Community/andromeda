@@ -19,7 +19,7 @@
 #include <fs/file.h>
 #include <stdlib.h>
 
-file *file_open(char *path)
+file_t *file_open(char *path)
 {
   if (path != NULL)
   {
@@ -29,16 +29,16 @@ file *file_open(char *path)
     return NULL;
   }
 
-  file *f = kalloc(sizeof(file));
+  file_t *f = kalloc(sizeof(file_t));
   if (f == NULL)
     goto clean_up;
-  stream *s = kalloc(sizeof(stream));
+  stream_t *s = kalloc(sizeof(stream_t));
   if (s == NULL)
     goto clean_file;
 
-  memset(s, 0, sizeof(stream));
+  memset(s, 0, sizeof(stream_t));
 
-  stream *s2 = stream_init(s, DEFAULT_STREAM_SIZE, 0);
+  stream_t *s2 = stream_init(s, DEFAULT_STREAM_SIZE, 0);
   if (s2 == NULL)
     goto clean_stream;
 
@@ -50,4 +50,10 @@ clean_file:
   free(f);
 clean_up:
   return NULL;
+}
+
+int
+file_read(file_t *stream, char *buffer, size_t buffer_size)
+{
+  return -E_SUCCESS;
 }

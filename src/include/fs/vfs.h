@@ -39,10 +39,10 @@ struct __DIR_ENTRY
 
 struct __VFS_FILE
 {
-  file *device;
+  file_t *device;
   uint32_t inode;
 
-  file *cache;
+  file_t *cache;
 };
 
 struct __DIR_ENTRIES
@@ -55,7 +55,7 @@ struct __DIR_ENTRIES
 
 struct __DIR
 {
-  file *device;
+  file_t *device;
   uint32_t inode;
 
   struct __DIR_ENTRIES *entries;

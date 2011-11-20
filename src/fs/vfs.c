@@ -23,7 +23,7 @@
 
 directory *root = NULL;
 
-int init_vfs(file *device, uint32_t inode)
+int init_vfs(file_t *device, uint32_t inode)
 {
   if (root != NULL)
     return -E_FS_INIT;

@@ -37,11 +37,11 @@
 struct __FILE
 {
   char *path;
-  stream *data;
+  stream_t *data;
   uint16_t file_rights;
   uint64_t stream_cursor;
 };
 
-typedef struct __FILE file;
+typedef struct __FILE file_t;
 
 #endif
