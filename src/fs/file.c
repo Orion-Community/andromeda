@@ -29,25 +29,25 @@ file_t *file_open(char *path)
     return NULL;
   }
 
-  file_t *f = kalloc(sizeof(file_t));
-  if (f == NULL)
+  file_t *file = kalloc(sizeof(file_t));
+  if (file == NULL)
     goto clean_up;
-  stream_t *s = kalloc(sizeof(stream_t));
-  if (s == NULL)
+  stream_t *stream = kalloc(sizeof(stream_t));
+  if (stream == NULL)
     goto clean_file;
 
-  memset(s, 0, sizeof(stream_t));
+  memset(stream, 0, sizeof(stream_t));
 
-  stream_t *s2 = stream_init(s, DEFAULT_STREAM_SIZE, 0);
-  if (s2 == NULL)
+  stream_t *stream2 = stream_init(stream, DEFAULT_STREAM_SIZE, 0);
+  if (stream2 == NULL)
     goto clean_stream;
 
-  return f;
+  return file;
 
 clean_stream:
-  free(s);
+  free(stream);
 clean_file:
-  free(f);
+  free(file);
 clean_up:
   return NULL;
 }
