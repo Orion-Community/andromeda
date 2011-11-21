@@ -67,7 +67,7 @@ struct __STREAM_NODE
 
   tmp->segment_base = carriage->segment_base + carriage->segment_size;
 
-  tmp->segment_size = size;
+  tmp->segment_size = size*SECTOR_SIZE;
   tmp->base = kalloc(size*SECTOR_SIZE);
   if (tmp->base == NULL)
   {
@@ -122,19 +122,26 @@ stream_t
   return s;
 }
 
+int
+stream_close(stream_t stream)
+{
+  return -E_NOFUNCTION;
+}
+
 size_t
-stream_read(stream_t *stream, uint64_t cursor, size_t length, void* b)
+stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
 {
   if (stream == NULL)
     return -E_FILE_NOSTREAM;
+  if (stream == NULL)
+    return -E_FILE_NOBUFFER;
   struct __STREAM_NODE *node;
   int node_idx = cursor - stream->buffer_index;
   node = stream_find_node(stream, cursor-stream->buffer_index);
+  if (node == NULL)
+    return 0;
 
-  if (b == NULL)
-    return -E_FILE_NOBUFFER;
-
-  int buffer_idx = 0;
+  uint32_t buffer_idx = 0;
   char *buffer = b;
   char *source = node->base;
 
@@ -158,5 +165,50 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void* b)
   }
 
 end_of_file:
+  return buffer_idx;
+}
+
+size_t
+stream_write(stream_t *stream, uint64_t cursor, size_t length, void *b)
+{
+  if (stream == NULL)
+    return -E_FILE_NOSTREAM;
+  if (stream == NULL)
+    return -E_FILE_NOBUFFER;
+  struct __STREAM_NODE *node;
+  int node_idx = cursor - stream->buffer_index;
+  node = stream_find_node(stream, cursor-stream->buffer_index);
+  if (node == NULL)
+    return 0;
+
+  char *dest = node->base;
+  char *buffer = b;
+
+  uint32_t buffer_idx = 0;
+
+  uint32_t end_of_file = 0;
+
+  for (;buffer_idx < length; buffer_idx ++, node_idx ++)
+  {
+    if (node_idx >= node->segment_size)
+    {
+      if (node->next_node == NULL)
+      {
+        node = stream_append_node(stream, 2); /* Add 2 sector sizes to stream */
+        end_of_file = 1;
+      }
+      if (node == NULL)
+        return -E_STREAM_FAILURE;
+      dest = node->base;
+      node_idx = 0;
+    }
+    if (dest[node_idx] == EOF)
+      end_of_file = 1;
+    dest[node_idx] = buffer[buffer_idx];
+  }
+
+  if ((node_idx++) < node->segment_size)
+    dest[node_idx] = EOF;
+
   return buffer_idx;
 }

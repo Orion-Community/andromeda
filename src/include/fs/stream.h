@@ -61,4 +61,8 @@ struct __STREAM
 typedef struct __STREAM stream_t;
 
 stream_t *stream_init(stream_t *s, size_t stream_size, uint64_t offset);
+int stream_close(stream_t stream);
+size_t stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b);
+size_t stream_write(stream_t *stream, uint64_t cursor, size_t length, void *b);
+
 #endif
