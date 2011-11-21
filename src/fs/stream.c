@@ -123,7 +123,40 @@ stream_t
 }
 
 size_t
-stream_read(stream_t *stream, uint64_t cursor, size_t length, void* buffer)
+stream_read(stream_t *stream, uint64_t cursor, size_t length, void* b)
 {
-  return -E_NOFUNCTION;
+  if (stream == NULL)
+    return -E_FILE_NOSTREAM;
+  struct __STREAM_NODE *node;
+  int node_idx = cursor - stream->buffer_index;
+  node = stream_find_node(stream, cursor-stream->buffer_index);
+
+  if (b == NULL)
+    return -E_FILE_NOBUFFER;
+
+  int buffer_idx = 0;
+  char *buffer = b;
+  char *source = node->base;
+
+  for (;buffer_idx < length; buffer_idx ++, node_idx ++)
+  {
+    if (node_idx >= node->segment_size)
+    {
+      node = node->next_node;
+      if (node == NULL)
+         break;
+      source = node->base;
+      node_idx = 0;
+    }
+    switch(source[node_idx])
+    {
+      case EOF:
+        goto end_of_file;
+      default:
+        buffer[buffer_idx] = source[node_idx];
+    }
+  }
+
+end_of_file:
+  return buffer_idx;
 }
