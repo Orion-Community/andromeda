@@ -40,6 +40,7 @@ struct __FILE
   stream_t *data;
   uint16_t file_rights;
   uint64_t stream_cursor;
+  uint64_t file_size;
 };
 
 typedef struct __FILE file_t;

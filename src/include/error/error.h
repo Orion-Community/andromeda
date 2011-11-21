@@ -39,5 +39,9 @@
 #define E_FS_INIT       0xD
 #define E_FS_SYNC       0xE
 #define E_FS_UNKNOWN    0xF
+#define E_FILE_NOFILE   0x10
+#define E_FILE_NOBUFFER 0x11
+#define E_FILE_COB      0x12 /* Cursor out of bounds */
+#define E_FILE_NOSTREAM 0x13
 
 #endif

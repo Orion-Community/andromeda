@@ -121,3 +121,9 @@ stream_t
   }
   return s;
 }
+
+size_t
+stream_read(stream_t *stream, uint64_t cursor, size_t length, void* buffer)
+{
+  return -E_NOFUNCTION;
+}

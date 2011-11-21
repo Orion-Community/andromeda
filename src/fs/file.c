@@ -19,7 +19,8 @@
 #include <fs/file.h>
 #include <stdlib.h>
 
-file_t *file_open(char *path)
+file_t*
+file_open(char *path)
 {
   if (path != NULL)
   {
@@ -52,8 +53,27 @@ clean_up:
   return NULL;
 }
 
-int
-file_read(file_t *stream, char *buffer, size_t buffer_size)
+/**
+ * file_read reads the requested ammount of chars from buffer and returns,
+ * unless there's less characters in stream.
+ *
+ * It returns the ammount of characters read when successful.
+ * It returns -E_FILE_NOFILE when the file pointer isn't correct
+ * It returns -E_FILE_NOBUFFER when no buffer found.
+ */
+size_t
+file_read(file_t *file, size_t buffer_size, void *b)
 {
-  return -E_SUCCESS;
+  if (file == NULL)
+    return -E_FILE_NOFILE;
+  if (b == NULL)
+    return -E_FILE_NOBUFFER;
+  if (file->data == NULL)
+    return -E_FILE_NOSTREAM;
+  if (file->stream_cursor > file->file_size)
+    return -E_FILE_COB;
+
+  int chars_read = stream_read(file->data, file->stream_cursor, buffer_size, b);
+  file -> stream_cursor += chars_read;
+  return chars_read;
 }
