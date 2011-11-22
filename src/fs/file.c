@@ -53,6 +53,19 @@ clean_up:
   return NULL;
 }
 
+int
+file_close(file_t *file)
+{
+  if (file == NULL)
+    return -E_FILE_NOFILE;
+  if (file->data == NULL)
+    return -E_FILE_NOSTREAM;
+
+  stream_close(file->data);
+  free(file);
+  return 0;
+}
+
 /**
  * file_read reads the requested ammount of chars from buffer and returns,
  * unless there's less characters in stream.
@@ -74,6 +87,32 @@ file_read(file_t *file, size_t buffer_size, void *b)
     return -E_FILE_COB;
 
   int chars_read = stream_read(file->data, file->stream_cursor, buffer_size, b);
-  file -> stream_cursor += chars_read;
+  file -> stream_cursor += (chars_read >= 0) ? chars_read : 0;
   return chars_read;
+}
+
+/**
+ * file_write writes the requested ammount of chars in buffer and from buffer
+ * and returns, unless there's been an allocation error.
+ *
+ * It returns the ammount of characters read when successful.
+ * It returns -E_FILE_NOFILE when the file pointer isn't correct
+ * It returns -E_FILE_NOBUFFER when no buffer found.
+ */
+
+size_t
+file_write(file_t *file, size_t buffer_size, void *b)
+{
+   if (file == NULL)
+    return -E_FILE_NOFILE;
+  if (b == NULL)
+    return -E_FILE_NOBUFFER;
+  if (file->data == NULL)
+    return -E_FILE_NOSTREAM;
+  if (file->stream_cursor > file->file_size)
+    return -E_FILE_COB;
+
+  int chars_written = stream_write(file->data, file->stream_cursor, buffer_size, b);
+  file -> stream_cursor += (chars_written >= 0) ? chars_written : 0;
+  return chars_written;
 }

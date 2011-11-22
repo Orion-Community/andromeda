@@ -123,8 +123,12 @@ stream_t
 }
 
 int
-stream_close(stream_t stream)
+stream_close(stream_t *stream)
 {
+  struct __STREAM_NODE *node = stream->data;
+  while (node != NULL)
+    node = stream_close_node(node);
+  memset(stream, 0, sizeof(stream_t));
   return -E_NOFUNCTION;
 }
 
