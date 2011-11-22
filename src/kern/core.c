@@ -31,6 +31,8 @@
 #define RL_RUN3     0x5
 #define RL_REBOOT   0x6
 
+void demand_key();
+
 void shutdown()
 {
   printf("You can now shutdown your PC\n");
@@ -59,6 +61,28 @@ void file_test(char* data)
   file_read(file, strlen(data), s);
   printf("%s\n", s);
   free(s);
+  file_close(file);
+}
+
+void large_file_test()
+{
+  file_t *file = file_open(NULL);
+  char *c =  "ABCD";
+  int idx = 0;
+  for (; idx < 0x1000; idx++)
+  {
+    printf("%x\n", idx);
+    file_write(file, strlen(c), c);
+  }
+  file_seek(file, 0, SEEK_SET);
+  demand_key();
+  char *d = kalloc(sizeof("ABCD"));
+  for (idx = 0; idx < 0x1000; idx++)
+  {
+    file_read(file, strlen(c), d);
+    printf("%x\t%s\n", idx, d);
+  }
+  free (d);
   file_close(file);
 }
 
@@ -101,8 +125,10 @@ void core_loop()
 
       case RL_RUN0:
 #ifdef STREAM_DBG
-        demand_key();
+        /*demand_key();
         file_test("Hello world!");
+        */demand_key();
+        large_file_test();
         demand_key();
         path_test("/proc/1");
         path_test("./test.sh");
