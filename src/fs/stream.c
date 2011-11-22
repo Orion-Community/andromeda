@@ -140,7 +140,6 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
   if (stream == NULL)
     return -E_FILE_NOBUFFER;
   struct __STREAM_NODE *node;
-  int node_idx = cursor - stream->buffer_index;
   node = stream_find_node(stream, cursor-stream->buffer_index);
   if (node == NULL)
   {
@@ -150,6 +149,8 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
     return 0;
   }
 
+  int node_idx = cursor - node->segment_base;
+  memset(b, 0, length);
   uint32_t buffer_idx = 0;
   char *buffer = b;
   char *source = node->base;
@@ -192,11 +193,11 @@ stream_write
   if (stream == NULL)
     return -E_FILE_NOBUFFER;
   struct __STREAM_NODE *node;
-  int node_idx = cursor - stream->buffer_index;
   node = stream_find_node(stream, cursor-stream->buffer_index);
   if (node == NULL)
     return 0;
 
+  int node_idx = cursor - node->segment_base;
   char *dest = node->base;
   char *buffer = b;
 
@@ -221,6 +222,10 @@ stream_write
         return -E_STREAM_FAILURE;
       dest = node->base;
       node_idx = 0;
+#ifdef UNDEFINED
+      printf("Next node!\n");
+      demand_key();
+#endif
     }
     if (dest[node_idx] == EOF)
       end_of_file = 1;

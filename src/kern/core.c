@@ -125,9 +125,9 @@ void core_loop()
 
       case RL_RUN0:
 #ifdef STREAM_DBG
-        /*demand_key();
+        demand_key();
         file_test("Hello world!");
-        */demand_key();
+        demand_key();
         large_file_test();
         demand_key();
         path_test("/proc/1");
