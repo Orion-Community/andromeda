@@ -54,6 +54,7 @@ void file_test(char* data)
   file_t *file = file_open(NULL);
   file_write(file, strlen(data), data);
   char *s = kalloc(strlen(data) + 1);
+  memset(s, 0, strlen(data) + 1);
   file_seek(file, 0, SEEK_SET);
   file_read(file, strlen(data), s);
   printf("%s\n", s);
