@@ -32,8 +32,6 @@
 #define TYPE_PIPE       0x006 /* Pipe file type */
 #define TYPE_SOCK       0x007 /* Socket file type */
 
-enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
-
 /**
  * Needs a bit of rethinking, now this implements a random fragment size
  * Might be more efficient to stick to disk block sizes
@@ -63,6 +61,7 @@ typedef struct __STREAM stream_t;
 stream_t *stream_init(stream_t *s, size_t stream_size, uint64_t offset);
 int stream_close(stream_t *stream);
 size_t stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b);
-size_t stream_write(stream_t *stream, uint64_t cursor, size_t length, void *b);
+size_t stream_write                          (stream_t *stream, uint64_t cursor,
+                                      size_t length, void *b, uint32_t *growth);
 
 #endif

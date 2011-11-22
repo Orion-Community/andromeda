@@ -43,6 +43,7 @@ file_open(char *path)
   if (stream2 == NULL)
     goto clean_stream;
 
+  file->data = stream;
   return file;
 
 clean_stream:
@@ -83,12 +84,54 @@ file_read(file_t *file, size_t buffer_size, void *b)
     return -E_FILE_NOBUFFER;
   if (file->data == NULL)
     return -E_FILE_NOSTREAM;
-  if (file->stream_cursor > file->file_size)
-    return -E_FILE_COB;
 
   int chars_read = stream_read(file->data, file->stream_cursor, buffer_size, b);
   file -> stream_cursor += (chars_read >= 0) ? chars_read : 0;
+#ifdef STREAM_DBG
+  printf("File_read: %s\n", b);
+#endif
   return chars_read;
+}
+
+int file_seek(file_t *file, long long offset, enum seektype from)
+{
+  if (file == NULL)
+    return -E_FILE_NOFILE;
+  switch (from)
+  {
+    case SEEK_SET:
+      if (offset < 0)
+      {
+        file->stream_cursor = 0;
+        break;
+      }
+      file->stream_cursor = (offset <= file->file_size)
+                                                     ? offset : file->file_size;
+      break;
+    case SEEK_CUR:
+      if (offset < 0)
+      {
+        file->stream_cursor += (offset - file->stream_cursor >= 0)
+                                                 ? offset : file->stream_cursor;
+        break;
+      }
+
+      file->stream_cursor += (offset + file->stream_cursor <= file->file_size)
+                                                     ? offset : file->file_size;
+      break;
+    case SEEK_END:
+      if (offset > 0)
+      {
+        file->stream_cursor = file->file_size;
+        break;
+      }
+      file->stream_cursor = (offset >= file->file_size) ? 0 : offset;
+      break;
+    default:
+      return -1;
+      break;
+  }
+  return 0;
 }
 
 /**
@@ -108,11 +151,14 @@ file_write(file_t *file, size_t buffer_size, void *b)
   if (b == NULL)
     return -E_FILE_NOBUFFER;
   if (file->data == NULL)
-    return -E_FILE_NOSTREAM;
-  if (file->stream_cursor > file->file_size)
-    return -E_FILE_COB;
-
-  int chars_written = stream_write(file->data, file->stream_cursor, buffer_size, b);
+    return -E_FILE_NOSTREAM; 
+#ifdef STREAM_DBG
+  printf("File_write: %s\n", b);
+#endif
+  uint32_t growth;
+  int chars_written = stream_write(file->data,
+                                   file->stream_cursor, buffer_size, b, &growth);
   file -> stream_cursor += (chars_written >= 0) ? chars_written : 0;
+  file -> file_size += growth;
   return chars_written;
 }

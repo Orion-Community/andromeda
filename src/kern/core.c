@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <kern/core.h>
 #include <kern/sched.h>
+#include <fs/file.h>
 #include <fs/stream.h>
 #include <fs/path.h>
 
@@ -45,6 +46,19 @@ void init_set(uint32_t i)
 {
   printf("Changing run level to %i\n", i);
   rl = i;
+}
+
+void file_test(char* data)
+{
+  printf("%s\n", data);
+  file_t *file = file_open(NULL);
+  file_write(file, strlen(data), data);
+  char *s = kalloc(strlen(data) + 1);
+  file_seek(file, 0, SEEK_SET);
+  file_read(file, strlen(data), s);
+  printf("%s\n", s);
+  free(s);
+  file_close(file);
 }
 
 void path_test(char *path)
@@ -86,6 +100,8 @@ void core_loop()
 
       case RL_RUN0:
 #ifdef STREAM_DBG
+        demand_key();
+        file_test("Hello world!");
         demand_key();
         path_test("/proc/1");
         path_test("./test.sh");

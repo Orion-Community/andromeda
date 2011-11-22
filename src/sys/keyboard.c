@@ -157,7 +157,6 @@ uint8_t leds = 0;
 uint32_t key_pressed = 0;
 void kb_handle(uint8_t c)
 {
-        key_pressed = 1;
 	if(c & 0x80)
 	{
 		/*
@@ -225,6 +224,7 @@ void kb_handle(uint8_t c)
 			default:
                                 shiftkey ? putc(keycodes[c].capvalue) : 
                                     putc(keycodes[c].value);
+                                key_pressed = 1;
 				break;
 		}
 		

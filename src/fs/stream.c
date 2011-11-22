@@ -143,7 +143,12 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
   int node_idx = cursor - stream->buffer_index;
   node = stream_find_node(stream, cursor-stream->buffer_index);
   if (node == NULL)
+  {
+#ifdef STREAM_DBG
+    printf("end of file\n");
+#endif
     return 0;
+  }
 
   uint32_t buffer_idx = 0;
   char *buffer = b;
@@ -162,6 +167,9 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
     switch(source[node_idx])
     {
       case EOF:
+#ifdef STREAM_DBG
+        printf("end of file\n");
+#endif
         goto end_of_file;
       default:
         buffer[buffer_idx] = source[node_idx];
@@ -169,11 +177,15 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
   }
 
 end_of_file:
+#ifdef STREAM_DBG
+  printf("Stream_read: %s\n", b);
+#endif
   return buffer_idx;
 }
 
 size_t
-stream_write(stream_t *stream, uint64_t cursor, size_t length, void *b)
+stream_write
+(stream_t *stream, uint64_t cursor, size_t length, void *b, uint32_t *growth)
 {
   if (stream == NULL)
     return -E_FILE_NOSTREAM;
@@ -188,9 +200,13 @@ stream_write(stream_t *stream, uint64_t cursor, size_t length, void *b)
   char *dest = node->base;
   char *buffer = b;
 
-  uint32_t buffer_idx = 0;
+#ifdef STREAM_DBG
+  printf("Stream_write: %s\n", b);
+#endif
 
+  uint32_t buffer_idx = 0;
   uint32_t end_of_file = 0;
+  growth = 0;
 
   for (;buffer_idx < length; buffer_idx ++, node_idx ++)
   {
@@ -209,6 +225,7 @@ stream_write(stream_t *stream, uint64_t cursor, size_t length, void *b)
     if (dest[node_idx] == EOF)
       end_of_file = 1;
     dest[node_idx] = buffer[buffer_idx];
+    growth += end_of_file;
   }
 
   if ((node_idx++) < node->segment_size)
