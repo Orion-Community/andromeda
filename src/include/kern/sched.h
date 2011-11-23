@@ -18,7 +18,6 @@
 
 #ifndef __KERN_SCHED_H
 #define __KERN_SCHED_H
-#include <fs/fs.h>
 #include <stdlib.h>
 #include <types.h>
 void sched();

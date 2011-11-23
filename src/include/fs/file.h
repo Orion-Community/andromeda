@@ -19,30 +19,37 @@
 #ifndef __FS_FILE_H
 #define __FS_FILE_H
 
-#include <types.h>
+#include <stdlib.h>
+#include <fs/stream.h>
 
-struct _FS_FILE
+#define OWNER_READ      0x001
+#define OWNER_WRITE     0x002
+#define OWNER_EXECUTE   0x004
+
+#define GROUP_READ      0x008
+#define GROUP_WRITE     0x010
+#define GROUP_EXECUTE   0x020
+
+#define ALL_READ        0x040
+#define ALL_WRITE       0X080
+#define ALL_EXECUTE     0x100
+
+enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
+
+struct __FILE
 {
-  char* start; // Start of file (within this inode)
-  char* end;   // End of file (within this inode)
-  char* read;  // The read pointer (within this inode)
-  char* write; // The write pointer (within this inode, should be >= read)
-  size_t *size; // Size of this inode
-  struct _FS_FILE* chain; // Next inode, if this one isn't large enough
-  char* path;  // Path to file
-  boolean buffered; // TRUE for buffered
-  boolean dirty;
+  char *path;
+  stream_t *data;
+  uint16_t file_rights;
+  uint64_t stream_cursor;
+  uint64_t file_size;
 };
 
-typedef struct _FS_FILE FILE;
+typedef struct __FILE file_t;
 
-struct _FS_DIR_ENTRY
-{
-  unsigned int drv;
-  unsigned int inode;
-  struct _FS_INODE* virtInode;
-  size_t nameSize;
-  char *name;
-};
-
+file_t* file_open  (char *path);
+int     file_close (file_t *file);
+int     file_seek  (file_t *file, long long offset, enum seektype from);
+size_t  file_read  (file_t *file, size_t buffer_size, void *b);
+size_t  file_write (file_t *file, size_t buffer_size, void *b);
 #endif

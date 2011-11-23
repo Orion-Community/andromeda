@@ -16,10 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __KERN_CORE_H
-#define __KERN_CORE_H
+#ifndef __FS_PATH_H
+#define __FS_PATH_H
 
-void demand_key();
-void core_loop();
+struct __PATH_ELEMENT
+{
+  char name[255];
+  struct __PATH_ELEMENT *next;
+  uint8_t cursor;
+};
+
+void clean_path(struct __PATH_ELEMENT* elements);
+struct __PATH_ELEMENT *parse_path(char* path);
 
 #endif

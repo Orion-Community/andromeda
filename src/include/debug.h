@@ -45,6 +45,10 @@
 #define __IOAPIC_DBG
 #endif //__IOAPIC_DBG
 
+#ifndef STREAM_DBG
+#define STREAM_DBG
+#endif //STREAM_DBG
+
 #define assert(a) if (!a) {panic("Assertion failed!")}
 #else
 #define assert(a)
