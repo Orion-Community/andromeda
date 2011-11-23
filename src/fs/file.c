@@ -37,6 +37,7 @@ file_open(char *path)
   if (stream == NULL)
     goto clean_file;
 
+  memset(file, 0, sizeof(file_t));
   memset(stream, 0, sizeof(stream_t));
 
   stream_t *stream2 = stream_init(stream, DEFAULT_STREAM_SIZE, 0);

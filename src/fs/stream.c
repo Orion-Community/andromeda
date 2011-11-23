@@ -65,6 +65,8 @@ struct __STREAM_NODE
   if (tmp == NULL)
     return NULL;
 
+  memset(tmp, 0, sizeof(struct __STREAM_NODE));
+
   tmp->segment_base = carriage->segment_base + carriage->segment_size;
 
   tmp->segment_size = size*SECTOR_SIZE;
@@ -113,6 +115,7 @@ stream_t
   s->data = kalloc(sizeof(struct __STREAM_NODE));
   if (s->data == NULL)
     return NULL;
+  memset(s->data, 0, sizeof(struct __STREAM_NODE));
 
   if (stream_init_node(s->data, s->size, s->buffer_index) == NULL)
   {
@@ -144,7 +147,7 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
   if (node == NULL)
   {
 #ifdef STREAM_DBG
-    printf("end of file\n");
+    printf("end of file (ptr)\n");
 #endif
     return 0;
   }
@@ -169,7 +172,9 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
     {
       case EOF:
 #ifdef STREAM_DBG
-        printf("end of file\n");
+        printf("end of file (char)\n");
+//         printf("cyrsor: %X\n", cursor);
+//         demand_key();
 #endif
         goto end_of_file;
       default:
@@ -203,6 +208,8 @@ stream_write
 
 #ifdef STREAM_DBG
   printf("Stream_write: %s\n", b);
+//   printf("cursor: %X\n", cursor);
+//   demand_key();
 #endif
 
   uint32_t buffer_idx = 0;
