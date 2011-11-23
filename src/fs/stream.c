@@ -108,6 +108,7 @@ stream_t
   if (stream_size == 0 || s == NULL)
     return NULL;
 
+  memset(s, 0, sizeof(stream_t));
   s->size = stream_size-offset;
   s->buffer_index = offset;
   s->buffer_size = stream_size;
@@ -140,8 +141,12 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
 {
   if (stream == NULL)
     return -E_FILE_NOSTREAM;
-  if (stream == NULL)
+  if (b == NULL || length == 0)
+  {
+    printf("stream nobuffer");
     return -E_FILE_NOBUFFER;
+  }
+
   struct __STREAM_NODE *node;
   node = stream_find_node(stream, cursor-stream->buffer_index);
   if (node == NULL)
@@ -157,6 +162,8 @@ stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b)
   uint32_t buffer_idx = 0;
   char *buffer = b;
   char *source = node->base;
+
+  printf("buffer length: %X\n", length);
 
   for (;buffer_idx < length; buffer_idx ++, node_idx ++)
   {

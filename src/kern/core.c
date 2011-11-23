@@ -77,6 +77,7 @@ void large_file_test()
   file_seek(file, 0, SEEK_SET);
   demand_key();
   char *d = kalloc(sizeof("ABCD"));
+  memset(d, 0, strlen(c)+1);
   for (idx = 0; idx < 0x1000; idx++)
   {
     file_read(file, strlen(c), d);

@@ -81,7 +81,7 @@ file_read(file_t *file, size_t buffer_size, void *b)
 {
   if (file == NULL)
     return -E_FILE_NOFILE;
-  if (b == NULL)
+  if (b == NULL || buffer_size == 0)
     return -E_FILE_NOBUFFER;
   if (file->data == NULL)
     return -E_FILE_NOSTREAM;
@@ -149,7 +149,7 @@ file_write(file_t *file, size_t buffer_size, void *b)
 {
    if (file == NULL)
     return -E_FILE_NOFILE;
-  if (b == NULL)
+  if (b == NULL || buffer_size == 0)
     return -E_FILE_NOBUFFER;
   if (file->data == NULL)
     return -E_FILE_NOSTREAM; 
