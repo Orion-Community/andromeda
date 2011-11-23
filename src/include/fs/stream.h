@@ -33,8 +33,12 @@
 #define TYPE_SOCK       0x007 /* Socket file type */
 
 /**
- * Needs a bit of rethinking, now this implements a random fragment size
- * Might be more efficient to stick to disk block sizes
+ * Stream node is a segment in the actual stream.
+ * base         The base address of the data
+ * segment_base The offset into the stream (in bytes)
+ * segment_size The size of the segment (in bytes)
+ * prev_node    The pointer to the previous segment
+ * next_node    The pointer to the next segment
  */
 
 struct __STREAM_NODE
