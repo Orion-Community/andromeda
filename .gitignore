@@ -7,3 +7,4 @@ src/andromeda
 *~
 src/scripts/floppy.img
 /nbproject/
+*.kate-swp
