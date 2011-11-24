@@ -63,6 +63,8 @@ file_close(file_t *file)
   if (file->data == NULL)
     return -E_FILE_NOSTREAM;
 
+  file_sync(file);
+
   stream_close(file->data);
   free(file);
   return 0;
@@ -162,4 +164,10 @@ file_write(file_t *file, size_t buffer_size, void *b)
   file -> stream_cursor += (chars_written >= 0) ? chars_written : 0;
   file -> file_size += growth;
   return chars_written;
+}
+
+int
+file_sync(file_t *file)
+{
+  return -E_NOFUNCTION;
 }

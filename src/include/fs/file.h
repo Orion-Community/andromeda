@@ -52,4 +52,5 @@ int     file_close (file_t *file);
 int     file_seek  (file_t *file, long long offset, enum seektype from);
 size_t  file_read  (file_t *file, size_t buffer_size, void *b);
 size_t  file_write (file_t *file, size_t buffer_size, void *b);
+int     file_sync  (file_t *file);
 #endif

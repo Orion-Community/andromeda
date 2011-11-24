@@ -2,6 +2,7 @@ TODO:
 
 * provide task switching mechanism (Mechanism)
 * Make a multitasking system (Policy)
+* Fork the first kernel process (Policy)
 * Implement systemcalls policy (Policy)
 * Make stdio go through streams (stdin, stdout, stderr) (Policy)
 * Implement pipes and streams through files (Policy)
