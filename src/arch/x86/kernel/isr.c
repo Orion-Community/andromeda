@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <mm/paging.h>
 #include <kern/cpu.h>
+#include <arch/intel/task.h>
 
 /*
 extern uint32_t pgbit;

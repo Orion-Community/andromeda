@@ -99,15 +99,6 @@ typedef unsigned int uint32_t;
 typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
 
-struct isr_regs
-{
-  uint16_t ds;
-  unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-  unsigned int funcPtr, errCode;
-  unsigned int eip, cs, eflags, procesp, ss;
-} __attribute__((packed));
-typedef struct isr_regs isrVal_t;
-
 // typedef struct __TYPE_REGISTERS isrVal_t;
 typedef unsigned long size_t;
 typedef long time_t; // Time variables are specified to be signed

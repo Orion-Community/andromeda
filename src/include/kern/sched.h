@@ -20,6 +20,8 @@
 #define __KERN_SCHED_H
 #include <stdlib.h>
 #include <types.h>
+#include <arch/intel/task.h>
+
 void sched();
 void fork ();
 void kill (int);

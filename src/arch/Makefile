@@ -1,15 +1,22 @@
 MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 MAKE=make
 
+
+LD=ld
+LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
+
 .PHONY: all
-all: x86
+all: arch.o
 	mv -fv arch.o ../
 
-.PHONY: x86
-x86:
-	$(MAKE) $(MAKEEND) -C x86
-	mv -fv x86/arch.o ./
+arch.o: x86.o intel.o
+	$(LD) $(LDFLAGS) *.o -o arch.o
 
-.PHONY: clean
-clean:
-	$(MAKE) -C x86 clean
+x86.o:
+	
+	$(MAKE) $(MAKEEND) -C x86
+	mv -fv x86/x86.o ./
+
+intel.o:
+	$(MAKE) $(MAKEEND) -C intel
+	mv -fv intel/intel.o ./
