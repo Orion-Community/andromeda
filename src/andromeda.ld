@@ -27,7 +27,9 @@ SECTIONS
     .rodata : AT (ADDR(.rodata) - 0xC0000000)
     {
 	  rodata = .; _rodata = .; __rodata = .;
+	  _ctor_start = .;
 	  *(.ctor*)
+	  _dtor_start = .;
 	  *(.dtor*)
 	  *(.gnu_linkonce.r*)
 	  *(.rodata*)
