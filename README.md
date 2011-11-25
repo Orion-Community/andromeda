@@ -38,9 +38,38 @@ if it's not included, look at http://www.gnu.org/licences/.
 Contributing
 ------------
 
-This kernel is free software and we welcome contributions of any form. The todo
-file should contain more info, or you can just scratch your own itch with the
-kernel and send us a pull request. You're welcome to do so.
+This kernel is free software and we welcome contributions of any form. Below is
+a list of possible things you could help with. Or you could just scratch your
+own itch, that's just fine.
+
+Sprint 1
+--------
+Deadline: 07-03-2012
+
+* provide task switching mechanism (Mechanism)
+* Make a multitasking system (Policy)
+* Fork the first kernel process (Policy)
+* Implement systemcalls policy (Policy)
+* Make stdio go through streams (stdin, stdout, stderr) (Policy)
+* Implement pipes and streams through files (Policy)
+
+Sprint 2
+--------
+
+Deadline: 07-09-2012
+
+* Allow kernel to use provided memory map (Mechanism)
+* enable process protection mechanism (userspace) (Mechanism)
+* Make the kernel actually use the memory map (Dynamically scale heap) (Policy)
+* Build process protection policy (userspace) (Policy)
+
+Sprint 3
+--------
+
+Deadline: 07-03-2013
+* Read an initrd from Grub (Mechanism)
+* Mount the initrd (Policy)
+* start the firs task from initrd (Policy)
 
 Bootloader info
 ---------------
