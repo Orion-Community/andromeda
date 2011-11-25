@@ -44,6 +44,7 @@ own itch, that's just fine.
 
 Sprint 1
 --------
+
 Deadline: 07-03-2012
 
 * provide task switching mechanism (Mechanism)
@@ -67,6 +68,7 @@ Sprint 3
 --------
 
 Deadline: 07-03-2013
+
 * Read an initrd from Grub (Mechanism)
 * Mount the initrd (Policy)
 * start the firs task from initrd (Policy)
