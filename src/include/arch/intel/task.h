@@ -23,18 +23,34 @@
 extern "C" {
 #endif
 
-struct __TASK_STATE
+struct __PROC_MEM_MAP
+{
+  // Do some memory mapping for the process here ...
+};
+
+struct __THREAD_STATE
 {
   uint64_t program_counter;
   uint64_t stack_pointer;
   uint64_t base_pointer;
   uint64_t destination_index;
   uint64_t source_index;
-  uint64_t eflags;
+  uint64_t ax, bx, cx, dx;
+  uint64_t flags;
+
+  struct __THREAD_STATE *next;
+  struct __THREAD_STATE *prev;
+};
+
+struct __TASK_STATE
+{
+  struct __THREAD_STATE *threads;
   uint64_t cr0, cr1, cr2, cr3;
   uint16_t cs, ss, ds;
 
-  
+  uint8_t Privilege;
+
+  struct __PROC_MEM_MAP *process_map;
 };
 
 struct isr_regs

@@ -20,7 +20,6 @@
 #include <error/error.h>
 
 
-
 int task_save_state()
 {
   return -E_NOFUNCTION;
