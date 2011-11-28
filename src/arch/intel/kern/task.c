@@ -20,12 +20,12 @@
 #include <error/error.h>
 
 
-int task_save_state()
+int task_save_regs()
 {
   return -E_NOFUNCTION;
 }
 
-int task_load_state()
+int task_load_regs()
 {
   return -E_NOFUNCTION;
 }
