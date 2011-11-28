@@ -39,12 +39,19 @@ struct __THREAD_STATE
 
 struct __TASK_STATE
 {
+  struct __TASK_STATE *next;
+  struct __TASK_STATE *prev;
+
   struct __THREAD_STATE *threads;
   struct __PROC_REGS *regs;
 
-  char *path_to_bin;
-
+  uint8_t priority;
   uint8_t ring_level;
+
+  uint32_t time_used;
+  uint32_t time_granted;
+
+  char *path_to_bin;
 
   uint64_t phys_map_idx;
 
@@ -54,6 +61,8 @@ struct __TASK_STATE
   addr_t code_size;
   addr_t data_size;
 };
+
+extern struct __TASK_STATE task_stacks[];
 
 void sched();
 void fork ();

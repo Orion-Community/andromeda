@@ -21,6 +21,10 @@
 
 volatile boolean scheduling = FALSE;
 
+struct __TASK_STATE task_stacks[120];
+
+volatile struct __TASK_STATE *current;
+
 void sched()
 {
   panic("Scheduling not supported!");
@@ -39,4 +43,15 @@ void kill (int signal)
 int sched_init()
 {
   panic("Nothing to init in sched");
+  if (current != NULL)
+    panic("Trying to init scheduling on a running system!");
+  
+  current = kalloc(sizeof(struct __TASK_STATE));
+
+  if (current == NULL)
+  {
+    panic("Out of memory in sched_init!");
+  }
+
+  memset(current, 0, sizeof(struct __TASK_STATE));
 }
