@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 
+#define STD_STACK_SIZE 0x8000
+
 struct __THREAD_STATE
 {
   struct __THREAD_REGS *regs;
@@ -62,7 +64,9 @@ struct __TASK_STATE
   addr_t data_size;
 };
 
-extern struct __TASK_STATE task_stacks[];
+extern struct __TASK_STATE *task_stacks[120];
+extern struct __TASK_STATE *idle_stack;
+extern struct __TASK_STATE *current;
 
 void sched();
 void fork ();

@@ -21,9 +21,11 @@
 
 volatile boolean scheduling = FALSE;
 
-struct __TASK_STATE task_stacks[120];
+unsigned char stack[0x8000];
 
-volatile struct __TASK_STATE *current;
+struct __TASK_STATE *task_stacks[120];
+struct __TASK_STATE *idle_stack;
+struct __TASK_STATE *current;
 
 void sched()
 {
@@ -45,13 +47,24 @@ int sched_init()
   panic("Nothing to init in sched");
   if (current != NULL)
     panic("Trying to init scheduling on a running system!");
-  
-  current = kalloc(sizeof(struct __TASK_STATE));
 
-  if (current == NULL)
-  {
-    panic("Out of memory in sched_init!");
-  }
+  current = kalloc(sizeof(struct __TASK_STATE));
+  struct __THREAD_STATE *tmp = kalloc(sizeof(struct __THREAD_STATE));
+  if (tmp == NULL || current == NULL)
+    goto err;
 
   memset(current, 0, sizeof(struct __TASK_STATE));
+  memset(tmp, 0, sizeof(struct __THREAD_STATE));
+
+  current->threads = tmp;
+  task_stacks[0] = current;
+
+  tmp->stack = stack;
+  tmp->stack_size = STD_STACK_SIZE;
+  
+
+  return -E_SUCCESS;
+
+err:
+  panic("Could not initialise scheduling data");
 }
