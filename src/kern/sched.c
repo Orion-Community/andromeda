@@ -21,11 +21,18 @@
 
 volatile boolean scheduling = FALSE;
 
-unsigned char stack[0x8000];
+unsigned char stack[STD_STACK_SIZE];
 
-struct __TASK_STATE *task_stacks[120];
-struct __TASK_STATE *idle_stack;
-struct __TASK_STATE *current;
+struct __TASK_STATE *task_stack = NULL;
+struct __TASK_STATE *idle_stack = NULL;
+struct __TASK_STATE *waiting_stack = NULL;
+struct __TASK_STATE *current_quantum = NULL;
+struct __TASK_STATE *current = NULL;
+
+void get_new_quantum()
+{
+  panic("No tasks to build quantum with");
+}
 
 void sched()
 {
@@ -57,11 +64,17 @@ int sched_init()
   memset(tmp, 0, sizeof(struct __THREAD_STATE));
 
   current->threads = tmp;
-  task_stacks[0] = current;
+  task_stack = current;
+
+  current->code = (void*)0xC0000000;
+  current->code_size = 0x40000000;
+  current->data = (void*)0xC0000000;
+  current->data_size = 0x40000000;
 
   tmp->stack = stack;
   tmp->stack_size = STD_STACK_SIZE;
-  
+
+  current->path_to_bin = "/andromeda";
 
   return -E_SUCCESS;
 

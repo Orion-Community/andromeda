@@ -31,7 +31,7 @@ extern "C" {
 
 struct __THREAD_STATE
 {
-  struct __THREAD_REGS *regs;
+  struct __THREAD_REGS regs;
   void* stack;
   addr_t stack_size;
 
@@ -45,13 +45,17 @@ struct __TASK_STATE
   struct __TASK_STATE *prev;
 
   struct __THREAD_STATE *threads;
-  struct __PROC_REGS *regs;
+  struct __PROC_REGS regs;
 
   uint8_t priority;
   uint8_t ring_level;
 
+  uint16_t signal;
+
   uint32_t time_used;
   uint32_t time_granted;
+
+  uint8_t sched_state;
 
   char *path_to_bin;
 
@@ -64,8 +68,10 @@ struct __TASK_STATE
   addr_t data_size;
 };
 
-extern struct __TASK_STATE *task_stacks[120];
+extern struct __TASK_STATE *task_stack;
 extern struct __TASK_STATE *idle_stack;
+extern struct __TASK_STATE *waiting_stack;
+extern struct __TASK_STATE *current_quantum;
 extern struct __TASK_STATE *current;
 
 void sched();
