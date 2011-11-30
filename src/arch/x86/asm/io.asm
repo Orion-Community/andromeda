@@ -52,7 +52,7 @@ mutexEnter:
   xchg [ebp+8], eax
   test eax, eax
   jnz .spin
-  
+
   return
 
 [GLOBAL mutexTest] ; // Return 0 if mutex was unlocked, 1 if locked

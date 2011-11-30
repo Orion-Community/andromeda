@@ -1,23 +1,26 @@
 include ../scripts/makeIncl
+CFLAGS+=-I../include
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
-MAKE=make
-CFLAGS+= -I../include
-# TARGETS=io.c
+
+INCLUDES=../include/fs/stream.h ../include/fs/file.h ../include/fs/vfs.h\
+../include/fs/path.h
 
 .PHONY: all
-all: fs.o
-	mv -v fs.o ../
-
-io.c:
-	$(CC) io.c $(FLAGS) $(CFLAGS)
-
-vfs.o:
-	$(MAKE) -C vfs
-
-fs.o: io.o vfs.o
+all: stream.o file.o vfs.o path.o test.o
 	$(LD) -o fs.o *.o $(LDFLAGS)
-	
-.PHONY: clean
-clean:
-	rm -fv *.o
-	$(MAKE) -C vfs/ clean
+	mv fs.o ../
+
+stream.o: stream.c
+	$(CC) $(FLAGS) $(CFLAGS) stream.c
+
+file.o: file.c
+	$(CC) $(FLAGS) $(CFLAGS) file.c
+
+vfs.o: vfs.c
+	$(CC) $(FLAGS) $(CFLAGS) vfs.c
+
+path.o: path.c
+	$(CC) $(FLAGS) $(CFLAGS) path.c
+
+test.o: test.c
+	$(CC) $(FLAGS) $(CFLAGS) test.c

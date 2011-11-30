@@ -72,7 +72,7 @@ void setTimerFreq(int frequency)
 void timerTick()
 {
   timer->microtime ++;
-  if (timer->microtime%timer->freq == 0)
+  if ((timer->microtime%timer->freq) == 0)
   {
     timer->time++;
     timer->microtime = 0;

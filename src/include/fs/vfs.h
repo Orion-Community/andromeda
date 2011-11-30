@@ -16,20 +16,53 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __FS_DRIVERS_H
-#define __FS_DRIVERS_H
+#ifndef __FS_VFS_H
+#define __FS_VFS_H
 
 #include <fs/file.h>
 
-struct _FS_DRIVER
+#define MAX_NAME_LENGTH         0xff
+#define VFS_DIR_ENTRIES         0x20
+#define VFS_FILE_ENTRIES        VFS_DIR_ENTRIES
+
+enum entry_type_t {DIR_TYPE, FILE_TYPE};
+
+struct __DIR_ENTRY
 {
-  unsigned int id;
-  char name[8];
-  FILE* (*open) (char* name, unsigned int rights);
-  int (*close)  (FILE* fd);
-  int (*read)   (FILE* fd, char* buf, size_t num);
-  int (*write)  (FILE* fd, char* buf, size_t num);
-  struct _FS_DRIVER *next;
+  char name[MAX_NAME_LENGTH];
+  enum entry_type_t type;
+  union {
+    struct __DIR *d;
+    struct __VFS_FILE *f;
+  };
 };
+
+struct __VFS_FILE
+{
+  file_t *device;
+  uint32_t inode;
+
+  file_t *cache;
+};
+
+struct __DIR_ENTRIES
+{
+  struct __DIR_ENTRY entries[VFS_DIR_ENTRIES];
+
+  struct __DIR_ENTRIES *next;
+  struct __DIR_ENTRIES *prev;
+};
+
+struct __DIR
+{
+  file_t *device;
+  uint32_t inode;
+
+  struct __DIR_ENTRIES *entries;
+};
+
+typedef struct __DIR directory;
+
+extern directory *root;
 
 #endif

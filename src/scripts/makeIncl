@@ -5,4 +5,4 @@ OUT=andromeda
 COMPRESSED=-D\ __COMPRESSED
 MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 test=$(foreach T,$($(1)),$(if $($(firstword $(subst :, ,$T))),$(lastword $(subst :, ,$T)),))
-CFLAGS=-nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 -D __INTEL -mtune=i686 -march=i386
+CFLAGS=-nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 -D __INTEL -mtune=i686 -march=i386 -pipe

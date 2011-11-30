@@ -50,6 +50,35 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
   return 0;
 }
 
+static int
+__msi_read_message(struct msi_cfg *cfg, struct msi *msg)
+{
+  uint32_t msi_data;
+  if(cfg->attrib.is_msix)
+  {
+    msg->addr = readl(cfg->attrib.base + MSIX_LOW_ADDR);
+    printf("%x\n", readl(cfg->attrib.base + MSIX_LOW_ADDR));
+    if(cfg->attrib.is_64)
+      msg->addr = readl(cfg->attrib.base + MSIX_UPPER_ADDR);
+    msi_data = readl(cfg->attrib.base + MSIX_MESSAGE_DATA);
+  }
+  else
+  {
+    struct ol_pci_dev *dev = cfg->dev;
+    msg->addr = ol_pci_read_dword(dev, MSI_LOWER_ADDR(cfg->attrib.cpos));
+    if(cfg->attrib.is_64)
+    {
+      msg->addr_hi = ol_pci_read_dword(dev, MSI_UPPER_ADDR(cfg->attrib.cpos));
+      msi_data = ol_pci_read_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,1));
+    }
+    else
+      ol_pci_read_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,0));
+  }
+  msi_build_message(msg, msi_data);
+
+  return 0;
+}
+
 void
 setup_msi_entry(struct ol_pci_dev *dev, uint8_t cp)
 {
@@ -103,7 +132,7 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
   __msi_write_message(cfg, &msi);
   msi_enable_msix_entry(cfg, 0); /* enable first entry */
   
-  debug_msix_entry(cfg, &msi);
+  debug_msix_entry(cfg);
   return 0;
 }
 
@@ -140,18 +169,31 @@ msi_convert_message(struct msi_msg *msg)
           MSI_TRIGGER_LEVEL_DATA(msg->trig_lvl) | MSI_TRIGGER_DATA(msg->trigger));
 }
 
+static int
+msi_build_message(struct msi *msi, uint32_t msg)
+{
+  msi->msg.vector = msg&0xff;
+  msi->msg.dm = (msg >> 8) & 0x7;
+  msi->msg.trig_lvl = (msg >> 14) & 1;
+  msi->msg.trigger = (msg >> 15) & 1;
+  return 0;
+}
+
 #ifdef MSIX_DEBUG
 static void
-debug_msix_entry(struct msi_cfg *cfg, struct msi *msi)
+debug_msix_entry(struct msi_cfg *cfg)
 {
+  struct msi *msi = kalloc(sizeof(*msi));
+  __msi_read_message(cfg, msi);
   struct ol_pci_dev *dev = cfg->dev;
   uint8_t irq = ol_pci_read_dword(dev, OL_PCI_INTERRUPT_LINE) & 0xff;
   volatile void *base = cfg->attrib.base;
   //printf("test: 0x%x\n", irq);
   uint16_t msi_ctl = (ol_pci_read_dword(cfg->dev, (uint16_t)cfg->attrib.cpos) >> 16) & 0x3ff;
 
-  printf("msi-x: 64: %x; msg_addr: 0x%x; vector_ctrl: %i; cfg_space_size: %i\n",
-      cfg->attrib.is_64, readl(base), readl(base+12), (msi_ctl+1)/4);
+  printf("msi-x: 64: %x; base: 0x%x; msg_data: %x; cfg_space_size: %i\n",
+      cfg->attrib.is_64, msi->addr, msi_convert_message(&msi->msg), (msi_ctl+1)/4);
+  free(msi);
 }
 #endif
 #endif

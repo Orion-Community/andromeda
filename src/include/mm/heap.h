@@ -24,7 +24,7 @@
 
 #include <types.h>
 #include <thread.h>
-
+#include <mm/paging.h>
 struct memNode
 {
   unsigned int size;
@@ -66,7 +66,7 @@ void heap_add_blocks(void* base, uint32_t size);
 #define kalloc(size) alloc(size, FALSE)
 
 // Alloc_max = 1 MB
-#define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end))
+#define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end) - offset)
 #define ALLOC_MAX HEAPSIZE
 
 #ifdef MMTEST

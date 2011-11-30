@@ -38,7 +38,6 @@
 #include <boot/mboot.h>
 #include <mm/map.h>
 #include <tty/tty.h>
-#include <fs/fs.h>
 #include <arch/x86/pic.h>
 
 #include <sys/dev/ps2.h>
@@ -138,12 +137,12 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   page_unmap_low_mem();
   pic_init();
   setIDT();
-  
+
   printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
   ol_cpu_t cpu = kalloc(sizeof (*cpu));
   ol_cpu_init(cpu);
   acpi_init();
-  
+
   ol_ps2_init_keyboard();
   ol_apic_init(cpu);
   init_ioapic();
@@ -155,14 +154,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   ioapic_debug();
 #endif
 
-#ifndef NOFS
-  fsInit(NULL);
-#ifdef FSTEST
-  list(_fs_root);
-#endif
-#endif
-
-#ifndef __MEMTEST
+#ifdef __MEMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
 #ifdef DBG
   free(cpu);
@@ -183,11 +175,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         *(((uint32_t*) systables->rsdp->signature)));
     printf("MP specification signature: 0x%x\n", systables->mp->signature);
   }
-#endif
-#ifdef PAGEDBG
-  int *i = (void*)0x12345678;
-//   *i = 5;
-  printf("%X\n", *i);
 #endif
   core_loop();
   return 0; // To keep the compiler happy.

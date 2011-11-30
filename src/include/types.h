@@ -110,7 +110,7 @@ typedef struct isr_regs isrVal_t;
 
 // typedef struct __TYPE_REGISTERS isrVal_t;
 typedef unsigned long size_t;
-typedef signed long time_t; // Time variables are specified to be signed
+typedef long time_t; // Time variables are specified to be signed
 
 typedef unsigned long addr_t;
 

@@ -19,6 +19,9 @@
 #include <stdlib.h>
 #include <kern/core.h>
 #include <kern/sched.h>
+#include <fs/file.h>
+#include <fs/stream.h>
+#include <fs/path.h>
 
 #define RL_BOOT     0x0
 #define RL_SHUTDOWN 0x1
@@ -28,16 +31,39 @@
 #define RL_RUN3     0x5
 #define RL_REBOOT   0x6
 
+void demand_key();
+
 void shutdown()
 {
   printf("You can now shutdown your PC\n");
   for(;;)
   {
-    halt();
+    endProg();
   }
 }
 
 volatile uint32_t rl = 0;
+
+void init_set(uint32_t i)
+{
+  printf("Changing run level to %i\n", i);
+  rl = i;
+}
+
+extern void file_test(char* data);
+extern void large_file_test();
+extern void path_test(char *path);
+
+extern uint32_t key_pressed;
+
+void demand_key()
+{
+  printf("Press any key to continue!\n");
+  key_pressed = 0;
+  while(key_pressed == 0)
+    halt();
+  return;
+}
 
 void core_loop()
 {
@@ -49,18 +75,32 @@ void core_loop()
     {
       case RL_BOOT:
 //         pid = fork();
-        rl = RL_RUN0;
+        init_set(RL_RUN0);
         break;
+
       case RL_RUN0:
+#ifdef STREAM_DBG
+        demand_key();
+        file_test("Hello world!");
+        demand_key();
+        large_file_test();
+        demand_key();
+        path_test("/proc/1");
+        path_test("./test.sh");
+        path_test("~/hello\\\\ world!");
+        init_set(RL_RUN1);
+#endif
       case RL_RUN1:
       case RL_RUN2:
       case RL_RUN3:
+//         halt();
 //         sched_next_task();
-        halt();
         break;
+
       case RL_REBOOT:
         reboot();
         break;
+
       case RL_SHUTDOWN:
         shutdown();
         break;
