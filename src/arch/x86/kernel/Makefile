@@ -32,7 +32,7 @@ ISR2_SRC=isr.c
 PIC_SRC=pic.c
 PIT_SRC=pit.c
 KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC) \
-$(ACPI) $(CPU)
+$(ACPI) $(CPU) $(SCHED)
 
 
 .PHONY: all

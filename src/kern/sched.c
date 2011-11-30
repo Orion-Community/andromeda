@@ -16,110 +16,68 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 #include <kern/sched.h>
-#include <error/panic.h>
 
 volatile boolean scheduling = FALSE;
-struct __task_struct *task_stack = NULL;
-struct __task_struct **current_tasks = NULL;
 
-uint32_t cpus = 0;
+unsigned char stack[STD_STACK_SIZE];
 
-struct __task_struct*
-sched_init_task(int user_id, boolean userspace, char* path_to_binary, int pid)
+struct __TASK_STATE *task_stack = NULL;
+struct __TASK_STATE *idle_stack = NULL;
+struct __TASK_STATE *waiting_stack = NULL;
+struct __TASK_STATE *current_quantum = NULL;
+struct __TASK_STATE *current = NULL;
+
+void get_new_quantum()
 {
-  struct __task_struct* new_task = kalloc(sizeof(struct __task_struct));
-  if(new_task == NULL) return NULL;
-  memset (new_task, 0, sizeof(struct __task_struct));
+  panic("No tasks to build quantum with");
+}
 
-  new_task->uid       = user_id;
-  new_task->pid       = pid;
-  new_task->userspace = userspace;
-  new_task->ptb       = path_to_binary;
+void sched()
+{
+  panic("Scheduling not supported!");
+}
 
-  new_task->text = kalloc(sizeof(struct __kern_sched_segment));
-  if (new_task->text == NULL)
-  {
-    free(new_task);
-    return NULL;
-  }
-  new_task->data = kalloc(sizeof(struct __kern_sched_segment));
-  if (new_task->data == NULL)
-  {
-    free(new_task->text); free(new_task);
-    return NULL;
-  }
-  new_task->bss = kalloc(sizeof(struct __kern_sched_segment));
-  if (new_task->bss == NULL)
-  {
-    free(new_task->text); free(new_task->data); free(new_task);
-    return NULL;
-  }
-  new_task->stack = kalloc(sizeof(struct __kern_sched_segment));
-  if (new_task->stack == NULL)
-  {
-    free(new_task->text); free(new_task->data); free(new_task->bss);
-    free(new_task);
-    return NULL;
-  }
-  new_task->threads = kalloc(sizeof(struct __thread_state));
-  if (new_task->threads == NULL)
-  {
-    free(new_task->text); free(new_task->data); free(new_task->bss);
-    free(new_task->stack); free(new_task);
-  }
-  new_task->threads->tid = 0;
-  new_task->threads->registers = NULL;
-  new_task->threads->nice = 0;
-  new_task->threads->used = 0;
-  new_task->threads->next = NULL;
-  new_task->threads->previous = NULL;
+void fork ()
+{
+  panic("No forking code");
+}
 
-  new_task->nice = 0;
-  new_task->spent = 0;
-  new_task->working_dir = "/";
-
-  return new_task;
+void kill (int signal)
+{
+  panic("No processes to send signal");
 }
 
 int sched_init()
 {
-  struct __task_struct* proc_init = sched_init_task(0, FALSE, "/", 0);
+  panic("Nothing to init in sched");
+  if (current != NULL)
+    panic("Trying to init scheduling on a running system!");
 
-  if (proc_init == NULL)
-    panic("No memory for init process");
+  current = kalloc(sizeof(struct __TASK_STATE));
+  struct __THREAD_STATE *tmp = kalloc(sizeof(struct __THREAD_STATE));
+  if (tmp == NULL || current == NULL)
+    goto err;
 
-  uint32_t cpus = /* get_no_cpus() */1;
-  if (cpus == 0)
-    cpus = 1;
-  current_tasks = kalloc(sizeof(struct __task_struct) * cpus);
-  if (current_tasks == NULL)
-    panic("No memory for the current tasks structure");
-  int i = 0;
-  for (; i < cpus; i++)
-  {
-    current_tasks[i] = proc_init;
-  }
+  memset(current, 0, sizeof(struct __TASK_STATE));
+  memset(tmp, 0, sizeof(struct __THREAD_STATE));
 
-  return -E_UNFINISHED;
-}
+  current->threads = tmp;
+  task_stack = current;
 
-int sched_start_switching()
-{
-  return -E_NOFUNCTION;
-}
+  current->code = (void*)0xC0000000;
+  current->code_size = 0x40000000;
+  current->data = (void*)0xC0000000;
+  current->data_size = 0x40000000;
 
-void sched_next_task()
-{
-	panic("Could not schedule");
-}
+  tmp->stack = stack;
+  tmp->stack_size = STD_STACK_SIZE;
 
-void fork()
-{
-	panic("Fork wasn't implemented");
-}
+  current->path_to_bin = "/andromeda";
 
-void kill (int pid)
-{
-	panic("Kill needs implementation");
+  return -E_SUCCESS;
+
+err:
+  panic("Could not initialise scheduling data");
 }

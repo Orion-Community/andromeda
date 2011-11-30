@@ -53,8 +53,6 @@
 
 #include <arch/x86/apic/ioapic.h>
 
-unsigned char stack[0x8000];
-
 // Define the place of the heap
 
 multiboot_memory_map_t* mmap;

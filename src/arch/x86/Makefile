@@ -6,17 +6,17 @@ LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 ## TARGETS
-ARCH=arch.o
+X86=x86.o
 
 ## DEPS
 DEPS=kernel.o mm.o asm.o
 
 .PHONY: all
-all: arch.o
+all: x86.o
 
 
-arch.o: $(DEPS)
-	$(LD) -o arch.o $(DEPS) $(LDFLAGS)
+x86.o: $(DEPS)
+	$(LD) -o $(X86) $(DEPS) $(LDFLAGS)
 
 mm.o:
 	$(MAKE) $(MAKEEND) -C mm/
@@ -29,10 +29,3 @@ kernel.o:
 asm.o:
 	$(MAKE) -C asm $(MAKEEND)
 	mv -fv asm/asm.o ./
-
-.PHONY: clean
-clean:
-	$(MAKE) -C kernel clean
-	$(MAKE) -C asm clean
-	$(MAKE) -C mm clean
-	rm -fv *.o
