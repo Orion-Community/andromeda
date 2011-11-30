@@ -45,4 +45,6 @@
 #define E_FILE_NOSTREAM         0x13
 #define E_STREAM_FAILURE        0x14
 
+#define E_HEAP_GENERIC          0x15
+
 #endif

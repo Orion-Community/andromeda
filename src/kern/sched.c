@@ -52,7 +52,7 @@ void kill (int signal)
 int task_init()
 {
 #ifndef SCHED_DBG
-  printf("WARNING! Scheduling not yet supported");
+  printf("WARNING! Scheduling not yet supported\n");
 #endif
   if (current != NULL)
     panic("Trying to init scheduling on a running system!");
