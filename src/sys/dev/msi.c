@@ -111,11 +111,23 @@ static volatile void*
 msi_calc_msix_base(struct ol_pci_dev *dev, uint8_t cp)
 {
   uint32_t bar_nr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4) & 7;
-  uint32_t bar = ol_pci_read_dword(dev, MSIX_BAR(bar_nr));
-  if(bar & 1)
-    bar &= 0xfffffffc;
+#ifdef X64
+  uint64_t bar_low = ol_pci_read_dword(dev, MSIX_BAR(bar_nr));
+  uint64_t bar;
+  if((bar_low & 0x6) == 2)
+  {
+    uint64_t bar_hi = ol_pci_read_dword(dev, (MSIX_BAR(bar_nr)+4));
+    bar = bar_low | (bar_hi << 32);
+  }
   else
-    bar &= 0xfffffff0;
+    bar = bar_low;
+#else
+  uint32_t bar = ol_pci_read_dword(dev, MSIX_BAR(bar_nr));
+#endif
+  if(bar & 1)
+    bar &= ~3;
+  else
+    bar &= ~0xf;
   
   page_map_kernel_entry(bar,bar); /* map the address 1:1 */
   return (volatile void*)bar;
