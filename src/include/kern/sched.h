@@ -29,6 +29,13 @@ extern "C" {
 
 #define STD_STACK_SIZE 0x8000
 
+struct __TASK_CHILDREN
+{
+  struct __TASK_STATE *children[0x10];
+  struct __TASK_CHILDREN *next;
+  struct __TASK_CHILDREN *prev;
+};
+
 struct __THREAD_STATE
 {
   struct __THREAD_REGS regs;
@@ -47,6 +54,9 @@ struct __TASK_STATE
   struct __THREAD_STATE *threads;
   struct __PROC_REGS regs;
 
+  struct __TASK_CHILDREN *children;
+  struct __TASK_STATE *parent;
+
   uint8_t priority;
   uint8_t ring_level;
 
@@ -54,8 +64,6 @@ struct __TASK_STATE
 
   uint32_t time_used;
   uint32_t time_granted;
-
-  uint8_t sched_state;
 
   char *path_to_bin;
 
@@ -78,8 +86,7 @@ void sched();
 void fork ();
 void kill (int);
 
-int sched_init();
-void sched_next_task();
+int task_init();
 
 #ifdef __cplusplus
 }

@@ -31,7 +31,7 @@ struct __TASK_STATE *current = NULL;
 
 void get_new_quantum()
 {
-  panic("No tasks to build quantum with");
+  panic("No tasks to build quantum");
 }
 
 void sched()
@@ -49,9 +49,11 @@ void kill (int signal)
   panic("No processes to send signal");
 }
 
-int sched_init()
+int task_init()
 {
-  panic("Nothing to init in sched");
+#ifndef SCHED_DBG
+  printf("WARNING! Scheduling not yet supported");
+#endif
   if (current != NULL)
     panic("Trying to init scheduling on a running system!");
 
@@ -74,7 +76,7 @@ int sched_init()
   tmp->stack = stack;
   tmp->stack_size = STD_STACK_SIZE;
 
-  current->path_to_bin = "/andromeda";
+//   current->path_to_bin = "/andromeda";
 
   return -E_SUCCESS;
 
