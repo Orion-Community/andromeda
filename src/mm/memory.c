@@ -25,7 +25,7 @@
 int heap_base[BASE_HEAP_SIZE]; // Heap base = 4 MiB
 
 int 
-complete_heap(void* base, size_t size)
+complement_heap(void* base, size_t size)
 {
   heap_add_blocks(base, size);
   return 0;

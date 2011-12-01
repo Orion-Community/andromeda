@@ -65,7 +65,6 @@ heap_inset_block(volatile memory_node_t* heap, volatile memory_node_t *block)
   for (; cariage != NULL && (addr_t)heap < block_address;
                                                                  last = cariage,
                                                        cariage = cariage->next);
-
   if (last == NULL)
     return -E_HEAP_GENERIC;
 
@@ -96,7 +95,7 @@ heap_add_blocks(void* base, uint32_t size)
   {
     printf("Warning: Using untested feature in heap_add_blocks!\n");
     mutex_lock(prot);
-    if (heap_inset_block(heap, node) == -E_SUCCESS)
+    if (heap_inset_block(heap, node) != -E_SUCCESS)
       panic("Could not add blocks to map");
     mutex_unlock(prot);
   }

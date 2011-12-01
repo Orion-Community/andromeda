@@ -38,13 +38,15 @@ volatile memory_node_t* heap; /* heap pointer */
 volatile mutex_t prot;
 
 void
-examineHeap()
+examine_heap()
 {
   printf("Head\n0x%X\n", (int) heap);
-  volatile memory_node_t* carriage;
-  for (carriage = heap; carriage != NULL; carriage = carriage->next)
+  if (heap == NULL)
+    return;
+  volatile memory_node_t* cariage;
+  for (cariage = heap; cariage != NULL; cariage = cariage->next)
   {
-    printf("node: 0x%X\tsize: 0x%X\n", (int) carriage, carriage->size);
+    printf("node: 0x%X\tsize: 0x%X\n", (int) cariage, cariage->size);
   }
 }
 
