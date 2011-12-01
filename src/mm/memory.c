@@ -20,11 +20,22 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 
+#define BASE_HEAP_SIZE 0x100000
+
+int heap_base[BASE_HEAP_SIZE]; // Heap base = 4 MiB
+
 int 
-initHeap(long size)
+complete_heap(void* base, size_t size)
 {
-  heap_add_blocks(&end, size);
+  heap_add_blocks(base, size);
   return 0;
+}
+
+int
+init_heap()
+{
+  heap_add_blocks(&heap_base, BASE_HEAP_SIZE);
+  return;
 }
 
 void memset(void *dest, int sval, size_t count)
