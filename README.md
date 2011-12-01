@@ -35,6 +35,26 @@ if it's not included, look at http://www.gnu.org/licences/.
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+Building
+--------
+
+The requirements to build the kernel are relatively light.
+
+To retreive the kernel:
+
+* git
+
+To compile:
+
+* gcc
+* g++
+* ld
+* nasm
+
+To test:
+
+* qemu
+
 Contributing
 ------------
 

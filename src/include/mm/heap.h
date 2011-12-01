@@ -35,7 +35,7 @@ struct memNode
 };
 typedef struct memNode memory_node_t;
 
-void heapAddBlocks(void*, int);
+// void heapAddBlocks(void*, int);
 
 void* alloc(size_t, boolean);
 void* nalloc(size_t);

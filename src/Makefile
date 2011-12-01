@@ -1,7 +1,7 @@
 include scripts/makeIncl
 include scripts/x86
 
-MAKEEND=FLAGS="$(FLAGS)"
+MAKEEND=FLAGS="$(FLAGS) "
 
 MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __IOAPIC_DBG -D __PCI_DEBUG -D MSI -D MSIX -D MSIX_DEBUG"
 #MAKEEND+=FLAGS+="-D X86 -D __INTEL"

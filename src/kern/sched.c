@@ -68,6 +68,8 @@ int task_init()
   current->threads = tmp;
   task_stack = current;
 
+  printf("WARNING! Setting hardcoded segments!\n");
+
   current->code = (void*)0xC0000000;
   current->code_size = 0x40000000;
   current->data = (void*)0xC0000000;
@@ -76,7 +78,9 @@ int task_init()
   tmp->stack = stack;
   tmp->stack_size = STD_STACK_SIZE;
 
-//   current->path_to_bin = "/andromeda";
+  printf("WARNING! Setting a static path to binary!\n");
+
+  current->path_to_bin = "/andromeda";
 
   return -E_SUCCESS;
 
