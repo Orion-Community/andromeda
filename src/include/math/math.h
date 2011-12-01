@@ -23,6 +23,77 @@
 
 void randomize(unsigned int seed);
 int random();
-long abs(long num);
+
+double abs(double num);
+float absf(float num);
+long double absl(long double num);
+
+inline char isNaN(double num);
+inline char isNaNf(float num);
+inline char isNaNl(long double num);
+
+double sin(double x);
+float sinf(float x);
+long double sinl(long double x);
+
+double asin(double x);
+float asinf(float x);
+long double asinl(long double x);
+
+double sinh(double x);
+float sinhf(float x);
+long double sinhl(long double x);
+
+double asinh(double x);
+float asinhf(float x);
+long double asinhl(long double x);
+
+double cos(double x);
+float cosf(float x);
+long double cosl(long double x);
+
+double acos(double x);
+float acosf(float x);
+long double acosl(long double x);
+
+double cosh(double x);
+float coshf(float x);
+long double coshl(long double x);
+
+double acosh(double x);
+float acoshf(float x);
+long double acoshl(long double x);
+
+double tan(double x);
+float tanf(float x);
+long double tanl(long double x);
+
+double atan(double x);
+float atanf(float x);
+long double atanl(long double x);
+
+double tanh(double x);
+float tanhf(float x);
+long double tanhl(long double x);
+
+double atanh(double x);
+float atanhf(float x);
+long double atanhl(long double x);
+
+double exp(double x);
+float expf(float x);
+long double expl(long double x);
+
+double ln(double x);
+float lnf(float x);
+long double lnl(long double x);
+
+double sqrt(double x);
+float sqrtf(float x);
+long double sqrtl(long double x);
+
+double pow(double x, double exp);
+float powf(float x, float exp);
+long double powl(long double x, long double exp);
 
 #endif

@@ -1,4 +1,12 @@
-1-11-'11: Bart Kuivenhoven
+11-11-'11 Steven van der Schoot:
+ * math/math.c:
+    Added sin, cos and tan functions (and there inverse, hyperbolic and invers hyperbolic versions).
+
+10-11-'11 Steven van der Schoot:
+ * mm/memory:
+    Fixed the memcpy function. When copying data to a higher addres with an overlap (e.g. from addres 10 to 20 with size 30). The data will be correctly moved to the new addres. (This makes the data from the original addres incorrect!).
+
+ 1-11-'11: Bart Kuivenhoven
  * mm/map.c:
     This file holds the new memory map, which is responsible for keeping track
     of which pages have been allocated, and which are free.
