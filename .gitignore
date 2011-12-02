@@ -2,6 +2,7 @@
 *.bin
 compressed
 core
+config
 src/andromeda
 *.*project
 *~
