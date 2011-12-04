@@ -75,6 +75,11 @@ gdt:
 
 gdt_end:
 
+[SECTION .PD]
+page_dir_boot:
+times 0x400 dd 0x42
+page_dir_boot_end:
+
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
 [GLOBAL begin]
 begin:

@@ -4,9 +4,16 @@ SECTIONS
 {
     .boot 0x100000 :
     {
-	boot = .; _boot = .; __boot = .;
-	*(.boot);
-	. = ALIGN(0x1000);
+        boot = .; _boot = .; __boot = .;
+        *(.boot);
+        . = ALIGN(0x1000);
+    }
+
+    .PD : AT (ADDR(.PD))
+    {
+        PD = .; _PD = .; __PD = .;
+        *(.PD)
+        . = ALIGN(0x1000);
     }
 
     . += 0xC0000000;
