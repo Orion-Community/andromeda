@@ -79,7 +79,7 @@ boot_setup_pd:
   push ebp
   mov ebp, esp
 
-  mov eax, 0x400
+  mov eax, 0x100
   mov ecx, eax
   mov edi, page_dir_boot
   xor edx, edx
@@ -102,7 +102,7 @@ boot_setup_pd:
   jnz .3
   inc edx
 
-  mov eax, 0x400
+  mov eax, 0x100
   mov ecx, eax
   mov edi, page_dir_boot
   add ebx, 0xC00
