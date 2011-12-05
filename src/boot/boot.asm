@@ -49,35 +49,98 @@ mboot:
 
 [GLOBAL start]
 start:
-  lgdt [trickgdt]
-  mov dx, 0x10
-  mov ds, dx
-  mov es, dx
-  mov fs, dx
-  mov gs, dx
-  mov ss, dx
+  mov esp, boot_stack
+  add esp, 0x400
+
+  push eax
+  push ebx
+  push ecx
+  push edx
+
+  call boot_setup_pd
+
+  pop edx
+  pop ecx
+  pop ebx
+  pop eax
+
+;   lgdt [trickgdt]
+;   mov dx, 0x10
+;   mov ds, dx
+;   mov es, dx
+;   mov fs, dx
+;   mov gs, dx
+;   mov ss, dx
 
   ; jump to the higher half kernel
   jmp 0x08:high_start
 
-trickgdt:
-        dw gdt_end - gdt - 1 ; size of the GDT
-        dd gdt ; linear address of GDT
+boot_setup_pd:
+  push ebp
+  mov ebp, esp
 
-gdt:
-        dd 0, 0                                                 ; null gate
-        db 0xFF, 0xFF, 0, 0, 0, 10011010b, 11001111b, 0x40
-; code selector 0x08: base 0x40000000, limit 0xFFFFFFFF, type 0x9A,
-                                                               ;granularity 0xCF
-        db 0xFF, 0xFF, 0, 0, 0, 10010010b, 11001111b, 0x40
-; data selector 0x10: base 0x40000000, limit 0xFFFFFFFF, type 0x92,
-                                                               ;granularity 0xCF
+  mov eax, 0x400
+  mov ecx, eax
+  mov edi, page_dir_boot
+  xor edx, edx
 
-gdt_end:
+  jmp .2
+
+.1:
+  mov esi, eax
+  sub esi, ecx
+  mov ebx, [edi]
+  or ebx, esi
+  mov [edi], ebx
+  add edi, 4
+
+.2:
+  dec ecx
+  jnz .1
+
+  test edx, edx
+  jnz .3
+  inc edx
+
+  mov eax, 0x400
+  mov ecx, eax
+  mov edi, page_dir_boot
+  add ebx, 0xC00
+  jmp .1
+
+.3:
+  mov eax, page_dir_boot
+  mov cr3, eax
+
+  mov eax, cr0
+  or eax, 0x80000000
+  mov cr0, eax
+
+  mov esp, ebp
+  pop ebp
+  ret
+
+boot_stack:
+  times 0x400 db 0
+
+; trickgdt:
+;         dw gdt_end - gdt - 1 ; size of the GDT
+;         dd gdt ; linear address of GDT
+
+; gdt:
+;         dd 0, 0                                                 ; null gate
+;         db 0xFF, 0xFF, 0, 0, 0, 10011010b, 11001111b, 0x40
+; ; code selector 0x08: base 0x40000000, limit 0xFFFFFFFF, type 0x9A,
+;                                                                ;granularity 0xCF
+;         db 0xFF, 0xFF, 0, 0, 0, 10010010b, 11001111b, 0x40
+; ; data selector 0x10: base 0x40000000, limit 0xFFFFFFFF, type 0x92,
+;                                                                ;granularity 0xCF
+; 
+; gdt_end:
 
 [SECTION .PD]
 page_dir_boot:
-times 0x400 dd 0x42
+times 0x400 dd 0x43
 page_dir_boot_end:
 
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
