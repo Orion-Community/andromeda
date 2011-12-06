@@ -101,8 +101,6 @@ boolean setupCore(module_t mod)
 
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
-  int i;
-  for (i = 0; i < 0x1FFFFFFF; i++)
   init_heap();
   complement_heap(&end, HEAPSIZE);
   textInit();

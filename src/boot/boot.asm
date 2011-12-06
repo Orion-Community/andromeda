@@ -60,12 +60,12 @@ start:
 
   call boot_setup_paging
 
+;   jmp $
+
   pop edx
   pop ecx
   pop ebx
   pop eax
-
-  jmp $
 
 ;   lgdt [trickgdt]
 ;   mov dx, 0x10
@@ -82,27 +82,69 @@ boot_setup_paging:
   push ebp
   mov ebp, esp
 
-  mov eax, 0x0
-  mov ebx, 0x000000
+  xor eax, eax
+  xor ebx, ebx
 .1:
   mov ecx, ebx
   or ecx, 3
   mov [page_table_boot+eax*4], ecx
   add ebx, 0x1000
   inc eax
-  cmp eax, 0x400
+  cmp eax, 0x40000
   jne .1
 
+; Set up page directory pointer
   mov ebx, page_dir_boot
   mov cr3, ebx
 
-  mov ecx, page_table_boot
-  or [ebx], ecx
+;   mov ecx, page_table_boot
+;   or [ebx],    ecx
+;   add ecx, 0x400
+;   or [ebx+4],  ecx
+;   add ecx, 0x400
+;   or [ebx+8],  ecx
+;   add ecx, 0x400
+;   or [ebx+12], ecx
+;   add ebx, 0xC00
+;   mov ecx, page_table_boot
+;   or [ebx],    ecx
+;   add ecx, 0x400
+;   or [ebx+4],  ecx
+;   add ecx, 0x400
+;   or [ebx+8],  ecx
+;   add ecx, 0x400
+;   or [ebx+12], ecx
+
+; Build the page directory
+  xor ecx, ecx
+  mov eax, page_table_boot
+  or eax, 3
+
+; The first 1 GiB
+.2:
+  mov [ebx], eax
+  add ebx, 4
+  add eax, 0x400
+  inc ecx
+  cmp ecx, 0x100
+  jne .2
+
+; The 3 GiB part
+  mov ebx, page_dir_boot
   add ebx, 0xC00
-  or [ebx], ecx
+  xor ecx, ecx
+  mov eax, page_table_boot
+  or eax, 3
+
+.3:
+  mov [ebx], eax
+  add ebx, 4
+  add eax, 0x400
+  inc ecx
+  cmp ecx, 0x100
+  jne .3
 
 ; Set the PG bit
-;   jmp $
   mov eax, cr0
   or eax, 0x80000000
   mov cr0, eax
@@ -131,10 +173,10 @@ boot_stack:
 
 [SECTION .PD]
 page_dir_boot: ; This is basically the page table
-times 0x400 dd 0x00000003
+times 0x400 dd 0x03
 
 page_table_boot: ; And this will be mapped to for both 0 - 4MiB and 3 - 3.004GiB
-times 0x400 dd 0x00000003
+times 0x40000 dd 0x03
 
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
 [GLOBAL begin]
@@ -161,7 +203,7 @@ high_start:
 ;     jmp $
 
     ; Execute the kernel:
-;     cli                         ; Forbidden for interrupts.
+    cli                         ; Forbidden for interrupts.
     call init                   ; call our init() function.
     jmp $                       ; Enter an infinite loop, to stop the processor
                                 ; executing whatever rubbish is in the memory
