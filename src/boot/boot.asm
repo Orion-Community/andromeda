@@ -65,6 +65,8 @@ start:
   pop ebx
   pop eax
 
+  jmp $
+
 ;   lgdt [trickgdt]
 ;   mov dx, 0x10
 ;   mov ds, dx
@@ -74,26 +76,22 @@ start:
 ;   mov ss, dx
 
   ; jump to the higher half kernel
-  jmp 0x08:high_start
+  jmp high_start
 
 boot_setup_paging:
   push ebp
   mov ebp, esp
 
-  mov ecx, 0x1000
-
-; Below the page table loop
+  mov eax, 0x0
+  mov ebx, 0x000000
 .1:
-  mov edi, page_table_boot
-  add edi, ecx
-
-  mov eax, ecx
-  shl eax, 12
-
-  or [edi], eax
-.2:
-  sub ecx, 4
-  jnz .1
+  mov ecx, ebx
+  or ecx, 3
+  mov [page_table_boot+eax*4], ecx
+  add ebx, 0x1000
+  inc eax
+  cmp eax, 0x400
+  jne .1
 
   mov ebx, page_dir_boot
   mov cr3, ebx
@@ -159,6 +157,8 @@ high_start:
     push esp			; top of the minimum required memory
     push ebx
     push eax
+
+;     jmp $
 
     ; Execute the kernel:
 ;     cli                         ; Forbidden for interrupts.

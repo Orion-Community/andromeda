@@ -101,9 +101,9 @@ boolean setupCore(module_t mod)
 
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
+  int i;
+  for (i = 0; i < 0x1FFFFFFF; i++)
   init_heap();
-//   int i;
-//   for (i = 0; i < 0x1FFFFFFF; i++)
   complement_heap(&end, HEAPSIZE);
   textInit();
   addr_t tmp = (addr_t)hdr + offset;
