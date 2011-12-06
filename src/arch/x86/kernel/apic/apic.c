@@ -27,6 +27,22 @@
 
 static struct apic *apic;
 
+static void
+route_pic_to_apic()
+{
+  outb(OL_IMCR_COMMAND, OL_APIC_IMCR_SELECT);
+  outb(OL_IMCR_DATA, OL_APIC_IMCR_PASSTROUGH_APIC);
+  iowait();
+}
+
+static void
+route_apic_to_pic()
+{
+  outb(OL_IMCR_COMMAND, OL_APIC_IMCR_SELECT);
+  outb(OL_IMCR_DATA, OL_APIC_IMCR_PIC_MODE);
+  iowait();
+}
+
 static int 
 ol_detect_apic(ol_cpu_t cpu)
 {
