@@ -49,6 +49,7 @@ mboot:
 
 [GLOBAL start]
 start:
+  cli
   mov esp, boot_stack
   add esp, 0x400
 
@@ -57,7 +58,7 @@ start:
   push ecx
   push edx
 
-  call boot_setup_pd
+  call boot_setup_paging
 
   pop edx
   pop ecx
@@ -75,43 +76,35 @@ start:
   ; jump to the higher half kernel
   jmp 0x08:high_start
 
-boot_setup_pd:
+boot_setup_paging:
   push ebp
   mov ebp, esp
 
-  mov eax, 0x100
-  mov ecx, eax
-  mov edi, page_dir_boot
-  xor edx, edx
+  mov ecx, 0x1000
 
-  jmp .2
-
+; Below the page table loop
 .1:
-  mov esi, eax
-  sub esi, ecx
-  mov ebx, [edi]
-  or ebx, esi
-  mov [edi], ebx
-  add edi, 4
+  mov edi, page_table_boot
+  add edi, ecx
 
+  mov eax, ecx
+  shl eax, 12
+
+  or [edi], eax
 .2:
-  dec ecx
+  sub ecx, 4
   jnz .1
 
-  test edx, edx
-  jnz .3
-  inc edx
+  mov ebx, page_dir_boot
+  mov cr3, ebx
 
-  mov eax, 0x100
-  mov ecx, eax
-  mov edi, page_dir_boot
+  mov ecx, page_table_boot
+  or [ebx], ecx
   add ebx, 0xC00
-  jmp .1
+  or [ebx], ecx
 
-.3:
-  mov eax, page_dir_boot
-  mov cr3, eax
-
+; Set the PG bit
+;   jmp $
   mov eax, cr0
   or eax, 0x80000000
   mov cr0, eax
@@ -139,9 +132,11 @@ boot_stack:
 ; gdt_end:
 
 [SECTION .PD]
-page_dir_boot:
-times 0x400 dd 0x43
-page_dir_boot_end:
+page_dir_boot: ; This is basically the page table
+times 0x400 dd 0x00000003
+
+page_table_boot: ; And this will be mapped to for both 0 - 4MiB and 3 - 3.004GiB
+times 0x400 dd 0x00000003
 
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
 [GLOBAL begin]
@@ -166,7 +161,7 @@ high_start:
     push eax
 
     ; Execute the kernel:
-    cli                         ; Forbidden for interrupts.
+;     cli                         ; Forbidden for interrupts.
     call init                   ; call our init() function.
     jmp $                       ; Enter an infinite loop, to stop the processor
                                 ; executing whatever rubbish is in the memory
