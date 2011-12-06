@@ -49,31 +49,22 @@ mboot:
 
 [GLOBAL start]
 start:
-  cli
-  mov esp, boot_stack
-  add esp, 0x400
+  cli                   ; Interrupts not allowed
+  mov esp, boot_stack   ; Set up a simple temporary stack
+  add esp, 0x400        ; Move it to the right location
 
-  push eax
+  push eax              ; Push grub data
   push ebx
   push ecx
   push edx
 
-  call boot_setup_paging
+  call boot_setup_paging ; Set up basic paging
 
-;   jmp $
 
-  pop edx
+  pop edx               ; Pop grub data
   pop ecx
   pop ebx
   pop eax
-
-;   lgdt [trickgdt]
-;   mov dx, 0x10
-;   mov ds, dx
-;   mov es, dx
-;   mov fs, dx
-;   mov gs, dx
-;   mov ss, dx
 
   ; jump to the higher half kernel
   jmp high_start
@@ -96,24 +87,6 @@ boot_setup_paging:
 ; Set up page directory pointer
   mov ebx, page_dir_boot
   mov cr3, ebx
-
-;   mov ecx, page_table_boot
-;   or [ebx],    ecx
-;   add ecx, 0x400
-;   or [ebx+4],  ecx
-;   add ecx, 0x400
-;   or [ebx+8],  ecx
-;   add ecx, 0x400
-;   or [ebx+12], ecx
-;   add ebx, 0xC00
-;   mov ecx, page_table_boot
-;   or [ebx],    ecx
-;   add ecx, 0x400
-;   or [ebx+4],  ecx
-;   add ecx, 0x400
-;   or [ebx+8],  ecx
-;   add ecx, 0x400
-;   or [ebx+12], ecx
 
 ; Build the page directory
   xor ecx, ecx
@@ -156,21 +129,6 @@ boot_setup_paging:
 boot_stack:
   times 0x400 db 0
 
-; trickgdt:
-;         dw gdt_end - gdt - 1 ; size of the GDT
-;         dd gdt ; linear address of GDT
-
-; gdt:
-;         dd 0, 0                                                 ; null gate
-;         db 0xFF, 0xFF, 0, 0, 0, 10011010b, 11001111b, 0x40
-; ; code selector 0x08: base 0x40000000, limit 0xFFFFFFFF, type 0x9A,
-;                                                                ;granularity 0xCF
-;         db 0xFF, 0xFF, 0, 0, 0, 10010010b, 11001111b, 0x40
-; ; data selector 0x10: base 0x40000000, limit 0xFFFFFFFF, type 0x92,
-;                                                                ;granularity 0xCF
-; 
-; gdt_end:
-
 [SECTION .PD]
 page_dir_boot: ; This is basically the page table
 times 0x400 dd 0x03
@@ -200,10 +158,7 @@ high_start:
     push ebx
     push eax
 
-;     jmp $
-
     ; Execute the kernel:
-    cli                         ; Forbidden for interrupts.
     call init                   ; call our init() function.
     jmp $                       ; Enter an infinite loop, to stop the processor
                                 ; executing whatever rubbish is in the memory
