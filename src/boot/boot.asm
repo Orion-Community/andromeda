@@ -97,7 +97,7 @@ boot_setup_paging:
 .2:
   mov [ebx], eax
   add ebx, 4
-  add eax, 0x400
+  add eax, 0x1000
   inc ecx
   cmp ecx, 0x100
   jne .2
@@ -112,7 +112,7 @@ boot_setup_paging:
 .3:
   mov [ebx], eax
   add ebx, 4
-  add eax, 0x400
+  add eax, 0x1000
   inc ecx
   cmp ecx, 0x100
   jne .3
