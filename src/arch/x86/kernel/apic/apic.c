@@ -78,6 +78,11 @@ ol_apic_init(ol_cpu_t cpu)
   apic->write = &__apic_write_register;
   apic->read = &__apic_read_register;
   
+  if(systables->mp != NULL)
+  {
+    printf("Value of the IMCRP bit: 0x%x\n", systables->mp->config_type);
+  }
+  
   uint16_t temp = apic->read(APIC_SPURIOUS_INTERRUPT_REGISTER);
   apic->write(APIC_SPURIOUS_INTERRUPT_REGISTER, temp | 0x100);
   

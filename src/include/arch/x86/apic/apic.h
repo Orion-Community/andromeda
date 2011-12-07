@@ -73,6 +73,9 @@ correct_apic_address();
 static uint64_t
 correct_apic_address(uint64_t, ol_cpu_t);
 
+static void route_pic_to_apic();
+static void route_apic_to_pic();
+
 static uint16_t __apic_read_register(ol_apic_reg_t);
 static void __apic_write_register(ol_apic_reg_t, uint16_t);
 
