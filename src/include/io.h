@@ -23,16 +23,52 @@
 /*
  * Write a dword, word or byte towards memory space.
  */
-#define writel(addr, value) (*((volatile uint32_t*)(addr)) = (value));
-#define writew(addr, value) (*((volatile uint16_t*)(addr)) = (value));
-#define writeb(addr, value) (*((volatile uint8_t*)(addr)) = (value));
+#define __writel(addr, value) (*((volatile uint32_t*)(addr)) = (value));
+#define __writew(addr, value) (*((volatile uint16_t*)(addr)) = (value));
+#define __writeb(addr, value) (*((volatile uint8_t*)(addr)) = (value));
 
 /*
  * Read a dword, word or byte from memory space
  */
-#define readl(addr) (*((volatile uint32_t*)(addr)))
-#define readw(addr) (*((volatile uint16_t*)(addr)))
-#define readb(addr) (*((volatile uint8_t*)(addr)))
+#define __readl(addr) (*((volatile uint32_t*)(addr)))
+#define __readw(addr) (*((volatile uint16_t*)(addr)))
+#define __readb(addr) (*((volatile uint8_t*)(addr)))
+
+static inline void
+writel(volatile void* addr, uint32_t data)
+{
+  __writel(addr, data);
+}
+
+static inline void
+writew(volatile void* addr, uint16_t data)
+{
+  __writew(addr, data);
+}
+
+static inline void
+writeb(volatile void* addr, uint8_t data)
+{
+  __writeb(addr, data);
+}
+
+static inline uint32_t
+readl(volatile void* addr)
+{
+  return __readl(addr);
+}
+
+static inline uint16_t
+readw(volatile void* addr)
+{
+  return __readw(addr);
+}
+
+static inline uint8_t
+readb(volatile void* addr)
+{
+  return __readb(addr);
+}
 
 void
 outb(uint16_t, uint8_t);

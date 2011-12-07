@@ -93,11 +93,19 @@ struct msi_cfg
   struct msi_attribute attrib;
   struct ol_pci_dev * dev;
   struct msi *msi;
+
   union
   {
-    uint32_t (*msix_read) (volatile void*, uint32_t);
+    void (*msix_write) (volatile void*, uint32_t);
+    void (*msi_write) (struct ol_pci_dev*, uint16_t, uint32_t);
+  };
+  
+  union
+  {
+    uint32_t (*msix_read) (volatile void*);
     uint32_t (*msi_read) (struct ol_pci_dev*, uint16_t);
   };
+  
   int masked : 1;
   uint32_t irq;
 } __attribute__((packed));
