@@ -19,7 +19,17 @@
 #include <math/math.h>
 #include <mm/memory.h>
 
-long abs(long num)
+double abs(double num)
+{
+  return (num>0)?num:-num;
+}
+
+float absf(float num)
+{
+  return (num>0)?num:-num;
+}
+
+long double absl(long double num)
 {
   return (num>0)?num:-num;
 }
@@ -84,132 +94,514 @@ int random()
   return ret;
 }
 
-#define PI 3.14159265358979
+#define PI (3,141592653589793) //238462643383279502884197169399375105820974944592307816406286209 Yes, I know the compiler will skip most of the decimals...
+
+double NAN()
+{
+	double nan;
+	*((int*)&nan) = 0x7f800000;
+	return nan;
+}
+
+float NANf()
+{
+	float nan;
+	*((int*)&nan) = 0x7f800000;
+	return nan;
+}
+
+long double NANl()
+{
+	long double nan;
+	*((int*)&nan) = 0x7f800000;
+	return nan;
+}
+
+inline char isNaN(double num)
+{
+	return (num != num);
+}
+
+inline char isNaNf(float num)
+{
+	return (num != num);
+}
+
+inline char isNaNl(long double num)
+{
+	return (num != num);
+}
 
 double sin(double x)
 {
-  int            i   =  5,
-                 c   = -1;
-  long long int  iF  =  6;  // should be seen as i! ( = i* (i-1) * (i-2) * ... * 2 * 1 )
-  double         ret =  x,
-                 x2  =  ret*ret,
-                 xF  =  x2 *ret;
-  if ( x < 0 )
-  {
-    ret *= -1;
-    c    =  1;
-    x    = -x;
-  }
-  while ( x > PI )
-    x -= PI;
-  for (;i<20;i+=2) // if iF<0xffffffff/(i * (i - 1)) if true iF whould become > 0xffffffff (size of 1 int) after multiplying with i * (i - 1)
-  {
-    ret += c * xF / iF;
-    xF  *= x2;
-    iF  *= i * (i - 1);
-    c   *= -1;
-  }
-  ret += c * xF / iF;
-  //printf("%d\n",ret); // Calculated value is corrent, printed value is correct, but returned value is incoreect and even changes if by commenting/uncommenting this rule...
-  return ret;
+	double ret = x,
+	       x2  = x*x,
+	       lastRet = x;
+	int i = 2;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = -lastRet * ( x2 / (i*(i+1)) );
+		if ( -0.0000000001<lastRet && lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
 }
 
-/**
- * Less presies, but faster.
- * 
-double sin(double x) // Doesn't work jet :(...
-{
-  int    i   =  5,
-         c   = -1,
-         iF  =  6;  // should be seen as i! ( = i* (i-1) * (i-2) * ... * 2 * 1 )
-  double ret =  x,
-         x2  =  ret*ret,
-         xF  =  x2 *ret;
-  if ( x < 0 )
-  {
-    ret *= -1;
-    c    =  1;
-    x    = -x;
-  }
-  while ( x > PI )
-    x -= PI;
-  for (;iF<0xffffffff/(i * (i - 1));i+=2) // if iF<0xffffffff/(i * (i - 1)) if true iF whould become > 0xffffffff (size of 1 int) after multiplying with i * (i - 1)
-  {
-    ret += c * xF / iF;
-    xF  *= x2;
-    iF  *= i * (i - 1);
-    c   *= -1;
-  }
-  ret += c * xF / iF;
-  //printf("%d\n",ret);
-  return ret;
-}
-*/
 float sinf(float x)
 {
-  int    i   =  3,
-         c   = -1;
-  int    iF  =  6;  // should be seen as i! ( = i* (i-1) * (i-2) * ... * 2 * 1 )
-  float  ret =  x,
-         x2  =  x*x,
-         xF  =  x2*x;
-  if ( x < 0 )
-  {
-    ret *= -1;
-    c    =  1;
-    x    = -x;
-  }
-  while ( x > 2*PI )
-    x -= 2*PI;
-  for (;iF<0xffffffff/(i * (i - 1));i+=2) // if iF<0xffffffff/(i * (i - 1)) if true iF whould become > 0xffffffff (size of 1 int) after multiplying with i * (i - 1)
-  {
-    ret += c * xF / iF;
-    xF  *= x2;
-    iF  *= i * (i - 1);
-    c   *= -1;
-  }
-  return ret + c * xF / iF;
+	float ret = x,
+	      x2  = x*x,
+	      lastRet = x;
+	int i = 2;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = -lastRet * ( x2 / (i*(i+1)) );
+		if ( -0.0000000001<lastRet && lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
 }
 
-long double sinl(long double x) // Doesn't work jet :(...
+long double sinl(long double x)
 {
-  int         i   =  3,
-              c   = -1,
-              iF  =  6;  // should be seen as i! ( = i* (i-1) * (i-2) * ... * 2 * 1 )
-  long double ret =  x,
-              x2  =  ret*ret,
-              xF  =  x2 *ret;
-  if ( x < 0 )
-  {
-    ret *= -1;
-    c    =  1;
-    x    = -x;
-  }
-  while ( x > 2*PI )
-    x -= 2*PI;
-  for (;iF<0xffffffff/(i * (i - 1));i+=2) // if iF<0xffffffff/(i * (i - 1)) if true iF whould become > 0xffffffff (size of 1 int) after multiplying with i * (i - 1)
-  {
-    ret += c * xF / iF;
-    xF  *= x2;
-    iF  *= i * (i - 1);
-    c   *= -1;
-  }
-  return ret + c * xF / iF;
+	long double ret = x,
+	            x2  = x*x,
+	            lastRet = x;
+	int i = 2;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = -lastRet * ( x2 / (i*(i+1)) );
+		if ( -0.0000000001<lastRet && lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
 }
 
-/*
- * This is kind of a problem, because by 'standart' formats all 3 functions
- * whould exist. Only gcc doesn't allow that...
- * 
-double sin(double x)
+double asin(double x)
 {
-  double ret = 1.0; //I know, this is incorect
-  return ret;
+	double ret = x,
+	       x2  = x*x,
+	       lastRet = x;
+	int i = 2;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = lastRet * x2 * ( (i-1) * (i-2) / ( i * (i+1) ) );
+		if ( lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
 }
 
-long double sin(long double x)
+float asinf(float x)
 {
-  long double ret = 1.0; //I know, this is incorect
-  return ret;
+	float ret = x,
+	      x2  = x*x,
+	      lastRet = x;
+	int i = 2;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = lastRet * x2 * ( (i-1) * (i-2) / ( i * (i+1) ) );
+		if ( lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
 }
-*/
+
+long double asinl(long double x)
+{
+	long double ret = x,
+	            x2  = x*x,
+	            lastRet = x;
+	int i = 2;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = lastRet * x2 * ( (i-1) * (i-2) / ( i * (i+1) ) );
+		if ( lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
+}
+
+double sinh(double x)
+{
+	double tmp = exp(x);
+	return (tmp - 1/tmp)/2;
+}
+
+float sinhf(float x)
+{
+	float tmp = expf(x);
+	return (tmp - 1/tmp)/2;
+}
+
+long double sinhl(long double x)
+{
+	long double tmp = expl(x);
+	return (tmp - 1/tmp)/2;
+}
+
+double asinh(double x)
+{
+	return ln(x * sqrt( x*x + 1 ) );
+}
+
+float asinhf(float x)
+{
+	return lnf(x * sqrtf( x*x + 1 ) );
+}
+
+long double asinhl(long double x)
+{
+	return lnl(x * sqrtl( x*x + 1 ) );
+}
+
+double cos(double x)
+{
+	double ret = 1,
+	       x2  = x*x,
+	       lastRet = -1;
+	int i = 1;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = -lastRet * ( x2 / (i*(i+1)) );
+		if ( -0.0000000001<lastRet && lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
+}
+
+float cosf(float x)
+{
+	float ret = 1,
+	      x2  = x*x,
+	      lastRet = -1;
+	int i = 1;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = -lastRet * ( x2 / (i*(i+1)) );
+		if ( -0.0000000001<lastRet && lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
+}
+
+long double cosl(long double x)
+{
+	long double ret = 1,
+	            x2  = x*x,
+	            lastRet = -1;
+	int i = 1;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = -lastRet * ( x2 / (i*(i+1)) );
+		if ( -0.0000000001<lastRet && lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
+}
+
+double acos(double x)
+{
+	return asin(x) * PI/2;
+}
+
+float acosf(float x)
+{
+	return asinf(x) * PI/2;
+}
+
+long double acosl(long double x)
+{
+	return asinl(x) * PI/2;
+}
+
+double cosh(double x)
+{
+	double tmp = exp(x);
+	return (tmp + 1/tmp)/2;
+}
+
+float coshf(float x)
+{
+	float tmp = expf(x);
+	return (tmp + 1/tmp)/2;
+}
+
+long double coshl(long double x)
+{
+	long double tmp = expl(x);
+	return (tmp + 1/tmp)/2;
+}
+
+double acosh(double x)
+{
+	return ln(x * sqrt( x*x - 1 ) );
+}
+
+float acoshf(float x)
+{
+	return lnf(x * sqrtf( x*x - 1 ) );
+}
+
+long double acoshl(long double x)
+{
+	return lnl(x * sqrtl( x*x - 1 ) );
+}
+
+double tan(double x)
+{
+	return sin(x)/cos(x);
+}
+
+float tanf(float x)
+{
+	return sinf(x)/cosf(x);
+}
+
+long double tanl(long double x)
+{
+	return sinl(x)/cosl(x);
+}
+
+double atan(double x)
+{
+	double ret = x,
+	       x2  = x*x,
+	       lastRet = x;
+	int i = 3;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = -lastRet * ( x2 * (i-2) / i );
+		if ( -0.0000000001<lastRet && lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
+}
+
+float atanf(float x)
+{
+	float ret = x,
+	      x2  = x*x,
+	      lastRet = x;
+	int i = 3;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = -lastRet * ( x2 * (i-2) / i );
+		if ( -0.0000000001<lastRet && lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
+}
+
+long double atanl(long double x)
+{
+	long double ret = x,
+	            x2  = x*x,
+	            lastRet = x;
+	int i = 3;
+	for (;i<0xffffff;i+=2)
+	{
+		lastRet = -lastRet * ( x2 * (i-2) / i );
+		if ( -0.0000000001<lastRet && lastRet < 0.0000000001 )
+			return ret;
+		ret += lastRet;
+	}
+	return ret;
+}
+
+double tanh(double x)
+{
+	return sinh(x)/cosh(x);
+}
+
+float tanhf(float x)
+{
+	return sinhf(x)/coshf(x);
+}
+
+long double tanhl(long double x)
+{
+	return sinhl(x)/coshl(x);
+}
+
+double atanh(double x)
+{
+	if (abs(x)>=1)
+		return NAN();
+	return ln( (1+x) / (1-x) )/2;
+}
+
+float atanhf(float x)
+{
+	if (absf(x)>=1)
+		return NANf();
+	return lnf( (1+x) / (1-x) )/2;
+}
+
+long double atanhl(long double x)
+{
+	if (absl(x)>=1)
+		return NANl();
+	return lnl( (1+x) / (1-x) )/2;
+}
+
+double exp(double n) //An other beatyfull taylor polynominal
+{
+	double ret = 1;
+	double x = n;
+	int fac = 1, i = 2;
+	for (; (fac<0xffffffff) ;i++) // stop if i is insane high 
+	{
+		ret += x/i;  // ret += (x^i)/(i!)
+		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
+			break;
+		fac *= i;  // making it (i+1)!
+	}
+	return ret;
+}
+
+float expf(float n) //An other beatyfull taylor polynominal
+{
+	float ret = 1;
+	float x = n;
+	int fac = 1, i = 2;
+	for (; (fac<0xffffffff) ;i++) // stop if i is insane high 
+	{
+		ret += x/i;  // ret += (x^i)/(i!)
+		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
+			break;
+		fac *= i;  // making it (i+1)!
+	}
+	return ret;
+}
+
+long double expl(long double n) //An other beatyfull taylor polynominal
+{
+	long double ret = 1;
+	long double x = n;
+	int fac = 1, i = 2;
+	for (; (fac<0xffffffff) ;i++) // stop if i is insane high 
+	{
+		ret += x/i;  // ret += (x^i)/(i!)
+		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
+			break;
+		fac *= i;  // making it (i+1)!
+	}
+	return ret;
+}
+
+double ln(double x)
+{
+	if (x < 0)
+		return -1; // e^x will never be less than 0
+	double ret = x,
+	       tmp = -x;
+	int i = 1;
+	x--; // actualy we calculate ln (1 + x)
+	for (;i<0xffffffff;i++)
+	{
+		ret += tmp/i;
+		if ( tmp==(tmp*-x) || ( (tmp>0)?(tmp*-x<tmp):(tmp*-x>tmp) ) ) // stop if tmp != relyable anymore
+			break;
+		tmp*=-x;
+	}
+	return ret;
+}
+
+float lnf(float x)
+{
+	if (x < 0)
+		return -1; // e^x will never be less than 0
+	float ret = x,
+	       tmp = -x;
+	int i = 1;
+	x--; // actualy we calculate ln (1 + x)
+	for (;i<0xffffffff;i++)
+	{
+		ret += tmp/i;
+		if ( tmp==(tmp*-x) || ( (tmp>0)?(tmp*-x<tmp):(tmp*-x>tmp) ) ) // stop if tmp != relyable anymore
+			break;
+		tmp*=-x;
+	}
+	return ret;
+}
+
+long double lnl(long double x)
+{
+	if (x < 0)
+		return -1; // e^x will never be less than 0
+	long double ret = x,
+	            tmp = -x;
+	int i = 1;
+	x--; // actualy we calculate ln (1 + x)
+	for (;i<0xffffffff;i++)
+	{
+		ret += tmp/i;
+		if ( tmp==(tmp*-x) || ( (tmp>0)?(tmp*-x<tmp):(tmp*-x>tmp) ) ) // stop if tmp != relyable anymore
+			break;
+		tmp*=-x;
+	}
+	return ret;
+}
+
+double sqrt(double x)
+{
+	return exp(2*ln(x));
+}
+
+float sqrtf(float x)
+{
+	return expf(2*ln(x));
+}
+
+long double sqrtl(long double x)
+{
+	return expl(2*ln(x));
+}
+
+double pow(double x, double exponent)
+{
+	double ret = 1;
+	for (;exponent>=1;exponent--)
+	{
+		ret *= x;
+	}
+	if (exponent!=0) // i.a.w.: if exp was not a integer
+		ret *= exp(ln(x)*exponent);
+	return ret;
+}
+
+float powf(float x, float exponent)
+{
+	float ret = 1;
+	for (;exponent>=1;exponent--)
+	{
+		ret *= x;
+	}
+	if (exponent!=0) // i.a.w.: if exp was not a integer
+		ret *= exp(ln(x)*exponent);
+	return ret;
+}
+
+long double powl(long double x, long double exponent)
+{
+	long double ret = 1;
+	for (;exponent>=1;exponent--)
+	{
+		ret *= x;
+	}
+	if (exponent!=0) // i.a.w.: if exp was not a integer
+		ret *= exp(ln(x)*exponent);
+	return ret;
+}

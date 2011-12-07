@@ -16,29 +16,18 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __MEMORY_H
-#define __MEMORY_H
+#ifndef __VERSION_H
+#define __VERSION_H
 
-#include <mm/heap.h>
-
-void paging();
-void memset(void*, int, size_t);
-void memcpy(void*, void*, size_t);
-int memcmp(void*, void*, size_t);
-int init_heap();
-int comlement_heap(void*, size_t);
-
-size_t strlen(char* string);
-
-#ifdef __INTEL
-void setGDT();
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-extern unsigned int mboot;
-extern unsigned int end;
+#define VERSION "0.1.0"
+#define NAME "Betelgeuse (Alpha Orionis)"
 
-#ifdef X86
-#define PAGESIZE 0x1000
+#ifdef __cplusplus
+}
 #endif
 
 #endif

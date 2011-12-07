@@ -20,11 +20,22 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 
+#define BASE_HEAP_SIZE 0x100000
+
+int heap_base[BASE_HEAP_SIZE]; // Heap base = 4 MiB
+
 int 
-initHeap(long size)
+complement_heap(void* base, size_t size)
 {
-  heap_add_blocks(&end, size);
+  heap_add_blocks(base, size);
   return 0;
+}
+
+int
+init_heap()
+{
+  heap_add_blocks(&heap_base, BASE_HEAP_SIZE);
+  return;
 }
 
 void memset(void *dest, int sval, size_t count)
@@ -88,8 +99,53 @@ void memset(void *dest, int sval, size_t count)
 //   }
 // }
 
+void memcpyBack(void *dest, void *src, size_t count)
+{
+	dest += count;
+	src  += count;
+#ifndef X86
+//64 bit int is only faster at 64-bit PC's, 32 bits prefers 2 time 32 int
+  while (count >= 8)
+  {
+    *(unsigned long long*) dest = *(unsigned long long*) src;
+    dest -= 8;
+    src -= 8;
+    count -= 8;
+  }
+  if (count >= 4)
+  {
+    *(unsigned long long*) dest = *(unsigned long long*) src;
+    dest -= 4;
+    src -= 4;
+    count -= 4;
+  }
+#else
+  while (count >= 4)
+  {
+    *(unsigned int*) dest = *(unsigned int*) src;
+    dest -= 4;
+    src -= 4;
+    count -= 4;
+  }
+#endif
+  if (count >= 2)
+  {
+    *(unsigned short*) dest = *(unsigned short*) src;
+    dest -= 2;
+    src -= 2;
+    count -= 2;
+  }
+  if (count >= 1)
+  {
+    *(unsigned char*) dest = *(unsigned char*) src;
+  }
+  return;
+}
+
 void memcpy(void *dest, void *src, size_t count)
 {
+	if ((int)src+count>(int)dest)
+		memcpyBack(dest,src,count);
 #ifndef X86
 //64 bit int is only faster at 64-bit PC's, 32 bits prefers 2 time 32 int
   while (count >= 8)
@@ -129,8 +185,7 @@ void memcpy(void *dest, void *src, size_t count)
   return;
 }
 
-int
-memcmp(void *ptr1, void* ptr2, size_t count)
+int memcmp(void *ptr1, void* ptr2, size_t count)
 {
 #ifndef X86
 //64 bit int is only faster at X86, X64 prefers 2 time 32 int

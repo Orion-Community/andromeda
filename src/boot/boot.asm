@@ -49,31 +49,95 @@ mboot:
 
 [GLOBAL start]
 start:
-  lgdt [trickgdt]
-  mov dx, 0x10
-  mov ds, dx
-  mov es, dx
-  mov fs, dx
-  mov gs, dx
-  mov ss, dx
+  cli                   ; Interrupts not allowed
+  mov esp, boot_stack   ; Set up a simple temporary stack
+  add esp, 0x400        ; Move it to the right location
+
+  push eax              ; Push grub data
+  push ebx
+  push ecx
+  push edx
+
+  call boot_setup_paging ; Set up basic paging
+
+  pop edx               ; Pop grub data
+  pop ecx
+  pop ebx
+  pop eax
 
   ; jump to the higher half kernel
-  jmp 0x08:high_start
+  jmp high_start
 
-trickgdt:
-        dw gdt_end - gdt - 1 ; size of the GDT
-        dd gdt ; linear address of GDT
+boot_setup_paging:
+  push ebp
+  mov ebp, esp
 
-gdt:
-        dd 0, 0                                                 ; null gate
-        db 0xFF, 0xFF, 0, 0, 0, 10011010b, 11001111b, 0x40
-; code selector 0x08: base 0x40000000, limit 0xFFFFFFFF, type 0x9A,
-                                                               ;granularity 0xCF
-        db 0xFF, 0xFF, 0, 0, 0, 10010010b, 11001111b, 0x40
-; data selector 0x10: base 0x40000000, limit 0xFFFFFFFF, type 0x92,
-                                                               ;granularity 0xCF
+  xor eax, eax
+  xor ebx, ebx
+; Configure all the page tables in one single go (0x400000)
+.1:
+  mov ecx, ebx
+  or ecx, 3
+  mov [page_table_boot+eax*4], ecx
+  add ebx, 0x1000
+  inc eax
+  cmp eax, 0x40000
+  jne .1
 
-gdt_end:
+; Set up page directory pointer
+  mov ebx, page_dir_boot
+  mov cr3, ebx
+
+; Build the page directory
+  xor ecx, ecx
+  mov eax, page_table_boot
+  or eax, 3
+
+; The first 1 GiB
+; Registers should be correct already, so lets loop
+.2:
+  mov [ebx], eax
+  add ebx, 4
+  add eax, 0x1000
+  inc ecx
+  cmp ecx, 0x100
+  jne .2
+
+; The 3 GiB part
+; Set up the registers
+  mov ebx, page_dir_boot
+  add ebx, 0xC00
+  xor ecx, ecx
+  mov eax, page_table_boot
+  or eax, 3
+
+; The actual loop
+.3:
+  mov [ebx], eax
+  add ebx, 4
+  add eax, 0x1000
+  inc ecx
+  cmp ecx, 0x100
+  jne .3
+
+; Set the PG bit
+  mov eax, cr0
+  or eax, 0x80000000
+  mov cr0, eax
+
+  mov esp, ebp
+  pop ebp
+  ret
+
+boot_stack:
+  times 0x400 db 0
+
+[SECTION .PD]
+page_dir_boot: ; This is basically the page table
+times 0x400 dd 0x0
+
+page_table_boot: ; And this will be mapped to for both 0 - 4MiB and 3 - 3.004GiB
+times 0x40000 dd 0x0
 
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
 [GLOBAL begin]
@@ -98,7 +162,6 @@ high_start:
     push eax
 
     ; Execute the kernel:
-    cli                         ; Forbidden for interrupts.
     call init                   ; call our init() function.
     jmp $                       ; Enter an infinite loop, to stop the processor
                                 ; executing whatever rubbish is in the memory

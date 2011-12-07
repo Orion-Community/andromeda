@@ -27,6 +27,7 @@
  */
 
 // Basic includes
+#include <version.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <kern/cpu.h>
@@ -53,18 +54,17 @@
 
 #include <arch/x86/apic/ioapic.h>
 
-unsigned char stack[0x8000];
-
 // Define the place of the heap
 
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-char *welcome = "Andromeda 0.1.0 - Copyright (C) 2010, 2011 - Michel Megens, \
-Bart Kuivenhoven\nThis program comes with ABSOLUTELY NO WARRANTY;\n\
-This is free software, and you are welcome to redistribute it.\n\
-For more info refer to the COPYING file in the source repository or look at\n\
-http://www.gnu.org/licenses/gpl-3.0.html\n";
+char *welcome = "Andromeda " VERSION " - " NAME
+"\nCopyright (C) 2010, 2011 - Michel Megens,"
+"Bart Kuivenhoven\nThis program comes with ABSOLUTELY NO WARRANTY;\n"
+"This is free software, and you are welcome to redistribute it.\n"
+"For more info refer to the COPYING file in the source repository or look at\n"
+"http://www.gnu.org/licenses/gpl-3.0.html\n";
 
 int vendor = 0;
 
@@ -101,8 +101,8 @@ boolean setupCore(module_t mod)
 
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
-  // Initialise the heap
-  initHeap(HEAPSIZE);
+  init_heap();
+  complement_heap(&end, HEAPSIZE);
   textInit();
   addr_t tmp = (addr_t)hdr + offset;
   hdr = (multiboot_info_t*)tmp;

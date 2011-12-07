@@ -16,29 +16,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __MEMORY_H
-#define __MEMORY_H
+#ifndef __ARCH_X86_TASK_H
+#define __ARCH_X86_TASK_H
 
-#include <mm/heap.h>
-
-void paging();
-void memset(void*, int, size_t);
-void memcpy(void*, void*, size_t);
-int memcmp(void*, void*, size_t);
-int init_heap();
-int comlement_heap(void*, size_t);
-
-size_t strlen(char* string);
-
-#ifdef __INTEL
-void setGDT();
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-extern unsigned int mboot;
-extern unsigned int end;
+struct __THREAD_REGS
+{
+  uint64_t ip;
+  uint64_t sp;
+  uint64_t bp;
+  uint64_t di;
+  uint64_t si;
+  uint64_t ax, bx, cx, dx;
+  uint64_t flags;
+};
 
-#ifdef X86
-#define PAGESIZE 0x1000
+struct __PROC_REGS
+{
+  uint64_t cr0, cr1, cr2, cr3;
+  uint16_t cs, ss, ds;
+};
+
+struct isr_regs
+{
+  uint16_t ds;
+  unsigned long edi, esi, ebp, esp, ebx, edx, ecx, eax;
+  unsigned long funcPtr, errCode;
+  unsigned long eip, cs, eflags, procesp, ss;
+} __attribute__((packed));
+typedef struct isr_regs isrVal_t;
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

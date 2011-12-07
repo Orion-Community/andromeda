@@ -2,8 +2,10 @@
 *.bin
 compressed
 core
+config
 src/andromeda
 *.*project
 *~
 src/scripts/floppy.img
 /nbproject/
+*.kate-swp

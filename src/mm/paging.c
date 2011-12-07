@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <mm/heap.h>
 #include <error/error.h>
+#include <arch/intel/task.h>
 
 #define PRESENTBIT    0x01
 #define WRITEBIT      0x02
@@ -435,7 +436,7 @@ void page_init()
 {
   memset(page_cnt, 0, PAGETABLES*sizeof(uint16_t));
   memset(virt_page_dir, 0, PAGETABLES*sizeof(addr_t));
-  sched_init();
+  task_init();
   addr_t tmp = setup_page_dir();
 #ifdef PAGEDBG
   printf("Image start: %X\tStart ptr: %X\n", &begin, &init);

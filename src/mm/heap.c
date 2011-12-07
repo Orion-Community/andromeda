@@ -25,37 +25,78 @@
 //Since the heap has only limited allocation space, there also needs
 //to be a regeon that's used for memory mapping.
 
-void heapAddBlocks(void* base, int size) // Requests size in bytes
+// void heapAddBlocks(void* base, int size) // Requests size in bytes
+// {
+//   mutexEnter(prot);
+//   while (size > 0)
+//   {
+//     initHdr(base, SIZE - sizeof (memory_node_t));
+//     size -= SIZE;
+//     if (heap == NULL)
+//     {
+//       heap = base;
+// #ifdef DBG
+//       printf("Creating head of heap\n");
+// #endif
+//     }
+//     else
+//     {
+//       mutexRelease(prot);
+//       // To prevent the mutex from conflicting with itself basically
+//       free((void*) base + sizeof (memory_node_t));
+//       mutexEnter(prot);
+//     }
+//     base += SIZE;
+//   }
+//   mutexRelease(prot);
+// }
+
+int
+heap_inset_block(volatile memory_node_t* heap, volatile memory_node_t *block)
 {
-  mutexEnter(prot);
-  while (size > 0)
-  {
-    initHdr(base, SIZE - sizeof (memory_node_t));
-    size -= SIZE;
-    if (heap == NULL)
-    {
-      heap = base;
-#ifdef DBG
-      printf("Creating head of heap\n");
-#endif
-    }
-    else
-    {
-      mutexRelease(prot);
-      // To prevent the mutex from conflicting with itself basically
-      free((void*) base + sizeof (memory_node_t));
-      mutexEnter(prot);
-    }
-    base += SIZE;
-  }
-  mutexRelease(prot);
+  if (heap == NULL || block == NULL)
+    return -E_HEAP_GENERIC;
+
+  addr_t block_address = (addr_t) block;
+
+  volatile memory_node_t *cariage = heap;
+  volatile memory_node_t *last = NULL;
+
+  for (; cariage != NULL && (addr_t)heap < block_address;
+                                                                 last = cariage,
+                                                       cariage = cariage->next);
+  if (last == NULL)
+    return -E_HEAP_GENERIC;
+
+  block->next = last->next;
+  block->previous = last;
+  last->next = block;
+  if (block->next != NULL)
+    block->next->previous = block;
+  return -E_SUCCESS;
 }
 
-void heap_add_blocks(void* base, uint32_t size)
+/**
+ * Heap_add_blocks adds a regeon of address space to the heap
+ */
+
+void
+heap_add_blocks(void* base, uint32_t size)
 {
-  mutexEnter(prot);
-  memory_node_t* node = (memory_node_t*) base;
+  volatile memory_node_t* node = (memory_node_t*) base;
   initHdr(node, size - sizeof (memory_node_t));
-  heap = node;
-  mutexRelease(prot);
+  if (heap == NULL)
+  {
+    mutex_lock(prot);
+    heap = node;
+    mutex_unlock(prot);
+  }
+  else
+  {
+    printf("Warning: Using untested feature in heap_add_blocks!\n");
+    mutex_lock(prot);
+    if (heap_inset_block(heap, node) != -E_SUCCESS)
+      panic("Could not add blocks to map");
+    mutex_unlock(prot);
+  }
 }

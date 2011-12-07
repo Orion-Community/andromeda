@@ -16,29 +16,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __MEMORY_H
-#define __MEMORY_H
+#include <kern/sched.h>
+#include <error/error.h>
 
-#include <mm/heap.h>
 
-void paging();
-void memset(void*, int, size_t);
-void memcpy(void*, void*, size_t);
-int memcmp(void*, void*, size_t);
-int init_heap();
-int comlement_heap(void*, size_t);
+int task_save_regs()
+{
+  return -E_NOFUNCTION;
+}
 
-size_t strlen(char* string);
-
-#ifdef __INTEL
-void setGDT();
-#endif
-
-extern unsigned int mboot;
-extern unsigned int end;
-
-#ifdef X86
-#define PAGESIZE 0x1000
-#endif
-
-#endif
+int task_load_regs()
+{
+  return -E_NOFUNCTION;
+}

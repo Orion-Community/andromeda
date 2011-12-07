@@ -16,110 +16,74 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 #include <kern/sched.h>
-#include <error/panic.h>
 
 volatile boolean scheduling = FALSE;
-struct __task_struct *task_stack = NULL;
-struct __task_struct **current_tasks = NULL;
 
-uint32_t cpus = 0;
+unsigned char stack[STD_STACK_SIZE];
 
-struct __task_struct*
-sched_init_task(int user_id, boolean userspace, char* path_to_binary, int pid)
+struct __TASK_STATE *task_stack = NULL;
+struct __TASK_STATE *idle_stack = NULL;
+struct __TASK_STATE *waiting_stack = NULL;
+struct __TASK_STATE *current_quantum = NULL;
+struct __TASK_STATE *current = NULL;
+
+void get_new_quantum()
 {
-  struct __task_struct* new_task = kalloc(sizeof(struct __task_struct));
-  if(new_task == NULL) return NULL;
-  memset (new_task, 0, sizeof(struct __task_struct));
-
-  new_task->uid       = user_id;
-  new_task->pid       = pid;
-  new_task->userspace = userspace;
-  new_task->ptb       = path_to_binary;
-
-  new_task->text = kalloc(sizeof(struct __kern_sched_segment));
-  if (new_task->text == NULL)
-  {
-    free(new_task);
-    return NULL;
-  }
-  new_task->data = kalloc(sizeof(struct __kern_sched_segment));
-  if (new_task->data == NULL)
-  {
-    free(new_task->text); free(new_task);
-    return NULL;
-  }
-  new_task->bss = kalloc(sizeof(struct __kern_sched_segment));
-  if (new_task->bss == NULL)
-  {
-    free(new_task->text); free(new_task->data); free(new_task);
-    return NULL;
-  }
-  new_task->stack = kalloc(sizeof(struct __kern_sched_segment));
-  if (new_task->stack == NULL)
-  {
-    free(new_task->text); free(new_task->data); free(new_task->bss);
-    free(new_task);
-    return NULL;
-  }
-  new_task->threads = kalloc(sizeof(struct __thread_state));
-  if (new_task->threads == NULL)
-  {
-    free(new_task->text); free(new_task->data); free(new_task->bss);
-    free(new_task->stack); free(new_task);
-  }
-  new_task->threads->tid = 0;
-  new_task->threads->registers = NULL;
-  new_task->threads->nice = 0;
-  new_task->threads->used = 0;
-  new_task->threads->next = NULL;
-  new_task->threads->previous = NULL;
-
-  new_task->nice = 0;
-  new_task->spent = 0;
-  new_task->working_dir = "/";
-
-  return new_task;
+  panic("No tasks to build quantum");
 }
 
-int sched_init()
+void sched()
 {
-  struct __task_struct* proc_init = sched_init_task(0, FALSE, "/", 0);
-
-  if (proc_init == NULL)
-    panic("No memory for init process");
-
-  uint32_t cpus = /* get_no_cpus() */1;
-  if (cpus == 0)
-    cpus = 1;
-  current_tasks = kalloc(sizeof(struct __task_struct) * cpus);
-  if (current_tasks == NULL)
-    panic("No memory for the current tasks structure");
-  int i = 0;
-  for (; i < cpus; i++)
-  {
-    current_tasks[i] = proc_init;
-  }
-
-  return -E_UNFINISHED;
+  panic("Scheduling not supported!");
 }
 
-int sched_start_switching()
+void fork ()
 {
-  return -E_NOFUNCTION;
+  panic("No forking code");
 }
 
-void sched_next_task()
+void kill (int signal)
 {
-	panic("Could not schedule");
+  panic("No processes to send signal");
 }
 
-void fork()
+int task_init()
 {
-	panic("Fork wasn't implemented");
-}
+#ifndef SCHED_DBG
+  printf("WARNING! Scheduling not yet supported\n");
+#endif
+  if (current != NULL)
+    panic("Trying to init scheduling on a running system!");
 
-void kill (int pid)
-{
-	panic("Kill needs implementation");
+  current = kalloc(sizeof(struct __TASK_STATE));
+  struct __THREAD_STATE *tmp = kalloc(sizeof(struct __THREAD_STATE));
+  if (tmp == NULL || current == NULL)
+    goto err;
+
+  memset(current, 0, sizeof(struct __TASK_STATE));
+  memset(tmp, 0, sizeof(struct __THREAD_STATE));
+
+  current->threads = tmp;
+  task_stack = current;
+
+  printf("WARNING! Setting hardcoded segments!\n");
+
+  current->code = (void*)0xC0000000;
+  current->code_size = 0x40000000;
+  current->data = (void*)0xC0000000;
+  current->data_size = 0x40000000;
+
+  tmp->stack = stack;
+  tmp->stack_size = STD_STACK_SIZE;
+
+  printf("WARNING! Setting a static path to binary!\n");
+
+  current->path_to_bin = "/andromeda";
+
+  return -E_SUCCESS;
+
+err:
+  panic("Could not initialise scheduling data");
 }
