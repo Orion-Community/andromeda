@@ -28,12 +28,19 @@ extern "C" {
 #endif
 
 #define STD_STACK_SIZE 0x8000
+#define STD_NO_CHILDREN 0x10
+#define STD_CHILD_LIST_SIZE 0x10
 
 struct __TASK_CHILDREN
 {
-  struct __TASK_STATE *children[0x10];
-  struct __TASK_CHILDREN *next;
-  struct __TASK_CHILDREN *prev;
+  struct __TASK_STATE *children[STD_NO_CHILDREN];
+};
+
+struct __TASK_CHILD_LIST
+{
+  struct __TASK_CHILDREN *child[STD_CHILD_LIST_SIZE];
+  struct __TASK_CHILD_LIST *next;
+  struct __TASK_CHILD_LIST *prev;
 };
 
 struct __THREAD_STATE
@@ -54,7 +61,7 @@ struct __TASK_STATE
   struct __THREAD_STATE *threads;
   struct __PROC_REGS regs;
 
-  struct __TASK_CHILDREN *children;
+  struct __TASK_CHILD_LIST *children;
   struct __TASK_STATE *parent;
 
   uint8_t priority;
