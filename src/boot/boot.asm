@@ -60,7 +60,6 @@ start:
 
   call boot_setup_paging ; Set up basic paging
 
-
   pop edx               ; Pop grub data
   pop ecx
   pop ebx
@@ -94,6 +93,7 @@ boot_setup_paging:
   or eax, 3
 
 ; The first 1 GiB
+; Registers should be correct already, so lets loop
 .2:
   mov [ebx], eax
   add ebx, 4
@@ -103,12 +103,14 @@ boot_setup_paging:
   jne .2
 
 ; The 3 GiB part
+; Set up the registers
   mov ebx, page_dir_boot
   add ebx, 0xC00
   xor ecx, ecx
   mov eax, page_table_boot
   or eax, 3
 
+; The actual loop
 .3:
   mov [ebx], eax
   add ebx, 4
@@ -131,10 +133,10 @@ boot_stack:
 
 [SECTION .PD]
 page_dir_boot: ; This is basically the page table
-times 0x400 dd 0x03
+times 0x400 dd 0x0
 
 page_table_boot: ; And this will be mapped to for both 0 - 4MiB and 3 - 3.004GiB
-times 0x40000 dd 0x03
+times 0x40000 dd 0x0
 
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
 [GLOBAL begin]
