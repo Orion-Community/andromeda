@@ -21,6 +21,7 @@
 #include <arch/x86/apic/msi.h>
 #include <sys/dev/pci.h>
 #include <mm/map.h>
+#include <io.h>
 
 #ifdef MSI
 static int
@@ -30,22 +31,22 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
   printf("MSI message data: %x - IRQ vector: %x\n", msg, msi->msg.vector);
   if(cfg->attrib.is_msix)
   {
-    writel(cfg->attrib.base + MSIX_LOW_ADDR, msi->addr);
+    cfg->msix_write(cfg->attrib.base + MSIX_LOW_ADDR, msi->addr);
     if(cfg->attrib.is_64)
-      writel(cfg->attrib.base + MSIX_UPPER_ADDR, msi->addr_hi);
-    writel(cfg->attrib.base + MSIX_MESSAGE_DATA, msg);
+      cfg->msix_write(cfg->attrib.base + MSIX_UPPER_ADDR, msi->addr_hi);
+    cfg->msix_write(cfg->attrib.base + MSIX_MESSAGE_DATA, msg);
   }
   else
   {
     struct ol_pci_dev *dev = cfg->dev;
-    ol_pci_write_dword(dev, MSI_LOWER_ADDR(cfg->attrib.cpos), msi->addr);
+    cfg->msi_write(dev, MSI_LOWER_ADDR(cfg->attrib.cpos), msi->addr);
     if(cfg->attrib.is_64)
     {
-      ol_pci_write_dword(dev, MSI_UPPER_ADDR(cfg->attrib.cpos), msi->addr_hi);
-      ol_pci_write_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,1),msg);
+      cfg->msi_write(dev, MSI_UPPER_ADDR(cfg->attrib.cpos), msi->addr_hi);
+      cfg->msi_write(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,1),msg);
     }
     else
-      ol_pci_write_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,0),msg);
+      cfg->msi_write(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,0),msg);
   }
   return 0;
 }
@@ -56,23 +57,23 @@ __msi_read_message(struct msi_cfg *cfg, struct msi *msg)
   uint32_t msi_data;
   if(cfg->attrib.is_msix)
   {
-    msg->addr = readl(cfg->attrib.base + MSIX_LOW_ADDR);
-    printf("%x\n", readl(cfg->attrib.base + MSIX_LOW_ADDR));
+    msg->addr = cfg->msix_read(cfg->attrib.base + MSIX_LOW_ADDR);
+    printf("%x\n", cfg->msix_read(cfg->attrib.base + MSIX_LOW_ADDR));
     if(cfg->attrib.is_64)
-      msg->addr = readl(cfg->attrib.base + MSIX_UPPER_ADDR);
-    msi_data = readl(cfg->attrib.base + MSIX_MESSAGE_DATA);
+      msg->addr = cfg->msix_read(cfg->attrib.base + MSIX_UPPER_ADDR);
+    msi_data = cfg->msix_read(cfg->attrib.base + MSIX_MESSAGE_DATA);
   }
   else
   {
     struct ol_pci_dev *dev = cfg->dev;
-    msg->addr = ol_pci_read_dword(dev, MSI_LOWER_ADDR(cfg->attrib.cpos));
+    msg->addr = cfg->msi_read(dev, MSI_LOWER_ADDR(cfg->attrib.cpos));
     if(cfg->attrib.is_64)
     {
-      msg->addr_hi = ol_pci_read_dword(dev, MSI_UPPER_ADDR(cfg->attrib.cpos));
-      msi_data = ol_pci_read_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,1));
+      msg->addr_hi = cfg->msi_read(dev, MSI_UPPER_ADDR(cfg->attrib.cpos));
+      msi_data = cfg->msi_read(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,1));
     }
     else
-      ol_pci_read_dword(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,0));
+      cfg->msi_read(dev, MSI_MESSAGE_DATA(cfg->attrib.cpos,0));
   }
   msi_build_message(msg, msi_data);
 
@@ -103,7 +104,7 @@ static void
 msi_enable_msix_entry(struct msi_cfg *cfg, int entry)
 {
   int index = entry*MSIX_ENTRY_SIZE;
-  writel(cfg->attrib.base+index+MSIX_VECTOR_CTRL, 0);
+  cfg->msix_write(cfg->attrib.base+index+MSIX_VECTOR_CTRL, 0);
 }
 
 static int
@@ -128,6 +129,9 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
   msi.msg.trig_lvl = 1;
   msi.msg.trigger = 0;
   cfg->msi = &msi;
+
+  cfg->msix_read = &readl;
+  cfg->msix_write = &writel;
   
   __msi_write_message(cfg, &msi);
   msi_enable_msix_entry(cfg, 0); /* enable first entry */
@@ -188,7 +192,7 @@ debug_msix_entry(struct msi_cfg *cfg)
   struct ol_pci_dev *dev = cfg->dev;
   uint8_t irq = ol_pci_read_dword(dev, OL_PCI_INTERRUPT_LINE) & 0xff;
   volatile void *base = cfg->attrib.base;
-  //printf("test: 0x%x\n", irq);
+
   uint16_t msi_ctl = (ol_pci_read_dword(cfg->dev, (uint16_t)cfg->attrib.cpos) >> 16) & 0x3ff;
 
   printf("msi-x: 64: %x; base: 0x%x; msg_data: %x; cfg_space_size: %i\n",
