@@ -8,4 +8,4 @@ boot: floppy
 #gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0
 #keyboard_mapping: enabled=1, map=/usr/share/bochs/keymaps/x11-pc-us.map
 info: action=ignore
-log: /home/michel/osdev/goldeneagle/bochs.log 
+#pci: enabled=1, chipset=i440fx, slot1=pcivga, slot2=ne2k, slot3=pcipnic

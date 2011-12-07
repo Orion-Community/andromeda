@@ -93,6 +93,11 @@ struct msi_cfg
   struct msi_attribute attrib;
   struct ol_pci_dev * dev;
   struct msi *msi;
+  union
+  {
+    uint32_t (*msix_read) (volatile void*, uint32_t);
+    uint32_t (*msi_read) (struct ol_pci_dev*, uint16_t);
+  };
   int masked : 1;
   uint32_t irq;
 } __attribute__((packed));
@@ -103,13 +108,15 @@ struct msi_cfg
 static int __msi_create_msix_entry(struct ol_pci_dev*, uint8_t);
 static volatile void *msi_calc_msix_base(struct ol_pci_dev *, uint8_t);
 static uint32_t msi_convert_message(struct msi_msg *msg);
+static int msi_build_message(struct msi *msi, uint32_t msg);
 static int __msi_write_message(struct msi_cfg *, struct msi *);
+static int __msi_read_message(struct msi_cfg *cfg, struct msi *msg);
 void msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp);
 static void msi_enable_msix_entry(struct msi_cfg *, int);
 void setup_msi_entry(struct ol_pci_dev *, uint8_t);
 
 #ifdef MSIX_DEBUG
-static void debug_msix_entry(struct msi_cfg *, struct msi *);
+static void debug_msix_entry(struct msi_cfg *);
 #endif
 
 #endif

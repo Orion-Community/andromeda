@@ -62,7 +62,7 @@ ol_get_system_tables()
   ol_cpu_search_signature((void*) 0x9fc00, 0x400);
   ol_cpu_search_signature((void*) 0xe0000, 0x20000);
   systables->magic = ANDROMEDA_MAGIC;
-  systables->flags |= 1;
+  systables->flags = 1;
   return 0;
 }
 

@@ -28,19 +28,31 @@ SECTIONS
     {
         code = .; _code = .; __code = .;
         *(.text)
+	*(.gnu_linkonce.t*)
         . = ALIGN(0x1000);
+    }
+    .rodata : AT (ADDR(.rodata) - 0xC0000000)
+    {
+	  rodata = .; _rodata = .; __rodata = .;
+	  _ctor_start = .;
+	  *(.ctor*)
+	  _dtor_start = .;
+	  *(.dtor*)
+	  *(.gnu_linkonce.r*)
+	  *(.rodata*)
     }
     .data : AT (ADDR(.data) - 0xC0000000)
     {
         data = .; _data = .; __data = .;
         *(.data)
-        *(.rodata)
+	*(.gnu.linkonce.d*)
         . = ALIGN(0x1000);
 	stack = ALIGN(0x1000);
     }
     .bss : AT (ADDR(.bss) - 0xC0000000)
     {
         bss = .; _bss = .; __bss = .;
+	*(.gnu.linkonce.b*)
         *(.bss)
 	*(COMMON)
         . = ALIGN(0x1000);
