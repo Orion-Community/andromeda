@@ -19,7 +19,15 @@
 #ifndef __KERN_CORE_H
 #define __KERN_CORE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void demand_key();
 void core_loop();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

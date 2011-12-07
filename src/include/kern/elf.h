@@ -21,6 +21,10 @@
 
 #include <stdlib.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Comments disclaimer:
  * If you want to know what all these variables mean.
@@ -269,5 +273,9 @@ int elfExec(void* image);
 int coreCheck(void* image);
 
 extern void elfJump(void* addr, void* memoryMap, void* modules);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

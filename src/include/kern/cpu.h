@@ -21,6 +21,11 @@
 
 #include <types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 extern int getVendor();
 extern void halt();
 extern void endProg();
@@ -44,4 +49,9 @@ extern boolean pgbit;
 #define VENDOR_INTEL	1
 #define VENDOR_AMD	2
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
