@@ -30,8 +30,14 @@ struct mp_fp_header
 {
   uint32_t signature;
   struct mp_config_header* mp_header;
-  uint8_t length, revision, checksum, rev1,
-	    rev2, rev3, rev4, rev5;
+  uint8_t length, revision, checksum;
+  uint8_t config_type; /* feature byte 1 */
+  uint8_t imcrp; /* 
+                      * if 1, the imcr is present
+                      * and virtual wire mode is implemented
+                      */
+  //uint8_t reserved : 7;
+  uint8_t reserved2, reserved3, reserved4; /* feature bytes 3-5 */
 } __attribute((packed));
 
 #endif

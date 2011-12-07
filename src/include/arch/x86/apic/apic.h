@@ -23,12 +23,13 @@
 #define	__APIC_H
 
 /* I/O registers */
-#define OL_APIC_IMCR_COMMAND 0x22
-#define OL_APIC_IMCR_DATA 0x23
+#define OL_IMCR_COMMAND 0x22
+#define OL_IMCR_DATA 0x23
 
 /* I/O commands */
 #define OL_APIC_IMCR_SELECT 0x70
 #define OL_APIC_IMCR_PASSTROUGH_APIC 0x1
+#define OL_APIC_IMCR_PIC_MODE 0x0
 
 /* APIC registers */
 #define OL_APIC_BASE_ADDRESS 0x0fee00000
@@ -72,8 +73,15 @@ correct_apic_address();
 static uint64_t
 correct_apic_address(uint64_t, ol_cpu_t);
 
+static void route_pic_to_apic();
+static void route_apic_to_pic();
+
 static uint16_t __apic_read_register(ol_apic_reg_t);
 static void __apic_write_register(ol_apic_reg_t, uint16_t);
+
+static void route_pic_to_apic();
+
+static void route_apic_to_pic();
 
 extern ol_apic_t apic;
 
