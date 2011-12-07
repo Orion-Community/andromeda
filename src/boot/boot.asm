@@ -74,6 +74,7 @@ boot_setup_paging:
 
   xor eax, eax
   xor ebx, ebx
+; Configure all the page tables in one single go (0x400000)
 .1:
   mov ecx, ebx
   or ecx, 3
