@@ -32,24 +32,6 @@ struct __THREAD_REGS
 
   uint64_t sp;                 /** Stack pointer                           */
   uint64_t flags;              /** Flags register                          */
-
-  double xmm1_lo, xmm1_hi;     /** Floating point registers                */
-  double xmm2_lo, xmm2_hi;     /** Had to split this up into a low and     */
-  double xmm3_lo, xmm3_hi;     /** high part because gcc doesn't support   */
-  double xmm4_lo, xmm4_hi;     /** 128 bits floats on 32-bits systems      */
-  double xmm5_lo, xmm5_hi;
-  double xmm6_lo, xmm6_hi;
-  double xmm7_lo, xmm7_hi;
-  double xmm8_lo, xmm8_hi;
-
-  double xmm9_lo,  xmm9_hi;    /** Floating point registers                */
-  double xmm10_lo, xmm10_hi;
-  double xmm11_lo, xmm11_hi;
-  double xmm12_lo, xmm12_hi;
-  double xmm13_lo, xmm13_hi;
-  double xmm14_lo, xmm14_hi;
-  double xmm15_lo, xmm15_hi;
-  double xmm16_lo, xmm16_hi;
 };
 
 struct __PROC_REGS

@@ -79,5 +79,5 @@ int task_init()
   return -E_SUCCESS;
 
 err:
-  panic("Could not initialise scheduling data");
+  panic("Could not initialise task administration");
 }
