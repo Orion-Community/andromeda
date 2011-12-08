@@ -65,12 +65,10 @@ int task_init()
   current->threads = tmp;
   task_stack = current;
 
-  printf("WARNING! Setting hardcoded segments!\n");
-
-  current->code = (void*)0xC0000000;
-  current->code_size = 0x40000000;
-  current->data = (void*)0xC0000000;
-  current->data_size = 0x40000000;
+  current->code = &higherhalf;
+  current->code_size = ((addr_t)&rodata - (addr_t)&higherhalf);
+  current->data = &higherhalf;
+  current->data_size = 0 - (addr_t)&rodata;
 
   tmp->stack = stack;
   tmp->stack_size = STD_STACK_SIZE;

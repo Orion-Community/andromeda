@@ -141,8 +141,8 @@ page_table_boot: ; And this will be mapped to for both 0 - 4MiB and 3 - 3.004GiB
 times 0x40000 dd 0x0
 
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
-[GLOBAL begin]
-begin:
+[GLOBAL higherhalf]
+higherhalf:
   dd 0
 
 [SECTION .text]

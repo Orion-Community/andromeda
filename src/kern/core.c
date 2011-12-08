@@ -79,6 +79,8 @@ void core_loop()
 #ifdef MATH_DBG
         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":"A number");
 #endif
+//         printf("Higher half address: %X\n", &higherhalf);
+//         printf("rodata adress:       %X\n", &rodata);
         break;
 
       case RL_RUN0:
