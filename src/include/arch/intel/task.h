@@ -23,6 +23,11 @@
 extern "C" {
 #endif
 
+struct __FLOAT_REGISTER
+{
+  uint64_t hi, lo; // 128-bits
+};
+
 struct __THREAD_REGS
 {
   uint64_t ip,  bp,  di,  si;  /** IP, base pointer, dest-index, src-index */
@@ -32,6 +37,11 @@ struct __THREAD_REGS
 
   uint64_t sp;                 /** Stack pointer                           */
   uint64_t flags;              /** Flags register                          */
+
+  struct __FLOAT_REGISTER xmm1,  xmm2,  xmm3,  xmm4;
+  struct __FLOAT_REGISTER xmm5,  xmm6,  xmm7,  xmm8;
+  struct __FLOAT_REGISTER xmm9,  xmm10, xmm11, xmm12;
+  struct __FLOAT_REGISTER xmm13, xmm14, xmm15, xmm16;
 };
 
 struct __PROC_REGS
