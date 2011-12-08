@@ -51,9 +51,6 @@ void kill (int signal)
 
 int task_init()
 {
-#ifndef SCHED_DBG
-  printf("WARNING! Scheduling not yet supported\n");
-#endif
   if (current != NULL)
     panic("Trying to init scheduling on a running system!");
 
@@ -78,9 +75,8 @@ int task_init()
   tmp->stack = stack;
   tmp->stack_size = STD_STACK_SIZE;
 
-  printf("WARNING! Setting a static path to binary!\n");
-
-  current->path_to_bin = "/andromeda";
+  printf("WARNING! No path to kernel binary!\n");
+  current->path_to_bin = NULL;
 
   return -E_SUCCESS;
 

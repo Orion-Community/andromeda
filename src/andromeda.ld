@@ -8,7 +8,6 @@ SECTIONS
         *(.boot);
         . = ALIGN(0x1000);
     }
-
     .PD : AT (ADDR(.PD))
     {
         PD = .; _PD = .; __PD = .;
