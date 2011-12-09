@@ -100,8 +100,18 @@ struct __TASK_LIST_NODE
 struct __TASK_BRANCH_NODE
 {
   uint16_t full;
+  uint16_t type;
   struct __TASK_BRANCH_NODE* parent;
-  struct __TASK_LIST_NODE *children[TASK_LIST_SIZE];
+  union {
+    struct __TASK_LIST_NODE *task[TASK_LIST_SIZE];
+    struct __TASK_LIST_NODE *branch[TASK_LIST_SIZE];
+  };
+};
+
+enum task_list_type
+{
+  task_list,
+  branch_list
 };
 
 extern struct __TASK_BRANCH_NODE        *task_stack;

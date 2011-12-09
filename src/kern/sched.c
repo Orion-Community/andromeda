@@ -36,16 +36,47 @@ struct __TASK_STATE* find_process(uint16_t pid)
   
 }
 
-void
-add_task(task, pid)
-struct __TASK_STATE* task;
-uint16_t pid;
+struct __TASK_BRANCH_NODE init_node(parent, parent_idx, type)
+struct __TASK_BRANCH_NODE *parent;
+uint16_t parent_idx;
+enum task_list_type type;
 {
   
 }
 
+/**
+ * Going to be a lengthy function ...
+ */
+
+int
+add_task(task, pid)
+struct __TASK_STATE* task;
+uint16_t pid;
+{
+  if (task_stack == NULL)
+    return -E_NULL_PTR;
+
+  
+
+  return -E_SUCCESS;
+}
+
+/**
+ * task_setup_tree actually only initialises the first node of the tree, the
+ * rest is up to other, more detailed functions
+ */
 int task_setup_tree()
 {
+  if (task_stack != NULL)
+    return -E_ALREADY_INITIALISED;
+
+  task_stack = kalloc(sizeof(struct __TASK_BRANCH_NODE));
+
+  if (task_stack == NULL)
+    return -E_NULL_PTR;
+
+  memset(task_stack, 0, sizeof(struct __TASK_BRANCH_NODE));
+
   return -E_SUCCESS;
 }
 
@@ -167,7 +198,11 @@ int task_init()
 
   current->threads = list;
   list->thread[0] = thread;
-  add_task(current);
+
+  if (task_setup_tree() != -E_SUCCESS)
+    goto err;
+  if (add_task(current) != -E_SUCCESS)
+    goto err;
 
   current->code = &higherhalf;
   current->code_size = ((addr_t)&rodata - (addr_t)&higherhalf);

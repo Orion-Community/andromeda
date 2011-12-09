@@ -21,6 +21,7 @@
 void panicDebug(char * msg, char* file, int line)
 {
 #ifdef CAS
+  // Little easter egg, a request from Cas van Raan
   printf("Shit's fucked up at line %i in file %s\n%s\nTry again!", line, file, msg);
 #else
   printf("Andromeda panic in %s at line %i\n%s\n", file, line, msg);

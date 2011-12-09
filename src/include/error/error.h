@@ -47,5 +47,6 @@
 
 #define E_HEAP_GENERIC          0x15
 #define E_NULL_PTR              0x16
+#define E_ALREADY_INITIALISED   0x17
 
 #endif
