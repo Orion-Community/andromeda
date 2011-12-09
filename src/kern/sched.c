@@ -42,6 +42,17 @@ void sched()
 void fork ()
 {
   panic("No forking code");
+  struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
+  if (new == NULL)
+    goto err;
+
+  memcpy (new, current, sizeof (struct __TASK_STATE));
+  
+
+  return;
+
+err:
+  panic("No more space for tasks!"); // Will do for now
 }
 
 void kill (int signal)
@@ -55,14 +66,17 @@ int task_init()
     panic("Trying to init scheduling on a running system!");
 
   current = kalloc(sizeof(struct __TASK_STATE));
-  struct __THREAD_STATE *tmp = kalloc(sizeof(struct __THREAD_STATE));
-  if (tmp == NULL || current == NULL)
+  struct __THREAD_STATE *thread = kalloc(sizeof(struct __THREAD_STATE));
+  struct __THREAD_LIST *list = kalloc(sizeof(struct __THREAD_LIST));
+  if (thread == NULL || current == NULL || list == NULL)
     goto err;
 
   memset(current, 0, sizeof(struct __TASK_STATE));
-  memset(tmp, 0, sizeof(struct __THREAD_STATE));
+  memset(thread, 0, sizeof(struct __THREAD_STATE));
+  memset(list, 0, sizeof(struct __THREAD_LIST));
 
-  current->threads = tmp;
+  current->threads = list;
+  list->thread[0] = thread;
   task_stack = current;
 
   current->code = &higherhalf;
@@ -70,8 +84,8 @@ int task_init()
   current->data = &higherhalf;
   current->data_size = 0 - (addr_t)&rodata;
 
-  tmp->stack = stack;
-  tmp->stack_size = STD_STACK_SIZE;
+  thread->stack = stack;
+  thread->stack_size = STD_STACK_SIZE;
 
   printf("WARNING! No path to kernel binary!\n");
   current->path_to_bin = NULL;

@@ -29,7 +29,7 @@ extern "C" {
 
 #define STD_STACK_SIZE 0x8000
 #define STD_NO_CHILDREN 0x10
-#define STD_CHILD_LIST_SIZE 0x10
+#define STD_LIST_SIZE 0x10
 
 struct __TASK_CHILDREN
 {
@@ -38,7 +38,7 @@ struct __TASK_CHILDREN
 
 struct __TASK_CHILD_LIST
 {
-  struct __TASK_CHILDREN *child[STD_CHILD_LIST_SIZE];
+  struct __TASK_CHILDREN *child[STD_LIST_SIZE];
   struct __TASK_CHILD_LIST *next;
   struct __TASK_CHILD_LIST *prev;
 };
@@ -48,9 +48,14 @@ struct __THREAD_STATE
   struct __THREAD_REGS regs;
   void* stack;
   addr_t stack_size;
+};
 
-  struct __THREAD_STATE *next;
-  struct __THREAD_STATE *prev;
+struct __THREAD_LIST
+{
+  struct __THREAD_STATE *thread[STD_LIST_SIZE];
+
+  struct __THREAD_LIST *next;
+  struct __THREAD_LIST *prev;
 };
 
 struct __TASK_STATE
@@ -58,7 +63,7 @@ struct __TASK_STATE
   struct __TASK_STATE *next;
   struct __TASK_STATE *prev;
 
-  struct __THREAD_STATE *threads;
+  struct __THREAD_LIST *threads;
   struct __PROC_REGS regs;
 
   struct __TASK_CHILD_LIST *children;
