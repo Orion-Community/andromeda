@@ -30,6 +30,7 @@ extern "C" {
 #define STD_STACK_SIZE 0x8000
 #define STD_NO_CHILDREN 0x10
 #define STD_LIST_SIZE 0x10
+#define TASK_LIST_SIZE 0x10
 
 struct __TASK_CHILDREN
 {
@@ -86,6 +87,21 @@ struct __TASK_STATE
 
   addr_t code_size;
   addr_t data_size;
+};
+
+struct __TASK_LIST_NODE
+{
+  uint16_t full;
+  struct __TASK_STATE *tasks[TASK_LIST_SIZE];
+  struct __TASK_LIST_NODE *next;
+  struct __TASK_LIST_NODE *prev;
+};
+
+struct __TASK_BRANCH_NODE
+{
+  uint16_t full;
+  struct __TASK_BRANCH_NODE* parent;
+  struct __TASK_LIST_NODE *children[TASK_LIST_SIZE];
 };
 
 extern struct __TASK_STATE *task_stack;

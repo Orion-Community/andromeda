@@ -23,11 +23,23 @@ volatile boolean scheduling = FALSE;
 
 unsigned char stack[STD_STACK_SIZE];
 
-struct __TASK_STATE *task_stack = NULL;
+struct __TASK_BRANCH_NODE *task_stack = NULL;
 struct __TASK_STATE *idle_stack = NULL;
 struct __TASK_STATE *waiting_stack = NULL;
 struct __TASK_STATE *current_quantum = NULL;
 struct __TASK_STATE *current = NULL;
+
+mutex_t sched_lock;
+
+struct __TASK_STATE* find_process(uint16_t pid)
+{
+  
+}
+
+int task_setup_tree()
+{
+  return -E_SUCCESS;
+}
 
 void get_new_quantum()
 {
@@ -39,7 +51,7 @@ void sched()
   panic("Scheduling not supported!");
 }
 
-static void
+void
 thread_cleanup_all(task)
 struct __TASK_STATE* task;
 {
@@ -116,6 +128,8 @@ void fork ()
     free(new);
     goto err;
   }
+
+  panic("Could not assign a new process ID");
 
   return;
 
