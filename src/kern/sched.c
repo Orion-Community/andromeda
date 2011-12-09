@@ -39,15 +39,83 @@ void sched()
   panic("Scheduling not supported!");
 }
 
+static void
+thread_cleanup_all(task)
+struct __TASK_STATE* task;
+{
+  struct __THREAD_LIST *itterator = task->threads;
+  int i;
+  for (; itterator != NULL; itterator = itterator->next)
+  {
+    for (i=0; i < STD_LIST_SIZE; i++)
+    {
+      if (itterator->thread[i] == NULL)
+        continue;
+      free (itterator->thread[i]);
+    }
+  }
+  struct __THREAD_LIST *tmp;
+  for (itterator = task->threads; itterator != NULL; itterator = tmp)
+  {
+    tmp = itterator->next;
+    free (itterator);
+  }
+}
+
+static int
+thread_copy(src, dest)
+struct __TASK_STATE* src;
+struct __TASK_STATE* dest;
+{
+  struct __THREAD_LIST *carriage = src->threads;
+  if (carriage == NULL)
+    return -E_NULL_PTR;
+
+  struct __THREAD_LIST *carriage2 = kalloc(sizeof(struct __THREAD_LIST));
+  if (carriage2 == NULL)
+    return -E_NULL_PTR;
+  dest->threads = carriage2;
+
+  int idx = 0;
+  for (; carriage != NULL; carriage = carriage->next, carriage2=carriage2->next)
+  {
+    for (idx = 0; idx < STD_LIST_SIZE; idx++)
+    {
+      if (carriage->thread[idx] == NULL)
+        continue;
+
+      carriage2->thread[idx] = kalloc(sizeof(struct __THREAD_STATE));
+      if (carriage2->thread[idx] == NULL)
+        return -E_NULL_PTR;
+      memcpy(carriage2->thread[idx],
+                                                          carriage->thread[idx],
+                                                 sizeof(struct __THREAD_STATE));
+    }
+
+    if (carriage->next != NULL)
+    {
+      carriage2->next = kalloc(sizeof(struct __THREAD_LIST));
+      if (carriage2->next == NULL)
+        return -E_NULL_PTR;
+    }
+  }
+
+  return -E_SUCCESS;
+}
+
 void fork ()
 {
-  panic("No forking code");
   struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
   if (new == NULL)
     goto err;
 
   memcpy (new, current, sizeof (struct __TASK_STATE));
-  
+  if (thread_copy(current, new) != -E_SUCCESS)
+  {
+    thread_cleanup_all(new);
+    free(new);
+    goto err;
+  }
 
   return;
 

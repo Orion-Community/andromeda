@@ -81,6 +81,7 @@ void core_loop()
 #endif
 //         printf("Higher half address: %X\n", &higherhalf);
 //         printf("rodata adress:       %X\n", &rodata);
+        fork();
         break;
 
       case RL_RUN0:

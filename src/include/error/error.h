@@ -46,5 +46,6 @@
 #define E_STREAM_FAILURE        0x14
 
 #define E_HEAP_GENERIC          0x15
+#define E_NULL_PTR              0x16
 
 #endif
