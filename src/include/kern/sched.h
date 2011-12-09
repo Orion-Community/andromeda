@@ -104,11 +104,11 @@ struct __TASK_BRANCH_NODE
   struct __TASK_LIST_NODE *children[TASK_LIST_SIZE];
 };
 
-extern struct __TASK_STATE *task_stack;
-extern struct __TASK_STATE *idle_stack;
-extern struct __TASK_STATE *waiting_stack;
-extern struct __TASK_STATE *current_quantum;
-extern struct __TASK_STATE *current;
+extern struct __TASK_BRANCH_NODE        *task_stack;
+extern struct __TASK_STATE              *idle_stack;
+extern struct __TASK_STATE              *waiting_stack;
+extern struct __TASK_STATE              *current_quantum;
+extern struct __TASK_STATE              *current;
 
 void sched();
 void fork ();

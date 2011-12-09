@@ -36,6 +36,14 @@ struct __TASK_STATE* find_process(uint16_t pid)
   
 }
 
+void
+add_task(task, pid)
+struct __TASK_STATE* task;
+uint16_t pid;
+{
+  
+}
+
 int task_setup_tree()
 {
   return -E_SUCCESS;
@@ -159,7 +167,7 @@ int task_init()
 
   current->threads = list;
   list->thread[0] = thread;
-  task_stack = current;
+  add_task(current);
 
   current->code = &higherhalf;
   current->code_size = ((addr_t)&rodata - (addr_t)&higherhalf);
