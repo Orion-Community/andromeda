@@ -19,9 +19,10 @@
 #include <stdlib.h>
 
 #include <arch/x86/cpu.h>
-#include <arch/x86/apic/apic.h>
+#include <arch/x86/irq.h>
 #include <arch/x86/acpi/acpi.h>
 #include <sys/sys.h>
+#include <arch/x86/apic/apic.h>
 
 #include <text.h>
 

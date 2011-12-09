@@ -31,7 +31,7 @@ uint64_t pit_timer = 0;
 uint64_t sleepTime = 0;
 bool isSleeping = FALSE;
 struct irq_data irq_data[MAX_IRQ_NUM];
-uint32_t irqs[MAX_ISA_IRQ_NUM];
+uint32_t irqs[IRQ_BASE];
 
 void cIRQ0(ol_irq_stack_t regs)
 {
@@ -139,6 +139,14 @@ void cIRQ15(ol_irq_stack_t regs)
   return;
 }
 
+void
+cIRQ40(ol_irq_stack_t regs)
+{
+  printf("General interrupt triggered!");
+  pic_eoi(40);
+  return;
+}
+
 static void
 __list_all_irqs()
 {
@@ -159,6 +167,7 @@ __list_all_irqs()
   irqs[13] = (uint32_t)&irq13;
   irqs[14] = (uint32_t)&irq14;
   irqs[15] = (uint32_t)&irq15;
+  irqs[40] = (uint32_t)&irq40;
   int i = 16;
   for(; i < MAX_IRQ_NUM; i++)
   {
@@ -215,7 +224,7 @@ alloc_irq()
     {
       setup_irq_cfg(irq_data[i].irq);
       struct irq_cfg *cfg = irq_data[i].irq_config;
-      printf("irq nuuuuumber: %x %x\n", irq_data[i].irq, cfg->vector);
+      printf("irq number: %x %x\n", irq_data[i].irq, cfg->vector);
 
       return &irq_data[i];
     }

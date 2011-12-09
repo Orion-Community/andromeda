@@ -18,6 +18,8 @@
 
 #include <arch/x86/cpu.h>
 #include <stdlib.h>
+#include <arch/x86/apic/ioapic.h>
+
 
 #ifndef __APIC_H
 #define	__APIC_H

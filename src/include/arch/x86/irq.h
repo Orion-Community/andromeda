@@ -25,7 +25,7 @@
 
 #define MAX_IRQ_NUM 255
 #define MAX_ISA_IRQ_NUM 0x10
-#define MAX_ISA_IRQ_NUM 0x10
+#define IRQ_BASE 40
 
 /*
  * An IRQ is the index number of the IRQ (eg irq 0 is the timer by default).
@@ -41,7 +41,7 @@ struct irq_data
 };
 
 extern struct irq_data irq_data[MAX_IRQ_NUM];
-extern uint32_t irqs[MAX_ISA_IRQ_NUM];
+extern uint32_t irqs[IRQ_BASE];
 
 /*
  * Interrupt headers
@@ -63,6 +63,7 @@ extern void irq13();
 extern void irq14();
 extern void irq15();
 extern void irq30();
+extern void irq40();
 
 static inline struct irq_data*
 get_irq_data(uint32_t irq)
@@ -80,6 +81,12 @@ static inline uint32_t
 get_isa_irq_vector(uint32_t x)
 {
   return irqs[x];
+}
+
+static inline uint32_t
+get_irq_base(uint8_t i)
+{
+  return irqs[i];
 }
 
 static void dbg_irq_data(void);

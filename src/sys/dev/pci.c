@@ -270,7 +270,7 @@ debug_pci_print_cp_list(struct ol_pci_dev * dev)
   {
     if((cp_list & 0xff) == 0x11)
     {
-      setup_msi_entry(dev, cp);
+      msi_create_msix_entry(dev, cp);
       printf("Class %x - subclass %x\n", dev->class, dev->subclass);
     }
     else

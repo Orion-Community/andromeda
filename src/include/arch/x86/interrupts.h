@@ -114,5 +114,6 @@ void cIRQ12();
 void cIRQ13();
 void cIRQ14();
 void cIRQ15();
+void cIRQ40(ol_irq_stack_t regs);
 extern void cIRQ30();
 #endif

@@ -17,7 +17,6 @@
  */
 
 #include <stdlib.h>
-
 #include <arch/x86/apic/msi.h>
 #include <arch/x86/irq.h>
 #include <sys/dev/pci.h>
@@ -29,7 +28,7 @@ static int
 __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
 {
   uint32_t msg = msi_convert_message(&msi->msg);
-  printf("MSI message data: %x - IRQ vector: %x\n", msg, msi->msg.vector);
+//   printf("MSI message data: %x - IRQ vector: %x\n", msg, msi->msg.vector);
   if(cfg->attrib.is_msix)
   {
     cfg->msix_write(cfg->attrib.base + MSIX_LOW_ADDR, msi->addr);
@@ -59,7 +58,6 @@ __msi_read_message(struct msi_cfg *cfg, struct msi *msg)
   if(cfg->attrib.is_msix)
   {
     msg->addr = cfg->msix_read(cfg->attrib.base + MSIX_LOW_ADDR);
-    printf("%x\n", cfg->msix_read(cfg->attrib.base + MSIX_LOW_ADDR));
     if(cfg->attrib.is_64)
       msg->addr = cfg->msix_read(cfg->attrib.base + MSIX_UPPER_ADDR);
     msi_data = cfg->msix_read(cfg->attrib.base + MSIX_MESSAGE_DATA);
@@ -85,9 +83,7 @@ void
 setup_msi_entry(struct ol_pci_dev *dev, uint8_t cp)
 {
 #ifdef MSIX
-  uint8_t msix = (uint8_t)(ol_pci_read_dword(dev, cp) & 0xff);
-  //printf("%x\n", msix);
-  __msi_create_msix_entry(dev, cp, 0);
+  msi_create_msix_entry(dev, cp);
 #endif
 }
 
@@ -96,7 +92,10 @@ void
 msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
 {
   struct irq_data *irq = alloc_irq();
-  __msi_create_msix_entry(dev, cp, 0);
+  irq->irq_base = (uint32_t)get_irq_base(40);
+  install_irq_vector(irq);
+  printf("Vector %x\n", irq->irq_config->vector);
+  __msi_create_msix_entry(dev, cp, irq);
 }
 
 /**
@@ -110,10 +109,10 @@ msi_enable_msix_entry(struct msi_cfg *cfg, int entry)
 }
 
 static int
-__msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, int irq)
+__msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, struct irq_data *irq)
 {
   struct msi_cfg *cfg = kalloc(sizeof(*cfg));
-  struct msi msi;
+  struct msi *msi = kalloc(sizeof(*msi));
   uint16_t ctrl = ol_pci_read_dword(dev, cp) >> 16;
   cfg->attrib.cpos = cp;
   cfg->dev = dev;
@@ -123,19 +122,21 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, int irq)
   else
     cfg->attrib.is_64 = 0;
   cfg->attrib.base = msi_calc_msix_base(dev, cp);
+  cfg->irq = irq->irq;
   
-  msi.addr = 0xfee00000; /* upper bits of the msi address are always 0xfee */
-  msi.addr_hi = 0;
-  msi.msg.vector = 0;
-  msi.msg.dm = 1;
-  msi.msg.trig_lvl = 1;
-  msi.msg.trigger = 0;
-  cfg->msi = &msi;
+  msi->addr = 0xfee00000; /* upper bits of the msi address are always 0xfee */
+  msi->addr_hi = 0;
+  msi->msg.vector = irq->irq_config->vector;
+  msi->msg.dm = irq->irq_config->delivery_mode;
+  msi->msg.trig_lvl = 1;
+  msi->msg.trigger = irq->irq_config->trigger;
+  cfg->msi = msi;
 
   cfg->msix_read = &readl;
   cfg->msix_write = &writel;
-  
-  __msi_write_message(cfg, &msi);
+
+  irq->irq_config->msi = cfg;
+  __msi_write_message(cfg, msi);
   msi_enable_msix_entry(cfg, 0); /* enable first entry */
   
   debug_msix_entry(cfg);

@@ -21,10 +21,9 @@
 #include <mm/map.h>
 
 #include <arch/x86/acpi/acpi.h>
-#include <arch/x86/apic/ioapic.h>
-#include <arch/x86/apic/msi.h>
 #include <arch/x86/cpu.h>
 #include <arch/x86/irq.h>
+#include <arch/x86/apic/ioapic.h>
 
 static volatile ioapic_t ioapic;
 

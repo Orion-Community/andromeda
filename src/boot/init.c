@@ -148,6 +148,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   init_ioapic();
   setup_irq_data();
   ol_pci_init();
+  alloc_irq();
 
 #ifdef __IOAPIC_DBG
   ioapic_debug();
@@ -155,9 +156,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
 #ifdef __MEMTEST
   ol_detach_all_devices(); /* free's al the pci devices */
-#ifdef DBG
-  free(cpu);
-#endif
+
 #endif
 #ifdef __DBG_HEAP
   printf("Heap list:\n");
@@ -165,7 +164,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #endif
 #ifndef DBG
   printf("\nSome (temp) debug info:\n");
-  printf("CPU vendor: %s\n", cpus->vendor);
+  printf("CPU vendor: %s\n", cpu->vendor);
 
   if(systables->magic == SYS_TABLE_MAGIC)
   {

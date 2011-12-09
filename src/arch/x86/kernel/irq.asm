@@ -49,6 +49,7 @@ irq 13
 irq 14
 irq 15
 irq 30
+irq 40
 
 irqStub:
 	pushad
