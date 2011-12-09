@@ -19,6 +19,7 @@
 #include <stdlib.h>
 
 #include <arch/x86/apic/msi.h>
+#include <arch/x86/irq.h>
 #include <sys/dev/pci.h>
 #include <mm/map.h>
 #include <io.h>
@@ -86,7 +87,7 @@ setup_msi_entry(struct ol_pci_dev *dev, uint8_t cp)
 #ifdef MSIX
   uint8_t msix = (uint8_t)(ol_pci_read_dword(dev, cp) & 0xff);
   //printf("%x\n", msix);
-  __msi_create_msix_entry(dev, cp);
+  __msi_create_msix_entry(dev, cp, 0);
 #endif
 }
 
@@ -94,7 +95,8 @@ setup_msi_entry(struct ol_pci_dev *dev, uint8_t cp)
 void
 msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
 {
-  __msi_create_msix_entry(dev, cp);
+  struct irq_data *irq = alloc_irq();
+  __msi_create_msix_entry(dev, cp, 0);
 }
 
 /**
@@ -108,7 +110,7 @@ msi_enable_msix_entry(struct msi_cfg *cfg, int entry)
 }
 
 static int
-__msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
+__msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, int irq)
 {
   struct msi_cfg *cfg = kalloc(sizeof(*cfg));
   struct msi msi;
@@ -124,7 +126,7 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
   
   msi.addr = 0xfee00000; /* upper bits of the msi address are always 0xfee */
   msi.addr_hi = 0;
-  msi.msg.vector = alloc_idt_entry();
+  msi.msg.vector = 0;
   msi.msg.dm = 1;
   msi.msg.trig_lvl = 1;
   msi.msg.trigger = 0;

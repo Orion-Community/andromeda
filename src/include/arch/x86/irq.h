@@ -76,22 +76,17 @@ get_irq_cfg(uint32_t irq)
   return get_irq_data(irq)->irq_config;
 }
 
-static inline void
-init_irq_data()
-{
-  memset(irq_data, 0, sizeof(*irq_data)*MAX_IRQ_NUM);
-}
-
 static inline uint32_t
 get_isa_irq_vector(uint32_t x)
 {
   return irqs[x];
 }
 
-void dbg_irq_data(void);
+static void dbg_irq_data(void);
 static void __list_all_irqs();
-static struct irq_data *get_empty_irq();
+struct irq_data *alloc_irq();
 static int free_irq_entry(struct irq_data*);
+static struct irq_cfg *setup_irq_cfg(int irq);
 
 struct irq_cfg
 {
@@ -106,7 +101,7 @@ struct irq_cfg
   
   int vector : 8;
   int delivery_mode : 3;
-  int trigger: 1;
+  int trigger: 1; /* 0 -> edge trigger | 1 -> level trigger */
 };
 
 #endif

@@ -29,17 +29,32 @@ extern "C"
 
 #define IOAPIC_DATA_ADDRESS(x) (volatile uint32_t*)(((volatile void*)x)+0x10)
 
-    typedef uint32_t ioapic_addr_t;
-    typedef struct ioapic
-    {
-        uint8_t id;
-        uint8_t apic_id:4;
-        uint32_t int_base /* system interrupt base */, num_intr;
-        volatile ioapic_addr_t* address;
-        void (*write)(struct ioapic*, const uint8_t, const uint32_t);
-        uint32_t (*read)(struct ioapic*, const uint8_t);
-        struct ioapic *next;
-    } *ioapic_t;
+typedef uint32_t ioapic_addr_t;
+typedef struct ioapic
+{
+  uint8_t id;
+  uint8_t apic_id:4;
+  uint32_t int_base /* system interrupt base */, num_intr;
+  volatile ioapic_addr_t* address;
+  void (*write)(struct ioapic*, const uint8_t, const uint32_t);
+  uint32_t (*read)(struct ioapic*, const uint8_t);
+  struct ioapic *next;
+  struct iopin *pin;
+} *ioapic_t;
+
+typedef struct iopin
+{
+  int vector : 8;
+  int delmod : 3;
+  int destmod : 1;
+  int deliv_state : 1;
+  int intpol : 1;
+  int remote_irr : 1;
+  int trig_mode : 1;
+  int trig_mask : 1;
+  uint64_t reserved : 39;
+  int destfield : 8;
+} *iopin_t;
 
 static struct ioapic*
 create_ioapic (ol_madt_ioapic_t madt_io);
@@ -47,14 +62,15 @@ create_ioapic (ol_madt_ioapic_t madt_io);
 int
 init_ioapic();
 
-static uint32_t
-ioapic_read_dword(ioapic_t io, const uint8_t offset);
+static uint32_t ioapic_read_dword(ioapic_t io, const uint8_t offset);
 
-static void
-add_ioapic();
+static void add_ioapic();
 
 static void
 ioapic_write_dword(ioapic_t io, const uint8_t offset, const uint32_t value);
+
+static int program_ioapic_pin(struct ioapic *io, int pin, int irq);
+static int write_ioapic_pin(struct iopin *pin);
 
 #ifdef __IOAPIC_DBG
 void ioapic_debug();

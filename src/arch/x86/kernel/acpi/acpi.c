@@ -143,7 +143,9 @@ acpi_ioapic_add_list(void *io)
   /* we're at the top of the list, initialise it */
   if(acpi_apics->ioapic->ioapic == NULL)
   {
-    acpi_apics->ioapic->ioapic = (struct ol_madt_ioapic*)io;   
+    acpi_apics->ioapic->ioapic = (struct ol_madt_ioapic*)io;
+    acpi_apics->ioapic->next = NULL;
+    acpi_apics->ioapic->previous = NULL;
     goto end;
   }
   else

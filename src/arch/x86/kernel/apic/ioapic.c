@@ -24,6 +24,7 @@
 #include <arch/x86/apic/ioapic.h>
 #include <arch/x86/apic/msi.h>
 #include <arch/x86/cpu.h>
+#include <arch/x86/irq.h>
 
 static volatile ioapic_t ioapic;
 
@@ -43,6 +44,7 @@ create_ioapic (ol_madt_ioapic_t madt_io)
     io->read = &ioapic_read_dword;
     io->write = &ioapic_write_dword;
   }
+  program_ioapic_pin(io, 0, 0);
   cpus->unlock(&cpu_lock);
   return io;
   
@@ -80,7 +82,7 @@ init_ioapic ()
   return 0;
 }
 
-/*
+/**
  * Adds all the additional ioapics to the list.
  * This function is called from init_ioapic after the master io apic has been
  * created
@@ -97,11 +99,13 @@ add_ioapic()
   for(node = acpi_apics->ioapic->next; node != NULL, node != node->next; 
       node = node->next)
   {
-    struct ioapic *io = create_ioapic(node->ioapic);
+    if(node == NULL)
+      break;
     for(ionode = ioapic; ionode != NULL, ionode != ionode->next; ionode = ionode->next)
     {
       if(ionode->next == NULL)
       {
+	struct ioapic *io = create_ioapic(node->ioapic);
         ionode->next = io;
         ionode->next->next = NULL;
         break;
@@ -110,6 +114,20 @@ add_ioapic()
     if(node == NULL || node->next == NULL)
       break;
   }
+}
+
+static int
+program_ioapic_pin(struct ioapic *io, int pin, int irq)
+{
+  struct irq_cfg *cfg = get_irq_cfg(irq);
+  
+  return 0;
+}
+
+static int
+write_ioapic_pin(struct iopin *pin)
+{
+  return 0;
 }
 
 #ifdef __IOAPIC_DBG

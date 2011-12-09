@@ -185,14 +185,40 @@ setup_irq_data(void)
   printf("Entry 2 vector: %x\n", get_irq_cfg(1)->vector);
 }
 
-static struct irq_data *
-get_empty_irq()
+/**
+ * Setup a default irq config. The default irq configration is a low priority,
+ * edge triggered interrupt. The only field which is not set is the hardware pin/
+ * msi field.
+ */
+static struct irq_cfg *
+setup_irq_cfg(int irq)
 {
-  int i = 0;
+  struct irq_data *data = get_irq_data(irq);
+  if(data->irq_config == NULL)
+    data->irq_config = kalloc(sizeof(*(data->irq_config)));
+
+  struct irq_cfg *cfg = data->irq_config;
+  cfg->trigger = 0;
+  cfg->delivery_mode = 1;
+  cfg->vector = alloc_idt_entry();
+
+  return data->irq_config;
+}
+
+struct irq_data *
+alloc_irq()
+{
+  int i = 16;
   for(; i < MAX_IRQ_NUM; i++)
   {
     if(irq_data[i].irq_base == 0 && irq_data[i].irq_config == NULL)
+    {
+      setup_irq_cfg(irq_data[i].irq);
+      struct irq_cfg *cfg = irq_data[i].irq_config;
+      printf("irq nuuuuumber: %x %x\n", irq_data[i].irq, cfg->vector);
+
       return &irq_data[i];
+    }
   }
   return NULL;
 }
@@ -223,19 +249,18 @@ free_irq_entry(struct irq_data* irq)
   return -1;
 }
 
-void dbg_irq_data(void)
+static void dbg_irq_data(void)
 {
   int entry = alloc_idt_entry();
-  struct irq_data *data = get_empty_irq();
+  struct irq_data *data = alloc_irq();
   if(entry != -1)
   {
     data->irq_base = (uint32_t)&irq30;
     data->irq_config = kalloc(sizeof(struct irq_cfg));
     data->irq_config->vector = (uint16_t)entry;
     install_irq_vector(data);
-#ifdef __IRQ_DEBUG
     printf("test: %x\t%x\n", data->irq,alloc_idt_entry());
-#endif
+
   }
   else
     return;

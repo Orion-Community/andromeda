@@ -147,7 +147,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
   ol_apic_init(cpu);
   init_ioapic();
   setup_irq_data();
-  dbg_irq_data();
   ol_pci_init();
 
 #ifdef __IOAPIC_DBG

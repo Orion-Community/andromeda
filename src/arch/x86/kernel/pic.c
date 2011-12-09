@@ -76,6 +76,4 @@ void pic_init()
 {
   pic_remap(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE+8);
   ol_pit_init(100); // program pic to 100 hertz
-  
-  init_irq_data();
 }

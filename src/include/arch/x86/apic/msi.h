@@ -113,7 +113,7 @@ struct msi_cfg
 /*
  * Setup an MSI driven irq.
  */
-static int __msi_create_msix_entry(struct ol_pci_dev*, uint8_t);
+static int __msi_create_msix_entry(struct ol_pci_dev*, uint8_t, int);
 static volatile void *msi_calc_msix_base(struct ol_pci_dev *, uint8_t);
 static uint32_t msi_convert_message(struct msi_msg *msg);
 static int msi_build_message(struct msi *msi, uint32_t msg);
