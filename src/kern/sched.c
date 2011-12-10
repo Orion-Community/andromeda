@@ -36,12 +36,40 @@ struct __TASK_STATE* find_process(uint16_t pid)
   
 }
 
-struct __TASK_BRANCH_NODE init_node(parent, parent_idx, type)
+int
+task_add_branch(parent, parent_idx)
+struct __TASK_BRANCH_NODE *parent;
+uint16_t parent_idx;
+{
+  if (parent == NULL)
+    return -E_NULL_PTR;
+
+  if (parent->full && (1 << parent_idx-1) || parent->branch[parent_idx] != NULL)
+    return -E_ALREADY_INITIALISED;
+
+  parent->branch[parent_idx] = kalloc(sizeof(struct __TASK_BRANCH_NODE));
+  return -E_SUCCESS;
+}
+
+int
+init_node(parent, parent_idx, type)
 struct __TASK_BRANCH_NODE *parent;
 uint16_t parent_idx;
 enum task_list_type type;
 {
-  
+  if (parent == NULL)
+    return -E_NULL_PTR;
+
+  switch (parent->type)
+  {
+    case branch_list:
+      break;
+    case task_list:
+      break;
+    default:
+      break;
+  }
+  return -E_SUCCESS;
 }
 
 /**
@@ -206,7 +234,7 @@ int task_init()
 
   current->code = &higherhalf;
   current->code_size = ((addr_t)&rodata - (addr_t)&higherhalf);
-  current->data = &higherhalf;
+  current->data = &rodata;
   current->data_size = 0 - (addr_t)&rodata;
 
   thread->stack = stack;

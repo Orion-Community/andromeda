@@ -32,6 +32,12 @@ extern "C" {
 #define STD_LIST_SIZE 0x10
 #define TASK_LIST_SIZE 0x10
 
+enum task_list_type
+{
+  task_list,
+  branch_list
+};
+
 struct __TASK_CHILDREN
 {
   struct __TASK_STATE *children[STD_NO_CHILDREN];
@@ -89,29 +95,24 @@ struct __TASK_STATE
   addr_t data_size;
 };
 
-struct __TASK_LIST_NODE
-{
-  uint16_t full;
-  struct __TASK_STATE *tasks[TASK_LIST_SIZE];
-  struct __TASK_LIST_NODE *next;
-  struct __TASK_LIST_NODE *prev;
-};
+// struct __TASK_LIST_NODE
+// {
+//   uint16_t full;
+//   struct __TASK_STATE *tasks[TASK_LIST_SIZE];
+//   struct __TASK_LIST_NODE *next;
+//   struct __TASK_LIST_NODE *prev;
+// };
 
 struct __TASK_BRANCH_NODE
 {
-  uint16_t full;
-  uint16_t type;
+  uint16_t full; /** Bitmap of which entries are full */
+  enum task_list_type type;
+
   struct __TASK_BRANCH_NODE* parent;
   union {
-    struct __TASK_LIST_NODE *task[TASK_LIST_SIZE];
-    struct __TASK_LIST_NODE *branch[TASK_LIST_SIZE];
+    struct __TASK_STATE          *task[TASK_LIST_SIZE];
+    struct __TASK_LIST_NODE      *branch[TASK_LIST_SIZE];
   };
-};
-
-enum task_list_type
-{
-  task_list,
-  branch_list
 };
 
 extern struct __TASK_BRANCH_NODE        *task_stack;
