@@ -42,13 +42,6 @@ enum task_list_type
   branch_list
 };
 
-struct __TASK_CHILD_LIST
-{
-  struct __TASK_CHILDREN *child[STD_LIST_SIZE];
-  struct __TASK_CHILD_LIST *next;
-  struct __TASK_CHILD_LIST *prev;
-};
-
 struct __THREAD_STATE
 {
   struct __THREAD_REGS regs;
