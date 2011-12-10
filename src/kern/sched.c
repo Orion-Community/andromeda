@@ -29,26 +29,11 @@ struct __TASK_STATE *waiting_stack = NULL;
 struct __TASK_STATE *current_quantum = NULL;
 struct __TASK_STATE *current = NULL;
 
-mutex_t sched_lock;
+mutex_t sched_lock = mutex_unlocked;
 
 struct __TASK_STATE* find_process(uint16_t pid)
 {
-  
-}
-
-int
-task_add_branch(parent, parent_idx)
-struct __TASK_BRANCH_NODE *parent;
-uint16_t parent_idx;
-{
-  if (parent == NULL)
-    return -E_NULL_PTR;
-
-  if (parent->full && (1 << parent_idx-1) || parent->branch[parent_idx] != NULL)
-    return -E_ALREADY_INITIALISED;
-
-  parent->branch[parent_idx] = kalloc(sizeof(struct __TASK_BRANCH_NODE));
-  return -E_SUCCESS;
+  return NULL;
 }
 
 int
@@ -60,15 +45,18 @@ enum task_list_type type;
   if (parent == NULL)
     return -E_NULL_PTR;
 
-  switch (parent->type)
+  mutex_lock (sched_lock);
+  if (parent->full && (1 << parent_idx-1) || parent->branch[parent_idx] != NULL)
   {
-    case branch_list:
-      break;
-    case task_list:
-      break;
-    default:
-      break;
+    mutex_unlock(sched_lock);
+    return -E_ALREADY_INITIALISED;
   }
+
+  parent->branch[parent_idx] = kalloc(sizeof(struct __TASK_BRANCH_NODE));
+  memset(parent->branch[parent_idx], 0, sizeof(struct __TASK_BRANCH_NODE));
+  parent->branch[parent_idx]->type = type;
+
+  mutex_unlock(sched_lock);
   return -E_SUCCESS;
 }
 

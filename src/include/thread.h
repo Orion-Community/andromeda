@@ -32,6 +32,9 @@ extern "C" {
 #define mutex_test mutexTest
 #define mutex_unlock mutexRelease
 
+#define mutex_locked 1
+#define mutex_unlocked 0
+
 typedef unsigned int mutex_t;
 
 extern void mutexEnter(mutex_t);

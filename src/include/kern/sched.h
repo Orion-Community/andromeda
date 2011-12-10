@@ -32,15 +32,14 @@ extern "C" {
 #define STD_LIST_SIZE 0x10
 #define TASK_LIST_SIZE 0x10
 
+/**
+ * tast_list_type is used to note down the type of __TASK_BRANCH_NODE.
+ * It fulfills the task of typeof in OO languages
+ */
 enum task_list_type
 {
   task_list,
   branch_list
-};
-
-struct __TASK_CHILDREN
-{
-  struct __TASK_STATE *children[STD_NO_CHILDREN];
 };
 
 struct __TASK_CHILD_LIST
@@ -67,14 +66,10 @@ struct __THREAD_LIST
 
 struct __TASK_STATE
 {
-  struct __TASK_STATE *next;
-  struct __TASK_STATE *prev;
-
   struct __THREAD_LIST *threads;
   struct __PROC_REGS regs;
-
-  struct __TASK_CHILD_LIST *children;
-  struct __TASK_STATE *parent;
+  
+  uint16_t parent_id;
 
   uint8_t priority;
   uint8_t ring_level;
@@ -95,14 +90,6 @@ struct __TASK_STATE
   addr_t data_size;
 };
 
-// struct __TASK_LIST_NODE
-// {
-//   uint16_t full;
-//   struct __TASK_STATE *tasks[TASK_LIST_SIZE];
-//   struct __TASK_LIST_NODE *next;
-//   struct __TASK_LIST_NODE *prev;
-// };
-
 struct __TASK_BRANCH_NODE
 {
   uint16_t full; /** Bitmap of which entries are full */
@@ -110,8 +97,8 @@ struct __TASK_BRANCH_NODE
 
   struct __TASK_BRANCH_NODE* parent;
   union {
-    struct __TASK_STATE          *task[TASK_LIST_SIZE];
-    struct __TASK_LIST_NODE      *branch[TASK_LIST_SIZE];
+    struct __TASK_STATE       *task   [TASK_LIST_SIZE];
+    struct __TASK_BRANCH_NODE *branch [TASK_LIST_SIZE];
   };
 };
 
