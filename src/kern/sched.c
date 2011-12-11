@@ -96,16 +96,26 @@ int task_setup_tree()
   return -E_SUCCESS;
 }
 
+/**
+ * Set up a new scheduling quantum
+ */ 
 void get_new_quantum()
 {
   panic("No tasks to build quantum");
 }
 
+/**
+ * Stop and save the last task and load the next one from the quantum, if
+ * scheduling conditions are met.
+ */
 void sched()
 {
   panic("Scheduling not supported!");
 }
 
+/**
+ * Remove all threads from task
+ */
 void
 thread_cleanup_all(task)
 struct __TASK_STATE* task;
@@ -129,6 +139,9 @@ struct __TASK_STATE* task;
   }
 }
 
+/**
+ * Copy all threads from task 1 to task 2
+ */
 static int
 thread_copy(src, dest)
 struct __TASK_STATE* src;
@@ -170,7 +183,10 @@ struct __TASK_STATE* dest;
   return -E_SUCCESS;
 }
 
-void fork ()
+/**
+ * Basically make a copy of the current process
+ */
+int fork ()
 {
   struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
   if (new == NULL)
@@ -186,17 +202,23 @@ void fork ()
 
   panic("Could not assign a new process ID");
 
-  return;
+  return -E_SUCCESS;
 
 err:
   panic("No more space for tasks!"); // Will do for now
 }
 
+/**
+ * Send a kill signal to a process (it has to handle that immediately)
+ */
 void kill (int signal)
 {
   panic("No processes to send signal");
 }
 
+/**
+ * Start the basic multi-tasking administration
+ */
 int task_init()
 {
   if (current != NULL)

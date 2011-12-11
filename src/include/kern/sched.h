@@ -125,7 +125,7 @@ extern struct __TASK_STATE              *current;
 
 /** Some nice functions for you to call ... */
 void sched();
-void fork ();
+int fork ();
 void kill (int);
 
 int task_init();
