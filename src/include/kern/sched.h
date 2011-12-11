@@ -42,6 +42,9 @@ enum task_list_type
   branch_list
 };
 
+/**
+ * This structure actually holds the state of the current thread
+ */
 struct __THREAD_STATE
 {
   struct __THREAD_REGS regs;
@@ -49,6 +52,11 @@ struct __THREAD_STATE
   addr_t stack_size;
 };
 
+/**
+ * It's kinda handy to keep track of which threads you're running
+ * and since it's probably not going to be a whole lot (presumably not over 20)
+ * it'll be ok for me to give each thread it's own node ...
+ */
 struct __THREAD_LIST
 {
   struct __THREAD_STATE *thread[STD_LIST_SIZE];
@@ -57,32 +65,45 @@ struct __THREAD_LIST
   struct __THREAD_LIST *prev;
 };
 
+/**
+ * This keeps track of the actual task itself.
+ */
 struct __TASK_STATE
 {
+  /** Keep track of threads and task level registers */
   struct __THREAD_LIST *threads;
   struct __PROC_REGS regs;
-  
+
+  /** Who's your daddy? */
   uint16_t parent_id;
 
+  /** speaks for itself */
   uint8_t priority;
   uint8_t ring_level;
 
+  /** Doubt this is the right implementation, will do for now */
   uint16_t signal;
 
+  /** We're keeping track of how much time you used. It needs to be fair! */
   uint32_t time_used;
   uint32_t time_granted;
 
+  /** Where can we find more code if we swapped some out? */
   char *path_to_bin;
 
+  /** Which physical pages are you using? Probbably going down for rewrite. */
   uint64_t phys_map_idx;
 
+  /** Where are your code and data segments starting? */
   void *code;
   void *data;
 
+  /** How large are those segments? */
   addr_t code_size;
   addr_t data_size;
 };
 
+/** Structure for keeping track of threads in the shape of a tree. */
 struct __TASK_BRANCH_NODE
 {
   uint16_t full; /** Bitmap of which entries are full */
@@ -95,12 +116,14 @@ struct __TASK_BRANCH_NODE
   };
 };
 
+/** Some things that might need sharing in the future */
 extern struct __TASK_BRANCH_NODE        *task_stack;
 extern struct __TASK_STATE              *idle_stack;
 extern struct __TASK_STATE              *waiting_stack;
 extern struct __TASK_STATE              *current_quantum;
 extern struct __TASK_STATE              *current;
 
+/** Some nice functions for you to call ... */
 void sched();
 void fork ();
 void kill (int);
