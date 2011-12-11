@@ -54,8 +54,8 @@ struct __THREAD_STATE
 
 /**
  * It's kinda handy to keep track of which threads you're running
- * and since it's probably not going to be a whole lot (presumably not over 20)
- * it'll be ok for me to give each thread it's own node ...
+ * This is done by keeping a list of lists of thread states. Can you still keep
+ * up?
  */
 struct __THREAD_LIST
 {
