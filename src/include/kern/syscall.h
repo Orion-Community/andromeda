@@ -37,6 +37,8 @@ extern "C" {
 #define SYS_FORK        0x11
 #define SYS_KILL        0x12
 #define SYS_SIG         0x13
+#define SYS_EXIT        0x14
+#define SYS_EXEC        0x15
 
 #define SYS_BRK         0x20
 
