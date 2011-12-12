@@ -62,13 +62,18 @@ int find_free_pid()
 {
   struct __TASK_BRANCH_NODE *itterator = NULL;
   uint32_t idx = 0;
-  for (; idx < TASK_LIST_SIZE; idx ++)
+  for (; idx < 0xFFFF; idx ++)
   {
-    if (task_stack->full && (1 << (idx - 1)))
+    if (task_stack->full && (1 << (idx >> 8)))
       continue;
-    itterator = task_stack->branch[idx];
+    itterator = task_stack->branch[idx >> 8];
     if (itterator == NULL)
-      return idx * TASK_LIST_SIZE;
+      return idx;
+    
+    if (itterator->task[(idx & 0xFF)] != NULL)
+      continue;
+    else
+      return idx;
   }
   return -1;
 }
@@ -224,7 +229,7 @@ struct __TASK_STATE* dest;
 /**
  * Basically make a copy of the current process
  */
-int fork ()
+int fork()
 {
   struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
   if (new == NULL)
