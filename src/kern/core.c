@@ -76,6 +76,7 @@ void core_loop()
       case RL_BOOT:
         pid = fork();
         init_set(RL_RUN0);
+        print_task_stack();
 #ifdef MATH_DBG
         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":"A number");
 #endif

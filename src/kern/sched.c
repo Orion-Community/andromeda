@@ -286,7 +286,7 @@ int task_init()
   /** Panic if something went horribly wrong */
   if (task_setup_tree() != -E_SUCCESS)
     goto err;
-  if (add_task(current) != -E_SUCCESS)
+  if (add_task(current) != 0)
     goto err;
 
   /** Set up the segments */
@@ -303,10 +303,34 @@ int task_init()
   printf("WARNING! No path to kernel binary!\n");
   current->path_to_bin = NULL;
 
-  add_task(current);
-
   return -E_SUCCESS; /** A success error code? Sure ... */
 
 err:
   panic("Could not initialise task administration");
+}
+
+void print_task_stack()
+{
+  struct __TASK_BRANCH_NODE *itterator;
+  int idx = 0;
+  for (; idx < 0xFFFF; idx++)
+  {
+    if (task_stack->full && (1 << (idx >> 8)))
+    {
+      idx += (0xFF - idx % 0xFF);
+      continue;
+    }
+    itterator = task_stack->branch[(idx >> 8)];
+
+    if (itterator == NULL)
+    {
+      idx += (0xFF - idx % 0xFF);
+      continue;
+    }
+
+    if (itterator->task[idx & 0xFF] != NULL)
+    {
+        printf("Task %X at address %X\n", idx, (addr_t) itterator->task[idx & 0xFF]);
+    }
+  }
 }

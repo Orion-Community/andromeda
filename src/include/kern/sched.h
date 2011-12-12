@@ -133,6 +133,8 @@ void kill (int); /** Send a signal to the current task */
 
 int task_init(); /** Can we please initialise some administration? */
 
+void print_task_stack(); /** Can you show me a proccess dump? */
+
 #ifdef __cplusplus
 }
 #endif
