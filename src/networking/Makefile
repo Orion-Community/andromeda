@@ -10,7 +10,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 #targets
 NET=networking.o
-TARGET=arp.o
+TARGET=arp.o rtl8168.o
 
 
 $(NET): $(TARGET)
@@ -19,3 +19,6 @@ $(NET): $(TARGET)
 
 arp.o: arp.c
 	$(CC) $(CCFLAGS) arp.c -o arp.o
+
+rtl8168.o: rtl8168.c
+	$(CC) $(CCFLAGS) rtl8168.c -o rtl8168.o

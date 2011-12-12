@@ -20,7 +20,7 @@
 
 #include <mm/heap.h>
 #include <mm/map.h>
-
+#include <networking/rtl8168.h>
 #include <sys/dev/pci.h>
 #include <arch/x86/apic/msi.h>
 
@@ -217,6 +217,21 @@ print_pci_dev(uint16_t class, uint16_t subclass)
   }
 }
 
+static void
+init_device_control(struct ol_pci_dev *dev)
+{
+  switch(dev->class)
+  {
+    case 0x2:
+      if(!dev->subclass)
+	rtl_init_device(dev);
+      break;
+
+    default:
+      break;
+  }
+}
+
 static uint32_t
 __ol_pci_read_dword(ol_pci_addr_t addr)
 {
@@ -271,7 +286,7 @@ debug_pci_print_cp_list(struct ol_pci_dev * dev)
     if((cp_list & 0xff) == 0x11)
     {
       msi_create_msix_entry(dev, cp);
-      printf("Class %x - subclass %x\n", dev->class, dev->subclass);
+      init_device_control(dev);
     }
     else
       continue;
