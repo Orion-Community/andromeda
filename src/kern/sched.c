@@ -235,6 +235,8 @@ struct __TASK_STATE* dest;
  */
 int fork()
 {
+  printf("WARNING! In fork the registers copied probably aren't up-to-date!\n");
+
   struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
   if (new == NULL)
     goto err;
@@ -278,7 +280,7 @@ find_task(uint32_t pid)
  */
 void sig (int signal)
 {
-  panic("No processes to send signal");
+  panic("signals not supported yet!");
 }
 
 /**
