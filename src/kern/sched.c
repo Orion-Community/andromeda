@@ -45,7 +45,6 @@ enum task_list_type type;
   if (parent == NULL)
     return -E_NULL_PTR;
 
-  mutex_lock (sched_lock);
   if (parent->full && (1 << parent_idx-1) || parent->branch[parent_idx] != NULL)
   {
     mutex_unlock(sched_lock);
@@ -56,25 +55,64 @@ enum task_list_type type;
   memset(parent->branch[parent_idx], 0, sizeof(struct __TASK_BRANCH_NODE));
   parent->branch[parent_idx]->type = type;
 
-  mutex_unlock(sched_lock);
-  return -E_SUCCESS;
+return -E_SUCCESS;
 }
 
-/**
- * Going to be a lengthy function ...
- */
+int find_free_pid()
+{
+  struct __TASK_BRANCH_NODE *itterator = NULL;
+  uint32_t idx = 0;
+  for (; idx < TASK_LIST_SIZE; idx ++)
+  {
+    if (task_stack->full && (1 << (idx - 1)))
+      continue;
+    itterator = task_stack->branch[idx];
+    if (itterator == NULL)
+      return idx * TASK_LIST_SIZE;
+  }
+  return -1;
+}
 
 int
-add_task(task, pid)
+add_task(task)
 struct __TASK_STATE* task;
-uint16_t pid;
 {
   if (task_stack == NULL)
     return -E_NULL_PTR;
 
-  
+  mutex_lock(sched_lock);
+  int pid = find_free_pid();
+  if (pid == -1)
+  {
+    mutex_unlock(sched_lock);
+    return -E_TASK_NOSPACE;
+  }
 
-  return -E_SUCCESS;
+  uint32_t branch_idx =(pid >> 8) & 0xFF;
+  uint32_t task_idx = pid & 0xFF;
+
+  if (task_stack->branch[branch_idx] == NULL)
+  {
+    task_stack->branch[branch_idx] = kalloc(sizeof(struct __TASK_BRANCH_NODE));
+    if (task_stack->branch[branch_idx] == NULL)
+    {
+      mutex_unlock(sched_lock);
+      return -1;
+    }
+    memset(task_stack->branch[branch_idx], 0, sizeof(struct __TASK_BRANCH_NODE));
+    task_stack->branch[branch_idx]->type = task_list;
+  }
+
+  if (task_stack->branch[branch_idx]->type != task_list)
+  {
+    mutex_unlock(sched_lock);
+    return -1;
+  }
+
+  task_stack->branch[branch_idx]->task[task_idx] = task;
+
+  mutex_unlock(sched_lock);
+  return pid;
 }
 
 /**
@@ -200,9 +238,15 @@ int fork ()
     goto err;
   }
 
-  panic("Could not assign a new process ID");
+  int pid = add_task(new);
+  if (pid == -1)
+  {
+    thread_cleanup_all(new);
+    free(new);
+    goto err;
+  }
 
-  return -E_SUCCESS;
+  return pid;
 
 err:
   panic("No more space for tasks!"); // Will do for now
@@ -258,6 +302,8 @@ int task_init()
   /** Where can we find more info if swapped out? */
   printf("WARNING! No path to kernel binary!\n");
   current->path_to_bin = NULL;
+
+  add_task(current);
 
   return -E_SUCCESS; /** A success error code? Sure ... */
 

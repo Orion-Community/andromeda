@@ -53,6 +53,8 @@ extern "C" {
 #define E_NULL_PTR              0x16
 #define E_ALREADY_INITIALISED   0x17
 
+#define E_TASK_NOSPACE          0x20
+
 #ifdef __cplusplus
 }
 #endif
