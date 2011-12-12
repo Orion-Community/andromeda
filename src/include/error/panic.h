@@ -19,9 +19,18 @@
 #ifndef __ERROR_PANIC_H
 #define __ERROR_PANIC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void panicDebug(char *, char*, int);
 #define panic(str) panicDebug(str,__FILE__, __LINE__)
 
 extern void sti();
 extern void cli();
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

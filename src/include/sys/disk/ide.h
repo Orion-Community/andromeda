@@ -21,6 +21,10 @@
 #ifndef __IDE_H
 #define __IDE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ATA bus defines */
 #define OL_MASTER_BUS 0x1f0
 #define OL_DATA_BUS(x) (x)
@@ -94,5 +98,9 @@ ol_ata_detect_dev_type(ol_ata_dev_t);
 
 static void
 ol_ata_soft_reset(ol_ata_dev_t);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

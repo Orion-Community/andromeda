@@ -21,6 +21,10 @@
 #ifndef __MP_H
 #define __MP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct mp_config_header
 {
   
@@ -39,5 +43,9 @@ struct mp_fp_header
   //uint8_t reserved : 7;
   uint8_t reserved2, reserved3, reserved4; /* feature bytes 3-5 */
 } __attribute((packed));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

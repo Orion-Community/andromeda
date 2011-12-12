@@ -20,6 +20,11 @@
 
 #ifndef __IO_H_
 #define __IO_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * inb reads from a given port and returns the read data.
  */
@@ -39,4 +44,9 @@ extern uint32_t inl(uint16_t port);
  * This function waits for data when there is written to an output port.
  */
 extern void iowait();
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

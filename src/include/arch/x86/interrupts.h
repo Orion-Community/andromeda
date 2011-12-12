@@ -22,6 +22,10 @@
 #ifndef __INTERRUPT_H
 #define __INTERRUPT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct isr_stack
 {
 	uint16_t ds;
@@ -115,4 +119,9 @@ void cIRQ13();
 void cIRQ14();
 void cIRQ15();
 extern void cIRQ30();
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

@@ -224,12 +224,14 @@ int task_init()
   if (current != NULL)
     panic("Trying to init scheduling on a running system!");
 
+  /** Building the first task */
   current = kalloc(sizeof(struct __TASK_STATE));
   struct __THREAD_STATE *thread = kalloc(sizeof(struct __THREAD_STATE));
   struct __THREAD_LIST *list = kalloc(sizeof(struct __THREAD_LIST));
   if (thread == NULL || current == NULL || list == NULL)
     goto err;
 
+  /** Set them all to 0 */
   memset(current, 0, sizeof(struct __TASK_STATE));
   memset(thread, 0, sizeof(struct __THREAD_STATE));
   memset(list, 0, sizeof(struct __THREAD_LIST));
@@ -237,23 +239,27 @@ int task_init()
   current->threads = list;
   list->thread[0] = thread;
 
+  /** Panic if something went horribly wrong */
   if (task_setup_tree() != -E_SUCCESS)
     goto err;
   if (add_task(current) != -E_SUCCESS)
     goto err;
 
+  /** Set up the segments */
   current->code = &higherhalf;
   current->code_size = ((addr_t)&rodata - (addr_t)&higherhalf);
   current->data = &rodata;
   current->data_size = 0 - (addr_t)&rodata;
 
+  /** Set up the first stack */
   thread->stack = stack;
   thread->stack_size = STD_STACK_SIZE;
 
+  /** Where can we find more info if swapped out? */
   printf("WARNING! No path to kernel binary!\n");
   current->path_to_bin = NULL;
 
-  return -E_SUCCESS;
+  return -E_SUCCESS; /** A success error code? Sure ... */
 
 err:
   panic("Could not initialise task administration");

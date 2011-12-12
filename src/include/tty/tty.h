@@ -21,6 +21,10 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define TERMINALS 0x8
 
 #define VGA_WIDTH  80
@@ -36,5 +40,9 @@ typedef struct {
   unsigned int size_y;
   unsigned int screenmode;
 } tty_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

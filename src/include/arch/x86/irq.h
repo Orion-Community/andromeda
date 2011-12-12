@@ -23,6 +23,10 @@
 #ifndef IRQ_H
 #define IRQ_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_IRQ_NUM 255
 #define MAX_ISA_IRQ_NUM 0x10
 #define MAX_ISA_IRQ_NUM 0x10
@@ -108,5 +112,9 @@ struct irq_cfg
   int delivery_mode : 3;
   int trigger: 1;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

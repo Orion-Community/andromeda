@@ -29,7 +29,7 @@ module_t modules[MAX_MODS];
 struct page *page_map = NULL;
 size_t memsize; // Size of memory in KiB
 
-volatile mutex_t map_lock = __THREAD_MUTEX_FREE;
+volatile mutex_t map_lock = mutex_unlocked;
 
 int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {

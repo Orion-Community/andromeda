@@ -16,15 +16,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define MM_NODE_MAGIC 0xAF00BEA8
-#define PAGEBOUNDARY 0x1000
+#include <types.h>
+#include <thread.h>
+#include <mm/paging.h>
 
 #ifndef __HEAP_H
 #define __HEAP_H
 
-#include <types.h>
-#include <thread.h>
-#include <mm/paging.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define MM_NODE_MAGIC 0xAF00BEA8
+#define PAGEBOUNDARY 0x1000
+
 struct memNode
 {
   unsigned int size;
@@ -84,5 +89,9 @@ extern long heapSize;
 
 extern volatile memory_node_t* heap;
 extern volatile mutex_t prot;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

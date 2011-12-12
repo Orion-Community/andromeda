@@ -16,13 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef MAP_H
-#define MAP_H
-
 #include <mm/paging.h>
 #include <stdlib.h>
 #include <boot/mboot.h>
 #include <thread.h>
+
+#ifndef MAP_H
+#define MAP_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define BMP_FREE      (~0)
 
@@ -78,4 +82,9 @@ void page_map_kernel_entry(addr_t virtual, addr_t phys);
 void map_show_list(addr_t list_idx);
 
 extern volatile mutex_t map_lock;
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

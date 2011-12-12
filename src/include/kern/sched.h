@@ -26,11 +26,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+/** STD_STACK_SIZE speaks for itself */
 #define STD_STACK_SIZE 0x8000
-#define STD_NO_CHILDREN 0x10
+
+/** Defines the standard size of a list element */
 #define STD_LIST_SIZE 0x10
-#define TASK_LIST_SIZE 0x10
+
+/** Defines the standard size of a task list element */
+#define TASK_LIST_SIZE 0x100
 
 /**
  * tast_list_type is used to note down the type of __TASK_BRANCH_NODE.
@@ -124,11 +127,11 @@ extern struct __TASK_STATE              *current_quantum;
 extern struct __TASK_STATE              *current;
 
 /** Some nice functions for you to call ... */
-void sched();
-int fork ();
-void kill (int);
+void sched(); /** Go to the next task */
+int fork (); /** Copy the current task to a new one */
+void kill (int); /** Send a signal to the current task */
 
-int task_init();
+int task_init(); /** Can we please initialise some administration? */
 
 #ifdef __cplusplus
 }
