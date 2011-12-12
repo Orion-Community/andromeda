@@ -55,7 +55,7 @@ enum task_list_type type;
   memset(parent->branch[parent_idx], 0, sizeof(struct __TASK_BRANCH_NODE));
   parent->branch[parent_idx]->type = type;
 
-return -E_SUCCESS;
+  return -E_SUCCESS;
 }
 
 int find_free_pid()
@@ -69,7 +69,7 @@ int find_free_pid()
     itterator = task_stack->branch[idx >> 8];
     if (itterator == NULL)
       return idx;
-    
+
     if (itterator->task[(idx & 0xFF)] != NULL)
       continue;
     else
@@ -115,6 +115,10 @@ struct __TASK_STATE* task;
   }
 
   task_stack->branch[branch_idx]->task[task_idx] = task;
+  task_stack->branch[branch_idx]->full |= (1 << task_idx);
+
+  if (task_stack->branch[branch_idx]->full == 0xFF)
+    task_stack->full |= (1 << branch_idx);
 
   mutex_unlock(sched_lock);
   return pid;
@@ -257,12 +261,55 @@ err:
   panic("No more space for tasks!"); // Will do for now
 }
 
+struct __TASK_STATE*
+find_task(uint32_t pid)
+{
+  if (pid > 0xFFFF)
+    return NULL;
+
+  struct __TASK_BRANCH_NODE *level2 = task_stack->branch[((pid >> 8) & 0xFF)];
+  struct __TASK_STATE *task = level2->task[(pid & 0xFF)];
+
+  return task;
+}
+
 /**
  * Send a kill signal to a process (it has to handle that immediately)
  */
-void kill (int signal)
+void sig (int signal)
 {
   panic("No processes to send signal");
+}
+
+/**
+ * Shoot a process (guess they're not as bulletproof as they claim they are)
+ */
+void kill(int pid)
+{
+  mutex_lock(sched_lock);
+
+  struct __TASK_BRANCH_NODE *level2 = task_stack->branch[(pid >> 8) & 0xFF];
+  if (level2 == NULL)
+    return;
+  struct __TASK_STATE *task = level2->task[(pid & 0xFF)];
+  if (task == NULL)
+    return;
+
+  free(task);
+
+  uint16_t tmp = ~(1 << (pid & 0xFF));
+  level2 -> full &= tmp;
+
+  if (level2->full != 0xFF)
+  {
+    tmp = ~(1 << ((pid >> 8) & 0xFF));
+    task_stack->full &= tmp;
+  }
+
+  if (level2->full == 0)
+    free(task_stack->branch[(pid >> 8) & 0xFF]);
+
+  mutex_unlock(sched_lock);
 }
 
 /**

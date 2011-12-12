@@ -19,7 +19,6 @@
 #include <kern/sched.h>
 #include <error/error.h>
 
-
 int task_save_regs()
 {
   return -E_NOFUNCTION;

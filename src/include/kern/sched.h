@@ -127,9 +127,10 @@ extern struct __TASK_STATE              *current_quantum;
 extern struct __TASK_STATE              *current;
 
 /** Some nice functions for you to call ... */
-void sched(); /** Go to the next task */
-int fork (); /** Copy the current task to a new one */
-void kill (int); /** Send a signal to the current task */
+void sched();    /** Go to the next task */
+int fork  ();    /** Copy the current task to a new one */
+void sig  (int); /** Send a signal to the current task */
+void kill (int);
 
 int task_init(); /** Can we please initialise some administration? */
 
