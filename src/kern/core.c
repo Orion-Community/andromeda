@@ -74,9 +74,14 @@ void core_loop()
     switch (rl)
     {
       case RL_BOOT:
-        pid = fork();
         init_set(RL_RUN0);
+#ifdef SCHED_DBG
+        pid = fork();
         print_task_stack();
+        demand_key();
+        kill (pid);
+        print_task_stack();
+#endif
 #ifdef MATH_DBG
         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":"A number");
 #endif

@@ -295,6 +295,8 @@ void kill(int pid)
   if (task == NULL)
     return;
 
+  level2->task[(pid & 0xFF)] = NULL;
+
   free(task);
 
   uint16_t tmp = ~(1 << (pid & 0xFF));
