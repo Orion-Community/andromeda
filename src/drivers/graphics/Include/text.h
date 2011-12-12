@@ -19,10 +19,18 @@
 #ifndef __TEXT_H
 #define __TEXT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 bool textInitG();
 void printCharToBuffer(imageBuffer buffer, char chr, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color);
 void printStringToBuffer(imageBuffer buffer, char* str, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color);
 void drawChar(unsigned int x, unsigned int y, char chr, unsigned int bgcolor, unsigned int color);
 void drawString(char* str, unsigned int x, unsigned int y, unsigned int bgcolor, unsigned int color);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

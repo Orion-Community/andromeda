@@ -28,6 +28,10 @@
 #ifndef __MSI_H
 #define __MSI_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* MSI definitions */
 #define MSI_LOWER_ADDR(x) ((x)+4)
 #define MSI_UPPER_ADDR(x) ((x)+8)
@@ -125,6 +129,10 @@ void setup_msi_entry(struct ol_pci_dev *, uint8_t);
 
 #ifdef MSIX_DEBUG
 static void debug_msix_entry(struct msi_cfg *);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
