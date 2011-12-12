@@ -191,7 +191,6 @@ setup_irq_data(void)
     data->irq_config->vector = (uint16_t)vector;
     install_irq_vector(data);
   }
-  printf("Entry 2 vector: %x\n", get_irq_cfg(1)->vector);
 }
 
 /**
@@ -224,7 +223,7 @@ alloc_irq()
     {
       setup_irq_cfg(irq_data[i].irq);
       struct irq_cfg *cfg = irq_data[i].irq_config;
-      printf("irq number: %x %x\n", irq_data[i].irq, cfg->vector);
+//       printf("irq number: %x %x\n", irq_data[i].irq, cfg->vector);
 
       return &irq_data[i];
     }
@@ -268,8 +267,6 @@ static void dbg_irq_data(void)
     data->irq_config = kalloc(sizeof(struct irq_cfg));
     data->irq_config->vector = (uint16_t)entry;
     install_irq_vector(data);
-    printf("test: %x\t%x\n", data->irq,alloc_idt_entry());
-
   }
   else
     return;

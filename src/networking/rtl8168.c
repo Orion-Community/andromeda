@@ -23,6 +23,18 @@
 void
 rtl_init_device(struct ol_pci_dev *dev)
 {
-  printf("Value of first BAR: %x - %x - %x - %x\n", ol_pci_read_dword(dev, 0x10),
-    ol_pci_read_dword(dev,0x14), ol_pci_read_dword(dev,0x18), ol_pci_read_dword(dev,0x1C));
+  uint8_t mac[6];
+  uint16_t base = (uint16_t)(ol_pci_read_dword(dev, 0x10)&0xfffe);
+  printf("RealTek base: %x\n", base);
+  int i = 0;
+  for(; i < 6; i++)
+  {
+    mac[i] = inb(base+i);
+  }
+  printf("MAC address: ");
+  
+  for(i = 0; i<5; i++)
+    printf("%x:", mac[i]);
+
+  printf("%x\n", mac[5]);
 }

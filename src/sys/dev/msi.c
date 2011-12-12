@@ -94,7 +94,6 @@ msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
   struct irq_data *irq = alloc_irq();
   irq->irq_base = (uint32_t)get_irq_base(40);
   install_irq_vector(irq);
-  printf("Vector %x\n", irq->irq_config->vector);
   __msi_create_msix_entry(dev, cp, irq);
 }
 
