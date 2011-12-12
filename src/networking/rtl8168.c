@@ -24,7 +24,7 @@ void
 rtl_init_device(struct ol_pci_dev *dev)
 {
   uint8_t mac[6];
-  uint16_t base = (uint16_t)(ol_pci_read_dword(dev, 0x10)&0xfffe);
+  uint16_t base = (uint16_t)(ol_pci_read_dword(dev, 0x10)&PCI_IO_SPACE_MASK);
   printf("RealTek base: %x\n", base);
   int i = 0;
   for(; i < 6; i++)

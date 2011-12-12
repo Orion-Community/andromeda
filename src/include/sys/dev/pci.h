@@ -27,6 +27,9 @@ extern "C"
 #define OL_PCI_CONFIG_ADDRESS 0xcf8
 #define OL_PCI_CONFIG_DATA 0xcfc
 
+#define PCI_MEM_SPACE_MASK 7
+#define PCI_IO_SPACE_MASK 0xfffc
+
   /* PCI device structure register fields */
 #define  OL_PCI_REG_ID           0x00
 #define  OL_PCI_REG_VENDOR       0x00

@@ -145,7 +145,7 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, struct irq_data *irq
 static volatile void*
 msi_calc_msix_base(struct ol_pci_dev *dev, uint8_t cp)
 {
-  uint32_t bar_nr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4) & 7;
+  uint32_t bar_nr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4)&PCI_MEM_SPACE_MASK;
 #ifdef X64
   uint64_t bar_low = ol_pci_read_dword(dev, MSIX_BAR(bar_nr));
   uint64_t bar;
