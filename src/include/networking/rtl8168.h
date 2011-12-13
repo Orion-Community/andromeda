@@ -27,6 +27,24 @@ extern "C" {
 
 void rtl_init_device(struct ol_pci_dev *);
 
+struct txconfig
+{};
+
+struct rxconfig
+{};
+
+struct rtlcommand
+{
+  
+};
+
+struct rtl8168
+{
+  struct txconfig *transmit;
+  struct rxconfig *receive;
+  struct rtlcommand *command;
+};
+
 #ifdef __cplusplus
 }
 #endif
