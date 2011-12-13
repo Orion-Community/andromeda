@@ -18,7 +18,7 @@
 
 #include <kern/syscall.h>
 
-void syscall(int call_number, int arg1, int arg2, int arg3)
+int syscall(int call_number, int arg1, int arg2, int arg3)
 {
   switch(call_number)
   {
@@ -31,8 +31,12 @@ void syscall(int call_number, int arg1, int arg2, int arg3)
       break;
 
     case SYS_YIELD:
+      panic("Process related system calls aren't supported yet!");
+      break;
     case SYS_FORK:
+      return fork();
     case SYS_KILL:
+      return kill(arg1);
     case SYS_SIG:
     case SYS_EXIT:
     case SYS_EXEC:

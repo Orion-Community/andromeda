@@ -50,7 +50,7 @@ extern "C" {
 #define SYS_HIBERNATE   0x32
 #define SYS_STANDBY     0x33
 
-void syscall(int call_number, int arg1, int arg2, int arg3);
+int syscall(int call_number, int arg1, int arg2, int arg3);
 
 #ifdef __cplusplus
 }

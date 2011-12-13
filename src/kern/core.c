@@ -22,6 +22,7 @@
 #include <fs/file.h>
 #include <fs/stream.h>
 #include <fs/path.h>
+#include <kern/syscall.h>
 
 #define RL_BOOT     0x0
 #define RL_SHUTDOWN 0x1
@@ -76,10 +77,10 @@ void core_loop()
       case RL_BOOT:
         init_set(RL_RUN0);
 #ifdef SCHED_DBG
-        pid = fork();
+        pid = syscall(SYS_FORK, 0, 0, 0);
         print_task_stack();
         demand_key();
-        kill (pid);
+        syscall(SYS_KILL, pid, 0, 0);
         print_task_stack();
 #endif
 #ifdef MATH_DBG

@@ -6,12 +6,13 @@ ELF=elf.c exec.c
 TIMER=timer.c
 SCHED=sched.c
 CORE=core.c
+SYSCALL=syscall.c
 
 .PHONY: all
 all: kern.o
 	mv -fv kern.o ../
 
-kern.o: load.o timer.o sched.o core.o
+kern.o: load.o timer.o sched.o core.o syscall.o
 	$(LD) $(LDFLAGS) *.o -o kern.o
 
 load.o: $(ELF)
@@ -25,6 +26,9 @@ sched.o: $(SCHED)
 
 core.o: $(CORE)
 	$(CC) $(CFLAGS) $(FLAGS) $(CORE)
+
+syscall.o: $(SYSCALL)
+	$(CC) $(CFLAGS) $(FLAGS) $(SYSCALL)
 
 .PHONY: clean
 clean:
