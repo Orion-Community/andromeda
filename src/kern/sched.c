@@ -250,6 +250,8 @@ int fork()
     goto err;
   }
 
+  new->parent_id = current;
+
   int pid = add_task(new);
   if (pid == -1)
   {
@@ -392,6 +394,7 @@ void print_task_stack()
     if (itterator->task[idx & 0xFF] != NULL)
     {
         printf("Task %X at address %X\n", idx, (addr_t) itterator->task[idx & 0xFF]);
+        printf("Task parent: %X\n", itterator->task[idx & 0xFF]->parent_id);
     }
   }
 }
