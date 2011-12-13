@@ -362,6 +362,8 @@ int task_init()
   printf("WARNING! No path to kernel binary!\n");
   kern->path_to_bin = NULL;
 
+  kern->state = runnable;
+
   return -E_SUCCESS; /** A success error code? Sure ... */
 
 err:

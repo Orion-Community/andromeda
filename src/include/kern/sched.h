@@ -45,6 +45,15 @@ enum task_list_type
   branch_list
 };
 
+enum task_state
+{
+  runnable,
+  waiting,
+  io_waiting,
+  dead,
+  zombie
+};
+
 /**
  * This structure actually holds the state of the current thread
  */
@@ -76,6 +85,9 @@ struct __TASK_STATE
   /** Keep track of threads and task level registers */
   struct __THREAD_LIST *threads;
   struct __PROC_REGS regs;
+
+  /** What state are we in */
+  enum task_state state;
 
   /** Who's your daddy? */
   uint16_t parent_id;
