@@ -70,6 +70,7 @@ extern uint32_t higherhalf;
 extern uint32_t rodata;
 extern void start();
 void reboot();
+void shutdown();
 
 #ifdef __cplusplus
 }
