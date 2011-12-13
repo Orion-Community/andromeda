@@ -24,16 +24,14 @@ volatile boolean scheduling = FALSE;
 unsigned char stack[STD_STACK_SIZE];
 
 struct __TASK_BRANCH_NODE *task_stack = NULL;
-struct __TASK_STATE *idle_stack = NULL;
-struct __TASK_STATE *waiting_stack = NULL;
-struct __TASK_STATE *current_quantum = NULL;
-struct __TASK_STATE *current = NULL;
+uint32_t current = 0; /** Index into the task stack (or tree) */
 
 mutex_t sched_lock = mutex_unlocked;
 
-struct __TASK_STATE* find_process(uint16_t pid)
+struct __TASK_STATE*
+current_task()
 {
-  return NULL;
+  return (find_task(current));
 }
 
 int
@@ -241,8 +239,11 @@ int fork()
   if (new == NULL)
     goto err;
 
-  memcpy (new, current, sizeof (struct __TASK_STATE));
-  if (thread_copy(current, new) != -E_SUCCESS)
+  struct __TASK_STATE* running = current_task();
+  if (running == NULL)
+    return;
+  memcpy (new, running, sizeof (struct __TASK_STATE));
+  if (thread_copy(running, new) != -E_SUCCESS)
   {
     thread_cleanup_all(new);
     free(new);
@@ -257,6 +258,8 @@ int fork()
     goto err;
   }
 
+  if (pid == current)
+    return 0;
   return pid;
 
 err:
@@ -321,35 +324,35 @@ void kill(int pid)
  */
 int task_init()
 {
-  if (current != NULL)
+  if (current != 0)
     panic("Trying to init scheduling on a running system!");
 
-  /** Building the first task */
-  current = kalloc(sizeof(struct __TASK_STATE));
+/** Building the first task */
+  struct __TASK_STATE *kern = kalloc(sizeof(struct __TASK_STATE));
   struct __THREAD_STATE *thread = kalloc(sizeof(struct __THREAD_STATE));
   struct __THREAD_LIST *list = kalloc(sizeof(struct __THREAD_LIST));
-  if (thread == NULL || current == NULL || list == NULL)
+  if (thread == NULL || kern == NULL || list == NULL)
     goto err;
 
   /** Set them all to 0 */
-  memset(current, 0, sizeof(struct __TASK_STATE));
+  memset(kern, 0, sizeof(struct __TASK_STATE));
   memset(thread, 0, sizeof(struct __THREAD_STATE));
   memset(list, 0, sizeof(struct __THREAD_LIST));
 
-  current->threads = list;
+  kern->threads = list;
   list->thread[0] = thread;
 
   /** Panic if something went horribly wrong */
   if (task_setup_tree() != -E_SUCCESS)
     goto err;
-  if (add_task(current) != 0)
+  if (add_task(kern) != 0)
     goto err;
 
   /** Set up the segments */
-  current->code = &higherhalf;
-  current->code_size = ((addr_t)&rodata - (addr_t)&higherhalf);
-  current->data = &rodata;
-  current->data_size = 0 - (addr_t)&rodata;
+  kern->code = &higherhalf;
+  kern->code_size = ((addr_t)&rodata - (addr_t)&higherhalf);
+  kern->data = &rodata;
+  kern->data_size = 0 - (addr_t)&rodata;
 
   /** Set up the first stack */
   thread->stack = stack;
@@ -357,7 +360,7 @@ int task_init()
 
   /** Where can we find more info if swapped out? */
   printf("WARNING! No path to kernel binary!\n");
-  current->path_to_bin = NULL;
+  kern->path_to_bin = NULL;
 
   return -E_SUCCESS; /** A success error code? Sure ... */
 

@@ -121,10 +121,6 @@ struct __TASK_BRANCH_NODE
 
 /** Some things that might need sharing in the future */
 extern struct __TASK_BRANCH_NODE        *task_stack;
-extern struct __TASK_STATE              *idle_stack;
-extern struct __TASK_STATE              *waiting_stack;
-extern struct __TASK_STATE              *current_quantum;
-extern struct __TASK_STATE              *current;
 
 /** Some nice functions for you to call ... */
 void sched();    /** Go to the next task */
@@ -135,6 +131,8 @@ void kill (int);
 int task_init(); /** Can we please initialise some administration? */
 
 void print_task_stack(); /** Can you show me a proccess dump? */
+
+struct __TASK_STATE* find_task(uint32_t pid);
 
 #ifdef __cplusplus
 }
