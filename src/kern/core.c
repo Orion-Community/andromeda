@@ -24,12 +24,12 @@
 #include <fs/path.h>
 #include <kern/syscall.h>
 
-#define RL_BOOT     0x0
-#define RL_SHUTDOWN 0x1
-#define RL_RUN0     0x2
-#define RL_RUN1     0x3
-#define RL_RUN2     0x4
-#define RL_RUN3     0x5
+#define RL_SHUTDOWN 0x0
+#define RL_RUN0 0x1
+#define RL_RUN1     0x2
+#define RL_RUN2     0x3
+#define RL_RUN3     0x4
+#define RL_RUN4     0x5
 #define RL_REBOOT   0x6
 
 void demand_key();
@@ -74,23 +74,20 @@ void core_loop()
   {
     switch (rl)
     {
-      case RL_BOOT:
-        init_set(RL_RUN0);
+      case RL_RUN0:
+        init_set(RL_RUN1);
 #ifdef SCHED_DBG
+         /** Will have to be improved to actually do a context switch here */
         pid = syscall(SYS_FORK, 0, 0, 0);
         print_task_stack();
         demand_key();
         syscall(SYS_KILL, pid, 0, 0);
         print_task_stack();
+        demand_key();
 #endif
 #ifdef MATH_DBG
         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":"A number");
 #endif
-//         printf("Higher half address: %X\n", &higherhalf);
-//         printf("rodata adress:       %X\n", &rodata);
-        break;
-
-      case RL_RUN0:
 #ifdef STREAM_DBG
         demand_key();
         file_test("Hello world!");
@@ -100,21 +97,23 @@ void core_loop()
         path_test("/proc/1");
         path_test("./test.sh");
         path_test("~/hello\\\\ world!");
-        init_set(RL_RUN1);
 #endif
+        break;
+
       case RL_RUN1:
       case RL_RUN2:
       case RL_RUN3:
+      case RL_RUN4:
 //         halt();
 //         sched_next_task();
         break;
 
       case RL_REBOOT:
-        reboot();
+        syscall(SYS_REBOOT, 0, 0, 0);
         break;
 
       case RL_SHUTDOWN:
-        shutdown();
+        syscall(SYS_SHUTDOWN, 0, 0, 0);
         break;
     }
     halt(); // Puts the CPU in idle state untill next interrupt
