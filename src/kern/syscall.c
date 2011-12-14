@@ -20,43 +20,43 @@
 
 int syscall(int call_number, int arg1, int arg2, int arg3)
 {
-  switch(call_number)
-  {
-    case SYS_WRITE:
-    case SYS_READ:
-    case SYS_OPEN:
-    case SYS_CLOSE:
-    case SYS_CREATE:
-      panic("File system related system calls aren't supported yet!");
-      break;
+	switch(call_number)
+	{
+	case SYS_WRITE:
+	case SYS_READ:
+	case SYS_OPEN:
+	case SYS_CLOSE:
+	case SYS_CREATE:
+		panic("File system related system calls aren't supported yet!");
+		break;
 
-    case SYS_YIELD:
-      panic("Process related system calls aren't supported yet!");
-      break;
-    case SYS_FORK:
-      return fork();
-    case SYS_KILL:
-      return kill(arg1);
-    case SYS_SIG:
-    case SYS_EXIT:
-    case SYS_EXEC:
-    case SYS_NICE:
-      panic("Process related system calls aren't supported yet!");
-      break;
+	case SYS_YIELD:
+		panic("Process related system calls aren't supported yet!");
+		break;
+	case SYS_FORK:
+		return fork();
+	case SYS_KILL:
+		return kill(arg1);
+	case SYS_SIG:
+	case SYS_EXIT:
+	case SYS_EXEC:
+	case SYS_NICE:
+		panic("Process related system calls aren't supported yet!");
+		break;
 
-    case SYS_BRK:
-      panic("Memory management related system calls aren't supported yet!");
-      break;
+	case SYS_BRK:
+		panic("Memory management related system calls aren't supported yet!");
+		break;
 
-    case SYS_SHUTDOWN:
-      shutdown();
-      break;
-    case SYS_REBOOT:
-      reboot();
-      break;
-    case SYS_HIBERNATE:
-    case SYS_STANDBY:
-      panic("These system management system calls aren't supported yet!");
-      break;
+	case SYS_SHUTDOWN:
+		shutdown();
+		break;
+	case SYS_REBOOT:
+		reboot();
+		break;
+	case SYS_HIBERNATE:
+	case SYS_STANDBY:
+		panic("These system management system calls aren't supported yet!");
+		break;
   }
 }

@@ -21,10 +21,10 @@
 
 int task_save_regs()
 {
-  return -E_NOFUNCTION;
+	return -E_NOFUNCTION;
 }
 
 int task_load_regs()
 {
-  return -E_NOFUNCTION;
+	return -E_NOFUNCTION;
 }
