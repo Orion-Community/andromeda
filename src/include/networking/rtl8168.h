@@ -35,7 +35,9 @@ struct rxconfig
 
 struct rtlcommand
 {
-  
+  int tx_enable : 1;
+  int rx_enable : 1;
+  int reset : 1;
 };
 
 struct rtl8168

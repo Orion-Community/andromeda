@@ -25,67 +25,67 @@
 static void
 installExceptions(ol_idt_t idt)
 {
-	ol_idt_install_entry( 0, (uint32_t)divByZero , 0x08, 0x8E, idt);
-	ol_idt_install_entry( 1, (uint32_t)depricated, 0x08, 0x8E, idt);
-	ol_idt_install_entry( 2, (uint32_t)nmi , 0x08, 0x8E, idt);
-	ol_idt_install_entry( 3, (uint32_t)breakp , 0x08, 0x8E, idt);
-	ol_idt_install_entry( 4, (uint32_t)overflow , 0x08, 0x8E, idt);
-	ol_idt_install_entry( 5, (uint32_t)bound , 0x08, 0x8E, idt);
-	ol_idt_install_entry( 6, (uint32_t)invalOp , 0x08, 0x8E, idt);
-	ol_idt_install_entry( 7, (uint32_t)noMath , 0x08, 0x8E, idt);
-	ol_idt_install_entry( 8, (uint32_t)doubleFault , 0x08, 0x8E, idt);
-	ol_idt_install_entry( 9, (uint32_t)depricated , 0x08, 0x8E, idt);
-	ol_idt_install_entry(10, (uint32_t)invalidTSS, 0x08, 0x8E, idt);
-	ol_idt_install_entry(11, (uint32_t)snp, 0x08, 0x8E, idt);
-	ol_idt_install_entry(12, (uint32_t)stackFault, 0x08, 0x8E, idt);
-	ol_idt_install_entry(13, (uint32_t)genProt, 0x08, 0x8E, idt);
-	ol_idt_install_entry(14, (uint32_t)pageFault, 0x08, 0x8E, idt);
-	ol_idt_install_entry(15, (uint32_t)depricated, 0x08, 0x8E, idt);
-	ol_idt_install_entry(16, (uint32_t)fpu, 0x08, 0x8E, idt);
-	ol_idt_install_entry(17, (uint32_t)alligned, 0x08, 0x8E, idt);
-	ol_idt_install_entry(18, (uint32_t)machine, 0x08, 0x8E, idt);
-	ol_idt_install_entry(19, (uint32_t)simd, 0x08, 0x8E, idt);
+        ol_idt_install_entry( 0, (uint32_t)divByZero , 0x08, 0x8E, idt);
+        ol_idt_install_entry( 1, (uint32_t)depricated, 0x08, 0x8E, idt);
+        ol_idt_install_entry( 2, (uint32_t)nmi , 0x08, 0x8E, idt);
+        ol_idt_install_entry( 3, (uint32_t)breakp , 0x08, 0x8E, idt);
+        ol_idt_install_entry( 4, (uint32_t)overflow , 0x08, 0x8E, idt);
+        ol_idt_install_entry( 5, (uint32_t)bound , 0x08, 0x8E, idt);
+        ol_idt_install_entry( 6, (uint32_t)invalOp , 0x08, 0x8E, idt);
+        ol_idt_install_entry( 7, (uint32_t)noMath , 0x08, 0x8E, idt);
+        ol_idt_install_entry( 8, (uint32_t)doubleFault , 0x08, 0x8E, idt);
+        ol_idt_install_entry( 9, (uint32_t)depricated , 0x08, 0x8E, idt);
+        ol_idt_install_entry(10, (uint32_t)invalidTSS, 0x08, 0x8E, idt);
+        ol_idt_install_entry(11, (uint32_t)snp, 0x08, 0x8E, idt);
+        ol_idt_install_entry(12, (uint32_t)stackFault, 0x08, 0x8E, idt);
+        ol_idt_install_entry(13, (uint32_t)genProt, 0x08, 0x8E, idt);
+        ol_idt_install_entry(14, (uint32_t)pageFault, 0x08, 0x8E, idt);
+        ol_idt_install_entry(15, (uint32_t)depricated, 0x08, 0x8E, idt);
+        ol_idt_install_entry(16, (uint32_t)fpu, 0x08, 0x8E, idt);
+        ol_idt_install_entry(17, (uint32_t)alligned, 0x08, 0x8E, idt);
+        ol_idt_install_entry(18, (uint32_t)machine, 0x08, 0x8E, idt);
+        ol_idt_install_entry(19, (uint32_t)simd, 0x08, 0x8E, idt);
 }
 
 static void
 installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
 {
-	ol_idt_install_entry(offset1+0, (uint32_t)irq0, 0x08, IDT_PRESENT_BIT | 
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset1+1, (uint32_t)irq1, 0x08, IDT_PRESENT_BIT | 
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset1+2, (uint32_t)irq2, 0x08, IDT_PRESENT_BIT | 
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset1+3, (uint32_t)irq3, 0x08, IDT_PRESENT_BIT |
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset1+4, (uint32_t)irq4, 0x08, IDT_PRESENT_BIT |
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset1+5, (uint32_t)irq5, 0x08, IDT_PRESENT_BIT |
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset1+6, (uint32_t)irq6, 0x08, IDT_PRESENT_BIT |
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset1+7, (uint32_t)irq7, 0x08, IDT_PRESENT_BIT | 
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset2+0, (uint32_t)irq8, 0x08, IDT_PRESENT_BIT | 
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset2+1, (uint32_t)irq9, 0x08, IDT_PRESENT_BIT | 
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset2+2, (uint32_t)irq10, 0x08, IDT_PRESENT_BIT |
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset2+3, (uint32_t)irq11, 0x08, IDT_PRESENT_BIT |
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset2+4, (uint32_t)irq12, 0x08, IDT_PRESENT_BIT | 
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset2+5, (uint32_t)irq13, 0x08, IDT_PRESENT_BIT | 
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset2+6, (uint32_t)irq14, 0x08, IDT_PRESENT_BIT |
-	IDT_INTERRUPT_GATE, idt);
-	ol_idt_install_entry(offset2+7, (uint32_t)irq15, 0x08, IDT_PRESENT_BIT |
-	IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset1+0, (uint32_t)irq0, 0x08, IDT_PRESENT_BIT | 
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset1+1, (uint32_t)irq1, 0x08, IDT_PRESENT_BIT | 
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset1+2, (uint32_t)irq2, 0x08, IDT_PRESENT_BIT | 
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset1+3, (uint32_t)irq3, 0x08, IDT_PRESENT_BIT |
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset1+4, (uint32_t)irq4, 0x08, IDT_PRESENT_BIT |
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset1+5, (uint32_t)irq5, 0x08, IDT_PRESENT_BIT |
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset1+6, (uint32_t)irq6, 0x08, IDT_PRESENT_BIT |
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset1+7, (uint32_t)irq7, 0x08, IDT_PRESENT_BIT | 
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset2+0, (uint32_t)irq8, 0x08, IDT_PRESENT_BIT | 
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset2+1, (uint32_t)irq9, 0x08, IDT_PRESENT_BIT | 
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset2+2, (uint32_t)irq10, 0x08, IDT_PRESENT_BIT |
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset2+3, (uint32_t)irq11, 0x08, IDT_PRESENT_BIT |
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset2+4, (uint32_t)irq12, 0x08, IDT_PRESENT_BIT | 
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset2+5, (uint32_t)irq13, 0x08, IDT_PRESENT_BIT | 
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset2+6, (uint32_t)irq14, 0x08, IDT_PRESENT_BIT |
+        IDT_INTERRUPT_GATE, idt);
+        ol_idt_install_entry(offset2+7, (uint32_t)irq15, 0x08, IDT_PRESENT_BIT |
+        IDT_INTERRUPT_GATE, idt);
 
-	// software api interrupts
-// 	ol_idt_install_entry(0x30, (uint32_t)irq30, 0x08, IDT_PRESENT_BIT | 
-// 	IDT_INTERRUPT_GATE, idt);
+        // software api interrupts
+//      ol_idt_install_entry(0x30, (uint32_t)irq30, 0x08, IDT_PRESENT_BIT | 
+//      IDT_INTERRUPT_GATE, idt);
 }
 
 void setIDT()
@@ -153,8 +153,8 @@ free_idt_entry(uint16_t vector)
 int
 install_irq_vector(struct irq_data *data)
 {
-  int entry = get_empty_idt_entry_number();
-  if(entry != -1)
+  uint8_t entry = data->irq_config->vector;
+  if(entry != 0)
   {
     ol_idt_t idt = (ol_idt_t)get_idt();
 
@@ -163,8 +163,8 @@ install_irq_vector(struct irq_data *data)
     installIDT(idt);
 #ifdef __IRQ_DBG      
     printf("IRQ num: %i | IRQ base: %x | Next available entry: %x | Vector: %x\n",
-	   data->irq, data->irq_base, get_empty_idt_entry_number(),
-	   data->irq_config->vector);
+           data->irq, data->irq_base, get_empty_idt_entry_number(),
+           entry);
 #endif
     return 0;
   }
