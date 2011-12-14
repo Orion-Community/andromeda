@@ -30,32 +30,32 @@ struct __FLOAT_REGISTER
 
 struct __THREAD_REGS
 {
-  uint64_t ip,  bp,  di,  si;  /** IP, base pointer, dest-index, src-index */
-  uint64_t ax,  bx,  cx,  dx;  /** General purpose (standard)              */
-  uint64_t r8,  r9,  r10, r11; /** General purpose (r8 - r11)              */
-  uint64_t r12, r13, r14, r15; /** General purpose (12 - r15)              */
+	uint64_t ip,  bp,  di,  si;  /** IP, base pointer, dest-index, src-index */
+	uint64_t ax,  bx,  cx,  dx;  /** General purpose (standard)              */
+	uint64_t r8,  r9,  r10, r11; /** General purpose (r8 - r11)              */
+	uint64_t r12, r13, r14, r15; /** General purpose (12 - r15)              */
 
-  uint64_t sp;                 /** Stack pointer                           */
-  uint64_t flags;              /** Flags register                          */
+	uint64_t sp;                 /** Stack pointer                           */
+	uint64_t flags;              /** Flags register                          */
 
-  struct __FLOAT_REGISTER xmm1,  xmm2,  xmm3,  xmm4; /** Kinda hope this will */
-  struct __FLOAT_REGISTER xmm5,  xmm6,  xmm7,  xmm8; /** work ...             */
-  struct __FLOAT_REGISTER xmm9,  xmm10, xmm11, xmm12;
-  struct __FLOAT_REGISTER xmm13, xmm14, xmm15, xmm16;
+	struct __FLOAT_REGISTER xmm1,  xmm2,  xmm3,  xmm4; /** Kinda hope this will */
+	struct __FLOAT_REGISTER xmm5,  xmm6,  xmm7,  xmm8; /** work ...             */
+	struct __FLOAT_REGISTER xmm9,  xmm10, xmm11, xmm12;
+	struct __FLOAT_REGISTER xmm13, xmm14, xmm15, xmm16;
 };
 
 struct __PROC_REGS
 {
-  uint64_t cr0, cr1, cr2, cr3;
-  uint16_t cs, ss, ds;
+	uint64_t cr0, cr1, cr2, cr3;
+	uint16_t cs, ss, ds;
 };
 
 struct isr_regs
 {
-  uint16_t ds;
-  unsigned long edi, esi, ebp, esp, ebx, edx, ecx, eax;
-  unsigned long funcPtr, errCode;
-  unsigned long eip, cs, eflags, procesp, ss;
+	uint16_t ds;
+	unsigned long edi, esi, ebp, esp, ebx, edx, ecx, eax;
+	unsigned long funcPtr, errCode;
+	unsigned long eip, cs, eflags, procesp, ss;
 } __attribute__((packed));
 typedef struct isr_regs isrVal_t;
 
