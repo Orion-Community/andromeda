@@ -20,12 +20,18 @@
 #define __RTL8168
 
 #include <sys/dev/pci.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void rtl_init_device(struct ol_pci_dev *);
+/* device identification numbers */
+#define DEVICE_ID 0x8129
+#define VENDOR_ID 0x10ec
+
+#define CPLUS_COMMAND_PORT_OFFSET 0xe0
+#define COMMAND_PORT_OFFSET 0x37
 
 struct txconfig
 {
@@ -54,6 +60,11 @@ struct rxconfig
 
 struct rtlcommand
 {
+  struct rtlccommand
+  {
+    uint rxvlan : 1;
+    uint rxchecksum : 1;
+  } ccommand;
   uint tx_enable : 1;
   uint rx_enable : 1;
   uint reset : 1;
@@ -65,6 +76,10 @@ struct rtl8168
   struct rxconfig *receive;
   struct rtlcommand *command;
 };
+
+void print_mac(struct ol_pci_dev *dev);
+void init_rtl_device(struct ol_pci_dev *);
+static void sent_command_registers(struct rtlcommand *, uint16_t);
 
 #ifdef __cplusplus
 }

@@ -21,7 +21,7 @@
 #include <networking/rtl8168.h>
 
 void
-rtl_init_device(struct ol_pci_dev *dev)
+print_mac(struct ol_pci_dev *dev)
 {
   uint8_t mac[6];
   uint16_t base = (uint16_t)(ol_pci_read_dword(dev, 0x10)&PCI_IO_SPACE_MASK);
@@ -37,4 +37,26 @@ rtl_init_device(struct ol_pci_dev *dev)
     printf("%x:", mac[i]);
 
   printf("%x\n", mac[5]);
+}
+
+void init_rtl_device(struct ol_pci_dev *dev)
+{
+  
+}
+
+static void 
+sent_command_registers(struct rtlcommand *cmd, uint16_t port)
+{
+  /* first of all we have to sent the C+ command register */
+  uint16_t ccommand = (cmd->ccommand.rxvlan << 5) | 
+                          (cmd->ccommand.rxchecksum << 6);
+  outw(port+CPLUS_COMMAND_PORT_OFFSET, ccommand);
+  
+  /*
+   * then the normal command register has to be sent to the device. when that is
+   * done, we can continue configuring other registers.
+   */
+  uint8_t command = (cmd->tx_enable << 2) | (cmd->rx_enable << 3) | 
+                        (cmd->reset << 4);
+  outb(port+COMMAND_PORT_OFFSET, command);
 }
