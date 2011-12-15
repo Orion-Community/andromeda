@@ -22,7 +22,7 @@
 
 static struct rtl_cfg *rtl_devs = NULL;
 
-void
+static void
 print_mac(struct ol_pci_dev *dev)
 {
   uint8_t mac[6];

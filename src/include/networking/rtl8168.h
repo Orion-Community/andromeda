@@ -105,10 +105,10 @@ struct rxcommand
   uint tava : 1; /* tag available flag */
   uint32_t rxbufl; /* lower buffer address */
   uint32_t rxbuffh; /* higher buffer address */ 
-}
+};
 
-void print_mac(struct ol_pci_dev *dev);
 void init_rtl_device(struct ol_pci_dev *);
+static void print_mac(struct ol_pci_dev *);
 static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
 static void add_rtl_device(struct rtl_cfg *cfg);
