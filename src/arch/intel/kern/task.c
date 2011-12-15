@@ -19,6 +19,10 @@
 #include <kern/sched.h>
 #include <error/error.h>
 
+/**
+ * If regs is a pointer to the argument provided to the ISR, this will store the
+ * registers as they existed at the time of interrupting for later rescheduling.
+ */
 int task_save_regs(regs, thread)
 isrVal_t *regs;
 struct __THREAD_STATE *thread;
@@ -41,6 +45,12 @@ struct __THREAD_STATE *thread;
 	return -E_SUCCESS;
 }
 
+
+/**
+ * If regs is a pointer to the argument offered to the ISR, it will actually
+ * perform a context switch (lacking only floating point registers and memory
+ * protection
+ */
 int task_load_regs(regs, thread)
 isrVal_t *regs;
 struct __THREAD_STATE *thread;
