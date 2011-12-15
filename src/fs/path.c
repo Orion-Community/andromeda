@@ -21,67 +21,69 @@
 
 void clean_path(struct __PATH_ELEMENT* elements)
 {
-  struct __PATH_ELEMENT *carriage = elements;
-  for (; carriage != NULL; carriage = carriage->next)
-  {
-    free(carriage);
-  }
+	struct __PATH_ELEMENT *carriage = elements;
+	for (; carriage != NULL; carriage = carriage->next)
+	{
+		free(carriage);
+	}
 }
 
 void add_character(struct __PATH_ELEMENT* element, char c)
 {
-  if (element->cursor == 0xff)
-    return;
-  element->name[element->cursor] = c;
-  element->cursor++;
+	if (element->cursor == 0xff)
+		return;
+	element->name[element->cursor] = c;
+	element->cursor++;
 }
 
 struct __PATH_ELEMENT *parse_path(char* path)
 {
-  if (path == NULL)
-    return NULL;
-  if (strlen(path) == 0)
-    return NULL;
+	if (path == NULL)
+		return NULL;
+	if (strlen(path) == 0)
+		return NULL;
 
-  struct __PATH_ELEMENT *list = kalloc(sizeof(struct __PATH_ELEMENT));
-  memset(list, 0, sizeof(struct __PATH_ELEMENT));
+	struct __PATH_ELEMENT *list = kalloc(sizeof(struct __PATH_ELEMENT));
+	memset(list, 0, sizeof(struct __PATH_ELEMENT));
 
-  struct __PATH_ELEMENT *carriage = list;
-  int idx = 0;
-  boolean escaped = FALSE;
+	struct __PATH_ELEMENT *carriage = list;
+	int idx = 0;
+	boolean escaped = FALSE;
 
-  for (; path[idx] != '\0'; idx++)
-  {
-    switch(path[idx])
-    {
-      case '\\':
-        if (escaped)
-        {
-          add_character(carriage, '\\');
-          escaped = FALSE;
-        }
-        else
-          escaped = TRUE;
-        break;
-      case '/':
-        add_character(carriage, '/');
-        if (!escaped)
-        {
-          carriage->next = kalloc(sizeof(struct __PATH_ELEMENT));
-          if (carriage->next == NULL)
-          {
-            clean_path(list);
-            return NULL;
-          }
-          memset(carriage->next, 0, sizeof(struct __PATH_ELEMENT));
-          carriage = carriage->next;
-        }
-        escaped = FALSE;
-        break;
-      default:
-        add_character(carriage, path[idx]);
-        escaped = FALSE;
-    }
-  }
-  return list;
+	for (; path[idx] != '\0'; idx++)
+	{
+		switch(path[idx])
+		{
+		case '\\':
+			if (escaped)
+			{
+				add_character(carriage, '\\');
+				escaped = FALSE;
+			}
+			else
+				escaped = TRUE;
+		break;
+		case '/':
+			add_character(carriage, '/');
+			if (!escaped)
+			{
+				carriage->next =
+					  kalloc(sizeof(struct __PATH_ELEMENT));
+				if (carriage->next == NULL)
+				{
+					clean_path(list);
+					return NULL;
+				}
+				memset(carriage->next, 0,
+						 sizeof(struct __PATH_ELEMENT));
+				carriage = carriage->next;
+			}
+			escaped = FALSE;
+			break;
+		default:
+			add_character(carriage, path[idx]);
+			escaped = FALSE;
+		}
+	}
+	return list;
 }
