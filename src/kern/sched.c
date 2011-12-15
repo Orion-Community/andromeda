@@ -239,7 +239,8 @@ struct __TASK_STATE* dest;
  */
 int fork()
 {
-	printf("WARNING! In fork the registers copied probably aren't up-to-date!\n");
+	printf("WARNING! In fork the registers copied probably aren't "
+							       "up-to-date!\n");
 
 	struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
 	if (new == NULL)
@@ -281,7 +282,8 @@ find_task(uint32_t pid)
 	if (pid > 0xFFFF)
 		return NULL;
 
-	struct __TASK_BRANCH_NODE *level2 = task_stack->branch[((pid >> 8) & 0xFF)];
+	struct __TASK_BRANCH_NODE *level2 =
+					task_stack->branch[((pid >> 8) & 0xFF)];
 	struct __TASK_STATE *task = level2->task[(pid & 0xFF)];
 
 	return task;
@@ -302,7 +304,8 @@ void kill(int pid)
 {
 	mutex_lock(sched_lock);
 
-	struct __TASK_BRANCH_NODE *level2 = task_stack->branch[(pid >> 8) & 0xFF];
+	struct __TASK_BRANCH_NODE *level2 =
+					  task_stack->branch[(pid >> 8) & 0xFF];
 	if (level2 == NULL)
 		return;
 	struct __TASK_STATE *task = level2->task[(pid & 0xFF)];
