@@ -106,9 +106,9 @@ struct irq_cfg
     struct msi_cfg *msi; /* msi message */
   };
   
-  int vector : 8;
-  int delivery_mode : 3;
-  int trigger: 1; /* 0 -> edge trigger | 1 -> level trigger */
+  uint vector : 8;
+  uint delivery_mode : 3;
+  uint trigger: 1; /* 0 -> edge trigger | 1 -> level trigger */
 };
 
 #endif

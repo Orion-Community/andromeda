@@ -64,10 +64,10 @@
 
 struct msi_attribute
 {
-  int is_64 : 1; /* 0 -> 32 bit addr bus, 1 -> 64 bit */
-  int is_msix : 1; /* 0 -> no msix, 1 -> msi-x available */
-  uint8_t multiple : 3;
-  int enabled : 1; /* 0 -> not enabled, 1 -> enabled (i.e. can send interrupts) */
+  uint is_64 : 1; /* 0 -> 32 bit addr bus, 1 -> 64 bit */
+  uint is_msix : 1; /* 0 -> no msix, 1 -> msi-x available */
+  uint multiple : 3;
+  uint enabled : 1; /* 0 -> not enabled, 1 -> enabled (i.e. can send interrupts) */
   uint8_t cpos; /* position in the capabilities list */
   
   union { 
@@ -82,10 +82,10 @@ struct msi
   uint32_t addr_hi;
   struct msi_msg
   {
-    int vector : 8;
-    int dm : 3;
-    int trig_lvl : 1;
-    int trigger : 1;
+    uint vector : 8;
+    uint dm : 3;
+    uint trig_lvl : 1;
+    uint trigger : 1;
   } msg;
 } __attribute__((packed));
 

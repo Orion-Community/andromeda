@@ -28,16 +28,35 @@ extern "C" {
 void rtl_init_device(struct ol_pci_dev *);
 
 struct txconfig
-{};
+{
+  uint dma_burst : 3;
+  uint crc : 1;
+  uint loopback : 2;
+  uint interframe_gap2 : 1;
+  uint interframe_gap : 2;
+  uint vID1 : 1;
+  uint vID0 : 2;
+};
 
 struct rxconfig
-{};
+{
+  uint dest_addr_accept : 1;
+  uint phys_match_accept : 1;
+  uint multi_cast_accept : 1;
+  uint broadcast_accept : 1;
+  uint runt_accept : 1;
+  uint error_accept : 1;
+  
+  uint eeprom : 1;
+  uint dma_burst : 3;
+  uint threshold : 3;
+};
 
 struct rtlcommand
 {
-  int tx_enable : 1;
-  int rx_enable : 1;
-  int reset : 1;
+  uint tx_enable : 1;
+  uint rx_enable : 1;
+  uint reset : 1;
 };
 
 struct rtl8168
