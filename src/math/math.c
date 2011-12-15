@@ -19,19 +19,22 @@
 #include <math/math.h>
 #include <mm/memory.h>
 
-double abs(double num)
+double
+abs(double num)
 {
-  return (num>0)?num:-num;
+	return (num>0)?num:-num;
 }
 
-float absf(float num)
+float
+absf(float num)
 {
-  return (num>0)?num:-num;
+	return (num>0)?num:-num;
 }
 
-long double absl(long double num)
+long double
+absl(long double num)
 {
-  return (num>0)?num:-num;
+	return (num>0)?num:-num;
 }
 
 #ifndef __COMPRESSED
@@ -41,98 +44,108 @@ extern long long pit_timer;
 unsigned int seedTwo = 1; // Store the seeds
 unsigned int seedOne = 1;
 
-void randomize(unsigned int s) // Create the seed
+void
+randomize(unsigned int s) // Create the seed
 {
-  if (s!=0)
-  {
-    seedTwo = s;
-    seedOne = s/2;
-    if (seedOne == 0)
-    {
-      seedOne = 0x0BADB002;
-    }
-  }
-  else
-  {
-    seedTwo = 0xDEADBEEF;
-    seedOne = 0xCAFEBABE;
-  }
+	if (s!=0)
+	{
+	seedTwo = s;
+	seedOne = s/2;
+	if (seedOne == 0)
+	{
+		seedOne = 0x0BADB002;
+	}
+	}
+	else
+	{
+		seedTwo = 0xDEADBEEF;
+		seedOne = 0xCAFEBABE;
+	}
 }
 
-int randomA() // Hash the stuff and make it random.
+int
+randomA() // Hash the stuff and make it random.
 {
-  // Doesn't need to be thread safe for extra randomness.
-  if (seedTwo == 0)
-  {
-    seedTwo = 1;
-  }
-  if (seedOne == 0)
-  {
-    seedOne = 1;
-  }
-  int ret1 = 36969 * (seedOne & 0xFFFF) + (seedTwo >> 16);
-  int ret2 = 18000 * (seedTwo & 0xFFFF) + (seedOne >> 16);
-  
-  int ret = (ret1 << 16) + ret2;
-  
-  seedOne = ret1; // Set the seeding values
-  seedTwo = ret2;
-  
-  return ret;
+	// Doesn't need to be thread safe for extra randomness.
+	if (seedTwo == 0)
+	{
+		seedTwo = 1;
+	}
+	if (seedOne == 0)
+	{
+		seedOne = 1;
+	}
+	int ret1 = 36969 * (seedOne & 0xFFFF) + (seedTwo >> 16);
+	int ret2 = 18000 * (seedTwo & 0xFFFF) + (seedOne >> 16);
+
+	int ret = (ret1 << 16) + ret2;
+
+	seedOne = ret1; // Set the seeding values
+	seedTwo = ret2;
+
+	return ret;
 }
 
-int random()
+int
+random()
 {
-  int ret = randomA();
-  ret %= RANDMAX;
-  ret += RANDMIN;
-  
-  if (ret < 0)
-  {
-    ret *= -1;
-  }
-  return ret;
+	int ret = randomA();
+	ret %= RANDMAX;
+	ret += RANDMIN;
+
+	if (ret < 0)
+	{
+		ret *= -1;
+	}
+	return ret;
 }
 
 #define PI (3,141592653589793) //238462643383279502884197169399375105820974944592307816406286209 Yes, I know the compiler will skip most of the decimals...
 
-double NAN()
+double
+NAN()
 {
 	double nan;
 	*((int*)&nan) = 0x7f800000;
 	return nan;
 }
 
-float NANf()
+float
+NANf()
 {
 	float nan;
 	*((int*)&nan) = 0x7f800000;
 	return nan;
 }
 
-long double NANl()
+long double
+NANl()
 {
 	long double nan;
 	*((int*)&nan) = 0x7f800000;
 	return nan;
 }
 
-inline char isNaN(double num)
+inline char
+isNaN(double num)
 {
 	return (num != num);
 }
 
-inline char isNaNf(float num)
+inline char
+isNaNf(float num)
 {
 	return (num != num);
 }
 
-inline char isNaNl(long double num)
+inline char
+isNaNl(long double num)
 {
 	return (num != num);
 }
 
-double sin(double x)
+double
+sin(double x)
 {
 	double ret = x,
 	       x2  = x*x,
@@ -148,7 +161,8 @@ double sin(double x)
 	return ret;
 }
 
-float sinf(float x)
+float
+sinf(float x)
 {
 	float ret = x,
 	      x2  = x*x,
@@ -164,7 +178,8 @@ float sinf(float x)
 	return ret;
 }
 
-long double sinl(long double x)
+long double
+sinl(long double x)
 {
 	long double ret = x,
 	            x2  = x*x,
@@ -180,7 +195,8 @@ long double sinl(long double x)
 	return ret;
 }
 
-double asin(double x)
+double
+asin(double x)
 {
 	double ret = x,
 	       x2  = x*x,
@@ -196,7 +212,8 @@ double asin(double x)
 	return ret;
 }
 
-float asinf(float x)
+float
+asinf(float x)
 {
 	float ret = x,
 	      x2  = x*x,
@@ -212,7 +229,8 @@ float asinf(float x)
 	return ret;
 }
 
-long double asinl(long double x)
+long double
+asinl(long double x)
 {
 	long double ret = x,
 	            x2  = x*x,
@@ -228,40 +246,47 @@ long double asinl(long double x)
 	return ret;
 }
 
-double sinh(double x)
+double
+sinh(double x)
 {
 	double tmp = exp(x);
 	return (tmp - 1/tmp)/2;
 }
 
-float sinhf(float x)
+float
+sinhf(float x)
 {
 	float tmp = expf(x);
 	return (tmp - 1/tmp)/2;
 }
 
-long double sinhl(long double x)
+long double
+sinhl(long double x)
 {
 	long double tmp = expl(x);
 	return (tmp - 1/tmp)/2;
 }
 
-double asinh(double x)
+double
+asinh(double x)
 {
 	return ln(x * sqrt( x*x + 1 ) );
 }
 
-float asinhf(float x)
+float
+asinhf(float x)
 {
 	return lnf(x * sqrtf( x*x + 1 ) );
 }
 
-long double asinhl(long double x)
+long double
+asinhl(long double x)
 {
 	return lnl(x * sqrtl( x*x + 1 ) );
 }
 
-double cos(double x)
+double
+cos(double x)
 {
 	double ret = 1,
 	       x2  = x*x,
@@ -277,7 +302,8 @@ double cos(double x)
 	return ret;
 }
 
-float cosf(float x)
+float
+cosf(float x)
 {
 	float ret = 1,
 	      x2  = x*x,
@@ -293,7 +319,8 @@ float cosf(float x)
 	return ret;
 }
 
-long double cosl(long double x)
+long double
+cosl(long double x)
 {
 	long double ret = 1,
 	            x2  = x*x,
@@ -309,70 +336,83 @@ long double cosl(long double x)
 	return ret;
 }
 
-double acos(double x)
+double
+acos(double x)
 {
 	return asin(x) * PI/2;
 }
 
-float acosf(float x)
+float
+acosf(float x)
 {
 	return asinf(x) * PI/2;
 }
 
-long double acosl(long double x)
+long double
+acosl(long double x)
 {
 	return asinl(x) * PI/2;
 }
 
-double cosh(double x)
+double
+cosh(double x)
 {
 	double tmp = exp(x);
 	return (tmp + 1/tmp)/2;
 }
 
-float coshf(float x)
+float
+coshf(float x)
 {
 	float tmp = expf(x);
 	return (tmp + 1/tmp)/2;
 }
 
-long double coshl(long double x)
+long double
+coshl(long double x)
 {
 	long double tmp = expl(x);
 	return (tmp + 1/tmp)/2;
 }
 
-double acosh(double x)
+double
+acosh(double x)
 {
 	return ln(x * sqrt( x*x - 1 ) );
 }
 
-float acoshf(float x)
+float
+acoshf(float x)
 {
 	return lnf(x * sqrtf( x*x - 1 ) );
 }
 
-long double acoshl(long double x)
+long double
+acoshl(long double x)
 {
 	return lnl(x * sqrtl( x*x - 1 ) );
 }
 
-double tan(double x)
+double
+tan(double x)
 {
 	return sin(x)/cos(x);
 }
 
-float tanf(float x)
+float
+tanf(float x)
 {
 	return sinf(x)/cosf(x);
 }
 
-long double tanl(long double x)
+long double
+tanl(long double x)
 {
 	return sinl(x)/cosl(x);
 }
 
-double atan(double x)
+double
+atan(double x)
 {
 	double ret = x,
 	       x2  = x*x,
@@ -388,7 +428,8 @@ double atan(double x)
 	return ret;
 }
 
-float atanf(float x)
+float
+atanf(float x)
 {
 	float ret = x,
 	      x2  = x*x,
@@ -404,7 +445,8 @@ float atanf(float x)
 	return ret;
 }
 
-long double atanl(long double x)
+long double
+atanl(long double x)
 {
 	long double ret = x,
 	            x2  = x*x,
@@ -420,43 +462,50 @@ long double atanl(long double x)
 	return ret;
 }
 
-double tanh(double x)
+double
+tanh(double x)
 {
 	return sinh(x)/cosh(x);
 }
 
-float tanhf(float x)
+float
+tanhf(float x)
 {
 	return sinhf(x)/coshf(x);
 }
 
-long double tanhl(long double x)
+long double
+tanhl(long double x)
 {
 	return sinhl(x)/coshl(x);
 }
 
-double atanh(double x)
+double
+atanh(double x)
 {
 	if (abs(x)>=1)
 		return NAN();
 	return ln( (1+x) / (1-x) )/2;
 }
 
-float atanhf(float x)
+float
+atanhf(float x)
 {
 	if (absf(x)>=1)
 		return NANf();
 	return lnf( (1+x) / (1-x) )/2;
 }
 
-long double atanhl(long double x)
+long double
+atanhl(long double x)
 {
 	if (absl(x)>=1)
 		return NANl();
 	return lnl( (1+x) / (1-x) )/2;
 }
 
-double exp(double n) //An other beatyfull taylor polynominal
+double
+exp(double n) //An other beatyfull taylor polynominal
 {
 	double ret = 1;
 	double x = n;
@@ -471,7 +520,8 @@ double exp(double n) //An other beatyfull taylor polynominal
 	return ret;
 }
 
-float expf(float n) //An other beatyfull taylor polynominal
+float
+expf(float n) //An other beatyfull taylor polynominal
 {
 	float ret = 1;
 	float x = n;
@@ -486,7 +536,8 @@ float expf(float n) //An other beatyfull taylor polynominal
 	return ret;
 }
 
-long double expl(long double n) //An other beatyfull taylor polynominal
+long double
+expl(long double n) //An other beatyfull taylor polynominal
 {
 	long double ret = 1;
 	long double x = n;
@@ -501,7 +552,8 @@ long double expl(long double n) //An other beatyfull taylor polynominal
 	return ret;
 }
 
-double ln(double x)
+double
+ln(double x)
 {
 	if (x < 0)
 		return -1; // e^x will never be less than 0
@@ -519,7 +571,8 @@ double ln(double x)
 	return ret;
 }
 
-float lnf(float x)
+float
+lnf(float x)
 {
 	if (x < 0)
 		return -1; // e^x will never be less than 0
@@ -537,7 +590,8 @@ float lnf(float x)
 	return ret;
 }
 
-long double lnl(long double x)
+long double
+lnl(long double x)
 {
 	if (x < 0)
 		return -1; // e^x will never be less than 0
@@ -555,22 +609,26 @@ long double lnl(long double x)
 	return ret;
 }
 
-double sqrt(double x)
+double
+sqrt(double x)
 {
 	return exp(2*ln(x));
 }
 
-float sqrtf(float x)
+float
+sqrtf(float x)
 {
 	return expf(2*ln(x));
 }
 
-long double sqrtl(long double x)
+long double
+sqrtl(long double x)
 {
 	return expl(2*ln(x));
 }
 
-double pow(double x, double exponent)
+double
+pow(double x, double exponent)
 {
 	double ret = 1;
 	for (;exponent>=1;exponent--)
@@ -582,7 +640,8 @@ double pow(double x, double exponent)
 	return ret;
 }
 
-float powf(float x, float exponent)
+float
+powf(float x, float exponent)
 {
 	float ret = 1;
 	for (;exponent>=1;exponent--)
@@ -594,7 +653,8 @@ float powf(float x, float exponent)
 	return ret;
 }
 
-long double powl(long double x, long double exponent)
+long double
+powl(long double x, long double exponent)
 {
 	long double ret = 1;
 	for (;exponent>=1;exponent--)
