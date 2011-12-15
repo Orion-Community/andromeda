@@ -80,4 +80,3 @@ void ioapic_debug();
 #endif
 
 #endif	/* IOAPIC_H */
-

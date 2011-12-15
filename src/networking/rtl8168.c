@@ -20,11 +20,13 @@
 #include <sys/dev/pci.h>
 #include <networking/rtl8168.h>
 
+static struct rtl_cfg *rtl_devs = NULL;
+
 void
 print_mac(struct ol_pci_dev *dev)
 {
   uint8_t mac[6];
-  uint16_t base = (uint16_t)(ol_pci_read_dword(dev, 0x10)&PCI_IO_SPACE_MASK);
+  uint16_t base = get_rtl_port_base(dev);
   printf("RealTek base: %x\n", base);
   int i = 0;
   for(; i < 6; i++)
@@ -41,7 +43,25 @@ print_mac(struct ol_pci_dev *dev)
 
 void init_rtl_device(struct ol_pci_dev *dev)
 {
+  struct rtlcommand *cmd = kalloc(sizeof(*cmd));
+  struct rtl_cfg *cfg = kalloc(sizeof(*cfg));
+  cfg->next = NULL;
+  print_mac(dev);
+  uint16_t portbase = get_rtl_port_base(dev);
+  if(cmd == NULL)
+    return;
   
+  cmd->ccommand.rxvlan = 1;
+  cmd->ccommand.rxchecksum = 1;
+  cmd->tx_enable = 1;
+  cmd->rx_enable = 1;
+  sent_command_registers(cmd, portbase);
+  cfg->command = cmd;
+  
+  if(rtl_devs == NULL)
+    rtl_devs = cfg;
+  else
+    add_rtl_device(cfg);
 }
 
 static void 
@@ -59,4 +79,30 @@ sent_command_registers(struct rtlcommand *cmd, uint16_t port)
   uint8_t command = (cmd->tx_enable << 2) | (cmd->rx_enable << 3) | 
                         (cmd->reset << 4);
   outb(port+COMMAND_PORT_OFFSET, command);
+}
+
+static int
+read_command_registers(struct rtlcommand *cmd, uint16_t port)
+{
+  uint16_t command = inw(port+CPLUS_COMMAND_PORT_OFFSET);
+  uint8_t ccommand = inb(port+COMMAND_PORT_OFFSET);
+  
+  printf("Command register: %x - C+ Command register: %x\n", command, ccommand);
+  return 0;
+}
+
+static void
+add_rtl_device(struct rtl_cfg *cfg)
+{
+  struct rtl_cfg *carriage = cfg;
+  for(; carriage->next != NULL, carriage->next = carriage; 
+            carriage = carriage->next)
+  {
+    if(carriage->next == NULL)
+    {
+      carriage->next = cfg;
+      cfg->next = NULL;
+      break;
+    }
+  }
 }
