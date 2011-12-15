@@ -19,12 +19,46 @@
 #include <kern/sched.h>
 #include <error/error.h>
 
-int task_save_regs()
+int task_save_regs(regs, thread)
+isrVal_t *regs;
+struct __THREAD_STATE *thread;
 {
-	return -E_NOFUNCTION;
+	thread->regs.ip = regs->eip;
+	thread->regs.bp = regs->ebp;
+	thread->regs.di = regs->edi;
+	thread->regs.si = regs->esi;
+	thread->regs.ax = regs->eax;
+	thread->regs.bx = regs->ebx;
+	thread->regs.cx = regs->ecx;
+	thread->regs.dx = regs->edx;
+	thread->regs.sp = regs->procesp;
+	thread->regs.flags = regs->eflags;
+
+	/**
+	 * Something must be figured out still for floating point registers ...
+	 */
+
+	return -E_SUCCESS;
 }
 
-int task_load_regs()
+int task_load_regs(regs, thread)
+isrVal_t *regs;
+struct __THREAD_STATE *thread;
 {
-	return -E_NOFUNCTION;
+	regs->eip = thread->regs.ip;
+	regs->ebp = thread->regs.bp;
+	regs->edi = thread->regs.di;
+	regs->esi = thread->regs.si;
+	regs->eax = thread->regs.ax;
+	regs->ebx = thread->regs.bx;
+	regs->ecx = thread->regs.cx;
+	regs->edx = thread->regs.dx;
+	regs->procesp = thread->regs.sp;
+	regs->eflags = thread->regs.flags;
+
+	/**
+	 * Here too something has to be figured out for floats ...
+	 */
+	
+	return -E_SUCCESS;
 }
