@@ -78,6 +78,35 @@ struct rtl_cfg
   struct rtl_cfg *next;
 };
 
+/*
+ * Below are the definitions of the receive and transmit command and status
+ * structures
+ */
+
+/* receive structures first */
+struct rxcommand
+{
+  uint bufsize : 14;
+  uint eor : 1; /* end of Rx descriptor. When this bit is set, it indicates that
+                   it is the last one in the descriptor ring */
+  uint own : 1; /* When set, indicates that the descriptor is owned by the NIC, 
+                   and is ready to receive a packet. The OWN bit is set by the 
+                   driver after having pre-allocated the buffer at initialization, 
+                   or the host has released the buffer to the driver.
+                 */
+  struct vlan_tag
+  {
+    uint vidh : 4;
+    uint vidl : 8;
+    uint prio : 3; /* priority flag */
+    uint cfi : 1;
+  } vlan;
+  
+  uint tava : 1; /* tag available flag */
+  uint32_t rxbufl; /* lower buffer address */
+  uint32_t rxbuffh; /* higher buffer address */ 
+}
+
 void print_mac(struct ol_pci_dev *dev);
 void init_rtl_device(struct ol_pci_dev *);
 static void sent_command_registers(struct rtlcommand *, uint16_t);
