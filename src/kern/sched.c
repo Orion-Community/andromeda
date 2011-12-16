@@ -157,7 +157,8 @@ void get_new_quantum()
  * Stop and save the last task and load the next one from the quantum, if
  * scheduling conditions are met.
  */
-void sched()
+void sched(current_state)
+isrVal_t *current_state;
 {
 	panic("Scheduling not supported!");
 }

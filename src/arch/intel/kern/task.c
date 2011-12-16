@@ -27,21 +27,10 @@ int task_save_regs(regs, thread)
 isrVal_t *regs;
 struct __THREAD_STATE *thread;
 {
-	thread->regs.ip = regs->eip;
-	thread->regs.bp = regs->ebp;
-	thread->regs.di = regs->edi;
-	thread->regs.si = regs->esi;
-	thread->regs.ax = regs->eax;
-	thread->regs.bx = regs->ebx;
-	thread->regs.cx = regs->ecx;
-	thread->regs.dx = regs->edx;
-	thread->regs.sp = regs->procesp;
-	thread->regs.flags = regs->eflags;
-
-	/**
-	 * Something must be figured out still for floating point registers ...
-	 */
-
+	/** Store the general purpose stack */
+	thread->regs.rsp = regs->esp;
+	/** And let's do the floating point stack */
+// 	thread->regs.fsp = regs->fsp;
 	return -E_SUCCESS;
 }
 
@@ -55,20 +44,10 @@ int task_load_regs(regs, thread)
 isrVal_t *regs;
 struct __THREAD_STATE *thread;
 {
-	regs->eip = thread->regs.ip;
-	regs->ebp = thread->regs.bp;
-	regs->edi = thread->regs.di;
-	regs->esi = thread->regs.si;
-	regs->eax = thread->regs.ax;
-	regs->ebx = thread->regs.bx;
-	regs->ecx = thread->regs.cx;
-	regs->edx = thread->regs.dx;
-	regs->procesp = thread->regs.sp;
-	regs->eflags = thread->regs.flags;
-
-	/**
-	 * Here too something has to be figured out for floats ...
-	 */
+	/** Reset the general purpose stack */
+	regs->esp = thread->regs.rsp;
+	/** And reset the floating point stack */
+// 	regs->fsp = thread->regs.fsp;
 	
 	return -E_SUCCESS;
 }
