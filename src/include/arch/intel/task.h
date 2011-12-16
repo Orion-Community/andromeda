@@ -23,15 +23,10 @@
 extern "C" {
 #endif
 
-struct __FLOAT_REGISTER
-{
-  uint64_t hi, lo; // 128-bits
-};
-
 struct __THREAD_REGS
 {
-	uint64_t rsp;
-	uint64_t fsp;
+	uint64_t esp; /** General purpose stack pointer */
+	uint64_t fsp; /** Floating point register stack pointer */
 };
 
 struct __PROC_REGS

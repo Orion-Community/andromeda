@@ -23,14 +23,20 @@
  * If regs is a pointer to the argument provided to the ISR, this will store the
  * registers as they existed at the time of interrupting for later rescheduling.
  */
-int task_save_regs(regs, thread)
-isrVal_t *regs;
+int task_save_regs(thread)
 struct __THREAD_STATE *thread;
 {
-	/** Store the general purpose stack */
-	thread->regs.rsp = regs->esp;
-	/** And let's do the floating point stack */
-// 	thread->regs.fsp = regs->fsp;
+	/** Move the register to threads stack pointer */
+	__asm__ ("mov %%esp, %0"
+		: "=r" (thread->regs.esp)
+		:
+		:
+	);
+
+	/** Save floats here */
+
+	/** Switch memory segments here */
+
 	return -E_SUCCESS;
 }
 
@@ -40,14 +46,19 @@ struct __THREAD_STATE *thread;
  * perform a context switch (lacking only floating point registers and memory
  * protection
  */
-int task_load_regs(regs, thread)
-isrVal_t *regs;
+int task_load_regs(thread)
 struct __THREAD_STATE *thread;
 {
-	/** Reset the general purpose stack */
-	regs->esp = thread->regs.rsp;
-	/** And reset the floating point stack */
-// 	regs->fsp = thread->regs.fsp;
-	
+	/** Switch memory segments here */
+
+	/** Restore floats here */
+
+	/** Move the threads stack pointer to register */
+	__asm__ ("mov %0, %%esp"
+		:
+		: "r" (thread->regs.esp)
+		:
+	);
+
 	return -E_SUCCESS;
 }
