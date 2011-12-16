@@ -108,7 +108,7 @@ msi_enable_msix_entry(struct msi_cfg *cfg, int entry)
   /* enable the msix message control */
   uint32_t msg_ctrl = ol_pci_read_dword(cfg->dev, 
                                         MSI_MESSAGE_CONTROL(cfg->attrib.cpos));
-  msg_ctrl |= 0x8000;
+  msg_ctrl |= 1<<31;
   ol_pci_write_dword(cfg->dev, MSI_MESSAGE_CONTROL(cfg->attrib.cpos), msg_ctrl);
 }
 
@@ -202,8 +202,8 @@ debug_msix_entry(struct msi_cfg *cfg)
 
   uint16_t msi_ctl = (ol_pci_read_dword(cfg->dev, (uint16_t)cfg->attrib.cpos) >> 16) & 0x3ff;
 
-  printf("msi-x: 64: %x; base: 0x%x; msg_data: %x; cfg_space_size: %i\n",
-      cfg->attrib.is_64, msi->addr, msi_convert_message(&msi->msg), (msi_ctl+1)/4);
+  printf("msi-x: enabled: %x; base: 0x%x; msg_data: %x; cfg_space_size: %i\n",
+      ol_pci_read_dword(cfg->dev, cfg->attrib.cpos)>>31, msi->addr, msi_convert_message(&msi->msg), (msi_ctl+1)/4);
   free(msi);
 }
 #endif
