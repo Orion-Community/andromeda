@@ -90,7 +90,13 @@ read_command_registers(struct rtlcommand *cmd, uint16_t port)
   uint16_t ccommand = inw(port+CPLUS_COMMAND_PORT_OFFSET);
   uint8_t command = inb(port+COMMAND_PORT_OFFSET);
   
-  printf("Command register: %x - C+ Command register: %x\n", command, ccommand);
+  cmd->ccommand.rxvlan = (ccommand >> 5) & 1;
+  cmd->ccommand.rxchecksum = (ccommand >> 6) & 1;
+  cmd->tx_enable = (command >> 2) & 1;
+  cmd->rx_enable = (command >> 3) & 1;
+  cmd->reset = (command >> 4) & 1;
+  
+  printf("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable, cmd->ccommand.rxchecksum);
   return 0;
 }
 
