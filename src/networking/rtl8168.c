@@ -55,6 +55,7 @@ void init_rtl_device(struct ol_pci_dev *dev)
   cmd->ccommand.rxchecksum = 1;
   cmd->tx_enable = 1;
   cmd->rx_enable = 1;
+  cmd->reset = 0;
   sent_command_registers(cmd, portbase);
   cfg->command = cmd;
   
@@ -62,6 +63,8 @@ void init_rtl_device(struct ol_pci_dev *dev)
     rtl_devs = cfg;
   else
     add_rtl_device(cfg);
+  
+  read_command_registers(cmd, portbase);
 }
 
 static void 
@@ -84,8 +87,8 @@ sent_command_registers(struct rtlcommand *cmd, uint16_t port)
 static int
 read_command_registers(struct rtlcommand *cmd, uint16_t port)
 {
-  uint16_t command = inw(port+CPLUS_COMMAND_PORT_OFFSET);
-  uint8_t ccommand = inb(port+COMMAND_PORT_OFFSET);
+  uint16_t ccommand = inw(port+CPLUS_COMMAND_PORT_OFFSET);
+  uint8_t command = inb(port+COMMAND_PORT_OFFSET);
   
   printf("Command register: %x - C+ Command register: %x\n", command, ccommand);
   return 0;

@@ -33,6 +33,7 @@
 #define MSI_LOWER_ADDR(x) ((x)+4)
 #define MSI_UPPER_ADDR(x) ((x)+8)
 #define MSI_MESSAGE_DATA(x,y) (y)?((x)+12):((x)+8)
+#define MSI_MESSAGE_CONTROL(x) (x)
 
 /* Message shift defines */
 #define MSI_VECTOR_SHIFT 0

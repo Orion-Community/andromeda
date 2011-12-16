@@ -28,7 +28,6 @@ static int
 __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
 {
   uint32_t msg = msi_convert_message(&msi->msg);
-//   printf("MSI message data: %x - IRQ vector: %x\n", msg, msi->msg.vector);
   if(cfg->attrib.is_msix)
   {
     cfg->msix_write(cfg->attrib.base + MSIX_LOW_ADDR, msi->addr);
@@ -104,7 +103,13 @@ static void
 msi_enable_msix_entry(struct msi_cfg *cfg, int entry)
 {
   int index = entry*MSIX_ENTRY_SIZE;
+  /* enable the vector */
   cfg->msix_write(cfg->attrib.base+index+MSIX_VECTOR_CTRL, 0);
+  /* enable the msix message control */
+  uint32_t msg_ctrl = ol_pci_read_dword(cfg->dev, 
+                                        MSI_MESSAGE_CONTROL(cfg->attrib.cpos));
+  msg_ctrl |= 0x8000;
+  ol_pci_write_dword(cfg->dev, MSI_MESSAGE_CONTROL(cfg->attrib.cpos), msg_ctrl);
 }
 
 static int
