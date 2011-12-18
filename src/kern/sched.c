@@ -368,8 +368,8 @@ int task_init()
 	kern->data_size = 0 - (addr_t)&rodata;
 
 	/** Set up the first stack */
-	thread->stack = stack;
-	thread->stack_size = STD_STACK_SIZE;
+	thread->ss = stack;
+	thread->ss_size = STD_STACK_SIZE;
 
 	/** Where can we find more info if swapped out? */
 	printf("WARNING! No path to kernel binary!\n");

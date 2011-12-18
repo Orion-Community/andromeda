@@ -23,12 +23,6 @@
 extern "C" {
 #endif
 
-struct __THREAD_REGS
-{
-	uint64_t esp; /** General purpose stack pointer */
-	uint64_t fsp; /** Floating point register stack pointer */
-};
-
 struct __PROC_REGS
 {
 	uint64_t cr0, cr1, cr2, cr3;

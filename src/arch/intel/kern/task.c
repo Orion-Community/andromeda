@@ -28,7 +28,7 @@ struct __THREAD_STATE *thread;
 {
 	/** Move the register to threads stack pointer */
 	__asm__ ("mov %%esp, %0"
-		: "=r" (thread->regs.esp)
+		: "=r" (thread->stack)
 		:
 		:
 	);
@@ -56,7 +56,7 @@ struct __THREAD_STATE *thread;
 	/** Move the threads stack pointer to register */
 	__asm__ ("mov %0, %%esp"
 		:
-		: "r" (thread->regs.esp)
+		: "r" (thread->stack)
 		:
 	);
 

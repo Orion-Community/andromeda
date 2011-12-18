@@ -59,9 +59,10 @@ enum task_state
  */
 struct __THREAD_STATE
 {
-	struct __THREAD_REGS regs;
 	void* stack;
-	addr_t stack_size;
+
+	void* ss;
+	addr_t ss_size;
 };
 
 /**

@@ -28,7 +28,7 @@
  * when if we run out of memory.
  *
  * (1) For the definition of the wilderness block, look up documentation on Doug
- * Leah's malloc (aka. dlmalloc).
+ * Lea's malloc (aka. dlmalloc).
  */
 
 #include <stdlib.h>
