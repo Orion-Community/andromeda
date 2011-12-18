@@ -54,7 +54,7 @@ typedef struct apic
   uint16_t (*read) (ol_apic_reg_t);
 } *ol_apic_t;
 
-static struct apic * apic;
+extern struct apic * apic;
 
 static int
 ol_detect_apic(ol_cpu_t cpu);

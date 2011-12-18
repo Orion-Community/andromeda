@@ -26,7 +26,7 @@
 
 #include <text.h>
 
-static struct apic *apic;
+struct apic *apic;
 
 static void
 route_pic_to_apic()

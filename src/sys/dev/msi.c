@@ -61,7 +61,9 @@ __msi_read_message(struct msi_cfg *cfg, struct msi *msg)
   {
     msg->addr = cfg->msix_read(cfg->attrib.base + MSIX_LOW_ADDR);
     if(cfg->attrib.is_64)
-      msg->addr = cfg->msix_read(cfg->attrib.base + MSIX_UPPER_ADDR);
+      msg->addr_hi = cfg->msix_read(cfg->attrib.base + MSIX_UPPER_ADDR);
+    else
+      msg->addr_hi = MSI_HIGH_BASE_ADDRESS;
     msi_data = cfg->msix_read(cfg->attrib.base + MSIX_MESSAGE_DATA);
   }
   else
@@ -124,7 +126,7 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, struct irq_data *irq
   cfg->attrib.cpos = cp;
   cfg->dev = dev;
   cfg->attrib.is_msix = 1;
-  cfg->attrib.is_64 = 0;
+  cfg->attrib.is_64 = 1;
   cfg->attrib.base = msi_calc_msix_base(dev, cp);
   cfg->irq = irq->irq;
   
@@ -133,7 +135,7 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, struct irq_data *irq
                                         MSI_ADDR_REDIR_CPU) |
               ((apic->dest_mode == 0) ? MSI_ADDR_DEST_MODE_PHYSICAL : 
                                         MSI_ADDR_DEST_MODE_LOGICAL);
-  printf("address: %x\n", msi->addr);
+  printf("address: %x + dest_mode %x\n", msi->addr, apic->dest_mode);
   msi->addr_hi = MSI_HIGH_BASE_ADDRESS;
   msi->msg.vector = irq->irq_config->vector;
   msi->msg.dm = irq->irq_config->delivery_mode;
