@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <arch/x86/apic/msi.h>
+#include <arch/x86/apic/apic.h>
 #include <arch/x86/irq.h>
 #include <sys/dev/pci.h>
 #include <mm/map.h>
@@ -123,18 +124,20 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, struct irq_data *irq
   cfg->attrib.cpos = cp;
   cfg->dev = dev;
   cfg->attrib.is_msix = 1;
-  if(ctrl & (1 << 7))
-    cfg->attrib.is_64 = 1;
-  else
-    cfg->attrib.is_64 = 0;
+  cfg->attrib.is_64 = 0;
   cfg->attrib.base = msi_calc_msix_base(dev, cp);
   cfg->irq = irq->irq;
   
-  msi->addr = 0xfee00000; /* upper bits of the msi address are always 0xfee */
-  msi->addr_hi = 0;
+  msi->addr = MSI_LOWER_BASE_ADDRESS | MSI_ADDR_DEST_ID(0) | 
+              ((apic->delivery_mode == IRQ_LOW_PRI) ? MSI_ADDR_REDIR_LOWPRI : 
+                                        MSI_ADDR_REDIR_CPU) |
+              ((apic->dest_mode == 0) ? MSI_ADDR_DEST_MODE_PHYSICAL : 
+                                        MSI_ADDR_DEST_MODE_LOGICAL);
+  printf("address: %x\n", msi->addr);
+  msi->addr_hi = MSI_HIGH_BASE_ADDRESS;
   msi->msg.vector = irq->irq_config->vector;
   msi->msg.dm = irq->irq_config->delivery_mode;
-  msi->msg.trig_lvl = 1;
+  msi->msg.trig_lvl = TRIGGER_LEVEL_ASSERT;
   msi->msg.trigger = irq->irq_config->trigger;
   cfg->msi = msi;
 

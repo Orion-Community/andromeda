@@ -78,6 +78,8 @@ ol_apic_init(ol_cpu_t cpu)
   apic = kalloc(sizeof(*apic));
   apic->write = &__apic_write_register;
   apic->read = &__apic_read_register;
+  apic->dest_mode = 0;
+  apic->delivery_mode = 0;
   
   if(systables->mp != NULL)
   {

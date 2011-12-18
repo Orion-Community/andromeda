@@ -48,6 +48,8 @@ typedef size_t ol_apic_reg_t;
 
 typedef struct apic
 {
+  uint8_t dest_mode;
+  uint8_t delivery_mode;
   void (*write) (ol_apic_reg_t, uint16_t);
   uint16_t (*read) (ol_apic_reg_t);
 } *ol_apic_t;

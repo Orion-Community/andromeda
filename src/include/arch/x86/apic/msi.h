@@ -57,6 +57,28 @@
 #define MSI_LOWER_BASE_ADDRESS 0xfee00000
 #define MSI_HIGH_BASE_ADDRESS 0x0
 
+#define MSI_ADDR_DEST_MODE_PHYSICAL_SHIFT 2
+#define MSI_ADDR_DEST_MODE_PHYSICAL_MASK 1
+#define MSI_ADDR_DEST_MODE_PHYSICAL (((0) & MSI_ADDR_DEST_MODE_PHYSICAL_MASK) << \
+                                          MSI_ADDR_DEST_MODE_PHYSICAL_SHIFT)
+                                          
+#define MSI_ADDR_DEST_MODE_LOGICAL_SHIFT 2
+#define MSI_ADDR_DEST_MODE_LOGICAL_MASK 1
+#define MSI_ADDR_DEST_MODE_LOGICAL (((1) & MSI_ADDR_DEST_MODE_LOGICAL_MASK) << \
+                                          MSI_ADDR_DEST_MODE_LOGICAL_SHIFT)
+                                          
+#define MSI_ADDR_REDIR_HINT_SHIFT 3
+#define MSI_ADDR_REDIR_HINT_MASK 1
+#define MSI_ADDR_REDIR_CPU (((0) & MSI_ADDR_REDIR_HINT_MASK) << \
+                                          MSI_ADDR_REDIR_HINT_SHIFT)
+#define MSI_ADDR_REDIR_LOWPRI (((1) & MSI_ADDR_REDIR_HINT_MASK) << \
+                                          MSI_ADDR_REDIR_HINT_SHIFT)
+                                          
+#define MSI_ADDR_DEST_ID_SHIFT 12
+#define MSI_ADDR_DEST_ID_MASK 0xff
+#define MSI_ADDR_DEST_ID(x) (((x) & MSI_ADDR_DEST_ID_MASK) << \
+                                MSI_ADDR_DEST_ID_SHIFT)
+
 /* MSIX definitions */
 #define MSIX_BAR(index) ((4*(index))+0x10)
 #define MSIX_ENTRY_SIZE 16

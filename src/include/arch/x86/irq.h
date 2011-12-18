@@ -27,6 +27,12 @@
 #define MAX_ISA_IRQ_NUM 0x10
 #define IRQ_BASE 40
 
+#define IRQ_LOW_PRI 1
+
+#define TRIGGER_EDGE 0
+#define TRIGGER_LEVEL 1
+#define TRIGGER_LEVEL_ASSERT 1
+#define TRIGGER_LEVEL_DEASSERT 0
 /*
  * An IRQ is the index number of the IRQ (eg irq 0 is the timer by default).
  * The irq vector is a the index number of the idt for that irq. So IRQ ==
