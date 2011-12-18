@@ -30,10 +30,12 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
   uint32_t msg = msi_convert_message(&msi->msg);
   if(cfg->attrib.is_msix)
   {
-    cfg->msix_write(cfg->attrib.base + MSIX_LOW_ADDR, msi->addr);
+    cfg->msix_write(cfg->attrib.base+MSIX_LOW_ADDR, msi->addr);
     if(cfg->attrib.is_64)
-      cfg->msix_write(cfg->attrib.base + MSIX_UPPER_ADDR, msi->addr_hi);
-    cfg->msix_write(cfg->attrib.base + MSIX_MESSAGE_DATA, msg);
+      cfg->msix_write(cfg->attrib.base+MSIX_UPPER_ADDR, msi->addr_hi);
+    else
+      cfg->msix_write(cfg->attrib.base+MSIX_UPPER_ADDR, MSI_HIGH_BASE_ADDRESS);
+    cfg->msix_write(cfg->attrib.base+MSIX_MESSAGE_DATA, msg);
   }
   else
   {

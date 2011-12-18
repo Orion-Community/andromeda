@@ -54,6 +54,9 @@
 #define MSI_TRIGGER_DATA(x) (((x) & MSI_TRIGGER_MASK) << MSI_TRIGGER_SHIFT)
 #define MSI_TRIGGER_MASK 1
 
+#define MSI_LOWER_BASE_ADDRESS 0xfee00000
+#define MSI_HIGH_BASE_ADDRESS 0x0
+
 /* MSIX definitions */
 #define MSIX_BAR(index) ((4*(index))+0x10)
 #define MSIX_ENTRY_SIZE 16
