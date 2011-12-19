@@ -20,6 +20,10 @@
 #ifndef __GDT_H
 #define __GDT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef FAST
 // Here goes the GDT entry data structure
 struct gdtEntry
@@ -61,6 +65,11 @@ typedef struct gdtPtr gdt_t;
 extern void lgdt(gdt_t*);
 
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
 /*
 (1) Compilers often do some form of optimalisation, and this can be done by giving each field it's

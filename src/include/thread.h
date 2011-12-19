@@ -21,17 +21,25 @@
 #ifndef __THREAD_H
 #define __THREAD_H
 
-#define __THREAD_MUTEX_FREE 0
-#define __THREAD_MUTEX_SHUT 1
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define mutex_lock mutexEnter
 #define mutex_test mutexTest
 #define mutex_unlock mutexRelease
+
+#define mutex_locked 1
+#define mutex_unlocked 0
 
 typedef unsigned int mutex_t;
 
 extern void mutexEnter(mutex_t);
 extern unsigned int mutexTest(mutex_t);
 extern void mutexRelease(mutex_t);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

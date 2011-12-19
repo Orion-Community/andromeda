@@ -21,6 +21,10 @@
 #ifndef __PS2_H
 #define	__PS2_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* device type */
 #define OL_PS2_CONTROLLER 0x1
 #define OL_PS2_KEYBOARD 0x2
@@ -79,6 +83,10 @@ ol_ps2_init_keyboard();
 
 void
 ol_detach_all_devices();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* __PS2_H */
 

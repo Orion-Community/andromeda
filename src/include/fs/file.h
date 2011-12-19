@@ -16,11 +16,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __FS_FILE_H
-#define __FS_FILE_H
 
 #include <stdlib.h>
 #include <fs/stream.h>
+
+#ifndef __FS_FILE_H
+#define __FS_FILE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define OWNER_READ      0x001
 #define OWNER_WRITE     0x002
@@ -53,4 +58,9 @@ int     file_seek  (file_t *file, long long offset, enum seektype from);
 size_t  file_read  (file_t *file, size_t buffer_size, void *b);
 size_t  file_write (file_t *file, size_t buffer_size, void *b);
 int     file_sync  (file_t *file);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

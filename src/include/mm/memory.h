@@ -16,10 +16,14 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <mm/heap.h>
+
 #ifndef __MEMORY_H
 #define __MEMORY_H
 
-#include <mm/heap.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void paging();
 void memset(void*, int, size_t);
@@ -39,6 +43,10 @@ extern unsigned int end;
 
 #ifdef X86
 #define PAGESIZE 0x1000
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

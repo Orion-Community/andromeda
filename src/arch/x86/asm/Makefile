@@ -1,6 +1,6 @@
 AS=nasm
 
-ASFLAGS=-felf -D X86 -I../../../include/
+ASFLAGS=-felf32 -D X86 -I../../../include/
 
 CC=gcc
 CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \

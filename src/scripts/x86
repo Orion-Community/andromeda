@@ -1,4 +1,4 @@
 AS=nasm
 LDFLAGS=-oformat=elf32-i386 -melf_i386
 LDSCRIPT=-Tandromeda.ld
-ASFLAGS=-felf -iinclude/ -D X86
+ASFLAGS=-felf32 -iinclude/ -D X86

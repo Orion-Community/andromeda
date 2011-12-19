@@ -19,6 +19,10 @@
 #ifndef __GRAPHICS_H
 #define __GRAPHICS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct imageBuffer_s
 {
   char*        buffer;
@@ -32,5 +36,9 @@ void imageBufferPartCpy(imageBuffer src, imageBuffer dest, int x, int y, int wid
 void drawBuffer(imageBuffer src, int x, int y);
 void drawBufferPart(imageBuffer src, int x, int y, int width, int height, int partx, int party);
 imageBuffer newImageBuffer(int width, int height);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -70,110 +70,109 @@ int vendor = 0;
 
 boolean setupCore(module_t mod)
 {
-  // Examine and augment the elf image here, return true if faulty
-  switch (coreCheck((void*) mod.addr))
-  {
-    case 0:
-      break;
-    case -1:
-      printf("Invalid elf image\n");
-      return TRUE;
-    case -2:
-      printf("Entry point too low\n");
-      return TRUE;
-    case -3:
-      printf("Kernel magic invalid\n");
-      return TRUE;
+	// Examine and augment the elf image here, return true if faulty
+	switch (coreCheck((void*) mod.addr))
+	{
+	case 0:
+		break;
+	case -1:
+		printf("Invalid elf image\n");
+		return TRUE;
+	case -2:
+		printf("Entry point too low\n");
+		return TRUE;
+	case -3:
+		printf("Kernel magic invalid\n");
+		return TRUE;
 
-    default:
-      printf("Unknown return value");
-      return TRUE;
-  }
-  coreAugment(mod.addr);
+	default:
+		printf("Unknown return value");
+		return TRUE;
+	}
+	coreAugment(mod.addr);
 
-  // Jump into the high memory image
-  elfJmp(mod.addr);
+	// Jump into the high memory image
+	elfJmp(mod.addr);
 
-  return FALSE; //Doesn't get reached, ever, if all goes well
+	return FALSE; //Doesn't get reached, ever, if all goes well
 }
 
-// The main function
+	// The main function
 
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
-  init_heap();
-  complement_heap(&end, HEAPSIZE);
-  textInit();
-  addr_t tmp = (addr_t)hdr + offset;
-  hdr = (multiboot_info_t*)tmp;
+	init_heap();
+	complement_heap(&end, HEAPSIZE);
+	textInit();
+	addr_t tmp = (addr_t)hdr + offset;
+	hdr = (multiboot_info_t*)tmp;
 
-  if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
-  {
-    printf("\nInvalid magic word: %X\n", magic);
-    panic("");
-  }
-  if (hdr->flags & MULTIBOOT_INFO_MEMORY)
-  {
-    memsize = hdr->mem_upper;
-    memsize += 1024;
-  }
-  else
-  {
-    panic("No memory flags!");
-  }
-  if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
-  {
-    mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
-    build_map(mmap, (unsigned int) hdr->mmap_length);
-  }
-  else
-  {
-    panic("Invalid memory map");
-  }
+	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
+	{
+		printf("\nInvalid magic word: %X\n", magic);
+		panic("");
+	}
+	if (hdr->flags & MULTIBOOT_INFO_MEMORY)
+	{
+		memsize = hdr->mem_upper;
+		memsize += 1024;
+	}
+	else
+	{
+		panic("No memory flags!");
+	}
+	if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
+	{
+		mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
+		build_map(mmap, (unsigned int) hdr->mmap_length);
+	}
+	else
+	{
+		panic("Invalid memory map");
+	}
 
-  page_init();
-  printf("%s\n", welcome);
-  setGDT();
-  page_unmap_low_mem();
-  pic_init();
-  setIDT();
+	page_init();
+	printf("%s\n", welcome);
+	setGDT();
+	page_unmap_low_mem();
+	pic_init();
+	setIDT();
 
-  printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
-  ol_cpu_t cpu = kalloc(sizeof (*cpu));
-  ol_cpu_init(cpu);
-  acpi_init();
+	printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
+	ol_cpu_t cpu = kalloc(sizeof (*cpu));
+	ol_cpu_init(cpu);
+	acpi_init();
 
-  ol_ps2_init_keyboard();
-  ol_apic_init(cpu);
-  init_ioapic();
-  setup_irq_data();
-  ol_pci_init();
-  alloc_irq();
+        ol_ps2_init_keyboard();
+        ol_apic_init(cpu);
+        init_ioapic();
+        setup_irq_data();
+        ol_pci_init();
+        alloc_irq();
 
 #ifdef __IOAPIC_DBG
-  ioapic_debug();
+	ioapic_debug();
 #endif
 
 #ifdef __MEMTEST
-  ol_detach_all_devices(); /* free's al the pci devices */
-
+        ol_detach_all_devices(); /* free's al the pci devices */
 #endif
 #ifdef __DBG_HEAP
-  printf("Heap list:\n");
-  ol_dbg_heap();
+	printf("Heap list:\n");
+	ol_dbg_heap();
 #endif
 #ifndef DBG
-  printf("\nSome (temp) debug info:\n");
-  printf("CPU vendor: %s\n", cpu->vendor);
+	printf("\nSome (temp) debug info:\n");
+	printf("CPU vendor: %s\n", cpus->vendor);
 
-  if(systables->magic == SYS_TABLE_MAGIC)
-  {
-    printf("RSDP ASCII signature: 0x%x%x\n",
-        *(((uint32_t*) systables->rsdp->signature) + 1),
-        *(((uint32_t*) systables->rsdp->signature)));
-    printf("MP specification signature: 0x%x\n", systables->mp->signature);
-  }
+	if(systables->magic == SYS_TABLE_MAGIC)
+	{
+		printf("RSDP ASCII signature: 0x%x%x\n",
+		*(((uint32_t*) systables->rsdp->signature) + 1),
+		*(((uint32_t*) systables->rsdp->signature)));
+		printf("MP specification signature: 0x%x\n", systables->mp->signature);
+	}
 #endif
-  core_loop();
-  return 0; // To keep the compiler happy.
+	core_loop();
+	return 0; // To keep the compiler happy.
 }

@@ -19,6 +19,10 @@
 #ifndef __FS_STREAM_H
 #define __FS_STREAM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DEFAULT_STREAM_SIZE 0x4 /* Defined as multiple of SECTOR_SIZE */
 #define SECTOR_SIZE 0x100
 
@@ -67,5 +71,9 @@ int stream_close(stream_t *stream);
 size_t stream_read(stream_t *stream, uint64_t cursor, size_t length, void *b);
 size_t stream_write                          (stream_t *stream, uint64_t cursor,
                                       size_t length, void *b, uint32_t *growth);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

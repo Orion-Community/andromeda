@@ -24,6 +24,13 @@
 
 #include <math/math.h>
 
+#ifndef __MATH_COMPLEX_H
+#define __MATH_COMPLEX_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define complex __complex__
 #define I	(__extension__ 1.0iF) // As of the commen use of 'i' we use 'I' instead.
 
@@ -93,3 +100,9 @@ double complex       ctanh(double complex);
 float complex        ctanhf(float complex);
 long double complex  ctanhl(long double complex);
 long double complex  ctanl(long double complex);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

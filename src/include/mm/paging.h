@@ -16,10 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+#include <kern/cpu.h>
+
 #ifndef PAGING_H
 #define PAGING_H
 
-#include <kern/cpu.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifdef X86
 #define PAGES       0x100000
@@ -71,5 +76,9 @@ extern volatile addr_t offset;
 void init_paging();
 int page_unmap_low_mem();
 addr_t page_phys_addr(addr_t, struct page_dir*);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

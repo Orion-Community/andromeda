@@ -22,52 +22,52 @@
 file_t*
 file_open(char *path)
 {
-  if (path != NULL)
-  {
+	if (path != NULL)
+	{
 #ifdef STREAM_DBG
-    printf("WARNING: Paths not supported yet!\n");
+		printf("WARNING: Paths not supported yet!\n");
 #endif
-    return NULL;
-  }
+		return NULL;
+	}
 
-  file_t *file = kalloc(sizeof(file_t));
-  if (file == NULL)
-    goto clean_up;
-  stream_t *stream = kalloc(sizeof(stream_t));
-  if (stream == NULL)
-    goto clean_file;
+	file_t *file = kalloc(sizeof(file_t));
+	if (file == NULL)
+		goto clean_up;
+	stream_t *stream = kalloc(sizeof(stream_t));
+	if (stream == NULL)
+		goto clean_file;
 
-  memset(file, 0, sizeof(file_t));
-  memset(stream, 0, sizeof(stream_t));
+	memset(file, 0, sizeof(file_t));
+	memset(stream, 0, sizeof(stream_t));
 
-  stream_t *stream2 = stream_init(stream, DEFAULT_STREAM_SIZE, 0);
-  if (stream2 == NULL)
-    goto clean_stream;
+	stream_t *stream2 = stream_init(stream, DEFAULT_STREAM_SIZE, 0);
+	if (stream2 == NULL)
+		goto clean_stream;
 
-  file->data = stream;
-  return file;
+	file->data = stream;
+	return file;
 
 clean_stream:
-  free(stream);
+	free(stream);
 clean_file:
-  free(file);
+	free(file);
 clean_up:
-  return NULL;
+	return NULL;
 }
 
 int
 file_close(file_t *file)
 {
-  if (file == NULL)
-    return -E_FILE_NOFILE;
-  if (file->data == NULL)
-    return -E_FILE_NOSTREAM;
+	if (file == NULL)
+		return -E_FILE_NOFILE;
+	if (file->data == NULL)
+		return -E_FILE_NOSTREAM;
 
-  file_sync(file);
+	file_sync(file);
 
-  stream_close(file->data);
-  free(file);
-  return 0;
+	stream_close(file->data);
+	free(file);
+	return 0;
 }
 
 /**
@@ -81,60 +81,61 @@ file_close(file_t *file)
 size_t
 file_read(file_t *file, size_t buffer_size, void *b)
 {
-  if (file == NULL)
-    return -E_FILE_NOFILE;
-  if (b == NULL || buffer_size == 0)
-    return -E_FILE_NOBUFFER;
-  if (file->data == NULL)
-    return -E_FILE_NOSTREAM;
+	if (file == NULL)
+		return -E_FILE_NOFILE;
+	if (b == NULL || buffer_size == 0)
+		return -E_FILE_NOBUFFER;
+	if (file->data == NULL)
+		return -E_FILE_NOSTREAM;
 
-  int chars_read = stream_read(file->data, file->stream_cursor, buffer_size, b);
-  file -> stream_cursor += (chars_read >= 0) ? chars_read : 0;
+	int chars_read = stream_read(file->data, file->stream_cursor, buffer_size, b);
+	file -> stream_cursor += (chars_read >= 0) ? chars_read : 0;
 #ifdef STREAM_DBG
-  printf("File_read: %s\n", b);
+	printf("File_read: %s\n", b);
 #endif
-  return chars_read;
+	return chars_read;
 }
 
 int file_seek(file_t *file, long long offset, enum seektype from)
 {
-  if (file == NULL)
-    return -E_FILE_NOFILE;
-  switch (from)
-  {
-    case SEEK_SET:
-      if (offset < 0)
-      {
-        file->stream_cursor = 0;
-        break;
-      }
-      file->stream_cursor = (offset <= file->file_size)
-                                                     ? offset : file->file_size;
-      break;
-    case SEEK_CUR:
-      if (offset < 0)
-      {
-        file->stream_cursor += (offset - file->stream_cursor >= 0)
-                                                 ? offset : file->stream_cursor;
-        break;
-      }
+	if (file == NULL)
+		return -E_FILE_NOFILE;
+	switch (from)
+	{
+	case SEEK_SET:
+		if (offset < 0)
+		{
+			file->stream_cursor = 0;
+			break;
+		}
+		file->stream_cursor = (offset <= file->file_size)
+						     ? offset : file->file_size;
+		break;
+	case SEEK_CUR:
+		if (offset < 0)
+		{
+			file->stream_cursor += (offset - file->stream_cursor>=0)
+						 ? offset : file->stream_cursor;
+			break;
+		}
 
-      file->stream_cursor += (offset + file->stream_cursor <= file->file_size)
-                                                     ? offset : file->file_size;
-      break;
-    case SEEK_END:
-      if (offset > 0)
-      {
-        file->stream_cursor = file->file_size;
-        break;
-      }
-      file->stream_cursor = (offset >= file->file_size) ? 0 : offset;
-      break;
-    default:
-      return -1;
-      break;
-  }
-  return 0;
+		file->stream_cursor += (offset + file->stream_cursor <=
+								file->file_size)
+						     ? offset : file->file_size;
+		break;
+	case SEEK_END:
+		if (offset > 0)
+		{
+			file->stream_cursor = file->file_size;
+			break;
+		}
+		file->stream_cursor = (offset >= file->file_size) ? 0 : offset;
+		break;
+	default:
+		return -1;
+		break;
+	}
+	return 0;
 }
 
 /**
@@ -149,25 +150,25 @@ int file_seek(file_t *file, long long offset, enum seektype from)
 size_t
 file_write(file_t *file, size_t buffer_size, void *b)
 {
-   if (file == NULL)
-    return -E_FILE_NOFILE;
-  if (b == NULL || buffer_size == 0)
-    return -E_FILE_NOBUFFER;
-  if (file->data == NULL)
-    return -E_FILE_NOSTREAM; 
+	if (file == NULL)
+		return -E_FILE_NOFILE;
+	if (b == NULL || buffer_size == 0)
+		return -E_FILE_NOBUFFER;
+	if (file->data == NULL)
+		return -E_FILE_NOSTREAM; 
 #ifdef STREAM_DBG
-  printf("File_write: %s\n", b);
+	printf("File_write: %s\n", b);
 #endif
-  uint32_t growth;
-  int chars_written = stream_write(file->data,
+	uint32_t growth;
+	int chars_written = stream_write(file->data,
                                    file->stream_cursor, buffer_size, b, &growth);
-  file -> stream_cursor += (chars_written >= 0) ? chars_written : 0;
-  file -> file_size += growth;
-  return chars_written;
+	file -> stream_cursor += (chars_written >= 0) ? chars_written : 0;
+	file -> file_size += growth;
+	return chars_written;
 }
 
 int
 file_sync(file_t *file)
 {
-  return -E_NOFUNCTION;
+	return -E_NOFUNCTION;
 }

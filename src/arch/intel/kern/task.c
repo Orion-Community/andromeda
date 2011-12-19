@@ -19,13 +19,51 @@
 #include <kern/sched.h>
 #include <error/error.h>
 
-
-int task_save_regs()
+/**
+ * If regs is a pointer to the argument provided to the ISR, this will store the
+ * registers as they existed at the time of interrupting for later rescheduling.
+ */
+int save_task(thread)
+struct __THREAD_STATE *thread;
 {
-  return -E_NOFUNCTION;
+        if (thread == NULL)
+                return -E_NULL_PTR;
+
+        /** Move the register to threads stack pointer */
+        __asm__ ("mov %%esp, %0"
+                : "=r" (thread->stack)
+                :
+                :
+        );
+
+        /** Save floats here */
+
+        /** Save memory segments here */
+
+        return -E_SUCCESS;
 }
 
-int task_load_regs()
+/**
+ * If regs is a pointer to the argument offered to the ISR, it will actually
+ * perform a context switch (lacking only floating point registers and memory
+ * protection
+ */
+int load_task(thread)
+struct __THREAD_STATE *thread;
 {
-  return -E_NOFUNCTION;
+        if (thread == NULL)
+                return -E_NULL_PTR;
+
+        /** Restore memory segments here */
+
+        /** Restore floats here */
+
+        /** Move the threads stack pointer to register */
+        __asm__ ("mov %0, %%esp"
+                :
+                : "r" (thread->stack)
+                : "esp"
+        );
+
+        return -E_SUCCESS;
 }

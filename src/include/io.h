@@ -20,6 +20,10 @@
 #ifndef __IO_H_
 #define __IO_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * Write a dword, word or byte towards memory space.
  */
@@ -104,5 +108,9 @@ writeCR0(unsigned int);
 
 extern void
 writeCR3(unsigned int);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

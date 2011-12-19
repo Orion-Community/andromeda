@@ -16,10 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+#include <fs/file.h>
+
 #ifndef __FS_VFS_H
 #define __FS_VFS_H
 
-#include <fs/file.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define MAX_NAME_LENGTH         0xff
 #define VFS_DIR_ENTRIES         0x20
@@ -64,5 +69,9 @@ struct __DIR
 typedef struct __DIR directory;
 
 extern directory *root;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -10,10 +10,14 @@ Syntax
 Unresolved
 --------------------------------------------------------------------------------
 
- * The streams suite fails when demand_key is called
-   & Unknown
-   # I haven't got the faintest idea.
+ * No known
+   @
+   #
 
 --------------------------------------------------------------------------------
 Solved
 --------------------------------------------------------------------------------
+
+ * The streams suite fails when demand_key is called
+   @ The demand_key call shifted the code just enough to cause the bug
+   # Fixed some pointers in the streams

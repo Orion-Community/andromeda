@@ -16,6 +16,13 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __DRIVER_KBD_H
+#define __DRIVER_KBD_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct scancode_list {
 	unsigned char xt;
 	unsigned char at2;
@@ -149,3 +156,9 @@ struct scancode_list {
 	{   0, 0xaf, 0x8d, 0x43, 0x65,    0, 127, '\0'}	/* Compose (Application) */
 
 };
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

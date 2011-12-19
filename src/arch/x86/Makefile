@@ -9,7 +9,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 X86=x86.o
 
 ## DEPS
-DEPS=kernel.o mm.o asm.o
+DEPS=kernel.o mm.o asm.o boot.o
 
 .PHONY: all
 all: x86.o
@@ -25,6 +25,10 @@ mm.o:
 kernel.o:
 	$(MAKE) $(MAKEEND) -C kernel/
 	mv kernel/kernel.o ./
+
+boot.o:
+	$(MAKE) $(MAKEEND) -C boot/
+	mv boot/boot.o ./
 
 asm.o:
 	$(MAKE) -C asm $(MAKEEND)

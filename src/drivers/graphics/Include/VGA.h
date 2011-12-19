@@ -16,9 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+#include "graphics.h"
+
 #ifndef __VGA_H
 #define __VGA_H
-#include "graphics.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct pixel_s
 {
@@ -36,5 +42,9 @@ imageBuffer getScreenBuf();
 inline unsigned int getScreenWidth();
 inline unsigned int getScreenHeight();
 inline unsigned int getScreenDepth();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -54,26 +54,26 @@
 int
 heap_inset_block(volatile memory_node_t* heap, volatile memory_node_t *block)
 {
-  if (heap == NULL || block == NULL)
-    return -E_HEAP_GENERIC;
+	if (heap == NULL || block == NULL)
+		return -E_HEAP_GENERIC;
 
-  addr_t block_address = (addr_t) block;
+	addr_t block_address = (addr_t) block;
 
-  volatile memory_node_t *cariage = heap;
-  volatile memory_node_t *last = NULL;
+	volatile memory_node_t *cariage = heap;
+	volatile memory_node_t *last = NULL;
 
-  for (; cariage != NULL && (addr_t)heap < block_address;
-                                                                 last = cariage,
-                                                       cariage = cariage->next);
-  if (last == NULL)
-    return -E_HEAP_GENERIC;
+	for (; cariage != NULL && (addr_t)heap < block_address;
+								 last = cariage,
+						       cariage = cariage->next);
+	if (last == NULL)
+		return -E_HEAP_GENERIC;
 
-  block->next = last->next;
-  block->previous = last;
-  last->next = block;
-  if (block->next != NULL)
-    block->next->previous = block;
-  return -E_SUCCESS;
+	block->next = last->next;
+	block->previous = last;
+	last->next = block;
+	if (block->next != NULL)
+		block->next->previous = block;
+	return -E_SUCCESS;
 }
 
 /**
@@ -83,20 +83,20 @@ heap_inset_block(volatile memory_node_t* heap, volatile memory_node_t *block)
 void
 heap_add_blocks(void* base, uint32_t size)
 {
-  volatile memory_node_t* node = (memory_node_t*) base;
-  initHdr(node, size - sizeof (memory_node_t));
-  if (heap == NULL)
-  {
-    mutex_lock(prot);
-    heap = node;
-    mutex_unlock(prot);
-  }
-  else
-  {
-    printf("Warning: Using untested feature in heap_add_blocks!\n");
-    mutex_lock(prot);
-    if (heap_inset_block(heap, node) != -E_SUCCESS)
-      panic("Could not add blocks to map");
-    mutex_unlock(prot);
-  }
+	volatile memory_node_t* node = (memory_node_t*) base;
+	initHdr(node, size - sizeof (memory_node_t));
+	if (heap == NULL)
+	{
+		mutex_lock(prot);
+		heap = node;
+		mutex_unlock(prot);
+	}
+	else
+	{
+		printf("Warning: Using untested feature in heap_add_blocks!\n");
+		mutex_lock(prot);
+		if (heap_inset_block(heap, node) != -E_SUCCESS)
+			panic("Could not add blocks to map");
+		mutex_unlock(prot);
+	}
 }

@@ -21,6 +21,10 @@
 #ifndef __KEYBOARD_H_
 #define __KEYBOARD_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define OL_NUM_LED 0x2
 #define OL_SCROLL_LED 0x1
 #define OL_CAPS_LED 0x4
@@ -47,5 +51,9 @@ typedef struct ol_kb_scancode {
 	uint8_t value;
         uint8_t capvalue;
 } ol_kb_scancode_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
