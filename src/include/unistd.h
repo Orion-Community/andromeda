@@ -19,6 +19,14 @@
 #ifndef __UNISTD_H
 #define __UNISTD_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int exec(char* path);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

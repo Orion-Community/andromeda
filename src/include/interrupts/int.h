@@ -19,6 +19,14 @@
 #ifndef __INTERRUPTS_INT_H
 #define __INTERRUPTS_INT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void intInit();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

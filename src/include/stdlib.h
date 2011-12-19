@@ -19,6 +19,10 @@
 #ifndef STDLIB_H
 #define STDLIB_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ANDROMEDA_VERSION "0.1.0"
 
 /* 
@@ -62,8 +66,14 @@ struct segments
 } __attribute__((packed));
 typedef struct segments *and_segments_t;
 
-extern uint32_t begin;
+extern uint32_t higherhalf;
+extern uint32_t rodata;
 extern void start();
 void reboot();
+void shutdown();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -2,17 +2,20 @@ include ../scripts/makeIncl
 CFLAGS+=-I../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-DEPS=math.c
-TARGETS=maths.o
-HEADERS=
+TARGETS=maths.o 
 
 .PHONY: all
 all: $(TARGETS)
 	mv -fv maths.o ../
 
-$(TARGETS): $(DEPS) $(HEADERS)
-	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)
+$(TARGETS): math.o
 	$(LD) $(LDFLAGS) -o $(TARGETS) *.o
+
+math.o:
+	$(CC) $(CFLAGS) $(FLAGS) math.c
+
+complex.o:
+	$(CC) $(CFLAGS) $(FLAGS) complex.c
 
 .PHONY: clean
 clean:

@@ -19,6 +19,10 @@
 #ifndef __DEBUG_H
 #define __DEBUG_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef UNDEFINED
 #undef UNDEFINED
 #endif // UNDEFINED
@@ -54,5 +58,9 @@
 #define assert(a)
 
 #endif // DBG
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __DEBUG_H

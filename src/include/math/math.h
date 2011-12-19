@@ -15,8 +15,12 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef MATH_H
-#define MATH_H
+#ifndef __MATH_MATH_H
+#define __MATH_MATH_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define RANDMAX 0xFFFF
 #define RANDMIN 0x0
@@ -95,5 +99,9 @@ long double sqrtl(long double x);
 double pow(double x, double exp);
 float powf(float x, float exp);
 long double powl(long double x, long double exp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

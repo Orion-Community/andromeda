@@ -20,6 +20,11 @@
 
 #ifndef __H_PIC
 #define __H_PIC
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void pic_remap(uint32_t set1, uint32_t set2);
 void pic_eoi(uint8_t irq);
 void pic_init();
@@ -54,4 +59,9 @@ extern void initPIT();
  * This will initiate the pic. Panics on failure.
  */
 void pic_init();
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

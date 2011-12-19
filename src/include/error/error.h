@@ -19,6 +19,10 @@
 #ifndef __ERROR_ERROR_H
 #define __ERROR_ERROR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define E_SUCCESS               0x0
 
 #define E_NOMEM                 0x1
@@ -46,5 +50,13 @@
 #define E_STREAM_FAILURE        0x14
 
 #define E_HEAP_GENERIC          0x15
+#define E_NULL_PTR              0x16
+#define E_ALREADY_INITIALISED   0x17
+
+#define E_TASK_NOSPACE          0x20
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

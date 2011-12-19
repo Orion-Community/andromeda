@@ -19,6 +19,10 @@
 #ifndef __FS_PATH_H
 #define __FS_PATH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct __PATH_ELEMENT
 {
   char name[255];
@@ -28,5 +32,9 @@ struct __PATH_ELEMENT
 
 void clean_path(struct __PATH_ELEMENT* elements);
 struct __PATH_ELEMENT *parse_path(char* path);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

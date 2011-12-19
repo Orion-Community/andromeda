@@ -1,4 +1,4 @@
-/* multiboot.h - Multiboot header file. */
+     /* multiboot.h - Multiboot header file. */
      /* Copyright (C) 1999,2003,2007,2008,2009  Free Software Foundation, Inc.
       *
       *  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,7 +18,10 @@
       *  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
       *  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       */
-     
+
+#ifdef __cplusplus
+extern "C" {
+#endif
      #ifndef MULTIBOOT_HEADER
      #define MULTIBOOT_HEADER 1
      
@@ -221,3 +224,7 @@
      #endif /* ! ASM_FILE */
      
      #endif /* ! MULTIBOOT_HEADER */
+
+#ifdef __cplusplus
+}
+#endif

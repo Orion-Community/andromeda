@@ -21,6 +21,10 @@
 #ifndef __TEXT_H
 #define __TEXT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <types.h>
 void println(unsigned char*);
 void printf(unsigned char*, ...);
@@ -31,4 +35,9 @@ void printDecimalNum(double index, unsigned int base);
 void scroll(unsigned char);
 void textInit();
 int atoi(char* str);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

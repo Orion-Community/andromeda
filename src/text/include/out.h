@@ -17,8 +17,14 @@
 */
 
 #include <stdlib.h>
+
 #ifndef VGA_H
 #define VGA_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // #define KEYBUF 0xB8000
 #define KEYBUF 0xC00B8000
 #define VGA_WIDTH 80
@@ -32,5 +38,9 @@ struct curPos
 //        uint16_t *vidmem;
 	int tabwidth;
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -22,6 +22,10 @@
 #include <stdlib.h>
 #include <thread.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct buffer_s
 {
   char *buffer;
@@ -36,5 +40,9 @@ struct buffer_s
 typedef struct buffer_s buffer_t;
 
 buffer_t *initBuffer();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

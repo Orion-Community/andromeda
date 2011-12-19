@@ -22,17 +22,20 @@
   * Complex modulus:
   */
 
-double cabs(double complex x)
+double
+cabs(double complex x)
 {
 	return sqrt( creal(x)*creal(x) + cimag(x)*cimag(x) );
 }
 
-float cabsf(float complex);
+float
+cabsf(float complex);
 {
 	return sqrtf( crealf(x)*crealf(x) + cimagf(x)*cimagf(x) );
 }
 
-long double cabsl(long double complex);
+long double
+cabsl(long double complex);
 {
 	return sqrtl( creall(x)*creall(x) + cimagl(x)*cimagl(x) );
 }

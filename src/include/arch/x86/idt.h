@@ -22,6 +22,10 @@
 #ifndef __IDT_H
 #define __IDT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define IDT_PRESENT_BIT (1<<7)
 #define IDT_INTERRUPT_GATE 0xe
 #define IDT_VECTOR_OFFSET 0x20
@@ -54,4 +58,9 @@ int install_irq_vector(struct irq_data *);
 int alloc_idt_entry();
 extern void installIDT(ol_idt_t);
 extern addr_t get_idt();
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
