@@ -1,6 +1,6 @@
 include ../scripts/makeIncl
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
-TARGETS=
+TARGETS=text.o
 CONDITIONAL=GRAPHICS:graphics.o BEEP:beep.o
 TARGETS+=$(call test,CONDITIONAL)
 CFLAGS+= -I../include
@@ -9,13 +9,14 @@ CFLAGS+= -I../include
 all: drivers.o
 
 drivers.o: $(TARGETS)
-ifneq ("$(strip $(TARGETS))","")
 	$(LD) $(LDFLAGS) -o drivers.o *.o
 	mv -fv drivers.o ../
-endif	
 
 graphics.o:
 	$(MAKE) -C graphics/ $(MAKEEND)
+
+text.o:
+	$(MAKE) -C text/ $(MAKEEND)
 
 .PHONY: clean
 clean:
