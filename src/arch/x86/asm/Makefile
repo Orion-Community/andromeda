@@ -1,6 +1,6 @@
 AS=nasm
 
-ASFLAGS=-felf32 -D X86 -I../../../include/
+ASFLAGS=-felf32 -D X86 -I../../../include/ $(FLAGS)
 
 CC=gcc
 CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
@@ -13,7 +13,7 @@ ISR=isr.asm
 GDT=lgdt.asm
 ASM_=asm.asm
 
-ASM=io.o io_inline.o lgdt.o asm_.o
+ASM=io.o io_inline.o lgdt.o asm_.o stdlib.o
 OUT=asm.o
 
 LD=ld
@@ -39,6 +39,9 @@ lgdt.o: lgdt.asm
 
 asm_.o: asm.asm
 	$(AS) $(ASFLAGS) $(FLAGS) $(ASM_) -o asm_.o
+
+stdlib.o: stdlib.asm
+	$(AS) $(ASFLAGS) stdlib.asm -o stdlib.o
 
 .PHONY: clean
 clean:

@@ -1,6 +1,7 @@
 include ../scripts/makeIncl
+CFLAGS+=-I../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
-TARGETS=text.o net.o
+TARGETS=text.o net.o kbd.o disk.o
 
 .PHONY: all
 all: drivers.o
@@ -18,6 +19,13 @@ text.o:
 
 net.o:
 	$(MAKE) -C net/ $(MAKEEND)
+
+kbd.o:
+	$(CC) $(CFLAGS) $(FLAGS) kbd.c
+
+disk.o:
+	$(MAKE) -C disk/ $(MAKEEND)
+	mv -v disk/disk.o ./
 
 .PHONY: clean
 clean:
