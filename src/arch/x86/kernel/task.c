@@ -32,8 +32,6 @@ struct __THREAD_STATE *thread;
         /** Move the register to threads stack pointer */
         __asm__ ("mov %%esp, %0"
                 : "=r" (thread->stack)
-                :
-                :
         );
 
         /** Save floats here */
