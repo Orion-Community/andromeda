@@ -68,54 +68,61 @@ void demand_key()
 
 void core_loop()
 {
-	uint32_t pid = 0;
+        uint32_t pid = 0;
 
-	while (TRUE) // Infinite loop, to make the kernel wait when there is nothing to do
-	{
-		switch (rl)
-		{
-		case RL_RUN0:
-			init_set(RL_RUN1);
+        while (TRUE) // Infinite loop, to make the kernel wait when there is nothing to do
+        {
+                switch (rl)
+                {
+                case RL_RUN0:
+                        init_set(RL_RUN1);
 #ifdef SCHED_DBG
-			/** Will have to be improved to actually do a context switch here */
-			pid = syscall(SYS_FORK, 0, 0, 0);
-			print_task_stack();
-			demand_key();
-			syscall(SYS_KILL, pid, 0, 0);
-			print_task_stack();
-			demand_key();
+                        /**
+                         * Will have to be improved to actually do a context
+                         * switch here
+                         */
+                        pid = syscall(SYS_FORK, 0, 0, 0);
+                        print_task_stack();
+                        demand_key();
+                        syscall(SYS_KILL, pid, 0, 0);
+                        print_task_stack();
+                        demand_key();
+
+                        struct __THREAD_STATE* t = kalloc(
+                                                 sizeof(struct __THREAD_STATE));
 #endif
 #ifdef MATH_DBG
-			printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":"A number");
+                        printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":
+                                                                    "A number");
 #endif
 #ifdef STREAM_DBG
-			demand_key();
-			file_test("Hello world!");
-			demand_key();
-			large_file_test();
-			demand_key();
-			path_test("/proc/1");
-			path_test("./test.sh");
-			path_test("~/hello\\\\ world!");
+                        demand_key();
+                        file_test("Hello world!");
+                        demand_key();
+                        large_file_test();
+                        demand_key();
+                        path_test("/proc/1");
+                        path_test("./test.sh");
+                        path_test("~/hello\\\\ world!");
 #endif
-			break;
+                        break;
 
-		case RL_RUN1:
-		case RL_RUN2:
-		case RL_RUN3:
-		case RL_RUN4:
-//         	halt();
-//         	sched_next_task();
-		break;
+                case RL_RUN1:
+                case RL_RUN2:
+                case RL_RUN3:
+                case RL_RUN4:
+//                      halt();
+//                      sched_next_task();
+                        break;
 
-		case RL_REBOOT:
-			syscall(SYS_REBOOT, 0, 0, 0);
-			break;
+                case RL_REBOOT:
+                        syscall(SYS_REBOOT, 0, 0, 0);
+                        break;
 
-		case RL_SHUTDOWN:
-			syscall(SYS_SHUTDOWN, 0, 0, 0);
-			break;
-		}
-	halt(); // Puts the CPU in idle state untill next interrupt
-	}
+                case RL_SHUTDOWN:
+                        syscall(SYS_SHUTDOWN, 0, 0, 0);
+                        break;
+                }
+                halt(); // Puts the CPU in idle state untill next interrupt
+        }
 }

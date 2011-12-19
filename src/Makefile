@@ -6,7 +6,7 @@ MAKEEND=FLAGS="$(FLAGS) "
 MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __IOAPIC_DBG -D __PCI_DEBUG -D MSI -D MSIX -D MSIX_DEBUG"
 #MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
-DEPS=start.o arch.o kern.o mm.o text.o maths.o sys.o error.o fs.o
+DEPS=arch.o kern.o mm.o text.o maths.o sys.o error.o fs.o
 
 .PHONY: all
 all: x86
@@ -21,9 +21,9 @@ x86: $(OUT)
 $(OUT): $(DEPS)
 	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) $(DEPS)
 
-start.o:
-	$(MAKE) -C boot $(MAKEEND)
-	mv -vf boot/start.o ./
+# start.o:
+# 	$(MAKE) -C boot $(MAKEEND)
+# 	mv -vf boot/start.o ./
 
 arch.o:
 	$(MAKE) -C arch $(MAKEEND)
