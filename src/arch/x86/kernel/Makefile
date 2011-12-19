@@ -20,6 +20,7 @@ APIC=apic.o
 KERN=kernel.o
 ACPI=acpi.o
 CPU=i386.o
+TASK=task.o
 
 # sources
 
@@ -31,6 +32,7 @@ ISR_SRC=isr.asm
 ISR2_SRC=isr.c
 PIC_SRC=pic.c
 PIT_SRC=pit.c
+TASK_SRC=task.c
 KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC) \
 $(ACPI) $(CPU) $(SCHED)
 
@@ -74,6 +76,9 @@ $(PIC): $(PIC_SRC)
 
 $(PIT): $(PIT_SRC)
 	$(CC) $(CCFLAGS) $(PIT_SRC) -o $(PIT)
+
+$(TASK): $(TASK_SRC)
+	$(CC) $(CCFLAGS) $(TASK_SRC) -o $(TASK)
 
 .PHONY: clean
 clean:
