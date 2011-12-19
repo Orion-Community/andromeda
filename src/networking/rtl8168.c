@@ -48,6 +48,7 @@ void init_rtl_device(struct ol_pci_dev *dev)
   cfg->next = NULL;
   print_mac(dev);
   uint16_t portbase = get_rtl_port_base(dev);
+  cfg->portbase = portbase;
   if(cmd == NULL)
     return;
   
@@ -65,6 +66,7 @@ void init_rtl_device(struct ol_pci_dev *dev)
     add_rtl_device(cfg);
   
   read_command_registers(cmd, portbase);
+  printf("Tx Enable flag: %x - RxChecksum: %x\n", cmd->reset, cmd->ccommand.rxchecksum);
 }
 
 static void 
@@ -96,7 +98,6 @@ read_command_registers(struct rtlcommand *cmd, uint16_t port)
   cmd->rx_enable = (command >> 3) & 1;
   cmd->reset = (command >> 4) & 1;
   
-  printf("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable, cmd->ccommand.rxchecksum);
   return 0;
 }
 
@@ -114,4 +115,22 @@ add_rtl_device(struct rtl_cfg *cfg)
       break;
     }
   }
+}
+
+static int
+reset_rtl_device(struct rtl_cfg *cfg)
+{
+  cfg->command->reset = 1;
+  sent_command_registers(cfg->command, cfg->portbase);
+  
+  int i = 0;
+  for(; i < 0x100000; i++)
+  {
+    read_command_registers(cfg->command, cfg->portbase);
+    if(cfg->command->reset == 0)
+      return 0;
+    else
+      continue;
+  }
+  return -1;
 }

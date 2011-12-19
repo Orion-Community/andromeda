@@ -76,6 +76,8 @@ struct rtl_cfg
   struct rxconfig *receive;
   struct rtlcommand *command;
   struct rtl_cfg *next;
+  
+  uint16_t portbase;
 };
 
 /*
