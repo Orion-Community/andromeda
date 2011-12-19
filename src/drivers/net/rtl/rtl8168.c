@@ -34,7 +34,7 @@ print_mac(struct ol_pci_dev *dev)
     mac[i] = inb(base+i);
   }
   printf("MAC address: ");
-  
+
   for(i = 0; i<5; i++)
     printf("%x:", mac[i]);
 
@@ -50,7 +50,7 @@ void init_rtl_device(struct ol_pci_dev *dev)
   uint16_t portbase = get_rtl_port_base(dev);
   if(cmd == NULL)
     return;
-  
+
   cmd->ccommand.rxvlan = 1;
   cmd->ccommand.rxchecksum = 1;
   cmd->tx_enable = 1;
@@ -58,12 +58,12 @@ void init_rtl_device(struct ol_pci_dev *dev)
   cmd->reset = 0;
   sent_command_registers(cmd, portbase);
   cfg->command = cmd;
-  
+
   if(rtl_devs == NULL)
     rtl_devs = cfg;
   else
     add_rtl_device(cfg);
-  
+
   read_command_registers(cmd, portbase);
 }
 
