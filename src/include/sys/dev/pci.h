@@ -158,4 +158,3 @@ extern "C"
 #endif
 
 #endif	/* PCI_H */
-

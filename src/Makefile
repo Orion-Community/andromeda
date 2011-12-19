@@ -70,6 +70,11 @@ test: all
 ctest: clean all
 	qemu -m 64M -kernel $(OUT) -monitor stdio
 
+.PHONY: install
+install: all
+	cp -fv ./andromeda $(DIR)/boot/andromeda/
+	umount $(DIR)
+
 .PHONY: usage
 usage:
 	@echo "USAGE"

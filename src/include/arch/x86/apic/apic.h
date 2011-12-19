@@ -94,4 +94,3 @@ extern ol_apic_t apic;
 #endif
 
 #endif	/* APIC_H */
-
