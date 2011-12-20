@@ -10,7 +10,7 @@ INCLUDES=../include/mm/heap.h ../include/mm/map.h ../include/mm/memory.h\
 all: mm.o
 	mv -fv mm.o ../
 
-mm.o: alloc.o heap.o map.o memory.o paging.o test.o
+mm.o: alloc.o heap.o map.o memory.o test.o
 	$(LD) -o mm.o *.o $(LDFLAGS)
 
 alloc.o: alloc.c $(INCLUDES)
@@ -24,9 +24,6 @@ map.o: map.c $(INCLUDES)
 
 memory.o: memory.c $(INCLUDES)
 	$(CC) $(FLAGS) $(CFLAGS) memory.c
-
-paging.o: paging.c $(INCLUDES)
-	$(CC) $(FLAGS) $(CFLAGS) paging.c
 
 test.o: test.c $(INCLUDES)
 	$(CC) $(FLAGS) $(CFLAGS) test.c

@@ -12,7 +12,7 @@ MM=mm.o
 IRQ30=irq30.o
 
 ## deps
-MM_=gdt.o irq30.o
+MM_=gdt.o irq30.o paging.o
 
 ## sources
 GDT_SRC=gdt.c
@@ -32,6 +32,9 @@ gdt.o: $(GDT_SRC)
 
 $(IRQ30): $(IRQ30_SRC)
 	$(AS) $(ASFLAGS) -o $(IRQ30) $(IRQ30_SRC)
+
+paging.o: paging.c
+	$(CC) $(CFLAGS) paging.c -o paging.o
 
 .PHONY: clean
 clean:
