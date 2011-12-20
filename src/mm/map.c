@@ -20,7 +20,7 @@
 #include <thread.h>
 #include <boot/mboot.h>
 #include <stdlib.h>
-#include <error/error.h>
+#include <Andromeda/error.h>
 
 #define map_size (memsize/0x4)
 

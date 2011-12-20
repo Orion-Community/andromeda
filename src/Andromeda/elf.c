@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <kern/elf.h>
+#include <Andromeda/elf.h>
 #include <mm/map.h>
 
 // Just a magic number

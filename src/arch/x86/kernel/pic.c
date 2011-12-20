@@ -17,7 +17,7 @@
  */
 
 #include <stdlib.h>
-#include <error/panic.h>
+#include <Andromeda/panic.h>
 #include <arch/x86/pic.h>
 #include <arch/x86/pit.h>
 #include <arch/x86/irq.h>

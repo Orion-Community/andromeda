@@ -16,8 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <kern/sched.h>
-#include <error/error.h>
+#include <Andromeda/sched.h>
+#include <Andromeda/error.h>
 
 /**
  * If regs is a pointer to the argument provided to the ISR, this will store the

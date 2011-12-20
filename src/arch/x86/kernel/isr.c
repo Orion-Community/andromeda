@@ -19,7 +19,7 @@
 #include <arch/x86/interrupts.h>
 #include <stdlib.h>
 #include <mm/paging.h>
-#include <kern/cpu.h>
+#include <Andromeda/cpu.h>
 #include <arch/intel/task.h>
 
 /*
