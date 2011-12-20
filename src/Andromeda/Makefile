@@ -9,11 +9,11 @@ CORE=core.c
 SYSCALL=syscall.c
 
 .PHONY: all
-all: kern.o
-	mv -fv kern.o ../
+all: andromeda.o
+	mv -fv andromeda.o ../
 
-kern.o: load.o timer.o sched.o core.o syscall.o
-	$(LD) $(LDFLAGS) *.o -o kern.o
+andromeda.o: load.o timer.o sched.o core.o syscall.o
+	$(LD) $(LDFLAGS) *.o -o andromeda.o
 
 load.o: $(ELF)
 	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
