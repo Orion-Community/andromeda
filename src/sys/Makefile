@@ -9,7 +9,7 @@ ASFLAGS=-felf32 -I"../include/" $(FLAGS)
 # targets
 SYS=sys.o
 #subtargets
-SYS_DEPS=dev.o sys_.o
+SYS_DEPS=sys_.o
 
 # source files
 # STDLIB_SRC=stdlib.asm
@@ -24,10 +24,6 @@ all: $(SYS_DEPS)
 
 # keyboard.o:
 # 	$(CC) $(CFLAGS) $(FLAGS) $(KB_SRC) -o keyboard.o
-
-dev.o:
-	$(MAKE) -C dev/ $(MAKEEND)
-	mv -v dev/dev.o ./
 
 sys_.o:
 	$(CC) $(CFLAGS) $(FLAGS) $(SYS_SRC) -o sys_.o

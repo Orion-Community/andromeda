@@ -23,7 +23,7 @@ net.o:
 	$(MAKE) -C net/ $(MAKEEND)
 
 kbd.o:
-	$(CC) $(CFLAGS) $(FLAGS) kbd.c
+	$(MAKE) -C keyboard/ $(MAKEEND)
 
 disk.o:
 	$(MAKE) -C disk/ $(MAKEEND)
