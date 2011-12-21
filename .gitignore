@@ -3,7 +3,7 @@
 compressed
 core
 config
-src/andromeda
+src/andromeda.img
 *.*project
 *~
 src/scripts/floppy.img
