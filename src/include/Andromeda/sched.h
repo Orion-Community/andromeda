@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 #include <types.h>
-#include <arch/intel/task.h>
+#include <arch/x86/task.h>
 
 #ifndef __KERN_SCHED_H
 #define __KERN_SCHED_H

@@ -23,20 +23,21 @@
  * If regs is a pointer to the argument provided to the ISR, this will store the
  * registers as they existed at the time of interrupting for later rescheduling.
  */
-int save_task(thread)
-struct __THREAD_STATE *thread;
+int save_task(old_thread, new_thread)
+struct __THREAD_STATE *old_thread;
+struct __THREAD_STATE *new_thread;
 {
         if (thread == NULL)
                 return -E_NULL_PTR;
 
         /** Move the register to threads stack pointer */
         __asm__ ("mov %%esp, %0"
-                : "=r" (thread->stack)
+                : "=r" (old_thread->stack)
         );
 
         /** Save floats here */
 
-        /** Save memory segments here */
+        /** Switch memory segments here!!!
 
         return -E_SUCCESS;
 }
@@ -51,8 +52,6 @@ struct __THREAD_STATE *thread;
 {
         if (thread == NULL)
                 return -E_NULL_PTR;
-
-        /** Restore memory segments here */
 
         /** Restore floats here */
 

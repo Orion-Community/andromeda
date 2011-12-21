@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <mm/heap.h>
 #include <Andromeda/error.h>
-#include <arch/intel/task.h>
+#include <arch/x86/task.h>
 
 #define PRESENTBIT    0x01
 #define WRITEBIT      0x02
