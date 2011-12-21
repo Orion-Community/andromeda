@@ -30,7 +30,7 @@ arch.o:
 	$(MAKE) -C arch $(MAKEEND)
 
 andromeda.o:
-	$(MAKE) -C Andromeda $(MAKEEND)
+	$(MAKE) -C andromeda $(MAKEEND)
 
 mm.o:
 	$(MAKE) -C mm $(MAKEEND)
@@ -67,7 +67,7 @@ ctest: clean all
 
 .PHONY: install
 install: all
-	cp -fv ./andromeda $(DIR)/boot/andromeda/
+	cp -fv ./$(OUT) $(DIR)/boot/andromeda/
 	umount $(DIR)
 
 .PHONY: usage

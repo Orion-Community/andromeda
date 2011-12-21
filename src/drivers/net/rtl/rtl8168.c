@@ -66,6 +66,7 @@ void init_rtl_device(struct ol_pci_dev *dev)
     add_rtl_device(cfg);
   
   reset_rtl_device(cfg);
+
   read_command_registers(cmd, portbase);
   printf("Tx Enable flag: %x - RxChecksum: %x\n", cmd->reset, cmd->ccommand.rxchecksum);
 }
