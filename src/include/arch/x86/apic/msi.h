@@ -161,5 +161,4 @@ static void debug_msix_entry(struct msi_cfg *);
 #ifdef __cplusplus
 }
 #endif
-
 #endif
