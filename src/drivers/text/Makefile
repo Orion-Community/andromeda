@@ -1,5 +1,5 @@
-include ../scripts/makeIncl
-CFLAGS+=-I../include/
+include ../../scripts/makeIncl
+CFLAGS+=-I../../include/
 
 TARGETS=out.c
 DEPS=include/out.h
