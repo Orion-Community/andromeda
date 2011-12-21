@@ -20,7 +20,7 @@
 #include <mm/map.h>
 #include <stdlib.h>
 #include <mm/heap.h>
-#include <error/error.h>
+#include <Andromeda/error.h>
 #include <arch/intel/task.h>
 
 #define PRESENTBIT    0x01
@@ -176,9 +176,10 @@ void
 page_map_kernel_entry(addr_t virtual, addr_t phys)
 {
 #ifdef PAGEDBG
-	printf("Mapping virt addr %x to %x.\n",virtual,phys);
+        printf("Mapping virt addr %x to %x.\n",virtual,phys);
 #endif
-	page_map_entry(virtual&(~0xfff), phys&(~0xfff), (void*)getPageDir(), FALSE);
+        page_map_entry(virtual&(~0xfff), phys&(~0xfff), (void*)getPageDir(),
+                                                                         FALSE);
 }
 
 /**
@@ -189,45 +190,45 @@ page_map_kernel_entry(addr_t virtual, addr_t phys)
 int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
                                                                boolean userMode)
 {
-	if ((virtual % 0x1000) || (physical % 0x1000))
-		panic("AIEEE!!! Virtual or physical address not alligned!!!");
-	while(mutexTest(page_lock))
-	{
+        if ((virtual % 0x1000) || (physical % 0x1000))
+                panic("AIEEE!!! Virtual or physical address not alligned!!!");
+        while(mutexTest(page_lock))
+        {
 #ifdef PAGEDBG
-		printf("Paging is locked!\n");
+                printf("Paging is locked!\n");
 #endif
-	}
-	struct page_table* pt;
-	addr_t pd_entry = virtual >> 22 % 0x400;
-	addr_t pt_entry = (virtual >> 12) % 0x400;
+        }
+        struct page_table* pt;
+        addr_t pd_entry = virtual >> 22 % 0x400;
+        addr_t pt_entry = (virtual >> 12) % 0x400;
 
-	if (pd[pd_entry].present == FALSE)
-	{
+        if (pd[pd_entry].present == FALSE)
+        {
 #ifdef PAGEDBG
-		pt_allocs++;
+                pt_allocs++;
 #endif
-		pt = alloc(sizeof(pt)*PAGETABLES, TRUE);
-		virt_page_dir[pd_entry] = (addr_t)pt;
-		if (pt == NULL)
-		{
-			mutexRelease(page_lock);
-			ol_dbg_heap();
-			panic("NOMEM!");
-			return -E_NOMEM;
-		}
-		memset(pt, 0, sizeof(pt)*PAGETABLES);
-		pd[pd_entry].pageIdx  = ((addr_t)(pt)-offset) >> 12;
-		pd[pd_entry].present  = 1;
-		pd[pd_entry].rw       = 1;
-		pd[pd_entry].userMode = 1;
-		pd[pd_entry].pwt      = 0;
-		pd[pd_entry].pcd      = 0;
-		pd[pd_entry].accessed = 0;
-		pd[pd_entry].dirty    = 0;
-		pd[pd_entry].pageSize = 0;
-		pd[pd_entry].global   = 0;
-		pd[pd_entry].ignored  = 0;
-	}
+                pt = alloc(sizeof(pt)*PAGETABLES, TRUE);
+                virt_page_dir[pd_entry] = (addr_t)pt;
+                if (pt == NULL)
+                {
+                        mutexRelease(page_lock);
+                        ol_dbg_heap();
+                        panic("NOMEM!");
+                        return -E_NOMEM;
+                }
+                memset(pt, 0, sizeof(pt)*PAGETABLES);
+                pd[pd_entry].pageIdx  = ((addr_t)(pt)-offset) >> 12;
+                pd[pd_entry].present  = 1;
+                pd[pd_entry].rw       = 1;
+                pd[pd_entry].userMode = 1;
+                pd[pd_entry].pwt      = 0;
+                pd[pd_entry].pcd      = 0;
+                pd[pd_entry].accessed = 0;
+                pd[pd_entry].dirty    = 0;
+                pd[pd_entry].pageSize = 0;
+                pd[pd_entry].global   = 0;
+                pd[pd_entry].ignored  = 0;
+        }
 	else
 	{
 #ifdef PAGEDBG

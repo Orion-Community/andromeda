@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <kern/timer.h>
+#include <Andromeda/timer.h>
 #include <stdlib.h>
 
 struct __kern_timer

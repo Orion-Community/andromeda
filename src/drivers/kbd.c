@@ -170,7 +170,6 @@ void kb_handle(uint8_t c)
                 if(tmp == 0x2a) shiftkey ^= TRUE;
                 if(tmp == 0x36) shiftkey ^= TRUE;
                 if(tmp == 0x3a) shiftkey ^= TRUE;
-                
 	}
 
 	else
@@ -203,7 +202,7 @@ void kb_handle(uint8_t c)
                         case 0x36:
                                 shiftkey ^= TRUE;
                                 break;
-                                
+
 			case 0xe0: // escaped scan codes
 				break;
 			case 0x38:
@@ -238,11 +237,8 @@ void kb_handle(uint8_t c)
 
 static void toggle_kb_leds(uint8_t status)
 {
-        
-        
         if(!(ol_ps2_config_keyboard(0xed)))
         {
-
                 ol_ps2_config_keyboard(status);
         }
 }
@@ -256,7 +252,7 @@ top:
         while((inb(OL_KBC_STATUS_REGISTER) & 0x1) == 0);
         val = inb(OL_KBC_DATA_PORT);
         if(val == 0xfe) goto top;
-        
+
         printnum((uint32_t) val, 16, FALSE, FALSE);
         return TRUE;
 }

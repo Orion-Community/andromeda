@@ -7,7 +7,7 @@ MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __IOAPIC_DBG -D __PCI_DEBUG -D MSI -D \
 MSIX -D MSIX_DEBUG"
 #MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
-DEPS=arch.o net.o kern.o mm.o maths.o sys.o error.o fs.o drivers.o
+DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o
 
 .PHONY: all
 all: x86
@@ -29,8 +29,8 @@ $(OUT): $(DEPS)
 arch.o:
 	$(MAKE) -C arch $(MAKEEND)
 
-kern.o:
-	$(MAKE) -C kern $(MAKEEND)
+andromeda.o:
+	$(MAKE) -C andromeda $(MAKEEND)
 
 mm.o:
 	$(MAKE) -C mm $(MAKEEND)
@@ -41,9 +41,6 @@ maths.o:
 sys.o:
 	$(MAKE) -C sys $(MAKEEND)
 	mv -vf sys/sys.o ./
-
-error.o:
-	$(MAKE) -C error $(MAKEEND)
 
 drivers.o:
 	$(MAKE) -C drivers $(MAKEEND)
@@ -70,7 +67,7 @@ ctest: clean all
 
 .PHONY: install
 install: all
-	cp -fv ./andromeda $(DIR)/boot/andromeda/
+	cp -fv ./$(OUT) $(DIR)/boot/andromeda/
 	umount $(DIR)
 
 .PHONY: usage

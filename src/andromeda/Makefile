@@ -7,13 +7,14 @@ TIMER=timer.c
 SCHED=sched.c
 CORE=core.c
 SYSCALL=syscall.c
+PANIC=panic.c
 
 .PHONY: all
-all: kern.o
-	mv -fv kern.o ../
+all: andromeda.o
+	mv -fv andromeda.o ../
 
-kern.o: load.o timer.o sched.o core.o syscall.o
-	$(LD) $(LDFLAGS) *.o -o kern.o
+andromeda.o: load.o timer.o sched.o core.o syscall.o panic.o
+	$(LD) $(LDFLAGS) *.o -o andromeda.o
 
 load.o: $(ELF)
 	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
@@ -29,6 +30,9 @@ core.o: $(CORE)
 
 syscall.o: $(SYSCALL)
 	$(CC) $(CFLAGS) $(FLAGS) $(SYSCALL)
+
+panic.o: $(PANIC)
+	$(CC) $(CFLAGS) $(FLAGS) $(PANIC)
 
 .PHONY: clean
 clean:

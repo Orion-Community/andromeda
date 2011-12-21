@@ -161,7 +161,7 @@ msi_calc_msix_base(struct ol_pci_dev *dev, uint8_t cp)
 #ifdef X64
   uint64_t bar_low = ol_pci_read_dword(dev, MSIX_BAR(bar_nr));
   uint64_t bar;
-  if((bar_low & 0x6) == 2)
+  if(((bar_low & 0x6) >> 1) == 2)
   {
     uint64_t bar_hi = ol_pci_read_dword(dev, (MSIX_BAR(bar_nr)+4));
     bar = bar_low | (bar_hi << 32);

@@ -17,7 +17,7 @@
 */
 
 #include <unistd.h>
-#include <kern/elf.h>
+#include <Andromeda/elf.h>
 
 extern void asmRun(void*);
 

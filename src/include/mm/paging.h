@@ -16,11 +16,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include <kern/cpu.h>
-
 #ifndef PAGING_H
 #define PAGING_H
+
+#include <Andromeda/cpu.h>
 
 #ifdef __cplusplus
 extern "C" {
