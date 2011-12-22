@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Andromeda/syscall.h>
+#include <andromeda/syscall.h>
 
 int syscall(int call_number, int arg1, int arg2, int arg3)
 {

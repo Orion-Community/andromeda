@@ -19,7 +19,7 @@
 #ifndef PAGING_H
 #define PAGING_H
 
-#include <Andromeda/cpu.h>
+#include <andromeda/cpu.h>
 
 #ifdef __cplusplus
 extern "C" {

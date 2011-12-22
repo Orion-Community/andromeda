@@ -17,12 +17,12 @@
 */
 
 #include <stdlib.h>
-#include <Andromeda/core.h>
-#include <Andromeda/sched.h>
+#include <andromeda/core.h>
+#include <andromeda/sched.h>
 #include <fs/file.h>
 #include <fs/stream.h>
 #include <fs/path.h>
-#include <Andromeda/syscall.h>
+#include <andromeda/syscall.h>
 
 #define RL_SHUTDOWN	0x0
 #define RL_RUN0		0x1

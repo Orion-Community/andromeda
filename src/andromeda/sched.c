@@ -17,7 +17,7 @@
 */
 
 #include <stdlib.h>
-#include <Andromeda/sched.h>
+#include <andromeda/sched.h>
 
 volatile boolean scheduling = FALSE;
 

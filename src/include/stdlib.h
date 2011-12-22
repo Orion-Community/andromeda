@@ -34,10 +34,10 @@ extern "C" {
 #include <text.h>
 #include <io.h>
 #include <types.h>
-#include <Andromeda/panic.h>
-#include <Andromeda/error.h>
+#include <andromeda/panic.h>
+#include <andromeda/error.h>
 #include <mm/memory.h>
-#include <Andromeda/timer.h>
+#include <andromeda/timer.h>
 #include <math/math.h>
 #include <debug.h>
 

@@ -175,7 +175,7 @@ msi_calc_msix_base(struct ol_pci_dev *dev, uint8_t cp)
     bar &= ~3;
   else
     bar &= ~0xf;
-  
+
   page_map_kernel_entry(bar,bar); /* map the address 1:1 */
   return (volatile void*)bar;
 }

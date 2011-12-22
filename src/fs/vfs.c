@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <fs/file.h>
 #include <fs/vfs.h>
-#include <Andromeda/error.h>
+#include <andromeda/error.h>
 
 directory *root = NULL;
 

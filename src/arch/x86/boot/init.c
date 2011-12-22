@@ -30,8 +30,8 @@
 #include <version.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <Andromeda/cpu.h>
-#include <Andromeda/elf.h>
+#include <andromeda/cpu.h>
+#include <andromeda/elf.h>
 #include <mm/paging.h>
 #include <mm/map.h>
 #include <interrupts/int.h>
@@ -49,8 +49,8 @@
 #include <arch/x86/apic/apic.h>
 #include <arch/x86/acpi/acpi.h>
 
-#include <Andromeda/cpu.h>
-#include <Andromeda/core.h>
+#include <andromeda/cpu.h>
+#include <andromeda/core.h>
 
 #include <arch/x86/apic/ioapic.h>
 
