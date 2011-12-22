@@ -174,7 +174,7 @@ struct __TASK_STATE* task;
 	int i;
 	for (; itterator != NULL; itterator = itterator->next)
 	{
-		for (i=0; i < STD_LIST_SIZE; i++)
+		for (i=0; i < SCHED_LIST_SIZE; i++)
 		{
 			if (itterator->thread[i] == NULL)
 				continue;
@@ -211,7 +211,7 @@ struct __TASK_STATE* dest;
 						      carriage = carriage->next,
 						    carriage2 = carriage2->next)
 	{
-		for (idx = 0; idx < STD_LIST_SIZE; idx++)
+		for (idx = 0; idx < SCHED_LIST_SIZE; idx++)
 		{
 			if (carriage->thread[idx] == NULL)
 				continue;

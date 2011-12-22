@@ -30,7 +30,7 @@ extern "C" {
 #define STD_STACK_SIZE 0x8000
 
 /** Defines the standard size of a list element */
-#define STD_LIST_SIZE 0x10
+#define SCHED_LIST_SIZE 0x10
 
 /** Defines the standard size of a task list element */
 #define TASK_LIST_SIZE 0x100
@@ -72,7 +72,7 @@ struct __THREAD_STATE
  */
 struct __THREAD_LIST
 {
-	struct __THREAD_STATE *thread[STD_LIST_SIZE];
+	struct __THREAD_STATE *thread[SCHED_LIST_SIZE];
 
 	struct __THREAD_LIST *next;
 	struct __THREAD_LIST *prev;
