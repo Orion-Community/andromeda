@@ -50,16 +50,25 @@ struct __BLOCK_LIST_S;
 
 struct __FILE_S
 {
-        char* path;
-        uint64_t cursor;
-        uint64_t file_size;
-        uint16_t rights;
+        char* path; /** Where is this file (if relevant) */
+        uint64_t cursor_lo; /** 128-bits cursor in file */
+        uint64_t cursor_hi;
+        uint64_t file_size_lo; /** 128-bits file size */
+        uint16_t file_size_hi;
+        mutex_t file_lock; /** Is this file currently in use? */
+        uint16_t rights; /** What are the rights */
 
         struct __BLOCK_S* blocks[0xC];
 
-        struct __BLOCK_LIST_S *level0; // Pointer to list of block pointers
-        struct __BLOCK_LIST_S *level1; // Pointer to list of lists ...
-        struct __BLOCK_LIST_S *level2; // Pointer to list of lists of lists ...
+        /**
+         * Did anyone ask for listception
+         */
+
+        struct __BLOCK_LIST_S *level0; /* Pointer to list of block pointers */
+        struct __BLOCK_LIST_S *level1; /* Pointer to list of lists ... */
+        struct __BLOCK_LIST_S *level2; /* Pointer to list of lists of lists ..*/
+
+        struct __FILE_S *next;
 };
 
 struct __BLOCK_S

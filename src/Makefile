@@ -54,7 +54,6 @@ net.o:
 .PHONY: clean
 clean:
 	rm -fv $(OUT)
-	rm -fv `find -name "*.bin"`
 	rm -fv `find -name "*.o"`
 
 .PHONY: test
