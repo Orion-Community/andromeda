@@ -39,7 +39,8 @@ extern "C" {
 #define ALL_WRITE       0X080
 #define ALL_EXECUTE     0x100
 
-#define FILE_LIST_SIZE  0x40
+#define VFILE_LIST_SIZE  0x400
+#define VFILE_BLOCK_SIZE 0x1000
 
 enum seektype {SEEK_SET, SEEK_CUR, SEEK_END};
 enum list_type {blocks, lists};
@@ -53,11 +54,17 @@ struct __FILE_S
         uint64_t cursor;
         uint64_t file_size;
         uint16_t rights;
+
+        struct __BLOCK_S* blocks[0xC];
+
+        struct __BLOCK_LIST_S *level0; // Pointer to list of block pointers
+        struct __BLOCK_LIST_S *level1; // Pointer to list of lists ...
+        struct __BLOCK_LIST_S *level2; // Pointer to list of lists of lists ...
 };
 
 struct __BLOCK_S
 {
-        void* data;
+        char data[VFILE_BLOCK_SIZE];
 };
 
 struct __BLOCK_LIST_S
@@ -65,8 +72,8 @@ struct __BLOCK_LIST_S
         enum list_type type;
         union
         {
-                struct __BLOCK_S        *blocks[FILE_LIST_SIZE];
-                struct __BLOCK_LIST_S   *lists[FILE_LIST_SIZE];
+                struct __BLOCK_S*       blocks [VFILE_LIST_SIZE];
+                struct __BLOCK_LIST_S*  lists  [VFILE_LIST_SIZE];
         };
 };
 
