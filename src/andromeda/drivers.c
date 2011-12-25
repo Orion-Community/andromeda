@@ -1,5 +1,5 @@
 /*
- *  Andromeda
+ *  Andromeda, The educational operatingsystem
  *  Copyright (C) 2011  Bart Kuivenhoven
  * 
  *  This program is free software: you can redistribute it and/or modify
@@ -16,18 +16,32 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __KERN_CORE_H
-#define __KERN_CORE_H
+#include <andromeda/drivers.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void demand_key();
-void core_loop();
-
-#ifdef __cplusplus
+int device_detect_type()
+{
 }
-#endif
 
-#endif
+int device_attach_driver()
+{
+}
+
+int device_detach_driver()
+{
+}
+
+void driver_open()
+{
+}
+
+void driver_close()
+{
+}
+
+int driver_write()
+{
+}
+
+int driver_read()
+{
+}
