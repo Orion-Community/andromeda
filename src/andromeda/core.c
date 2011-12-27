@@ -19,8 +19,6 @@
 #include <stdlib.h>
 #include <andromeda/core.h>
 #include <andromeda/sched.h>
-#include <fs/file.h>
-#include <fs/stream.h>
 #include <fs/path.h>
 #include <andromeda/syscall.h>
 
@@ -50,10 +48,6 @@ void init_set(uint32_t i)
 	printf("Changing run level to %i\n", i);
 	rl = i;
 }
-
-extern void file_test(char* data);
-extern void large_file_test();
-extern void path_test(char *path);
 
 extern uint32_t key_pressed;
 
@@ -94,16 +88,6 @@ void core_loop()
 #ifdef MATH_DBG
                         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":
                                                                     "A number");
-#endif
-#ifdef STREAM_DBG
-                        demand_key();
-                        file_test("Hello world!");
-                        demand_key();
-                        large_file_test();
-                        demand_key();
-                        path_test("/proc/1");
-                        path_test("./test.sh");
-                        path_test("~/hello\\\\ world!");
 #endif
                         break;
 

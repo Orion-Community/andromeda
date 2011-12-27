@@ -21,7 +21,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <fs/file.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,14 +34,14 @@ struct device_driver
 {
         uint32_t irq;
         uint32_t device_id;
-        file_t*  device_stream;
-        int (*open) (struct device_driver* driver, int device);
-        int (*close)(struct device_driver* driver, file_t* device);
-        int (*write)(struct device_driver* driver, file_t* device, char* fmt);
-        int (*read) (struct device_driver* driver, file_t* device, char* data);
-        int (*seek) (struct device_driver* driver, long long offset,
-                                                            enum seektype from);
-        int (*irq_handle)(struct device_driver* driver);
+//         file_t*  device_stream;
+//         int (*open) (struct device_driver* driver, int device);
+//         int (*close)(struct device_driver* driver, file_t* device);
+//         int (*write)(struct device_driver* driver, file_t* device, char* fmt);
+//         int (*read) (struct device_driver* driver, file_t* device, char* data);
+//         int (*seek) (struct device_driver* driver, long long offset,
+//                                                             enum seektype from);
+//         int (*irq_handle)(struct device_driver* driver);
 };
 
 #ifdef __cplusplus
