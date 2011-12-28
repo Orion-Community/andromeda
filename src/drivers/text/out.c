@@ -29,7 +29,7 @@ void textInit()
 	scroll(VGA_HEIGHT);
 	cursor.x = 0;
 	cursor.y = 0;
-	cursor.tabwidth = 16;
+	cursor.tabwidth = 8;
 }
 
 void scroll(unsigned char lines)

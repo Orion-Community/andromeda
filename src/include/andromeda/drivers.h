@@ -19,30 +19,45 @@
 #ifndef __ANDROMEDA_DRIVERS_H
 #define __ANDROMEDA_DRIVERS_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <types.h>
+#include <thread.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * 
- */
+#define DEVICE_NAME_SIZE 0x100
 
-struct device_driver
+struct device;
+
+struct driver
 {
-        uint32_t irq;
-        uint32_t device_id;
-//         file_t*  device_stream;
-//         int (*open) (struct device_driver* driver, int device);
-//         int (*close)(struct device_driver* driver, file_t* device);
-//         int (*write)(struct device_driver* driver, file_t* device, char* fmt);
-//         int (*read) (struct device_driver* driver, file_t* device, char* data);
-//         int (*seek) (struct device_driver* driver, long long offset,
-//                                                             enum seektype from);
-//         int (*irq_handle)(struct device_driver* driver);
+        int (*discover)(struct device* dev);
+        int (*attach)(struct device* dev);
+        int (*detach)(struct device* dev);
+        int (*suspend)(struct device* dev);
+        int (*resume)(struct device* dev);
+
+        mutex_t driver_lock;
+        uint32_t attach_cnt;
 };
+
+struct device
+{
+        struct device *parent;
+        struct device *children;
+
+        struct device *next;
+
+        char   name[DEVICE_NAME_SIZE];
+
+        struct driver *driver;
+        void*  driver_data;
+
+        mutex_t device_lock;
+};
+
+int dev_init();
 
 #ifdef __cplusplus
 }

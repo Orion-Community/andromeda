@@ -25,20 +25,45 @@
 extern "C" {
 #endif
 
-struct file
+struct vfile
 {
+        struct vinode* data;
+
+        uint32_t uid;
+        uint32_t gid;
+        uint16_t rights;
 };
 
-struct dir_ent
+struct vinode
 {
+        struct vdir_ent *dir_ent;
+        struct super_block *super;
+
+        int (*read)();
+        int (*write)();
+        int (*flush)();
+};
+
+struct vdir_ent
+{
+        struct super_block* super;
+        struct vfile *data;
+        char name[];
 };
 
 struct super_block
 {
+        struct vinode *fs_root;
+
+        uint32_t file_name_size;
+
+        int (*open)();
+        int (*close)();
 };
 
-struct mount_point
+struct vmount
 {
+        struct vdir_ent *mount_point;
 };
 
 #ifdef __cplusplus

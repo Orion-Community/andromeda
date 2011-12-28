@@ -21,6 +21,7 @@
 #include <andromeda/sched.h>
 #include <fs/path.h>
 #include <andromeda/syscall.h>
+#include <andromeda/drivers.h>
 
 #define RL_SHUTDOWN	0x0
 #define RL_RUN0		0x1
@@ -88,6 +89,10 @@ void core_loop()
 #ifdef MATH_DBG
                         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":
                                                                     "A number");
+#endif
+#ifdef DEV_DBG
+                        if (dev_init() != -E_SUCCESS)
+                                panic("Couldn't initialise /dev");
 #endif
                         break;
 

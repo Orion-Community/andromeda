@@ -17,31 +17,31 @@
  */
 
 #include <andromeda/drivers.h>
+#include <stdlib.h>
 
-int device_detect_type()
+struct device dev_root;
+
+int dev_root_attach(struct device* dev)
 {
+        return -E_SUCCESS;
 }
 
-int device_attach_driver()
+int dev_root_init()
 {
+        memset(&dev_root, 0, sizeof(struct device));
+        (&dev_root)->driver = kalloc(sizeof(struct driver));
+        memset((&dev_root)->driver, 0, sizeof(struct driver));
+
+        (&dev_root)->driver->attach = dev_root_attach;
+        return -E_SUCCESS;
 }
 
-int device_detach_driver()
+int
+dev_init()
 {
-}
+        printf("Populating /dev\n");
+        dev_root_init();
 
-void driver_open()
-{
-}
-
-void driver_close()
-{
-}
-
-int driver_write()
-{
-}
-
-int driver_read()
-{
+        (&dev_root)->driver->attach (NULL);
+        return -E_SUCCESS;
 }
