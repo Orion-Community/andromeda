@@ -22,3 +22,62 @@ void init_vfs()
 {
         return;
 }
+
+struct vfs_mount* root;
+
+struct vfile*
+vfs_open (struct vdir_ent* entry)
+{
+        if (entry == NULL || entry->super == NULL || entry->super->open == NULL)
+                return NULL;
+
+        return entry->super->open(entry->super, entry);
+}
+
+int vfs_close (struct vfile* stream)
+{
+        if (stream == NULL)
+                return -E_NULL_PTR;
+
+        return -E_NOFUNCTION;
+}
+
+int vfs_read (struct vfile* stream, char* buf, size_t num)
+{
+        if (stream == NULL)
+                return -E_NULL_PTR;
+
+        return -E_NOFUNCTION;
+}
+
+int vfs_write (struct vfile* stream, char* buf, size_t num)
+{
+        if (stream == NULL)
+                return -E_NULL_PTR;
+
+        return -E_NOFUNCTION;
+}
+
+int vfs_seek (struct vfile* stream, size_t idx, seek_t from)
+{
+        if (stream == NULL)
+                return -E_NULL_PTR;
+
+        return -E_NOFUNCTION;
+}
+
+int vfs_flush (struct vfile* stream)
+{
+        if (stream == NULL)
+                return -E_NULL_PTR;
+
+        return -E_NOFUNCTION;
+}
+
+int vfs_mount(struct vfile* stream, struct vdir_ent* entry)
+{
+        if (stream == NULL || entry == NULL)
+                return -E_NULL_PTR;
+
+        return -E_NOFUNCTION;
+}

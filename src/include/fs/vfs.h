@@ -25,6 +25,8 @@
 extern "C" {
 #endif
 
+typedef enum { SEEK_SET, SEEK_CUR, SEEK_END } seek_t;
+
 struct vfile
 {
         struct vinode* data;
@@ -37,34 +39,44 @@ struct vfile
 struct vinode
 {
         struct vdir_ent *dir_ent;
-        struct super_block *super;
+        struct vsuper_block *super;
 
-        int (*read)();
-        int (*write)();
-        int (*flush)();
+        int (*close)(struct vinode* this);
+        int (*read)(struct vinode* this, char* buf, size_t num);
+        int (*write)(struct vinode* this, char* buf, size_t num);
+        int (*seek)(struct vinode* this, size_t idx, seek_t from);
+        int (*flush)(struct vinode* this);
 };
 
 struct vdir_ent
 {
-        struct super_block* super;
+        struct vsuper_block* super;
         struct vfile *data;
-        char name[];
+        char *name;
 };
 
-struct super_block
+struct vsuper_block
 {
         struct vinode *fs_root;
-
         uint32_t file_name_size;
+        struct device* dev;
 
-        int (*open)();
-        int (*close)();
+        struct vmount* mounts;
+
+        struct vfile* (*open)(struct vsuper_block* this, struct vdir_ent* entry);
 };
 
 struct vmount
 {
         struct vdir_ent *mount_point;
+        struct vmount* next;
 };
+
+struct vfile*   vfs_open(struct vdir_ent* entry);
+int             vfs_close(struct vfile* stream);
+int             vfs_read(struct vfile* stream, char* buf, size_t num);
+int             vfs_write(struct vfile* stream, char* buf, size_t num);
+int             vfs_seek(struct vfile* stream, size_t idx, seek_t from);
 
 #ifdef __cplusplus
 }

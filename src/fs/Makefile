@@ -6,7 +6,7 @@ INCLUDES=../include/fs/stream.h ../include/fs/file.h ../include/fs/vfs.h\
 ../include/fs/path.h
 
 .PHONY: all
-all: path.o rfs.o vfs.o
+all: path.o ramfs.o vfs.o devfs.o
 	$(LD) -o fs.o *.o $(LDFLAGS)
 	mv fs.o ../
 
@@ -16,5 +16,10 @@ path.o: path.c
 vfs.o: vfs.c
 	$(CC) $(CFLAGS) $(FLAGS) vfs.c
 
-rfs.o:
-	$(MAKE) -C rfs/
+ramfs.o:
+	$(MAKE) -C ramfs/
+	mv rfs.o ramfs.o
+
+devfs.o:
+	$(MAKE) -C devfs/
+	mv dfs.o devfs.o
