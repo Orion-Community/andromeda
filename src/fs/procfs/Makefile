@@ -4,9 +4,9 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 
 .PHONY: all
-all: devfs.o
-	$(LD) -o dfs.o *.o $(LDFLAGS)
-	mv dfs.o ../
+all: pfs.o
+	$(LD) -o procfs.o *.o $(LDFLAGS)
+	mv procfs.o ../
 
-devfs.o: devfs.c
-	$(CC) $(CFLAGS) $(FLAGS) devfs.c
+pfs.o: procfs.c
+	$(CC) $(CFLAGS) $(FLAGS) procfs.c -o pfs.o

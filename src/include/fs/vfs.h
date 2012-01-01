@@ -40,6 +40,8 @@ struct vinode
 {
         struct vdir_ent *dir_ent;
         struct vsuper_block *super;
+        size_t fs_data_size;
+        void* fs_data;
 
         int (*close)(struct vinode* this);
         int (*read)(struct vinode* this, char* buf, size_t num);
@@ -58,8 +60,11 @@ struct vdir_ent
 struct vsuper_block
 {
         struct vinode *fs_root;
-        uint32_t file_name_size;
         struct device* dev;
+
+        size_t file_name_size;
+        size_t fs_data_size;
+        void* fs_data;
 
         struct vmount* mounts;
 

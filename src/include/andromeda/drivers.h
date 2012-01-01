@@ -28,6 +28,16 @@ extern "C" {
 
 #define DEVICE_NAME_SIZE 0x100
 
+typedef enum {
+        disk,
+        tty,
+        cpu,
+        apic,
+        pit,
+        pci,
+        usb
+} device_type_t;
+
 struct device;
 
 struct driver
@@ -51,8 +61,12 @@ struct device
 
         char   name[DEVICE_NAME_SIZE];
 
+        device_type_t type;
+
         struct driver *driver;
-        void*  driver_data;
+
+        size_t device_data_size;
+        void*  device_data;
 
         mutex_t device_lock;
 };
