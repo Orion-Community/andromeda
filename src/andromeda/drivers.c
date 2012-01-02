@@ -32,6 +32,37 @@ int drv_root_dummy(struct device* root)
 {
         return 0; // We found 0 of them since it's a virtual bus ...
 }
+
+int drv_root_suspend(struct device* root)
+{
+        struct device* cariage = root->children;
+        while (cariage != NULL)
+        {
+                if (cariage->driver == NULL)
+                        continue;
+                if (cariage->driver->suspend != NULL)
+                        cariage->driver->suspend(cariage);
+                else
+                        panic("Unable to suspend a device!");
+        }
+        return 0; // We found 0 of them since it's a virtual bus ...
+}
+
+int drv_root_resume(struct device* root)
+{
+        struct device* cariage = root->children;
+        while (cariage != NULL)
+        {
+                if (cariage->driver == NULL)
+                        continue;
+                if (cariage->driver->resume != NULL)
+                        cariage->driver->resume(cariage);
+                else
+                        panic("Unable to suspend a device!");
+        }
+        return 0; // We found 0 of them since it's a virtual bus ...
+}
+
 int drv_root_init(struct device* dev)
 {
         dev->type = virtual_bus;
@@ -39,8 +70,8 @@ int drv_root_init(struct device* dev)
 
         dev->driver->detect = drv_root_dummy;
         dev->driver->detach = drv_root_dummy;
-        dev->driver->suspend = drv_root_dummy;
-        dev->driver->resume = drv_root_dummy;
+        dev->driver->suspend = drv_root_suspend;
+        dev->driver->resume = drv_root_resume;
 
         return -E_SUCCESS;
 }
