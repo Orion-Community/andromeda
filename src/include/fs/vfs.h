@@ -29,37 +29,32 @@ typedef enum { SEEK_SET, SEEK_CUR, SEEK_END } seek_t;
 
 struct vfile
 {
-        struct vinode* data;
-
         uint32_t uid;
         uint32_t gid;
         uint16_t rights;
-};
 
-struct vinode
-{
         struct vdir_ent *dir_ent;
         struct vsuper_block *super;
         size_t fs_data_size;
         void* fs_data;
 
-        int (*close)(struct vinode* this);
-        int (*read)(struct vinode* this, char* buf, size_t num);
-        int (*write)(struct vinode* this, char* buf, size_t num);
-        int (*seek)(struct vinode* this, size_t idx, seek_t from);
-        int (*flush)(struct vinode* this);
+        int (*close)(struct vfile* this);
+        int (*read)(struct vfile* this, char* buf, size_t num);
+        int (*write)(struct vfile* this, char* buf, size_t num);
+        int (*seek)(struct vfile* this, size_t idx, seek_t from);
+        int (*flush)(struct vfile* this);
 };
 
 struct vdir_ent
 {
         struct vsuper_block* super;
-        struct vfile *data;
+        struct vfile* data;
         char *name;
 };
 
 struct vsuper_block
 {
-        struct vinode *fs_root;
+        struct vfile* fs_root;
         struct device* dev;
 
         size_t file_name_size;

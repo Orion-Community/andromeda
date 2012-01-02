@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fs/vfs.h>
+#include <fs/ramfs.h>
 #include <andromeda/drivers.h>
 
 struct ramfs_block*
@@ -48,7 +49,8 @@ ram_fs_init(struct device* drive)
         }
         else
         {
-                goto err;
+                goto dev_alloc;
+                // Going to err will do for now ...
         }
 
         return super;

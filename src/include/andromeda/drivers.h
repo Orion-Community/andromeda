@@ -19,8 +19,8 @@
 #ifndef __ANDROMEDA_DRIVERS_H
 #define __ANDROMEDA_DRIVERS_H
 
-#include <types.h>
-#include <thread.h>
+#include <stdlib.h>
+#include <fs/vfs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,13 +29,18 @@ extern "C" {
 #define DEVICE_NAME_SIZE 0x100
 
 typedef enum {
+        root_bus,
         disk,
+        partition,
         tty,
         cpu,
         apic,
         pit,
         pci,
-        usb
+        usb,
+        virt_bus,
+        legacy_bus,
+        ata
 } device_type_t;
 
 struct device;
@@ -48,12 +53,15 @@ struct driver
         int (*suspend)(struct device* dev);
         int (*resume)(struct device* dev);
 
+        struct vfile *io;
+
         mutex_t driver_lock;
         uint32_t attach_cnt;
 };
 
 struct device
 {
+        struct vfile* (*open)(struct device* this);
         struct device *parent;
         struct device *children;
 

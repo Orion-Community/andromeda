@@ -27,22 +27,24 @@ extern "C" {
 
 typedef enum {list, block_list} ramfs_list_type;
 
-struct ramfs_block_list
+struct ramfs_blocks
 {
         ramfs_list_type type;
         union {
                 struct ramfs_block_list* lists[RAMFS_LIST_SIZE];
                 struct ramfs_block* blocks[RAMFS_LIST_SIZE];
         };
-}
+};
 
 struct ramfs_inode
 {
-
-}
+        size_t file_size;
+        /** List of blocks ... */
+};
 
 struct ramfs_block
 {
+        /** Actual block of data */
 };
 
 #ifdef __cplusplus
