@@ -3,11 +3,11 @@ CFLAGS+=-I../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 # TARGETS
-TARGETS=text.o net.o kbd.o disk.o pci.o
+TARGETS=text.o net.o kbd.o disk.o pci.o root.o
 
 .PHONY: all
 all: drivers.o
-	
+
 
 drivers.o: $(TARGETS)
 	$(LD) $(LDFLAGS) -o drivers.o $(TARGETS)
@@ -31,6 +31,9 @@ disk.o:
 
 pci.o:
 	$(MAKE) -C pci/ $(MAKEEND)
+
+root.o: root.c
+	$(CC) $(CFLAGS) $(FLAGS) root.c
 
 .PHONY: clean
 clean:
