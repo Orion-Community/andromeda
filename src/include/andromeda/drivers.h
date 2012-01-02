@@ -29,7 +29,7 @@ extern "C" {
 #define DEVICE_NAME_SIZE 0x100
 
 typedef enum {
-        root_bus,
+        virtual_bus,
         disk,
         partition,
         tty,
@@ -38,8 +38,6 @@ typedef enum {
         pit,
         pci,
         usb,
-        virt_bus,
-        legacy_bus,
         ata
 } device_type_t;
 
@@ -47,7 +45,7 @@ struct device;
 
 struct driver
 {
-        int (*discover)(struct device* dev);
+        int (*detect)(struct device* dev);
         int (*attach)(struct device* dev);
         int (*detach)(struct device* dev);
         int (*suspend)(struct device* dev);
@@ -62,6 +60,7 @@ struct driver
 struct device
 {
         struct vfile* (*open)(struct device* this);
+
         struct device *parent;
         struct device *children;
 
