@@ -25,13 +25,20 @@
 extern "C" {
 #endif
 
+#define DIR_LIST_SIZE 0xFF
+
 typedef enum { SEEK_SET, SEEK_CUR, SEEK_END } seek_t;
+typedef enum {dir, block_dev, char_dev, file} file_type_t;
+
+struct vsuper_block;
 
 struct vfile
 {
         uint32_t uid;
         uint32_t gid;
         uint16_t rights;
+
+        file_type_t type;
 
         struct vdir_ent *dir_ent;
         struct vsuper_block *super;
@@ -50,6 +57,13 @@ struct vdir_ent
         struct vsuper_block* super;
         struct vfile* data;
         char *name;
+};
+
+struct vdir
+{
+        struct vdir_ent*        entries[DIR_LIST_SIZE];
+        struct vdir*            next;
+        struct vsuper_block*    mounted;
 };
 
 struct vsuper_block

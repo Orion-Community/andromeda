@@ -38,6 +38,10 @@ int drv_root_init(struct device* dev)
         dev->driver->suspend = drv_root_suspend;
         dev->driver->resume = drv_root_resume;
 
+        dev->driver->io = kalloc(sizeof(struct vfile));
+        if (dev->driver->io == NULL)
+                panic("Couln't start the root drive");
+
         return -E_SUCCESS;
 }
 

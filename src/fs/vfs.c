@@ -36,15 +36,22 @@ vfs_open (struct vdir_ent* entry)
 
 int vfs_close (struct vfile* stream)
 {
-        if (stream == NULL)
+        if (stream == NULL || stream->close == NULL)
                 return -E_NULL_PTR;
 
-        return -E_NOFUNCTION;
+        int ret = stream->close(stream);
+        if (ret == -E_SUCCESS)
+        {
+                free(stream);
+                return -E_SUCCESS;
+        }
+        else
+                return ret;
 }
 
 int vfs_read (struct vfile* stream, char* buf, size_t num)
 {
-        if (stream == NULL)
+        if (stream == NULL || stream->read == NULL)
                 return -E_NULL_PTR;
 
         return -E_NOFUNCTION;
@@ -52,7 +59,7 @@ int vfs_read (struct vfile* stream, char* buf, size_t num)
 
 int vfs_write (struct vfile* stream, char* buf, size_t num)
 {
-        if (stream == NULL)
+        if (stream == NULL || stream->write == NULL)
                 return -E_NULL_PTR;
 
         return -E_NOFUNCTION;
@@ -60,7 +67,7 @@ int vfs_write (struct vfile* stream, char* buf, size_t num)
 
 int vfs_seek (struct vfile* stream, size_t idx, seek_t from)
 {
-        if (stream == NULL)
+        if (stream == NULL || stream->seek == NULL)
                 return -E_NULL_PTR;
 
         return -E_NOFUNCTION;
@@ -68,7 +75,7 @@ int vfs_seek (struct vfile* stream, size_t idx, seek_t from)
 
 int vfs_flush (struct vfile* stream)
 {
-        if (stream == NULL)
+        if (stream == NULL || stream->flush == NULL)
                 return -E_NULL_PTR;
 
         return -E_NOFUNCTION;
