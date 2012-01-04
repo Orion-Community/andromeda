@@ -25,7 +25,7 @@ extern "C" {
 
 #define ANDROMEDA_VERSION "0.1.0"
 
-/* 
+/*
  * ANDROMEDA_MAGIC can be used to identify several data structures within the
  * kernel
  */
@@ -62,7 +62,7 @@ struct segments
 	uint16_t fs;
 	uint16_t gs;
 	uint16_t ss;
-	
+
 } __attribute__((packed));
 typedef struct segments *and_segments_t;
 
@@ -71,6 +71,7 @@ extern uint32_t rodata;
 extern void start();
 void reboot();
 void shutdown();
+void warning(char* msg);
 
 #ifdef __cplusplus
 }

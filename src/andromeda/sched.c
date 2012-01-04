@@ -105,7 +105,7 @@ struct __TASK_STATE* task;
 			mutex_unlock(sched_lock);
 			return -1;
 		}
-		memset(task_stack->branch[branch_idx], 0, 
+		memset(task_stack->branch[branch_idx], 0,
 					     sizeof(struct __TASK_BRANCH_NODE));
 		task_stack->branch[branch_idx]->type = task_list;
 	}
@@ -147,7 +147,7 @@ int task_setup_tree()
 
 /**
  * Set up a new scheduling quantum
- */ 
+ */
 void get_new_quantum()
 {
 	panic("No tasks to build quantum");
@@ -240,8 +240,8 @@ struct __TASK_STATE* dest;
  */
 int fork()
 {
-	printf("WARNING! In fork the registers copied probably aren't "
-							       "up-to-date!\n");
+        warning("WARNING! In fork the registers copied probably aren't "
+                                                               "up-to-date");
 
 	struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
 	if (new == NULL)
@@ -372,7 +372,7 @@ int task_init()
 	thread->ss_size = STD_STACK_SIZE;
 
 	/** Where can we find more info if swapped out? */
-	printf("WARNING! No path to kernel binary!\n");
+        warning("WARNING! No path to kernel binary");
 	kern->path_to_bin = NULL;
 
 	kern->state = runnable;

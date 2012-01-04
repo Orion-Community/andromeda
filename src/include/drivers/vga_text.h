@@ -28,6 +28,13 @@ int vga_text_read(struct vfile*  this, char* buf, size_t num);
 int vga_text_seek(struct vfile*  this, size_t num, seek_t from);
 int vga_text_flush(struct vfile* this);
 int vga_text_close(struct vfile* this);
+int vga_text_detect(struct device* this);
+int vga_text_attach(struct device* this);
+int vga_text_detach(struct device* this);
+int vga_text_suspend(struct device* this);
+int vga_text_resume(struct device* this);
+
+struct vfile* vga_text_open(struct device *this);
 
 #ifdef __cplusplus
 }

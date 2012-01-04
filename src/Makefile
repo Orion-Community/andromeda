@@ -59,7 +59,7 @@ clean:
 .PHONY: test
 test: all
 	qemu -m 64M -kernel $(OUT) -monitor stdio
-	
+
 .PHONY: ctest
 ctest: clean all
 	qemu -m 64M -kernel $(OUT) -monitor stdio
