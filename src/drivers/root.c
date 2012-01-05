@@ -27,6 +27,11 @@ int drv_root_dummy(struct device* root)
         return 0; // We found 0 of them since it's a virtual bus ...
 }
 
+struct device* drv_root_dev_dummy(struct device* root)
+{
+        return NULL;
+}
+
 int drv_root_suspend(struct device* root)
 {
         struct device* cariage = root->children;

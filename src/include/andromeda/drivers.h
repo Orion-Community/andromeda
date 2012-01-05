@@ -45,7 +45,7 @@ struct device;
 
 struct driver
 {
-        int (*detect)(struct device* dev);
+        struct device* (*detect)(struct device* dev);
         int (*attach)(struct device* dev);
         int (*detach)(struct device* dev);
         int (*suspend)(struct device* dev);

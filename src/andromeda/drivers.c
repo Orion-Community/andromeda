@@ -33,14 +33,14 @@ int drv_root_init(struct device* dev)
         dev->type = virtual_bus;
         dev->parent = dev;
 
-        dev->driver->detect = drv_root_dummy;
+        dev->driver->detect = drv_root_dev_dummy;
         dev->driver->detach = drv_root_dummy;
         dev->driver->suspend = drv_root_suspend;
         dev->driver->resume = drv_root_resume;
 
         dev->driver->io = kalloc(sizeof(struct vfile));
         if (dev->driver->io == NULL)
-                panic("Couln't start the root drive");
+                panic("");
 
         return -E_SUCCESS;
 }

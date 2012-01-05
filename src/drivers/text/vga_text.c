@@ -21,6 +21,10 @@
 #include <andromeda/drivers.h>
 #include <drivers/vga_text.h>
 
+static int vga_text_count = 0;
+static mutex_t vga_text_lock = mutex_unlocked;
+static struct device* vga_dev = NULL;
+
 static int vga_text_read(struct vfile*  this, char* buf, size_t num)
 {
         warning("vga_text_read not implemented!\n");
@@ -63,13 +67,6 @@ static int vga_text_resume(struct device* this)
         return -E_NOFUNCTION;
 }
 
-static int vga_text_detect(struct device* this)
-{
-        /** Return the number of sub-devices attached to this device */
-        warning("vga_text_detected is dummy!\n");
-        return 0;
-}
-
 static int vga_text_detach(struct device* this)
 {
         warning("vga_text_detach not implemented!");
@@ -82,10 +79,51 @@ static int vga_text_suspend(struct device* this)
         return -E_NOFUNCTION;
 }
 
+/**
+ * return the first, unattached vga_text device
+ */
+struct device* vga_text_detect(struct device* this)
+{
+        mutex_lock(vga_text_lock);
+        if (vga_text_count != 0)
+        {
+                mutex_unlock(vga_text_lock);
+                return NULL;
+        }
+
+        struct device* dev = kalloc(sizeof(struct device));
+        if (dev == NULL)
+        {
+                mutex_unlock(vga_text_lock);
+                return NULL;
+        }
+        memset(dev, 0, sizeof(struct device));
+
+        dev->device_data = (void*)0xB8000;
+        dev->device_data_size = 0x1000;
+
+        if (vga_text_attach(dev) != -E_SUCCESS)
+        {
+                free(dev);
+                mutex_unlock(vga_text_lock);
+                return NULL;
+        }
+        vga_dev = dev;
+
+        vga_text_count++;
+        mutex_unlock(vga_text_lock);
+        return dev;
+}
+
+/**
+ * Attach the basic driver functions to the driver structure
+ */
 int vga_text_attach(struct device* this)
 {
         if (this->driver == NULL)
                 this->driver = kalloc(sizeof(struct driver));
+        if (this->driver == NULL)
+                return -E_NOMEM;
 
         this->open = vga_text_open;
         this->driver->attach = vga_text_attach;
@@ -93,5 +131,6 @@ int vga_text_attach(struct device* this)
         this->driver->suspend = vga_text_suspend;
         this->driver->detach = vga_text_detach;
         this->driver->resume = vga_text_resume;
+
         return -E_SUCCESS;
 }
