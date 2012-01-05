@@ -21,11 +21,65 @@
 #include <andromeda/drivers.h>
 #include <drivers/vga_text.h>
 
-int vga_text_detect(struct device* this)
+static int vga_text_read(struct vfile*  this, char* buf, size_t num)
+{
+        warning("vga_text_read not implemented!\n");
+        return -E_NOFUNCTION;
+}
+
+static int vga_text_seek(struct vfile*  this, size_t num, seek_t from)
+{
+        warning("vga_text_seek not implemented!\n");
+        return -E_NOFUNCTION;
+}
+
+static int vga_text_flush(struct vfile* this)
+{
+        warning("vga_text_flush not implemented!\n");
+        return -E_NOFUNCTION;
+}
+
+static int vga_text_close(struct vfile* this)
+{
+        warning("ga_text_close not implemented!\n");
+        return -E_NOFUNCTION;
+}
+
+static int vga_text_write(struct vfile* this, char* buf, size_t num)
+{
+        warning("vga_text_write not implemented!");
+        return -E_NOFUNCTION;
+}
+
+static struct vfile* vga_text_open(struct device *this)
+{
+        warning("vga_text_open not implemented!\n");
+        return NULL;
+}
+
+static int vga_text_resume(struct device* this)
+{
+        warning("vga_text_resume not implemented!");
+        return -E_NOFUNCTION;
+}
+
+static int vga_text_detect(struct device* this)
 {
         /** Return the number of sub-devices attached to this device */
         warning("vga_text_detected is dummy!\n");
         return 0;
+}
+
+static int vga_text_detach(struct device* this)
+{
+        warning("vga_text_detach not implemented!");
+        return -E_NOFUNCTION;
+}
+
+static int vga_text_suspend(struct device* this)
+{
+        warning("vga_text_suspend not implemented!");
+        return -E_NOFUNCTION;
 }
 
 int vga_text_attach(struct device* this)
@@ -40,56 +94,4 @@ int vga_text_attach(struct device* this)
         this->driver->detach = vga_text_detach;
         this->driver->resume = vga_text_resume;
         return -E_SUCCESS;
-}
-
-int vga_text_detach(struct device* this)
-{
-        warning("vga_text_detach not implemented!");
-        return -E_NOFUNCTION;
-}
-int vga_text_suspend(struct device* this)
-{
-        warning("vga_text_suspend not implemented!");
-        return -E_NOFUNCTION;
-}
-int vga_text_resume(struct device* this)
-{
-        warning("vga_text_resume not implemented!");
-        return -E_NOFUNCTION;
-}
-
-struct vfile* vga_text_open(struct device *this)
-{
-        warning("vga_text_open not implemented!\n");
-        return NULL;
-}
-
-int vga_text_write(struct vfile* this, char* buf, size_t num)
-{
-        warning("vga_text_write not implemented!");
-        return -E_NOFUNCTION;
-}
-
-int vga_text_read(struct vfile*  this, char* buf, size_t num)
-{
-        warning("vga_text_read not implemented!\n");
-        return -E_NOFUNCTION;
-}
-
-int vga_text_seek(struct vfile*  this, size_t num, seek_t from)
-{
-        warning("vga_text_seek not implemented!\n");
-        return -E_NOFUNCTION;
-}
-
-int vga_text_flush(struct vfile* this)
-{
-        warning("vga_text_flush not implemented!\n");
-        return -E_NOFUNCTION;
-}
-
-int vga_text_close(struct vfile* this)
-{
-        warning("ga_text_close not implemented!\n");
-        return -E_NOFUNCTION;
 }
