@@ -45,7 +45,6 @@ struct buffer_list
 
 struct buffer
 {
-        idx_t index;
         size_t buffer_size;
 
         struct buffer_block* direct[BUFFER_LIST_SIZE];
@@ -53,8 +52,11 @@ struct buffer
         struct buffer_list* double_indirect;
         struct buffer_list* triple_indirect;
 
-        int (*read)(struct buffer* this, char* buf, size_t num);
-        int (*write)(struct buffer* this, char* buf, size_t num);
+        atomic_t opened;
+
+        struct buffer* duplicate(struct buffer* this);
+        int (*read)(struct buffer* this, char* buf, size_t num, idx_t offset);
+        int (*write)(struct buffer* this, char* buf, size_t num, idx_t offset);
         int (*close)(struct buffer* this);
 };
 

@@ -38,6 +38,13 @@ int buffer_close(struct buffer* this)
         return -E_NOFUNCTION;
 }
 
+static struct buffer*
+buffer_duplicate(struct buffer *this)
+{
+        warning("Buffer duplication not yet implemented");
+        return NULL;
+}
+
 struct buffer*
 buffer_init()
 {

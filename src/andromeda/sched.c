@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <andromeda/sched.h>
+#include <thread.h>
 
 volatile boolean scheduling = FALSE;
 
@@ -412,4 +413,28 @@ void print_task_stack()
 					itterator->task[idx & 0xFF]->parent_id);
 		}
 	}
+}
+
+int64_t atomic_add(atomic_t* d, int cnt)
+{
+        mutex_lock(d->lock);
+        d->cnt += cnt;
+        int64_t ret = d->cnt;
+        mutex_unlock(d->lock);
+        return ret;
+}
+
+int64_t atomic_sub(atomic_t* d, int cnt)
+{
+        return (atomic_add(d, -cnt));
+}
+
+int64_t atomic_inc(atomic_t* d)
+{
+        return (atomic_add(d, 1));
+}
+
+int64_t atomic_dec(atomic_t* d)
+{
+        return (atomic_add(d, -1));
 }
