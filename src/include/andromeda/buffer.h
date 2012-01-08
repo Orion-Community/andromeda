@@ -54,7 +54,7 @@ struct buffer
 
         atomic_t opened;
 
-        struct buffer* duplicate(struct buffer* this);
+        struct buffer* (*duplicate)(struct buffer* this);
         int (*read)(struct buffer* this, char* buf, size_t num, idx_t offset);
         int (*write)(struct buffer* this, char* buf, size_t num, idx_t offset);
         int (*close)(struct buffer* this);
