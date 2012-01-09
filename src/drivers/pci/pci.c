@@ -283,9 +283,9 @@ debug_pci_print_cp_list(struct ol_pci_dev * dev)
   for(; cp != 0x0; cp = (cp_list>>8)&0xff, cp_list =
       ol_pci_read_dword(dev, (uint16_t)cp&0xff))
   {
-    if((cp_list & 0xff) == 0x11)
+    if((cp_list & 0xff) == 0x5)
     {
-      msi_create_msix_entry(dev, cp);
+//       msi_create_msix_entry(dev, cp);
       init_device_control(dev);
     }
     else

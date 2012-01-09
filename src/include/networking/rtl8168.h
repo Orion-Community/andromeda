@@ -117,9 +117,9 @@ static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
 void init_network();
 
-static inline get_rtl_port_base(struct ol_pci_dev *dev)
+static inline uint32_t get_rtl_port_base(struct ol_pci_dev *dev, uint8_t offset)
 {
-  return (uint16_t)(ol_pci_read_dword(dev, 0x10)&PCI_IO_SPACE_MASK);
+  return (uint32_t)(ol_pci_read_dword(dev, 0x10+offset)&PCI_IO_SPACE_MASK);
 }
 
 #ifdef __cplusplus
