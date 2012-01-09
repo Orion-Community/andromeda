@@ -28,19 +28,22 @@ extern "C"
 #endif
 
 #define IOAPIC_DATA_ADDRESS(x) (volatile uint32_t*)(((volatile void*)x)+0x10)
+#define MAX_IO_PIN 24
+#define REDIR_TABLE_OFFSET 0x10
+
+/* Destination modes */
+#define PHYS_MODE 0
+#define LOG_MODE 1
+
+/* Interrupt pin polarity */
+#define ACTIVE_HIGH 0
+#define ACTIVE_LOW 1
+
+/* INT MASKS */
+#define INT_MASK 1
+#define INT_NO_MASK 0
 
 typedef uint32_t ioapic_addr_t;
-typedef struct ioapic
-{
-  uint8_t id;
-  uint8_t apic_id:4;
-  uint32_t int_base /* system interrupt base */, num_intr;
-  volatile ioapic_addr_t* address;
-  void (*write)(struct ioapic*, const uint8_t, const uint32_t);
-  uint32_t (*read)(struct ioapic*, const uint8_t);
-  struct ioapic *next;
-  struct iopin *pin;
-} *ioapic_t;
 
 typedef struct iopin
 {
@@ -51,10 +54,23 @@ typedef struct iopin
   int intpol : 1;
   int remote_irr : 1;
   int trig_mode : 1;
-  int trig_mask : 1;
-  uint64_t reserved : 39;
+  int int_mask : 1;
   int destfield : 8;
 } *iopin_t;
+
+typedef struct ioapic
+{
+  uint8_t id;
+  uint8_t apic_id:4;
+  uint32_t int_base /* system interrupt base */, num_intr;
+  volatile ioapic_addr_t* address;
+  void (*write)(struct ioapic*, const uint8_t, const uint32_t);
+  uint32_t (*read)(struct ioapic*, const uint8_t);
+  struct ioapic *next;
+  struct iopin pin[24];
+} *ioapic_t;
+
+static void add_io_pin(struct ioapic *, struct iopin *, int);
 
 static struct ioapic*
 create_ioapic (ol_madt_ioapic_t madt_io);

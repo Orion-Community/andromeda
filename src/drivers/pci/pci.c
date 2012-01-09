@@ -223,8 +223,8 @@ init_device_control(struct ol_pci_dev *dev)
   switch(dev->class)
   {
     case 0x2:
-      if(!dev->subclass)
-        init_rtl_device(dev);
+//       if(!dev->subclass)
+//         init_rtl_device(dev);
       break;
 
     default:

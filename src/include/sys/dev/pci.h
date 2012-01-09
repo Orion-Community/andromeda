@@ -57,6 +57,12 @@ extern "C"
 #define PCI_MECH_1 0x1
 #define PCI_MECH_2 0x2
 
+/*
+ * Class code definitions
+ */
+#define NIC 0x2
+#define NIC_ETHERNET 0x0
+
   typedef uint32_t ol_pci_addr_t;
   typedef uint32_t ol_pci_id_t;
 
@@ -82,7 +88,7 @@ extern "C"
                      */
     uint32_t (*read)(struct ol_pci_dev*, uint16_t);
   };
-  typedef struct ol_pci_dev *ol_pci_dev_t;
+  typedef struct ol_pci_dev *pci_dev_t;
   
   typedef struct ol_pci_node
   {
@@ -151,8 +157,9 @@ extern "C"
   
   static void config_msix(struct ol_pci_dev *, uint32_t, uint8_t);
   
-  static void
-  debug_pci_list();
+  static void debug_pci_list();
+  
+  extern struct ol_pci_node* pcidevs;
 #ifdef	__cplusplus
 }
 #endif

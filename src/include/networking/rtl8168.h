@@ -115,6 +115,7 @@ static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
 static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
+void init_network();
 
 static inline get_rtl_port_base(struct ol_pci_dev *dev)
 {

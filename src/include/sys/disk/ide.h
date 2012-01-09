@@ -68,7 +68,7 @@ typedef struct ol_ata_dev
         uint16_t base_port;
         uint16_t dcr; /* device control register */
         uint8_t slave;
-        ol_pci_dev_t pci_dev;
+        pci_dev_t pci_dev;
 } *ol_ata_dev_t;
 
 /**

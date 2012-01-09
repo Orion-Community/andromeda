@@ -101,53 +101,54 @@ boolean setupCore(module_t mod)
 
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
-	init_heap();
-	complement_heap(&end, HEAPSIZE);
-	textInit();
-	addr_t tmp = (addr_t)hdr + offset;
-	hdr = (multiboot_info_t*)tmp;
+  init_heap();
+  complement_heap(&end, HEAPSIZE);
+  textInit();
+  addr_t tmp = (addr_t)hdr + offset;
+  hdr = (multiboot_info_t*)tmp;
 
-	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
-	{
-		printf("\nInvalid magic word: %X\n", magic);
-		panic("");
-	}
-	if (hdr->flags & MULTIBOOT_INFO_MEMORY)
-	{
-		memsize = hdr->mem_upper;
-		memsize += 1024;
-	}
-	else
-	{
-		panic("No memory flags!");
-	}
-	if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
-	{
-		mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
-		build_map(mmap, (unsigned int) hdr->mmap_length);
-	}
-	else
-	{
-		panic("Invalid memory map");
-	}
+  if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
+  {
+    printf("\nInvalid magic word: %X\n", magic);
+    panic("");
+  }
+  if (hdr->flags & MULTIBOOT_INFO_MEMORY)
+  {
+    memsize = hdr->mem_upper;
+    memsize += 1024;
+  }
+  else
+  {
+    panic("No memory flags!");
+  }
+  if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
+  {
+    mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
+    build_map(mmap, (unsigned int) hdr->mmap_length);
+  }
+  else
+  {
+    panic("Invalid memory map");
+  }
 
-	page_init();
-	printf("%s\n", welcome);
-	setGDT();
-	page_unmap_low_mem();
-	pic_init();
-	setIDT();
+  page_init();
+  printf("%s\n", welcome);
+  setGDT();
+  page_unmap_low_mem();
+  pic_init();
+  setIDT();
 
-	printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
-	ol_cpu_t cpu = kalloc(sizeof (*cpu));
-	ol_cpu_init(cpu);
-	acpi_init();
+  printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
+  ol_cpu_t cpu = kalloc(sizeof (*cpu));
+  ol_cpu_init(cpu);
+  acpi_init();
 
   ol_ps2_init_keyboard();
   ol_apic_init(cpu);
   init_ioapic();
   setup_irq_data();
   ol_pci_init();
+  init_network();
 
 #ifdef __IOAPIC_DBG
 	ioapic_debug();

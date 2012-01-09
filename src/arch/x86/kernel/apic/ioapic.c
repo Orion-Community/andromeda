@@ -119,9 +119,26 @@ static int
 program_ioapic_pin(struct ioapic *io, int pin, int irq)
 {
   struct irq_cfg *cfg = get_irq_cfg(irq);
+  struct iopin *iopin = &(io->pin[pin]);
+  
+  iopin->vector = cfg->vector;
+  iopin->delmod = cfg->delivery_mode;
+  iopin->destmod = PHYS_MODE;
+  iopin->deliv_state = ((io->read(io, REDIR_TABLE_OFFSET+(pin*2))) >> 12) & 1;
+  iopin->intpol = ACTIVE_HIGH;
+  iopin->remote_irr = (cfg->trigger) ?
+                        (((io->read(io, REDIR_TABLE_OFFSET+(pin*2))) >> 14) & 1)
+                        : 0;
+  iopin->trig_mode = cfg->trigger;
+  iopin->int_mask = INT_NO_MASK;
+  iopin->destfield = io->apic_id;
   
   return 0;
 }
+
+static void
+add_io_pin(struct ioapic *io, struct iopin *pin, int num)
+{}
 
 static int
 write_ioapic_pin(struct iopin *pin)

@@ -51,32 +51,32 @@ void init_rtl_device(struct ol_pci_dev *dev)
   cfg->portbase = portbase;
   if(cmd == NULL)
     return;
-
-  cmd->ccommand.rxvlan = 1;
-  cmd->ccommand.rxchecksum = 1;
-  cmd->tx_enable = 1;
-  cmd->rx_enable = 1;
-  cmd->reset = 0;
-  sent_command_registers(cmd, portbase);
-  cfg->command = cmd;
-
+  
   if(rtl_devs == NULL)
     rtl_devs = cfg;
   else
     add_rtl_device(cfg);
   
   reset_rtl_device(cfg);
+  cmd->ccommand.rxvlan = 1;
+  cmd->ccommand.rxchecksum = 1;
+  cmd->tx_enable = 1;
+  cmd->rx_enable = 1;
+  cmd->reset = 0;
+  cfg->command = cmd;
 
+  sent_command_registers(cmd, portbase);
   read_command_registers(cmd, portbase);
-  printf("Tx Enable flag: %x - RxChecksum: %x\n", cmd->reset, cmd->ccommand.rxchecksum);
+  printf("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable, 
+                                                      cmd->ccommand.rxchecksum);
 }
 
 static void 
 sent_command_registers(struct rtlcommand *cmd, uint16_t port)
 {
   /* first of all we have to sent the C+ command register */
-  uint16_t ccommand = (cmd->ccommand.rxvlan << 5) | 
-                          (cmd->ccommand.rxchecksum << 6);
+  uint16_t ccommand = (cmd->ccommand.rxvlan << 6) | 
+                          (cmd->ccommand.rxchecksum << 5);
   outw(port+CPLUS_COMMAND_PORT_OFFSET, ccommand);
   
   /*
@@ -94,8 +94,8 @@ read_command_registers(struct rtlcommand *cmd, uint16_t port)
   uint16_t ccommand = inw(port+CPLUS_COMMAND_PORT_OFFSET);
   uint8_t command = inb(port+COMMAND_PORT_OFFSET);
   
-  cmd->ccommand.rxvlan = (ccommand >> 5) & 1;
-  cmd->ccommand.rxchecksum = (ccommand >> 6) & 1;
+  cmd->ccommand.rxvlan = (ccommand >> 6) & 1;
+  cmd->ccommand.rxchecksum = (ccommand >> 5) & 1;
   cmd->tx_enable = (command >> 2) & 1;
   cmd->rx_enable = (command >> 3) & 1;
   cmd->reset = (command >> 4) & 1;
@@ -134,5 +134,23 @@ reset_rtl_device(struct rtl_cfg *cfg)
     else
       continue;
   }
+  printf("RTL8168 failed");
   return -1;
+}
+
+void
+init_network()
+{
+  struct ol_pci_node *carriage = pcidevs;
+  for(; carriage != NULL, carriage->next != carriage; carriage = carriage->next)
+  {
+    if(carriage->dev->class == NIC && carriage->dev->subclass == NIC_ETHERNET)
+    {
+      init_rtl_device(carriage->dev);
+      return;
+    }
+    else
+      continue;
+  }
+  printf("no network card found");
 }
