@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <sys/dev/pci.h>
 #include <networking/rtl8168.h>
+#include <networking/net.h>
 
 static struct rtl_cfg *rtl_devs = NULL;
 

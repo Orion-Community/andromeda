@@ -1,5 +1,5 @@
 /*
- *   Andromeda Project - Ethernet frame file
+ *   Andromeda Project - General network header.
  *   Copyright (C) 2011  Michel Megens - dev@michelmegens.net
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,25 +16,26 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
-#include <networking/eth/eth.h>
+#ifndef __NET_H
+#define __NET_H
 
-void
-receive_ethernet_frame(frame_buf_t buffer)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct netdev
 {
-  uint16_t size;
-  struct ethframe *frame = alloc_eth_frame(size);
-  
-  free(buffer);
-}
+  uint32_t (*read)();
+  void (*write)(uint32_t);
+};
 
-static struct ethframe *
-alloc_eth_frame(uint16_t size)
+struct netbuf
 {
-  struct ethframe *frame = kalloc(sizeof(*frame));
-  frame->data = kalloc(size);
-  return frame;
-}
+  uint16_t length,data_len;
+  void *framebuf;
+};
 
-static void 
-setup_eth_frame(ethframe_t);
+#ifdef __cplusplus
+}
+#endif
+#endif /* __NET_H */
