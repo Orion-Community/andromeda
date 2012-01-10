@@ -510,7 +510,7 @@ exp(double n) //An other beatyfull taylor polynominal
 	double ret = 1;
 	double x = n;
 	int fac = 1, i = 2;
-	for (; (fac<0xffffffff) ;i++) // stop if i is insane high 
+	for (; (fac<0xffffffff) ;i++) // stop if i is insane high
 	{
 		ret += x/i;  // ret += (x^i)/(i!)
 		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
@@ -526,7 +526,7 @@ expf(float n) //An other beatyfull taylor polynominal
 	float ret = 1;
 	float x = n;
 	int fac = 1, i = 2;
-	for (; (fac<0xffffffff) ;i++) // stop if i is insane high 
+	for (; (fac<0xffffffff) ;i++) // stop if i is insane high
 	{
 		ret += x/i;  // ret += (x^i)/(i!)
 		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
@@ -542,7 +542,7 @@ expl(long double n) //An other beatyfull taylor polynominal
 	long double ret = 1;
 	long double x = n;
 	int fac = 1, i = 2;
-	for (; (fac<0xffffffff) ;i++) // stop if i is insane high 
+	for (; (fac<0xffffffff) ;i++) // stop if i is insane high
 	{
 		ret += x/i;  // ret += (x^i)/(i!)
 		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore

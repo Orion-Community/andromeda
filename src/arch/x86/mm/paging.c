@@ -20,7 +20,7 @@
 #include <mm/map.h>
 #include <stdlib.h>
 #include <mm/heap.h>
-#include <Andromeda/error.h>
+#include <andromeda/error.h>
 #include <arch/x86/task.h>
 
 #define PRESENTBIT    0x01
@@ -49,7 +49,7 @@ int page_alloc_page(uint32_t, addr_t, struct page_dir*, boolean);
 
 /**
  * The andromeda paging system is set up here.
- * 
+ *
  * This does come with the warning that this isn't finished by a very very very
  * long shot. Feel free to contribute.
  */

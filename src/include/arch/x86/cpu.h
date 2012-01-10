@@ -29,7 +29,7 @@ extern "C"
 {
 #endif
   extern mutex_t cpu_lock;
-  
+
   typedef uint8_t ol_lock_t;
 
   struct ol_gen_regs
@@ -85,25 +85,25 @@ extern "C"
   /* CPUID */
   static ol_gen_registers_t
   __ol_cpuid(volatile ol_gen_registers_t);
-  
+
   /*
    * Inside function to write to a Model Specific Register
    */
   static uint64_t
   __read_msr(uint32_t);
-  
+
   /*
    * Inside function to read a Model Specific Register
    */
   static void
   __write_msr(uint32_t, uint64_t);
-  
+
   /*
    * Read a model specific register.
    */
   uint64_t
   cpu_read_msr(uint32_t);
-  
+
   /*
    * Write a value to a model specific register.
    */

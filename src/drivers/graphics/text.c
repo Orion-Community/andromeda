@@ -52,22 +52,22 @@ imageBuffer getCharBuffer(char chr, unsigned int bgcolor, unsigned int color)
 
   /**
    * This function prints a character to an image buffer.
-   * 
+   *
    * @param buffer
    *   The buffer the string should be printed to.
-   * 
+   *
    * @param chr
    *   The character that should printed to the image buffer.
-   * 
+   *
    * @param bgcolor
    *   The background color for the character.
-   * 
+   *
    * @param color
    *   The character color.
-   * 
+   *
    * @param x
    *   The x coordinate in image buffer for the character.
-   * 
+   *
    * @param y
    *   The y coordinate in image buffer for the character.
    */
@@ -80,22 +80,22 @@ void printCharToBuffer(imageBuffer buffer, char chr, unsigned int x, unsigned in
 
   /**
    * This function prints a sting to an image buffer.
-   * 
+   *
    * @param buffer
    *   The buffer the string should be printed to.
-   * 
+   *
    * @param str
    *   The string that should printed to the image buffer.
-   * 
+   *
    * @param bgcolor
    *   The background color for the characters.
-   * 
+   *
    * @param color
    *   The character color.
-   * 
+   *
    * @param x
    *   The x coordinate in image buffer for the character.
-   * 
+   *
    * @param y
    *   The y coordinate in image buffer for the character.
    */
@@ -143,19 +143,19 @@ void printStringToBuffer(imageBuffer buffer, char* str, unsigned int x, unsigned
 
   /**
    * This function draws a character to the screen.
-   * 
+   *
    * @param x
    *   The x coordinate on the screen for the top-left pixel of the character.
-   * 
+   *
    * @param c
    *   The y coordinate on the screen for the top-left pixel of the character.
-   * 
+   *
    * @param chr
    *   The character that should draw to the screen.
-   * 
+   *
    * @param bgcolor
    *   The background color for the character.
-   * 
+   *
    * @param color
    *   The character color.
    */
@@ -167,19 +167,19 @@ void drawChar(unsigned int x, unsigned int y, char chr, unsigned int bgcolor, un
 
   /**
    * This function draws a string to the screen.
-   * 
+   *
    * @param x
    *   The x coordinate on the screen for the top-left pixel of the string.
-   * 
+   *
    * @param c
    *   The y coordinate on the screen for the top-left pixel of the string.
-   * 
+   *
    * @param str
    *   The string that should be draw to the screen.
-   * 
+   *
    * @param bgcolor
    *   The background color for the characters.
-   * 
+   *
    * @param color
    *   The character color.
    */

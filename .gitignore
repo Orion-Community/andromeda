@@ -9,3 +9,4 @@ src/andromeda.img
 src/scripts/floppy.img
 /nbproject/
 *.kate-swp
+doc/doxygen/*

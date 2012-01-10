@@ -22,16 +22,16 @@
 
 /**
  * This function is used to copy an image buffer somewhere into an other image buffer.
- * 
+ *
  * @param src
  *   The source image buffer.
- * 
+ *
  * @param dest
  *   The destination image buffer.
- * 
+ *
  * @param x
  *   The x coordinate in destination image of the left-top pixel of the source image.
- * 
+ *
  * @param y
  *   The y coordinate in destination image of the left-top pixel of the source image.
  */
@@ -52,28 +52,28 @@ void imageBufferCpy(imageBuffer src, imageBuffer dest, int x, int y)
 
 /**
  * This function is used to copy a part of an image buffer somewhere into an other image buffer.
- * 
+ *
  * @param src
  *   The source image buffer.
- * 
+ *
  * @param dest
  *   The destination image buffer.
- * 
+ *
  * @param x
  *   The x coordinate in destination image of the left-top pixel of the source image.
- * 
+ *
  * @param y
  *   The y coordinate in destination image of the left-top pixel of the source image.
- * 
+ *
  * @param width
  *   The width of the source image that should be copied.
- * 
+ *
  * @param heigth
  *   The heigth of the source image that should be copied.
- * 
+ *
  * @param partx
  *   The x coordinate of the part from src that should be copied.
- * 
+ *
  * @param party
  *   The y coordinate of the part from src that should be copied.
  */
@@ -98,13 +98,13 @@ void imageBufferPartCpy(imageBuffer src, imageBuffer dest, int x, int y, int wid
 
 /**
  * This function is used to print an image buffer to the screen.
- * 
+ *
  * @param src
  *   The source image buffer.
- * 
+ *
  * @param x
  *   The x coordinate in destination image of the left-top pixel of the source image.
- * 
+ *
  * @param y
  *   The y coordinate in destination image of the left-top pixel of the source image.
  */
@@ -115,25 +115,25 @@ void drawBuffer(imageBuffer src, int x, int y)
 
 /**
  * This function is used to print a part of an image buffer to the screen.
- * 
+ *
  * @param src
  *   The source image buffer.
- * 
+ *
  * @param x
  *   The x coordinate in destination image of the left-top pixel of the source image.
- * 
+ *
  * @param y
  *   The y coordinate in destination image of the left-top pixel of the source image.
- * 
+ *
  * @param width
  *   The width of the source image that should be copied.
- * 
+ *
  * @param heigth
  *   The heigth of the source image that should be copied.
- * 
+ *
  * @param partx
  *   The x coordinate of the part from src that should be copied.
- * 
+ *
  * @param party
  *   The y coordinate of the part from src that should be copied.
  */
@@ -143,7 +143,7 @@ void drawBufferPart(imageBuffer src, int x, int y, int width, int height, int pa
 }
 
 /**
- * 
+ *
  */
 imageBuffer newImageBuffer(int width, int height)
 {

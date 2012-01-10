@@ -1,20 +1,20 @@
 /*
-    Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  Andromeda
+ *  Copyright (C) 2011  Bart Kuivenhoven
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef STDLIB_H
 #define STDLIB_H
@@ -25,7 +25,7 @@ extern "C" {
 
 #define ANDROMEDA_VERSION "0.1.0"
 
-/* 
+/*
  * ANDROMEDA_MAGIC can be used to identify several data structures within the
  * kernel
  */
@@ -34,10 +34,10 @@ extern "C" {
 #include <text.h>
 #include <io.h>
 #include <types.h>
-#include <Andromeda/panic.h>
-#include <Andromeda/error.h>
+#include <andromeda/panic.h>
+#include <andromeda/error.h>
 #include <mm/memory.h>
-#include <Andromeda/timer.h>
+#include <andromeda/timer.h>
 #include <math/math.h>
 #include <debug.h>
 
@@ -62,7 +62,7 @@ struct segments
 	uint16_t fs;
 	uint16_t gs;
 	uint16_t ss;
-	
+
 } __attribute__((packed));
 typedef struct segments *and_segments_t;
 
@@ -71,6 +71,7 @@ extern uint32_t rodata;
 extern void start();
 void reboot();
 void shutdown();
+void warning(char* msg);
 
 #ifdef __cplusplus
 }

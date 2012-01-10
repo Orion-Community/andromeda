@@ -127,7 +127,7 @@ ol_cpu_init(ol_cpu_t cpu)
       cpu->vendor = "AMD";
 
     else cpu->vendor = "UNKNOWN";
-    
+
     regs = ol_cpuid(0x80000000); /*check the amount of extended functions*/
     if((regs->eax & 0xff) >= 0x8)
     { /*if function 0x8 is supported*/
@@ -136,7 +136,7 @@ ol_cpu_init(ol_cpu_t cpu)
     }
     else
       cpu->bus_width = 36; /*default bus width*/
-    
+
 #ifdef __CPU_DBG
     printf("CPU bus width: %i\n", cpu->bus_width);
 #endif

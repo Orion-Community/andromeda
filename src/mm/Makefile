@@ -28,7 +28,7 @@ memory.o: memory.c $(INCLUDES)
 test.o: test.c $(INCLUDES)
 	$(CC) $(FLAGS) $(CFLAGS) test.c
 
-	
+
 .PHONY: clean
 clean:
 	rm -fv *.o

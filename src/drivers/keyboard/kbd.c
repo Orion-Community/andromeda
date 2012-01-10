@@ -160,7 +160,7 @@ void kb_handle(uint8_t c)
 	if(c & 0x80)
 	{
 		/*
-		 * Here I can test if the shift key is pressed or not and display 
+		 * Here I can test if the shift key is pressed or not and display
                  * capital letters and stuff like that..
 		 */
 		uint8_t tmp = c ^ 0x80;
@@ -175,23 +175,23 @@ void kb_handle(uint8_t c)
 	else
 	{
                 // togle keyboard leds
-                if(c == 0x45) 
+                if(c == 0x45)
                 {
                     leds ^= OL_NUM_LED;
                     toggle_kb_leds(leds);
                 }
-                if(c == 0x3a) 
+                if(c == 0x3a)
                 {
                     leds ^= OL_CAPS_LED;
                     toggle_kb_leds(leds);
                 }
-                if(c == 0x46) 
+                if(c == 0x46)
                 {
                     leds ^= OL_SCROLL_LED;
                     toggle_kb_leds(leds);
                 }
 		/*
-		 * All default letters are taken from the array. All other keys 
+		 * All default letters are taken from the array. All other keys
                  * are handled in this switch case
 		 */
 		switch(c)
@@ -221,12 +221,12 @@ void kb_handle(uint8_t c)
 				scroll(1);
 				break;
 			default:
-                                shiftkey ? putc(keycodes[c].capvalue) : 
+                                shiftkey ? putc(keycodes[c].capvalue) :
                                     putc(keycodes[c].value);
                                 key_pressed = 1;
 				break;
 		}
-		
+
 		if(ctrlkey && altkey && endkey)
 		{
 			reboot();

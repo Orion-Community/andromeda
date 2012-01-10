@@ -29,7 +29,7 @@
 extern "C"
 {
 #endif
-   
+
 /* MultiProcessor defines */
 #define OL_CPU_MP_FPS_SIGNATURE 0x5F504D5F
 #define OL_CPU_MP_CONFIG_TABLE_HEADER_SIGNATURE 0x50434d50
@@ -48,7 +48,7 @@ ol_validate_table(uint8_t*);
 struct system_tables
 {
   uint32_t magic;
-  uint32_t flags : 1; /* 
+  uint32_t flags : 1; /*
                        * If set, the sys tables are already loaded and you should
                        * not search for them again.
 		       */

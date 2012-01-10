@@ -111,7 +111,7 @@ msi_enable_msix_entry(struct msi_cfg *cfg, int entry)
   /* enable the vector */
   cfg->msix_write(cfg->attrib.base+index+MSIX_VECTOR_CTRL, 0);
   /* enable the msix message control */
-  uint32_t msg_ctrl = ol_pci_read_dword(cfg->dev, 
+  uint32_t msg_ctrl = ol_pci_read_dword(cfg->dev,
                                         MSI_MESSAGE_CONTROL(cfg->attrib.cpos));
   msg_ctrl |= 1<<31;
   ol_pci_write_dword(cfg->dev, MSI_MESSAGE_CONTROL(cfg->attrib.cpos), msg_ctrl);
@@ -129,11 +129,11 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, struct irq_data *irq
   cfg->attrib.is_64 = 1;
   cfg->attrib.base = msi_calc_msix_base(dev, cp);
   cfg->irq = irq->irq;
-  
-  msi->addr = MSI_LOWER_BASE_ADDRESS | MSI_ADDR_DEST_ID(0) | 
-              ((apic->delivery_mode == IRQ_LOW_PRI) ? MSI_ADDR_REDIR_LOWPRI : 
+
+  msi->addr = MSI_LOWER_BASE_ADDRESS | MSI_ADDR_DEST_ID(0) |
+              ((apic->delivery_mode == IRQ_LOW_PRI) ? MSI_ADDR_REDIR_LOWPRI :
                                         MSI_ADDR_REDIR_CPU) |
-              ((apic->dest_mode == 0) ? MSI_ADDR_DEST_MODE_PHYSICAL : 
+              ((apic->dest_mode == 0) ? MSI_ADDR_DEST_MODE_PHYSICAL :
                                         MSI_ADDR_DEST_MODE_LOGICAL);
   printf("address: %x + dest_mode %x\n", msi->addr, apic->dest_mode);
   msi->addr_hi = MSI_HIGH_BASE_ADDRESS;
@@ -149,7 +149,7 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, struct irq_data *irq
   irq->irq_config->msi = cfg;
   __msi_write_message(cfg, msi);
   msi_enable_msix_entry(cfg, 0); /* enable first entry */
-  
+
   debug_msix_entry(cfg);
   return 0;
 }
@@ -175,7 +175,7 @@ msi_calc_msix_base(struct ol_pci_dev *dev, uint8_t cp)
     bar &= ~3;
   else
     bar &= ~0xf;
-  
+
   page_map_kernel_entry(bar,bar); /* map the address 1:1 */
   return (volatile void*)bar;
 }

@@ -20,7 +20,7 @@
 #include <thread.h>
 #include <boot/mboot.h>
 #include <stdlib.h>
-#include <Andromeda/error.h>
+#include <andromeda/error.h>
 
 #define map_size (memsize/0x4)
 
@@ -84,7 +84,7 @@ addr_t map_find_headoflist(addr_t idx)
 	return idx;
 }
 
-/** 
+/**
  * map_add_page adds a page to the list you've specified. DO NOT MAKE IT USE THE
  * MUTEX as it is supposed to be locked by higher level functions
  */

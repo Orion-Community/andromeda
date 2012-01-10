@@ -1,5 +1,5 @@
 /*
-    Orion OS, The educational operatingsystem
+    Andromeda
     Copyright (C) 2011  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,8 @@
 */
 
 #include <stdlib.h>
-#include <Andromeda/sched.h>
+#include <andromeda/sched.h>
+#include <thread.h>
 
 volatile boolean scheduling = FALSE;
 
@@ -105,7 +106,7 @@ struct __TASK_STATE* task;
 			mutex_unlock(sched_lock);
 			return -1;
 		}
-		memset(task_stack->branch[branch_idx], 0, 
+		memset(task_stack->branch[branch_idx], 0,
 					     sizeof(struct __TASK_BRANCH_NODE));
 		task_stack->branch[branch_idx]->type = task_list;
 	}
@@ -147,7 +148,7 @@ int task_setup_tree()
 
 /**
  * Set up a new scheduling quantum
- */ 
+ */
 void get_new_quantum()
 {
 	panic("No tasks to build quantum");
@@ -174,7 +175,7 @@ struct __TASK_STATE* task;
 	int i;
 	for (; itterator != NULL; itterator = itterator->next)
 	{
-		for (i=0; i < STD_LIST_SIZE; i++)
+		for (i=0; i < SCHED_LIST_SIZE; i++)
 		{
 			if (itterator->thread[i] == NULL)
 				continue;
@@ -211,7 +212,7 @@ struct __TASK_STATE* dest;
 						      carriage = carriage->next,
 						    carriage2 = carriage2->next)
 	{
-		for (idx = 0; idx < STD_LIST_SIZE; idx++)
+		for (idx = 0; idx < SCHED_LIST_SIZE; idx++)
 		{
 			if (carriage->thread[idx] == NULL)
 				continue;
@@ -240,8 +241,8 @@ struct __TASK_STATE* dest;
  */
 int fork()
 {
-	printf("WARNING! In fork the registers copied probably aren't "
-							       "up-to-date!\n");
+        warning("WARNING! In fork the registers copied probably aren't "
+                                                               "up-to-date");
 
 	struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
 	if (new == NULL)
@@ -372,7 +373,7 @@ int task_init()
 	thread->ss_size = STD_STACK_SIZE;
 
 	/** Where can we find more info if swapped out? */
-	printf("WARNING! No path to kernel binary!\n");
+        warning("WARNING! No path to kernel binary");
 	kern->path_to_bin = NULL;
 
 	kern->state = runnable;
@@ -412,4 +413,28 @@ void print_task_stack()
 					itterator->task[idx & 0xFF]->parent_id);
 		}
 	}
+}
+
+int64_t atomic_add(atomic_t* d, int cnt)
+{
+        mutex_lock(d->lock);
+        d->cnt += cnt;
+        int64_t ret = d->cnt;
+        mutex_unlock(d->lock);
+        return ret;
+}
+
+int64_t atomic_sub(atomic_t* d, int cnt)
+{
+        return (atomic_add(d, -cnt));
+}
+
+int64_t atomic_inc(atomic_t* d)
+{
+        return (atomic_add(d, 1));
+}
+
+int64_t atomic_dec(atomic_t* d)
+{
+        return (atomic_add(d, -1));
 }

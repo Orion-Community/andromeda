@@ -17,7 +17,7 @@ LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 all: acpi.o acpi_.o
-	
+
 ACPI=acpi.c
 ACPI_=acpi_.o
 

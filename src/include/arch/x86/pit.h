@@ -40,7 +40,7 @@ extern "C"
 
         typedef uint16_t ol_pit_port_t;
         typedef uint32_t ol_pit_reload_val_t;
-        
+
         typedef struct ol_pit
         {
                 uint8_t channel, mode, access, mask;
@@ -48,26 +48,26 @@ extern "C"
                 double timer;
                 ol_pit_port_t dport,cport;
         } *ol_pit_system_timer_t;
-        
+
         int
         ol_pit_init(uint32_t);
-        
+
         static void
         ol_pit_calculate_freq(ol_pit_system_timer_t);
-        
+
         static void
         ol_pit_program_pit(ol_pit_system_timer_t);
-        
+
         static ol_pit_reload_val_t
         ol_pit_calculate_reload(uint16_t);
-	
+
 	static inline void
 	ol_pit_calc_mask(ol_pit_system_timer_t pit)
         {
                 pit->mask = ((pit->channel << 6) | (pit->access << 4) | (pit->mode
                         << 1)) & 0xfe;
         }
-        
+
 #ifdef	__cplusplus
 }
 #endif
