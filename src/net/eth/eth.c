@@ -19,9 +19,22 @@
 #include <stdlib.h>
 #include <networking/eth/eth.h>
 
-struct ethframe *alloc_eth_frame()
+void
+receive_ethernet_frame(frame_buf_t buffer)
 {
+  uint16_t size;
+  struct ethframe *frame = alloc_eth_frame(size);
   
+  free(buffer);
 }
 
-static void setup_eth_frame(ethframe_t);
+static struct ethframe *
+alloc_eth_frame(uint16_t size)
+{
+  struct ethframe *frame = kalloc(sizeof(*frame));
+  frame->data = kalloc(size);
+  return ethframe;
+}
+
+static void 
+setup_eth_frame(ethframe_t);

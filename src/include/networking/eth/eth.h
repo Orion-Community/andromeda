@@ -36,7 +36,8 @@ typedef struct ethframe
   uint fcs : 4;
 } *ethframe_t;
 
-struct ethframe *alloc_eth_frame();
+void receive_ethernet_frame(frame_buf_t buffer);
+static struct ethframe *alloc_eth_frame(uint16_t);
 static void setup_eth_frame(ethframe_t);
 
 #ifdef __cplusplus
