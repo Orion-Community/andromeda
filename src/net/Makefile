@@ -10,12 +10,13 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 #targets
 NET=net.o
-TARGET=arp.o
+TARGET=ip.o
 
+all: $(NET)
 
 $(NET): $(TARGET)
 	$(LD) $(LDFLAGS) -o $(NET) $(TARGET)
 	mv -vf $(NET) ../
 
-arp.o: arp.c
-	$(CC) $(CCFLAGS) arp.c -o arp.o
+ip.o:
+	$(MAKE) -C ip/ $(MAKEEND)
