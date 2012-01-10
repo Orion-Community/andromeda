@@ -51,7 +51,7 @@ struct buffer_list
 struct buffer
 {
         mutex_t lock;
-        size_t buffer_size;
+        size_t size;
 
         struct buffer_block* direct[BUFFER_LIST_SIZE];
         struct buffer_list* single_indirect;
