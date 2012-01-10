@@ -13,6 +13,6 @@ arch.o: x86.o
 	$(LD) $(LDFLAGS) *.o -o arch.o
 
 x86.o:
-	
+
 	$(MAKE) $(MAKEEND) -C x86
 	mv -fv x86/x86.o ./

@@ -46,7 +46,7 @@ extern void initPIT();
 #define OL_ICW1_INTERVAL4 0x04	/* Call address interval 4 (8) */
 #define OL_ICW1_LEVEL 0x08		/* Level triggered (edge) mode */
 #define OL_ICW1_INIT 0x10		/* Initialization - required! */
- 
+
 #define OL_ICW4_8086 0x01		/* 8086/88 (MCS-80/85) mode */
 #define OL_ICW4_AUTO 0x02		/* Auto (normal) EOI */
 #define OL_ICW4_BUF_SLAVE 0x08	/* Buffered mode/slave */

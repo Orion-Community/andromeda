@@ -38,7 +38,6 @@
 #include <arch/x86/idt.h>
 #include <boot/mboot.h>
 #include <mm/map.h>
-#include <tty/tty.h>
 #include <arch/x86/pic.h>
 
 #include <sys/dev/ps2.h>

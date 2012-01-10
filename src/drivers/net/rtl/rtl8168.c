@@ -64,26 +64,26 @@ void init_rtl_device(struct ol_pci_dev *dev)
     rtl_devs = cfg;
   else
     add_rtl_device(cfg);
-  
+
   reset_rtl_device(cfg);
 
   read_command_registers(cmd, portbase);
   printf("Tx Enable flag: %x - RxChecksum: %x\n", cmd->reset, cmd->ccommand.rxchecksum);
 }
 
-static void 
+static void
 sent_command_registers(struct rtlcommand *cmd, uint16_t port)
 {
   /* first of all we have to sent the C+ command register */
-  uint16_t ccommand = (cmd->ccommand.rxvlan << 5) | 
+  uint16_t ccommand = (cmd->ccommand.rxvlan << 5) |
                           (cmd->ccommand.rxchecksum << 6);
   outw(port+CPLUS_COMMAND_PORT_OFFSET, ccommand);
-  
+
   /*
    * then the normal command register has to be sent to the device. when that is
    * done, we can continue configuring other registers.
    */
-  uint8_t command = (cmd->tx_enable << 2) | (cmd->rx_enable << 3) | 
+  uint8_t command = (cmd->tx_enable << 2) | (cmd->rx_enable << 3) |
                         (cmd->reset << 4);
   outb(port+COMMAND_PORT_OFFSET, command);
 }
@@ -93,13 +93,13 @@ read_command_registers(struct rtlcommand *cmd, uint16_t port)
 {
   uint16_t ccommand = inw(port+CPLUS_COMMAND_PORT_OFFSET);
   uint8_t command = inb(port+COMMAND_PORT_OFFSET);
-  
+
   cmd->ccommand.rxvlan = (ccommand >> 5) & 1;
   cmd->ccommand.rxchecksum = (ccommand >> 6) & 1;
   cmd->tx_enable = (command >> 2) & 1;
   cmd->rx_enable = (command >> 3) & 1;
   cmd->reset = (command >> 4) & 1;
-  
+
   return 0;
 }
 
@@ -107,7 +107,7 @@ static void
 add_rtl_device(struct rtl_cfg *cfg)
 {
   struct rtl_cfg *carriage = cfg;
-  for(; carriage->next != NULL, carriage->next = carriage; 
+  for(; carriage->next != NULL, carriage->next = carriage;
             carriage = carriage->next)
   {
     if(carriage->next == NULL)
@@ -124,7 +124,7 @@ reset_rtl_device(struct rtl_cfg *cfg)
 {
   cfg->command->reset = 1;
   sent_command_registers(cfg->command, cfg->portbase);
-  
+
   int i = 0;
   for(; i < 0x100000; i++)
   {

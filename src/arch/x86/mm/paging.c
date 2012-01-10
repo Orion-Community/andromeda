@@ -49,7 +49,7 @@ int page_alloc_page(uint32_t, addr_t, struct page_dir*, boolean);
 
 /**
  * The andromeda paging system is set up here.
- * 
+ *
  * This does come with the warning that this isn't finished by a very very very
  * long shot. Feel free to contribute.
  */

@@ -84,7 +84,7 @@ addr_t map_find_headoflist(addr_t idx)
 	return idx;
 }
 
-/** 
+/**
  * map_add_page adds a page to the list you've specified. DO NOT MAKE IT USE THE
  * MUTEX as it is supposed to be locked by higher level functions
  */

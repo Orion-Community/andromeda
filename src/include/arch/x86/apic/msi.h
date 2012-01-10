@@ -47,7 +47,7 @@ extern "C" {
 #define MSI_DELIVERY_MODE_SHIFT 8
 #define MSI_DELIVERY_MODE_DATA(x) (((x) & MSI_DELIVERY_MODE_MASK) << \
                                             MSI_DELIVERY_MODE_SHIFT)
-#define MSI_DELIVERY_MODE_MASK 7                                            
+#define MSI_DELIVERY_MODE_MASK 7
 
 #define MSI_TRIGGER_LEVEL_SHIFT 14
 #define MSI_TRIGGER_LEVEL_DATA(x) (((x) & MSI_TRIGGER_LEVEL_MASK) << \
@@ -65,19 +65,19 @@ extern "C" {
 #define MSI_ADDR_DEST_MODE_PHYSICAL_MASK 1
 #define MSI_ADDR_DEST_MODE_PHYSICAL (((0) & MSI_ADDR_DEST_MODE_PHYSICAL_MASK) << \
                                           MSI_ADDR_DEST_MODE_PHYSICAL_SHIFT)
-                                          
+
 #define MSI_ADDR_DEST_MODE_LOGICAL_SHIFT 2
 #define MSI_ADDR_DEST_MODE_LOGICAL_MASK 1
 #define MSI_ADDR_DEST_MODE_LOGICAL (((1) & MSI_ADDR_DEST_MODE_LOGICAL_MASK) << \
                                           MSI_ADDR_DEST_MODE_LOGICAL_SHIFT)
-                                          
+
 #define MSI_ADDR_REDIR_HINT_SHIFT 3
 #define MSI_ADDR_REDIR_HINT_MASK 1
 #define MSI_ADDR_REDIR_CPU (((0) & MSI_ADDR_REDIR_HINT_MASK) << \
                                           MSI_ADDR_REDIR_HINT_SHIFT)
 #define MSI_ADDR_REDIR_LOWPRI (((1) & MSI_ADDR_REDIR_HINT_MASK) << \
                                           MSI_ADDR_REDIR_HINT_SHIFT)
-                                          
+
 #define MSI_ADDR_DEST_ID_SHIFT 12
 #define MSI_ADDR_DEST_ID_MASK 0xff
 #define MSI_ADDR_DEST_ID(x) (((x) & MSI_ADDR_DEST_ID_MASK) << \
@@ -99,10 +99,10 @@ struct msi_attribute
   uint multiple : 3;
   uint enabled : 1; /* 0 -> not enabled, 1 -> enabled (i.e. can send interrupts) */
   uint8_t cpos; /* position in the capabilities list */
-  
-  union { 
-    volatile void *base; 
-    uint8_t mask_position; 
+
+  union {
+    volatile void *base;
+    uint8_t mask_position;
   };
 } __attribute__((packed));
 
@@ -130,13 +130,13 @@ struct msi_cfg
     void (*msix_write) (volatile void*, uint32_t);
     void (*msi_write) (struct ol_pci_dev*, uint16_t, uint32_t);
   };
-  
+
   union
   {
     uint32_t (*msix_read) (volatile void*);
     uint32_t (*msi_read) (struct ol_pci_dev*, uint16_t);
   };
-  
+
   int masked : 1;
   uint32_t irq;
 } __attribute__((packed));

@@ -25,7 +25,7 @@ all: $(ASM)
 
 io.o: io.asm
 	$(AS) $(ASFLAGS) $(FLAGS) $(IO)
-	
+
 io_inline.o: io.c
 	$(CC) $(CCFLAGS) $(FLAGS) $(IO_INLINE) -o io_inline.o
 #irq.o: irq.asm

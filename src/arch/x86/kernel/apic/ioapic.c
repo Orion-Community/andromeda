@@ -32,7 +32,7 @@ create_ioapic (ol_madt_ioapic_t madt_io)
 {
   ioapic_t io = kalloc(sizeof(*io));
   cpus->lock(&cpu_lock);
-  if (io == NULL) 
+  if (io == NULL)
     goto nomem;
   else
   {
@@ -46,7 +46,7 @@ create_ioapic (ol_madt_ioapic_t madt_io)
   program_ioapic_pin(io, 0, 0);
   cpus->unlock(&cpu_lock);
   return io;
-  
+
   nomem:
   ol_dbg_heap();
   panic("No free memory in heap in create_ioapic!");
@@ -59,15 +59,15 @@ init_ioapic ()
   ioapic = create_ioapic(acpi_apics->ioapic->ioapic);
   ioapic->next = NULL;
   add_ioapic();
-  
+
   int i = 0;
   struct ol_madt_ioapic_node *node = acpi_apics->ioapic;
-  for(node = acpi_apics->ioapic; node != NULL, node != node->next; 
+  for(node = acpi_apics->ioapic; node != NULL, node != node->next;
       node = node->next)
   {
     i++;
 #ifdef __IOAPIC_DBG
-    printf("I/O APIC address: %x\t%x\t%x\t%x\n", node->ioapic->address,node, node->next, 
+    printf("I/O APIC address: %x\t%x\t%x\t%x\n", node->ioapic->address,node, node->next,
            node->previous);
 #endif
     if(node->next == NULL)
@@ -95,7 +95,7 @@ add_ioapic()
    * Start searching for the second io apic, since the first one is already
    * created by init_ioapic.
    */
-  for(node = acpi_apics->ioapic->next; node != NULL, node != node->next; 
+  for(node = acpi_apics->ioapic->next; node != NULL, node != node->next;
       node = node->next)
   {
     if(node == NULL)
@@ -119,7 +119,7 @@ static int
 program_ioapic_pin(struct ioapic *io, int pin, int irq)
 {
   struct irq_cfg *cfg = get_irq_cfg(irq);
-  
+
   return 0;
 }
 

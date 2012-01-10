@@ -20,13 +20,26 @@
 #include <stdlib.h>
 #include <andromeda/buffer.h>
 
-#define BUFFER_BLOCK_IDX(a) (a%BUFFER_BLOCK_SIZE)
+#define BUFFER_BLOCK_IDX(a) (a-(a%BUFFER_BLOCK_SIZE))
 
+/**
+ * buffer_add_branch adds a branch to the buffer block tree
+ */
 static int
 buffer_add_branch(struct buffer_list* this, idx_t idx, buffer_list_t type)
 {
-        if (this->type == blocks && type == lists)
+        if (this == NULL)
+                return -E_NULL_PTR;
+
+        if (this->type == blocks || idx > BUFFER_LIST_SIZE)
                 return -E_INVALID_ARG;
+
+        mutex_lock(this->lock);
+        if (this->lists[idx] != NULL)
+        {
+                mutex_unlock(this->lock);
+                return -E_ALREADY_INITIALISED;
+        }
 
         struct buffer_list* to_add = kalloc(sizeof(struct buffer_list));
         if (to_add == NULL)
@@ -34,7 +47,18 @@ buffer_add_branch(struct buffer_list* this, idx_t idx, buffer_list_t type)
         memset(to_add, 0, sizeof(struct buffer_list));
 
         to_add->type = type;
+
+        this->lists[idx] = to_add;
+        atomic_inc(&(this->used));
+
+        mutex_unlock(this->lock);
+        return -E_SUCCESS;
 }
+
+/**
+ * buffer_rm_block removes a block from the buffer and the related branches if
+ * empty
+ */
 
 static int
 buffer_rm_block(struct buffer* this, idx_t offset)
@@ -68,36 +92,41 @@ buffer_find_block(struct buffer* this, idx_t offset)
 }
 
 static int
-buffer_write(struct buffer* this, char* buf, size_t num, idx_t offset)
+buffer_write(struct buffer* this, char* buf, size_t num)
 {
         warning("buffer_write not yet implemented");
         return -E_NOFUNCTION;
 }
 
 static int
-buffer_read(struct buffer* this, char* buf, size_t num, idx_t offset)
+buffer_read(struct buffer* this, char* buf, size_t num)
 {
         warning("buffer_read not yet implemented");
         return -E_NOFUNCTION;
 }
 
 static int
+buffer_seek(struct buffer* this, idx_t offset, seek_t from)
+{
+
+        return -E_NOFUNCTION;
+}
+
+static int
 buffer_close(struct buffer* this)
 {
-        warning("buffer_close not yet implemented");
         if (atomic_dec(&(this->opened)) == 0)
         {
                 /** clean up the entire buffer */
                 return buffer_clean_up(this);
         };
         /** we have removed this instance ...  */
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
 }
 
 static struct buffer*
 buffer_duplicate(struct buffer *this)
 {
-        warning("Buffer duplication not yet implemented");
         atomic_inc(&(this->opened));
         return this;
 }
@@ -111,6 +140,7 @@ buffer_init()
         memset(b, 0, sizeof(struct buffer));
 
         b->read = buffer_read;
+        b->seek = buffer_seek;
         b->write = buffer_write;
         b->close = buffer_close;
 

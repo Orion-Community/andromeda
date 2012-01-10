@@ -57,7 +57,7 @@ typedef struct ol_ps2_dev
         uint16_t read_port;
         uint16_t write_port;
         void (*sent_command) (struct ol_ps2_dev*, uint8_t);
-        
+
 } *ol_ps2_dev_t;
 
 static void

@@ -50,11 +50,11 @@ installExceptions(ol_idt_t idt)
 static void
 installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
 {
-        ol_idt_install_entry(offset1+0, (uint32_t)irq0, 0x08, IDT_PRESENT_BIT | 
+        ol_idt_install_entry(offset1+0, (uint32_t)irq0, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+1, (uint32_t)irq1, 0x08, IDT_PRESENT_BIT | 
+        ol_idt_install_entry(offset1+1, (uint32_t)irq1, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+2, (uint32_t)irq2, 0x08, IDT_PRESENT_BIT | 
+        ol_idt_install_entry(offset1+2, (uint32_t)irq2, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
         ol_idt_install_entry(offset1+3, (uint32_t)irq3, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
@@ -64,19 +64,19 @@ installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
         IDT_INTERRUPT_GATE, idt);
         ol_idt_install_entry(offset1+6, (uint32_t)irq6, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+7, (uint32_t)irq7, 0x08, IDT_PRESENT_BIT | 
+        ol_idt_install_entry(offset1+7, (uint32_t)irq7, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+0, (uint32_t)irq8, 0x08, IDT_PRESENT_BIT | 
+        ol_idt_install_entry(offset2+0, (uint32_t)irq8, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+1, (uint32_t)irq9, 0x08, IDT_PRESENT_BIT | 
+        ol_idt_install_entry(offset2+1, (uint32_t)irq9, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
         ol_idt_install_entry(offset2+2, (uint32_t)irq10, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
         ol_idt_install_entry(offset2+3, (uint32_t)irq11, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+4, (uint32_t)irq12, 0x08, IDT_PRESENT_BIT | 
+        ol_idt_install_entry(offset2+4, (uint32_t)irq12, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+5, (uint32_t)irq13, 0x08, IDT_PRESENT_BIT | 
+        ol_idt_install_entry(offset2+5, (uint32_t)irq13, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
         ol_idt_install_entry(offset2+6, (uint32_t)irq14, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
@@ -84,7 +84,7 @@ installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
         IDT_INTERRUPT_GATE, idt);
 
         // software api interrupts
-//      ol_idt_install_entry(0x30, (uint32_t)irq30, 0x08, IDT_PRESENT_BIT | 
+//      ol_idt_install_entry(0x30, (uint32_t)irq30, 0x08, IDT_PRESENT_BIT |
 //      IDT_INTERRUPT_GATE, idt);
 }
 
@@ -99,12 +99,12 @@ void setIDT()
   //installInterrupts(0x20, 0x28, idt);
 
   installIDT(idt);
-  
+
   printf("First empty idt entry: %x\n", get_empty_idt_entry_number());
 }
 
 static void
-ol_idt_install_entry(uint16_t num, uint32_t base, 
+ol_idt_install_entry(uint16_t num, uint32_t base,
         uint16_t sel, uint8_t flags, ol_idt_t idt)
 {
   idt->baseptr[num].base_high = (base >> 16) & 0xffff;
@@ -121,7 +121,7 @@ static int
 get_empty_idt_entry_number()
 {
   ol_idt_t idt = (ol_idt_t)get_idt();
-  
+
   /*
    * An entry is defined as 'empty' when the 32-bits base and flags are 0.
    */
@@ -161,7 +161,7 @@ install_irq_vector(struct irq_data *data)
     ol_idt_install_entry(entry, data->irq_base, 0x8, IDT_PRESENT_BIT | IDT_INTERRUPT_GATE,
                          idt);
     installIDT(idt);
-#ifdef __IRQ_DBG      
+#ifdef __IRQ_DBG
     printf("IRQ num: %i | IRQ base: %x | Next available entry: %x | Vector: %x\n",
            data->irq, data->irq_base, get_empty_idt_entry_number(),
            entry);

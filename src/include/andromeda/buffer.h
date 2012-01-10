@@ -19,6 +19,8 @@
 #ifndef __ANDROMEDA_BUFFER_H
 #define __ANDROMEDA_BUFFER_H
 
+#include <fs/vfs.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,21 +32,25 @@ typedef enum {lists, blocks} buffer_list_t;
 
 struct buffer_block
 {
+        mutex_t lock;
         char data[BUFFER_BLOCK_SIZE];
 };
 
 struct buffer_list
 {
-        buffer_list_t type;
+        buffer_list_t type; /** Are we using branches or are these leaves */
+        atomic_t used; /** How many entries are currently in use */
+        mutex_t lock; /** Used when adding or removing a leaf/branch */
         union
         {
-                struct buffer_block* blocks[BUFFER_LIST_SIZE];
-                struct buffer_list*  lists[BUFFER_LIST_SIZE];
+                struct buffer_block* blocks[BUFFER_LIST_SIZE]; /** The leaves */
+                struct buffer_list*  lists[BUFFER_LIST_SIZE]; /** The branches*/
         };
 };
 
 struct buffer
 {
+        mutex_t lock;
         size_t buffer_size;
 
         struct buffer_block* direct[BUFFER_LIST_SIZE];
@@ -53,12 +59,16 @@ struct buffer
         struct buffer_list* triple_indirect;
 
         atomic_t opened;
+        idx_t cursor;
 
         struct buffer* (*duplicate)(struct buffer* this);
-        int (*read)(struct buffer* this, char* buf, size_t num, idx_t offset);
-        int (*write)(struct buffer* this, char* buf, size_t num, idx_t offset);
+        int (*read)(struct buffer* this, char* buf, size_t num);
+        int (*write)(struct buffer* this, char* buf, size_t num);
+        int (*seek)(struct buffer* this, idx_t offset, seek_t from);
         int (*close)(struct buffer* this);
 };
+
+struct buffer* buffer_init();
 
 #ifdef __cplusplus
 }

@@ -38,12 +38,12 @@ acpi_init()
   acpi_apics->apic->next = NULL;
   acpi_apics->apic->previous = NULL;
   acpi_apics->apic->apic = NULL;
-  
+
   acpi_apics->ioapic = kalloc(sizeof(*(acpi_apics->ioapic)));
   acpi_apics->ioapic->next = NULL;
   acpi_apics->ioapic->previous = NULL;
   acpi_apics->ioapic->ioapic = NULL;
-  
+
   ol_acpi_enumerate(0, &acpi_apic_add_list);
   ol_acpi_enumerate(1, &acpi_ioapic_add_list);
   return 0;
@@ -57,17 +57,17 @@ ol_acpi_get_madt()
       return NULL;
     else if(systables->magic != SYS_TABLE_MAGIC)
       return NULL;
-  
+
   ol_acpi_rsdt_t rsdt = (void*) systables->rsdp->rsdt;
 
   void * table;
-  
+
   page_map_kernel_entry((addr_t)rsdt, (addr_t)rsdt);
   uint32_t len = (rsdt->length - sizeof (*rsdt)) / 4, i = 0; /* default length */
   for (table = (void*) rsdt + sizeof (*rsdt); i < len; i++, table += 4)
   {
-    page_map_kernel_entry((addr_t)(*(void**)table), (addr_t)(*(void**)table)); 
-                                                           /* 
+    page_map_kernel_entry((addr_t)(*(void**)table), (addr_t)(*(void**)table));
+                                                           /*
                                                             * these addresses
                                                             * should be mapped
                                                             * 1:1.
@@ -114,7 +114,7 @@ acpi_apic_add_list(void *apic)
     /* we're at the top of the list, initialise it */
   if(acpi_apics->apic->apic == NULL)
   {
-    acpi_apics->apic->apic = (struct ol_madt_apic*)apic;   
+    acpi_apics->apic->apic = (struct ol_madt_apic*)apic;
     goto end;
   }
   else

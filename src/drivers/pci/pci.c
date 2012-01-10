@@ -117,7 +117,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
           OL_PCI_REG_ID)); /* id and vendor id */
 
   struct ol_pci_dev *dev = kalloc(sizeof(*dev));
-  if (dev == NULL) 
+  if (dev == NULL)
     goto fail;
 
   dev->device = itdev->device;
@@ -133,7 +133,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
   /* we're at the top of the list */
   if(pcidevs->dev == NULL)
   {
-    /* 
+    /*
      * this is the first time that this function is called, so the list should
      * be initialized
      */
@@ -254,19 +254,19 @@ __ol_pci_read_byte(ol_pci_addr_t addr, uint16_t reg)
 inline uint32_t
 ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg)
 {
-  return __ol_pci_read_dword(ol_pci_calculate_address((ol_pci_iterate_dev_t)dev, 
+  return __ol_pci_read_dword(ol_pci_calculate_address((ol_pci_iterate_dev_t)dev,
                                                       reg));
 }
 
-static void 
+static void
 __ol_pci_write_dword(ol_pci_addr_t addr, uint32_t data)
 {
   outl(OL_PCI_CONFIG_ADDRESS, addr);
   outl(OL_PCI_CONFIG_DATA, data);
 }
 
-inline void 
-ol_pci_write_dword(struct ol_pci_dev* dev, uint16_t reg, 
+inline void
+ol_pci_write_dword(struct ol_pci_dev* dev, uint16_t reg,
                                  uint32_t data)
 {
   ol_pci_addr_t addr = ol_pci_calculate_address((ol_pci_iterate_dev_t)dev, reg);

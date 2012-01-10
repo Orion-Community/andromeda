@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 #include "Include/VGA.h"
-#include "Include/text.h" 
+#include "Include/text.h"
 
 void wait()
 {
@@ -44,7 +44,7 @@ int videoMode;   // the current video mode.
 
 /**
  * This is the initial function for the VGA driver
- * 
+ *
  * @return
  *   false if failt, true if succeded
  */
@@ -69,10 +69,10 @@ bool vgaInit()
 
 /**
  * This function sets the videomode
- * 
+ *
  * @param mode
  *   Number (or ID) of the videomode. This should corsponding with the videoModes array.
- * 
+ *
  * @return
  *   If fails, this will be -1, else it will be or just some value (not -1) or a value
  *   returned by interupt.
@@ -88,7 +88,7 @@ int setVideoMode(int mode)
 		screenbuf = kalloc(size);
 	else
 		screenbuf = NULL;
-	
+
 	printf("Check 1\n");
 
 	if(screenbuf==NULL)
@@ -106,9 +106,9 @@ int setVideoMode(int mode)
 	printf("Check 2.2\n");
 	memset(screenbuf,0,size); //hangs
 	printf("Check 3\n");
-	for(;;);	
+	for(;;);
 	memset(0xA0010,11,16);
-	
+
 
 	videoMode = mode;
 	updateScreen();
@@ -126,7 +126,7 @@ int setVideoMode(int mode)
 void outpw(unsigned short port, unsigned short value)
 {
 asm volatile ("outw %%ax,%%dx": :"dN"(port), "a"(value));
-} 
+}
 
 void outp(unsigned short port, unsigned char value)
 {
@@ -158,7 +158,7 @@ asm volatile ("outb %%al,%%dx": :"dN"(port), "a"(value));
 #define R_H600 0x80
 
 
-static const byte hor_regs [] = { 0x0,  0x1,  0x2,  0x3,  0x4, 
+static const byte hor_regs [] = { 0x0,  0x1,  0x2,  0x3,  0x4,
 0x5,  0x13 };
 
 static const byte width_256[] = { 0x5f, 0x3f, 0x40, 0x82, 0x4a,
@@ -206,7 +206,7 @@ static const byte height_600[] = { 0x70, 0xf0, 0x60, 0x5b, 0x8c,
 // you'll need to switch planes to access the whole screen but
 // that allows you using any resolution, up to 400x600
 
-int setModeViaPorts(int width, int height,int chain4) 
+int setModeViaPorts(int width, int height,int chain4)
   // returns 1=ok, 0=fail
 {
    const byte *w,*h;
@@ -238,14 +238,14 @@ int setModeViaPorts(int width, int height,int chain4)
 
    // chain4 not available if mode takes over 64k
 
-   if(chain4 && (long)width*(long)height>65536L) return 0; 
+   if(chain4 && (long)width*(long)height>65536L) return 0;
 
    // here goes the actual modeswitch
 
    outp(0x3c2,val);
    outpw(0x3d4,0x0e11); // enable regs 0-7
 
-   for(a=0;a<SZ(hor_regs);++a) 
+   for(a=0;a<SZ(hor_regs);++a)
       outpw(0x3d4,(word)((w[a]<<8)+hor_regs[a]));
    for(a=0;a<SZ(ver_regs);++a)
       outpw(0x3d4,(word)((h[a]<<8)+ver_regs[a]));
@@ -277,10 +277,10 @@ int setModeViaPorts(int width, int height,int chain4)
    outp(0x3c0,0x33); outp(0x3c0,0x00);
 
    for(a=0;a<16;a++) {    // ega pal
-      outp(0x3c0,(byte)a); 
-      outp(0x3c0,(byte)a); 
-   } 
-   
+      outp(0x3c0,(byte)a);
+      outp(0x3c0,(byte)a);
+   }
+
    outp(0x3c0, 0x20); // enable video
 
    return 1;
@@ -288,8 +288,8 @@ int setModeViaPorts(int width, int height,int chain4)
 
 /**
  * No info jet!
- * 
- * 
+ *
+ *
  */
 void updateScreen()
 {
@@ -334,7 +334,7 @@ void updateScreen()
 
 /**
  * Used to get the screen width.
- * 
+ *
  * @return
  *   screen width in pixels.
  */
@@ -345,7 +345,7 @@ inline unsigned int getScreenWidth()
 
 /**
  * Used to get the screen height.
- * 
+ *
  * @return
  *   screen height in pixels.
  */
@@ -356,7 +356,7 @@ inline unsigned int getScreenHeight()
 
 /**
  * Used to get the screen depth.
- * 
+ *
  * @return
  *   screen depth in chars.
  */
@@ -367,7 +367,7 @@ inline unsigned int getScreenDepth()
 
 /**
  * Used to get the screen buffer as image buffer.
- * 
+ *
  * @return
  *   screen height in pixels.
  */

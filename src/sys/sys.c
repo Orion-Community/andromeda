@@ -46,7 +46,7 @@ ol_get_system_tables()
   {
     if(systables->flags) return -1;
   }
-  
+
   systables->rsdp = NULL;
   systables->mp = NULL;
   systables->smbios = NULL;
