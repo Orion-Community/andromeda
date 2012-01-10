@@ -10,7 +10,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 #targets
 NET=net.o
-TARGET=ip.o
+TARGET=ip.o ethernet.o
 
 all: $(NET)
 
@@ -20,3 +20,6 @@ $(NET): $(TARGET)
 
 ip.o:
 	$(MAKE) -C ip/ $(MAKEEND)
+
+ethernet.o:
+	$(MAKE) -C eth/ $(MAKEEND)
