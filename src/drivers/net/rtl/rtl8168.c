@@ -27,7 +27,6 @@ print_mac(struct ol_pci_dev *dev)
 {
   uint8_t mac[6];
   uint16_t base = get_rtl_port_base(dev, 0);
-  printf("RealTek base: %x\n", base);
   int i = 0;
   for(; i < 6; i++)
   {
@@ -55,6 +54,7 @@ void init_rtl_device(struct ol_pci_dev *dev)
     portbase = get_rtl_port_base(dev, i*4);
     i++;
   } while(portbase == 0 && i <= 5);
+  printf("RealTek base: %x\n", portbase);
   cfg->portbase = portbase;
   
   if(cmd == NULL)

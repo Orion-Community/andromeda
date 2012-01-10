@@ -117,9 +117,13 @@ static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
 void init_network();
 
-static inline uint32_t get_rtl_port_base(struct ol_pci_dev *dev, uint8_t offset)
+static inline uint16_t get_rtl_port_base(struct ol_pci_dev *dev, uint8_t offset)
 {
-  return (uint32_t)(ol_pci_read_dword(dev, 0x10+offset)&PCI_IO_SPACE_MASK);
+  uint16_t addr = (uint16_t)(ol_pci_read_dword(dev, 0x10+offset));
+  if((addr & 1) != 0)
+    return addr&PCI_IO_SPACE_MASK;
+  else
+    return 0;
 }
 
 #ifdef __cplusplus
