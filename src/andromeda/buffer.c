@@ -106,10 +106,44 @@ buffer_read(struct buffer* this, char* buf, size_t num)
 }
 
 static int
-buffer_seek(struct buffer* this, idx_t offset, seek_t from)
+buffer_seek(struct buffer* this, long offset, seek_t from)
 {
+        switch(from)
+        {
+        case SEEK_SET:
+                if (offset < 0)
+                        this->cursor = 0;
+                else if (offset > this->size)
+                        this->cursor = this->size;
+                else
+                        this->cursor = offset;
+                break;
 
-        return -E_NOFUNCTION;
+        case SEEK_CUR:
+                if (offset < 0 && (-offset < this->cursor))
+                        this->cursor += offset;
+                else if (offset < 0)
+                        this->cursor = 0;
+                else if (offset > (this->size-this->cursor))
+                        this->cursor = this->size;
+                else
+                        this->cursor += offset;
+                break;
+
+        case SEEK_END:
+                if (offset > 0)
+                        this->cursor = this->size;
+                else if (offset < 0 && -offset < this->size)
+                        this->cursor += offset;
+                else
+                        this->cursor = 0;
+                break;
+
+        default:
+                return -E_INVALID_ARG;
+                break;
+        }
+        return -E_SUCCESS;
 }
 
 static int

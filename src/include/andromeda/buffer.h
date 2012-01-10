@@ -64,7 +64,7 @@ struct buffer
         struct buffer* (*duplicate)(struct buffer* this);
         int (*read)(struct buffer* this, char* buf, size_t num);
         int (*write)(struct buffer* this, char* buf, size_t num);
-        int (*seek)(struct buffer* this, idx_t offset, seek_t from);
+        int (*seek)(struct buffer* this, long offset, seek_t from);
         int (*close)(struct buffer* this);
 };
 
