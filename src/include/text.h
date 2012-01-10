@@ -36,6 +36,12 @@ void scroll(unsigned char);
 void textInit();
 int atoi(char* str);
 
+#ifdef MSG_DBG
+#define debug printf
+#else
+#define debug
+#endif
+
 #ifdef __cplusplus
 }
 #endif

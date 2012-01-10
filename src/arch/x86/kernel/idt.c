@@ -100,7 +100,7 @@ void setIDT()
 
   installIDT(idt);
 
-  printf("First empty idt entry: %x\n", get_empty_idt_entry_number());
+  debug("First empty idt entry: %x\n", get_empty_idt_entry_number());
 }
 
 static void

@@ -67,7 +67,7 @@ init_ioapic ()
   {
     i++;
 #ifdef __IOAPIC_DBG
-    printf("I/O APIC address: %x\t%x\t%x\t%x\n", node->ioapic->address,node, node->next,
+    debug("I/O APIC address: %x\t%x\t%x\t%x\n", node->ioapic->address,node, node->next,
            node->previous);
 #endif
     if(node->next == NULL)
@@ -75,7 +75,7 @@ init_ioapic ()
   }
 
 #ifndef __IOAPIC_DBG
-  printf("Found %i I/O APIC(s). The base address of the I/O APIC is: 0x%x\n", i,
+  debug("Found %i I/O APIC(s). The base address of the I/O APIC is: 0x%x\n", i,
          (uint32_t) ioapic->address);
 #endif
   return 0;
@@ -133,8 +133,8 @@ write_ioapic_pin(struct iopin *pin)
 void
 ioapic_debug()
 {
-  printf("Testing I/O apic at address 0x%x\n", ioapic->address);
-  printf("I/O apic version %x\n", ioapic_read_dword(ioapic, 0x1));
+  debug("Testing I/O apic at address 0x%x\n", ioapic->address);
+  debug("I/O apic version %x\n", ioapic_read_dword(ioapic, 0x1));
 }
 #endif
 

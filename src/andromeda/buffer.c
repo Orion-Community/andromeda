@@ -72,6 +72,9 @@ static int
 buffer_clean_up(struct buffer* this)
 {
         warning("buffer_clean_up not yet implemented");
+
+
+
         return -E_NOFUNCTION;
 }
 
@@ -140,6 +143,7 @@ buffer_seek(struct buffer* this, long offset, seek_t from)
                 break;
 
         default:
+                debug("Buffer seek doesn't support mode: %X\n", from);
                 return -E_INVALID_ARG;
                 break;
         }

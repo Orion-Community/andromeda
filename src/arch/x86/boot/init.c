@@ -136,8 +136,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 	page_unmap_low_mem();
 	pic_init();
 	setIDT();
-
-	printf("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
+	debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
 	ol_cpu_t cpu = kalloc(sizeof (*cpu));
 	ol_cpu_init(cpu);
 	acpi_init();
@@ -159,7 +158,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 	printf("Heap list:\n");
 	ol_dbg_heap();
 #endif
-#ifndef DBG
+#ifdef DBG
 	printf("\nSome (temp) debug info:\n");
 	printf("CPU vendor: %s\n", cpus->vendor);
 

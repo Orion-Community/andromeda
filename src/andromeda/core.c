@@ -46,7 +46,7 @@ volatile uint32_t rl = RL_RUN0;
 
 void init_set(uint32_t i)
 {
-	printf("Changing run level to %i\n", i);
+	debug("Changing run level to %i\n", i);
 	rl = i;
 }
 
