@@ -22,9 +22,9 @@
 #define __ACPI_H
 
 #define OL_APIC_ENABLE 0x1
-#define OL_PCAT_COMPAT 0x1 /* A one indicates that the system also has 
-                              a PC-AT-compatible dual-8259 setup. The 8259 
-                              vectors must be disabled (that is, masked) when 
+#define OL_PCAT_COMPAT 0x1 /* A one indicates that the system also has
+                              a PC-AT-compatible dual-8259 setup. The 8259
+                              vectors must be disabled (that is, masked) when
                               enabling the ACPI APIC operation. */
 #define ACPI_MAGIC ANDROMEDA_MAGIC
 #ifdef __cplusplus
@@ -44,7 +44,7 @@ extern "C"
         uint32_t flags : 1;
     } __attribute__((packed));
     typedef struct ol_madt_apic *ol_madt_apic_t;
-    
+
     /*
      * linked list node for the apic's
      */
@@ -55,7 +55,7 @@ extern "C"
       struct ol_madt_apic_node *previous;
       uint32_t magic;
     } __attribute__((packed));
-    
+
     /*
      * linked list node for the io apic's
      */
@@ -66,7 +66,7 @@ extern "C"
       struct ol_madt_ioapic_node *previous;
       uint32_t magic;
     } __attribute__((packed));
-    
+
     /*
      * This structure is used to access the madt lists
      */
@@ -129,17 +129,17 @@ extern "C"
 #endif
     } __attribute__((packed));
     typedef struct ol_acpi_rsdp *ol_acpi_rsdp_t;
-    
+
     typedef void (*acpi_enum_hook_t)(void* structure);
-    
+
     static ol_acpi_madt_t
     ol_acpi_get_madt();
-    
+
     extern struct acpi_apic_lists *acpi_apics;
 
     int
     acpi_init();
-    
+
     static void
     ol_acpi_enumerate(uint8_t type, acpi_enum_hook_t hook);
 
@@ -148,7 +148,7 @@ extern "C"
 
     static void
     acpi_ioapic_add_list(void*);
-    
+
     void*
     ol_acpi_get_ioapic();
 #ifdef __cplusplus

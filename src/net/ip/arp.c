@@ -46,7 +46,7 @@ free_arp_structure(struct arp *arp)
 {
   if(arp == NULL)
     return;
-  
+
   free(arp->src_hw);
   free(arp->src_pr);
   free(arp->dst_hw);

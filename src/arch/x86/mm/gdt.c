@@ -73,11 +73,11 @@ void setGDT()
   setEntry (3, 0, 0xFFFFFFFF, 0xA, 0x3);
   setEntry (4, 0, 0xFFFFFFFF, 0x2, 0x3);
   #endif
-  
+
   /*
    * Load the GDT into the CPU.(1)
    */
-  
+
   struct gdtPtr gdt;
   gdt.limit = sizeof(gdtEntry_t)*ENTRIES;
   gdt.baseAddr = (unsigned int)((void*)GDT);
@@ -85,16 +85,16 @@ void setGDT()
   printhex(gdt->limit); putc('\t');
   printhex(gdt->baseAddr); putc('\n');
   printf("checkpoint 1\n");
-  
+
   int i;
   for (i = 0; i < ENTRIES*2; i++)
   {
     int *out = ((void*)GDT)+i*4;
     printhex(*out); putc('\n');
   }
-  
+
   #endif
-  lgdt(&gdt);  
+  lgdt(&gdt);
   #ifdef GDTTEST
   printf("checkpoint 2\n");
   #endif

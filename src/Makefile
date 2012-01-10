@@ -4,8 +4,8 @@ include scripts/x86
 MAKEEND=FLAGS="$(FLAGS) "
 
 MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __IOAPIC_DBG -D __PCI_DEBUG -D MSI -D \
-MSIX -D MSIX_DEBUG"
-#MAKEEND+=FLAGS+="-D X86 -D __INTEL"
+MSIX -D MSIX_DEBUG -D WARN -D MSG_DBG"
+# MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
 DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o
 
@@ -54,13 +54,12 @@ net.o:
 .PHONY: clean
 clean:
 	rm -fv $(OUT)
-	rm -fv `find -name "*.bin"`
 	rm -fv `find -name "*.o"`
 
 .PHONY: test
 test: all
 	qemu -m 64M -kernel $(OUT) -monitor stdio
-	
+
 .PHONY: ctest
 ctest: clean all
 	qemu -m 64M -kernel $(OUT) -monitor stdio

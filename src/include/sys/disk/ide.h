@@ -51,7 +51,7 @@ extern "C" {
 #define OL_ATA_UNKNOWN 0xff
 
 // Max 4 partitions
-typedef struct partition_table 
+typedef struct partition_table
 {
 	uint8_t boot_ind;
 	uint8_t starting_head;
@@ -73,17 +73,17 @@ typedef struct ol_ata_dev
 
 /**
  * Read from drive.
- * 
+ *
  * The relative lba value is the lba offset of the partition which contain the sectors.
- * 
+ *
  * NOTE: You !CANNOT! read outside a partition, even if those sectors exist.
  */
-extern uint8_t ide_read(uint32_t sectors /* sectors to read */, uint32_t buffer /* destination buffer */, 
+extern uint8_t ide_read(uint32_t sectors /* sectors to read */, uint32_t buffer /* destination buffer */,
 		ol_ptable_t partition /* partition where the sectors are found in */, uint32_t lba /* relative lba */);
 
 /**
  * Initialize the ide driver. It will set the partition table correctly. It returns the active partition.
- * 
+ *
  * NOTE: This function expects that the current partition tables are located at 0x0:0x7c00.
  */
 extern uint8_t ide_init(ol_ptable_t partitions);

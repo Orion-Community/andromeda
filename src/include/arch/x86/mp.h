@@ -27,7 +27,7 @@ extern "C" {
 
 struct mp_config_header
 {
-  
+
 } __attribute((packed));
 
 struct mp_fp_header
@@ -36,7 +36,7 @@ struct mp_fp_header
   struct mp_config_header* mp_header;
   uint8_t length, revision, checksum;
   uint8_t config_type; /* feature byte 1 */
-  uint8_t imcrp; /* 
+  uint8_t imcrp; /*
                       * if 1, the imcr is present
                       * and virtual wire mode is implemented
                       */

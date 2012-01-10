@@ -22,7 +22,7 @@ all: $(PCI)
 $(PCI): $(PCI_D)
 	$(LD) $(LDFLAGS) $(PCI_D) -o $(PCI)
 	mv -fv ./$(PCI) ../$(PCI)
-	
+
 pci_.o: $(PCI_)
 	$(CC) $(CFLAGS) $(FLAGS) $(PCI_) -o pci_.o
 

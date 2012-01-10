@@ -44,7 +44,7 @@ route_apic_to_pic()
   iowait();
 }
 
-static int 
+static int
 ol_detect_apic(ol_cpu_t cpu)
 {
   cpu->lock(&cpu_lock);
@@ -69,44 +69,44 @@ ol_apic_init(ol_cpu_t cpu)
 {
   if(ol_detect_apic(cpu))
     goto fail;
-  
+
   addr_t apic_addr = correct_apic_address(cpu_read_msr(0x1b), cpu);
   page_map_kernel_entry(apic_addr, apic_addr);
-  printf("APIC base address: 0x%x\n", apic_addr);
-  
+  debug("APIC base address: 0x%x\n", apic_addr);
+
   /* create an apic object */
   apic = kalloc(sizeof(*apic));
   apic->write = &__apic_write_register;
   apic->read = &__apic_read_register;
   apic->dest_mode = 0;
   apic->delivery_mode = 0;
-  
+
   if(systables->mp != NULL)
   {
-    printf("Value of the IMCRP bit: 0x%x\n", systables->mp->imcrp);
+    debug("Value of the IMCRP bit: 0x%x\n", systables->mp->imcrp);
     if(systables->mp->imcrp)
       route_pic_to_apic();
   }
-  
+
   uint16_t temp = apic->read(APIC_SPURIOUS_INTERRUPT_REGISTER);
   apic->write(APIC_SPURIOUS_INTERRUPT_REGISTER, temp | 0x100);
-  
+
   struct ol_madt_apic_node *node;
   int i = 0;
   for(node = acpi_apics->apic; node != NULL, node != node->next; node = node->next)
   {
     i++;
 #ifdef __APIC_DBG
-  printf("APIC flags: %x\t%x\t%x\t%x\n", node->apic->flags, node->apic->apic_id, 
+  debug("APIC flags: %x\t%x\t%x\t%x\n", node->apic->flags, node->apic->apic_id,
            node->apic->proc_id, node);
-  printf("Apic version: %x\tSIR: %x\n", __apic_read_register(APIC_VERSION_REGISTER),
+  debug("Apic version: %x\tSIR: %x\n", __apic_read_register(APIC_VERSION_REGISTER),
          __apic_read_register(APIC_SPURIOUS_INTERRUPT_REGISTER));
 #endif
     if(node->next == NULL)
       break;
   }
 #ifndef __APIC_DBG
-  printf("Found %i APIC(s)\n", i);
+  debug("Found %i APIC(s)\n", i);
 #endif
 
   return 0;

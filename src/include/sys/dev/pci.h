@@ -50,8 +50,8 @@ extern "C"
 #define OL_PCI_NUM_BUS 256
 #define OL_PCI_NUM_DEV 32
 #define OL_PCI_NUM_FUNC 10-1-1 /* PCI has a max of 10 loads minus one for the
-                                        the pci device, and the 
-                                        connector also as one, leaving 8 
+                                        the pci device, and the
+                                        connector also as one, leaving 8
                                         functions. */
 
 #define PCI_MECH_1 0x1
@@ -88,15 +88,16 @@ extern "C"
                      */
     uint32_t (*read)(struct ol_pci_dev*, uint16_t);
   };
+
   typedef struct ol_pci_dev *pci_dev_t;
-  
+
   typedef struct ol_pci_node
   {
     struct ol_pci_node* next;
     struct ol_pci_node* previous;
     struct ol_pci_dev* dev;
   } *ol_pci_node_t;
-  
+
   static int
   ol_pci_iterate();
 
@@ -117,7 +118,7 @@ extern "C"
 
   static int
   pci_add_list(ol_pci_iterate_dev_t);
-  
+
 #ifdef __PCI_DEBUG
   static int
   show_pci_dev(ol_pci_iterate_dev_t);
@@ -125,41 +126,42 @@ extern "C"
 
   static void
   print_pci_dev(uint16_t class, uint16_t subclass);
-  
+
   /* PCI communication functions */
   static uint32_t
   __ol_pci_read_dword(ol_pci_addr_t);
 
   static uint8_t
   __ol_pci_read_byte(ol_pci_addr_t, uint16_t);
-  
+
   inline uint32_t
   ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg);
-  
+
   /**
    * Inner dword write function.
-   * 
+   *
    * @param addr PCI configuration space address.
    * @param reg PCI configuration space register.
    * @param data Data to write.
    */
   static void __ol_pci_write_dword(ol_pci_addr_t, uint32_t);
-  
+
   /**
    * Writes a 32-bit value to the specified register in the specified pci
    * device.
-   * 
+   *
    * @param addr PCI configuration space address.
    * @param reg PCI configuration space register.
    * @param data Data to write.
    */
   inline void ol_pci_write_dword(struct ol_pci_dev*, uint16_t, uint32_t);
-  
+
   static void config_msix(struct ol_pci_dev *, uint32_t, uint8_t);
-  
+
   static void debug_pci_list();
-  
+
   extern struct ol_pci_node* pcidevs;
+
 #ifdef	__cplusplus
 }
 #endif

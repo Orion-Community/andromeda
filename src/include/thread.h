@@ -34,9 +34,21 @@ extern "C" {
 
 typedef unsigned int mutex_t;
 
+typedef struct
+{
+        int64_t cnt;
+        mutex_t lock;
+} atomic_t;
+
 extern void mutexEnter(mutex_t);
 extern unsigned int mutexTest(mutex_t);
 extern void mutexRelease(mutex_t);
+
+int64_t atomic_add(atomic_t* d, int cnt);
+int64_t atomic_sub(atomic_t* d, int cnt);
+int64_t atomic_inc(atomic_t* d);
+int64_t atomic_dec(atomic_t* d);
+
 
 #ifdef __cplusplus
 }

@@ -32,7 +32,7 @@ create_ioapic (ol_madt_ioapic_t madt_io)
 {
   ioapic_t io = kalloc(sizeof(*io));
   cpus->lock(&cpu_lock);
-  if (io == NULL) 
+  if (io == NULL)
     goto nomem;
   else
   {
@@ -46,7 +46,7 @@ create_ioapic (ol_madt_ioapic_t madt_io)
   program_ioapic_pin(io, 0, 0);
   cpus->unlock(&cpu_lock);
   return io;
-  
+
   nomem:
   ol_dbg_heap();
   panic("No free memory in heap in create_ioapic!");
@@ -59,15 +59,15 @@ init_ioapic ()
   ioapic = create_ioapic(acpi_apics->ioapic->ioapic);
   ioapic->next = NULL;
   add_ioapic();
-  
+
   int i = 0;
   struct ol_madt_ioapic_node *node = acpi_apics->ioapic;
-  for(node = acpi_apics->ioapic; node != NULL, node != node->next; 
+  for(node = acpi_apics->ioapic; node != NULL, node != node->next;
       node = node->next)
   {
     i++;
 #ifdef __IOAPIC_DBG
-    printf("I/O APIC address: %x\t%x\t%x\t%x\n", node->ioapic->address,node, node->next, 
+    debug("I/O APIC address: %x\t%x\t%x\t%x\n", node->ioapic->address,node, node->next,
            node->previous);
 #endif
     if(node->next == NULL)
@@ -75,7 +75,7 @@ init_ioapic ()
   }
 
 #ifndef __IOAPIC_DBG
-  printf("Found %i I/O APIC(s). The base address of the I/O APIC is: 0x%x\n", i,
+  debug("Found %i I/O APIC(s). The base address of the I/O APIC is: 0x%x\n", i,
          (uint32_t) ioapic->address);
 #endif
   return 0;
@@ -95,7 +95,7 @@ add_ioapic()
    * Start searching for the second io apic, since the first one is already
    * created by init_ioapic.
    */
-  for(node = acpi_apics->ioapic->next; node != NULL, node != node->next; 
+  for(node = acpi_apics->ioapic->next; node != NULL, node != node->next;
       node = node->next)
   {
     if(node == NULL)
@@ -120,7 +120,7 @@ program_ioapic_pin(struct ioapic *io, int pin, int irq)
 {
   struct irq_cfg *cfg = get_irq_cfg(irq);
   struct iopin *iopin = &(io->pin[pin]);
-  
+
   iopin->vector = cfg->vector;
   iopin->delmod = cfg->delivery_mode;
   iopin->destmod = PHYS_MODE;
@@ -132,7 +132,7 @@ program_ioapic_pin(struct ioapic *io, int pin, int irq)
   iopin->trig_mode = cfg->trigger;
   iopin->int_mask = INT_NO_MASK;
   iopin->destfield = io->apic_id;
-  
+
   return 0;
 }
 
@@ -150,8 +150,8 @@ write_ioapic_pin(struct iopin *pin)
 void
 ioapic_debug()
 {
-  printf("Testing I/O apic at address 0x%x\n", ioapic->address);
-  printf("I/O apic version %x\n", ioapic_read_dword(ioapic, 0x1));
+  debug("Testing I/O apic at address 0x%x\n", ioapic->address);
+  debug("I/O apic version %x\n", ioapic_read_dword(ioapic, 0x1));
 }
 #endif
 

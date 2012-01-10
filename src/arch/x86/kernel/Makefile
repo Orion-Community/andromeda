@@ -44,7 +44,7 @@ all: $(KERNEL_DEPS)
 $(APIC):
 	$(MAKE) FLAGS="$(FLAGS)" -C apic/ all
 	mv -v apic/$(APIC) ./
-	
+
 $(ACPI):
 	$(MAKE) FLAGS="$(FLAGS)" -C acpi/ all
 	mv -v acpi/$(ACPI) ./

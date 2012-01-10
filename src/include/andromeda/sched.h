@@ -1,27 +1,27 @@
 /*
-    Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+ *  Andromeda
+ *  Copyright (C) 2011  Bart Kuivenhoven
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+#ifndef __KERN_SCHED_H
+#define __KERN_SCHED_H
 
 #include <stdlib.h>
 #include <types.h>
 #include <arch/x86/task.h>
-
-#ifndef __KERN_SCHED_H
-#define __KERN_SCHED_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +30,7 @@ extern "C" {
 #define STD_STACK_SIZE 0x8000
 
 /** Defines the standard size of a list element */
-#define STD_LIST_SIZE 0x10
+#define SCHED_LIST_SIZE 0x10
 
 /** Defines the standard size of a task list element */
 #define TASK_LIST_SIZE 0x100
@@ -72,7 +72,7 @@ struct __THREAD_STATE
  */
 struct __THREAD_LIST
 {
-	struct __THREAD_STATE *thread[STD_LIST_SIZE];
+	struct __THREAD_STATE *thread[SCHED_LIST_SIZE];
 
 	struct __THREAD_LIST *next;
 	struct __THREAD_LIST *prev;

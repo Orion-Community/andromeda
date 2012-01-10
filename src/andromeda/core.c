@@ -1,5 +1,5 @@
 /*
-    Orion OS, The educational operatingsystem
+    Andromeda
     Copyright (C) 2011  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
@@ -17,12 +17,11 @@
 */
 
 #include <stdlib.h>
-#include <Andromeda/core.h>
-#include <Andromeda/sched.h>
-#include <fs/file.h>
-#include <fs/stream.h>
+#include <andromeda/core.h>
+#include <andromeda/sched.h>
 #include <fs/path.h>
-#include <Andromeda/syscall.h>
+#include <andromeda/syscall.h>
+#include <andromeda/drivers.h>
 
 #define RL_SHUTDOWN	0x0
 #define RL_RUN0		0x1
@@ -47,13 +46,9 @@ volatile uint32_t rl = RL_RUN0;
 
 void init_set(uint32_t i)
 {
-	printf("Changing run level to %i\n", i);
+	debug("Changing run level to %i\n", i);
 	rl = i;
 }
-
-extern void file_test(char* data);
-extern void large_file_test();
-extern void path_test(char *path);
 
 extern uint32_t key_pressed;
 
@@ -64,6 +59,13 @@ void demand_key()
 	while(key_pressed == 0)
 		halt();
 	return;
+}
+
+void warning(char* msg)
+{
+#ifdef WARN
+        printf("WARNING! %s!\n", msg);
+#endif
 }
 
 void core_loop()
@@ -95,15 +97,9 @@ void core_loop()
                         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":
                                                                     "A number");
 #endif
-#ifdef STREAM_DBG
-                        demand_key();
-                        file_test("Hello world!");
-                        demand_key();
-                        large_file_test();
-                        demand_key();
-                        path_test("/proc/1");
-                        path_test("./test.sh");
-                        path_test("~/hello\\\\ world!");
+#ifdef DEV_DBG
+                        if (dev_init() != -E_SUCCESS)
+                                panic("Couldn't initialise /dev");
 #endif
                         break;
 

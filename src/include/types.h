@@ -97,7 +97,7 @@ typedef	__va_list	va_list;
 /*
  * End nicked
  */
-
+typedef long long int64_t;
 typedef unsigned long long uint64_t;
 typedef unsigned int uint32_t;
 typedef unsigned int uint;
@@ -106,13 +106,14 @@ typedef unsigned char uint8_t;
 
 // typedef struct __TYPE_REGISTERS isrVal_t;
 typedef unsigned long size_t;
+typedef unsigned long idx_t;
 typedef long time_t; // Time variables are specified to be signed
 
 typedef unsigned long addr_t;
 
 #ifdef __cplusplus
 }
-#define NULL 0 
+#define NULL 0
 #else
 #define NULL (void*)0
 #endif

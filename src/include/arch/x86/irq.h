@@ -109,13 +109,13 @@ struct irq_cfg
 {
   union
   {
-    /* 
+    /*
      * An interrupt is sent to the cpu using either a msi or a hardware pin, but not both.
      */
     uint8_t hw_pin; /* pin where the interrupt is sent to */
     struct msi_cfg *msi; /* msi message */
   };
-  
+
   uint vector : 8;
   uint delivery_mode : 3;
   uint trigger: 1; /* 0 -> edge trigger | 1 -> level trigger */

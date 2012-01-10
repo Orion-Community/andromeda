@@ -52,7 +52,7 @@ struct rxconfig
   uint broadcast_accept : 1;
   uint runt_accept : 1;
   uint error_accept : 1;
-  
+
   uint eeprom : 1;
   uint dma_burst : 3;
   uint threshold : 3;
@@ -76,7 +76,7 @@ struct rtl_cfg
   struct rxconfig *receive;
   struct rtlcommand *command;
   struct rtl_cfg *next;
-  
+
   uint16_t portbase;
 };
 
@@ -91,9 +91,9 @@ struct rxcommand
   uint bufsize : 14;
   uint eor : 1; /* end of Rx descriptor. When this bit is set, it indicates that
                    it is the last one in the descriptor ring */
-  uint own : 1; /* When set, indicates that the descriptor is owned by the NIC, 
-                   and is ready to receive a packet. The OWN bit is set by the 
-                   driver after having pre-allocated the buffer at initialization, 
+  uint own : 1; /* When set, indicates that the descriptor is owned by the NIC,
+                   and is ready to receive a packet. The OWN bit is set by the
+                   driver after having pre-allocated the buffer at initialization,
                    or the host has released the buffer to the driver.
                  */
   struct vlan_tag
@@ -103,10 +103,10 @@ struct rxcommand
     uint prio : 3; /* priority flag */
     uint cfi : 1;
   } vlan;
-  
+
   uint tava : 1; /* tag available flag */
   uint32_t rxbufl; /* lower buffer address */
-  uint32_t rxbuffh; /* higher buffer address */ 
+  uint32_t rxbuffh; /* higher buffer address */
 };
 
 void init_rtl_device(struct ol_pci_dev *);
