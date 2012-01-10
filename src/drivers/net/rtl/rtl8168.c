@@ -45,7 +45,9 @@ void init_rtl_device(struct ol_pci_dev *dev)
   struct rtlcommand *cmd = kalloc(sizeof(*cmd));
   struct rtl_cfg *cfg = kalloc(sizeof(*cfg));
   cfg->next = NULL;
+#ifdef MSG_DBG
   print_mac(dev);
+#endif
 
   int i = 0;
   uint16_t portbase;
@@ -54,7 +56,7 @@ void init_rtl_device(struct ol_pci_dev *dev)
     portbase = get_rtl_port_base(dev, i*4);
     i++;
   } while(portbase == 0 && i <= 5);
-  printf("RealTek base: %x\n", portbase);
+  debug("RealTek base: %x\n", portbase);
   cfg->portbase = portbase;
 
   if(cmd == NULL)
@@ -75,7 +77,7 @@ void init_rtl_device(struct ol_pci_dev *dev)
 
   sent_command_registers(cmd, portbase);
   read_command_registers(cmd, portbase);
-  printf("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable,
+  debug("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable,
                                                       cmd->ccommand.rxchecksum);
 }
 
@@ -144,7 +146,7 @@ reset_rtl_device(struct rtl_cfg *cfg)
     else
       continue;
   }
-  printf("RTL8168 failed");
+  debug("RTL8168 failed");
   return -1;
 }
 
@@ -162,5 +164,5 @@ init_network()
     else
       continue;
   }
-  printf("no network card found");
+  debug("no network card found");
 }
