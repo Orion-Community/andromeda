@@ -31,9 +31,10 @@ struct netbuf
 
 struct netdev
 {
-  uint32_t (*read)();
-  void (*write)(uint32_t);
-  struct netbuf buf;
+  uint32_t (*rx)();
+  void (*tx)(struct netbuf*);
+  uint8_t hwaddr[6]; /* The NIC's MAC address */
+  struct netbuf buf; /* Current processed frame buffer */
 };
 
 #ifdef __cplusplus

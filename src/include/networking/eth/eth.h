@@ -19,11 +19,15 @@
 #ifndef __ETH_H
 #define __ETH_H
 
+#include <stdlib.h>
 #include <networking/net.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+  
+#define IP 0x800
+#define ARP 0x806
 
 typedef void* frame_buf_t;
 
@@ -38,9 +42,33 @@ typedef struct ethframe
   uint8_t fcs[4];
 } *ethframe_t;
 
+enum eth_error
+{
+  NO_ERROR = 0,
+  BROADCAST = 1,
+  WIRELESS = 2,
+  MAC_MISMATCH= -1,
+  UNKNOWN_PROTOCOL = -2
+};
+
+#if 0
+enum eth_type
+{
+  IP = 0x800,
+  X75,
+  NBS,
+  ECMA,
+  CHAOSNET,
+  X25,
+  ARP
+};
+#endif
+
 void receive_ethernet_frame(struct netdev *);
 static struct ethframe *alloc_eth_frame(uint16_t);
 static void build_ethernet_frame(ethframe_t, struct netbuf*);
+static enum eth_error process_ethernet_frame(ethframe_t frame, 
+                                                        struct netdev *dev);
 
 #ifdef __cplusplus
 }

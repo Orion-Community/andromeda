@@ -36,6 +36,13 @@ typedef struct arp
   uint8_t * dst_pr; /* destination protocol */
 } *arp_t;
 
+struct arp_table_node
+{
+  struct arp_table_node *next;
+  uint8_t mac[6];
+  uint8_t addr[8];
+};
+
 static struct arp *alloc_arp_structure(struct arp *);
 static void free_arp_structure(struct arp *);
 

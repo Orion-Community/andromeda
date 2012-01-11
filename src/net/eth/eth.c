@@ -23,7 +23,8 @@ void
 receive_ethernet_frame(struct netdev *dev)
 {
   struct ethframe *frame = alloc_eth_frame(dev->buf.data_len);
-  build_ethernet_frame(frame, &dev->buf);  
+  build_ethernet_frame(frame, &dev->buf);
+  process_ethernet_frame(frame, dev);
 }
 
 static struct ethframe *
@@ -48,3 +49,46 @@ build_ethernet_frame(ethframe_t frame, struct netbuf * buf)
   memcpy(frame->data, buf->framebuf+22, buf->data_len);
   memcpy(frame->fcs, buf->framebuf+buf->data_len, 4);
 }
+
+/**
+ * This function will check and process and incoming ethernet frame. After determining
+ * the encapsulated protocol, it will call the associated protocol handler.
+ * 
+ * @param frame The frame which has to be processed.
+ */
+static enum eth_error
+process_ethernet_frame(ethframe_t frame, struct netdev *dev)
+{
+  /* check the hw address first */
+  char *broadcast = "0xffffffffffff";
+  if(memcmp(frame->destaddr, dev->hwaddr, 6) || memcmp(frame->destaddr,
+              broadcast, 6))
+  {
+    uint16_t type = (uint16_t)*((uint16_t*)frame->type);
+    switch(type)
+    {
+      case ARP:
+        printf("ARP has not been implemented (fully) yet!");
+        break;
+
+      case IP:
+        printf("IP has not been implemented (fully) yet!");
+        break;
+
+      default:
+        return 1;
+        break;
+    }
+    return 0;
+  }
+  else
+  {
+    return 1;
+  }
+}
+
+#ifdef ETH_DBG
+void debug_ethernet_stack()
+{
+}
+#endif
