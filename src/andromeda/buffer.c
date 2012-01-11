@@ -69,9 +69,90 @@ buffer_rm_block(struct buffer* this, idx_t offset)
 }
 
 static int
+buffer_clean_direct(struct buffer* this, idx_t block_id)
+{
+        return -E_NOFUNCTION;
+}
+
+#define CLEAN_LIST 0x1
+
+static int
+buffer_clean_indirect(struct buffer_list* list, idx_t block_id, idx_t level)
+{
+        idx_t list_idx = block_id - BUFFER_LIST_SIZE;
+        if (list == NULL)
+                return -E_NULL_PTR;
+        mutex_lock(list->lock);
+        switch (level)
+        {
+        case 3:
+                list_idx /= BUFFER_LIST_SIZE;
+        case 2:
+                list_idx /= BUFFER_LIST_SIZE;
+        case 1:
+                list_idx &= 0x3FF;
+                break;
+        default:
+                mutex_unlock(list->lock);
+                return -E_INVALID_ARG;
+        }
+        if (level == 1)
+        {
+                if (list->blocks[list_idx] != NULL)
+                {
+                        mutex_lock(list->lock);
+                        free(list->blocks[list_idx]);
+                        list->blocks[list_idx] = 0;
+                        atomic_dec(&(list->used));
+
+                        if (atomic_get(&(list->used)) == 0)
+                        {
+                                mutex_unlock(list->lock);
+                                return CLEAN_LIST;
+                        }
+
+                        mutex_unlock(list->lock);
+                }
+        }
+        else
+        {
+                switch (buffer_clean_indirect(list->lists[list_idx], block_id,
+                                                                       level-1))
+                {
+                case -E_SUCCESS:
+                        mutex_unlock(list->lock);
+                case CLEAN_LIST:
+                        free(list->lists[list_idx]);
+                        list->lists[list_idx] = NULL;
+                        if (atomic_dec(&(list->used)) == 0)
+                        {
+                                mutex_unlock(list->lock);
+                                return CLEAN_LIST;
+                        }
+                        break;
+                case -E_INVALID_ARG:
+                        mutex_unlock(list->lock);
+                        return -E_INVALID_ARG;
+                case -E_NULL_PTR:
+                        mutex_unlock(list->lock);
+                        return -E_NULL_PTR;
+                case -E_GENERIC:
+                        mutex_unlock(list->lock);
+                        return -E_GENERIC;
+                default:
+                        mutex_unlock(list->lock);
+                        return -E_GENERIC;
+                }
+        }
+        return -E_SUCCESS;
+}
+
+static int
 buffer_clean_up(struct buffer* this)
 {
         warning("buffer_clean_up not yet implemented");
+
+        /** Clean up untill base_idx == size */
 
 
 
@@ -114,8 +195,8 @@ buffer_seek(struct buffer* this, long offset, seek_t from)
         switch(from)
         {
         case SEEK_SET:
-                if (offset < 0)
-                        this->cursor = 0;
+                if (offset < this->base_idx)
+                        this->cursor = this->base_idx;
                 else if (offset > this->size)
                         this->cursor = this->size;
                 else
@@ -123,10 +204,10 @@ buffer_seek(struct buffer* this, long offset, seek_t from)
                 break;
 
         case SEEK_CUR:
-                if (offset < 0 && (-offset < this->cursor))
+                if (offset < 0 && (-offset < (this->cursor - this->base_idx)))
                         this->cursor += offset;
                 else if (offset < 0)
-                        this->cursor = 0;
+                        this->cursor = this->base_idx;
                 else if (offset > (this->size-this->cursor))
                         this->cursor = this->size;
                 else
@@ -136,10 +217,10 @@ buffer_seek(struct buffer* this, long offset, seek_t from)
         case SEEK_END:
                 if (offset > 0)
                         this->cursor = this->size;
-                else if (offset < 0 && -offset < this->size)
+                else if (offset < 0 && -offset < (this->size - this->base_idx))
                         this->cursor += offset;
                 else
-                        this->cursor = 0;
+                        this->cursor = this->base_idx;
                 break;
 
         default:
@@ -165,6 +246,8 @@ buffer_close(struct buffer* this)
 static struct buffer*
 buffer_duplicate(struct buffer *this)
 {
+        if (!(this->rights & (BUFFER_ALLOW_DUPLICATE)))
+                return NULL;
         atomic_inc(&(this->opened));
         return this;
 }

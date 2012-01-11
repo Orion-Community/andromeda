@@ -28,6 +28,9 @@ extern "C" {
 #define BUFFER_LIST_SIZE 0xFF
 #define BUFFER_BLOCK_SIZE 0x1000
 
+#define BUFFER_ALLOW_DUPLICATE (1<<0)
+#define BUFFER_ALLOW_GROWTH    (1<<1)
+
 typedef enum {lists, blocks} buffer_list_t;
 
 struct buffer_block
@@ -51,7 +54,10 @@ struct buffer_list
 struct buffer
 {
         mutex_t lock;
-        size_t size;
+        size_t  size;
+        size_t  base_idx;
+
+        uint8_t rights;
 
         struct buffer_block* direct[BUFFER_LIST_SIZE];
         struct buffer_list* single_indirect;

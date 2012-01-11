@@ -56,6 +56,9 @@ extern "C" {
 #define E_TASK_NOSPACE          0x20
 
 #define E_INVALID_ARG           0x30
+#define E_TOOLARGE_ARG          0x31
+
+#define E_GENERIC               0x100
 
 #ifdef __cplusplus
 }

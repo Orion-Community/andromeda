@@ -438,3 +438,11 @@ int64_t atomic_dec(atomic_t* d)
 {
         return (atomic_add(d, -1));
 }
+
+int64_t atomic_get(atomic_t* d)
+{
+        mutex_lock(d->lock);
+        int64_t ret = d->cnt;
+        mutex_unlock(d->lock);
+        return ret;
+}
