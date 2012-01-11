@@ -243,17 +243,80 @@ buffer_close(struct buffer* this)
         return -E_SUCCESS;
 }
 
+static int
+buffer_close_ro(struct buffer* this)
+{
+        int ret = this->read_only_access->close(this->read_only_access);
+        free(this);
+        return ret;
+}
+
+static int
+buffer_write_ro(struct buffer* this, char* buf, size_t num)
+{
+        return -E_NORIGHTS;
+}
+
+static int
+buffer_read_ro(struct buffer* this, char* buf, size_t num)
+{
+        return -E_NOFUNCTION;
+}
+
+static int
+buffer_seek_ro(struct buffer* this, long offset, seek_t from)
+{
+        return -E_NOFUNCTION;
+}
+
+/**
+ * buffer_duplicate takes only one argument, which is the buffer to duplicate.
+ * It returns the duplicated buffer.
+ *
+ * If the buffer
+ */
+
 static struct buffer*
 buffer_duplicate(struct buffer *this)
 {
+        struct buffer* b = this;
         if (!(this->rights & (BUFFER_ALLOW_DUPLICATE)))
                 return NULL;
+
+        if (!(this->rights & (BUFFER_DUPLICATE_RO)))
+        {
+                struct buffer* b = kalloc(sizeof(struct buffer));
+                if (b == NULL)
+                        return NULL;
+
+                memcpy (b, this, sizeof(struct buffer));
+                b->rights ^= ~((uint32_t)0&BUFFER_ALLOW_WRITE);
+                b->read_only_access = this;
+                b->close = buffer_close_ro;
+                b->write = buffer_write_ro;
+                b->read = buffer_read_ro;
+                b->seek = buffer_seek_ro;
+        }
         atomic_inc(&(this->opened));
-        return this;
+        return b;
 }
 
+/**
+ * buffer_init takes 2 arguments:
+ *
+ * size, sets the size of the buffer.
+ *      If size == BUFFER_DYNAMIC_SIZE, the size will be set to 0 and the buffer
+ *      now is allowed to grow dynamically.
+ *
+ * base_idx, tells us up to which point we're allowed to clean up the buffer.
+ *      From 0 untill base_idx, nothing will be written.
+ *      It will also set the standard cursor.
+ *
+ * This function returns the newly created buffer.
+ */
+
 struct buffer*
-buffer_init()
+buffer_init(idx_t size, idx_t base_idx)
 {
         struct buffer* b = kalloc(sizeof(struct buffer));
         if (b == NULL)
@@ -264,6 +327,12 @@ buffer_init()
         b->seek = buffer_seek;
         b->write = buffer_write;
         b->close = buffer_close;
+
+        b->size = (size == BUFFER_DYNAMIC_SIZE) ? 0 : size;
+        b->base_idx = base_idx;
+        b->rights |= (size == BUFFER_DYNAMIC_SIZE) ? BUFFER_ALLOW_GROWTH : 0;
+
+        b->cursor = b->base_idx;
 
         atomic_inc(&b->opened);
 

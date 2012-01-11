@@ -28,8 +28,12 @@ extern "C" {
 #define BUFFER_LIST_SIZE 0xFF
 #define BUFFER_BLOCK_SIZE 0x1000
 
-#define BUFFER_ALLOW_DUPLICATE (1<<0)
-#define BUFFER_ALLOW_GROWTH    (1<<1)
+#define BUFFER_DYNAMIC_SIZE (~0x0)
+
+#define BUFFER_ALLOW_DUPLICATE  (1<<0)
+#define BUFFER_ALLOW_GROWTH     (1<<1)
+#define BUFFER_ALLOW_WRITE      (1<<2)
+#define BUFFER_DUPLICATE_RO     (1<<3)
 
 typedef enum {lists, blocks} buffer_list_t;
 
@@ -57,12 +61,14 @@ struct buffer
         size_t  size;
         size_t  base_idx;
 
-        uint8_t rights;
+        uint32_t rights;
 
         struct buffer_block* direct[BUFFER_LIST_SIZE];
         struct buffer_list* single_indirect;
         struct buffer_list* double_indirect;
         struct buffer_list* triple_indirect;
+
+        struct buffer* read_only_access;
 
         atomic_t opened;
         idx_t cursor;
