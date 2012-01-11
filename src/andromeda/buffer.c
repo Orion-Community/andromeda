@@ -273,7 +273,8 @@ buffer_seek_ro(struct buffer* this, long offset, seek_t from)
  * buffer_duplicate takes only one argument, which is the buffer to duplicate.
  * It returns the duplicated buffer.
  *
- * If the buffer
+ * If the buffer will be copied to a read only structure when the
+ * BUFFER_DUPLICATE_RO flag has been set in the rights.
  */
 
 static struct buffer*
@@ -285,6 +286,7 @@ buffer_duplicate(struct buffer *this)
 
         if (!(this->rights & (BUFFER_DUPLICATE_RO)))
         {
+                warning("Opening a read only buffer, not yet implemented!\n");
                 struct buffer* b = kalloc(sizeof(struct buffer));
                 if (b == NULL)
                         return NULL;

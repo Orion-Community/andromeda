@@ -71,7 +71,6 @@ extern uint32_t rodata;
 extern void start();
 void reboot();
 void shutdown();
-void warning(char* msg);
 
 #ifdef __cplusplus
 }

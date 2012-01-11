@@ -61,13 +61,6 @@ void demand_key()
 	return;
 }
 
-void warning(char* msg)
-{
-#ifdef WARN
-        printf("WARNING! %s!\n", msg);
-#endif
-}
-
 void core_loop()
 {
         uint32_t pid = 0;
