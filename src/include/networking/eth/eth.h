@@ -19,6 +19,8 @@
 #ifndef __ETH_H
 #define __ETH_H
 
+#include <networking/net.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -27,18 +29,18 @@ typedef void* frame_buf_t;
 
 typedef struct ethframe
 {
-  uint preamble : 7;
-  uint sof : 1;
-  uint destaddr : 6;
-  uint srcaddr : 6;
-  uint type : 2;
+  uint8_t preamble[8];
+  uint8_t sof;
+  uint8_t destaddr[6];
+  uint8_t srcaddr[6];
+  uint8_t type[2];
   frame_buf_t data;
-  uint fcs : 4;
+  uint8_t fcs[4];
 } *ethframe_t;
 
-void receive_ethernet_frame(frame_buf_t buffer);
+void receive_ethernet_frame(struct netdev *);
 static struct ethframe *alloc_eth_frame(uint16_t);
-static void setup_eth_frame(ethframe_t);
+static void build_ethernet_frame(ethframe_t, struct netbuf*);
 
 #ifdef __cplusplus
 }

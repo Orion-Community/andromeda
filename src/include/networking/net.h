@@ -23,16 +23,17 @@
 extern "C" {
 #endif
 
-struct netdev
-{
-  uint32_t (*read)();
-  void (*write)(uint32_t);
-};
-
 struct netbuf
 {
   uint16_t length,data_len;
   void *framebuf;
+};
+
+struct netdev
+{
+  uint32_t (*read)();
+  void (*write)(uint32_t);
+  struct netbuf buf;
 };
 
 #ifdef __cplusplus

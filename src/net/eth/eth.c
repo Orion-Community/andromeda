@@ -20,12 +20,10 @@
 #include <networking/eth/eth.h>
 
 void
-receive_ethernet_frame(frame_buf_t buffer)
+receive_ethernet_frame(struct netdev *dev)
 {
-  uint16_t size;
-  struct ethframe *frame = alloc_eth_frame(size);
-  
-  free(buffer);
+  struct ethframe *frame = alloc_eth_frame(dev->buf.data_len);
+  build_ethernet_frame(frame, &dev->buf);  
 }
 
 static struct ethframe *
@@ -37,4 +35,16 @@ alloc_eth_frame(uint16_t size)
 }
 
 static void 
-setup_eth_frame(ethframe_t);
+build_ethernet_frame(ethframe_t frame, struct netbuf * buf)
+{
+  memcpy(frame->preamble, buf->framebuf, 7);
+/*
+  memcpy(frame->sof, buf->framebuf+7, 1);
+*/
+  frame->sof = *(uint8_t*)(buf->framebuf+7);
+  memcpy(frame->destaddr, buf->framebuf+8, 6);
+  memcpy(frame->srcaddr, buf->framebuf+14, 6);
+  memcpy(frame->type, buf->framebuf+20, 2);
+  memcpy(frame->data, buf->framebuf+22, buf->data_len);
+  memcpy(frame->fcs, buf->framebuf+buf->data_len, 4);
+}
