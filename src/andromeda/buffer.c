@@ -182,12 +182,31 @@ buffer_write(struct buffer* this, char* buf, size_t num)
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn buffer_read
+ * \brief get data from buffer
+ *
+ * \param this The buffer to read from
+ * \param buf The char array to write to
+ * \param num The size of the char array
+ */
+
 static int
 buffer_read(struct buffer* this, char* buf, size_t num)
 {
         warning("buffer_read not yet implemented");
         return -E_NOFUNCTION;
 }
+
+/**
+ * \fn buffer_seek
+ *
+ * \brief seek in the buffer
+ *
+ * \param this a pointer to the buffer we're working with.
+ * \param offset what's the distance from the "from" indicator.
+ * \param from what's the point we have to seek from.
+ */
 
 static int
 buffer_seek(struct buffer* this, long offset, seek_t from)
@@ -231,6 +250,14 @@ buffer_seek(struct buffer* this, long offset, seek_t from)
         return -E_SUCCESS;
 }
 
+/**
+ * \fn buffer_close
+ * \brief closes the buffer, and cleans up the data if it's the last buffer
+ * \brief standing.
+ *
+ * \param this the buffer to close
+ */
+
 static int
 buffer_close(struct buffer* this)
 {
@@ -243,6 +270,14 @@ buffer_close(struct buffer* this)
         return -E_SUCCESS;
 }
 
+/**
+ * \fn buffer_close_ro
+ * \brief closes the buffer and if it was the last user of the regular buffer,
+ * \brief that one too.
+ *
+ * \param this the buffer to close
+ */
+
 static int
 buffer_close_ro(struct buffer* this)
 {
@@ -251,30 +286,66 @@ buffer_close_ro(struct buffer* this)
         return ret;
 }
 
+/**
+ * \fn buffer_write_ro
+ * \brief is a dummy function that returns an error code when trying to write to
+ * \brief a read only buffer.
+ *
+ * \param this The buffer to work with
+ * \param buf the char array to read from
+ * \param num the size of the char array
+ */
 static int
 buffer_write_ro(struct buffer* this, char* buf, size_t num)
 {
+        warning("Trying to write to a read only buffer!\n");
         return -E_NORIGHTS;
 }
 
+/**
+ * \fn buffer_read_ro
+ * \brief is a function that will read from the normal buffer without making any
+ * \brief changes to it.
+ *
+ * \param this The buffer to work with
+ * \param buf The char array to write to
+ * \param num the size of the char array
+ */
 static int
 buffer_read_ro(struct buffer* this, char* buf, size_t num)
 {
-        return -E_NOFUNCTION;
-}
-
-static int
-buffer_seek_ro(struct buffer* this, long offset, seek_t from)
-{
+        warning("Reading from a read only buffer is not yet supported!\n");
         return -E_NOFUNCTION;
 }
 
 /**
- * buffer_duplicate takes only one argument, which is the buffer to duplicate.
- * It returns the duplicated buffer.
+ * \fn buffer_seek_ro
+ *
+ * \brief seek in the buffer
+ *
+ * \param this a pointer to the buffer we're working with.
+ * \param offset what's the distance from the "from" indicator.
+ * \param from what's the point we have to seek from.
+ */
+
+static int
+buffer_seek_ro(struct buffer* this, long offset, seek_t from)
+{
+        this->size = this->read_only_access->size;
+        this->base_idx = this->read_only_access->base_idx;
+
+        return buffer_seek(this, offset, from);
+}
+
+/**
+ * \fn buffer_duplicate
+ * \brief takes only one argument, which is the buffer to duplicate. It returns
+ * \brief the duplicated buffer.
  *
  * If the buffer will be copied to a read only structure when the
  * BUFFER_DUPLICATE_RO flag has been set in the rights.
+ *
+ * \param this the buffer to duplicate
  */
 
 static struct buffer*
@@ -304,13 +375,15 @@ buffer_duplicate(struct buffer *this)
 }
 
 /**
- * buffer_init takes 2 arguments:
+ * \fn buffer_init
+ * \brief Initialise a new buffer
+ * takes 2 arguments:
  *
- * size, sets the size of the buffer.
+ * \param size, sets the size of the buffer.
  *      If size == BUFFER_DYNAMIC_SIZE, the size will be set to 0 and the buffer
  *      now is allowed to grow dynamically.
  *
- * base_idx, tells us up to which point we're allowed to clean up the buffer.
+ * \param base_idx, tells us up to which point we're allowed to clean up.
  *      From 0 untill base_idx, nothing will be written.
  *      It will also set the standard cursor.
  *
