@@ -59,22 +59,21 @@ build_ethernet_frame(ethframe_t frame, struct netbuf * buf)
 static enum eth_error
 process_ethernet_frame(ethframe_t frame, struct netdev *dev)
 {
+  uint64_t broadcast = MAC_BROADCAST;
+  
   /* check the hw address first */
-  printf("%x\n", !memcmp(frame->destaddr, "0xffffffffffff", 6));
-
-  if(!memcmp(frame->destaddr, dev->hwaddr, 6) || !memcmp(frame->destaddr,
-              "0xffffffffffff", 6))
+  if(!memcmp(frame->destaddr, dev->hwaddr, MAC_ADDR_SIZE) || 
+     !memcmp(frame->destaddr, &broadcast, MAC_ADDR_SIZE))
   {
-
     uint16_t type = (uint16_t)*((uint16_t*)frame->type);
     switch(type)
     {
       case ARP:
-        printf("ARP has not been implemented (fully) yet!");
+        printf("ARP has not been implemented (fully) yet!\n");
         break;
 
       case IP:
-        printf("IP has not been implemented (fully) yet!");
+        printf("IP has not been implemented (fully) yet!\n");
         break;
 
       default:
@@ -97,18 +96,20 @@ process_ethernet_frame(ethframe_t frame, struct netdev *dev)
 void debug_ethernet_stack()
 {
   struct netdev *dev = kalloc(sizeof(*dev));
-  dev->hwaddr = "0xffffffffffff";
+  
+  int i = 0;
+  for(; i < MAC_ADDR_SIZE; i++)
+    dev->hwaddr[i] = 0xaa;
   dev->buf.data_len = 60;
   dev->buf.length = 86;
   dev->buf.framebuf = kalloc(dev->buf.length);
-  uint8_t *dest = (uint8_t*) dev->buf.framebuf+8;
+  writew(dev->buf.framebuf+20, ARP);
   
-  int i = 0;
+  i = 0;
   for(; i < 6; i++)
     ((char*)dev->buf.framebuf+8)[i] = 0xff;
   
-
-  printf("%x\n", !memcmp(dev->buf.framebuf+8, dev->hwaddr, 6));
+  printf("%x\n", !memcmp(dev->buf.framebuf+8, dev->hwaddr, MAC_ADDR_SIZE));
 
   receive_ethernet_frame(dev);
   

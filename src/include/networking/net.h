@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+#define MAC_ADDR_SIZE 6
+  
 struct netbuf
 {
   uint16_t length,data_len;
@@ -33,7 +35,7 @@ struct netdev
 {
   uint32_t (*rx)();
   void (*tx)(struct netbuf*);
-  uint8_t *hwaddr; /* The NIC's MAC address */
+  uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
   struct netbuf buf; /* Current processed frame buffer */
 };
 
