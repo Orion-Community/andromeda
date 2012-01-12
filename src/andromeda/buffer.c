@@ -23,7 +23,12 @@
 #define BUFFER_BLOCK_IDX(a) (a-(a%BUFFER_BLOCK_SIZE))
 
 /**
- * buffer_add_branch adds a branch to the buffer block tree
+ * \fn buffer_add_branch
+ * \brief Adds a branch to the buffer block tree
+ *
+ * \param this The list to apply the list to
+ * \param idx The index at which we are to set the list
+ * \param type The type of list to append
  */
 static int
 buffer_add_branch(struct buffer_list* this, idx_t idx, buffer_list_t type)
@@ -56,8 +61,11 @@ buffer_add_branch(struct buffer_list* this, idx_t idx, buffer_list_t type)
 }
 
 /**
- * buffer_rm_block removes a block from the buffer and the related branches if
- * empty
+ * \fn buffer_rm_block
+ * \brief Removes a block from the buffer and the related branches if empty
+ *
+ * \param this The buffer to work with
+ * \param offset The index at which the block resides
  */
 
 static int
@@ -68,6 +76,14 @@ buffer_rm_block(struct buffer* this, idx_t offset)
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn buffer_clean_direct
+ * \brief Clean up direct blocks
+ *
+ * \param this The buffer in which we're working
+ * \param block_id The block to remove
+ */
+
 static int
 buffer_clean_direct(struct buffer* this, idx_t block_id)
 {
@@ -75,6 +91,15 @@ buffer_clean_direct(struct buffer* this, idx_t block_id)
 }
 
 #define CLEAN_LIST 0x1
+
+/**
+ * \fn buffer_clean_indirect
+ * \brief Clean up indirect blocks
+ *
+ * \param list The list we will be using
+ * \param block_id The block to remove
+ * \param level The depth at which the block resides
+ */
 
 static int
 buffer_clean_indirect(struct buffer_list* list, idx_t block_id, idx_t level)
@@ -147,6 +172,13 @@ buffer_clean_indirect(struct buffer_list* list, idx_t block_id, idx_t level)
         return -E_SUCCESS;
 }
 
+/**
+ * \fn buffer_clean_up
+ * \brief Remove all data from 0 up to base_idx
+ *
+ * \param this The buffer to clean up
+ */
+
 static int
 buffer_clean_up(struct buffer* this)
 {
@@ -159,6 +191,14 @@ buffer_clean_up(struct buffer* this)
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn buffer_add_block
+ * \brief Add a block to a certain offset into the buffer
+ *
+ * \param this The buffer to place the new block into
+ * \param offset Where we should place the new block
+ */
+
 static int
 buffer_add_block(struct buffer* this, idx_t offset)
 {
@@ -167,6 +207,14 @@ buffer_add_block(struct buffer* this, idx_t offset)
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn buffer_find_block
+ * \brief Helper function to find the requested block_id
+ *
+ * \param this The buffer to seek in
+ * \param offset The block offset in the buffer
+ */
+
 static struct buffer_block*
 buffer_find_block(struct buffer* this, idx_t offset)
 {
@@ -174,6 +222,15 @@ buffer_find_block(struct buffer* this, idx_t offset)
         warning("buffer_find_block not yet implemented");
         return NULL;
 }
+
+/**
+ * \fn buffer_write
+ * \brief Write data to stream
+ *
+ * \param this The buffer to write to
+ * \param buf The char array to write to the buffer
+ * \param num The size of the char array
+ */
 
 static int
 buffer_write(struct buffer* this, char* buf, size_t num)
@@ -271,79 +328,9 @@ buffer_close(struct buffer* this)
 }
 
 /**
- * \fn buffer_close_ro
- * \brief closes the buffer and if it was the last user of the regular buffer,
- * \brief that one too.
- *
- * \param this the buffer to close
- */
-
-static int
-buffer_close_ro(struct buffer* this)
-{
-        int ret = this->read_only_access->close(this->read_only_access);
-        free(this);
-        return ret;
-}
-
-/**
- * \fn buffer_write_ro
- * \brief is a dummy function that returns an error code when trying to write to
- * \brief a read only buffer.
- *
- * \param this The buffer to work with
- * \param buf the char array to read from
- * \param num the size of the char array
- */
-static int
-buffer_write_ro(struct buffer* this, char* buf, size_t num)
-{
-        warning("Trying to write to a read only buffer!\n");
-        return -E_NORIGHTS;
-}
-
-/**
- * \fn buffer_read_ro
- * \brief is a function that will read from the normal buffer without making any
- * \brief changes to it.
- *
- * \param this The buffer to work with
- * \param buf The char array to write to
- * \param num the size of the char array
- */
-static int
-buffer_read_ro(struct buffer* this, char* buf, size_t num)
-{
-        warning("Reading from a read only buffer is not yet supported!\n");
-        return -E_NOFUNCTION;
-}
-
-/**
- * \fn buffer_seek_ro
- *
- * \brief seek in the buffer
- *
- * \param this a pointer to the buffer we're working with.
- * \param offset what's the distance from the "from" indicator.
- * \param from what's the point we have to seek from.
- */
-
-static int
-buffer_seek_ro(struct buffer* this, long offset, seek_t from)
-{
-        this->size = this->read_only_access->size;
-        this->base_idx = this->read_only_access->base_idx;
-
-        return buffer_seek(this, offset, from);
-}
-
-/**
  * \fn buffer_duplicate
  * \brief takes only one argument, which is the buffer to duplicate. It returns
  * \brief the duplicated buffer.
- *
- * If the buffer will be copied to a read only structure when the
- * BUFFER_DUPLICATE_RO flag has been set in the rights.
  *
  * \param this the buffer to duplicate
  */
@@ -351,27 +338,11 @@ buffer_seek_ro(struct buffer* this, long offset, seek_t from)
 static struct buffer*
 buffer_duplicate(struct buffer *this)
 {
-        struct buffer* b = this;
         if (!(this->rights & (BUFFER_ALLOW_DUPLICATE)))
                 return NULL;
 
-        if (!(this->rights & (BUFFER_DUPLICATE_RO)))
-        {
-                warning("Opening a read only buffer, not yet implemented!\n");
-                struct buffer* b = kalloc(sizeof(struct buffer));
-                if (b == NULL)
-                        return NULL;
-
-                memcpy (b, this, sizeof(struct buffer));
-                b->rights ^= ~((uint32_t)0&BUFFER_ALLOW_WRITE);
-                b->read_only_access = this;
-                b->close = buffer_close_ro;
-                b->write = buffer_write_ro;
-                b->read = buffer_read_ro;
-                b->seek = buffer_seek_ro;
-        }
         atomic_inc(&(this->opened));
-        return b;
+        return this;
 }
 
 /**

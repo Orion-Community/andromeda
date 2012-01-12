@@ -32,10 +32,9 @@ extern "C" {
 
 #define BUFFER_ALLOW_DUPLICATE  (1<<0)
 #define BUFFER_ALLOW_GROWTH     (1<<1)
-#define BUFFER_ALLOW_WRITE      (1<<2)
-#define BUFFER_DUPLICATE_RO     (1<<3)
 
 typedef enum {lists, blocks} buffer_list_t;
+typedef enum {lineair_access, random_access} mode_t;
 
 struct buffer_block
 {
@@ -55,30 +54,65 @@ struct buffer_list
         };
 };
 
+/**
+ * \struct buffer
+ * \brief The buffer descriptor
+ */
 struct buffer
 {
-        mutex_t lock;
-        size_t  size;
-        size_t  base_idx;
+        mutex_t lock; /// \var lock
+        size_t  size; /// \var size
+        size_t  base_idx; /// \var base_idx
 
-        uint32_t rights;
+        uint32_t rights; /// \var rights
 
-        struct buffer_block* direct[BUFFER_LIST_SIZE];
-        struct buffer_list* single_indirect;
-        struct buffer_list* double_indirect;
-        struct buffer_list* triple_indirect;
+        struct buffer_block* direct[BUFFER_LIST_SIZE]; /// \var direct ptrs
+        struct buffer_list* single_indirect; /// \var indirect ptrs
+        struct buffer_list* double_indirect; /// \var double indirect ptrs
+        struct buffer_list* triple_indirect; /// \var triple indirect ptrs
 
-        struct buffer* read_only_access;
+        atomic_t opened; /// \var opened How many pointers exist to this buffer
+        idx_t cursor; /// \var cursor Where we're reading in the buffer
 
-        atomic_t opened;
-        idx_t cursor;
-
+        /** \fn struct buffer* dulpicate
+         *  \param this */
         struct buffer* (*duplicate)(struct buffer* this);
+        /** \fn int read
+         *  \param this \param buf \param num */
         int (*read)(struct buffer* this, char* buf, size_t num);
+        /** \fn int read_rand
+         *  \param this \param buf \param num \param idx */
+        int (*read_rand)(struct buffer* this, char* buf, size_t num, idx_t idx);
+        /** \fn int write
+         *  \param this \param buf \param num */
         int (*write)(struct buffer* this, char* buf, size_t num);
+        /** \fn write_rand
+         *  \param this \param buf \param num \param idx */
+        int (*write_rand)(struct buffer* this, char* buf, size_t num,
+                                                                     idx_t idx);
+        /** \fn seek
+         *  \param this \param offset \param from */
         int (*seek)(struct buffer* this, long offset, seek_t from);
+        /** \fn close
+         *  \param this */
         int (*close)(struct buffer* this);
 };
+
+/**
+ * \fn buffer_init
+ * \brief Initialise a new buffer
+ * takes 2 arguments:
+ *
+ * \param size, sets the size of the buffer.
+ *      If size == BUFFER_DYNAMIC_SIZE, the size will be set to 0 and the buffer
+ *      now is allowed to grow dynamically.
+ *
+ * \param base_idx, tells us up to which point we're allowed to clean up.
+ *      From 0 untill base_idx, nothing will be written.
+ *      It will also set the standard cursor.
+ *
+ * This function returns the newly created buffer.
+ */
 
 struct buffer* buffer_init();
 
