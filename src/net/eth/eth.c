@@ -108,8 +108,6 @@ void debug_ethernet_stack()
   i = 0;
   for(; i < 6; i++)
     ((char*)dev->buf.framebuf+8)[i] = 0xff;
-  
-  printf("%x\n", !memcmp(dev->buf.framebuf+8, dev->hwaddr, MAC_ADDR_SIZE));
 
   receive_ethernet_frame(dev);
   
