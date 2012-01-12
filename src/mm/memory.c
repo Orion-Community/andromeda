@@ -216,15 +216,15 @@ int memcmp(void *ptr1, void* ptr2, size_t count)
 		count -= 4;
 	}
 #endif
-	if (count >= 2)
+	while(count >= 2)
 	{
-		if (*(unsigned long long*) ptr1 - *(unsigned long long*) ptr2)
+		if (*(unsigned short*) ptr1 - *(unsigned short*) ptr2)
 			return 1;
 		ptr1 += 2;
 		ptr2 += 2;
 		count -= 2;
 	}
-	if ((count == 1)&&(*(unsigned long long*) ptr1 - *(unsigned long long*) ptr2))
+	if ((count == 1)&&(*(unsigned char*) ptr1 - *(unsigned char*) ptr2))
 	{
 		return 1;
 	}

@@ -60,10 +60,12 @@ static enum eth_error
 process_ethernet_frame(ethframe_t frame, struct netdev *dev)
 {
   /* check the hw address first */
-  char *broadcast = "0xffffffffffff";
-  if(memcmp(frame->destaddr, dev->hwaddr, 6) || memcmp(frame->destaddr,
-              broadcast, 6))
+  printf("%x\n", !memcmp(frame->destaddr, "0xffffffffffff", 6));
+
+  if(!memcmp(frame->destaddr, dev->hwaddr, 6) || !memcmp(frame->destaddr,
+              "0xffffffffffff", 6))
   {
+
     uint16_t type = (uint16_t)*((uint16_t*)frame->type);
     switch(type)
     {
@@ -83,12 +85,34 @@ process_ethernet_frame(ethframe_t frame, struct netdev *dev)
   }
   else
   {
+    printf("MAC-address mismatch. Discarding packet.\n");
     return 1;
   }
 }
 
 #ifdef ETH_DBG
+/**
+ * This function will create a fake ethernet packet to test the receive functions
+ */
 void debug_ethernet_stack()
 {
+  struct netdev *dev = kalloc(sizeof(*dev));
+  dev->hwaddr = "0xffffffffffff";
+  dev->buf.data_len = 60;
+  dev->buf.length = 86;
+  dev->buf.framebuf = kalloc(dev->buf.length);
+  uint8_t *dest = (uint8_t*) dev->buf.framebuf+8;
+  
+  int i = 0;
+  for(; i < 6; i++)
+    ((char*)dev->buf.framebuf+8)[i] = 0xff;
+  
+
+  printf("%x\n", !memcmp(dev->buf.framebuf+8, dev->hwaddr, 6));
+
+  receive_ethernet_frame(dev);
+  
+  free(dev->buf.framebuf);
+  free(dev);
 }
 #endif

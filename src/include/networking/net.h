@@ -33,7 +33,7 @@ struct netdev
 {
   uint32_t (*rx)();
   void (*tx)(struct netbuf*);
-  uint8_t hwaddr[6]; /* The NIC's MAC address */
+  uint8_t *hwaddr; /* The NIC's MAC address */
   struct netbuf buf; /* Current processed frame buffer */
 };
 
