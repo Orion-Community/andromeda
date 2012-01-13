@@ -42,11 +42,22 @@ struct buffer_block
         char data[BUFFER_BLOCK_SIZE];
 };
 
+/** \struct buffer_list
+ *  \brief This one is a list which can have lists or blocks
+ */
 struct buffer_list
 {
-        buffer_list_t type; /** Are we using branches or are these leaves */
-        atomic_t used; /** How many entries are currently in use */
-        mutex_t lock; /** Used when adding or removing a leaf/branch */
+        buffer_list_t type; /** \var type
+                                \brief What type of list do we have */
+        atomic_t used; /** \var used
+                           \brief How many entries are currently in use */
+        mutex_t lock; /** \var lock */
+        /** \union
+         *  \var lists Lists
+         *  \brief the sub-lists
+         *  \var blocks
+         *  \brief Lists the blocks we're using
+         */
         union
         {
                 struct buffer_block* blocks[BUFFER_LIST_SIZE]; /** The leaves */
@@ -60,19 +71,26 @@ struct buffer_list
  */
 struct buffer
 {
-        mutex_t lock; /// \var lock
-        size_t  size; /// \var size
-        size_t  base_idx; /// \var base_idx
+        mutex_t lock; /** \var lock */
+        size_t  size; /** \var size */
+        size_t  base_idx; /** \var base_idx */
 
-        uint32_t rights; /// \var rights
+        uint32_t rights; /** \var rights */
 
-        struct buffer_block* direct[BUFFER_LIST_SIZE]; /// \var direct ptrs
-        struct buffer_list* single_indirect; /// \var indirect ptrs
-        struct buffer_list* double_indirect; /// \var double indirect ptrs
-        struct buffer_list* triple_indirect; /// \var triple indirect ptrs
+        struct buffer_block* direct[BUFFER_LIST_SIZE]; /** \var direct */
+        /** \brief The block pointed to directly */
+        struct buffer_list* single_indirect; /** \var indirect*/
+        struct buffer_list* double_indirect; /** \var double_indirect */
+        struct buffer_list* triple_indirect; /** \var triple_indirect */
+        /** \brief The blocks that reside in a tree hierarchy */
 
-        atomic_t opened; /// \var opened How many pointers exist to this buffer
-        idx_t cursor; /// \var cursor Where we're reading in the buffer
+        /** \var opened
+          * \brief Counts the duplications
+          * \var cursor
+          * \brief Where we're reading in the buffer
+          */
+        atomic_t opened;
+        idx_t cursor;
 
         /** \fn struct buffer* dulpicate
          *  \param this */
@@ -113,8 +131,7 @@ struct buffer
  *
  * This function returns the newly created buffer.
  */
-
-struct buffer* buffer_init();
+struct buffer* buffer_init(idx_t size, idx_t base_idx);
 
 #ifdef __cplusplus
 }
