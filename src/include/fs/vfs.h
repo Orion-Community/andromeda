@@ -32,19 +32,43 @@ typedef enum {dir, block_dev, char_dev, file} file_type_t;
 
 struct vsuper_block;
 
+/** \struct vfile */
 struct vfile
 {
+        /**
+         * \var uid
+         * \brief user_id
+         * \var gid
+         * \brief group_id
+         * \var rights
+         */
         uint32_t uid;
         uint32_t gid;
         uint16_t rights;
 
         file_type_t type;
 
+        /**
+         * \var dir_ent
+         * \brief Parent directory entry
+         * \var super
+         * \brief The super block to which we're related
+         * \var fs_data_size
+         * \var fs_data
+         * \brief The data related to this file by the fs driver
+         */
         struct vdir_ent *dir_ent;
         struct vsuper_block *super;
         size_t fs_data_size;
         void* fs_data;
 
+        /**
+         * \fn close (this)
+         * \fn read(this, buf, num)
+         * \fn write(this, buf, num)
+         * \fn seek(this, idx, from)
+         * \fn flush(this)
+         */
         int (*close)(struct vfile* this);
         int (*read)(struct vfile* this, char* buf, size_t num);
         int (*write)(struct vfile* this, char* buf, size_t num);
