@@ -78,6 +78,7 @@ struct buffer
         mutex_t lock; /** \var lock */
         size_t  size; /** \var size */
         size_t  base_idx; /** \var base_idx */
+        idx_t   cleaned; /** \var cleaned */
 
         uint32_t rights; /** \var rights */
 
@@ -87,7 +88,7 @@ struct buffer
          *
          * This means a list of lists of lists of blocks ...
          */
-        struct buffer_list* blocks[BUFFER_LIST_SIZE];
+        struct buffer_list *blocks[BUFFER_LIST_SIZE];
 
         /** \var opened
           * \brief Counts the duplications

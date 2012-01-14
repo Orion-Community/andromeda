@@ -20,6 +20,11 @@
 #include <stdlib.h>
 #include <andromeda/buffer.h>
 
+inline static idx_t get_idx(idx_t offset, idx_t depth)
+{
+        return (offset>>((BUFFER_TREE_DEPTH-depth+1)*12))&BUFFER_LIST_SIZE;
+}
+
 /**
  * \fn buffer_add_branch
  * \brief Adds a branch to the buffer block tree
@@ -70,13 +75,15 @@ static int
 buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
 {
         warning("buffer_rm_block not yet tested!\n");
+        if (depth > 5)
+                return -E_INVALID_ARG;
 
         if (this == NULL)
                 goto err;
 
         mutex_lock(this->lock);
 
-        idx_t idx = (offset>>((BUFFER_TREE_DEPTH-depth+1)*12))&BUFFER_LIST_SIZE;
+        idx_t idx = get_idx(offset, depth);
 
         int ret = -E_SUCCESS;
         if (depth != BUFFER_TREE_DEPTH+1)
@@ -85,13 +92,16 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
                 if (list == NULL)
                         goto err_locked;
                 ret = buffer_rm_block(list, offset, depth+1);
-                if (ret == -E_CLEAN_PARENT)
+                switch(ret)
                 {
+                case -E_CLEAN_PARENT:
                         free(this->lists[idx]);
                         if (atomic_dec(&this->used) == 0)
                                 return -E_CLEAN_PARENT;
+                        break;
+                default:
+                        return ret;
                 }
-                return -E_SUCCESS;
         }
 
         if (this->blocks[idx] == NULL)
@@ -119,13 +129,20 @@ err:
 static int
 buffer_clean_up(struct buffer* this)
 {
-        warning("buffer_clean_up not yet implemented!\n");
+        if (this == NULL)
+                return -E_NULL_PTR;
 
-        /** Clean up untill base_idx == size */
+        warning("buffer_clean_up not yet tested!\n");
 
+        /** Clean up from the location last cleaned untill base_idx */
 
+        idx_t idx = this->cleaned;
+        for (; idx < this->base_idx; idx++)
+                buffer_rm_block(this->blocks, idx, 0);
 
-        return -E_NOFUNCTION;
+        this->cleaned = idx;
+
+        return -E_SUCCESS;
 }
 
 /**
@@ -152,9 +169,18 @@ buffer_add_block(struct buffer* this, idx_t offset)
  */
 
 static struct buffer_block*
-buffer_find_block(struct buffer* this, idx_t offset)
+buffer_find_block(struct buffer_list* this, idx_t offset, idx_t depth)
 {
         warning("buffer_find_block not yet implemented!\n");
+
+        if (this == NULL)
+                goto err;
+
+
+
+        return NULL;
+
+err:
         return NULL;
 }
 
