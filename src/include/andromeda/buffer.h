@@ -90,30 +90,10 @@ struct buffer
           * \brief Where we're reading in the buffer
           */
         atomic_t opened;
-        idx_t cursor;
 
         /** \fn struct buffer* dulpicate
          *  \param this */
         struct buffer* (*duplicate)(struct buffer* this);
-        /** \fn int read
-         *  \param this \param buf \param num */
-        int (*read)(struct buffer* this, char* buf, size_t num);
-        /** \fn int read_rand
-         *  \param this \param buf \param num \param idx */
-        int (*read_rand)(struct buffer* this, char* buf, size_t num, idx_t idx);
-        /** \fn int write
-         *  \param this \param buf \param num */
-        int (*write)(struct buffer* this, char* buf, size_t num);
-        /** \fn write_rand
-         *  \param this \param buf \param num \param idx */
-        int (*write_rand)(struct buffer* this, char* buf, size_t num,
-                                                                     idx_t idx);
-        /** \fn seek
-         *  \param this \param offset \param from */
-        int (*seek)(struct buffer* this, long offset, seek_t from);
-        /** \fn close
-         *  \param this */
-        int (*close)(struct buffer* this);
 };
 
 /**
@@ -131,7 +111,7 @@ struct buffer
  *
  * This function returns the newly created buffer.
  */
-struct buffer* buffer_init(idx_t size, idx_t base_idx);
+int buffer_init(struct vfile* this, idx_t size, idx_t base_idx);
 
 #ifdef __cplusplus
 }

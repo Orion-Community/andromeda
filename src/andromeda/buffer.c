@@ -233,7 +233,7 @@ buffer_find_block(struct buffer* this, idx_t offset)
  */
 
 static int
-buffer_write(struct buffer* this, char* buf, size_t num)
+buffer_write(struct vfile* this, char* buf, size_t num)
 {
         warning("buffer_write not yet implemented");
         return -E_NOFUNCTION;
@@ -249,7 +249,7 @@ buffer_write(struct buffer* this, char* buf, size_t num)
  */
 
 static int
-buffer_read(struct buffer* this, char* buf, size_t num)
+buffer_read(struct vfile* this, char* buf, size_t num)
 {
         warning("buffer_read not yet implemented");
         return -E_NOFUNCTION;
@@ -266,37 +266,41 @@ buffer_read(struct buffer* this, char* buf, size_t num)
  */
 
 static int
-buffer_seek(struct buffer* this, long offset, seek_t from)
+buffer_seek(struct vfile* this, idx_t offset, seek_t from)
 {
+        if (this == NULL || this->fs_data == NULL)
+                return -E_NULL_PTR;
+
+        struct buffer* buf = this->fs_data;
         switch(from)
         {
         case SEEK_SET:
-                if (offset < this->base_idx)
-                        this->cursor = this->base_idx;
-                else if (offset > this->size)
-                        this->cursor = this->size;
+                if (offset < buf->base_idx)
+                        this->cursor = buf->base_idx;
+                else if (offset > buf->size)
+                        this->cursor = buf->size;
                 else
                         this->cursor = offset;
                 break;
 
         case SEEK_CUR:
-                if (offset < 0 && (-offset < (this->cursor - this->base_idx)))
+                if (offset < 0 && (-offset < (this->cursor - buf->base_idx)))
                         this->cursor += offset;
                 else if (offset < 0)
-                        this->cursor = this->base_idx;
-                else if (offset > (this->size-this->cursor))
-                        this->cursor = this->size;
+                        this->cursor = buf->base_idx;
+                else if (offset > (buf->size-this->cursor))
+                        this->cursor = buf->size;
                 else
                         this->cursor += offset;
                 break;
 
         case SEEK_END:
                 if (offset > 0)
-                        this->cursor = this->size;
-                else if (offset < 0 && -offset < (this->size - this->base_idx))
+                        this->cursor = buf->size;
+                else if (offset < 0 && -offset < (buf->size - buf->base_idx))
                         this->cursor += offset;
                 else
-                        this->cursor = this->base_idx;
+                        this->cursor = buf->base_idx;
                 break;
 
         default:
@@ -316,12 +320,15 @@ buffer_seek(struct buffer* this, long offset, seek_t from)
  */
 
 static int
-buffer_close(struct buffer* this)
+buffer_close(struct vfile* this)
 {
-        if (atomic_dec(&(this->opened)) == 0)
+        if (this == NULL || this->fs_data == NULL)
+                return -E_NULL_PTR;
+
+        if (atomic_dec(&(((struct buffer*)this->fs_data)->opened)) == 0)
         {
                 /** clean up the entire buffer */
-                return buffer_clean_up(this);
+                return buffer_clean_up(this->fs_data);
         };
         /** we have removed this instance ...  */
         return -E_SUCCESS;
@@ -361,26 +368,31 @@ buffer_duplicate(struct buffer *this)
  * This function returns the newly created buffer.
  */
 
-struct buffer*
-buffer_init(idx_t size, idx_t base_idx)
+int
+buffer_init(struct vfile* this, idx_t size, idx_t base_idx)
 {
+        if (this == NULL)
+                return -E_NULL_PTR;
+
         struct buffer* b = kalloc(sizeof(struct buffer));
         if (b == NULL)
-                return NULL;
+                return -E_NOMEM;
         memset(b, 0, sizeof(struct buffer));
 
-        b->read = buffer_read;
-        b->seek = buffer_seek;
-        b->write = buffer_write;
-        b->close = buffer_close;
+        this->read = buffer_read;
+        this->seek = buffer_seek;
+        this->write = buffer_write;
+        this->close = buffer_close;
+
+        b->duplicate = buffer_duplicate;
 
         b->size = (size == BUFFER_DYNAMIC_SIZE) ? 0 : size;
         b->base_idx = base_idx;
         b->rights |= (size == BUFFER_DYNAMIC_SIZE) ? BUFFER_ALLOW_GROWTH : 0;
 
-        b->cursor = b->base_idx;
-
         atomic_inc(&b->opened);
 
-        return b;
+        this->fs_data = b;
+        this->fs_data_size = sizeof(struct buffer);
+        return -E_SUCCESS;
 }

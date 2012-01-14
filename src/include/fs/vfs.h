@@ -33,6 +33,7 @@ typedef enum {dir, block_dev, char_dev, file} file_type_t;
 struct vsuper_block;
 
 /** \struct vfile */
+/** \brief What we're looking at now is the file descriptor */
 struct vfile
 {
         /**
@@ -45,6 +46,7 @@ struct vfile
         uint32_t uid;
         uint32_t gid;
         uint16_t rights;
+        idx_t cursor;
 
         file_type_t type;
 
@@ -72,10 +74,12 @@ struct vfile
         int (*close)(struct vfile* this);
         int (*read)(struct vfile* this, char* buf, size_t num);
         int (*write)(struct vfile* this, char* buf, size_t num);
-        int (*seek)(struct vfile* this, size_t idx, seek_t from);
+        int (*seek)(struct vfile* this, idx_t idx, seek_t from);
         int (*flush)(struct vfile* this);
 };
 
+/** \struct vdir_ent */
+/** \brief Hello directory entry. */
 struct vdir_ent
 {
         struct vsuper_block* super;
@@ -83,6 +87,7 @@ struct vdir_ent
         char *name;
 };
 
+/** \struct vdir */
 struct vdir
 {
         struct vdir_ent*        entries[DIR_LIST_SIZE];
@@ -90,6 +95,8 @@ struct vdir
         struct vsuper_block*    mounted;
 };
 
+/** \struct vsuper_block */
+/** \brief The file system descriptor. */
 struct vsuper_block
 {
         struct vfile* fs_root;
@@ -104,8 +111,12 @@ struct vsuper_block
         struct vfile* (*open)(struct vsuper_block* this, struct vdir_ent* entry);
 };
 
+/** \struct vmount */
+/** \brief Keep track of mounts */
 struct vmount
 {
+        /** \var mount_point */
+        /** \brief To which director entry is this mounted? */
         struct vdir_ent *mount_point;
         struct vmount* next;
 };
