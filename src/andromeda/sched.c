@@ -242,7 +242,7 @@ struct __TASK_STATE* dest;
 int fork()
 {
         warning("WARNING! In fork the registers copied probably aren't "
-                                                               "up-to-date");
+                                                                "up-to-date\n");
 
 	struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
 	if (new == NULL)
@@ -251,13 +251,14 @@ int fork()
 	struct __TASK_STATE* running = current_task();
 	if (running == NULL)
 		return;
+
 	memcpy (new, running, sizeof (struct __TASK_STATE));
-		if (thread_copy(running, new) != -E_SUCCESS)
-		{
-			thread_cleanup_all(new);
-			free(new);
-			goto err;
-		}
+        if (thread_copy(running, new) != -E_SUCCESS)
+        {
+                thread_cleanup_all(new);
+                free(new);
+                goto err;
+        }
 
 	new->parent_id = current;
 
@@ -285,7 +286,7 @@ find_task(uint32_t pid)
 		return NULL;
 
 	struct __TASK_BRANCH_NODE *level2 =
-					task_stack->branch[((pid >> 8) & 0xFF)];
+                                        task_stack->branch[((pid >> 8) & 0xFF)];
 	struct __TASK_STATE *task = level2->task[(pid & 0xFF)];
 
 	return task;
@@ -307,7 +308,7 @@ void kill(int pid)
 	mutex_lock(sched_lock);
 
 	struct __TASK_BRANCH_NODE *level2 =
-					  task_stack->branch[(pid >> 8) & 0xFF];
+                                          task_stack->branch[(pid >> 8) & 0xFF];
 	if (level2 == NULL)
 		return;
 	struct __TASK_STATE *task = level2->task[(pid & 0xFF)];
@@ -373,7 +374,7 @@ int task_init()
 	thread->ss_size = STD_STACK_SIZE;
 
 	/** Where can we find more info if swapped out? */
-        warning("WARNING! No path to kernel binary");
+        warning("WARNING! No path to kernel binary\n");
 	kern->path_to_bin = NULL;
 
 	kern->state = runnable;

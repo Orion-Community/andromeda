@@ -33,7 +33,8 @@ extern "C" {
 #define BUFFER_ALLOW_DUPLICATE  (1<<0)
 #define BUFFER_ALLOW_GROWTH     (1<<1)
 
-typedef enum {lists, blocks} buffer_list_t;
+#define BUFFER_TREE_DEPTH       4
+
 typedef enum {lineair_access, random_access} mode_t;
 
 struct buffer_block
@@ -44,13 +45,16 @@ struct buffer_block
 
 /** \struct buffer_list
  *  \brief This one is a list which can have lists or blocks
+ * The depth of the list determines the type of list we are.
+ * If we're the deepest one, we're holding blocks, else we're holding lists.
  */
 struct buffer_list
 {
-        buffer_list_t type; /** \var type
-                                \brief What type of list do we have */
-        atomic_t used; /** \var used
-                           \brief How many entries are currently in use */
+        /**
+         * \var used
+         * \brief How many entries are currently in use
+         */
+        atomic_t used;
         mutex_t lock; /** \var lock */
         /** \union
          *  \var lists Lists
@@ -77,17 +81,16 @@ struct buffer
 
         uint32_t rights; /** \var rights */
 
-        struct buffer_block* direct[BUFFER_LIST_SIZE]; /** \var direct */
-        /** \brief The block pointed to directly */
-        struct buffer_list* single_indirect; /** \var indirect*/
-        struct buffer_list* double_indirect; /** \var double_indirect */
-        struct buffer_list* triple_indirect; /** \var triple_indirect */
-        /** \brief The blocks that reside in a tree hierarchy */
+        /**
+         * \var blocks
+         * \brief A tree of blocks consisting out of 4 layers and the blocks
+         *
+         * This means a list of lists of lists of blocks ...
+         */
+        struct buffer_list* blocks[BUFFER_LIST_SIZE];
 
         /** \var opened
           * \brief Counts the duplications
-          * \var cursor
-          * \brief Where we're reading in the buffer
           */
         atomic_t opened;
 
