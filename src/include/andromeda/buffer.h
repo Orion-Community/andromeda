@@ -88,7 +88,7 @@ struct buffer
          *
          * This means a list of lists of lists of blocks ...
          */
-        struct buffer_list *blocks[BUFFER_LIST_SIZE];
+        struct buffer_list *blocks;
 
         /** \var opened
           * \brief Counts the duplications
