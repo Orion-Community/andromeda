@@ -25,6 +25,28 @@ extern "C" {
 
 #define MAC_ADDR_SIZE 6
   
+/* loops */
+#define for_each_queue_item_safe(head, carriage) for((carriage) = (head); \
+                                                    (carriage)->next != null, \
+                                                    (carriage) != (carriage)->next; \
+                                                    (carriage) = (carriage)->next)
+  
+  typedef void* net_buff_data_t;
+  
+/**
+ * Incoming packets will be queued using this structure. When a packed arrives,
+ * it will be appended after the last current entry. The core driver will empty
+ * the queue from the beginning on, this creates a FIFO situation. Used like an
+ * inverted Java Queue object.
+ */
+struct net_queue
+{
+  struct net_queue *next;
+  struct net_queue *previous;
+  
+  struct net_buff *packet;
+} __attribute__((packed));
+  
 struct netbuf
 {
   uint16_t length,data_len;
@@ -38,6 +60,31 @@ struct netdev
   uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
   struct netbuf buf; /* Current processed frame buffer */
 };
+
+struct net_buff
+{
+  struct net_buff *next;
+  struct net_buff *previous;
+  
+  unsigned int lenth;
+  unsigned short data_len;
+  struct netdev dev;
+  
+  net_buff_data_t transport_hdr;
+  net_buff_data_t network_hdr;
+  net_buff_data_t datalink_hdr;
+} __attribute__((packed));
+
+typedef void(*tx_hook_t)(struct net_buff*);
+typedef net_buff_data_t(*rx_hook_t)();
+
+int register_net_dev(rx_hook_t rx, tx_hook_t tx);
+int net_rx(net_buff_data_t frame);
+struct net_buff *alloc_buff_frame(unsigned int frame_len);
+static int *net_buff_append_list(struct net_buff *alpha, struct net_buff *beta);
+static struct net_queue *remove_first_queue_entry(struct net_queue queue);
+static int net_queue_append_list(struct net_queue queue, struct net_queue* item);
+static void process_rx_packet(struct net_buff *packet);
 
 #ifdef __cplusplus
 }

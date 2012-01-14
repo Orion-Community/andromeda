@@ -43,11 +43,16 @@ build_ethernet_frame(ethframe_t frame, struct netbuf * buf)
   memcpy(frame->sof, buf->framebuf+7, 1);
 */
   frame->sof = *(uint8_t*)(buf->framebuf+7);
-  memcpy(frame->destaddr, buf->framebuf+8, 6);
-  memcpy(frame->srcaddr, buf->framebuf+14, 6);
+  memcpy(frame->destaddr, buf->framebuf+8, MAC_ADDR_SIZE);
+  memcpy(frame->srcaddr, buf->framebuf+14, MAC_ADDR_SIZE);
   memcpy(frame->type, buf->framebuf+20, 2);
   memcpy(frame->data, buf->framebuf+22, buf->data_len);
   memcpy(frame->fcs, buf->framebuf+buf->data_len, 4);
+}
+
+static void
+build_hw_frame(ethframe_t frame, void *protocol)
+{
 }
 
 /**
