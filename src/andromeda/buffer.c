@@ -137,8 +137,8 @@ buffer_clean_up(struct buffer* this)
         /** Clean up from the location last cleaned untill base_idx */
 
         idx_t idx = this->cleaned;
-        for (; idx < this->base_idx; idx++)
-                buffer_rm_block(this->blocks, idx, 0);
+        for (; idx < this->base_idx; idx+=BUFFER_BLOCK_SIZE)
+                buffer_rm_block(this->blocks, idx/BUFFER_BLOCK_SIZE, 0);
 
         this->cleaned = idx;
 
