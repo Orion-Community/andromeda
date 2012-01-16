@@ -79,7 +79,6 @@ struct buffer
         size_t  size; /** \var size */
         size_t  base_idx; /** \var base_idx */
         idx_t   cleaned; /** \var cleaned */
-
         uint32_t rights; /** \var rights */
 
         /**

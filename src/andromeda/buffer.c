@@ -34,33 +34,37 @@ inline static idx_t get_idx(idx_t offset, idx_t depth)
  * \param type The type of list to append
  */
 // static int
-// buffer_add_branch(struct buffer_list* this, idx_t idx, buffer_list_t type)
+// buffer_add_branch(struct buffer_list* this, idx_t idx)
 // {
+//         int ret = -E_SUCCESS;
 //         if (this == NULL)
 //                 return -E_NULL_PTR;
-//
-//         if (this->type == blocks || idx > BUFFER_LIST_SIZE)
-//                 return -E_INVALID_ARG;
 //
 //         mutex_lock(this->lock);
 //         if (this->lists[idx] != NULL)
 //         {
-//                 mutex_unlock(this->lock);
-//                 return -E_ALREADY_INITIALISED;
+//                 ret = -E_ALREADY_INITIALISED;
+//                 goto err_locked;
 //         }
 //
 //         struct buffer_list* to_add = kalloc(sizeof(struct buffer_list));
 //         if (to_add == NULL)
-//                 return -E_NOMEM;
+//         {
+//                 ret = -E_NOMEM;
+//                 goto err_locked;
+//         }
 //         memset(to_add, 0, sizeof(struct buffer_list));
-//
-//         to_add->type = type;
 //
 //         this->lists[idx] = to_add;
 //         atomic_inc(&(this->used));
 //
 //         mutex_unlock(this->lock);
 //         return -E_SUCCESS;
+//
+// err_locked:
+//         mutex_unlock(this->lock);
+// err:
+//         return ret;
 // }
 
 /**
@@ -69,6 +73,7 @@ inline static idx_t get_idx(idx_t offset, idx_t depth)
  *
  * \param this The buffer to work with
  * \param offset The index at which the block resides
+ * \param depth For external calls, keep 0
  */
 
 static int
@@ -150,14 +155,38 @@ buffer_clean_up(struct buffer* this)
  * \brief Add a block to a certain offset into the buffer
  *
  * \param this The buffer to place the new block into
+ * \param list The list to add the block to
  * \param offset Where we should place the new block
+ * \param depth for external calls, keep 0
  */
 
 static int
-buffer_add_block(struct buffer* this, idx_t offset)
+buffer_add_block(this, list, offset, depth)
+struct buffer_block* this;
+struct buffer_list* list;
+idx_t offset;
+idx_t depth;
 {
-        warning("buffer_add_block not yet implemented!\n");
-        return -E_NOFUNCTION;
+        warning("buffer_add_block not yet tested!\n");
+        if (list == NULL)
+                return -E_NULL_PTR;
+
+        idx_t list_idx = get_idx(offset, depth);
+
+        if (depth != BUFFER_TREE_DEPTH+1)
+        {
+                if (list->lists[list_idx] == NULL)
+                        return -E_NULL_PTR;
+                return buffer_add_block(this, list->lists[list_idx],
+                                                                         offset,
+                                                                       depth+1);
+        }
+
+        if (list->blocks[list_idx] != NULL)
+                return -E_ALREADY_INITIALISED;
+
+        list->blocks[list_idx] = this;
+        return -E_SUCCESS;
 }
 
 /**
@@ -166,19 +195,27 @@ buffer_add_block(struct buffer* this, idx_t offset)
  *
  * \param this The buffer to seek in
  * \param offset The block offset in the buffer
+ * \param depth For external calls, keep 0
  */
 
 static struct buffer_block*
 buffer_find_block(struct buffer_list* this, idx_t offset, idx_t depth)
 {
-        warning("buffer_find_block not yet implemented!\n");
+        warning("buffer_find_block not yet tested!\n");
 
         if (this == NULL)
                 goto err;
 
+        idx_t list_idx = get_idx(offset, depth);
+        struct buffer_block* ret;
 
+        if (depth != BUFFER_TREE_DEPTH+1)
+                ret = buffer_find_block(this->lists[list_idx], offset, depth);
 
-        return NULL;
+        else
+                ret = this->blocks[list_idx];
+
+        return ret;
 
 err:
         return NULL;
