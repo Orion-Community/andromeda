@@ -237,7 +237,36 @@ static int
 buffer_read(struct vfile* this, char* buf, size_t num)
 {
         warning("buffer_read not yet implemented!\n");
-        return -E_NOFUNCTION;
+        idx_t offset = this->cursor / BUFFER_BLOCK_SIZE;
+        idx_t block_cur = this->cursor % BUFFER_BLOCK_SIZE;
+
+        struct buffer* buffer = this->fs_data;
+        if (buffer == NULL)
+                return -E_NULL_PTR;
+
+        struct buffer_block *b = buffer_find_block(buffer->blocks, offset, 0);
+        if (b == NULL)
+                return -E_NULL_PTR;
+
+        size_t idx = 0;
+        for (; idx < num; idx++, block_cur++)
+        {
+                if (block_cur >= BUFFER_BLOCK_SIZE)
+                {
+                        offset++;
+                        block_cur -= BUFFER_BLOCK_SIZE;
+                        b = buffer_find_block(buffer->blocks, offset, 0);
+                        if (b == NULL)
+                        {
+                                this->cursor += idx;
+                                return -E_NULL_PTR;
+                        }
+                }
+                buf[idx] = b->data[block_cur];
+        }
+
+        this->cursor += idx;
+        return -E_SUCCESS;
 }
 
 /**
