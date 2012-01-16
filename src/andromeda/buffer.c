@@ -25,47 +25,15 @@ inline static idx_t get_idx(idx_t offset, idx_t depth)
         return (offset>>((BUFFER_TREE_DEPTH-depth+1)*12))&BUFFER_LIST_SIZE;
 }
 
-/**
- * \fn buffer_add_branch
- * \brief Adds a branch to the buffer block tree
- *
- * \param this The list to apply the list to
- * \param idx The index at which we are to set the list
- * \param type The type of list to append
- */
-// static int
-// buffer_add_branch(struct buffer_list* this, idx_t idx)
-// {
-//         int ret = -E_SUCCESS;
-//         if (this == NULL)
-//                 return -E_NULL_PTR;
-//
-//         mutex_lock(this->lock);
-//         if (this->lists[idx] != NULL)
-//         {
-//                 ret = -E_ALREADY_INITIALISED;
-//                 goto err_locked;
-//         }
-//
-//         struct buffer_list* to_add = kalloc(sizeof(struct buffer_list));
-//         if (to_add == NULL)
-//         {
-//                 ret = -E_NOMEM;
-//                 goto err_locked;
-//         }
-//         memset(to_add, 0, sizeof(struct buffer_list));
-//
-//         this->lists[idx] = to_add;
-//         atomic_inc(&(this->used));
-//
-//         mutex_unlock(this->lock);
-//         return -E_SUCCESS;
-//
-// err_locked:
-//         mutex_unlock(this->lock);
-// err:
-//         return ret;
-// }
+static int
+buffer_init_branch(struct buffer_list* this)
+{
+        if (this == NULL)
+                return -E_NULL_PTR;
+
+        memset(this, 0, sizeof(struct buffer_list));
+        return -E_SUCCESS;
+}
 
 /**
  * \fn buffer_rm_block
@@ -168,24 +136,43 @@ idx_t offset;
 idx_t depth;
 {
         warning("buffer_add_block not yet tested!\n");
+
         if (list == NULL)
                 return -E_NULL_PTR;
 
+        int ret = 0;
         idx_t list_idx = get_idx(offset, depth);
+
+        mutex_lock(list->lock);
 
         if (depth != BUFFER_TREE_DEPTH+1)
         {
                 if (list->lists[list_idx] == NULL)
-                        return -E_NULL_PTR;
-                return buffer_add_block(this, list->lists[list_idx],
+                {
+                        list->lists[list_idx] = kalloc
+                                                   (sizeof(struct buffer_list));
+                        if (list->lists[list_idx] == NULL)
+                        {
+                                mutex_unlock(list->lock);
+                                return -E_NULL_PTR;
+                        }
+                        buffer_init_branch(list->lists[list_idx]);
+                }
+                ret =  buffer_add_block(this, list->lists[list_idx],
                                                                          offset,
                                                                        depth+1);
+                mutex_unlock(list->lock);
+                return ret;
         }
 
         if (list->blocks[list_idx] != NULL)
+        {
+                mutex_unlock(list->lock);
                 return -E_ALREADY_INITIALISED;
+        }
 
         list->blocks[list_idx] = this;
+        mutex_unlock(list->lock);
         return -E_SUCCESS;
 }
 
@@ -266,6 +253,7 @@ buffer_read(struct vfile* this, char* buf, size_t num)
 static int
 buffer_seek(struct vfile* this, idx_t offset, seek_t from)
 {
+        warning("buffer_seek hasn't been tested yet!\n");
         if (this == NULL || this->fs_data == NULL)
                 return -E_NULL_PTR;
 
