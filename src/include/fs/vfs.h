@@ -72,8 +72,8 @@ struct vfile
          * \fn flush(this)
          */
         int (*close)(struct vfile* this);
-        int (*read)(struct vfile* this, char* buf, size_t num);
-        int (*write)(struct vfile* this, char* buf, size_t num);
+        size_t (*read)(struct vfile* this, char* buf, size_t num);
+        size_t (*write)(struct vfile* this, char* buf, size_t num);
         int (*seek)(struct vfile* this, idx_t idx, seek_t from);
         int (*flush)(struct vfile* this);
 };

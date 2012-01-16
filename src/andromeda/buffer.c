@@ -217,7 +217,7 @@ err:
  * \param num The size of the char array
  */
 
-static int
+static size_t
 buffer_write(struct vfile* this, char* buf, size_t num)
 {
         warning("buffer_write not yet implemented!\n");
@@ -233,10 +233,10 @@ buffer_write(struct vfile* this, char* buf, size_t num)
  * \param num The size of the char array
  */
 
-static int
+static size_t
 buffer_read(struct vfile* this, char* buf, size_t num)
 {
-        warning("buffer_read not yet implemented!\n");
+        warning("buffer_read not yet tested!\n");
         idx_t offset = this->cursor / BUFFER_BLOCK_SIZE;
         idx_t block_cur = this->cursor % BUFFER_BLOCK_SIZE;
 
@@ -247,6 +247,9 @@ buffer_read(struct vfile* this, char* buf, size_t num)
         struct buffer_block *b = buffer_find_block(buffer->blocks, offset, 0);
         if (b == NULL)
                 return -E_NULL_PTR;
+
+        if (this->cursor+num > buffer->size)
+                num = buffer->size - this->cursor;
 
         size_t idx = 0;
         for (; idx < num; idx++, block_cur++)
@@ -266,7 +269,7 @@ buffer_read(struct vfile* this, char* buf, size_t num)
         }
 
         this->cursor += idx;
-        return -E_SUCCESS;
+        return idx;
 }
 
 /**
