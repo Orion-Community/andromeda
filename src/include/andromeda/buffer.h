@@ -53,9 +53,13 @@ struct buffer_list
         /**
          * \var used
          * \brief How many entries are currently in use
+         * \var lock
+         * \var parent
+         * \brief A link to the parent buffer
          */
         atomic_t used;
-        mutex_t lock; /** \var lock */
+        mutex_t lock;
+        struct buffer* parent;
         /** \union
          *  \var lists Lists
          *  \brief the sub-lists

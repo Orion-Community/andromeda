@@ -57,6 +57,7 @@ extern "C" {
 
 #define E_INVALID_ARG           0x30
 #define E_TOOLARGE_ARG          0x31
+#define E_OUTOFBOUNDS           0x32
 
 #define E_GENERIC               0x100
 #define E_NORIGHTS              0x101

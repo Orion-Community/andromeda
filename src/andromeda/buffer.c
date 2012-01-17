@@ -26,12 +26,13 @@ inline static idx_t get_idx(idx_t offset, idx_t depth)
 }
 
 static int
-buffer_init_branch(struct buffer_list* this)
+buffer_init_branch(struct buffer_list* this, struct buffer* parent)
 {
         if (this == NULL)
                 return -E_NULL_PTR;
 
         memset(this, 0, sizeof(struct buffer_list));
+        this->parent = parent;
         return -E_SUCCESS;
 }
 
@@ -140,6 +141,9 @@ idx_t depth;
         if (list == NULL)
                 return -E_NULL_PTR;
 
+        if (offset > list->parent->size/BUFFER_BLOCK_SIZE)
+                return -E_OUTOFBOUNDS;
+
         int ret = 0;
         idx_t list_idx = get_idx(offset, depth);
 
@@ -156,7 +160,7 @@ idx_t depth;
                                 mutex_unlock(list->lock);
                                 return -E_NULL_PTR;
                         }
-                        buffer_init_branch(list->lists[list_idx]);
+                        buffer_init_branch(list->lists[list_idx], list->parent);
                 }
                 ret =  buffer_add_block(this, list->lists[list_idx],
                                                                          offset,
@@ -220,8 +224,58 @@ err:
 static size_t
 buffer_write(struct vfile* this, char* buf, size_t num)
 {
-        warning("buffer_write not yet implemented!\n");
-        return -E_NOFUNCTION;
+        if (this == NULL || buf == NULL)
+                return 0;
+        warning("buffer_write not yet tested!\n");
+
+        if (this->cursor < ((struct buffer*)(this->fs_data))->base_idx)
+                this->cursor = ((struct buffer*)(this->fs_data))->base_idx;
+
+        idx_t offset = this->cursor / BUFFER_BLOCK_SIZE;
+        idx_t block_cur = this->cursor % BUFFER_BLOCK_SIZE;
+
+        struct buffer* buffer = this->fs_data;
+        if (buffer == NULL)
+                return 0;
+        struct buffer_block* b = buffer_find_block(buffer->blocks, offset, 0);
+        if (b == NULL)
+        {
+                buffer_add_block(kalloc(sizeof(struct buffer_block)),
+                                                                 buffer->blocks,
+                                                                     offset, 0);
+                b = buffer_find_block(buffer->blocks, offset, 0);
+                if (b == NULL)
+                        return 0;
+        }
+        if (this->cursor+num > buffer->size &&
+                                        !(buffer->rights & BUFFER_ALLOW_GROWTH))
+                num = buffer->size - this->cursor;
+
+        size_t idx = 0;
+
+        for (; idx < num; idx++, block_cur++)
+        {
+                offset++;
+                block_cur -= BUFFER_BLOCK_SIZE;
+                b = buffer_find_block(buffer->blocks, offset, 0);
+                if (b == NULL)
+                {
+                        buffer_add_block(kalloc(sizeof(struct buffer_block)),
+                                                                 buffer->blocks,
+                                                                     offset, 0);
+                        b = buffer_find_block(buffer->blocks, offset, 0);
+                        if (b == NULL)
+                        {
+                                this->cursor += idx;
+                                return idx;
+                        }
+                }
+                b->data[block_cur] = buf[idx];
+        }
+
+        this->cursor += idx;
+
+        return idx;
 }
 
 /**
@@ -236,17 +290,23 @@ buffer_write(struct vfile* this, char* buf, size_t num)
 static size_t
 buffer_read(struct vfile* this, char* buf, size_t num)
 {
+        if (this == NULL || buf == NULL)
+                return 0;
         warning("buffer_read not yet tested!\n");
+
+        if (this->cursor < ((struct buffer*)(this->fs_data))->base_idx)
+                this->cursor = ((struct buffer*)(this->fs_data))->base_idx;
+
         idx_t offset = this->cursor / BUFFER_BLOCK_SIZE;
         idx_t block_cur = this->cursor % BUFFER_BLOCK_SIZE;
 
         struct buffer* buffer = this->fs_data;
         if (buffer == NULL)
-                return -E_NULL_PTR;
+                return 0;
 
-        struct buffer_block *b = buffer_find_block(buffer->blocks, offset, 0);
+        struct buffer_block* b = buffer_find_block(buffer->blocks, offset, 0);
         if (b == NULL)
-                return -E_NULL_PTR;
+                return 0;
 
         if (this->cursor+num > buffer->size)
                 num = buffer->size - this->cursor;
@@ -262,7 +322,7 @@ buffer_read(struct vfile* this, char* buf, size_t num)
                         if (b == NULL)
                         {
                                 this->cursor += idx;
-                                return -E_NULL_PTR;
+                                return idx;
                         }
                 }
                 buf[idx] = b->data[block_cur];
