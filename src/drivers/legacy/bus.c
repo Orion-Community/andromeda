@@ -24,7 +24,7 @@
 static struct device* virt_bus;
 
 static struct device*
-virt_bus_detect(struct device* dev)
+legacy_bus_detect(struct device* dev)
 {
         if (dev != NULL)
                 return dev->children;
@@ -32,7 +32,7 @@ virt_bus_detect(struct device* dev)
 }
 
 static int
-virt_bus_suspend(struct device* this)
+legacy_bus_suspend(struct device* this)
 {
         mutex_lock(this->lock);
         if (this->suspended == TRUE)
@@ -50,7 +50,7 @@ virt_bus_suspend(struct device* this)
 }
 
 static int
-virt_bus_resume(struct device* this)
+legacy_bus_resume(struct device* this)
 {
         mutex_lock(this->lock);
         if (this->suspended != FALSE)
@@ -68,18 +68,18 @@ virt_bus_resume(struct device* this)
 }
 
 int
-drv_virt_bus_init(struct device* dev, struct device* parent)
+drv_legacy_bus_init(struct device* dev, struct device* parent)
 {
         if (dev == NULL)
                 return -E_NULL_PTR;
 
         memset(dev, 0, sizeof(struct device));
 
-        dev->driver->detect = virt_bus_detect;
+        dev->driver->detect = legacy_bus_detect;
         dev->driver->attach = device_attach;
         dev->driver->detach = device_detach;
-        dev->driver->suspend = virt_bus_suspend;
-        dev->driver->resume = virt_bus_resume;
+        dev->driver->suspend = legacy_bus_suspend;
+        dev->driver->resume = legacy_bus_resume;
 
         parent->driver->attach(parent, dev);
 

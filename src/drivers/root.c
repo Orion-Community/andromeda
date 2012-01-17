@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <andromeda/drivers.h>
 #include <drivers/root.h>
+#include <drivers/virt.h>
 
 /** The dummy functions for the root device */
 int drv_root_dummy(struct device* root)
@@ -81,6 +82,30 @@ drv_root_detect(struct device* this)
         return this->children;
 }
 
+int init_buses(struct device* root)
+{
+        if (root == NULL)
+                return -E_NULL_PTR;
+
+        struct device* virtual = kalloc(sizeof(struct device));
+        if (virtual == NULL)
+                return -E_NOMEM;
+        struct device* legacy  = kalloc(sizeof(struct device));
+        if (legacy == NULL)
+        {
+                free(virtual);
+                return -E_NOMEM;
+        }
+
+        if (drv_virt_bus_init(virtual, root) != -E_SUCCESS)
+                panic("Could not initialise the virtual bus!");
+        if (drv_legacy_bus_init(legacy, root) != -E_SUCCESS)
+                panic("Could not initialise the legacy bus!");
+
+        return -E_SUCCESS;
+
+}
+
 int drv_root_init(struct device* dev)
 {
         if (dev == NULL)
@@ -97,6 +122,9 @@ int drv_root_init(struct device* dev)
         dev->driver->io = kalloc(sizeof(struct vfile));
         if (dev->driver->io == NULL)
                 panic("");
+
+        if (init_buses(dev) != -E_SUCCESS)
+                panic("Could not initialise device drivers!");
 
         return -E_SUCCESS;
 }
