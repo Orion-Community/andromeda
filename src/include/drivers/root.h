@@ -25,10 +25,7 @@
 extern "C" {
 #endif
 
-int drv_root_dummy(struct device* root);
-struct device* drv_root_dev_dummy(struct device* root);
-int drv_root_suspend(struct device* root);
-int drv_root_resume(struct device* root);
+int drv_root_init(struct device* dev);
 
 #ifdef __cplusplus
 }

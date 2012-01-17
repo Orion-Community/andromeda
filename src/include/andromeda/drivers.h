@@ -47,11 +47,23 @@ struct device;
 /** \struct driver */
 struct driver
 {
-        struct device* (*detect)(struct device* dev);   /** \fn detect(dev) */
-        int (*attach)(struct device* dev);              /** \fn attach(dev) */
-        int (*detach)(struct device* dev);              /** \fn detach(dev) */
-        int (*suspend)(struct device* dev);             /** \fn suspend(dev) */
-        int (*resume)(struct device* dev);              /** \fn resume(dev) */
+        /**
+         * \fn detect(dev)
+         * \brief return a list of all attached devices
+         * \fn attach(dev, child)
+         * \brief attach a device to this de device
+         * \fn detach(dev, child)
+         * \brief detach a device from this device
+         * \fn suspend(dev)
+         * \brief suspend this device and all of its attached children.
+         * \fn resume(dev)
+         * \brief resume this device and all of its attached children
+         */
+        struct device* (*detect)(struct device* dev);
+        int (*attach)(struct device* dev, struct device* child);
+        int (*detach)(struct device* dev, struct device* child);
+        int (*suspend)(struct device* dev);
+        int (*resume)(struct device* dev);
         /** \var io
          *  \brief ptr to the file descriptor associated with the device. */
         struct vfile *io;
@@ -68,12 +80,14 @@ struct device
         /** \fn open(this) */
         struct vfile* (*open)(struct device* this);
 
-        /** \var parent */
-        /** \var children */
+        /**
+         * \var parent
+         * \var children
+         * \var next
+         * \brief The pointer next in the list of children
+         */
         struct device *parent;
         struct device *children;
-        /** \var next */
-        /** \brief The pointer next in the list of children */
         struct device *next;
 
         /** \var name */
@@ -91,7 +105,9 @@ struct device
         void*  device_data;
 
         /** \var lock */
-        mutex_t device_lock;
+        mutex_t lock;
+
+        boolean suspended;
 };
 
 /**
@@ -99,6 +115,10 @@ struct device
  * \brief Kick the driver model into life.
  */
 int dev_init();
+int device_recurse_resume(struct device* this);
+int device_recurse_suspend(struct device* this);
+int device_attach(struct device* this, struct device* child);
+int device_detach(struct device* this, struct device* child);
 
 #ifdef __cplusplus
 }

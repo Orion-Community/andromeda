@@ -28,31 +28,12 @@ int dev_detect_cpus(struct device* root)
         return -E_NOFUNCTION;
 }
 
-int drv_root_init(struct device* dev)
-{
-        dev->type = virtual_bus;
-        dev->parent = dev;
-
-        dev->driver->detect = drv_root_dev_dummy;
-        dev->driver->detach = drv_root_dummy;
-        dev->driver->suspend = drv_root_suspend;
-        dev->driver->resume = drv_root_resume;
-
-        dev->driver->io = kalloc(sizeof(struct vfile));
-        if (dev->driver->io == NULL)
-                panic("");
-
-        return -E_SUCCESS;
-}
-
 int dev_root_init()
 {
         struct device* root = &dev_root;
         memset(root, 0, sizeof(struct device));
         root->driver = kalloc(sizeof(struct driver));
         memset(root->driver, 0, sizeof(struct driver));
-
-        root->driver->attach = drv_root_init;
 
         if (dev_detect_cpus(root) <= 0)
         {
@@ -62,12 +43,69 @@ int dev_root_init()
         return -E_SUCCESS;
 }
 
+int device_recurse_suspend(struct device* this)
+{
+        struct device* cariage = this->children;
+
+        while(cariage != NULL)
+        {
+                cariage->driver->suspend(cariage);
+                cariage = cariage->next;
+        }
+        return -E_SUCCESS;
+}
+
+int device_recurse_resume(struct device* this)
+{
+        struct device* cariage = this->children;
+
+        while(cariage != NULL)
+        {
+                cariage->driver->resume(cariage);
+                cariage = cariage->next;
+        }
+        return -E_SUCCESS;
+}
+
+int device_attach(struct device* this, struct device* child)
+{
+        struct device* cariage = this->children;
+        struct device* last = cariage;
+        while (cariage != NULL)
+        {
+                last = cariage;
+                cariage = cariage->next;
+        }
+        last->next = child;
+}
+
+int device_detach(struct device* this, struct device* child)
+{
+        struct device* cariage = this->children;
+        struct device* last = cariage;
+        while (cariage != NULL)
+        {
+                if (cariage == child)
+                {
+                        if (cariage == last)
+                        {
+                                this->children = cariage->next;
+                        }
+                        else
+                        {
+                                last->next = cariage->next;
+                                cariage->next = NULL;
+                        }
+                }
+        }
+}
+
 int
 dev_init()
 {
         printf("Building the device tree\n");
+
         dev_root_init();
 
-        (&dev_root)->driver->attach (NULL);
         return -E_SUCCESS;
 }

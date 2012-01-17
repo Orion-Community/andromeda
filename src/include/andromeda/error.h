@@ -59,6 +59,8 @@ extern "C" {
 #define E_TOOLARGE_ARG          0x31
 #define E_OUTOFBOUNDS           0x32
 
+#define E_LOCKED                0x40
+
 #define E_GENERIC               0x100
 #define E_NORIGHTS              0x101
 

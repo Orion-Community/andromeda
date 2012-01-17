@@ -27,12 +27,23 @@ int drv_root_dummy(struct device* root)
         return 0; // We found 0 of them since it's a virtual bus ...
 }
 
-struct device* drv_root_dev_dummy(struct device* root)
+static int
+drv_root_attach(this, child)
+struct device* this;
+struct device* child;
 {
-        return NULL;
+        return -E_NOFUNCTION;
 }
 
-int drv_root_suspend(struct device* root)
+static int
+drv_root_detach(this, child)
+struct device* this;
+struct device* child;
+{
+        return -E_NOFUNCTION;
+}
+
+static int drv_root_suspend(struct device* root)
 {
         struct device* cariage = root->children;
         while (cariage != NULL)
@@ -47,7 +58,7 @@ int drv_root_suspend(struct device* root)
         return 0; // We found 0 of them since it's a virtual bus ...
 }
 
-int drv_root_resume(struct device* root)
+static int drv_root_resume(struct device* root)
 {
         struct device* cariage = root->children;
         while (cariage != NULL)
@@ -60,4 +71,32 @@ int drv_root_resume(struct device* root)
                         panic("Unable to suspend a device!");
         }
         return 0; // We found 0 of them since it's a virtual bus ...
+}
+
+static struct device*
+drv_root_detect(struct device* this)
+{
+        if (this == NULL)
+                return NULL;
+        return this->children;
+}
+
+int drv_root_init(struct device* dev)
+{
+        if (dev == NULL)
+                return -E_NULL_PTR;
+        dev->type = virtual_bus;
+        dev->parent = dev;
+
+        dev->driver->detect = drv_root_detect;
+        dev->driver->attach = drv_root_attach;
+        dev->driver->detach = drv_root_detach;
+        dev->driver->suspend = drv_root_suspend;
+        dev->driver->resume = drv_root_resume;
+
+        dev->driver->io = kalloc(sizeof(struct vfile));
+        if (dev->driver->io == NULL)
+                panic("");
+
+        return -E_SUCCESS;
 }

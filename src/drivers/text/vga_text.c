@@ -63,74 +63,43 @@ static struct vfile* vga_text_open(struct device *this)
 
 static int vga_text_resume(struct device* this)
 {
-        warning("vga_text_resume not implemented!");
-        return -E_NOFUNCTION;
-}
-
-static int vga_text_detach(struct device* this)
-{
-        warning("vga_text_detach not implemented!");
-        return -E_NOFUNCTION;
+        warning("vga_text_resume not tested yet!");
+        device_recurse_resume(this);
+        return -E_SUCCESS;
 }
 
 static int vga_text_suspend(struct device* this)
 {
-        warning("vga_text_suspend not implemented!");
-        return -E_NOFUNCTION;
+        warning("vga_text_suspend not tested yet!");
+        device_recurse_suspend(this);
+        return -E_SUCCESS;
 }
 
-/**
- * return the first, unattached vga_text device
- */
 struct device* vga_text_detect(struct device* this)
 {
-        mutex_lock(vga_text_lock);
-        if (vga_text_count != 0)
-        {
-                mutex_unlock(vga_text_lock);
-                return NULL;
-        }
-
-        struct device* dev = kalloc(sizeof(struct device));
-        if (dev == NULL)
-        {
-                mutex_unlock(vga_text_lock);
-                return NULL;
-        }
-        memset(dev, 0, sizeof(struct device));
-
-        dev->device_data = (void*)0xB8000;
-        dev->device_data_size = 0x1000;
-
-        if (vga_text_attach(dev) != -E_SUCCESS)
-        {
-                free(dev);
-                mutex_unlock(vga_text_lock);
-                return NULL;
-        }
-        vga_dev = dev;
-
-        vga_text_count++;
-        mutex_unlock(vga_text_lock);
-        return dev;
+        return this->children;
 }
 
-/**
- * Attach the basic driver functions to the driver structure
- */
-int vga_text_attach(struct device* this)
+int vga_text_init(struct device* parent)
 {
-        if (this->driver == NULL)
-                this->driver = kalloc(sizeof(struct driver));
-        if (this->driver == NULL)
+        if (parent == NULL || parent->driver)
+                return -E_NULL_PTR;
+
+        struct device* this = kalloc(sizeof(struct device));
+        if (this == NULL)
                 return -E_NOMEM;
 
+        this->device_data = (void*)0xB8000;
+        this->device_data_size = 0x1000;
+
         this->open = vga_text_open;
-        this->driver->attach = vga_text_attach;
+        this->driver->attach = device_attach;
+        this->driver->detach = device_detach;
         this->driver->detect = vga_text_detect;
         this->driver->suspend = vga_text_suspend;
-        this->driver->detach = vga_text_detach;
         this->driver->resume = vga_text_resume;
+
+        parent->driver->attach(parent, this);
 
         return -E_SUCCESS;
 }

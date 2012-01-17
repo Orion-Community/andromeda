@@ -23,8 +23,7 @@
 extern "C" {
 #endif
 
-struct device* vga_text_detect(struct device* this);
-int vga_text_attach(struct device* this);
+int vga_text_init(struct device* this);
 
 #ifdef __cplusplus
 }
