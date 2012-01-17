@@ -35,10 +35,12 @@ int dev_root_init()
         root->driver = kalloc(sizeof(struct driver));
         memset(root->driver, 0, sizeof(struct driver));
 
-        if (dev_detect_cpus(root) <= 0)
-        {
-                panic("Couldn't find any CPU's!");
-        }
+        drv_root_init(root);
+
+//         if (dev_detect_cpus(root) <= 0)
+//         {
+//                 panic("Couldn't find any CPU's!");
+//         }
 
         return -E_SUCCESS;
 }
@@ -103,7 +105,7 @@ int device_detach(struct device* this, struct device* child)
 int
 dev_init()
 {
-        printf("Building the device tree\n");
+        debug("Building the device tree\n");
 
         dev_root_init();
 

@@ -83,5 +83,7 @@ drv_virt_bus_init(struct device* dev, struct device* parent)
 
         parent->driver->attach(parent, dev);
 
+        debug("Adding virtual bus to tree!\n");
+
         return -E_SUCCESS;
 }
