@@ -75,11 +75,9 @@ int device_attach(struct device* this, struct device* child)
 {
         if (this->children == NULL)
         {
-                debug("Direct attach\n");
                 this->children = child;
                 return -E_SUCCESS;
         }
-        debug("Indirect attach\n");
         struct device* cariage = this->children;
         struct device* last = cariage;
         while (cariage != NULL)
@@ -130,7 +128,6 @@ device_find_id(struct device* this, uint64_t dev_id)
                 if (cariage->driver->find == NULL)
                         panic("No find function in device!");
 
-                debug("Finding: %X\n", (int)cariage);
                 struct device* dev = cariage->driver->find(cariage, dev_id);
                 if (dev != NULL)
                         return dev;
@@ -149,15 +146,22 @@ int device_id_alloc(struct device* dev)
         {
                 dev_id++;
                 iterator = device_find_id(&dev_root, dev_id);
-                debug("Device %X is address: %X\n", dev_id-1, (int)iterator);
         }
 
         dev->dev_id = dev_id;
         ret = dev_id;
 
         mutex_unlock(dev_id_lock);
-        debug("Allocating ID: %X\n", ret);
         return ret;
+}
+
+void dev_dbg()
+{
+        int i = 0;
+        for (; i < 3; i++)
+        {
+                printf("Device 0x%X at address %X\n", i, device_find_id(&dev_root, i));
+        }
 }
 
 int
@@ -166,6 +170,10 @@ dev_init()
         debug("Building the device tree\n");
 
         dev_root_init();
+
+#ifdef DEV_DBG
+        dev_dbg();
+#endif
 
         return -E_SUCCESS;
 }

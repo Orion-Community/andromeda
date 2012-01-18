@@ -95,8 +95,5 @@ drv_legacy_bus_init(struct device* dev, struct device* parent)
 
         parent->driver->attach(parent, dev);
 
-        debug("Adding legacy bus to tree!\n");
-        debug("Lecacy ID: %X\n", dev->dev_id);
-
         return -E_SUCCESS;
 }

@@ -241,8 +241,7 @@ struct __TASK_STATE* dest;
  */
 int fork()
 {
-        warning("WARNING! In fork the registers copied probably aren't "
-                                                                "up-to-date\n");
+        warning("In fork the registers copied probably aren't up-to-date\n");
 
 	struct __TASK_STATE *new = kalloc(sizeof(struct __TASK_STATE));
 	if (new == NULL)
@@ -374,7 +373,7 @@ int task_init()
 	thread->ss_size = STD_STACK_SIZE;
 
 	/** Where can we find more info if swapped out? */
-        warning("WARNING! No path to kernel binary\n");
+        warning("No path to kernel binary\n");
 	kern->path_to_bin = NULL;
 
 	kern->state = runnable;

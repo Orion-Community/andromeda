@@ -125,8 +125,6 @@ int drv_root_init(struct device* dev)
 
         dev->type = root_bus;
 
-        debug("Root device id: %X\n", dev->dev_id);
-
         dev->driver->io = kalloc(sizeof(struct vfile));
         if (dev->driver->io == NULL)
                 panic("");
