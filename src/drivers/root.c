@@ -114,10 +114,18 @@ int drv_root_init(struct device* dev)
         dev->parent = dev;
 
         dev->driver->detect = drv_root_detect;
-        dev->driver->attach = drv_root_attach;
-        dev->driver->detach = drv_root_detach;
         dev->driver->suspend = drv_root_suspend;
         dev->driver->resume = drv_root_resume;
+
+        dev->driver->attach = device_attach;
+        dev->driver->detach = device_detach;
+
+        dev->driver->find = device_find_id;
+        dev->dev_id = 0;
+
+        dev->type = root_bus;
+
+        debug("Root device id: %X\n", dev->dev_id);
 
         dev->driver->io = kalloc(sizeof(struct vfile));
         if (dev->driver->io == NULL)

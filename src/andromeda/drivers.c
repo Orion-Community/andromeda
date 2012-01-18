@@ -21,6 +21,8 @@
 #include <drivers/root.h>
 
 struct device dev_root;
+uint64_t dev_id = 0;
+mutex_t dev_id_lock;
 
 /** Return the number of detected CPU's */
 int dev_detect_cpus(struct device* root)
@@ -71,6 +73,13 @@ int device_recurse_resume(struct device* this)
 
 int device_attach(struct device* this, struct device* child)
 {
+        if (this->children == NULL)
+        {
+                debug("Direct attach\n");
+                this->children = child;
+                return -E_SUCCESS;
+        }
+        debug("Indirect attach\n");
         struct device* cariage = this->children;
         struct device* last = cariage;
         while (cariage != NULL)
@@ -79,6 +88,7 @@ int device_attach(struct device* this, struct device* child)
                 cariage = cariage->next;
         }
         last->next = child;
+        return -E_SUCCESS;
 }
 
 int device_detach(struct device* this, struct device* child)
@@ -100,6 +110,54 @@ int device_detach(struct device* this, struct device* child)
                         }
                 }
         }
+}
+
+struct device*
+device_find_id(struct device* this, uint64_t dev_id)
+{
+        if (this == NULL)
+                return NULL;
+
+        if (dev_id == this->dev_id)
+                return this;
+
+        struct device* cariage = this->children;
+
+        while (cariage != NULL)
+        {
+                if (cariage->driver == NULL)
+                        panic("Driverless attached device!");
+                if (cariage->driver->find == NULL)
+                        panic("No find function in device!");
+
+                debug("Finding: %X\n", (int)cariage);
+                struct device* dev = cariage->driver->find(cariage, dev_id);
+                if (dev != NULL)
+                        return dev;
+
+                cariage = cariage->next;
+        }
+        return NULL;
+}
+
+int device_id_alloc(struct device* dev)
+{
+        int ret = 0;
+        mutex_lock(dev_id_lock);
+        struct device* iterator = device_find_id(&dev_root, dev_id);
+        while (iterator != NULL)
+        {
+                dev_id++;
+                iterator = device_find_id(&dev_root, dev_id);
+                debug("Device %X is address: %X\n", dev_id-1, (int)iterator);
+        }
+
+        dev->dev_id = dev_id;
+        ret = dev_id;
+
+        mutex_unlock(dev_id_lock);
+        debug("Allocating ID: %X\n", ret);
+        return ret;
 }
 
 int

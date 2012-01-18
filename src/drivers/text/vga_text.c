@@ -119,6 +119,8 @@ int vga_text_init(struct device* parent)
         this->driver->suspend = vga_text_suspend;
         this->driver->resume = vga_text_resume;
 
+        this->driver->find = device_find_id;
+
         parent->driver->attach(parent, this);
 
         return -E_SUCCESS;

@@ -31,6 +31,8 @@ extern "C" {
 /** \typedef enum device_type_t */
 typedef enum {
         virtual_bus,    /** \enum virtual_bus */
+        legacy_bus,     /** \enum legacy_bus */
+        root_bus,       /** \enum root_bus*/
         disk,           /** \enum disk */
         partition,      /** \enum partition */
         tty,            /** \enum tty */
@@ -60,6 +62,7 @@ struct driver
          * \brief resume this device and all of its attached children
          */
         struct device* (*detect)(struct device* dev);
+        struct device* (*find)(struct device* dev, uint64_t dev_id);
         int (*attach)(struct device* dev, struct device* child);
         int (*detach)(struct device* dev, struct device* child);
         int (*suspend)(struct device* dev);
@@ -90,6 +93,12 @@ struct device
         struct device *children;
         struct device *next;
 
+        /**
+         * \var dev_id
+         * \brief The unique device identifier
+         */
+        uint64_t dev_id;
+
         /** \var name */
         char   name[DEVICE_NAME_SIZE];
 
@@ -119,6 +128,8 @@ int device_recurse_resume(struct device* this);
 int device_recurse_suspend(struct device* this);
 int device_attach(struct device* this, struct device* child);
 int device_detach(struct device* this, struct device* child);
+struct device* device_find_id(struct device* this, uint64_t dev_id);
+int device_id_alloc(struct device* dev);
 
 #ifdef __cplusplus
 }

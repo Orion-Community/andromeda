@@ -75,15 +75,28 @@ drv_virt_bus_init(struct device* dev, struct device* parent)
 
         memset(dev, 0, sizeof(struct device));
 
+        dev->driver = kalloc(sizeof(struct driver));
+
+        if (dev->driver == NULL)
+                panic("Out of memory in intialisiation of legacy bus");
+
+        memset(dev->driver, 0, sizeof(struct driver));
+
         dev->driver->detect = virt_bus_detect;
         dev->driver->attach = device_attach;
         dev->driver->detach = device_detach;
         dev->driver->suspend = virt_bus_suspend;
         dev->driver->resume = virt_bus_resume;
 
+        dev->driver->find = device_find_id;
+        device_id_alloc(dev);
+
+        dev->type = virtual_bus;
+
         parent->driver->attach(parent, dev);
 
         debug("Adding virtual bus to tree!\n");
+        debug("Virtual id: %X\n", dev->dev_id);
 
         return -E_SUCCESS;
 }

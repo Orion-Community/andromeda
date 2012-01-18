@@ -75,15 +75,28 @@ drv_legacy_bus_init(struct device* dev, struct device* parent)
 
         memset(dev, 0, sizeof(struct device));
 
+        dev->driver = kalloc(sizeof(struct driver));
+
+        if (dev->driver == NULL)
+                panic("Out of memory in intialisiation of legacy bus");
+
+        memset(dev->driver, 0, sizeof(struct driver));
+
         dev->driver->detect = legacy_bus_detect;
         dev->driver->attach = device_attach;
         dev->driver->detach = device_detach;
         dev->driver->suspend = legacy_bus_suspend;
         dev->driver->resume = legacy_bus_resume;
 
+        dev->driver->find = device_find_id;
+        device_id_alloc(dev);
+
+        dev->type = legacy_bus;
+
         parent->driver->attach(parent, dev);
 
         debug("Adding legacy bus to tree!\n");
+        debug("Lecacy ID: %X\n", dev->dev_id);
 
         return -E_SUCCESS;
 }
