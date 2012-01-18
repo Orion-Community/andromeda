@@ -321,6 +321,12 @@ buffer_read(struct vfile* this, char* buf, size_t num)
                         b = buffer_find_block(buffer->blocks, offset, 0);
                         if (b == NULL)
                         {
+                                if (this->cursor + idx < ((struct buffer*)
+                                                         (this->fs_data))->size)
+                                {
+                                        buf[idx] = '\0';
+                                        continue;
+                                }
                                 this->cursor += idx;
                                 return idx;
                         }
@@ -328,8 +334,8 @@ buffer_read(struct vfile* this, char* buf, size_t num)
                 buf[idx] = b->data[block_cur];
         }
 
-        this->cursor += idx;
-        return idx;
+        this->cursor += num;
+        return num;
 }
 
 /**
