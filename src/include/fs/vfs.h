@@ -32,26 +32,54 @@ typedef enum {dir, block_dev, char_dev, file} file_type_t;
 
 struct vsuper_block;
 
+/** \struct vfile */
+/** \brief What we're looking at now is the file descriptor */
 struct vfile
 {
+        /**
+         * \var uid
+         * \brief user_id
+         * \var gid
+         * \brief group_id
+         * \var rights
+         */
         uint32_t uid;
         uint32_t gid;
         uint16_t rights;
+        idx_t cursor;
 
         file_type_t type;
 
+        /**
+         * \var dir_ent
+         * \brief Parent directory entry
+         * \var super
+         * \brief The super block to which we're related
+         * \var fs_data_size
+         * \var fs_data
+         * \brief The data related to this file by the fs driver
+         */
         struct vdir_ent *dir_ent;
         struct vsuper_block *super;
         size_t fs_data_size;
         void* fs_data;
 
+        /**
+         * \fn close (this)
+         * \fn read(this, buf, num)
+         * \fn write(this, buf, num)
+         * \fn seek(this, idx, from)
+         * \fn flush(this)
+         */
         int (*close)(struct vfile* this);
-        int (*read)(struct vfile* this, char* buf, size_t num);
-        int (*write)(struct vfile* this, char* buf, size_t num);
-        int (*seek)(struct vfile* this, size_t idx, seek_t from);
+        size_t (*read)(struct vfile* this, char* buf, size_t num);
+        size_t (*write)(struct vfile* this, char* buf, size_t num);
+        int (*seek)(struct vfile* this, idx_t idx, seek_t from);
         int (*flush)(struct vfile* this);
 };
 
+/** \struct vdir_ent */
+/** \brief Hello directory entry. */
 struct vdir_ent
 {
         struct vsuper_block* super;
@@ -59,6 +87,7 @@ struct vdir_ent
         char *name;
 };
 
+/** \struct vdir */
 struct vdir
 {
         struct vdir_ent*        entries[DIR_LIST_SIZE];
@@ -66,6 +95,8 @@ struct vdir
         struct vsuper_block*    mounted;
 };
 
+/** \struct vsuper_block */
+/** \brief The file system descriptor. */
 struct vsuper_block
 {
         struct vfile* fs_root;
@@ -80,8 +111,12 @@ struct vsuper_block
         struct vfile* (*open)(struct vsuper_block* this, struct vdir_ent* entry);
 };
 
+/** \struct vmount */
+/** \brief Keep track of mounts */
 struct vmount
 {
+        /** \var mount_point */
+        /** \brief To which director entry is this mounted? */
         struct vdir_ent *mount_point;
         struct vmount* next;
 };

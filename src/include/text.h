@@ -42,6 +42,12 @@ int atoi(char* str);
 #define debug
 #endif
 
+#ifdef WARN
+#define warning(a) printf("WARNING! " a)
+#else
+#define warning
+#endif
+
 #ifdef __cplusplus
 }
 #endif

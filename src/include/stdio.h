@@ -21,25 +21,14 @@
 
 #include <stdlib.h>
 #include <thread.h>
+#include <andromeda/buffer.h>
+#include <io.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct buffer_s
-{
-  char *buffer;
-  unsigned int size;
-  unsigned int cursor;
-  unsigned int read;
-  struct buffer_s *next;
-  boolean full;
-  mutex_t lock;
-};
 
-typedef struct buffer_s buffer_t;
-
-buffer_t *initBuffer();
 
 #ifdef __cplusplus
 }
