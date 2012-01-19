@@ -28,6 +28,9 @@ extern "C" {
 
 #define DEVICE_NAME_SIZE 0x100
 
+extern uint64_t virt_bus;
+extern uint64_t lgcy_bus;
+
 /** \typedef enum device_type_t */
 typedef enum {
         virtual_bus,    /** \enum virtual_bus */

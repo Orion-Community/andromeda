@@ -24,6 +24,9 @@ struct device dev_root;
 uint64_t dev_id = 0;
 mutex_t dev_id_lock;
 
+uint64_t virt_bus = 0;
+uint64_t lgcy_bus = 0;
+
 /** Return the number of detected CPU's */
 int dev_detect_cpus(struct device* root)
 {
@@ -37,7 +40,7 @@ int dev_root_init()
         root->driver = kalloc(sizeof(struct driver));
         memset(root->driver, 0, sizeof(struct driver));
 
-        drv_root_init(root);
+        drv_root_init(root); /** Call to driver, not device!!! */
 
 //         if (dev_detect_cpus(root) <= 0)
 //         {
@@ -121,6 +124,7 @@ device_find_id(struct device* this, uint64_t dev_id)
 
         struct device* cariage = this->children;
 
+        struct device *dev;
         while (cariage != NULL)
         {
                 if (cariage->driver == NULL)
@@ -128,7 +132,7 @@ device_find_id(struct device* this, uint64_t dev_id)
                 if (cariage->driver->find == NULL)
                         panic("No find function in device!");
 
-                struct device* dev = cariage->driver->find(cariage, dev_id);
+                dev = cariage->driver->find(cariage, dev_id);
                 if (dev != NULL)
                         return dev;
 
@@ -140,11 +144,14 @@ device_find_id(struct device* this, uint64_t dev_id)
 int device_id_alloc(struct device* dev)
 {
         int ret = 0;
+        uint64_t begin = dev_id-1;
         mutex_lock(dev_id_lock);
         struct device* iterator = device_find_id(&dev_root, dev_id);
         while (iterator != NULL)
         {
                 dev_id++;
+                if (dev_id == begin)
+                        panic("No more room for new devices!");
                 iterator = device_find_id(&dev_root, dev_id);
         }
 
@@ -158,7 +165,7 @@ int device_id_alloc(struct device* dev)
 void dev_dbg()
 {
         int i = 0;
-        for (; i < 3; i++)
+        for (; i < 0x10; i++)
         {
                 printf("Device 0x%X at address %X\n", i, device_find_id(&dev_root, i));
         }

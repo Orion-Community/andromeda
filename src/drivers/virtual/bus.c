@@ -21,8 +21,6 @@
 #include <andromeda/drivers.h>
 #include <drivers/virt.h>
 
-static struct device* virt_bus;
-
 static struct device*
 virt_bus_detect(struct device* dev)
 {
@@ -90,6 +88,8 @@ drv_virt_bus_init(struct device* dev, struct device* parent)
 
         dev->driver->find = device_find_id;
         device_id_alloc(dev);
+
+        virt_bus = dev->dev_id;
 
         dev->type = virtual_bus;
 

@@ -102,12 +102,20 @@ struct device* vga_text_detect(struct device* this)
 
 int vga_text_init(struct device* parent)
 {
-        if (parent == NULL || parent->driver)
+        if (parent == NULL || parent->driver == NULL)
                 return -E_NULL_PTR;
 
         struct device* this = kalloc(sizeof(struct device));
         if (this == NULL)
                 return -E_NOMEM;
+
+        this->driver = kalloc(sizeof(struct driver));
+        if (this->driver == NULL)
+        {
+                free(this);
+                return -E_NOMEM;
+        }
+        memset (this->driver, 0, sizeof(struct driver));
 
         this->device_data = (void*)0xB8000;
         this->device_data_size = 0x1000;
@@ -122,6 +130,10 @@ int vga_text_init(struct device* parent)
         this->driver->find = device_find_id;
 
         parent->driver->attach(parent, this);
+
+        device_id_alloc(this);
+
+        this->open = vga_text_open;
 
         return -E_SUCCESS;
 }

@@ -102,6 +102,9 @@ int init_buses(struct device* root)
         if (drv_legacy_bus_init(legacy, root) != -E_SUCCESS)
                 panic("Could not initialise the legacy bus!");
 
+        if (vga_text_init(device_find_id(root, lgcy_bus)) != -E_SUCCESS)
+                panic("The text driver can't be initiated!");
+
         return -E_SUCCESS;
 
 }

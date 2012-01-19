@@ -21,8 +21,6 @@
 #include <andromeda/drivers.h>
 #include <drivers/virt.h>
 
-static struct device* virt_bus;
-
 static struct device*
 legacy_bus_detect(struct device* dev)
 {
@@ -90,6 +88,9 @@ drv_legacy_bus_init(struct device* dev, struct device* parent)
 
         dev->driver->find = device_find_id;
         device_id_alloc(dev);
+
+        lgcy_bus = dev->dev_id;
+        debug("Legacy bus is : %X\n", lgcy_bus);
 
         dev->type = legacy_bus;
 
