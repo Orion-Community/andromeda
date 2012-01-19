@@ -65,6 +65,9 @@ char *welcome = "Andromeda " VERSION " - " NAME
 "For more info refer to the COPYING file in the source repository or look at\n"
 "http://www.gnu.org/licenses/gpl-3.0.html\n";
 
+int page_dir_boot [0x400];
+int page_table_boot [0x40000];
+
 int vendor = 0;
 
 boolean setupCore(module_t mod)

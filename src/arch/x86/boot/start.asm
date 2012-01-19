@@ -134,11 +134,14 @@ boot_stack:
   times 0x400 db 0
 
 [SECTION .PD]
-page_dir_boot: ; This is basically the page table
-times 0x400 dd 0x0
+; page_dir_boot: ; This is basically the page table
+; times 0x400 dd 0x0
+;
+; page_table_boot: ; And this will be mapped to for both 0 - 4MiB and 3 - 3.004GiB
+; times 0x40000 dd 0x0
 
-page_table_boot: ; And this will be mapped to for both 0 - 4MiB and 3 - 3.004GiB
-times 0x40000 dd 0x0
+[EXTERN page_dir_boot]
+[EXTERN page_table_boot]
 
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
 [GLOBAL higherhalf]
