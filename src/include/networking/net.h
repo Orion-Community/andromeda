@@ -55,7 +55,7 @@ struct netbuf
 
 struct netdev
 {
-  uint32_t (*rx)();
+  struct net_buff* (*rx)();
   void (*tx)(struct netbuf*);
   uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
   struct netbuf buf; /* Current processed frame buffer */
@@ -85,6 +85,7 @@ static int *net_buff_append_list(struct net_buff *alpha, struct net_buff *beta);
 static struct net_queue *remove_first_queue_entry(struct net_queue queue);
 static int net_queue_append_list(struct net_queue queue, struct net_queue* item);
 static void process_rx_packet(struct net_buff *packet);
+static struct net_buff *gso_segment(struct net_buff *buff);
 
 #ifdef __cplusplus
 }
