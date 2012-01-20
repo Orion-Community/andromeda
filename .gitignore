@@ -1,7 +1,5 @@
 *.o
 *.bin
-compressed
-core
 config
 src/andromeda.img
 *.*project
