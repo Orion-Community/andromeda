@@ -23,7 +23,13 @@
 extern "C" {
 #endif
 
+typedef enum {
+        buffered,
+        single_block
+} rd_t;
+
 int drv_virt_bus_init(struct device* dev, struct device* parent);
+struct device* virt_drive_init(size_t size, void* data, rd_t type);
 
 #ifdef __cplusplus
 }

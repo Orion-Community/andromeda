@@ -52,24 +52,24 @@ int dev_root_init()
 
 int device_recurse_suspend(struct device* this)
 {
-        struct device* cariage = this->children;
+        struct device* carriage = this->children;
 
-        while(cariage != NULL)
+        while(carriage != NULL)
         {
-                cariage->driver->suspend(cariage);
-                cariage = cariage->next;
+                carriage->driver->suspend(carriage);
+                carriage = carriage->next;
         }
         return -E_SUCCESS;
 }
 
 int device_recurse_resume(struct device* this)
 {
-        struct device* cariage = this->children;
+        struct device* carriage = this->children;
 
-        while(cariage != NULL)
+        while(carriage != NULL)
         {
-                cariage->driver->resume(cariage);
-                cariage = cariage->next;
+                carriage->driver->resume(carriage);
+                carriage = carriage->next;
         }
         return -E_SUCCESS;
 }
@@ -81,12 +81,12 @@ int device_attach(struct device* this, struct device* child)
                 this->children = child;
                 return -E_SUCCESS;
         }
-        struct device* cariage = this->children;
-        struct device* last = cariage;
-        while (cariage != NULL)
+        struct device* carriage = this->children;
+        struct device* last = carriage;
+        while (carriage != NULL)
         {
-                last = cariage;
-                cariage = cariage->next;
+                last = carriage;
+                carriage = carriage->next;
         }
         last->next = child;
         return -E_SUCCESS;
@@ -94,20 +94,20 @@ int device_attach(struct device* this, struct device* child)
 
 int device_detach(struct device* this, struct device* child)
 {
-        struct device* cariage = this->children;
-        struct device* last = cariage;
-        while (cariage != NULL)
+        struct device* carriage = this->children;
+        struct device* last = carriage;
+        while (carriage != NULL)
         {
-                if (cariage == child)
+                if (carriage == child)
                 {
-                        if (cariage == last)
+                        if (carriage == last)
                         {
-                                this->children = cariage->next;
+                                this->children = carriage->next;
                         }
                         else
                         {
-                                last->next = cariage->next;
-                                cariage->next = NULL;
+                                last->next = carriage->next;
+                                carriage->next = NULL;
                         }
                 }
         }
@@ -122,21 +122,21 @@ device_find_id(struct device* this, uint64_t dev_id)
         if (dev_id == this->dev_id)
                 return this;
 
-        struct device* cariage = this->children;
+        struct device* carriage = this->children;
 
         struct device *dev;
-        while (cariage != NULL)
+        while (carriage != NULL)
         {
-                if (cariage->driver == NULL)
+                if (carriage->driver == NULL)
                         panic("Driverless attached device!");
-                if (cariage->driver->find == NULL)
+                if (carriage->driver->find == NULL)
                         panic("No find function in device!");
 
-                dev = cariage->driver->find(cariage, dev_id);
+                dev = carriage->driver->find(carriage, dev_id);
                 if (dev != NULL)
                         return dev;
 
-                cariage = cariage->next;
+                carriage = carriage->next;
         }
         return NULL;
 }
@@ -167,7 +167,10 @@ void dev_dbg()
         int i = 0;
         for (; i < 0x10; i++)
         {
-                printf("Device 0x%X at address %X\n", i, device_find_id(&dev_root, i));
+                printf("Device 0x%X at address %X of type %X\n",
+                                               i, device_find_id(&dev_root, i),
+                                              device_find_id(&dev_root, i)->type
+                      );
         }
 }
 

@@ -59,12 +59,12 @@ heap_inset_block(volatile memory_node_t* heap, volatile memory_node_t *block)
 
 	addr_t block_address = (addr_t) block;
 
-	volatile memory_node_t *cariage = heap;
+	volatile memory_node_t *carriage = heap;
 	volatile memory_node_t *last = NULL;
 
-	for (; cariage != NULL && (addr_t)heap < block_address;
-								 last = cariage,
-						       cariage = cariage->next);
+	for (; carriage != NULL && (addr_t)heap < block_address;
+                                                                last = carriage,
+                                                     carriage = carriage->next);
 	if (last == NULL)
 		return -E_HEAP_GENERIC;
 

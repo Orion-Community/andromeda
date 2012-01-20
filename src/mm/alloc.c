@@ -43,10 +43,10 @@ examine_heap()
 	printf("Head\n0x%X\n", (int) heap);
 	if (heap == NULL)
 		return;
-	volatile memory_node_t* cariage;
-	for (cariage = heap; cariage != NULL; cariage = cariage->next)
+	volatile memory_node_t* carriage;
+	for (carriage = heap; carriage != NULL; carriage = carriage->next)
 	{
-		printf("node: 0x%X\tsize: 0x%X\n", (int)cariage, cariage->size);
+		printf("node: 0x%X\tsize: 0x%X\n",(int)carriage,carriage->size);
 	}
 }
 

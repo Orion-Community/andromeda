@@ -100,7 +100,7 @@ struct buffer
 
         /** \fn struct buffer* dulpicate
          *  \param this */
-        struct buffer* (*duplicate)(struct buffer* this);
+        struct vfile* (*duplicate)(struct buffer* this);
 };
 
 /**

@@ -45,7 +45,8 @@ typedef enum {
         pit,            /** \enum pit */
         pci,            /** \enum pci */
         usb,            /** \enum usb */
-        ata             /** \enum ata aka ide */
+        ata,            /** \enum ata aka ide */
+        graphics        /** \enum graphics */
 } device_type_t;
 
 struct device;

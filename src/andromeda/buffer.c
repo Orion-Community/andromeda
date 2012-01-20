@@ -429,14 +429,27 @@ buffer_close(struct vfile* this)
  * \param this the buffer to duplicate
  */
 
-static struct buffer*
+static struct vfile*
 buffer_duplicate(struct buffer *this)
 {
         if (!(this->rights & (BUFFER_ALLOW_DUPLICATE)))
                 return NULL;
 
+        struct vfile* file = kalloc(sizeof(struct buffer));
+        if (file == NULL)
+                return NULL;
+        memset(file, 0, sizeof(struct buffer));
+
+        file->close = buffer_close;
+        file->write = buffer_write;
+        file->read = buffer_read;
+        file->seek = buffer_seek;
+
+        file->fs_data = this;
+        file->fs_data_size = sizeof(struct buffer);
+
         atomic_inc(&(this->opened));
-        return this;
+        return file;
 }
 
 /**
@@ -476,6 +489,7 @@ buffer_init(struct vfile* this, idx_t size, idx_t base_idx)
         b->size = (size == BUFFER_DYNAMIC_SIZE) ? 0 : size;
         b->base_idx = base_idx;
         b->rights |= (size == BUFFER_DYNAMIC_SIZE) ? BUFFER_ALLOW_GROWTH : 0;
+        b->rights |= BUFFER_ALLOW_DUPLICATE;
 
         atomic_inc(&b->opened);
 
