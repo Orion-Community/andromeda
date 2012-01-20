@@ -56,6 +56,15 @@ extern "C" {
 #define E_TASK_NOSPACE          0x20
 
 #define E_INVALID_ARG           0x30
+#define E_TOOLARGE_ARG          0x31
+#define E_OUTOFBOUNDS           0x32
+
+#define E_LOCKED                0x40
+
+#define E_GENERIC               0x100
+#define E_NORIGHTS              0x101
+
+#define E_CLEAN_PARENT          0x200
 
 #ifdef __cplusplus
 }

@@ -16,14 +16,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __DRIVERS_VGA_TEXT_H
-#define __DRIVERS_VGA_TEXT_H
+#ifndef __DRIVERS_VIRT_H
+#define __DRIVERS_VIRT_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int vga_text_init(struct device* this);
+int drv_virt_bus_init(struct device* dev, struct device* parent);
 
 #ifdef __cplusplus
 }

@@ -28,57 +28,111 @@ extern "C" {
 
 #define DEVICE_NAME_SIZE 0x100
 
+extern uint64_t virt_bus;
+extern uint64_t lgcy_bus;
+
+/** \typedef enum device_type_t */
 typedef enum {
-        virtual_bus,
-        disk,
-        partition,
-        tty,
-        cpu,
-        apic,
-        pit,
-        pci,
-        usb,
-        ata
+        virtual_bus,    /** \enum virtual_bus */
+        legacy_bus,     /** \enum legacy_bus */
+        root_bus,       /** \enum root_bus*/
+        disk,           /** \enum disk */
+        partition,      /** \enum partition */
+        tty,            /** \enum tty */
+        cpu,            /** \enum cpu */
+        apic,           /** \enum apic */
+        pit,            /** \enum pit */
+        pci,            /** \enum pci */
+        usb,            /** \enum usb */
+        ata             /** \enum ata aka ide */
 } device_type_t;
 
 struct device;
 
+/** \struct driver */
 struct driver
 {
+        /**
+         * \fn detect(dev)
+         * \brief return a list of all attached devices
+         * \fn attach(dev, child)
+         * \brief attach a device to this de device
+         * \fn detach(dev, child)
+         * \brief detach a device from this device
+         * \fn suspend(dev)
+         * \brief suspend this device and all of its attached children.
+         * \fn resume(dev)
+         * \brief resume this device and all of its attached children
+         */
         struct device* (*detect)(struct device* dev);
-        int (*attach)(struct device* dev);
-        int (*detach)(struct device* dev);
+        struct device* (*find)(struct device* dev, uint64_t dev_id);
+        int (*attach)(struct device* dev, struct device* child);
+        int (*detach)(struct device* dev, struct device* child);
         int (*suspend)(struct device* dev);
         int (*resume)(struct device* dev);
-
+        /** \var io
+         *  \brief ptr to the file descriptor associated with the device. */
         struct vfile *io;
 
-        mutex_t driver_lock;
-        uint32_t attach_cnt;
+        mutex_t driver_lock; /** \var lock */
+        /** \var attach_cnt
+         *  \brief how many times has the driver been attached. */
+        atomic_t attach_cnt;
 };
 
+/** \struct device */
 struct device
 {
+        /** \fn open(this) */
         struct vfile* (*open)(struct device* this);
 
+        /**
+         * \var parent
+         * \var children
+         * \var next
+         * \brief The pointer next in the list of children
+         */
         struct device *parent;
         struct device *children;
-
         struct device *next;
 
+        /**
+         * \var dev_id
+         * \brief The unique device identifier
+         */
+        uint64_t dev_id;
+
+        /** \var name */
         char   name[DEVICE_NAME_SIZE];
 
+        /** \var type */
         device_type_t type;
 
+        /** \var driver */
         struct driver *driver;
 
+        /** \var device_data_size */
+        /** \var device_data */
         size_t device_data_size;
         void*  device_data;
 
-        mutex_t device_lock;
+        /** \var lock */
+        mutex_t lock;
+
+        boolean suspended;
 };
 
+/**
+ * \fn dev_init
+ * \brief Kick the driver model into life.
+ */
 int dev_init();
+int device_recurse_resume(struct device* this);
+int device_recurse_suspend(struct device* this);
+int device_attach(struct device* this, struct device* child);
+int device_detach(struct device* this, struct device* child);
+struct device* device_find_id(struct device* this, uint64_t dev_id);
+int device_id_alloc(struct device* dev);
 
 #ifdef __cplusplus
 }
