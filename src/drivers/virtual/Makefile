@@ -2,7 +2,7 @@ include ../../scripts/makeIncl
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 CFLAGS+=-I../../include/
 
-DEPS=bus.c
+DEPS=bus.c drive.c
 TARGETS=virtual.o
 
 .PHONY: all

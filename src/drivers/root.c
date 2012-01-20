@@ -46,13 +46,13 @@ struct device* child;
 
 static int drv_root_suspend(struct device* root)
 {
-        struct device* cariage = root->children;
-        while (cariage != NULL)
+        struct device* carriage = root->children;
+        while (carriage != NULL)
         {
-                if (cariage->driver == NULL)
+                if (carriage->driver == NULL)
                         continue;
-                if (cariage->driver->suspend != NULL)
-                        cariage->driver->suspend(cariage);
+                if (carriage->driver->suspend != NULL)
+                        carriage->driver->suspend(carriage);
                 else
                         panic("Unable to suspend a device!");
         }
@@ -61,13 +61,13 @@ static int drv_root_suspend(struct device* root)
 
 static int drv_root_resume(struct device* root)
 {
-        struct device* cariage = root->children;
-        while (cariage != NULL)
+        struct device* carriage = root->children;
+        while (carriage != NULL)
         {
-                if (cariage->driver == NULL)
+                if (carriage->driver == NULL)
                         continue;
-                if (cariage->driver->resume != NULL)
-                        cariage->driver->resume(cariage);
+                if (carriage->driver->resume != NULL)
+                        carriage->driver->resume(carriage);
                 else
                         panic("Unable to suspend a device!");
         }
