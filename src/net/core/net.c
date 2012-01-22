@@ -17,15 +17,19 @@
  */
 
 #include <stdlib.h>
+#include <andromeda/drivers.h>
+#include <networking/net.h>
 
 struct net_buff *
 alloc_buff_frame(unsigned int frame_len)
 {
   struct net_buff *buff = kalloc(sizeof(*buff));
+  buff->datalink_hdr = kalloc(frame_len);
   return buff;
 }
 
-int free_net_buff_list(struct net_buff* nb)
+static int 
+free_net_buff_list(struct net_buff* nb)
 {
   free(nb->transport_hdr);
   free(nb->network_hdr);

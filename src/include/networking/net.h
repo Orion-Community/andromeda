@@ -82,7 +82,7 @@ typedef net_buff_data_t(*rx_hook_t)();
 int register_net_dev(rx_hook_t rx, tx_hook_t tx);
 int net_rx();
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
-int free_net_buff_list(struct net_buff* nb);
+static int free_net_buff_list(struct net_buff* nb);
 static int process_net_buff(struct net_buff* buff);
 static int net_buff_append_list(struct net_buff *alpha, struct net_buff *beta);
 static struct net_queue *remove_first_queue_entry(struct net_queue queue);
