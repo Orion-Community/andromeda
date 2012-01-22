@@ -33,6 +33,31 @@
 
 void demand_key();
 
+void buf_dbg()
+{
+        struct vfile* f = kalloc(sizeof(struct vfile));
+        if (f == NULL)
+                panic("No mem in buf_dbg");
+
+        memset(f, 0, sizeof(struct vfile));
+
+        int ret = buffer_init(f, 0x8, 0);
+        if (ret != -E_SUCCESS)
+        {
+                debug("Return value from init: %X\n", ret);
+                panic("Buffer initialisation not successful!");
+        }
+
+        char *blaat = "Schaap\n";
+        char *ret_msg = kalloc(sizeof("Schaap\n"));
+
+        f->write(f, blaat, strlen(blaat));
+        f->seek(f, 0, SEEK_SET);
+        f->read(f, ret_msg, strlen(blaat));
+
+        printf("MSG: %s\n", ret_msg);
+}
+
 void shutdown()
 {
 	printf("You can now shutdown your PC\n");
@@ -67,23 +92,24 @@ void core_loop()
                 panic("Couldn't initialise /dev");
 
 #ifdef SCHED_DBG
-                /**
-                 * Will have to be improved to actually do a context
-                 * switch here
-                 */
-                pid = syscall(SYS_FORK, 0, 0, 0);
-                print_task_stack();
-                demand_key();
-                syscall(SYS_KILL, pid, 0, 0);
-                print_task_stack();
-                demand_key();
+        /**
+         * Will have to be improved to actually do a context
+         * switch here
+         */
+        pid = syscall(SYS_FORK, 0, 0, 0);
+        print_task_stack();
+        demand_key();
+        syscall(SYS_KILL, pid, 0, 0);
+        print_task_stack();
+        demand_key();
 
-                struct __THREAD_STATE* t = kalloc(
-                        sizeof(struct __THREAD_STATE));
+        struct __THREAD_STATE* t = kalloc(sizeof(struct __THREAD_STATE));
 #endif
 #ifdef MATH_DBG
-                printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN":
-                "A number");
+        printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN" : "A number");
+#endif
+#ifdef BUF_DBG
+        buf_dbg();
 #endif
 
         uint32_t pid = 0;
