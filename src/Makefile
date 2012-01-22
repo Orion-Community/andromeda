@@ -58,11 +58,11 @@ clean:
 
 .PHONY: test
 test: all
-	kvm -kernel $(OUT) -net nic,model=rtl8139,vlan=1,macaddr=c0:de:00:ba:be:00 -m 64M
+	kvm -kernel $(OUT) -net nic,model=rtl8139,vlan=1,macaddr=c0:de:00:ba:be:00 -m 64M -monitor stdio
 
 .PHONY: ctest
 ctest: clean all
-	kvm -kernel $(OUT) -net nic,model=rtl8139,vlan=1,macaddr=c0:de:00:ba:be:00 -m 64M
+	kvm -kernel $(OUT) -net nic,model=rtl8139,vlan=1,macaddr=c0:de:00:ba:be:00 -m 64M -monitor stdio
 
 .PHONY: install
 install: all
