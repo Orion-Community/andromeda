@@ -71,6 +71,8 @@ static struct ethframe *alloc_eth_frame(uint16_t);
 static void build_ethernet_frame(ethframe_t, struct netbuf*);
 static enum eth_error process_ethernet_frame(ethframe_t frame, 
                                                         struct netdev *dev);
+static void build_hw_frame(ethframe_t frame, void *protocol);
+void debug_ethernet_stack();
 
 #ifdef __cplusplus
 }

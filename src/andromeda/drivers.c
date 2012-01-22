@@ -162,6 +162,29 @@ int device_id_alloc(struct device* dev)
         return ret;
 }
 
+static int
+drv_setup_io(dev, drv, io)
+struct device *dev;
+struct driver *drv;
+struct vfile *io;
+{
+  drv->io = io;
+  io->uid = 0;
+  io->gid = 0;
+  
+  return -E_NOFUNCTION;
+}
+
+int
+dev_setup_driver(struct device *dev)
+{
+  struct driver *drv = kalloc(sizeof(*drv));
+  struct vfile file = kalloc(sizeof(*file));
+  drv_setup_io(dev,drv,file);
+  
+  return -E_NOFUNCTION;
+}
+
 void dev_dbg()
 {
         int i = 0;

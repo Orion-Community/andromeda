@@ -36,6 +36,7 @@ typedef enum {
         virtual_bus,    /** \enum virtual_bus */
         legacy_bus,     /** \enum legacy_bus */
         root_bus,       /** \enum root_bus*/
+        net_dev,
         disk,           /** \enum disk */
         partition,      /** \enum partition */
         tty,            /** \enum tty */
@@ -134,6 +135,9 @@ int device_attach(struct device* this, struct device* child);
 int device_detach(struct device* this, struct device* child);
 struct device* device_find_id(struct device* this, uint64_t dev_id);
 int device_id_alloc(struct device* dev);
+static int drv_setup_io(struct device *dev, struct driver *drv, 
+                        struct vfile *io);
+int dev_setup_driver(struct device *dev);
 
 #ifdef __cplusplus
 }

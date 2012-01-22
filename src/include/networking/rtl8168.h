@@ -20,6 +20,7 @@
 #define __RTL8168
 
 #include <sys/dev/pci.h>
+#include <networking/net.h>
 #include <stdlib.h>
 
 #ifdef __cplusplus
@@ -115,6 +116,7 @@ static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
 static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
+static void transmit_packet(struct net_buff*);
 void init_network();
 
 static inline uint16_t get_rtl_port_base(struct ol_pci_dev *dev, uint8_t offset)
