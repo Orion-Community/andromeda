@@ -63,6 +63,7 @@ extern "C" {
 
 #define E_GENERIC               0x100
 #define E_NORIGHTS              0x101
+#define E_NOTFOUND              0x102
 
 #define E_CLEAN_PARENT          0x200
 

@@ -23,13 +23,35 @@
 int
 register_net_dev(struct netdev* netdev)
 {
-  struct device *dev = kalloc(sizeof(*dev));
-  dev_setup_driver(dev, &net_rx_vfio, &net_tx_vfio);
-  dev->dev_id = device_id_alloc(dev);
-  dev->type = net_dev;
-  dev->driver->io->fs_data = (void*)netdev;
-  dev->driver->io->fs_data_size = sizeof(*netdev);
-  device_attach(&dev_root, dev);
+  if(dev_find_devtype(&dev_root, net_dev) != NULL)
+    return -E_ALREADY_INITIALISED;
+  else
+  {
+    struct device *dev = kalloc(sizeof(*dev));
+    dev_setup_driver(dev, &net_rx_vfio, &net_tx_vfio);
+    dev->dev_id = device_id_alloc(dev);
+    dev->type = net_dev;
+    dev->driver->io->fs_data = (void*)netdev;
+    dev->driver->io->fs_data_size = sizeof(*netdev);
+    device_attach(&dev_root, dev);
+  }
+}
+
+int
+unregister_net_dev(struct netdev *netdev)
+{
+  struct device *dev = dev_find_devtype(&dev_root, net_dev);
+  if(dev == NULL)
+    return -E_NULL_PTR;
+  else
+  {
+    device_detach(&dev_root, dev);
+    kfree(dev->driver->io->fs_data); // free the netdev data
+    kfree(dev->driver->io);
+    kfree(dev->driver);
+    kfree(dev);
+    return -E_SUCCESS;
+  }
 }
 
 struct net_buff *
@@ -52,7 +74,7 @@ free_net_buff_list(struct net_buff* nb)
   if(nxt)
     free_net_buff_list(nxt);
   else
-    return 0;
+    return -E_SUCCESS;
 }
 
 /**
@@ -64,6 +86,8 @@ static size_t
 net_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
   struct netdev *dev = (struct netdev*)file->fs_data;
+  struct net_buff *buff = kalloc(sizeof(*buff));
+  dev->rx(buff);
   
   return -E_NOFUNCTION;
 }

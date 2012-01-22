@@ -90,6 +90,15 @@ typedef net_buff_data_t(*rx_hook_t)();
  */
 int register_net_dev(struct netdev* dev);
 
+/**
+ * \fn unregister_net_dev(dev)
+ * \brief Unregisters the given <i>netdev</i> in the kernel.
+ * 
+ * @param dev The netdev that should be unregistered.
+ * @return E code.
+ */
+int unregister_net_dev(struct netdev *netdev);
+
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
 static int free_net_buff_list(struct net_buff* nb);
 

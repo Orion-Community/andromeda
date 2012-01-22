@@ -104,14 +104,17 @@ int device_detach(struct device* this, struct device* child)
                         if (carriage == last)
                         {
                                 this->children = carriage->next;
+                                return -E_SUCCESS;
                         }
                         else
                         {
                                 last->next = carriage->next;
                                 carriage->next = NULL;
+                                return -E_SUCCESS;
                         }
                 }
         }
+        return -E_NOTFOUND;
 }
 
 struct device*
