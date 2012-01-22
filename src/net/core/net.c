@@ -35,6 +35,7 @@ register_net_dev(struct netdev* netdev)
     dev->driver->io->fs_data_size = sizeof(*netdev);
     device_attach(&dev_root, dev);
   }
+  return -E_SUCCESS;
 }
 
 int

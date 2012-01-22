@@ -222,6 +222,8 @@ dev_find_devtype(struct device *dev, device_type_t type)
       {
         if(carriage->type == type)
           return carriage;
+        if(carriage->next == NULL)
+          return NULL;
         else
           continue;
       }
