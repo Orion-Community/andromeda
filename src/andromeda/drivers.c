@@ -199,7 +199,7 @@ dev_setup_driver(struct device *dev, vfs_read_hook_t read, vfs_write_hook_t writ
   drv->detach = &device_detach;
   drv->resume = &device_recurse_resume;
   drv->suspend = &device_recurse_suspend;
-  drv->find = &dev_find_devtype;
+  drv->find_type = &dev_find_devtype;
   
   return -E_SUCCESS;
 }

@@ -65,6 +65,8 @@ void core_loop()
 {
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");
+        init_network();
+        debug_ethernet_stack();
 
 #ifdef SCHED_DBG
                 /**

@@ -149,8 +149,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         init_ioapic();
         setup_irq_data();
         ol_pci_init();
-        init_network();
-        debug_ethernet_stack();
+
 #ifdef __IOAPIC_DBG
         ioapic_debug();
 #endif

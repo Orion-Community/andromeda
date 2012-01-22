@@ -44,31 +44,6 @@ struct device* child;
         return -E_NOFUNCTION;
 }
 
-static struct device*
-drv_alloc(struct device *root)
-{
-  struct device *dev = kalloc(sizeof(*dev));
-  /*
-   * TODO:
-   * Set default configuration to the just allocated device.
-   */
-  return dev;
-}
-
-static uint64_t
-drv_alloc_id(struct device *root)
-{
-  struct device *carriage;
-  uint64_t i = 0;
-  for_each_ll_entry_safe_count(root, carriage, i)
-  {
-    if(carriage->dev_id <= i)
-      continue;
-    else
-      return i;
-  }
-}
-
 static int drv_root_suspend(struct device* root)
 {
         struct device* carriage = root->children;

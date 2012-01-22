@@ -68,6 +68,7 @@ struct driver
          */
         struct device* (*detect)(struct device* dev);
         struct device* (*find)(struct device* dev, uint64_t dev_id);
+        struct device* (*find_type)(struct device* dev, device_type_t type);
         int (*attach)(struct device* dev, struct device* child);
         int (*detach)(struct device* dev, struct device* child);
         int (*suspend)(struct device* dev);
@@ -123,6 +124,8 @@ struct device
 
         boolean suspended;
 };
+
+extern struct device dev_root;
 
 /**
  * \fn dev_init
