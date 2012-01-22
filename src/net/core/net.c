@@ -86,8 +86,6 @@ static size_t
 net_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
   struct netdev *dev = (struct netdev*)file->fs_data;
-  struct net_buff *buff = kalloc(sizeof(*buff));
-  dev->rx(buff);
   
   return -E_NOFUNCTION;
 }
