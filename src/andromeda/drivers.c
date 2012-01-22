@@ -199,9 +199,32 @@ dev_setup_driver(struct device *dev, vfs_read_hook_t read, vfs_write_hook_t writ
   drv->detach = &device_detach;
   drv->resume = &device_recurse_resume;
   drv->suspend = &device_recurse_suspend;
-  drv->find = &device_find_id;
+  drv->find = &dev_find_devtype;
   
   return -E_SUCCESS;
+}
+
+struct device *
+dev_find_devtype(struct device *dev, device_type_t type)
+{
+  if(dev != NULL)
+  {
+    if(dev->type == type)
+      return dev;
+    else
+    {
+      struct device *carriage;
+      for_each_ll_entry_safe(dev->children, carriage)
+      {
+        if(carriage->type == type)
+          return carriage;
+        else
+          continue;
+      }
+    }
+  }
+  else
+    return NULL;
 }
 
 void dev_dbg()

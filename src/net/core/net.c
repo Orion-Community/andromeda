@@ -20,6 +20,18 @@
 #include <andromeda/drivers.h>
 #include <networking/net.h>
 
+int
+register_net_dev(struct netdev* netdev)
+{
+  struct device *dev = kalloc(sizeof(*dev));
+  dev_setup_driver(dev, &net_rx_vfio, &net_tx_vfio);
+  dev->dev_id = device_id_alloc(dev);
+  dev->type = net_dev;
+  dev->driver->io->fs_data = (void*)netdev;
+  dev->driver->io->fs_data_size = sizeof(*netdev);
+  device_attach(&dev_root, dev);
+}
+
 struct net_buff *
 alloc_buff_frame(unsigned int frame_len)
 {
@@ -41,4 +53,27 @@ free_net_buff_list(struct net_buff* nb)
     free_net_buff_list(nxt);
   else
     return 0;
+}
+
+/**
+ * \fn net_rx_vfio(vfile, buf, size)
+ * 
+ * Receive a buffer from the device driver.
+ */
+static int
+net_rx_vfio(struct vfile *file, char *buf, size_t size)
+{
+  return -E_NOFUNCTION;
+}
+
+
+/**
+ * \fn net_tx_vfio(vfile, buf, size)
+ * 
+ * Transmit a buffer using virtual files.
+ */
+static int 
+net_tx_vfio(struct vfile *file, char *buf, size_t size)
+{
+  return -E_NOFUNCTION;
 }

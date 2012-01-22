@@ -19,6 +19,9 @@
 #ifndef __NET_H
 #define __NET_H
 
+#include <stdlib.h>
+#include <fs/vfs.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -79,7 +82,11 @@ struct net_buff
 typedef void(*tx_hook_t)(struct net_buff*);
 typedef net_buff_data_t(*rx_hook_t)();
 
-int register_net_dev(rx_hook_t rx, tx_hook_t tx);
+/**
+ * \fn register_net_dev(dev)
+ * \brief Register a NIC device driver in the core driver.
+ */
+int register_net_dev(struct netdev* dev);
 int net_rx();
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
 static int free_net_buff_list(struct net_buff* nb);
@@ -88,6 +95,20 @@ static int net_buff_append_list(struct net_buff *alpha, struct net_buff *beta);
 static struct net_queue *remove_first_queue_entry(struct net_queue queue);
 static int net_queue_append_list(struct net_queue queue, struct net_queue* item);
 static void process_rx_packet(struct net_buff *packet);
+
+/**
+ * \fn net_rx_vfio(vfile, buf, size)
+ * 
+ * Receive a buffer from the device driver.
+ */
+static int net_rx_vfio(struct vfile *, char*, size_t);
+
+/**
+ * \fn net_tx_vfio(vfile, buf, size)
+ * 
+ * Transmit a buffer using virtual files.
+ */
+static int net_tx_vfio(struct vfile*, char*, size_t);
 
 #ifdef __cplusplus
 }

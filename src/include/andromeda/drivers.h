@@ -138,6 +138,7 @@ int device_id_alloc(struct device* dev);
 static int drv_setup_io(struct device *dev, struct driver *drv, 
                         struct vfile *io, vfs_read_hook_t, vfs_write_hook_t);
 int dev_setup_driver(struct device *dev, vfs_read_hook_t, vfs_write_hook_t);
+struct device *dev_find_devtype(struct device *dev, device_type_t type);
 
 #ifdef __cplusplus
 }

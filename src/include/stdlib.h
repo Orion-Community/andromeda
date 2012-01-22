@@ -82,6 +82,11 @@ void shutdown();
                                           (carriage)->next; carriage = \
                                           (carriage)->next, (i)++)
 
+#define for_each_ll_entry_safe(head, carraige) for((carriage) = (head); \
+                                          (carriage) != NULL, carriage != \
+                                          (carriage)->next; carriage = \
+                                          (carriage)->next)
+
 #ifdef __cplusplus
 }
 #endif
