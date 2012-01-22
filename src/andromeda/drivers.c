@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <andromeda/drivers.h>
 #include <drivers/root.h>
+#include <fs/vfs.h>
 
 struct device dev_root;
 uint64_t dev_id = 0;
@@ -163,26 +164,44 @@ int device_id_alloc(struct device* dev)
 }
 
 static int
-drv_setup_io(dev, drv, io)
+drv_setup_io(dev, drv, io, read, write)
 struct device *dev;
 struct driver *drv;
 struct vfile *io;
+vfs_read_hook_t read;
+vfs_write_hook_t write;
 {
   drv->io = io;
   io->uid = 0;
   io->gid = 0;
+  io->read = read;
+  io->write = write;
+  io->type = file;
   
-  return -E_NOFUNCTION;
+  return -E_SUCCESS;
 }
 
 int
-dev_setup_driver(struct device *dev)
+dev_setup_driver(struct device *dev, vfs_read_hook_t read, vfs_write_hook_t write)
 {
   struct driver *drv = kalloc(sizeof(*drv));
-  struct vfile file = kalloc(sizeof(*file));
-  drv_setup_io(dev,drv,file);
+  struct vfile *file = kalloc(sizeof(*file));
+  drv_setup_io(dev,drv,file,read,write);
+  dev->driver = drv;
   
-  return -E_NOFUNCTION;
+  drv->driver_lock = 0;
+  drv->attach_cnt.cnt = 0;
+  drv->attach_cnt.lock = 0;
+  /*
+   * Setup some function pointers.
+   */
+  drv->attach = &device_attach;
+  drv->detach = &device_detach;
+  drv->resume = &device_recurse_resume;
+  drv->suspend = &device_recurse_suspend;
+  drv->find = &device_find_id;
+  
+  return -E_SUCCESS;
 }
 
 void dev_dbg()
