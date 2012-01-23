@@ -87,7 +87,7 @@ init_core_driver(pci_dev_t pci)
 {
   struct netdev *dev = kalloc(sizeof(*dev));
   dev->tx = &rtl_transmit_buff;
-  dev->rx = &rtl_receive_buf;
+  dev->rx = &rtl_receive_buff;
   get_mac(pci, dev);
   register_net_dev(dev);
 }
@@ -147,7 +147,7 @@ int rtl_transmit_buff(struct net_buff *buf)
   return -E_NOFUNCTION;
 }
 
-int rtl_receive_buf(struct net_buff *buf)
+int rtl_receive_buff(struct net_buff *buf)
 {
   return -E_NOFUNCTION;
 }

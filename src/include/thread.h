@@ -46,6 +46,8 @@ extern void mutexRelease(mutex_t);
 
 int64_t atomic_add(atomic_t* d, int cnt);
 int64_t atomic_sub(atomic_t* d, int cnt);
+uint64_t atomic_set(atomic_t *atom);
+uint64_t atomic_reset(atomic_t *atom);
 int64_t atomic_inc(atomic_t* d);
 int64_t atomic_dec(atomic_t* d);
 int64_t atomic_get(atomic_t* d);

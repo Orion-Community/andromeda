@@ -20,6 +20,8 @@
 #include <andromeda/drivers.h>
 #include <networking/net.h>
 
+char rx_buff[RX_BUFFER_SIZE];
+
 int
 register_net_dev(struct netdev* netdev)
 {
@@ -34,6 +36,7 @@ register_net_dev(struct netdev* netdev)
     dev->driver->io->fs_data = (void*)netdev;
     dev->driver->io->fs_data_size = sizeof(*netdev);
     device_attach(&dev_root, dev);
+    atomic_set(&(netdev->state));
   }
   return -E_SUCCESS;
 }
@@ -51,6 +54,7 @@ unregister_net_dev(struct netdev *netdev)
     kfree(dev->driver->io);
     kfree(dev->driver);
     kfree(dev);
+    atomic_set(&(netdev->state));
     return -E_SUCCESS;
   }
 }
@@ -59,6 +63,7 @@ struct net_buff *
 alloc_buff_frame(unsigned int frame_len)
 {
   struct net_buff *buff = kalloc(sizeof(*buff));
+  buff->lenth = frame_len;
   buff->datalink_hdr = kalloc(frame_len);
   return buff;
 }
