@@ -226,7 +226,6 @@ buffer_write(struct vfile* this, char* buf, size_t num)
         idx_t offset = this->cursor / BUFFER_BLOCK_SIZE;
         idx_t block_cur = this->cursor % BUFFER_BLOCK_SIZE;
 
-
         struct buffer* buffer = this->fs_data;
         if (buffer == NULL)
                 return 0;
@@ -255,20 +254,30 @@ buffer_write(struct vfile* this, char* buf, size_t num)
 
         for (; idx < num; idx++, block_cur++)
         {
-                offset++;
-                b = buffer_find_block(buffer->blocks, offset, 0);
-                if (b == NULL)
+                if (block_cur >= BUFFER_BLOCK_SIZE)
                 {
-                        buffer_add_block(kalloc(sizeof(struct buffer_block)),
-                                                                 buffer->blocks,
-                                                                     offset, 0);
+                        offset++;
+                        block_cur -= BUFFER_BLOCK_SIZE;
+                        debug(
+                                "Switching to block %X (write)\n"
+                                "New block_cur %X\n",
+                                offset,
+                                block_cur
+                        );
                         b = buffer_find_block(buffer->blocks, offset, 0);
                         if (b == NULL)
                         {
-                                this->cursor += idx;
-                                return idx;
+                                buffer_add_block(kalloc(
+                                                   sizeof(struct buffer_block)),
+                                                                 buffer->blocks,
+                                                                     offset, 0);
+                                b = buffer_find_block(buffer->blocks,offset, 0);
+                                if (b == NULL)
+                                {
+                                        this->cursor += idx;
+                                        return idx;
+                                }
                         }
-                        block_cur -= BUFFER_BLOCK_SIZE;
                 }
                 b->data[block_cur] = buf[idx];
         }
@@ -317,6 +326,12 @@ buffer_read(struct vfile* this, char* buf, size_t num)
                 {
                         offset++;
                         block_cur -= BUFFER_BLOCK_SIZE;
+                        debug(
+                                "Switching to block %X (read)\n"
+                                "New block_cur %X\n",
+                              offset,
+                              block_cur
+                        );
                         b = buffer_find_block(buffer->blocks, offset, 0);
                         if (b == NULL)
                         {
@@ -348,15 +363,17 @@ buffer_read(struct vfile* this, char* buf, size_t num)
  */
 
 static int
-buffer_seek(struct vfile* this, idx_t offset, seek_t from)
+buffer_seek(struct vfile* this, int64_t offset, seek_t from)
 {
         if (this == NULL || this->fs_data == NULL)
                 return -E_NULL_PTR;
 
+        debug("Current cursor: %X, offset: %X\n", this->cursor, -offset);
         struct buffer* buf = this->fs_data;
         switch(from)
         {
         case SEEK_SET:
+                debug("Seek set ");
                 if (offset < buf->base_idx)
                         this->cursor = buf->base_idx;
                 else if (offset > buf->size)
@@ -366,17 +383,39 @@ buffer_seek(struct vfile* this, idx_t offset, seek_t from)
                 break;
 
         case SEEK_CUR:
-                if (offset < 0 && (-offset < (this->cursor - buf->base_idx)))
-                        this->cursor += offset;
-                else if (offset < 0)
-                        this->cursor = buf->base_idx;
-                else if (offset > (buf->size-this->cursor))
-                        this->cursor = buf->size;
+                debug("Seek cur ");
+                if (offset <= 0)
+                {
+                        debug("Success!");
+                        if (-offset > this->cursor - buf->base_idx)
+                        {
+                                this->cursor = buf->base_idx;
+                                debug("(base_idx) ");
+                        }
+                        else
+                        {
+                                this->cursor += offset;
+                                debug("(+ offset) ");
+                        }
+                }
                 else
-                        this->cursor += offset;
+                {
+                        debug("EPIC FAIL!!!");
+                        if (offset > buf->size - this->cursor)
+                        {
+                                this->cursor = buf->size;
+                                debug("(size) ");
+                        }
+                        else
+                        {
+                                this->cursor += offset;
+                                debug("(+ offset2) ");
+                        }
+                }
                 break;
 
         case SEEK_END:
+                debug("Seek end ");
                 if (offset > 0)
                         this->cursor = buf->size;
                 else if (offset < 0 && -offset < (buf->size - buf->base_idx))
@@ -390,6 +429,7 @@ buffer_seek(struct vfile* this, idx_t offset, seek_t from)
                 return -E_INVALID_ARG;
                 break;
         }
+        debug("idx = %X\n", this->cursor);
         return -E_SUCCESS;
 }
 
