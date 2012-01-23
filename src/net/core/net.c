@@ -84,6 +84,19 @@ free_net_buff_list(struct net_buff* nb)
 }
 
 /**
+ * \fn rx_process_net_buff(buff)
+ * \brief Processes the received net_buff trough the entire network stack.
+ * \warning Should only be called from net_rx_vfio(vfile, char*, size_t)
+ *
+ * \param buff The received net buffer.
+ */
+static int
+rx_process_net_buff(struct net_buff *buff)
+{
+  return -E_NOFUNCTION;
+}
+
+/**
  * \fn net_rx_vfio(vfile, buf, size)
  * 
  * Receive a buffer from the device driver.
