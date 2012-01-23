@@ -36,7 +36,7 @@ register_net_dev(struct netdev* netdev)
     dev->driver->io->fs_data = (void*)netdev;
     dev->driver->io->fs_data_size = sizeof(*netdev);
     device_attach(&dev_root, dev);
-    atomic_set(&(netdev->state), NET_DEV_ACTIVE);
+    atomic_set(&(netdev->state));
   }
   return -E_SUCCESS;
 }
@@ -54,7 +54,7 @@ unregister_net_dev(struct netdev *netdev)
     kfree(dev->driver->io);
     kfree(dev->driver);
     kfree(dev);
-    atomic_set(&(netdev->state), NET_DEV_INACTIVE);
+    atomic_set(&(netdev->state));
     return -E_SUCCESS;
   }
 }
