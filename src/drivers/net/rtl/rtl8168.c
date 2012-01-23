@@ -171,6 +171,34 @@ reset_rtl_device(struct rtl_cfg *cfg)
   return -1;
 }
 
+static struct rtl_cfg* 
+get_rtl_dev_list()
+{
+  return rtl_devs;
+}
+
+/**
+ * \fn get_rtl_device(dev)
+ * \brief Get a device based on the device number in the list.
+ * 
+ * @param dev Index in the device list.
+ */
+static struct rtl_cfg*
+get_rtl_device(int dev)
+{
+  struct rtl_cfg *carriage = get_rtl_dev_list();
+  int i = 0;
+  for(;carriage != NULL, carriage != carriage->next; carriage = carriage->next)
+  {
+    if(i == dev)
+      break;
+    if(carriage->next == NULL)
+      break;
+    else
+      continue;
+  }
+}
+
 void
 init_network()
 {

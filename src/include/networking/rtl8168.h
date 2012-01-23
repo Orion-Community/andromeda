@@ -110,7 +110,53 @@ struct rxcommand
   uint32_t rxbuffh; /* higher buffer address */
 };
 
+/**
+ * \fn rtl_conf_b(data,portbase,offset)
+ * \brief Generic function to sent data to the rtl device.
+ * 
+ * @param data Data to sent to the device.
+ * @param portbase Portbase of the NIC.
+ * @param offset Port register offset
+ */
+static inline void
+rtl_conf_b(uint8_t data, uint16_t portbase, uint16_t offset)
+{
+  outb(portbase+offset, data);
+}
+
+/**
+ * \fn rtl_conf_w(data,portbase,offset)
+ * \brief Generic function to sent data to the rtl device.
+ * 
+ * @param data Data to sent to the device.
+ * @param portbase Portbase of the NIC.
+ * @param offset Port register offset
+ */
+static inline void
+rtl_conf_w(uint16_t data, uint16_t portbase, uint16_t offset)
+{
+  outw(portbase+offset, data);
+}
+
+/**
+ * \fn rtl_conf_l(data,portbase,offset)
+ * \brief Generic function to sent data to the rtl device.
+ * 
+ * @param data Data to sent to the device.
+ * @param portbase Portbase of the NIC.
+ * @param offset Port register offset
+ */
+static inline void
+rtl_conf_l(uint32_t data, uint16_t portbase, uint16_t offset)
+{
+  outl(portbase+offset, data);
+}
+
 void init_rtl_device(struct ol_pci_dev *);
+int rtl_transmit_buff(struct net_buff *buf);
+int rtl_receive_buff(struct net_buff *buf);
+void init_network();
+
 static void get_mac(struct ol_pci_dev *dev, struct netdev *netdev);
 static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
@@ -118,9 +164,9 @@ static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
 static void transmit_packet(struct net_buff*);
 static int init_core_driver(pci_dev_t dev);
-int rtl_transmit_buff(struct net_buff *buf);
-int rtl_receive_buff(struct net_buff *buf);
-void init_network();
+
+static struct rtl_cfg* get_rtl_dev_list();
+static struct rtl_cfg* get_rtl_device(int dev);
 
 static inline uint16_t get_rtl_port_base(struct ol_pci_dev *dev, uint8_t offset)
 {
