@@ -33,14 +33,21 @@ extern "C" {
                                                     (carriage)->next != null, \
                                                     (carriage) != (carriage)->next; \
                                                     (carriage) = (carriage)->next)
-  
-  typedef void* net_buff_data_t;
+#define RX_BUFFER_SIZE (1024*8)+16+1500  
+typedef void* net_buff_data_t;
+
+typedef enum net_dev_state
+{
+  NET_DEV_INACTIVE,
+  NET_DEV_ACTIVE
+}net_dev_state_t;
   
 /**
- * Incoming packets will be queued using this structure. When a packed arrives,
- * it will be appended after the last current entry. The core driver will empty
- * the queue from the beginning on, this creates a FIFO situation. Used like an
- * inverted Java Queue object.
+ * \struct net_queue
+ * \brief Incoming packets will be queued using this structure. When a packed
+ * arrives, it will be appended after the last current entry. The core driver
+ * will empty the queue from the beginning on, this creates a FIFO situation.
+ * Used like an inverted Java Queue object.
  */
 struct net_queue
 {
@@ -61,6 +68,7 @@ struct netdev
   int (*rx)(struct net_buff*);
   int (*tx)(struct net_buff*);
   uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
+  atomic_t state;
   struct netbuf buf; /* Current processed frame buffer */
   struct net_queue *queue_head;
 };
@@ -83,6 +91,19 @@ struct net_buff
 
 typedef void(*tx_hook_t)(struct net_buff*);
 typedef net_buff_data_t(*rx_hook_t)();
+extern char rx_buff[RX_BUFFER_SIZE];
+
+/**
+ * \fn get_rx_buffer()
+ * \brief Returns the global receive buffer to who ever needs it.
+ * 
+ * @return Address of the receive buffer.
+ */
+static inline void*
+get_rx_buffer()
+{
+  return rx_buff;
+}
 
 /**
  * \fn register_net_dev(dev)
