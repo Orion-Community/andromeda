@@ -27,15 +27,15 @@ extern "C" {
 #endif
 
 #define MAC_ADDR_SIZE 6
-  
+
 /* loops */
 #define for_each_queue_item_safe(head, carriage) for((carriage) = (head); \
                                                     (carriage)->next != null, \
                                                     (carriage) != (carriage)->next; \
                                                     (carriage) = (carriage)->next)
-  
+
   typedef void* net_buff_data_t;
-  
+
 /**
  * Incoming packets will be queued using this structure. When a packed arrives,
  * it will be appended after the last current entry. The core driver will empty
@@ -46,10 +46,10 @@ struct net_queue
 {
   struct net_queue *next;
   struct net_queue *previous;
-  
+
   struct net_buff *packet;
 } __attribute__((packed));
-  
+
 struct netbuf
 {
   uint16_t length,data_len;
@@ -69,11 +69,11 @@ struct net_buff
 {
   struct net_buff *next;
   struct net_buff *previous;
-  
+
   unsigned int lenth;
   unsigned short data_len;
   struct netdev dev;
-  
+
   net_buff_data_t transport_hdr;
   net_buff_data_t network_hdr;
   net_buff_data_t datalink_hdr;
@@ -93,7 +93,7 @@ int register_net_dev(struct netdev* dev);
 /**
  * \fn unregister_net_dev(dev)
  * \brief Unregisters the given <i>netdev</i> in the kernel.
- * 
+ *
  * @param dev The netdev that should be unregistered.
  * @return E code.
  */
@@ -110,14 +110,14 @@ static int net_queue_append_list(struct net_queue queue, struct net_queue* item)
 
 /**
  * \fn net_rx_vfio(vfile, buf, size)
- * 
+ *
  * Receive a buffer from the device driver.
  */
 static size_t net_rx_vfio(struct vfile *, char*, size_t);
 
 /**
  * \fn net_tx_vfio(vfile, buf, size)
- * 
+ *
  * Transmit a buffer using virtual files.
  */
 static size_t net_tx_vfio(struct vfile*, char*, size_t);

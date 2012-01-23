@@ -35,7 +35,7 @@ alloc_eth_frame(uint16_t size)
   return frame;
 }
 
-static void 
+static void
 build_ethernet_frame(ethframe_t frame, struct netbuf * buf)
 {
   memcpy(frame->preamble, buf->framebuf, 7);
@@ -58,16 +58,16 @@ build_hw_frame(ethframe_t frame, void *protocol)
 /**
  * This function will check and process and incoming ethernet frame. After determining
  * the encapsulated protocol, it will call the associated protocol handler.
- * 
+ *
  * @param frame The frame which has to be processed.
  */
 static enum eth_error
 process_ethernet_frame(ethframe_t frame, struct netdev *dev)
 {
   uint64_t broadcast = MAC_BROADCAST;
-  
+
   /* check the hw address first */
-  if(!memcmp(frame->destaddr, dev->hwaddr, MAC_ADDR_SIZE) || 
+  if(!memcmp(frame->destaddr, dev->hwaddr, MAC_ADDR_SIZE) ||
      !memcmp(frame->destaddr, &broadcast, MAC_ADDR_SIZE))
   {
     uint16_t type = (uint16_t)*((uint16_t*)frame->type);
@@ -101,7 +101,7 @@ process_ethernet_frame(ethframe_t frame, struct netdev *dev)
 void debug_ethernet_stack()
 {
   struct netdev *dev = kalloc(sizeof(*dev));
-  
+
   int i = 0;
   for(; i < MAC_ADDR_SIZE; i++)
     dev->hwaddr[i] = 0xaa;
@@ -109,13 +109,13 @@ void debug_ethernet_stack()
   dev->buf.length = 86;
   dev->buf.framebuf = kalloc(dev->buf.length);
   writew(dev->buf.framebuf+20, ARP);
-  
+
   i = 0;
   for(; i < 6; i++)
     ((char*)dev->buf.framebuf+8)[i] = 0xff;
 
   receive_ethernet_frame(dev);
-  
+
   free(dev->buf.framebuf);
   free(dev);
 }

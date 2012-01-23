@@ -76,7 +76,7 @@ void init_rtl_device(struct ol_pci_dev *dev)
 
   sent_command_registers(cmd, portbase);
   read_command_registers(cmd, portbase);
-  
+
   init_core_driver(dev);
   debug("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable,
                                                       cmd->ccommand.rxchecksum);

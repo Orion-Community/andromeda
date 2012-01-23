@@ -63,7 +63,7 @@ alloc_buff_frame(unsigned int frame_len)
   return buff;
 }
 
-static int 
+static int
 free_net_buff_list(struct net_buff* nb)
 {
   free(nb->transport_hdr);
@@ -71,7 +71,7 @@ free_net_buff_list(struct net_buff* nb)
   free(nb->datalink_hdr);
   struct net_buff *nxt = nb->next;
   free(nb);
-  
+
   if(nxt)
     free_net_buff_list(nxt);
   else
@@ -80,24 +80,24 @@ free_net_buff_list(struct net_buff* nb)
 
 /**
  * \fn net_rx_vfio(vfile, buf, size)
- * 
+ *
  * Receive a buffer from the device driver.
  */
 static size_t
 net_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
   struct netdev *dev = (struct netdev*)file->fs_data;
-  
+
   return -E_NOFUNCTION;
 }
 
 
 /**
  * \fn net_tx_vfio(vfile, buf, size)
- * 
+ *
  * Transmit a buffer using virtual files.
  */
-static size_t 
+static size_t
 net_tx_vfio(struct vfile *file, char *buf, size_t size)
 {
   return -E_NOFUNCTION;
