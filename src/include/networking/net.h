@@ -123,15 +123,18 @@ int unregister_net_dev(struct netdev *netdev);
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
 static int free_net_buff_list(struct net_buff* nb);
 
-static int process_net_buff(struct net_buff* buff);
+/**
+ * \fn rx_process_net_buff(buff)
+ * \brief Processes the received net_buff trough the entire network stack.
+ * \warning Should only be called from net_rx_vfio(vfile, char*, size_t)
+ *
+ * @param buff The received net buffer.
+ */
+static int rx_process_net_buff(struct net_buff* buff);
 
 static int net_buff_append_list(struct net_buff *alpha, struct net_buff *beta);
 static struct net_queue *remove_first_queue_entry(struct net_queue queue);
 static int net_queue_append_list(struct net_queue queue, struct net_queue* item);
-<<<<<<< HEAD
-static void process_rx_packet(struct net_buff *packet);
-static struct net_buff *gso_segment(struct net_buff *buff);
-=======
 
 /**
  * \fn net_rx_vfio(vfile, buf, size)
@@ -146,7 +149,6 @@ static size_t net_rx_vfio(struct vfile *, char*, size_t);
  * Transmit a buffer using virtual files.
  */
 static size_t net_tx_vfio(struct vfile*, char*, size_t);
->>>>>>> FETCH_HEAD
 
 #ifdef __cplusplus
 }
