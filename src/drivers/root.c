@@ -22,28 +22,6 @@
 #include <drivers/root.h>
 #include <drivers/virt.h>
 
-/** The dummy functions for the root device */
-int drv_root_dummy(struct device* root)
-{
-        return 0; // We found 0 of them since it's a virtual bus ...
-}
-
-static int
-drv_root_attach(this, child)
-struct device* this;
-struct device* child;
-{
-        return -E_NOFUNCTION;
-}
-
-static int
-drv_root_detach(this, child)
-struct device* this;
-struct device* child;
-{
-        return -E_NOFUNCTION;
-}
-
 static int drv_root_suspend(struct device* root)
 {
         struct device* carriage = root->children;

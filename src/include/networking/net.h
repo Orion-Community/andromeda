@@ -27,13 +27,14 @@ extern "C" {
 #endif
 
 #define MAC_ADDR_SIZE 6
-  
+
 /* loops */
 #define for_each_queue_item_safe(head, carriage) for((carriage) = (head); \
                                                     (carriage)->next != null, \
                                                     (carriage) != (carriage)->next; \
                                                     (carriage) = (carriage)->next)
-#define RX_BUFFER_SIZE (1024*8)+16+1500  
+
+#define RX_BUFFER_SIZE (1024*8)+16+1500
 typedef void* net_buff_data_t;
 
 typedef enum net_dev_state
@@ -41,7 +42,7 @@ typedef enum net_dev_state
   NET_DEV_INACTIVE,
   NET_DEV_ACTIVE
 }net_dev_state_t;
-  
+
 /**
  * \struct net_queue
  * \brief Incoming packets will be queued using this structure. When a packed
@@ -53,10 +54,10 @@ struct net_queue
 {
   struct net_queue *next;
   struct net_queue *previous;
-  
+
   struct net_buff *packet;
 } __attribute__((packed));
-  
+
 struct netbuf
 {
   uint16_t length,data_len;
@@ -77,11 +78,11 @@ struct net_buff
 {
   struct net_buff *next;
   struct net_buff *previous;
-  
+
   unsigned int lenth;
   unsigned short data_len;
   struct netdev dev;
-  
+
   net_buff_data_t transport_hdr;
   net_buff_data_t network_hdr;
   net_buff_data_t datalink_hdr;
@@ -96,7 +97,7 @@ extern char rx_buff[RX_BUFFER_SIZE];
 /**
  * \fn get_rx_buffer()
  * \brief Returns the global receive buffer to who ever needs it.
- * 
+ *
  * @return Address of the receive buffer.
  */
 static inline void*
@@ -114,7 +115,7 @@ int register_net_dev(struct netdev* dev);
 /**
  * \fn unregister_net_dev(dev)
  * \brief Unregisters the given <i>netdev</i> in the kernel.
- * 
+ *
  * @param dev The netdev that should be unregistered.
  * @return E code.
  */
@@ -138,14 +139,14 @@ static int net_queue_append_list(struct net_queue queue, struct net_queue* item)
 
 /**
  * \fn net_rx_vfio(vfile, buf, size)
- * 
+ *
  * Receive a buffer from the device driver.
  */
 static size_t net_rx_vfio(struct vfile *, char*, size_t);
 
 /**
  * \fn net_tx_vfio(vfile, buf, size)
- * 
+ *
  * Transmit a buffer using virtual files.
  */
 static size_t net_tx_vfio(struct vfile*, char*, size_t);

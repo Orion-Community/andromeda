@@ -174,63 +174,63 @@ struct vfile *io;
 vfs_read_hook_t read;
 vfs_write_hook_t write;
 {
-  drv->io = io;
-  io->uid = 0;
-  io->gid = 0;
-  io->read = read;
-  io->write = write;
-  io->type = file;
-  
-  return -E_SUCCESS;
+        drv->io = io;
+        io->uid = 0;
+        io->gid = 0;
+        io->read = read;
+        io->write = write;
+        io->type = file;
+
+        return -E_SUCCESS;
 }
 
 int
 dev_setup_driver(struct device *dev, vfs_read_hook_t read, vfs_write_hook_t write)
 {
-  struct driver *drv = kalloc(sizeof(*drv));
-  struct vfile *file = kalloc(sizeof(*file));
-  drv_setup_io(dev,drv,file,read,write);
-  dev->driver = drv;
-  
-  drv->driver_lock = 0;
-  drv->attach_cnt.cnt = 0;
-  drv->attach_cnt.lock = 0;
-  /*
-   * Setup some function pointers.
-   */
-  drv->attach = &device_attach;
-  drv->detach = &device_detach;
-  drv->resume = &device_recurse_resume;
-  drv->suspend = &device_recurse_suspend;
-  drv->find_type = &dev_find_devtype;
-  drv->find = &device_find_id;
-  
-  return -E_SUCCESS;
+        struct driver *drv = kalloc(sizeof(*drv));
+        struct vfile *file = kalloc(sizeof(*file));
+        drv_setup_io(dev,drv,file,read,write);
+        dev->driver = drv;
+
+        drv->driver_lock = 0;
+        drv->attach_cnt.cnt = 0;
+        drv->attach_cnt.lock = 0;
+        /*
+         * Setup some function pointers.
+         */
+        drv->attach = &device_attach;
+        drv->detach = &device_detach;
+        drv->resume = &device_recurse_resume;
+        drv->suspend = &device_recurse_suspend;
+        drv->find_type = &dev_find_devtype;
+        drv->find = &device_find_id;
+
+        return -E_SUCCESS;
 }
 
 struct device *
 dev_find_devtype(struct device *dev, device_type_t type)
 {
-  if(dev != NULL)
-  {
-    if(dev->type == type)
-      return dev;
-    else
-    {
-      struct device *carriage;
-      for_each_ll_entry_safe(dev->children, carriage)
-      {
-        if(carriage->type == type)
-          return carriage;
-        if(carriage->next == NULL)
-          return NULL;
+        if(dev != NULL)
+        {
+                if(dev->type == type)
+                        return dev;
+                else
+                {
+                        struct device *carriage;
+                        for_each_ll_entry_safe(dev->children, carriage)
+                        {
+                                if(carriage->type == type)
+                                        return carriage;
+                                if(carriage->next == NULL)
+                                        return NULL;
+                                else
+                                        continue;
+                        }
+                }
+        }
         else
-          continue;
-      }
-    }
-  }
-  else
-    return NULL;
+                return NULL;
 }
 
 void dev_dbg()

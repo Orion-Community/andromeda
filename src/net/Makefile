@@ -17,7 +17,7 @@ all: $(NET)
 $(NET): $(TARGET)
 	$(LD) $(LDFLAGS) -o $(NET) $(TARGET)
 	mv -vf $(NET) ../
-	
+
 core.o:
 	$(MAKE) -C core/ $(MAKEEND)
 

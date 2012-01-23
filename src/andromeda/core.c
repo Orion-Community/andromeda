@@ -50,9 +50,18 @@ void buf_dbg()
 
         char *blaat = "Schaap\n";
         char *ret_msg = kalloc(sizeof("Schaap\n"));
+        memset(ret_msg, 0, sizeof(*blaat));
 
         f->write(f, blaat, strlen(blaat));
         f->seek(f, 0, SEEK_SET);
+        f->read(f, ret_msg, strlen(blaat));
+
+        printf("MSG: %s\n", ret_msg);
+
+        memset(ret_msg, 0, sizeof(*blaat));
+        f->seek(f, 0x1000-3, SEEK_SET);
+        f->write(f, blaat, strlen(blaat));
+        f->seek(f, -((int64_t)strlen(blaat)), SEEK_CUR);
         f->read(f, ret_msg, strlen(blaat));
 
         printf("MSG: %s\n", ret_msg);
@@ -115,6 +124,8 @@ void core_loop()
 #endif
 
         uint32_t pid = 0;
+
+        debug("Entering core loop\n");
 
         while (TRUE) // Infinite loop, to make the kernel wait when there is nothing to do
         {

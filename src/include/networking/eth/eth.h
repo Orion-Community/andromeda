@@ -25,10 +25,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-  
+
 #define IP 0x800
 #define ARP 0x806
-  
+
 #define MAC_BROADCAST 0xffffffffffff
 
 typedef void* frame_buf_t;
@@ -69,7 +69,7 @@ enum eth_type
 void receive_ethernet_frame(struct netdev *);
 static struct ethframe *alloc_eth_frame(uint16_t);
 static void build_ethernet_frame(ethframe_t, struct netbuf*);
-static enum eth_error process_ethernet_frame(ethframe_t frame, 
+static enum eth_error process_ethernet_frame(ethframe_t frame,
                                                         struct netdev *dev);
 static void build_hw_frame(ethframe_t frame, void *protocol);
 void debug_ethernet_stack();
