@@ -121,6 +121,9 @@ struct vmount
         struct vmount* next;
 };
 
+typedef size_t (*vfs_read_hook_t)(struct vfile*, char*, size_t);
+typedef size_t (*vfs_write_hook_t)(struct vfile*, char*, size_t);
+
 struct vfile*   vfs_open(struct vdir_ent* entry);
 int             vfs_close(struct vfile* stream);
 int             vfs_read(struct vfile* stream, char* buf, size_t num);

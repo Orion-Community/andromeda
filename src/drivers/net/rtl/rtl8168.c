@@ -24,21 +24,22 @@
 static struct rtl_cfg *rtl_devs = NULL;
 
 static void
-print_mac(struct ol_pci_dev *dev)
+get_mac(struct ol_pci_dev *dev, struct netdev *netdev)
 {
-  uint8_t mac[6];
+  uint8_t mac[MAC_ADDR_SIZE];
   uint16_t base = get_rtl_port_base(dev, 0);
   int i = 0;
   for(; i < 6; i++)
   {
     mac[i] = inb(base+i);
   }
+  memcpy(netdev->hwaddr, mac, MAC_ADDR_SIZE);
   printf("MAC address: ");
 
   for(i = 0; i<5; i++)
-    printf("%x:", mac[i]);
+    printf("%x:", netdev->hwaddr[i]);
 
-  printf("%x\n", mac[5]);
+  printf("%x\n", netdev->hwaddr[5]);
 }
 
 void init_rtl_device(struct ol_pci_dev *dev)
@@ -46,9 +47,6 @@ void init_rtl_device(struct ol_pci_dev *dev)
   struct rtlcommand *cmd = kalloc(sizeof(*cmd));
   struct rtl_cfg *cfg = kalloc(sizeof(*cfg));
   cfg->next = NULL;
-#ifdef MSG_DBG
-  print_mac(dev);
-#endif
 
   int i = 0;
   uint16_t portbase;
@@ -78,8 +76,20 @@ void init_rtl_device(struct ol_pci_dev *dev)
 
   sent_command_registers(cmd, portbase);
   read_command_registers(cmd, portbase);
+  
+  init_core_driver(dev);
   debug("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable,
                                                       cmd->ccommand.rxchecksum);
+}
+
+static int
+init_core_driver(pci_dev_t pci)
+{
+  struct netdev *dev = kalloc(sizeof(*dev));
+  dev->tx = &rtl_transmit_buff;
+  dev->rx = &rtl_receive_buff;
+  get_mac(pci, dev);
+  register_net_dev(dev);
 }
 
 static void
@@ -130,6 +140,16 @@ add_rtl_device(struct rtl_cfg *cfg)
       break;
     }
   }
+}
+
+int rtl_transmit_buff(struct net_buff *buf)
+{
+  return -E_NOFUNCTION;
+}
+
+int rtl_receive_buff(struct net_buff *buf)
+{
+  return -E_NOFUNCTION;
 }
 
 static int

@@ -60,7 +60,7 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
         idx_t idx = get_idx(offset, depth);
 
         int ret = -E_SUCCESS;
-        if (depth != BUFFER_TREE_DEPTH+1)
+        if (depth != BUFFER_TREE_DEPTH)
         {
                 struct buffer_list* list = this->lists[idx];
                 if (list == NULL)
@@ -137,6 +137,7 @@ idx_t offset;
 idx_t depth;
 {
         warning("buffer_add_block not yet tested!\n");
+        debug("Add_block depth: %X\tblock: %X\t list: %X\n", depth, this, list);
 
         if (list == NULL)
                 return -E_NULL_PTR;
@@ -149,7 +150,7 @@ idx_t depth;
 
         mutex_lock(list->lock);
 
-        if (depth != BUFFER_TREE_DEPTH+1)
+        if (depth != BUFFER_TREE_DEPTH)
         {
                 if (list->lists[list_idx] == NULL)
                 {
@@ -162,6 +163,7 @@ idx_t depth;
                         }
                         buffer_init_branch(list->lists[list_idx], list->parent);
                 }
+                debug("List ptr: %X\n", (int)(list->lists[list_idx]));
                 ret =  buffer_add_block(this, list->lists[list_idx],
                                                                          offset,
                                                                        depth+1);
@@ -174,6 +176,9 @@ idx_t depth;
                 mutex_unlock(list->lock);
                 return -E_ALREADY_INITIALISED;
         }
+
+        debug("Placing reference to: %X at: %X\n", (int)this, (int)(&(list->blocks[list_idx])));
+        demand_key();
 
         list->blocks[list_idx] = this;
         mutex_unlock(list->lock);
@@ -193,15 +198,15 @@ static struct buffer_block*
 buffer_find_block(struct buffer_list* this, idx_t offset, idx_t depth)
 {
         warning("buffer_find_block not yet tested!\n");
-
+        debug("Depth: %X\n", depth);
         if (this == NULL)
                 goto err;
 
         idx_t list_idx = get_idx(offset, depth);
         struct buffer_block* ret;
 
-        if (depth != BUFFER_TREE_DEPTH+1)
-                ret = buffer_find_block(this->lists[list_idx], offset, depth);
+        if (depth != BUFFER_TREE_DEPTH)
+                ret = buffer_find_block(this->lists[list_idx], offset, depth+1);
 
         else
                 ret = this->blocks[list_idx];
@@ -224,6 +229,7 @@ err:
 static size_t
 buffer_write(struct vfile* this, char* buf, size_t num)
 {
+        debug ("Writing: %s\nnum: %X\n", buf, num);
         if (this == NULL || buf == NULL)
                 return 0;
         warning("buffer_write not yet tested!\n");
@@ -234,24 +240,41 @@ buffer_write(struct vfile* this, char* buf, size_t num)
         idx_t offset = this->cursor / BUFFER_BLOCK_SIZE;
         idx_t block_cur = this->cursor % BUFFER_BLOCK_SIZE;
 
+        debug("Block offset: %X\tBlock cursor: %X\n", offset, block_cur);
+
         struct buffer* buffer = this->fs_data;
         if (buffer == NULL)
                 return 0;
+
+        debug("1\n");
+        if (buffer->blocks == NULL)
+        {
+                buffer->blocks = kalloc(sizeof(struct buffer_list));
+                if (buffer->blocks == NULL)
+                        return 0;
+        }
         struct buffer_block* b = buffer_find_block(buffer->blocks, offset, 0);
         if (b == NULL)
         {
-                buffer_add_block(kalloc(sizeof(struct buffer_block)),
-                                                                 buffer->blocks,
-                                                                     offset, 0);
+                void* block = kalloc(sizeof(struct buffer_block));
+                debug("1.1\n block: %X\n", (int)block);
+                buffer_add_block(block, buffer->blocks, offset, 0);
+                debug("1.2\n");
                 b = buffer_find_block(buffer->blocks, offset, 0);
+                debug("1.3\nblock: %X\n", (int)b);
                 if (b == NULL)
                         return 0;
         }
+
+        debug("2\n");
+
         if (this->cursor+num > buffer->size &&
                                         !(buffer->rights & BUFFER_ALLOW_GROWTH))
                 num = buffer->size - this->cursor;
 
         size_t idx = 0;
+
+        debug("3\n");
 
         for (; idx < num; idx++, block_cur++)
         {
@@ -260,10 +283,14 @@ buffer_write(struct vfile* this, char* buf, size_t num)
                 b = buffer_find_block(buffer->blocks, offset, 0);
                 if (b == NULL)
                 {
+                        demand_key();
                         buffer_add_block(kalloc(sizeof(struct buffer_block)),
                                                                  buffer->blocks,
                                                                      offset, 0);
+                        demand_key();
                         b = buffer_find_block(buffer->blocks, offset, 0);
+                        printf("b: %X\n", (int)b);
+                        demand_key();
                         if (b == NULL)
                         {
                                 this->cursor += idx;
@@ -271,6 +298,7 @@ buffer_write(struct vfile* this, char* buf, size_t num)
                         }
                 }
                 b->data[block_cur] = buf[idx];
+                debug("Writing: %c\n", b->data[block_cur]);
         }
 
         this->cursor += idx;
@@ -429,14 +457,27 @@ buffer_close(struct vfile* this)
  * \param this the buffer to duplicate
  */
 
-static struct buffer*
+static struct vfile*
 buffer_duplicate(struct buffer *this)
 {
         if (!(this->rights & (BUFFER_ALLOW_DUPLICATE)))
                 return NULL;
 
+        struct vfile* file = kalloc(sizeof(struct buffer));
+        if (file == NULL)
+                return NULL;
+        memset(file, 0, sizeof(struct buffer));
+
+        file->close = buffer_close;
+        file->write = buffer_write;
+        file->read = buffer_read;
+        file->seek = buffer_seek;
+
+        file->fs_data = this;
+        file->fs_data_size = sizeof(struct buffer);
+
         atomic_inc(&(this->opened));
-        return this;
+        return file;
 }
 
 /**
@@ -445,9 +486,8 @@ buffer_duplicate(struct buffer *this)
  * takes 2 arguments:
  *
  * \param size, sets the size of the buffer.
- *      If size == BUFFER_DYNAMIC_SIZE, the size will be set to 0 and the buffer
- *      now is allowed to grow dynamically.
- *
+ * \brief size in buffer blocks, when nog BUFFER_DYNAMIC_SIZE
+ * \brief if BUFFER_DYNAMIC_SIZE the buffer will grow on write, if necessary
  * \param base_idx, tells us up to which point we're allowed to clean up.
  *      From 0 untill base_idx, nothing will be written.
  *      It will also set the standard cursor.
@@ -472,10 +512,12 @@ buffer_init(struct vfile* this, idx_t size, idx_t base_idx)
         this->close = buffer_close;
 
         b->duplicate = buffer_duplicate;
-
-        b->size = (size == BUFFER_DYNAMIC_SIZE) ? 0 : size;
+        b->size = size*BUFFER_BLOCK_SIZE;
         b->base_idx = base_idx;
         b->rights |= (size == BUFFER_DYNAMIC_SIZE) ? BUFFER_ALLOW_GROWTH : 0;
+        b->rights |= BUFFER_ALLOW_DUPLICATE;
+
+        debug("buffer_size: %X\n", b->size);
 
         atomic_inc(&b->opened);
 

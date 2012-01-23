@@ -424,6 +424,15 @@ int64_t atomic_add(atomic_t* d, int cnt)
         return ret;
 }
 
+uint64_t 
+atomic_set(atomic_t *atom, uint64_t data)
+{
+  mutex_lock(atom->lock);
+  atom->cnt = data;
+  mutex_unlock(atom->lock);
+  return data;
+}
+
 int64_t atomic_sub(atomic_t* d, int cnt)
 {
         return (atomic_add(d, -cnt));

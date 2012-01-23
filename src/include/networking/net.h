@@ -19,6 +19,9 @@
 #ifndef __NET_H
 #define __NET_H
 
+#include <stdlib.h>
+#include <fs/vfs.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -30,14 +33,21 @@ extern "C" {
                                                     (carriage)->next != null, \
                                                     (carriage) != (carriage)->next; \
                                                     (carriage) = (carriage)->next)
-  
-  typedef void* net_buff_data_t;
+#define RX_BUFFER_SIZE (1024*8)+16+1500  
+typedef void* net_buff_data_t;
+
+typedef enum net_dev_state
+{
+  NET_DEV_INACTIVE,
+  NET_DEV_ACTIVE
+}net_dev_state_t;
   
 /**
- * Incoming packets will be queued using this structure. When a packed arrives,
- * it will be appended after the last current entry. The core driver will empty
- * the queue from the beginning on, this creates a FIFO situation. Used like an
- * inverted Java Queue object.
+ * \struct net_queue
+ * \brief Incoming packets will be queued using this structure. When a packed
+ * arrives, it will be appended after the last current entry. The core driver
+ * will empty the queue from the beginning on, this creates a FIFO situation.
+ * Used like an inverted Java Queue object.
  */
 struct net_queue
 {
@@ -55,9 +65,10 @@ struct netbuf
 
 struct netdev
 {
-  struct net_buff* (*rx)();
-  void (*tx)(struct netbuf*);
+  int (*rx)(struct net_buff*);
+  int (*tx)(struct net_buff*);
   uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
+  atomic_t state;
   struct netbuf buf; /* Current processed frame buffer */
   struct net_queue *queue_head;
 };
@@ -76,19 +87,66 @@ struct net_buff
   net_buff_data_t datalink_hdr;
 } __attribute__((packed));
 
+
+
 typedef void(*tx_hook_t)(struct net_buff*);
 typedef net_buff_data_t(*rx_hook_t)();
+extern char rx_buff[RX_BUFFER_SIZE];
 
-int register_net_dev(rx_hook_t rx, tx_hook_t tx);
-int net_rx();
+/**
+ * \fn get_rx_buffer()
+ * \brief Returns the global receive buffer to who ever needs it.
+ * 
+ * @return Address of the receive buffer.
+ */
+static inline void*
+get_rx_buffer()
+{
+  return rx_buff;
+}
+
+/**
+ * \fn register_net_dev(dev)
+ * \brief Register a NIC device driver in the core driver.
+ */
+int register_net_dev(struct netdev* dev);
+
+/**
+ * \fn unregister_net_dev(dev)
+ * \brief Unregisters the given <i>netdev</i> in the kernel.
+ * 
+ * @param dev The netdev that should be unregistered.
+ * @return E code.
+ */
+int unregister_net_dev(struct netdev *netdev);
+
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
-int free_net_buff_list(struct net_buff* nb);
+static int free_net_buff_list(struct net_buff* nb);
+
 static int process_net_buff(struct net_buff* buff);
+
 static int net_buff_append_list(struct net_buff *alpha, struct net_buff *beta);
 static struct net_queue *remove_first_queue_entry(struct net_queue queue);
 static int net_queue_append_list(struct net_queue queue, struct net_queue* item);
+<<<<<<< HEAD
 static void process_rx_packet(struct net_buff *packet);
 static struct net_buff *gso_segment(struct net_buff *buff);
+=======
+
+/**
+ * \fn net_rx_vfio(vfile, buf, size)
+ * 
+ * Receive a buffer from the device driver.
+ */
+static size_t net_rx_vfio(struct vfile *, char*, size_t);
+
+/**
+ * \fn net_tx_vfio(vfile, buf, size)
+ * 
+ * Transmit a buffer using virtual files.
+ */
+static size_t net_tx_vfio(struct vfile*, char*, size_t);
+>>>>>>> FETCH_HEAD
 
 #ifdef __cplusplus
 }

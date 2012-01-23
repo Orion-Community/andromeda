@@ -72,6 +72,21 @@ extern void start();
 void reboot();
 void shutdown();
 
+/*
+ * Default loops
+ */
+
+#define for_each_ll_entry_safe_count(head, carriage, i) for((carriage) = (head), \
+                                          (i) = 0; \
+                                          (carriage) != NULL, carriage != \
+                                          (carriage)->next; carriage = \
+                                          (carriage)->next, (i)++)
+
+#define for_each_ll_entry_safe(head, carriage) for((carriage) = (head); \
+                                          (carriage) != NULL, (carriage) != \
+                                          (carriage)->next; (carriage) = \
+                                          (carriage)->next)
+
 #ifdef __cplusplus
 }
 #endif

@@ -111,12 +111,15 @@ struct rxcommand
 };
 
 void init_rtl_device(struct ol_pci_dev *);
-static void print_mac(struct ol_pci_dev *);
+static void get_mac(struct ol_pci_dev *dev, struct netdev *netdev);
 static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
 static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
 static void transmit_packet(struct net_buff*);
+static int init_core_driver(pci_dev_t dev);
+int rtl_transmit_buff(struct net_buff *buf);
+int rtl_receive_buff(struct net_buff *buf);
 void init_network();
 
 static inline uint16_t get_rtl_port_base(struct ol_pci_dev *dev, uint8_t offset)

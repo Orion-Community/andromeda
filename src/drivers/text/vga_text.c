@@ -129,6 +129,8 @@ int vga_text_init(struct device* parent)
 
         this->driver->find = device_find_id;
 
+        this->type = graphics;
+
         parent->driver->attach(parent, this);
 
         device_id_alloc(this);

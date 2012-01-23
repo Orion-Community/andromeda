@@ -28,7 +28,7 @@ extern "C" {
 #define BUFFER_LIST_SIZE 0xFF
 #define BUFFER_BLOCK_SIZE 0x1000
 
-#define BUFFER_DYNAMIC_SIZE (~0x0)
+#define BUFFER_DYNAMIC_SIZE (0x0)
 
 #define BUFFER_ALLOW_DUPLICATE  (1<<0)
 #define BUFFER_ALLOW_GROWTH     (1<<1)
@@ -100,7 +100,7 @@ struct buffer
 
         /** \fn struct buffer* dulpicate
          *  \param this */
-        struct buffer* (*duplicate)(struct buffer* this);
+        struct vfile* (*duplicate)(struct buffer* this);
 };
 
 /**

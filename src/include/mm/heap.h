@@ -69,6 +69,7 @@ void heapStub();
 void heap_add_blocks(void* base, uint32_t size);
 
 #define kalloc(size) alloc(size, FALSE)
+#define kfree(ptr)   free(ptr);
 
 // Alloc_max = 1 MB
 #define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end) - offset)
