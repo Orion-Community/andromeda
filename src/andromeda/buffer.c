@@ -70,6 +70,7 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
                 switch(ret)
                 {
                 case -E_CLEAN_PARENT:
+                        debug("Cleaning parent!");
                         kfree(this->lists[idx]);
                         if (atomic_dec(&this->used) == 0)
                                 return -E_CLEAN_PARENT;
@@ -431,8 +432,12 @@ buffer_close(struct vfile* this)
         {
                 /** clean up the entire buffer */
                 buf->base_idx = buf->size;
-                return buffer_clean_up(this->fs_data);
+                int ret = buffer_clean_up(this->fs_data);
+                free(buf->blocks);
                 free(buf);
+                if (ret == -E_CLEAN_PARENT)
+                        return -E_SUCCESS;
+                return -E_GENERIC;
         };
         free(this);
         /** we have removed this instance by running atomic_dec  */
