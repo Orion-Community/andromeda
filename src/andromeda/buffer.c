@@ -22,7 +22,9 @@
 
 inline static idx_t get_idx(idx_t offset, idx_t depth)
 {
-        return (offset>>((BUFFER_TREE_DEPTH-depth+1)*12))&BUFFER_LIST_SIZE;
+        int mul = BUFFER_TREE_DEPTH-depth;
+        int shift = mul*12;
+        return (offset>>shift)&BUFFER_LIST_SIZE;
 }
 
 static int
@@ -68,7 +70,7 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
                 switch(ret)
                 {
                 case -E_CLEAN_PARENT:
-                        free(this->lists[idx]);
+                        kfree(this->lists[idx]);
                         if (atomic_dec(&this->used) == 0)
                                 return -E_CLEAN_PARENT;
                         break;
@@ -80,7 +82,8 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
         if (this->blocks[idx] == NULL)
                 goto err_locked;
 
-        free(this->blocks[idx]);
+        kfree(this->blocks[idx]);
+        this->blocks[idx] = NULL;
         if (atomic_dec(&this->used) == 0)
                 return -E_CLEAN_PARENT;
 
@@ -108,8 +111,8 @@ buffer_clean_up(struct buffer* this)
         /** Clean up from the location last cleaned untill base_idx */
 
         idx_t idx = this->cleaned;
-        for (; idx < this->base_idx; idx+=BUFFER_BLOCK_SIZE)
-                buffer_rm_block(this->blocks, idx/BUFFER_BLOCK_SIZE, 0);
+        for (; idx < (this->base_idx/BUFFER_BLOCK_SIZE); idx++)
+                buffer_rm_block(this->blocks, idx, 0);
 
         this->cleaned = idx;
 
@@ -135,7 +138,6 @@ idx_t depth;
 {
         if (list == NULL)
                 return -E_NULL_PTR;
-
         if (offset > list->parent->size/BUFFER_BLOCK_SIZE)
                 return -E_OUTOFBOUNDS;
 
@@ -195,10 +197,8 @@ buffer_find_block(struct buffer_list* this, idx_t offset, idx_t depth)
 
         if (depth != BUFFER_TREE_DEPTH)
                 ret = buffer_find_block(this->lists[list_idx], offset, depth+1);
-
         else
                 ret = this->blocks[list_idx];
-
         return ret;
 
 err:
@@ -235,6 +235,7 @@ buffer_write(struct vfile* this, char* buf, size_t num)
                 buffer->blocks = kalloc(sizeof(struct buffer_list));
                 if (buffer->blocks == NULL)
                         return 0;
+                buffer_init_branch(buffer->blocks ,buffer);
         }
         struct buffer_block* b = buffer_find_block(buffer->blocks, offset, 0);
         if (b == NULL)
@@ -258,12 +259,6 @@ buffer_write(struct vfile* this, char* buf, size_t num)
                 {
                         offset++;
                         block_cur -= BUFFER_BLOCK_SIZE;
-                        debug(
-                                "Switching to block %X (write)\n"
-                                "New block_cur %X\n",
-                                offset,
-                                block_cur
-                        );
                         b = buffer_find_block(buffer->blocks, offset, 0);
                         if (b == NULL)
                         {
@@ -326,12 +321,6 @@ buffer_read(struct vfile* this, char* buf, size_t num)
                 {
                         offset++;
                         block_cur -= BUFFER_BLOCK_SIZE;
-                        debug(
-                                "Switching to block %X (read)\n"
-                                "New block_cur %X\n",
-                              offset,
-                              block_cur
-                        );
                         b = buffer_find_block(buffer->blocks, offset, 0);
                         if (b == NULL)
                         {
@@ -368,12 +357,10 @@ buffer_seek(struct vfile* this, int64_t offset, seek_t from)
         if (this == NULL || this->fs_data == NULL)
                 return -E_NULL_PTR;
 
-        debug("Current cursor: %X, offset: %X\n", this->cursor, -offset);
         struct buffer* buf = this->fs_data;
         switch(from)
         {
         case SEEK_SET:
-                debug("Seek set ");
                 if (offset < buf->base_idx)
                         this->cursor = buf->base_idx;
                 else if (offset > buf->size)
@@ -383,39 +370,31 @@ buffer_seek(struct vfile* this, int64_t offset, seek_t from)
                 break;
 
         case SEEK_CUR:
-                debug("Seek cur ");
                 if (offset <= 0)
                 {
-                        debug("Success!");
                         if (-offset > this->cursor - buf->base_idx)
                         {
                                 this->cursor = buf->base_idx;
-                                debug("(base_idx) ");
                         }
                         else
                         {
                                 this->cursor += offset;
-                                debug("(+ offset) ");
                         }
                 }
                 else
                 {
-                        debug("EPIC FAIL!!!");
                         if (offset > buf->size - this->cursor)
                         {
                                 this->cursor = buf->size;
-                                debug("(size) ");
                         }
                         else
                         {
                                 this->cursor += offset;
-                                debug("(+ offset2) ");
                         }
                 }
                 break;
 
         case SEEK_END:
-                debug("Seek end ");
                 if (offset > 0)
                         this->cursor = buf->size;
                 else if (offset < 0 && -offset < (buf->size - buf->base_idx))
@@ -429,7 +408,6 @@ buffer_seek(struct vfile* this, int64_t offset, seek_t from)
                 return -E_INVALID_ARG;
                 break;
         }
-        debug("idx = %X\n", this->cursor);
         return -E_SUCCESS;
 }
 
@@ -454,7 +432,9 @@ buffer_close(struct vfile* this)
                 /** clean up the entire buffer */
                 buf->base_idx = buf->size;
                 return buffer_clean_up(this->fs_data);
+                free(buf);
         };
+        free(this);
         /** we have removed this instance by running atomic_dec  */
         return -E_SUCCESS;
 }
