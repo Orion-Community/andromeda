@@ -70,7 +70,7 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
                 switch(ret)
                 {
                 case -E_CLEAN_PARENT:
-                        debug("Cleaning parent!");
+                        debug("Cleaning parent!\n");
                         kfree(this->lists[idx]);
                         if (atomic_dec(&this->used) == 0)
                                 return -E_CLEAN_PARENT;
@@ -159,6 +159,7 @@ idx_t depth;
                                 return -E_NULL_PTR;
                         }
                         buffer_init_branch(list->lists[list_idx], list->parent);
+                        atomic_inc(&(list->used));
                 }
                 ret =  buffer_add_block(this, list->lists[list_idx],
                                                                          offset,
@@ -173,6 +174,7 @@ idx_t depth;
                 return -E_ALREADY_INITIALISED;
         }
 
+        atomic_inc(&(list->used));
         list->blocks[list_idx] = this;
         mutex_unlock(list->lock);
         return -E_SUCCESS;
