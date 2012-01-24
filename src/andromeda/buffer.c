@@ -437,6 +437,7 @@ buffer_close(struct vfile* this)
                 int ret = buffer_clean_up(this->fs_data);
                 free(buf->blocks);
                 free(buf);
+                free(this);
                 if (ret == -E_CLEAN_PARENT)
                         return -E_SUCCESS;
                 return -E_GENERIC;

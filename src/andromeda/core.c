@@ -22,6 +22,7 @@
 #include <fs/path.h>
 #include <andromeda/syscall.h>
 #include <andromeda/drivers.h>
+#include <andromeda/buffer.h>
 
 #define RL_SHUTDOWN	0x0
 #define RL_RUN0		0x1
@@ -73,6 +74,12 @@ void buf_dbg()
 
         examine_heap();
         demand_key();
+        printf(
+                "Sizeof file: %X\n"
+                "Sizeof buffer: %X\n",
+               sizeof(struct vfile),
+               sizeof(struct buffer)
+        );
 }
 
 void shutdown()
