@@ -166,6 +166,12 @@ int device_id_alloc(struct device* dev)
         return ret;
 }
 
+int
+device_alloc_id()
+{
+  
+}
+
 static int
 drv_setup_io(dev, drv, io, read, write)
 struct device *dev;

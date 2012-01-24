@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <fs/vfs.h>
+#include <sys/dev/pci.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,12 +37,6 @@ extern "C" {
 
 #define RX_BUFFER_SIZE (1024*8)+16+1500
 typedef void* net_buff_data_t;
-
-typedef enum net_dev_state
-{
-  NET_DEV_INACTIVE,
-  NET_DEV_ACTIVE
-}net_dev_state_t;
 
 /**
  * \struct net_queue
@@ -66,10 +61,9 @@ struct netbuf
 
 struct netdev
 {
-  int (*rx)(struct net_buff*);
-  int (*tx)(struct net_buff*);
   uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
   atomic_t state;
+  struct pci_dev *dev;
   struct netbuf buf; /* Current processed frame buffer */
   struct net_queue *queue_head;
 };
@@ -86,6 +80,8 @@ struct net_buff
   net_buff_data_t transport_hdr;
   net_buff_data_t network_hdr;
   net_buff_data_t datalink_hdr;
+  
+  unsigned char* head, data, tail, end;
 } __attribute__((packed));
 
 
@@ -110,16 +106,16 @@ get_rx_buffer()
  * \fn register_net_dev(dev)
  * \brief Register a NIC device driver in the core driver.
  */
-int register_net_dev(struct netdev* dev);
+int register_net_dev(struct device *dev, struct netdev* netdev);
 
 /**
  * \fn unregister_net_dev(dev)
  * \brief Unregisters the given <i>netdev</i> in the kernel.
  *
- * @param dev The netdev that should be unregistered.
+ * @param dev The device id to unregister.
  * @return E code.
  */
-int unregister_net_dev(struct netdev *netdev);
+int unregister_net_dev(uint64_t id)
 
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
 static int free_net_buff_list(struct net_buff* nb);

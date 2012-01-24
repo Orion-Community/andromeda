@@ -20,11 +20,12 @@
 #include <sys/dev/pci.h>
 #include <networking/rtl8168.h>
 #include <networking/net.h>
+#include <andromeda//drivers.h>
 
 static struct rtl_cfg *rtl_devs = NULL;
 
 static void
-get_mac(struct ol_pci_dev *dev, struct netdev *netdev)
+get_mac(struct pci_dev *dev, struct netdev *netdev)
 {
   uint8_t mac[MAC_ADDR_SIZE];
   uint16_t base = get_rtl_port_base(dev, 0);
@@ -42,7 +43,7 @@ get_mac(struct ol_pci_dev *dev, struct netdev *netdev)
   printf("%x\n", netdev->hwaddr[5]);
 }
 
-void init_rtl_device(struct ol_pci_dev *dev)
+void init_rtl_device(struct pci_dev *dev)
 {
   struct rtlcommand *cmd = kalloc(sizeof(*cmd));
   struct rtl_cfg *cfg = kalloc(sizeof(*cfg));
@@ -85,11 +86,24 @@ void init_rtl_device(struct ol_pci_dev *dev)
 static int
 init_core_driver(pci_dev_t pci)
 {
-  struct netdev *dev = kalloc(sizeof(*dev));
-  dev->tx = &rtl_transmit_buff;
-  dev->rx = &rtl_receive_buff;
-  get_mac(pci, dev);
-  register_net_dev(dev);
+  struct rtl_cfg *carriage;
+  for_each_ll_entry_safe(get_rtl_dev_list(), carriage)
+  {
+    struct device *dev = kalloc(sizeof(*dev));
+    dev->dev_id = device_id_alloc(dev);
+    carriage->device_id = dev->dev_id;
+    
+    struct netdev *netdev = kalloc(sizeof(*netdev));
+    netdev->dev = pci;
+    
+    get_mac(pci, netdev);
+    register_net_dev(dev, netdev);
+    
+    if(carriage->next == NULL)
+      break;
+    else
+      continue;
+  }
 }
 
 static void
@@ -152,6 +166,31 @@ int rtl_receive_buff(struct net_buff *buf)
   return -E_NOFUNCTION;
 }
 
+/**
+ * \fn net_rx_vfio(vfile, buf, size)
+ *
+ * Receive a buffer from the device driver.
+ */
+static size_t
+rtl_rx_vfio(struct vfile *file, char *buf, size_t size)
+{
+  struct netdev *dev = (struct netdev*)file->fs_data;
+
+  return -E_NOFUNCTION;
+}
+
+
+/**
+ * \fn net_tx_vfio(vfile, buf, size)
+ *
+ * Transmit a buffer using virtual files.
+ */
+static size_t
+rtl_tx_vfio(struct vfile *file, char *buf, size_t size)
+{
+  return -E_NOFUNCTION;
+}
+
 static int
 reset_rtl_device(struct rtl_cfg *cfg)
 {
@@ -175,6 +214,23 @@ static struct rtl_cfg*
 get_rtl_dev_list()
 {
   return rtl_devs;
+}
+
+static int 
+get_rtl_dev_num()
+{
+  int i = 0;
+  struct rtl_cfg *carriage;
+  for(carriage = get_rtl_dev_list(); carriage != NULL, carriage != carriage->next;
+      carriage = carriage->next)
+  {
+    i++;
+    if(carriage->next == NULL)
+      break;
+    else
+      continue;
+  }
+  return i;
 }
 
 /**
