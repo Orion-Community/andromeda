@@ -58,6 +58,11 @@ void init_rtl_device(struct pci_dev *dev)
   } while(portbase == 0 && i <= 5);
   debug("RealTek base: %x\n", portbase);
   cfg->portbase = portbase;
+  
+  cfg->raw_rx_buff = kalloc(RX_BUFFER_SIZE);
+  cfg->rx_buff_length = RX_BUFFER_SIZE;
+  cfg->raw_tx_buff = kalloc(TX_BUFFER_SIZE);
+  cfg->tx_buff_length = TX_BUFFER_SIZE;
 
   if(cmd == NULL)
     return;
@@ -95,6 +100,7 @@ init_core_driver(pci_dev_t pci)
     
     struct netdev *netdev = kalloc(sizeof(*netdev));
     netdev->dev = pci;
+    netdev->dev_id = dev->dev_id;
     
     get_mac(pci, netdev);
     register_net_dev(dev, netdev);
@@ -253,6 +259,12 @@ get_rtl_device(int dev)
     else
       continue;
   }
+}
+
+static int
+rtl_conf_rx(struct rtl_cfg *cfg)
+{
+  
 }
 
 void

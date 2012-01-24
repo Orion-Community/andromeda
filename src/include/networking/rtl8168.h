@@ -71,15 +71,59 @@ struct rtlcommand
   uint reset : 1;
 };
 
+/**
+ * \struct struct rtl_cfg
+ * \brief RealTek configuration data structure.
+ */
 struct rtl_cfg
 {
+  /**
+   * \var transmit
+   * \brief Transmit configuration
+   * 
+   * \var receive
+   * \brief Receive configuration register.
+   * 
+   * \var command
+   * \brief Command register. Also holds the CPLUS command register.
+   * 
+   * \var next
+   * \brief A pointer to another configuration.
+   */
   struct txconfig *transmit;
   struct rxconfig *receive;
   struct rtlcommand *command;
   struct rtl_cfg *next;
 
+  /**
+   * \var portbase
+   * \brief I/O base port
+   * 
+   * \var device_id
+   * \brief The device ID in the andromeda driver list.
+   * 
+   * \var raw_rx_buff
+   * \brief Memory space to receive data in.
+   * 
+   * \var raw_tx_buff
+   * \brief Memory space buffer to transmit data.
+   */
   uint16_t portbase;
   uint64_t device_id;
+  void *raw_rx_buff;
+  void *raw_tx_buff;
+  
+  /**
+   * \var rx_buff_length
+   * \brief Allocated memory length of raw_rx_buff.
+   * \see raw_rx_buff
+   * 
+   * \var tx_buff_length
+   * \brief Allocated memory length of raw_tx_buff.
+   * \see raw_tx_buff
+   */
+  uint16_t rx_buff_length,
+           tx_buff_length;
 };
 
 /*

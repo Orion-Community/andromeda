@@ -35,7 +35,8 @@ extern "C" {
                                                     (carriage) != (carriage)->next; \
                                                     (carriage) = (carriage)->next)
 
-#define RX_BUFFER_SIZE (1024*8)+16+1500
+#define RX_BUFFER_SIZE (1024*8)+16+1500 /* 8KiB + header + 1 extra frame */
+#define TX_BUFFER_SIZE 1500+16 /* 1 frame + header */
 typedef void* net_buff_data_t;
 
 /**
@@ -59,12 +60,30 @@ struct netbuf
   void *framebuf;
 };
 
+/**
+ * \struct net_bridge
+ * \brief Used to bridge a packet between two network interfaces.
+ * \see struct netdev
+ */
+struct net_bridge
+{
+  /**
+   * \var input
+   * \brief The input interface.
+   * 
+   * \var output
+   * \brief The output interface.
+   */
+  struct netdev *input;
+  struct netdev *output;
+};
+
 struct netdev
 {
   uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
   atomic_t state;
   struct pci_dev *dev;
-  struct netbuf buf; /* Current processed frame buffer */
+  uint64_t dev_id;
   struct net_queue *queue_head;
 };
 
@@ -83,24 +102,6 @@ struct net_buff
   
   unsigned char* head, data, tail, end;
 } __attribute__((packed));
-
-
-
-typedef void(*tx_hook_t)(struct net_buff*);
-typedef net_buff_data_t(*rx_hook_t)();
-extern char rx_buff[RX_BUFFER_SIZE];
-
-/**
- * \fn get_rx_buffer()
- * \brief Returns the global receive buffer to who ever needs it.
- *
- * @return Address of the receive buffer.
- */
-static inline void*
-get_rx_buffer()
-{
-  return rx_buff;
-}
 
 /**
  * \fn register_net_dev(dev)

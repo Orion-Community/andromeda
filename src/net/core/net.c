@@ -20,8 +20,6 @@
 #include <andromeda/drivers.h>
 #include <networking/net.h>
 
-char rx_buff[RX_BUFFER_SIZE];
-
 int init_netif()
 {
   struct device *dev = kalloc(sizeof(*dev));
@@ -99,14 +97,14 @@ free_net_buff_list(struct net_buff* nb)
 }
 
 /**
- * \fn rx_process_net_buff(buff)
+ * \fn netif_process_net_buff(buff)
  * \brief Processes the received net_buff trough the entire network stack.
  * \warning Should only be called from net_rx_vfio(vfile, char*, size_t)
  *
  * \param buff The received net buffer.
  */
 static int
-rx_process_net_buff(struct net_buff *buff)
+netif_process_net_buff(struct net_buff *buff)
 {
   return -E_NOFUNCTION;
 }

@@ -22,6 +22,8 @@
 #include <fs/path.h>
 #include <andromeda/syscall.h>
 #include <andromeda/drivers.h>
+#include <networking/rtl8168.h>
+#include <networking/net.h>
 
 #define RL_SHUTDOWN	0x0
 #define RL_RUN0		0x1
@@ -101,7 +103,6 @@ void core_loop()
                 panic("Couldn't initialise /dev");
         init_netif();
         init_network();
-        debug_ethernet_stack();
 
 #ifdef SCHED_DBG
         /**
