@@ -164,6 +164,9 @@ static int read_command_registers(struct rtlcommand *, uint16_t);
 static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
 static int init_core_driver(pci_dev_t dev);
+static struct rtl_cfg* get_rtl_dev_list();
+static struct rtl_cfg* get_rtl_device(int dev);
+static int get_rtl_dev_num();
 
 /**
  * \fn net_rx_vfio(vfile, buf, size)
@@ -178,10 +181,6 @@ static size_t rtl_rx_vfio(struct vfile *file, char *buf, size_t size);
  * Transmit a buffer using virtual files.
  */
 static size_t rtl_tx_vfio(struct vfile *file, char *buf, size_t size);
-
-static struct rtl_cfg* get_rtl_dev_list();
-static struct rtl_cfg* get_rtl_device(int dev);
-static int get_rtl_dev_num();
 
 static inline uint16_t get_rtl_port_base(struct pci_dev *dev, uint8_t offset)
 {

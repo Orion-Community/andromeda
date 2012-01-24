@@ -33,8 +33,8 @@ int init_netif()
   /*
    * attach the device driver to the the virtual bus.
    */
-  struct device *virt_bus = dev_find_devtype(get_root_device(), virt_bus);
-  device_attach(virt_bus, dev);
+  struct device *virtual = dev_find_devtype(get_root_device(), virtual_bus);
+  device_attach(virtual, dev);
 }
 
 int
@@ -49,7 +49,7 @@ register_net_dev(struct device *dev, struct netdev* netdev)
    * attach the device driver to the core driver.
    */
   struct device *core_dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
-                                                              virt_bus), net_dev);
+                                                              virtual_bus), net_dev);
   device_attach(core_dev, dev);
   return -E_SUCCESS;
 }
@@ -58,7 +58,7 @@ int
 unregister_net_dev(uint64_t id)
 {
   struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
-                                                              virt_bus), net_dev);
+                                                              virtual_bus), net_dev);
   if(dev == NULL)
     return -E_NULL_PTR;
   if(device_detach(dev, device_find_id(dev, id)) == -E_NOTFOUND)

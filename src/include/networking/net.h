@@ -115,7 +115,7 @@ int register_net_dev(struct device *dev, struct netdev* netdev);
  * @param dev The device id to unregister.
  * @return E code.
  */
-int unregister_net_dev(uint64_t id)
+int unregister_net_dev(uint64_t id);
 
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
 static int free_net_buff_list(struct net_buff* nb);
