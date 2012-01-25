@@ -280,11 +280,16 @@ void test_func(int x)
 
 void dbg_irq_data(void)
 {
-  setup_irq_handler(1);
+  //setup_irq_handler(1);
   
   void* stub = kalloc(get_general_irqstub_size());
   memcpy(stub, gen_irq_stub, get_general_irqstub_size());
-  writel(get_general_irqstub_end()-4, test_func);
-  debug("%x\n", (*(uint32_t*)(stub+get_general_irqstub_size()-4)));
-  exec_addr((void*)stub);
+  writel(stub+get_general_irqstub_size()-8, 7);
+  exec_addr(stub);
+  
+  void* stub2 = kalloc(get_general_irqstub_size());
+  memcpy(stub2, gen_irq_stub, get_general_irqstub_size());
+  writel(stub2+get_general_irqstub_size()-8, 9);
+  exec_addr(stub2);
+  exec_addr(stub);
 }

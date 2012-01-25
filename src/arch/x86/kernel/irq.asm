@@ -299,28 +299,23 @@ irqStub:
 	add esp, 4	; pop func pointer
 	iret	; interrupt return
 
-[EXTERN printNum]
-
+[EXTERN test_func]
 [GLOBAL gen_irq_stub]
 gen_irq_stub:
   pushad
+  call label
+label:
+  pop eax
+  add eax, irq_num_addr - label
  
-
-;  push 0
-;  push 0
-;  push 16
-;  push 0x10
-[EXTERN test_func]
-  mov eax, 8
-  push eax
+  push dword [eax]
   call [irq_fp]
   add esp, 4
-;  add esp, 16
 
   popad
   ret
-;irq_num_addr:  dd 0
-irq_fp:  dd 0
+irq_num_addr:  dd 0
+irq_fp:  dd test_func
 [GLOBAL __end_of_irq_stub]
 __end_of_irq_stub:
 
