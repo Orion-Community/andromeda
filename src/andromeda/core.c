@@ -103,8 +103,7 @@ void core_loop()
                 panic("Couldn't initialise /dev");
         init_netif();
         init_network();
-        dbg_irq_data();
-
+        trigger_soft_irq30();
 #ifdef SCHED_DBG
         /**
          * Will have to be improved to actually do a context

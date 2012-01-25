@@ -40,13 +40,17 @@ extern "C" {
 #define TRIGGER_LEVEL_ASSERT 1
 #define TRIGGER_LEVEL_DEASSERT 0
   
+  /* dynamic code allocation */
+#define DYNAMIC_IRQ_VALUE get_general_irqstub_size()-8
+#define DYNAMIC_IRQ_HANDLER_VALUE get_general_irqstub_size()-4
+  
   /**
    * \fp irq_handler_t(irq_stack)
    * \brief Function pointer definition for irq handlers
    */
-  typedef void (*irq_base_handler_t)(ol_irq_stack_t);
+  typedef void (*irq_base_handler_t)(struct general_irq_stack);
   typedef void (*gen_irq_stub_t)();
-  typedef void (*irq_handler_t)(unsigned int, ol_isr_stack_t, void *);
+  typedef void (*irq_handler_t)(unsigned int, irq_stack_t);
 
 /*
  * An IRQ is the index number of the IRQ (eg irq 0 is the timer by default).
@@ -69,28 +73,11 @@ extern uint32_t irqs[IRQ_BASE];
 extern void *__end_of_irq_stub;
 extern void gen_irq_stub();
 extern void exec_addr(void *addr);
+extern void trigger_soft_irq30();
+#ifdef IRQ_DBG
 
-/*
- * Interrupt headers
- */
-extern void irq0();
-extern void irq1();
-extern void irq2();
-extern void irq3();
-extern void irq4();
-extern void irq5();
-extern void irq6();
-extern void irq7();
-extern void irq8();
-extern void irq9();
-extern void irq10();
-extern void irq11();
-extern void irq12();
-extern void irq13();
-extern void irq14();
-extern void irq15();
-extern void irq30();
-extern void irq40();
+extern void trigger_soft_irq31();
+#endif
 
 static inline struct irq_data*
 get_irq_data(uint32_t irq)
@@ -128,10 +115,12 @@ get_general_irqstub_end()
   return (void*)&__end_of_irq_stub;
 }
 
-void dbg_irq_data(void);
+uint32_t debug_dynamic_irq(void);
+int native_setup_irq_handler(unsigned int irq);
 static void __list_all_irqs();
 static int free_irq_entry(struct irq_data*);
 static struct irq_cfg *setup_irq_cfg(int irq);
+static void setup_irq_handler(unsigned int irq);
 
 struct irq_data *alloc_irq();
 unsigned int search_irq_num(irq_base_handler_t handle);
@@ -152,6 +141,7 @@ struct irq_cfg
   uint trigger: 1; /* 0 -> edge trigger | 1 -> level trigger */
 };
 
+
 extern void irq0();
 extern void irq1();
 extern void irq2();
@@ -168,6 +158,7 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+#if 0
 extern void irq16();
 extern void irq17();
 extern void irq18();
@@ -375,6 +366,7 @@ extern void irq219();
 extern void irq220();
 extern void irq221();
 extern void irq222();
+#endif
 
 #ifdef __cplusplus
 }

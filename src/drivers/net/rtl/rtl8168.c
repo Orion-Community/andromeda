@@ -21,8 +21,31 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/drivers.h>
+#include <arch/x86/irq.h>
 
 static struct rtl_cfg *rtl_devs = NULL;
+
+void
+rtl8168_irq_handler(unsigned int irq, irq_stack_t stack)
+{
+  struct netdev *dev = (struct netdev*)get_irq_data(irq)->irq_data;
+  debug("Received IRQ from rtl device with dev_id: %x.\n",(uint32_t)dev->dev_id);
+  return;
+}
+
+static int
+rtl_setup_irq_handle(irq_handler_t handle, struct netdev *irq_data)
+{
+  struct irq_data *data = alloc_irq();
+  data->base_handle = &do_irq;
+  data->handle = handle;
+  data->irq_data = irq_data;
+  int ret = native_setup_irq_handler(data->irq);
+  if(!ret)
+    install_irq_vector(data);
+  else
+    panic("network card handler could not be installed!");
+}
 
 static void
 get_mac(struct pci_dev *dev, struct netdev *netdev)
@@ -75,15 +98,16 @@ void init_rtl_device(struct pci_dev *dev)
   reset_rtl_device(cfg);
   cmd->ccommand.rxvlan = 1;
   cmd->ccommand.rxchecksum = 1;
-  cmd->tx_enable = 1;
-  cmd->rx_enable = 1;
+  cmd->tx_enable = 0;
+  cmd->rx_enable = 0;
   cmd->reset = 0;
   cfg->command = cmd;
 
   sent_command_registers(cmd, portbase);
   read_command_registers(cmd, portbase);
-
   init_core_driver(dev);
+
+
   debug("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable,
                                                       cmd->ccommand.rxchecksum);
 }
@@ -103,6 +127,7 @@ init_core_driver(pci_dev_t pci)
     netdev->dev_id = dev->dev_id;
     
     get_mac(pci, netdev);
+    rtl_setup_irq_handle(&rtl8168_irq_handler, netdev);
     register_net_dev(dev, netdev);
     
     if(carriage->next == NULL)

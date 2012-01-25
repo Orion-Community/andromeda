@@ -38,6 +38,7 @@ irq%1:
   jmp irqStub
 %endmacro
 
+
 isa_irq 0
 isa_irq 1
 isa_irq 2
@@ -54,6 +55,7 @@ isa_irq 12
 isa_irq 13
 isa_irq 14
 isa_irq 15
+%if 0
 irq 16
 irq 17
 irq 18
@@ -262,6 +264,7 @@ irq 220
 irq 221
 irq 222
 irq 223
+%endif
 
 ; [GLOBAL systemcall]
 ; [EXTERN proberam]
@@ -303,19 +306,35 @@ irqStub:
 [GLOBAL gen_irq_stub]
 gen_irq_stub:
   pushad
+  xor edx, edx
+  mov dx, ds
+  push ds
+
+  mov dx, 0x10
+	mov ds, dx
+	mov es, dx
+	mov fs, dx
+	mov gs, dx
+
   call label
 label:
   pop eax
-  add eax, irq_num_addr - label
  
-  push dword [eax]
-  call [irq_fp]
+  push dword [eax + (irq_num_addr - label)]
+  call [eax + (irq_fp - label)]
   add esp, 4
 
+  pop edx
+
+	mov ds, dx
+	mov es, dx
+	mov fs, dx
+	mov gs, dx
+
   popad
-  ret
+  iret
 irq_num_addr:  dd 0
-irq_fp:  dd test_func
+irq_fp:  dd 0
 [GLOBAL __end_of_irq_stub]
 __end_of_irq_stub:
 
@@ -327,3 +346,20 @@ exec_addr:
   call eax
   pop ebp
   ret
+
+
+[GLOBAL trigger_soft_irq30]
+trigger_soft_irq30:
+  pushad
+  int 0x30
+  popad
+  ret
+
+%ifdef IRG_DBG
+[GLOBAL trigger_soft_irq31]
+trigger_soft_irq31:
+  pushad
+  int 0x31
+  popad
+  ret
+%endif
