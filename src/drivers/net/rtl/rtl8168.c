@@ -20,7 +20,7 @@
 #include <sys/dev/pci.h>
 #include <networking/rtl8168.h>
 #include <networking/net.h>
-#include <andromeda//drivers.h>
+#include <andromeda/drivers.h>
 
 static struct rtl_cfg *rtl_devs = NULL;
 

@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <sys/dev/ps2.h>
 #include <sys/dev/pci.h>
+#include <interrupts/int.h>
 
 
 uint64_t pit_timer = 0;
@@ -40,6 +41,7 @@ void cIRQ0(ol_irq_stack_t regs)
     if (!(sleepTime == 0)) sleepTime--;
   }
   pit_timer += 1;
+
   pic_eoi(0);
 
   return;
@@ -144,6 +146,12 @@ cIRQ40(ol_irq_stack_t regs)
 {
   printf("General interrupt triggered!");
   pic_eoi(40);
+  return;
+}
+
+void
+do_irq(ol_irq_stack_t regs)
+{
   return;
 }
 
@@ -255,6 +263,21 @@ free_irq_entry(struct irq_data* irq)
     return ret;
   }
   return -1;
+}
+
+unsigned int
+search_irq_num(irq_base_handler_t handle)
+{
+  unsigned int i = 16;
+  for(; i < MAX_IRQ_NUM; i++)
+  {
+    if(get_irq_data(i)->base_handle == handle)
+      break;
+    else
+      continue;
+  }
+  
+  return i;
 }
 
 static void dbg_irq_data(void)
