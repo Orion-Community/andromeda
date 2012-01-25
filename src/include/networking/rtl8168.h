@@ -22,6 +22,7 @@
 #include <sys/dev/pci.h>
 #include <networking/net.h>
 #include <stdlib.h>
+#include <arch/x86/irq.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -202,6 +203,8 @@ int rtl_transmit_buff(struct net_buff *buf);
 int rtl_receive_buff(struct net_buff *buf);
 void init_network();
 
+void rtl8168_irq_handler(unsigned int irq, irq_stack_t stack);
+static int rtl_setup_irq_handle(irq_handler_t handle, struct netdev *irq_data);
 static void get_mac(struct pci_dev *dev, struct netdev *netdev);
 static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
