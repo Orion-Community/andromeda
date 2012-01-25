@@ -45,7 +45,7 @@ extern "C" {
    * \brief Function pointer definition for irq handlers
    */
   typedef void (*irq_base_handler_t)(ol_irq_stack_t);
-  
+  typedef void (*gen_irq_stub_t)();
   typedef void (*irq_handler_t)(unsigned int, ol_isr_stack_t, void *);
 
 /*
@@ -65,6 +65,10 @@ struct irq_data
 
 extern struct irq_data irq_data[MAX_IRQ_NUM];
 extern uint32_t irqs[IRQ_BASE];
+
+extern void *__end_of_irq_stub;
+extern void gen_irq_stub();
+extern void exec_addr(void *addr);
 
 /*
  * Interrupt headers
@@ -112,7 +116,19 @@ get_irq_base(uint8_t i)
   return irqs[i];
 }
 
-static void dbg_irq_data(void);
+static inline uint32_t
+get_general_irqstub_size()
+{
+  return ((addr_t)&__end_of_irq_stub) - ((addr_t)&gen_irq_stub);
+}
+
+static inline void*
+get_general_irqstub_end()
+{
+  return (void*)&__end_of_irq_stub;
+}
+
+void dbg_irq_data(void);
 static void __list_all_irqs();
 static int free_irq_entry(struct irq_data*);
 static struct irq_cfg *setup_irq_cfg(int irq);

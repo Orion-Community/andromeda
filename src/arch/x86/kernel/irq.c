@@ -265,32 +265,26 @@ free_irq_entry(struct irq_data* irq)
   return -1;
 }
 
-unsigned int
-search_irq_num(irq_base_handler_t handle)
+static void *setup_irq_handler(unsigned int irq)
 {
-  unsigned int i = 16;
-  for(; i < MAX_IRQ_NUM; i++)
-  {
-    if(get_irq_data(i)->base_handle == handle)
-      break;
-    else
-      continue;
-  }
-  
-  return i;
+  struct irq_data *idata = get_irq_data(irq);
+  debug("IRQ stub size: %x Addr: %x - %x\n", get_general_irqstub_size(), 
+  &__end_of_irq_stub,gen_irq_stub);
+  //unsigned char *irq_stub = kalloc(get_general_irqstub_size());
 }
 
-static void dbg_irq_data(void)
+void test_func(int x)
 {
-  int entry = alloc_idt_entry();
-  struct irq_data *data = alloc_irq();
-  if(entry != -1)
-  {
-    data->irq_base = (uint32_t)&irq30;
-    data->irq_config = kalloc(sizeof(struct irq_cfg));
-    data->irq_config->vector = (uint16_t)entry;
-    install_irq_vector(data);
-  }
-  else
-    return;
+  debug("dynamic code allocation working! arg: %x\n", x);
+}
+
+void dbg_irq_data(void)
+{
+  setup_irq_handler(1);
+  
+  void* stub = kalloc(get_general_irqstub_size());
+  memcpy(stub, gen_irq_stub, get_general_irqstub_size());
+  writel(get_general_irqstub_end()-4, test_func);
+  debug("%x\n", (*(uint32_t*)(stub+get_general_irqstub_size()-4)));
+  exec_addr((void*)stub);
 }

@@ -46,7 +46,7 @@ struct irq_stack
 	uint32_t eip;
 	uint16_t cs;
 	uint32_t eflags, proc_esp;
-	uint16_t ss;
+	uint32_t ss;
 } __attribute__((packed));
 typedef struct irq_stack ol_irq_stack_t;
 
