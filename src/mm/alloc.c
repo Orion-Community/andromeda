@@ -40,7 +40,7 @@ volatile mutex_t prot;
 void
 examine_heap()
 {
-	printf("Head\n0x%X\n", (int) heap);
+	printf("Head\t0x%X\n", (int) heap);
 	if (heap == NULL)
 		return;
 	volatile memory_node_t* carriage;

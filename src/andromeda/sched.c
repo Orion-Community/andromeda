@@ -424,22 +424,24 @@ int64_t atomic_add(atomic_t* d, int cnt)
         return ret;
 }
 
-uint64_t 
+uint64_t
 atomic_set(atomic_t *atom)
 {
-  mutex_lock(atom->lock);
-  atom->cnt = 1;
-  mutex_unlock(atom->lock);
-  return atom->cnt;
+        mutex_lock(atom->lock);
+        uint64_t ret = atom->cnt;
+        atom->cnt = 1;
+        mutex_unlock(atom->lock);
+        return ret;
 }
 
 uint64_t
 atomic_reset(atomic_t *atom)
 {
-  mutex_lock(atom->lock);
-  atom->cnt = 0;
-  mutex_unlock(atom->lock);
-  return atom->cnt;
+        mutex_lock(atom->lock);
+        uint64_t ret = atom->cnt;
+        atom->cnt = 0;
+        mutex_unlock(atom->lock);
+        return ret;
 }
 
 int64_t atomic_sub(atomic_t* d, int cnt)
