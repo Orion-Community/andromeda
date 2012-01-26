@@ -83,6 +83,7 @@ struct netdev
   uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
   atomic_t state;
   struct pci_dev *dev;
+  void *device_data;
   uint64_t dev_id;
   struct net_queue *queue_head;
 };
@@ -94,7 +95,7 @@ struct net_buff
 
   unsigned int lenth;
   unsigned short data_len;
-  struct netdev dev;
+  struct netdev *dev;
 
   net_buff_data_t transport_hdr;
   net_buff_data_t network_hdr;
@@ -118,6 +119,8 @@ int register_net_dev(struct device *dev, struct netdev* netdev);
  */
 int unregister_net_dev(uint64_t id);
 
+struct device *get_net_driver(uint64_t id);
+
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
 static int free_net_buff_list(struct net_buff* nb);
 
@@ -133,6 +136,7 @@ static int rx_process_net_buff(struct net_buff* buff);
 static int net_buff_append_list(struct net_buff *alpha, struct net_buff *beta);
 static struct net_queue *remove_first_queue_entry(struct net_queue queue);
 static int net_queue_append_list(struct net_queue queue, struct net_queue* item);
+void print_mac(struct netdev *netdev);
 
 /**
  * \fn net_rx_vfio(vfile, buf, size)

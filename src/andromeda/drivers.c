@@ -90,6 +90,7 @@ int device_attach(struct device* this, struct device* child)
                 carriage = carriage->next;
         }
         last->next = child;
+        child->parent = this;
         return -E_SUCCESS;
 }
 
@@ -166,12 +167,6 @@ int device_id_alloc(struct device* dev)
         return ret;
 }
 
-int
-device_alloc_id()
-{
-  
-}
-
 static int
 drv_setup_io(dev, drv, io, read, write)
 struct device *dev;
@@ -195,6 +190,8 @@ dev_setup_driver(struct device *dev, vfs_read_hook_t read, vfs_write_hook_t writ
 {
         struct driver *drv = kalloc(sizeof(*drv));
         struct vfile *file = kalloc(sizeof(*file));
+        dev->children = NULL;
+        dev->parent = NULL;
         drv_setup_io(dev,drv,file,read,write);
         dev->driver = drv;
 

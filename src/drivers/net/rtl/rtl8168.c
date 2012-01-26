@@ -21,6 +21,7 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/drivers.h>
+#include <fs/vfs.h>
 #include <arch/x86/irq.h>
 
 static struct rtl_cfg *rtl_devs = NULL;
@@ -29,7 +30,14 @@ void
 rtl8168_irq_handler(unsigned int irq, irq_stack_t stack)
 {
   struct netdev *dev = (struct netdev*)get_irq_data(irq)->irq_data;
-  debug("Received IRQ from rtl device with dev_id: %x.\n",(uint32_t)dev->dev_id);
+  struct device *rtl = get_net_driver(dev->dev_id);
+
+  struct vfile *io = rtl->open(rtl);
+  struct net_buff *buff = alloc_buff_frame(496);
+  buff->dev = dev;
+  if(io->read(io, (void*)buff, sizeof(*buff)) != -E_SUCCESS)
+    warning("failure to call rtl io reader\n");
+
   return;
 }
 
@@ -44,7 +52,7 @@ rtl_setup_irq_handle(irq_handler_t handle, struct netdev *irq_data)
   if(!ret)
     install_irq_vector(data);
   else
-    panic("network card handler could not be installed!");
+    warning("network card handler could not be installed!");
 }
 
 static void
@@ -119,9 +127,11 @@ init_core_driver(pci_dev_t pci)
   for_each_ll_entry_safe(get_rtl_dev_list(), carriage)
   {
     struct device *dev = kalloc(sizeof(*dev));
+    if(dev == NULL)
+      panic("No memory in init_core_driver!");
     dev->dev_id = device_id_alloc(dev);
+    dev_setup_driver(dev, rtl_rx_vfio, rtl_tx_vfio);
     carriage->device_id = dev->dev_id;
-    
     struct netdev *netdev = kalloc(sizeof(*netdev));
     netdev->dev = pci;
     netdev->dev_id = dev->dev_id;
@@ -187,16 +197,6 @@ add_rtl_device(struct rtl_cfg *cfg)
   }
 }
 
-int rtl_transmit_buff(struct net_buff *buf)
-{
-  return -E_NOFUNCTION;
-}
-
-int rtl_receive_buff(struct net_buff *buf)
-{
-  return -E_NOFUNCTION;
-}
-
 /**
  * \fn net_rx_vfio(vfile, buf, size)
  *
@@ -205,9 +205,17 @@ int rtl_receive_buff(struct net_buff *buf)
 static size_t
 rtl_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
-  struct netdev *dev = (struct netdev*)file->fs_data;
 
-  return -E_NOFUNCTION;
+  struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
+                                                         virtual_bus), net_core_dev);
+  if(dev == NULL)
+    return -E_NULL_PTR;
+  struct vfile *io = dev->driver->io;
+  if(io == NULL)
+    return -E_NULL_PTR;
+  debug("rtl receive handler: %x\n", io->read);
+  io->read(io, (void*)buf, size);
+  return -E_SUCCESS;
 }
 
 

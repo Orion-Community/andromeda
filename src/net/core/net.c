@@ -24,8 +24,8 @@ int init_netif()
 {
   struct device *dev = kalloc(sizeof(*dev));
   device_id_alloc(dev);
-  dev_setup_driver(dev, &net_rx_vfio, &net_tx_vfio);
-  dev->type = net_dev;
+  dev_setup_driver(dev, net_rx_vfio, net_tx_vfio);
+  dev->type = net_core_dev;
   dev->open = &device_open_driver_io;
   
   /*
@@ -47,7 +47,7 @@ register_net_dev(struct device *dev, struct netdev* netdev)
    * attach the device driver to the core driver.
    */
   struct device *core_dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
-                                                              virtual_bus), net_dev);
+                                                              virtual_bus), net_core_dev);
   device_attach(core_dev, dev);
   return -E_SUCCESS;
 }
@@ -56,7 +56,7 @@ int
 unregister_net_dev(uint64_t id)
 {
   struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
-                                                              virtual_bus), net_dev);
+                                                              virtual_bus), net_core_dev);
   if(dev == NULL)
     return -E_NULL_PTR;
   if(device_detach(dev, device_find_id(dev, id)) == -E_NOTFOUND)
@@ -117,9 +117,10 @@ netif_process_net_buff(struct net_buff *buff)
 static size_t
 net_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
-  struct netdev *dev = (struct netdev*)file->fs_data;
-
-  return -E_NOFUNCTION;
+  struct net_buff *buffer = (struct net_buff*)buf;
+  debug("Packet arrived in the core driver successfully. MAC address:");
+  print_mac(buffer->dev);
+  return -E_SUCCESS;
 }
 
 
@@ -131,5 +132,28 @@ net_rx_vfio(struct vfile *file, char *buf, size_t size)
 static size_t
 net_tx_vfio(struct vfile *file, char *buf, size_t size)
 {
+  struct device *core_dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
+                                                          virtual_bus), net_core_dev);
+  struct device *dev_driver = device_find_id(core_dev, ((struct netdev*)buf)->dev_id);
+  struct vfile *io = dev_driver->open(dev_driver);
+  io->write(file, buf, size);
   return -E_NOFUNCTION;
+}
+
+struct device *
+get_net_driver(uint64_t id)
+{
+  struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
+                                                         virtual_bus), net_core_dev);
+  return device_find_id(dev, id);
+}
+
+void
+print_mac(struct netdev *netdev)
+{
+  int i;
+  for(i = 0; i<5; i++)
+    printf("%x:", netdev->hwaddr[i]);
+
+  printf("%x\n", netdev->hwaddr[5]);
 }

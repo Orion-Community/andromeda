@@ -170,6 +170,12 @@ rtl_conf_b(uint8_t data, uint16_t portbase, uint16_t offset)
   outb(portbase+offset, data);
 }
 
+static inline struct rtl_cfg*
+rtl_cfg(struct netdev *dev)
+{
+  return (struct rtl_cfg*)dev->device_data;
+}
+
 /**
  * \fn rtl_conf_w(data,portbase,offset)
  * \brief Generic function to sent data to the rtl device.
@@ -199,8 +205,6 @@ rtl_conf_l(uint32_t data, uint16_t portbase, uint16_t offset)
 }
 
 void init_rtl_device(struct pci_dev *);
-int rtl_transmit_buff(struct net_buff *buf);
-int rtl_receive_buff(struct net_buff *buf);
 void init_network();
 
 void rtl8168_irq_handler(unsigned int irq, irq_stack_t stack);
