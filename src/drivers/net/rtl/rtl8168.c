@@ -210,7 +210,7 @@ rtl_rx_vfio(struct vfile *file, char *buf, size_t size)
                                                          virtual_bus), net_core_dev);
   if(dev == NULL)
     return -E_NULL_PTR;
-  struct vfile *io = dev->driver->io;
+  struct vfile *io = dev->open(dev);
   if(io == NULL)
     return -E_NULL_PTR;
   if(buf == NULL)
