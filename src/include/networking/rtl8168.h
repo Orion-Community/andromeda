@@ -214,7 +214,7 @@ static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
 static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
-static int init_core_driver(pci_dev_t dev);
+static int init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg);
 static struct rtl_cfg* get_rtl_dev_list();
 static struct rtl_cfg* get_rtl_device(int dev);
 static int get_rtl_dev_num();

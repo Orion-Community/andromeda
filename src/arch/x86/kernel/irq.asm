@@ -308,7 +308,7 @@ gen_irq_stub:
   pushad
   xor edx, edx
   mov dx, ds
-  push ds
+  push edx
 
   mov dx, 0x10
 	mov ds, dx

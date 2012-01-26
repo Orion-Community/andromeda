@@ -113,7 +113,7 @@ void init_rtl_device(struct pci_dev *dev)
 
   sent_command_registers(cmd, portbase);
   read_command_registers(cmd, portbase);
-  init_core_driver(dev);
+  init_core_driver(dev, cfg);
 
 
   debug("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable,
@@ -121,7 +121,7 @@ void init_rtl_device(struct pci_dev *dev)
 }
 
 static int
-init_core_driver(pci_dev_t pci)
+init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
 {
   struct rtl_cfg *carriage;
   for_each_ll_entry_safe(get_rtl_dev_list(), carriage)
@@ -213,7 +213,8 @@ rtl_rx_vfio(struct vfile *file, char *buf, size_t size)
   struct vfile *io = dev->driver->io;
   if(io == NULL)
     return -E_NULL_PTR;
-  debug("rtl receive handler: %x\n", io->read);
+  if(buf == NULL)
+    return -E_NULL_PTR;
   io->read(io, (void*)buf, size);
   return -E_SUCCESS;
 }
