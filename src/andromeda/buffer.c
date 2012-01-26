@@ -20,10 +20,12 @@
 #include <stdlib.h>
 #include <andromeda/buffer.h>
 
+int parent_cleaned = 0;
+
 inline static idx_t get_idx(idx_t offset, idx_t depth)
 {
         int mul = BUFFER_TREE_DEPTH-depth;
-        int shift = mul*12;
+        int shift = mul*BUFFER_OFFSET_BITS;
         return (offset>>shift)&BUFFER_LIST_SIZE;
 }
 
@@ -72,6 +74,15 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
                 case -E_CLEAN_PARENT:
                         debug("Cleaning parent!\n");
                         kfree(this->lists[idx]);
+                        demand_key();
+                        examine_heap();
+                        parent_cleaned++;
+                        debug("Cleaning parent %X at %X of size %X\n",
+                              parent_cleaned,
+                              this->lists[idx],
+                              sizeof(struct buffer_list)
+                        );
+                        demand_key();
                         if (atomic_dec(&this->used) == 0)
                                 return -E_CLEAN_PARENT;
                         break;

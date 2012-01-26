@@ -42,6 +42,10 @@ void buf_dbg()
         if (f == NULL)
                 panic("No mem in buf_dbg");
 
+        examine_heap();
+        debug("File alloced\n");
+        demand_key();
+
         memset(f, 0, sizeof(struct vfile));
 
         int ret = buffer_init(f, 0x8, 0);
@@ -51,6 +55,11 @@ void buf_dbg()
                 panic("Buffer initialisation not successful!");
         }
 
+        examine_heap();
+        debug("Buffer initialised\n");
+        demand_key();
+
+
         char *blaat = "Schaap\n";
         char *ret_msg = kalloc(sizeof("Schaap\n"));
         memset(ret_msg, 0, sizeof(*blaat));
@@ -59,7 +68,9 @@ void buf_dbg()
         f->seek(f, 0, SEEK_SET);
         f->read(f, ret_msg, strlen(blaat));
 
+        examine_heap();
         printf("MSG: %s\n", ret_msg);
+        demand_key();
 
         memset(ret_msg, 0, sizeof(*blaat));
         f->seek(f, 0x1000-3, SEEK_SET);
@@ -67,6 +78,7 @@ void buf_dbg()
         f->seek(f, -((int64_t)strlen(blaat)), SEEK_CUR);
         f->read(f, ret_msg, strlen(blaat));
 
+        examine_heap();
         printf("MSG: %s\n", ret_msg);
         demand_key();
         f->close(f);
@@ -74,12 +86,6 @@ void buf_dbg()
 
         examine_heap();
         demand_key();
-        printf(
-                "Sizeof file: %X\n"
-                "Sizeof buffer: %X\n",
-               sizeof(struct vfile),
-               sizeof(struct buffer)
-        );
 }
 
 void shutdown()
@@ -114,8 +120,8 @@ void core_loop()
 {
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");
-        init_network();
-        debug_ethernet_stack();
+//         init_network();
+//         debug_ethernet_stack();
 
 #ifdef SCHED_DBG
         /**

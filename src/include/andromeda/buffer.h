@@ -25,7 +25,8 @@
 extern "C" {
 #endif
 
-#define BUFFER_LIST_SIZE 0xFF
+#define BUFFER_OFFSET_BITS 0x8
+#define BUFFER_LIST_SIZE 0x100
 #define BUFFER_BLOCK_SIZE 0x1000
 
 #define BUFFER_DYNAMIC_SIZE (0x0)
