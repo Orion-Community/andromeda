@@ -93,7 +93,7 @@ heap_add_blocks(void* base, uint32_t size)
 	}
 	else
 	{
-		printf("Warning: Using untested feature in heap_add_blocks!\n");
+		warning("Using untested feature in heap_add_blocks!\n");
 		mutex_lock(prot);
 		if (heap_inset_block(heap, node) != -E_SUCCESS)
 			panic("Could not add blocks to map");

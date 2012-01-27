@@ -46,7 +46,12 @@ examine_heap()
 	volatile memory_node_t* carriage;
 	for (carriage = heap; carriage != NULL; carriage = carriage->next)
 	{
-		printf("node: 0x%X\tsize: 0x%X\n",(int)carriage,carriage->size);
+                printf(
+                        "node: 0x%X\tsize: 0x%X\tnext: 0x%X\n",
+                       (int)carriage,
+                       carriage->size,
+                       (int)carriage->next
+                );
 	}
 }
 
@@ -263,13 +268,12 @@ free(void* ptr)
 				wait();
 #endif
 				continue;
-				mutexRelease(prot);
-				return -1;
 			}
 			else
 			{
-				block = test;
-				carriage = test;
+                                break;
+// 				block = test;
+// 				carriage = test->previous;
 				/**
 				* We can now continue trying to merge the rest
 				* of the list, which might be possible.
@@ -337,20 +341,27 @@ return_memnode_block(volatile memory_node_t* block)
 	/* We're apparently not at the top of the list */
 	for (carriage = heap; carriage != NULL; carriage = carriage->next)
 	// Loop through the heap list.
-		{
-		if (carriage < block && carriage->next > block)
+        {
+                if ((addr_t)carriage < (addr_t)block &&
+                                       (addr_t)(carriage->next) > (addr_t)block)
 		{
 			block->previous = carriage;
 			block->next = carriage->next;
 			carriage->next = block;
+                        block->next->previous = block;
 			return;
 		}
-		else if (carriage->next == NULL)
+		if (carriage->next == NULL)
 		{
 			/* we are at the end of the list, add the block here */
 			carriage -> next = block;
 			block -> previous = carriage;
 			carriage->next->next = NULL;
+                        debug("We're done at %X with block %X of size %X\n",
+                              (int)carriage,
+                              (int)block,
+                              (int)(block->size)
+                        );
 			return;
 		}
 	}
@@ -488,13 +499,16 @@ merge_memnode(volatile memory_node_t* alpha, volatile memory_node_t* beta)
 	{
 		// if the blocks are in reversed order, put them in the
 		// right order
-		tmp = alpha;
-		alpha = beta;
-		beta = tmp;
+                tmp = alpha;
+                alpha = beta;
+                beta = tmp;
 	}
 
 	alpha->size += beta->size + sizeof (memory_node_t);
 	alpha->next = beta->next;
 	alpha->used = FALSE;
+
+        debug("Next ptr: %X\n", (int)alpha->next);
+
 	return alpha;
 }
