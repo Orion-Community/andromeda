@@ -20,6 +20,8 @@
 #include <andromeda/drivers.h>
 #include <networking/net.h>
 
+static struct net_queue net_core_que;
+
 int init_netif()
 {
   struct device *dev = kalloc(sizeof(*dev));
@@ -146,6 +148,12 @@ get_net_driver(uint64_t id)
   struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
                                                          virtual_bus), net_core_dev);
   return device_find_id(dev, id);
+}
+
+static inline struct net_queue *
+net_core_get_queue()
+{
+  return &net_core_que;
 }
 
 void

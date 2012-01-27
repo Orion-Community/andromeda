@@ -133,9 +133,32 @@ static int free_net_buff_list(struct net_buff* nb);
  */
 static int rx_process_net_buff(struct net_buff* buff);
 
-static int net_buff_append_list(struct net_buff *alpha, struct net_buff *beta);
-static struct net_queue *remove_first_queue_entry(struct net_queue queue);
+/**
+ * \fn net_buff_append_list(head, x)
+ * \brief The net_buff item x will be appended to the net_buff head <i>head</i>.
+ * \param head The list head.
+ * \param x Item to be appended.
+ * \return Error code.
+ */
+static int net_buff_append_list(struct net_buff *head, struct net_buff *x);
+
+/**
+ * \fn remove_queue_entry(head,queue_entry)
+ * \brief Removes the giver entry from the queue.
+ * \param queue The queue head.
+ * \return  The removed entry.
+ */
+static struct net_queue *remove_first_queue_entry(struct net_queue *head,
+                                                    struct net_queue queue);
+/**
+ * \fn net_buff_append_list(head, item)
+ * \brief This function will append an item to the end of the core driver queue.
+ * \param head The queue head.
+ * \param item The item which should be added after the last current item.
+ * \return Error code.
+ */
 static int net_queue_append_list(struct net_queue queue, struct net_queue* item);
+
 void print_mac(struct netdev *netdev);
 
 /**
