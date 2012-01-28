@@ -34,6 +34,8 @@ extern "C" {
                                                     (carriage)->next != null, \
                                                     (carriage) != (carriage)->next; \
                                                     (carriage) = (carriage)->next)
+#define for_each_net_buff_entry_safe(head, carriage) for_each_ll_entry_safe(head, \
+                                                                       carriage)
 
 #define RX_BUFFER_SIZE (1024*8)+16+1500 /* 8KiB + header + 1 extra frame */
 #define TX_BUFFER_SIZE 1500+16 /* 1 frame + header */

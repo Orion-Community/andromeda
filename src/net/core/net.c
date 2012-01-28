@@ -74,6 +74,36 @@ unregister_net_dev(uint64_t id)
   }
 }
 
+/**
+ * \fn net_buff_append_list(head, x)
+ * \brief The net_buff item x will be appended to the net_buff head <i>head</i>.
+ * \param head The list head.
+ * \param x Item to be appended.
+ * \return Error code.
+ */
+static int 
+net_buff_append_list(struct net_buff *head, struct net_buff *x)
+{
+  if(head == NULL || x = NULL)
+    return -E_NULL_PTR;
+  else
+  {
+    struct net_buff *carriage;
+    for_each_net_buff_entry_safe(head, carriage)
+    {
+      if(carriage->next == NULL)
+      {
+        carriage->next = x;
+        x->previous = x;
+        x->next = NULL;
+      }
+      else
+        continue;
+    }
+  }
+  return -E_SUCCESS;
+}
+
 struct net_buff *
 alloc_buff_frame(unsigned int frame_len)
 {

@@ -86,6 +86,9 @@ void shutdown();
                                           (carriage) != NULL, (carriage) != \
                                           (carriage)->next; (carriage) = \
                                           (carriage)->next)
+#define for_each_ll_entry(head, carriage) for((carriage) = (head); \
+                                          (carriage) != NULL; (carriage) = \
+                                          (carriage)->next))
 
 #ifdef __cplusplus
 }
