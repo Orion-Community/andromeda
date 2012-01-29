@@ -101,7 +101,7 @@ alloc(size_t size, boolean pageAlligned)
 	{
 		return NULL;
 	}
-	mutexEnter(prot);
+	mutex_lock(&prot);
 	volatile memory_node_t* carriage = heap;
 	for (; carriage != NULL; carriage = carriage->next)
 	{
@@ -135,7 +135,7 @@ alloc(size_t size, boolean pageAlligned)
 					use_memnode_block(ret);
 					// Mark the block as used
 					//return the desired block
-					mutexRelease(prot);
+					mutex_unlock(&prot);
 					return (void*) ret + sizeof
 								(memory_node_t);
 				}
@@ -167,7 +167,7 @@ alloc(size_t size, boolean pageAlligned)
 			{
 				continue;
 			}
-			mutexRelease(prot);
+			mutex_unlock(&prot);
 			return (void*) carriage + sizeof (memory_node_t);
 		}
 		else if (carriage->size >= size + sizeof (memory_node_t))
@@ -183,7 +183,7 @@ alloc(size_t size, boolean pageAlligned)
 			// split the block
 
 			use_memnode_block(tmp);
-			mutexRelease(prot);
+			mutex_unlock(&prot);
 			return (void*) tmp + sizeof (memory_node_t);
 		}
 		if (carriage->next == NULL || carriage->next == carriage)
@@ -203,7 +203,7 @@ alloc(size_t size, boolean pageAlligned)
 			 */
 		}
 	}
-	mutexRelease(prot);
+	mutex_unlock(&prot);
 	return NULL;
 }
 
@@ -215,12 +215,12 @@ free(void* ptr)
 #endif
 	if (ptr == NULL)
 		return -1;
-	mutexEnter(prot);
+	mutex_lock(&prot);
 	volatile memory_node_t* block = (void*) ptr - sizeof (memory_node_t);
 	volatile memory_node_t* carriage;
 	if (block->hdrMagic != MM_NODE_MAGIC)
 	{
-		mutexRelease(prot);
+		mutex_unlock(&prot);
 		return -1;
 	}
 
@@ -287,7 +287,7 @@ free(void* ptr)
 	examineHeap();
 	printf("\n");
 #endif
-	mutexRelease(prot);
+	mutex_unlock(&prot);
 	return 0; // Return success
 }
 

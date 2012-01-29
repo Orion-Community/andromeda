@@ -22,30 +22,30 @@
 
 int64_t atomic_add(atomic_t* d, int cnt)
 {
-        mutex_lock(d->lock);
+        mutex_lock(&d->lock);
         d->cnt += cnt;
         int64_t ret = d->cnt;
-        mutex_unlock(d->lock);
+        mutex_unlock(&d->lock);
         return ret;
 }
 
 uint64_t
 atomic_set(atomic_t *atom)
 {
-        mutex_lock(atom->lock);
+        mutex_lock(&atom->lock);
         uint64_t ret = atom->cnt;
         atom->cnt = 1;
-        mutex_unlock(atom->lock);
+        mutex_unlock(&atom->lock);
         return ret;
 }
 
 uint64_t
 atomic_reset(atomic_t *atom)
 {
-        mutex_lock(atom->lock);
+        mutex_lock(&atom->lock);
         uint64_t ret = atom->cnt;
         atom->cnt = 0;
-        mutex_unlock(atom->lock);
+        mutex_unlock(&atom->lock);
         return ret;
 }
 
@@ -70,9 +70,9 @@ atomic_dec(atomic_t* d)
 int64_t
 atomic_get(atomic_t* d)
 {
-        mutex_lock(d->lock);
+        mutex_lock(&d->lock);
         int64_t ret = d->cnt;
-        mutex_unlock(d->lock);
+        mutex_unlock(&d->lock);
         return ret;
 }
 
@@ -83,7 +83,7 @@ semaphore_inc(semaphore_t* s)
         int64_t ret;
         while (condition == FALSE)
         {
-                mutex_lock(s->lock);
+                mutex_lock(&s->lock);
 
                 if (s->cnt < s->limit)
                 {
@@ -91,7 +91,7 @@ semaphore_inc(semaphore_t* s)
                         ret = s->cnt;
                         condition = TRUE;
                 }
-                mutex_unlock(s->lock);
+                mutex_unlock(&s->lock);
         }
         return ret;
 }
@@ -103,15 +103,15 @@ semaphore_dec(semaphore_t* s)
         int64_t ret;
         while (condition == FALSE)
         {
-                mutex_lock(s->lock);
+                mutex_lock(&s->lock);
 
-                if (s->cnt < s->limit)
+                if (s->cnt > 0)
                 {
                         s->cnt --;
                         ret = s->cnt;
                         condition = TRUE;
                 }
-                mutex_unlock(s->lock);
+                mutex_unlock(&s->lock);
         }
         return ret;
 }

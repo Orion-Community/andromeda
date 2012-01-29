@@ -29,7 +29,7 @@ regs:
 	edi_t dd 0
 	ebp_t dd 0
 	esp_t dd 0
-	
+
 segs:
 	ds_t dw 0
 	cs_t dw 0

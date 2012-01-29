@@ -133,12 +133,12 @@ addr_t map_set_page(addr_t list_start, addr_t page_index)
 		return -E_BMP_NOMAP;
 
 	addr_t list_end = page_index;
-	mutex_lock(map_lock);
+	mutex_lock(&map_lock);
 	if (list_start != MAP_NOMAP)
 		list_end = map_find_endoflist(list_start);
 	if (list_end == (addr_t)-E_BMP_CORRUPT)
 	{
-		mutex_unlock(map_lock);
+		mutex_unlock(&map_lock);
 		return -E_BMP_CORRUPT;
 	}
 	if (list_end != page_index)
@@ -153,7 +153,7 @@ addr_t map_set_page(addr_t list_start, addr_t page_index)
 		page_map[list_end].next_idx = MAP_LAST_NODE;
 		page_map[list_end].prev_idx = MAP_LAST_NODE;
 	}
-	mutex_unlock(map_lock);
+	mutex_unlock(&map_lock);
 
 	addr_t ret = 0;
 	if (list_start == MAP_NOMAP)
@@ -175,7 +175,7 @@ addr_t map_rm_page(addr_t page_index)
 	else if (page_map == NULL)
 		return (addr_t)-E_BMP_NOMAP;
 
-	mutex_lock(map_lock);
+	mutex_lock(&map_lock);
 
 	addr_t prev_idx = page_map[page_index].prev_idx;
 	addr_t next_idx = page_map[page_index].next_idx;
@@ -190,7 +190,7 @@ addr_t map_rm_page(addr_t page_index)
 	page_map[page_index].prev_idx = BMP_FREE;
 	page_map[page_index].next_idx = BMP_FREE;
 
-	mutex_unlock(map_lock);
+	mutex_unlock(&map_lock);
 
 	return map_find_headoflist(prev_idx);
 }
@@ -202,17 +202,17 @@ addr_t map_rm_page(addr_t page_index)
 addr_t map_alloc_page(addr_t list_idx)
 {
 	addr_t idx = 0;
-	mutex_lock(map_lock);
+	mutex_lock(&map_lock);
 	for (; idx < map_size; idx++)
 	{
 		if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx==BMP_FREE)
 		{
 			map_add_page(list_idx, idx);
-			mutex_unlock(map_lock);
+			mutex_unlock(&map_lock);
 			return idx << 12;
 		}
 	}
-	mutex_unlock(map_lock);
+	mutex_unlock(&map_lock);
 	printf("Out of memory!\n");
 	return (addr_t)-E_BMP_NOMEM;
 }

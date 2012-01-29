@@ -30,8 +30,8 @@
 [GLOBAL pgbit]
 [GLOBAL intdbg]
 [GLOBAL elfJump]
-[EXTERN mutexEnter]
-[EXTERN mutexRelease]
+[EXTERN mutex_lock]
+[EXTERN mutex_unlock]
 
 mutex   dd	0 ;The mutex variable
 pgbit	dd	0 ;Paging is disabled per default
@@ -45,47 +45,47 @@ halt:
   hlt
   popfd
   ret
-  
+
 DetectAPIC:
   enter
-  
+
   call getVendor
   cmp eax, 1
   jnz .testAPIC
   cmp eax, 2
   jnz .testAPIC
   jmp .err
-  
+
 .testAPIC:
   mov eax, 1 ; prepare CPUID
   cpuid ; Issue CPUID
-  
+
   and edx, 1<<9 ; mask the flag out
   mov eax, edx ; return value to eax
-  
+
   return
-    
+
 .err: ; invalid CPUID
   xor eax, eax ; return -1
   sub eax, 1
   return
-  
+
 getVendor:
   enter
   xor eax, eax
   cpuid
-  
+
   cmp ebx, "Genu"
   jz .intel
   cmp ebx, 0x68747541
   jz .amdTest
   xor eax, eax
   return
-  
+
 .intel:
   mov eax, 1
   return
-  
+
 .amdTest:
   mov eax, 2
   return
@@ -94,7 +94,7 @@ getCS:
   xor eax, eax
   mov ax, cs
   ret
-  
+
 getDS:
   xor eax, eax
   mov ax, ds
@@ -109,7 +109,7 @@ getESP:
   xor eax, eax
   mov eax, esp
   ret
-  
+
 getCR2:
   %ifdef X86
   mov eax, cr2
@@ -117,7 +117,7 @@ getCR2:
   mov rax, cr3
   %endif
   ret
-  
+
 getCR3:
   %ifdef X86
   mov eax, cr3
@@ -130,33 +130,33 @@ msg db "NOT YET IMPLEMEMENTED!", 0
 
 setCR3:
   enter
-  mov eax, [mutex]
+  mov eax, mutex
   push eax
-  call mutexEnter
+  call mutex_lock
   add esp, 4
-  %ifdef X86
+%ifdef X86
   mov eax, [ebp+8]
   mov cr3, eax
-  %else
+%else
   mov rdi, msg
   call panic
-  %endif
-  mov eax, [mutex]
+%endif
+  mov eax, mutex
   push eax
-  call mutexRelease
+  call mutex_unlock
   add esp, 4
   return
-  
+
 setPGBit:
   mov eax, cr0
   or eax, 0x80000000
   mov cr0, eax
   ret
-  
+
 intdbg:
   int3
   ret
-  
+
 endProg:
   cli
   hlt

@@ -25,14 +25,10 @@
 extern "C" {
 #endif
 
-#define mutex_lock mutexEnter
-#define mutex_test mutexTest
-#define mutex_unlock mutexRelease
-
 #define mutex_locked 1
 #define mutex_unlocked 0
 
-typedef unsigned int mutex_t;
+typedef volatile unsigned int mutex_t;
 
 typedef struct {
         int64_t cnt;
@@ -45,9 +41,9 @@ typedef struct {
         int64_t limit;
 }semaphore_t;
 
-extern void mutexEnter(mutex_t);
-extern unsigned int mutexTest(mutex_t);
-extern void mutexRelease(mutex_t);
+extern void mutex_lock(mutex_t*);
+extern unsigned int mutex_test(mutex_t*);
+extern void mutex_unlock(mutex_t*);
 
 int64_t atomic_add(atomic_t* d, int cnt);
 int64_t atomic_sub(atomic_t* d, int cnt);

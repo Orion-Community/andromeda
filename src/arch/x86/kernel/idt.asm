@@ -38,6 +38,6 @@ get_idt:
 
   sidt [idt_ptr]
   mov eax, idt_ptr
-  
+
   pop ebp
   ret

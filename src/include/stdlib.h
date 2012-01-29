@@ -43,14 +43,15 @@ extern "C" {
 
 struct list_node;
 
-struct list {
-        struct list_node *head;
-        size_t list_size;
+
+struct list{
+        struct list_node* head;
+        size_t size;
+        mutex_t lock;
 };
 
-struct list_node
-{
-        struct list* head;
+struct list_node {
+        struct list_node* head;
         struct list_node* next;
         void* data;
 };
