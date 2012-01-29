@@ -20,11 +20,35 @@
 #include <sys/dev/pci.h>
 #include <networking/rtl8168.h>
 #include <networking/net.h>
+#include <andromeda/drivers.h>
+#include <arch/x86/irq.h>
 
 static struct rtl_cfg *rtl_devs = NULL;
 
+void
+rtl8168_irq_handler(unsigned int irq, irq_stack_t stack)
+{
+  struct netdev *dev = (struct netdev*)get_irq_data(irq)->irq_data;
+  debug("Received IRQ from rtl device with dev_id: %x.\n",(uint32_t)dev->dev_id);
+  return;
+}
+
+static int
+rtl_setup_irq_handle(irq_handler_t handle, struct netdev *irq_data)
+{
+  struct irq_data *data = alloc_irq();
+  data->base_handle = &do_irq;
+  data->handle = handle;
+  data->irq_data = irq_data;
+  int ret = native_setup_irq_handler(data->irq);
+  if(!ret)
+    install_irq_vector(data);
+  else
+    panic("network card handler could not be installed!");
+}
+
 static void
-get_mac(struct ol_pci_dev *dev, struct netdev *netdev)
+get_mac(struct pci_dev *dev, struct netdev *netdev)
 {
   uint8_t mac[MAC_ADDR_SIZE];
   uint16_t base = get_rtl_port_base(dev, 0);
@@ -42,7 +66,7 @@ get_mac(struct ol_pci_dev *dev, struct netdev *netdev)
   printf("%x\n", netdev->hwaddr[5]);
 }
 
-void init_rtl_device(struct ol_pci_dev *dev)
+void init_rtl_device(struct pci_dev *dev)
 {
   struct rtlcommand *cmd = kalloc(sizeof(*cmd));
   struct rtl_cfg *cfg = kalloc(sizeof(*cfg));
@@ -57,6 +81,11 @@ void init_rtl_device(struct ol_pci_dev *dev)
   } while(portbase == 0 && i <= 5);
   debug("RealTek base: %x\n", portbase);
   cfg->portbase = portbase;
+  
+  cfg->raw_rx_buff = kalloc(RX_BUFFER_SIZE);
+  cfg->rx_buff_length = RX_BUFFER_SIZE;
+  cfg->raw_tx_buff = kalloc(TX_BUFFER_SIZE);
+  cfg->tx_buff_length = TX_BUFFER_SIZE;
 
   if(cmd == NULL)
     return;
@@ -69,15 +98,16 @@ void init_rtl_device(struct ol_pci_dev *dev)
   reset_rtl_device(cfg);
   cmd->ccommand.rxvlan = 1;
   cmd->ccommand.rxchecksum = 1;
-  cmd->tx_enable = 1;
-  cmd->rx_enable = 1;
+  cmd->tx_enable = 0;
+  cmd->rx_enable = 0;
   cmd->reset = 0;
   cfg->command = cmd;
 
   sent_command_registers(cmd, portbase);
   read_command_registers(cmd, portbase);
-
   init_core_driver(dev);
+
+
   debug("Tx Enable flag: %x - RxChecksum: %x\n", cmd->tx_enable,
                                                       cmd->ccommand.rxchecksum);
 }
@@ -85,11 +115,26 @@ void init_rtl_device(struct ol_pci_dev *dev)
 static int
 init_core_driver(pci_dev_t pci)
 {
-  struct netdev *dev = kalloc(sizeof(*dev));
-  dev->tx = &rtl_transmit_buff;
-  dev->rx = &rtl_receive_buff;
-  get_mac(pci, dev);
-  register_net_dev(dev);
+  struct rtl_cfg *carriage;
+  for_each_ll_entry_safe(get_rtl_dev_list(), carriage)
+  {
+    struct device *dev = kalloc(sizeof(*dev));
+    dev->dev_id = device_id_alloc(dev);
+    carriage->device_id = dev->dev_id;
+    
+    struct netdev *netdev = kalloc(sizeof(*netdev));
+    netdev->dev = pci;
+    netdev->dev_id = dev->dev_id;
+    
+    get_mac(pci, netdev);
+    rtl_setup_irq_handle(&rtl8168_irq_handler, netdev);
+    register_net_dev(dev, netdev);
+    
+    if(carriage->next == NULL)
+      break;
+    else
+      continue;
+  }
 }
 
 static void
@@ -152,6 +197,31 @@ int rtl_receive_buff(struct net_buff *buf)
   return -E_NOFUNCTION;
 }
 
+/**
+ * \fn net_rx_vfio(vfile, buf, size)
+ *
+ * Receive a buffer from the device driver.
+ */
+static size_t
+rtl_rx_vfio(struct vfile *file, char *buf, size_t size)
+{
+  struct netdev *dev = (struct netdev*)file->fs_data;
+
+  return -E_NOFUNCTION;
+}
+
+
+/**
+ * \fn net_tx_vfio(vfile, buf, size)
+ *
+ * Transmit a buffer using virtual files.
+ */
+static size_t
+rtl_tx_vfio(struct vfile *file, char *buf, size_t size)
+{
+  return -E_NOFUNCTION;
+}
+
 static int
 reset_rtl_device(struct rtl_cfg *cfg)
 {
@@ -169,6 +239,57 @@ reset_rtl_device(struct rtl_cfg *cfg)
   }
   debug("RTL8168 failed");
   return -1;
+}
+
+static struct rtl_cfg* 
+get_rtl_dev_list()
+{
+  return rtl_devs;
+}
+
+static int 
+get_rtl_dev_num()
+{
+  int i = 0;
+  struct rtl_cfg *carriage;
+  for(carriage = get_rtl_dev_list(); carriage != NULL, carriage != carriage->next;
+      carriage = carriage->next)
+  {
+    i++;
+    if(carriage->next == NULL)
+      break;
+    else
+      continue;
+  }
+  return i;
+}
+
+/**
+ * \fn get_rtl_device(dev)
+ * \brief Get a device based on the device number in the list.
+ * 
+ * @param dev Index in the device list.
+ */
+static struct rtl_cfg*
+get_rtl_device(int dev)
+{
+  struct rtl_cfg *carriage = get_rtl_dev_list();
+  int i = 0;
+  for(;carriage != NULL, carriage != carriage->next; carriage = carriage->next)
+  {
+    if(i == dev)
+      break;
+    if(carriage->next == NULL)
+      break;
+    else
+      continue;
+  }
+}
+
+static int
+rtl_conf_rx(struct rtl_cfg *cfg)
+{
+  
 }
 
 void

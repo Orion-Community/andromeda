@@ -20,41 +20,54 @@
 #include <andromeda/drivers.h>
 #include <networking/net.h>
 
-char rx_buff[RX_BUFFER_SIZE];
+int init_netif()
+{
+  struct device *dev = kalloc(sizeof(*dev));
+  device_id_alloc(dev);
+  dev_setup_driver(dev, &net_rx_vfio, &net_tx_vfio);
+  dev->type = net_dev;
+  dev->open = &device_open_driver_io;
+  
+  /*
+   * attach the device driver to the the virtual bus.
+   */
+  struct device *virtual = dev_find_devtype(get_root_device(), virtual_bus);
+  device_attach(virtual, dev);
+}
 
 int
-register_net_dev(struct netdev* netdev)
+register_net_dev(struct device *dev, struct netdev* netdev)
 {
-  if(dev_find_devtype(&dev_root, net_dev) != NULL)
-    return -E_ALREADY_INITIALISED;
-  else
-  {
-    struct device *dev = kalloc(sizeof(*dev));
-    dev_setup_driver(dev, &net_rx_vfio, &net_tx_vfio);
-    dev->dev_id = device_id_alloc(dev);
-    dev->type = net_dev;
-    dev->driver->io->fs_data = (void*)netdev;
-    dev->driver->io->fs_data_size = sizeof(*netdev);
-    device_attach(&dev_root, dev);
-    atomic_set(&(netdev->state));
-  }
+  dev->type = net_dev;
+  dev->open = &device_open_driver_io;
+  dev->driver->io->fs_data = (void*)netdev;
+  dev->driver->io->fs_data_size = sizeof(*netdev);
+  
+  /*
+   * attach the device driver to the core driver.
+   */
+  struct device *core_dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
+                                                              virtual_bus), net_dev);
+  device_attach(core_dev, dev);
   return -E_SUCCESS;
 }
 
 int
-unregister_net_dev(struct netdev *netdev)
+unregister_net_dev(uint64_t id)
 {
-  struct device *dev = dev_find_devtype(&dev_root, net_dev);
+  struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
+                                                              virtual_bus), net_dev);
   if(dev == NULL)
     return -E_NULL_PTR;
+  if(device_detach(dev, device_find_id(dev, id)) == -E_NOTFOUND)
+    return -E_NOTFOUND;
+
   else
   {
-    device_detach(&dev_root, dev);
     kfree(dev->driver->io->fs_data); // free the netdev data
     kfree(dev->driver->io);
     kfree(dev->driver);
     kfree(dev);
-    atomic_set(&(netdev->state));
     return -E_SUCCESS;
   }
 }
@@ -81,6 +94,19 @@ free_net_buff_list(struct net_buff* nb)
     free_net_buff_list(nxt);
   else
     return -E_SUCCESS;
+}
+
+/**
+ * \fn netif_process_net_buff(buff)
+ * \brief Processes the received net_buff trough the entire network stack.
+ * \warning Should only be called from net_rx_vfio(vfile, char*, size_t)
+ *
+ * \param buff The received net buffer.
+ */
+static int
+netif_process_net_buff(struct net_buff *buff)
+{
+  return -E_NOFUNCTION;
 }
 
 /**

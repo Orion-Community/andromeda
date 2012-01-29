@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <fs/vfs.h>
+#include <sys/dev/pci.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,14 +35,9 @@ extern "C" {
                                                     (carriage) != (carriage)->next; \
                                                     (carriage) = (carriage)->next)
 
-#define RX_BUFFER_SIZE (1024*8)+16+1500
+#define RX_BUFFER_SIZE (1024*8)+16+1500 /* 8KiB + header + 1 extra frame */
+#define TX_BUFFER_SIZE 1500+16 /* 1 frame + header */
 typedef void* net_buff_data_t;
-
-typedef enum net_dev_state
-{
-  NET_DEV_INACTIVE,
-  NET_DEV_ACTIVE
-}net_dev_state_t;
 
 /**
  * \struct net_queue
@@ -64,13 +60,30 @@ struct netbuf
   void *framebuf;
 };
 
+/**
+ * \struct net_bridge
+ * \brief Used to bridge a packet between two network interfaces.
+ * \see struct netdev
+ */
+struct net_bridge
+{
+  /**
+   * \var input
+   * \brief The input interface.
+   * 
+   * \var output
+   * \brief The output interface.
+   */
+  struct netdev *input;
+  struct netdev *output;
+};
+
 struct netdev
 {
-  int (*rx)(struct net_buff*);
-  int (*tx)(struct net_buff*);
   uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
   atomic_t state;
-  struct netbuf buf; /* Current processed frame buffer */
+  struct pci_dev *dev;
+  uint64_t dev_id;
   struct net_queue *queue_head;
 };
 
@@ -86,40 +99,24 @@ struct net_buff
   net_buff_data_t transport_hdr;
   net_buff_data_t network_hdr;
   net_buff_data_t datalink_hdr;
+  
+  unsigned char* head, data, tail, end;
 } __attribute__((packed));
-
-
-
-typedef void(*tx_hook_t)(struct net_buff*);
-typedef net_buff_data_t(*rx_hook_t)();
-extern char rx_buff[RX_BUFFER_SIZE];
-
-/**
- * \fn get_rx_buffer()
- * \brief Returns the global receive buffer to who ever needs it.
- *
- * @return Address of the receive buffer.
- */
-static inline void*
-get_rx_buffer()
-{
-  return rx_buff;
-}
 
 /**
  * \fn register_net_dev(dev)
  * \brief Register a NIC device driver in the core driver.
  */
-int register_net_dev(struct netdev* dev);
+int register_net_dev(struct device *dev, struct netdev* netdev);
 
 /**
  * \fn unregister_net_dev(dev)
  * \brief Unregisters the given <i>netdev</i> in the kernel.
  *
- * @param dev The netdev that should be unregistered.
+ * @param dev The device id to unregister.
  * @return E code.
  */
-int unregister_net_dev(struct netdev *netdev);
+int unregister_net_dev(uint64_t id);
 
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
 static int free_net_buff_list(struct net_buff* nb);
@@ -129,7 +126,7 @@ static int free_net_buff_list(struct net_buff* nb);
  * \brief Processes the received net_buff trough the entire network stack.
  * \warning Should only be called from net_rx_vfio(vfile, char*, size_t)
  *
- * @param buff The received net buffer.
+ * \param buff The received net buffer.
  */
 static int rx_process_net_buff(struct net_buff* buff);
 

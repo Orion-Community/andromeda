@@ -40,7 +40,7 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
   }
   else
   {
-    struct ol_pci_dev *dev = cfg->dev;
+    struct pci_dev *dev = cfg->dev;
     cfg->msi_write(dev, MSI_LOWER_ADDR(cfg->attrib.cpos), msi->addr);
     if(cfg->attrib.is_64)
     {
@@ -68,7 +68,7 @@ __msi_read_message(struct msi_cfg *cfg, struct msi *msg)
   }
   else
   {
-    struct ol_pci_dev *dev = cfg->dev;
+    struct pci_dev *dev = cfg->dev;
     msg->addr = cfg->msi_read(dev, MSI_LOWER_ADDR(cfg->attrib.cpos));
     if(cfg->attrib.is_64)
     {
@@ -84,7 +84,7 @@ __msi_read_message(struct msi_cfg *cfg, struct msi *msg)
 }
 
 void
-setup_msi_entry(struct ol_pci_dev *dev, uint8_t cp)
+setup_msi_entry(struct pci_dev *dev, uint8_t cp)
 {
 #ifdef MSIX
   msi_create_msix_entry(dev, cp);
@@ -93,7 +93,7 @@ setup_msi_entry(struct ol_pci_dev *dev, uint8_t cp)
 
 #ifdef MSIX
 void
-msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp)
+msi_create_msix_entry(struct pci_dev *dev, uint8_t cp)
 {
   struct irq_data *irq = alloc_irq();
   irq->irq_base = (uint32_t)get_irq_base(40);
@@ -118,7 +118,7 @@ msi_enable_msix_entry(struct msi_cfg *cfg, int entry)
 }
 
 static int
-__msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, struct irq_data *irq)
+__msi_create_msix_entry(struct pci_dev *dev, uint8_t cp, struct irq_data *irq)
 {
   struct msi_cfg *cfg = kalloc(sizeof(*cfg));
   struct msi *msi = kalloc(sizeof(*msi));
@@ -155,7 +155,7 @@ __msi_create_msix_entry(struct ol_pci_dev *dev, uint8_t cp, struct irq_data *irq
 }
 
 static volatile void*
-msi_calc_msix_base(struct ol_pci_dev *dev, uint8_t cp)
+msi_calc_msix_base(struct pci_dev *dev, uint8_t cp)
 {
   uint32_t bar_nr = ol_pci_read_dword(dev, ((uint16_t)cp)+0x4)&PCI_MEM_SPACE_MASK;
 #ifdef X64
@@ -203,7 +203,7 @@ debug_msix_entry(struct msi_cfg *cfg)
 {
   struct msi *msi = kalloc(sizeof(*msi));
   __msi_read_message(cfg, msi);
-  struct ol_pci_dev *dev = cfg->dev;
+  struct pci_dev *dev = cfg->dev;
   uint8_t irq = ol_pci_read_dword(dev, OL_PCI_INTERRUPT_LINE) & 0xff;
   volatile void *base = cfg->attrib.base;
 

@@ -116,7 +116,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
   ol_pci_id_t id = __ol_pci_read_dword(ol_pci_calculate_address(itdev,
           OL_PCI_REG_ID)); /* id and vendor id */
 
-  struct ol_pci_dev *dev = kalloc(sizeof(*dev));
+  struct pci_dev *dev = kalloc(sizeof(*dev));
   if (dev == NULL)
     goto fail;
 
@@ -218,7 +218,7 @@ print_pci_dev(uint16_t class, uint16_t subclass)
 }
 
 static void
-init_device_control(struct ol_pci_dev *dev)
+init_device_control(struct pci_dev *dev)
 {
   switch(dev->class)
   {
@@ -252,7 +252,7 @@ __ol_pci_read_byte(ol_pci_addr_t addr, uint16_t reg)
 }
 
 inline uint32_t
-ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg)
+ol_pci_read_dword(struct pci_dev* dev, uint16_t reg)
 {
   return __ol_pci_read_dword(ol_pci_calculate_address((ol_pci_iterate_dev_t)dev,
                                                       reg));
@@ -266,7 +266,7 @@ __ol_pci_write_dword(ol_pci_addr_t addr, uint32_t data)
 }
 
 inline void
-ol_pci_write_dword(struct ol_pci_dev* dev, uint16_t reg,
+ol_pci_write_dword(struct pci_dev* dev, uint16_t reg,
                                  uint32_t data)
 {
   ol_pci_addr_t addr = ol_pci_calculate_address((ol_pci_iterate_dev_t)dev, reg);
@@ -275,7 +275,7 @@ ol_pci_write_dword(struct ol_pci_dev* dev, uint16_t reg,
 
 #ifdef __PCI_DEBUG
 static void
-debug_pci_print_cp_list(struct ol_pci_dev * dev)
+debug_pci_print_cp_list(struct pci_dev * dev)
 {
   uint32_t cp = ol_pci_read_dword(dev, 0x34); /* value of the current pointer */
   uint32_t cp_list = ol_pci_read_dword(dev, (uint16_t)cp&0xff); /* cp_list data */

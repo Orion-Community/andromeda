@@ -22,6 +22,8 @@
 #include <fs/path.h>
 #include <andromeda/syscall.h>
 #include <andromeda/drivers.h>
+#include <networking/rtl8168.h>
+#include <networking/net.h>
 #include <andromeda/buffer.h>
 
 #define RL_SHUTDOWN	0x0
@@ -120,8 +122,10 @@ void core_loop()
 {
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");
-//         init_network();
-//         debug_ethernet_stack();
+
+        init_netif();
+        init_network();
+        trigger_soft_irq30();
 
 #ifdef SCHED_DBG
         /**
