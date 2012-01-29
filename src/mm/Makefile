@@ -10,14 +10,14 @@ INCLUDES=../include/mm/heap.h ../include/mm/map.h ../include/mm/memory.h\
 all: mm.o
 	mv -fv mm.o ../
 
-mm.o: alloc.o heap.o map.o memory.o test.o
+mm.o: map.o memory.o test.o slob.o
 	$(LD) -o mm.o *.o $(LDFLAGS)
 
-alloc.o: alloc.c $(INCLUDES)
-	$(CC) $(FLAGS) $(CFLAGS) alloc.c
+slob.o:
+	$(MAKE) -C slob/
 
-heap.o: heap.c $(INCLUDES)
-	$(CC) $(FLAGS) $(CFLAGS) heap.c
+slab.o:
+	$(MAKE) -C slab/
 
 map.o: map.c $(INCLUDES)
 	$(CC) $(FLAGS) $(CFLAGS) map.c
