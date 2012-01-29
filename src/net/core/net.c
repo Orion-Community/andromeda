@@ -20,7 +20,7 @@
 #include <andromeda/drivers.h>
 #include <networking/net.h>
 
-static struct net_queue net_core_que;
+static struct net_queue *net_core_queue;
 
 int init_netif()
 {
@@ -35,6 +35,12 @@ int init_netif()
    */
   struct device *virtual = dev_find_devtype(get_root_device(), virtual_bus);
   device_attach(virtual, dev);
+  /*
+   * initialize the queue
+   */
+  struct net_queue *head = kalloc(sizeof(*head));
+  memset(head, 0, sizeof(*head));
+  net_set_queue(head);  
 }
 
 int
@@ -180,10 +186,26 @@ get_net_driver(uint64_t id)
   return device_find_id(dev, id);
 }
 
+/**
+ * \fn net_get_queue
+ * \brief Returns the current net_queue head.
+ * @return The current net_queue head.
+ */
 static inline struct net_queue *
-net_core_get_queue()
+net_get_queue()
 {
-  return &net_core_que;
+  return net_core_queue;
+}
+
+/**
+ * \fn net_set_queue(head)
+ * \brief Sets a new new net_queue head.
+ * \param new_head The new queue head.
+ */
+static inline void
+net_set_queue(struct net_queue *new_head)
+{
+  net_core_queue = new_head;
 }
 
 /**
@@ -225,7 +247,40 @@ net_queue_append_list(struct net_queue *queue, struct net_queue* item)
 static struct net_queue *remove_queue_entry(struct net_queue *head,
                                                     struct net_queue *item)
 {
+  if(head == item)
+  {
+    
+  }
+  struct net_queue *carriage = head;
+  while(carriage != NULL)
+  {
+    if(carriage == item)
+    {
+      if(carriage->next == NULL)
+      { /* we are at the end of the list, so shorten it.. */
+        carriage->previous->next = NULL;
+        goto out;
+      }
+      else
+      { /* we are somewhere in the list, but not at the start, and not at the end */
+        item->next->previous = carriage;
+        carriage->next = item->next;
+        goto out;
+      }
+    }
+    else if(carriage->next == NULL)
+    {
+      break;
+    }
+    carriage = carriage->next;
+  }
+  /* error return */
+  fail:
+  return NULL;
   
+  /* success return */
+  out:
+  return carriage;
 }
 
 void
