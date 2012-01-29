@@ -58,7 +58,7 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
         if (this == NULL)
                 goto err;
 
-        mutex_lock(this->lock);
+        mutex_lock(&this->lock);
 
         idx_t idx = get_idx(offset, depth);
 
@@ -102,7 +102,7 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
         return -E_SUCCESS;
 
 err_locked:
-        mutex_unlock(this->lock);
+        mutex_unlock(&this->lock);
 err:
         return -E_NULL_PTR;
 }
@@ -156,7 +156,7 @@ idx_t depth;
         int ret = 0;
         idx_t list_idx = get_idx(offset, depth);
 
-        mutex_lock(list->lock);
+        mutex_lock(&list->lock);
 
         if (depth != BUFFER_TREE_DEPTH)
         {
@@ -166,7 +166,7 @@ idx_t depth;
                                                    (sizeof(struct buffer_list));
                         if (list->lists[list_idx] == NULL)
                         {
-                                mutex_unlock(list->lock);
+                                mutex_unlock(&list->lock);
                                 return -E_NULL_PTR;
                         }
                         buffer_init_branch(list->lists[list_idx], list->parent);
@@ -175,19 +175,19 @@ idx_t depth;
                 ret =  buffer_add_block(this, list->lists[list_idx],
                                                                          offset,
                                                                        depth+1);
-                mutex_unlock(list->lock);
+                mutex_unlock(&list->lock);
                 return ret;
         }
 
         if (list->blocks[list_idx] != NULL)
         {
-                mutex_unlock(list->lock);
+                mutex_unlock(&list->lock);
                 return -E_ALREADY_INITIALISED;
         }
 
         atomic_inc(&(list->used));
         list->blocks[list_idx] = this;
-        mutex_unlock(list->lock);
+        mutex_unlock(&list->lock);
         return -E_SUCCESS;
 }
 

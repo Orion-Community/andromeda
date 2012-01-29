@@ -35,7 +35,7 @@
 #define RESERVED(a) ((a & RESERVEDBIT) ? TRUE : FALSE)
 #define DATA(a)     ((a & DATABIT)     ? FALSE : TRUE)
 
-volatile mutex_t page_lock = 0;
+mutex_t page_lock = 0;
 boolean pageDbg = false;
 
 volatile addr_t offset = 0xC0000000;
@@ -192,7 +192,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
 {
         if ((virtual % 0x1000) || (physical % 0x1000))
                 panic("AIEEE!!! Virtual or physical address not alligned!!!");
-        while(mutexTest(page_lock))
+        while(mutex_test(&page_lock))
         {
 #ifdef PAGEDBG
                 printf("Paging is locked!\n");
@@ -211,8 +211,8 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
                 virt_page_dir[pd_entry] = (addr_t)pt;
                 if (pt == NULL)
                 {
-                        mutexRelease(page_lock);
-                        ol_dbg_heap();
+                        mutex_unlock(&page_lock);
+                        examine_heap();
                         panic("NOMEM!");
                         return -E_NOMEM;
                 }
@@ -238,16 +238,16 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
 		pt = (void*)virt_page_dir[pd_entry];
 		if (pt == NULL)
 		{
-			mutexRelease(page_lock);
+			mutex_unlock(&page_lock);
 			printf("nomem\n");
-			ol_dbg_heap();
+			examine_heap();
 			panic("NOMEM");
 			return -E_PAGE_MAPPING;
 		}
 	}
 	if (pt[pt_entry].present == TRUE)
 	{
-		mutexRelease(page_lock);
+		mutex_unlock(&page_lock);
 #ifdef PAGEDBG
 		printf("WARNING! Page already mapped! Unmap it first\n");
 #endif
@@ -267,7 +267,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
 	pt[pt_entry].ignored  = 0;
 
 	page_cnt[pd_entry]++;
-	mutexRelease(page_lock);
+	mutex_unlock(&page_lock);
 #ifdef PAGEDBG
 	printf("Virtual: %X\tPhys: %X\tidx: %X\n", virtual, physical,
                                                           pt[pt_entry].pageIdx);
@@ -280,7 +280,7 @@ int page_map_entry(addr_t virtual, addr_t physical, struct page_dir *pd,
  */
 int page_release_entry(addr_t virtual, struct page_dir *pd)
 {
-	while (mutexTest(page_lock))
+	while (mutex_test(&page_lock))
 	{
 #ifdef PAGEDBG
 		printf("Paging is locked!\n");
@@ -291,7 +291,7 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
 
 	if (pd[pd_entry].present == FALSE)
 	{
-		mutexRelease(page_lock);
+		mutex_unlock(&page_lock);
 		return -E_PAGE_NOPAGE;
 	}
 
@@ -299,7 +299,7 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
                                         ((pd[pd_entry].pageIdx) >> 12) + offset;
 	if (pt[pt_entry].present == FALSE)
 	{
-		mutexRelease(page_lock);
+		mutex_unlock(&page_lock);
 		return -E_PAGE_NOPAGE;
 	}
 
@@ -314,7 +314,7 @@ int page_release_entry(addr_t virtual, struct page_dir *pd)
 		pd[pd_entry].pageIdx = 0;
 		virt_page_dir[pd_entry] = 0;
 	}
-	mutexRelease(page_lock);
+	mutex_unlock(&page_lock);
 	return 0;
 }
 

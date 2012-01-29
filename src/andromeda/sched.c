@@ -48,7 +48,7 @@ enum task_list_type type;
 							  (1 << parent_idx-1) ||
 					     parent->branch[parent_idx] != NULL)
 	{
-	mutex_unlock(sched_lock);
+	mutex_unlock(&sched_lock);
 	return -E_ALREADY_INITIALISED;
 	}
 
@@ -86,11 +86,11 @@ struct __TASK_STATE* task;
 	if (task_stack == NULL)
 		return -E_NULL_PTR;
 
-	mutex_lock(sched_lock);
+	mutex_lock(&sched_lock);
 	int pid = find_free_pid();
 	if (pid == -1)
 	{
-		mutex_unlock(sched_lock);
+		mutex_unlock(&sched_lock);
 		return -E_TASK_NOSPACE;
 	}
 
@@ -103,7 +103,7 @@ struct __TASK_STATE* task;
 				      kalloc(sizeof(struct __TASK_BRANCH_NODE));
 		if (task_stack->branch[branch_idx] == NULL)
 		{
-			mutex_unlock(sched_lock);
+			mutex_unlock(&sched_lock);
 			return -1;
 		}
 		memset(task_stack->branch[branch_idx], 0,
@@ -113,7 +113,7 @@ struct __TASK_STATE* task;
 
 	if (task_stack->branch[branch_idx]->type != task_list)
 	{
-		mutex_unlock(sched_lock);
+		mutex_unlock(&sched_lock);
 		return -1;
 	}
 
@@ -123,7 +123,7 @@ struct __TASK_STATE* task;
 	if (task_stack->branch[branch_idx]->full == 0xFF)
 		task_stack->full |= (1 << branch_idx);
 
-	mutex_unlock(sched_lock);
+	mutex_unlock(&sched_lock);
 	return pid;
 }
 
@@ -304,15 +304,15 @@ void sig (int signal)
  */
 void kill(int pid)
 {
-	mutex_lock(sched_lock);
+	mutex_lock(&sched_lock);
 
 	struct __TASK_BRANCH_NODE *level2 =
                                           task_stack->branch[(pid >> 8) & 0xFF];
 	if (level2 == NULL)
-		return;
+                goto err;
 	struct __TASK_STATE *task = level2->task[(pid & 0xFF)];
 	if (task == NULL)
-	return;
+                goto err;
 
 	level2->task[(pid & 0xFF)] = NULL;
 
@@ -330,7 +330,12 @@ void kill(int pid)
 	if (level2->full == 0)
 		free(task_stack->branch[(pid >> 8) & 0xFF]);
 
-	mutex_unlock(sched_lock);
+	mutex_unlock(&sched_lock);
+        return;
+
+err:
+        mutex_unlock(&sched_lock);
+        return;
 }
 
 /**
