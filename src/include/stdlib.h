@@ -41,6 +41,13 @@ extern "C" {
 #include <math/math.h>
 #include <debug.h>
 
+struct list_node
+{
+        struct list_node* head;
+        struct list_node* next;
+        void* data;
+};
+
 struct registers
 {
 	uint32_t eax;
