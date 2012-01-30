@@ -107,17 +107,6 @@ void init_set(uint32_t i)
 	rl = i;
 }
 
-extern uint32_t key_pressed;
-
-void demand_key()
-{
-	printf("Press any key to continue!\n");
-	key_pressed = 0;
-	while(key_pressed == 0)
-		halt();
-	return;
-}
-
 void core_loop()
 {
         if (dev_init() != -E_SUCCESS)

@@ -21,6 +21,17 @@
 #include <thread.h>
 #include <andromeda/core.h>
 
+extern uint32_t key_pressed;
+
+void demand_key()
+{
+        printf("Press any key to continue!\n");
+        key_pressed = 0;
+        while(key_pressed == 0)
+                halt();
+        return;
+}
+
 struct list*
 list_init()
 {
