@@ -221,7 +221,7 @@ dev_find_devtype(struct device *dev, device_type_t type)
                 else
                 {
                         struct device *carriage;
-                        for_each_ll_entry_safe(dev->children, carriage)
+                        for_each_ll_entry(dev->children, carriage)
                         {
                                 if(carriage->type == type)
                                         return carriage;

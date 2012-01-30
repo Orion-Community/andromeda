@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 #define IP 0x800
-#define ARP 0x806
+//#define ARP 0x806
 
 #define MAC_BROADCAST 0xffffffffffff
 

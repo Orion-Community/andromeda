@@ -3,8 +3,8 @@ include scripts/x86
 
 MAKEEND=FLAGS="$(FLAGS) "
 
-MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __IOAPIC_DBG -D __PCI_DEBUG -D MSI -D \
-MSIX -D MSIX_DEBUG -D WARN -D MSG_DBG -D ETH_DBG"
+MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __PCI_DEBUG -D MSI -D \
+MSIX -D MSIX_DEBUG -D WARN -D MSG_DBG"
 # MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
 DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o

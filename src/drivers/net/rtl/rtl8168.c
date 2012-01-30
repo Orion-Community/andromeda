@@ -123,8 +123,8 @@ void init_rtl_device(struct pci_dev *dev)
 static int
 init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
 {
-  struct rtl_cfg *carriage;
-  for_each_ll_entry_safe(get_rtl_dev_list(), carriage)
+  struct rtl_cfg *carriage, *tmp;
+  for_each_ll_entry_safe(get_rtl_dev_list(), carriage, tmp)
   {
     struct device *dev = kalloc(sizeof(*dev));
     if(dev == NULL)
