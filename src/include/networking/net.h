@@ -42,6 +42,7 @@ extern "C"
 #define TX_BUFFER_SIZE 1500+16 /* 1 frame + header */
 typedef void* net_buff_data_t;
 
+
 enum ptype
 {
         ROOT = 0,
@@ -110,6 +111,9 @@ struct net_bridge
         struct netdev *input;
         struct netdev *output;
 };
+
+typedef int (*netif_rx_pull)(struct net_buff*);
+typedef int (*protocol_deliver_handler_t)(struct net_buff*);
 
 struct netdev
 {
@@ -309,9 +313,6 @@ net_buff_reset_datalink_hdr(struct net_buff *buff)
 }
 
 void debug_packet_type_tree();
-
-typedef int (*protocol_deliver_handler_t)(struct net_buff*);
-typedef protocol_deliver_handler_t netif_rx_pull;
 
 #ifdef __cplusplus
 }
