@@ -77,7 +77,7 @@ init_netif()
   init_eth();
   netif_netlayer_init();
   initialized = TRUE;
-  //debug_packet_type_tree();
+  debug_packet_type_tree();
 }
 
 int
@@ -316,6 +316,7 @@ init_ptype_tree()
 {
   struct packet_type *root = &ptype_tree;
   memset(root, 0, sizeof(*root));
+  root->type = ROOT;
 }
 
 void 
@@ -327,6 +328,7 @@ add_ptype(struct packet_type *parent, struct packet_type *item)
     if(carriage == NULL)
     {
       parent->children = item;
+      item->parent = parent;
       return;
     }
     if(carriage->next == NULL)
@@ -339,22 +341,33 @@ add_ptype(struct packet_type *parent, struct packet_type *item)
   } while(carriage != NULL);
 }
 
-static struct packet_type *
-get_ptype(enum ptype type)
+struct packet_type *
+get_ptype(struct packet_type *parent, enum ptype type)
 {
+  if(parent->type == type)
+    return parent;
+  
+  struct packet_type *carriage = parent->children;
+  struct packet_type *ptype = NULL;
+  
+  while(carriage != NULL)
+  {
+    ptype = get_ptype(carriage, type);
+    if(ptype != NULL)
+      return ptype;
+    
+    carriage = carriage->next;
+  }
   return NULL;
 }
 
 #if 1
 void debug_packet_type_tree()
 {
-  struct packet_type *carriage = get_ptype_tree()->children;
+  struct packet_type *carriage = get_ptype(get_ptype_tree(), IPv4);
   if(carriage == NULL)
     return;
-  do
-  {
-    debug("packet child: %x\n", carriage->type);
-    carriage = carriage->next;
-  }while(carriage != NULL);
+  
+  debug("packet child: %x\n", carriage->parent->type);
 }
 #endif

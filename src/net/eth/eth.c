@@ -24,8 +24,10 @@ void
 init_eth()
 {
   struct packet_type *root = get_ptype_tree();
-  root->type = ETHERNET;
-  root->rx_hook = &receive_ethernet_frame;
+  struct packet_type *carriage = kalloc(sizeof(*carriage));
+  carriage->type = ETHERNET;
+  carriage->rx_hook = &receive_ethernet_frame;
+  add_ptype(root, carriage);
 }
 
 /**

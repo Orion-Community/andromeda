@@ -43,7 +43,8 @@ typedef void* net_buff_data_t;
 
 enum ptype
 {
-  ETHERNET = 0,
+  ROOT = 0,
+  ETHERNET,
   ARP,
   IPv4,
   IPv6,
@@ -202,7 +203,7 @@ static void init_ptype_tree();
  * \param type The type identifier to look for.
  * \return 
  */
-static struct packet_type *get_ptype(enum ptype type);
+struct packet_type *get_ptype(struct packet_type *parent, enum ptype type);
 
 /**
  * \fn add_ptye(parent, item)

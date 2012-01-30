@@ -23,7 +23,7 @@
 int
 netif_init_ip()
 {
-  struct packet_type *root = get_ptype_tree();
+  struct packet_type *root = get_ptype(get_ptype_tree(), ETHERNET);
   struct packet_type *item = kalloc(sizeof(*item));
   item->type = IPv4;
   item->rx_hook = &netif_init_ip;
