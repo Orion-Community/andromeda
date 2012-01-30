@@ -19,40 +19,19 @@
 #include <stdlib.h>
 #include <networking/eth/eth.h>
 
+/**
+ * \fn receive_ethernet_frame(net_buff)
+ * \brief Receives a net_buff which has to be processed through the datalink
+ * layer. This function will queue the buffer for processing. When it will be
+ * processed is not known. process_ethernet_frame is called by the scheduler.
+ * 
+ * \param nb The net_buff to queue.
+ * \see process_ether_net_frame
+ */
 void
-receive_ethernet_frame(struct netdev *dev)
+receive_ethernet_frame(struct net_buff *nb)
 {
-  struct ethframe *frame = alloc_eth_frame(dev->buf.data_len);
-  build_ethernet_frame(frame, &dev->buf);
-  process_ethernet_frame(frame, dev);
-}
-
-static struct ethframe *
-alloc_eth_frame(uint16_t size)
-{
-  struct ethframe *frame = kalloc(sizeof(*frame));
-  frame->data = kalloc(size);
-  return frame;
-}
-
-static void
-build_ethernet_frame(ethframe_t frame, struct netbuf * buf)
-{
-  memcpy(frame->preamble, buf->framebuf, 7);
-/*
-  memcpy(frame->sof, buf->framebuf+7, 1);
-*/
-  frame->sof = *(uint8_t*)(buf->framebuf+7);
-  memcpy(frame->destaddr, buf->framebuf+8, MAC_ADDR_SIZE);
-  memcpy(frame->srcaddr, buf->framebuf+14, MAC_ADDR_SIZE);
-  memcpy(frame->type, buf->framebuf+20, 2);
-  memcpy(frame->data, buf->framebuf+22, buf->data_len);
-  memcpy(frame->fcs, buf->framebuf+buf->data_len, 4);
-}
-
-static void
-build_hw_frame(ethframe_t frame, void *protocol)
-{
+  return;
 }
 
 /**
@@ -61,40 +40,13 @@ build_hw_frame(ethframe_t frame, void *protocol)
  *
  * @param frame The frame which has to be processed.
  */
-static enum eth_error
-process_ethernet_frame(ethframe_t frame, struct netdev *dev)
+static int
+process_ethernet_frame(struct net_buff *buff)
 {
-  uint64_t broadcast = MAC_BROADCAST;
-
-  /* check the hw address first */
-  if(!memcmp(frame->destaddr, dev->hwaddr, MAC_ADDR_SIZE) ||
-     !memcmp(frame->destaddr, &broadcast, MAC_ADDR_SIZE))
-  {
-    uint16_t type = (uint16_t)*((uint16_t*)frame->type);
-    switch(type)
-    {
-      case ARP:
-        printf("ARP has not been implemented (fully) yet!\n");
-        break;
-
-      case IP:
-        printf("IP has not been implemented (fully) yet!\n");
-        break;
-
-      default:
-        return 1;
-        break;
-    }
-    return 0;
-  }
-  else
-  {
-    printf("MAC-address mismatch. Discarding packet.\n");
-    return 1;
-  }
+  return -E_NOFUNCTION;
 }
 
-#ifdef ETH_DBG
+#if 0
 /**
  * This function will create a fake ethernet packet to test the receive functions
  */

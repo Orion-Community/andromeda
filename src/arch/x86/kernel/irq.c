@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <sys/dev/ps2.h>
 #include <sys/dev/pci.h>
+#include <interrupts/int.h>
 
 
 uint64_t pit_timer = 0;
@@ -33,19 +34,20 @@ bool isSleeping = FALSE;
 struct irq_data irq_data[MAX_IRQ_NUM];
 uint32_t irqs[IRQ_BASE];
 
-void cIRQ0(ol_irq_stack_t regs)
+void cIRQ0(irq_stack_t regs)
 {
   if (isSleeping)
   {
     if (!(sleepTime == 0)) sleepTime--;
   }
   pit_timer += 1;
+
   pic_eoi(0);
 
   return;
 }
 
-void cIRQ1(ol_irq_stack_t regs)
+void cIRQ1(irq_stack_t regs)
 {
   uint8_t c = ol_ps2_get_keyboard_scancode();
   kb_handle(c);
@@ -53,86 +55,86 @@ void cIRQ1(ol_irq_stack_t regs)
   return;
 }
 
-void cIRQ2(ol_irq_stack_t regs)
+void cIRQ2(irq_stack_t regs)
 {
   pic_eoi(2);
   return;
 }
 
-void cIRQ3(ol_irq_stack_t regs)
+void cIRQ3(irq_stack_t regs)
 {
   pic_eoi(3);
   return;
 }
 
-void cIRQ4(ol_irq_stack_t regs)
+void cIRQ4(irq_stack_t regs)
 {
   pic_eoi(4);
   return;
 }
 
-void cIRQ5(ol_irq_stack_t regs)
+void cIRQ5(irq_stack_t regs)
 {
   pic_eoi(5);
   return;
 }
 
-void cIRQ6(ol_irq_stack_t regs)
+void cIRQ6(irq_stack_t regs)
 {
   pic_eoi(6);
   return;
 }
 
-void cIRQ7(ol_irq_stack_t regs)
+void cIRQ7(irq_stack_t regs)
 {
   return;
 }
 
-void cIRQ8(ol_irq_stack_t regs)
+void cIRQ8(irq_stack_t regs)
 {
   pic_eoi(8);
   return;
 }
 
-void cIRQ9(ol_irq_stack_t regs)
+void cIRQ9(irq_stack_t regs)
 {
   putc('a');
   pic_eoi(9);
   return;
 }
 
-void cIRQ10(ol_irq_stack_t regs)
+void cIRQ10(irq_stack_t regs)
 {
   pic_eoi(10);
   return;
 }
 
-void cIRQ11(ol_irq_stack_t regs)
+void cIRQ11(irq_stack_t regs)
 {
   pic_eoi(11);
   return;
 }
 
-void cIRQ12(ol_irq_stack_t regs)
+void cIRQ12(irq_stack_t regs)
 {
   pic_eoi(12);
   return;
 }
 
-void cIRQ13(ol_irq_stack_t regs)
+void cIRQ13(irq_stack_t regs)
 {
   pic_eoi(13);
   return;
 }
 
-void cIRQ14(ol_irq_stack_t regs)
+void cIRQ14(irq_stack_t regs)
 {
   putc('a');
   pic_eoi(14);
   return;
 }
 
-void cIRQ15(ol_irq_stack_t regs)
+void cIRQ15(irq_stack_t regs)
 {
   putc('b');
   pic_eoi(15);
@@ -140,10 +142,13 @@ void cIRQ15(ol_irq_stack_t regs)
 }
 
 void
-cIRQ40(ol_irq_stack_t regs)
+do_irq(struct general_irq_stack stack)
 {
-  printf("General interrupt triggered!");
-  pic_eoi(40);
+#ifdef IRQ_DBG
+  debug("Called irq: %x\n", stack.irq);
+#endif
+  struct irq_data *data = get_irq_data(stack.irq);
+  data->handle(stack.irq, stack.regs);
   return;
 }
 
@@ -167,7 +172,6 @@ __list_all_irqs()
   irqs[13] = (uint32_t)&irq13;
   irqs[14] = (uint32_t)&irq14;
   irqs[15] = (uint32_t)&irq15;
-  irqs[40] = (uint32_t)&irq40;
   int i = 16;
   for(; i < MAX_IRQ_NUM; i++)
   {
@@ -222,8 +226,6 @@ alloc_irq()
     if(irq_data[i].irq_base == 0 && irq_data[i].irq_config == NULL)
     {
       setup_irq_cfg(irq_data[i].irq);
-      struct irq_cfg *cfg = irq_data[i].irq_config;
-//       printf("irq number: %x %x\n", irq_data[i].irq, cfg->vector);
 
       return &irq_data[i];
     }
@@ -257,17 +259,59 @@ free_irq_entry(struct irq_data* irq)
   return -1;
 }
 
-static void dbg_irq_data(void)
+static void 
+setup_irq_handler(unsigned int irq)
 {
-  int entry = alloc_idt_entry();
-  struct irq_data *data = alloc_irq();
-  if(entry != -1)
+  struct irq_data *idata = get_irq_data(irq);
+  unsigned int stub_size = get_general_irqstub_size();
+  void *stub = kalloc(stub_size);
+  memcpy(stub, gen_irq_stub, stub_size);
+  
+  /*
+   * Now we will change the content of the IRQ handler data:
+   * 
+   * The irq_handler first, then the irq number
+   */
+  writel(stub+DYNAMIC_IRQ_HANDLER_VALUE, (unsigned int)&do_irq);
+  writel(stub+DYNAMIC_IRQ_VALUE, idata->irq);
+  idata->irq_base = (unsigned int)stub;
+}
+
+int
+native_setup_irq_handler(unsigned int irq)
+{
+  struct irq_data *data = get_irq_data(irq);
+  if(data->handle == NULL)
+    return -E_NULL_PTR;
+  else
   {
-    data->irq_base = (uint32_t)&irq30;
-    data->irq_config = kalloc(sizeof(struct irq_cfg));
-    data->irq_config->vector = (uint16_t)entry;
-    install_irq_vector(data);
+    setup_irq_handler(irq);
+  }
+  
+  /* now we check if we might have to reset some values.. */
+  if(data->base_handle == NULL || data->base_handle == &do_irq)
+  {
+    data->base_handle = &do_irq;
+    return -E_SUCCESS;
   }
   else
-    return;
+  {
+    /*
+     * A different base handler has to be used. 
+     */
+    writel((void*)data->irq_base+DYNAMIC_IRQ_HANDLER_VALUE, (uint32_t)data->
+                                                                   base_handle);
+  }
 }
+
+#ifdef IRQ_DBG
+uint32_t
+debug_dynamic_irq()
+{
+  struct irq_data *data = alloc_irq();
+  setup_irq_handler(data->irq);
+  debug("irq: %x - vector: %x\n", data->irq, data->irq_config->vector);
+  install_irq_vector(data);
+  return data->irq_config->vector;
+}
+#endif

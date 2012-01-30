@@ -74,7 +74,7 @@ extern "C"
     int (*hook)(struct ol_pci_iterate_dev*);
   } *ol_pci_iterate_dev_t;
 
-  struct ol_pci_dev
+  struct pci_dev
   {
     uint32_t func; /* device function */
     uint32_t device; /* device type */
@@ -86,16 +86,16 @@ extern "C"
     uint32_t flags; /*
                      * bit 0: if set -> dev is mf
                      */
-    uint32_t (*read)(struct ol_pci_dev*, uint16_t);
+    uint32_t (*read)(struct pci_dev*, uint16_t);
   };
 
-  typedef struct ol_pci_dev *pci_dev_t;
+  typedef struct pci_dev *pci_dev_t;
 
   typedef struct ol_pci_node
   {
     struct ol_pci_node* next;
     struct ol_pci_node* previous;
-    struct ol_pci_dev* dev;
+    struct pci_dev* dev;
   } *ol_pci_node_t;
 
   static int
@@ -135,7 +135,7 @@ extern "C"
   __ol_pci_read_byte(ol_pci_addr_t, uint16_t);
 
   inline uint32_t
-  ol_pci_read_dword(struct ol_pci_dev* dev, uint16_t reg);
+  ol_pci_read_dword(struct pci_dev* dev, uint16_t reg);
 
   /**
    * Inner dword write function.
@@ -154,9 +154,9 @@ extern "C"
    * @param reg PCI configuration space register.
    * @param data Data to write.
    */
-  inline void ol_pci_write_dword(struct ol_pci_dev*, uint16_t, uint32_t);
+  inline void ol_pci_write_dword(struct pci_dev*, uint16_t, uint32_t);
 
-  static void config_msix(struct ol_pci_dev *, uint32_t, uint8_t);
+  static void config_msix(struct pci_dev *, uint32_t, uint8_t);
 
   static void debug_pci_list();
 

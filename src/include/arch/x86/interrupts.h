@@ -28,26 +28,33 @@ extern "C" {
 
 struct isr_stack
 {
-	uint16_t ds;
+	uint32_t ds;
 	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
 	uint32_t interruptHandler, errorCode;
 	uint32_t eip;
 	uint16_t cs;
 	uint32_t eflags, proc_esp;
-	uint16_t ss;
+	uint32_t ss;
 } __attribute__((packed));
 typedef struct isr_stack ol_isr_stack_t;
 
 struct irq_stack
 {
-	uint16_t ds;
+	uint32_t ds;
 	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+  uint32_t interruptHandler;
 	uint32_t eip;
 	uint16_t cs;
 	uint32_t eflags, proc_esp;
-	uint16_t ss;
+	uint32_t ss;
 } __attribute__((packed));
-typedef struct irq_stack ol_irq_stack_t;
+typedef struct irq_stack irq_stack_t;
+
+struct general_irq_stack
+{
+  unsigned int irq;
+  struct irq_stack regs;
+} __attribute__((packed));
 
 typedef struct int_src
 {
@@ -118,7 +125,7 @@ void cIRQ12();
 void cIRQ13();
 void cIRQ14();
 void cIRQ15();
-void cIRQ40(ol_irq_stack_t regs);
+void do_irq(struct general_irq_stack regs);
 extern void cIRQ30();
 
 #ifdef __cplusplus

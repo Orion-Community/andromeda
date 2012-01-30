@@ -61,7 +61,8 @@ mutex_test:
   enter
 
   mov eax, 1
-  xchg [ebp+8], eax
+  mov ebx, [ebp+8]
+  xchg [ebx], eax
 
   return
 
@@ -70,5 +71,6 @@ mutex_test:
 mutex_unlock:
   enter
   xor eax, eax
-  mov [ebp+8], eax
+  mov ebx, [ebp+8]
+  mov [ebx], eax
   return

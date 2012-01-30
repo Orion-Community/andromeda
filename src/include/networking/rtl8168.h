@@ -22,6 +22,7 @@
 #include <sys/dev/pci.h>
 #include <networking/net.h>
 #include <stdlib.h>
+#include <arch/x86/irq.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -71,14 +72,59 @@ struct rtlcommand
   uint reset : 1;
 };
 
+/**
+ * \struct struct rtl_cfg
+ * \brief RealTek configuration data structure.
+ */
 struct rtl_cfg
 {
+  /**
+   * \var transmit
+   * \brief Transmit configuration
+   * 
+   * \var receive
+   * \brief Receive configuration register.
+   * 
+   * \var command
+   * \brief Command register. Also holds the CPLUS command register.
+   * 
+   * \var next
+   * \brief A pointer to another configuration.
+   */
   struct txconfig *transmit;
   struct rxconfig *receive;
   struct rtlcommand *command;
   struct rtl_cfg *next;
 
+  /**
+   * \var portbase
+   * \brief I/O base port
+   * 
+   * \var device_id
+   * \brief The device ID in the andromeda driver list.
+   * 
+   * \var raw_rx_buff
+   * \brief Memory space to receive data in.
+   * 
+   * \var raw_tx_buff
+   * \brief Memory space buffer to transmit data.
+   */
   uint16_t portbase;
+  uint64_t device_id;
+  void *raw_rx_buff;
+  void *raw_tx_buff;
+  
+  /**
+   * \var rx_buff_length
+   * \brief Allocated memory length of raw_rx_buff.
+   * \see raw_rx_buff
+   * 
+   * \var tx_buff_length
+   * \brief Allocated memory length of raw_tx_buff.
+   * \see raw_tx_buff
+   */
+  uint16_t rx_buff_length,
+           tx_buff_length;
 };
 
 /*
@@ -110,19 +156,80 @@ struct rxcommand
   uint32_t rxbuffh; /* higher buffer address */
 };
 
-void init_rtl_device(struct ol_pci_dev *);
-static void get_mac(struct ol_pci_dev *dev, struct netdev *netdev);
-static void sent_command_registers(struct rtlcommand *, uint16_t);
-static int read_command_registers(struct rtlcommand *, uint16_t);
-static void add_rtl_device(struct rtl_cfg *cfg);
-static int reset_rtl_device(struct rtl_cfg *cfg);
-static void transmit_packet(struct net_buff*);
-static int init_core_driver(pci_dev_t dev);
+/**
+ * \fn rtl_conf_b(data,portbase,offset)
+ * \brief Generic function to sent data to the rtl device.
+ * 
+ * @param data Data to sent to the device.
+ * @param portbase Portbase of the NIC.
+ * @param offset Port register offset
+ */
+static inline void
+rtl_conf_b(uint8_t data, uint16_t portbase, uint16_t offset)
+{
+  outb(portbase+offset, data);
+}
+
+/**
+ * \fn rtl_conf_w(data,portbase,offset)
+ * \brief Generic function to sent data to the rtl device.
+ * 
+ * @param data Data to sent to the device.
+ * @param portbase Portbase of the NIC.
+ * @param offset Port register offset
+ */
+static inline void
+rtl_conf_w(uint16_t data, uint16_t portbase, uint16_t offset)
+{
+  outw(portbase+offset, data);
+}
+
+/**
+ * \fn rtl_conf_l(data,portbase,offset)
+ * \brief Generic function to sent data to the rtl device.
+ * 
+ * @param data Data to sent to the device.
+ * @param portbase Portbase of the NIC.
+ * @param offset Port register offset
+ */
+static inline void
+rtl_conf_l(uint32_t data, uint16_t portbase, uint16_t offset)
+{
+  outl(portbase+offset, data);
+}
+
+void init_rtl_device(struct pci_dev *);
 int rtl_transmit_buff(struct net_buff *buf);
 int rtl_receive_buff(struct net_buff *buf);
 void init_network();
 
-static inline uint16_t get_rtl_port_base(struct ol_pci_dev *dev, uint8_t offset)
+void rtl8168_irq_handler(unsigned int irq, irq_stack_t stack);
+static int rtl_setup_irq_handle(irq_handler_t handle, struct netdev *irq_data);
+static void get_mac(struct pci_dev *dev, struct netdev *netdev);
+static void sent_command_registers(struct rtlcommand *, uint16_t);
+static int read_command_registers(struct rtlcommand *, uint16_t);
+static void add_rtl_device(struct rtl_cfg *cfg);
+static int reset_rtl_device(struct rtl_cfg *cfg);
+static int init_core_driver(pci_dev_t dev);
+static struct rtl_cfg* get_rtl_dev_list();
+static struct rtl_cfg* get_rtl_device(int dev);
+static int get_rtl_dev_num();
+
+/**
+ * \fn net_rx_vfio(vfile, buf, size)
+ *
+ * Receive a buffer from the device driver.
+ */
+static size_t rtl_rx_vfio(struct vfile *file, char *buf, size_t size);
+
+/**
+ * \fn net_tx_vfio(vfile, buf, size)
+ *
+ * Transmit a buffer using virtual files.
+ */
+static size_t rtl_tx_vfio(struct vfile *file, char *buf, size_t size);
+
+static inline uint16_t get_rtl_port_base(struct pci_dev *dev, uint8_t offset)
 {
   uint16_t addr = (uint16_t)(ol_pci_read_dword(dev, 0x10+offset));
   if((addr & 1) != 0)

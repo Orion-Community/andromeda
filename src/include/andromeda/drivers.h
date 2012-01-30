@@ -124,8 +124,25 @@ struct device
 
         boolean suspended;
 };
-
 extern struct device dev_root;
+
+/**
+ * \fn get_root_device()
+ * \brief Returns the andromeda root device.
+ * 
+ * @return The andromeda root device.
+ */
+static inline struct device*
+get_root_device()
+{
+  return &dev_root;
+}
+
+static inline struct vfile*
+device_open_driver_io(struct device *dev)
+{
+  return dev->driver->io;
+}
 
 /**
  * \fn dev_init
