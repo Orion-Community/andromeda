@@ -20,8 +20,7 @@
 #include <andromeda/drivers.h>
 #include <networking/net.h>
 #include <networking/eth/eth.h>
-#include <networking/arp.h>
-#include <networking/eth/ipv4.h>
+#include <networking/netlayer.h>
 
 static struct net_queue *net_core_queue;
 struct packet_type ptype_tree;
@@ -73,8 +72,12 @@ init_netif()
    */
   struct net_queue *head = kalloc(sizeof(*head));
   memset(head, 0, sizeof(*head));
-  net_set_queue(head);  
+  net_set_queue(head);
+  init_ptype_tree();
+  init_eth();
+  netif_netlayer_init();
   initialized = TRUE;
+  //debug_packet_type_tree();
 }
 
 int
@@ -322,12 +325,36 @@ add_ptype(struct packet_type *parent, struct packet_type *item)
   do
   {
     if(carriage == NULL)
+    {
       parent->children = item;
+      return;
+    }
     if(carriage->next == NULL)
     {
       carriage->next = item;
       item->parent = parent;
+      return;
     }
     carriage = carriage->next;
   } while(carriage != NULL);
 }
+
+static struct packet_type *
+get_ptype(enum ptype type)
+{
+  return NULL;
+}
+
+#if 1
+void debug_packet_type_tree()
+{
+  struct packet_type *carriage = get_ptype_tree()->children;
+  if(carriage == NULL)
+    return;
+  do
+  {
+    debug("packet child: %x\n", carriage->type);
+    carriage = carriage->next;
+  }while(carriage != NULL);
+}
+#endif

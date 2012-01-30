@@ -194,10 +194,22 @@ static size_t net_rx_vfio(struct vfile *, char*, size_t);
  */
 static size_t net_tx_vfio(struct vfile*, char*, size_t);
 
-static int add_protocol_handlers();
-
 static void init_ptype_tree();
 
+/**
+ * \fn get_ptye(type)
+ * \brief Returns the correspondending packet type
+ * \param type The type identifier to look for.
+ * \return 
+ */
+static struct packet_type *get_ptype(enum ptype type);
+
+/**
+ * \fn add_ptye(parent, item)
+ * \brief Adds a packet type to to tree.
+ * \param parent Parent node.
+ * \param item Item which should be added.
+ */
 void add_ptype(struct packet_type *parent, struct packet_type *item);
 
 extern struct packet_type ptype_tree;
@@ -210,6 +222,8 @@ get_ptype_tree()
 {
   return &ptype_tree;
 }
+
+void debug_packet_type_tree();
 
 #ifdef __cplusplus
 }
