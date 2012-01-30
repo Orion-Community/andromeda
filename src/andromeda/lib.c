@@ -38,6 +38,7 @@ list_destroy(struct list* l)
 {
         if (l == NULL)
                 return -E_NULL_PTR;
+        mutex_lock(&l->lock);
 
         struct list_node* carriage = l->head;
         struct list_node* last = l->head;
@@ -47,13 +48,24 @@ list_destroy(struct list* l)
                 carriage = carriage->next;
                 kfree(last);
         }
+        l->head = NULL; // Safety feature
+        kfree(l);
         return -E_SUCCESS;
 }
 
 int
 list_add_head(struct list* l, struct list_node* n)
 {
-        return -E_NOFUNCTION;
+        if (l == NULL || n == NULL)
+                return -E_NULL_PTR;
+
+        mutex_lock(&l->lock);
+
+        n->next = l->head;
+        l->head = n;
+
+        mutex_unlock(&l->lock);
+        return -E_SUCCESS;
 }
 
 int list_rm_element(struct list* l, idx_t idx)
@@ -98,12 +110,64 @@ int list_rm_element(struct list* l, idx_t idx)
 
 int list_insert_element(struct list* l, struct list_node* n, idx_t idx)
 {
-        return -E_NOFUNCTION;
+        if (l == NULL || n == NULL)
+                return -E_NULL_PTR;
+
+        mutex_lock(&l->lock);
+
+        idx_t i = 0;
+        struct list_node* carriage = l->head;
+        if (carriage == NULL)
+        {
+                l->head = n;
+                n->next = NULL;
+                l->size = 1;
+                mutex_unlock(&l->lock);
+                return -E_SUCCESS;
+        }
+
+        while (carriage != NULL && i < idx)
+        {
+                carriage = carriage->next;
+                i++;
+        }
+
+        if (carriage == NULL)
+        {
+                mutex_unlock(&l->lock);
+                return -E_OUTOFBOUNDS;
+        }
+
+        n->next = carriage->next;
+        carriage->next = n;
+        l->size++;
+
+        mutex_unlock(&l->lock);
+        return -E_SUCCESS;
 }
 
 int list_add_tail(struct list* l, struct list_node* n)
 {
-        return -E_NOFUNCTION;
+        if (l == NULL || n == NULL)
+                return -E_NULL_PTR;
+        mutex_lock(&l->lock);
+        struct list_node *carriage = l->head;
+
+        if (carriage == NULL)
+        {
+                l->head = n;
+                n->next = NULL;
+                l->size = 1;
+        }
+
+        for (;carriage->next != NULL;carriage = carriage->next);
+
+        carriage->next = n;
+        n->next = NULL;
+        l->size ++;
+
+        mutex_unlock(&l->lock);
+        return -E_SUCCESS;
 }
 
 struct list_node*
@@ -128,7 +192,9 @@ list_get_element(struct list* l, idx_t idx)
 }
 
 struct list_node*
-list_next()
+list_next(struct list_node* n)
 {
-        return NULL;
+        if (n == NULL)
+                return NULL;
+        return n->next;
 }
