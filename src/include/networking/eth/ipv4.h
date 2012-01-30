@@ -9,6 +9,7 @@
 #define	IPV4_H
 
 #include <stdlib.h>
+#include <networking/net.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -31,7 +32,7 @@ extern "C" {
     uint options;
   };
 
-
+  int netif_rx_ip(struct net_buff *buff);
 #ifdef	__cplusplus
 }
 #endif

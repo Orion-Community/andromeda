@@ -26,7 +26,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+  
 #define MAC_ADDR_SIZE 6
 
 /* loops */
@@ -40,6 +40,17 @@ extern "C" {
 #define RX_BUFFER_SIZE (1024*8)+16+1500 /* 8KiB + header + 1 extra frame */
 #define TX_BUFFER_SIZE 1500+16 /* 1 frame + header */
 typedef void* net_buff_data_t;
+
+enum ptype
+{
+  ETHERNET = 0,
+  ARP,
+  IPv4,
+  IPv6,
+  IMCP,
+  TCP,
+  UDP
+};
 
 /**
  * \struct net_queue
@@ -55,12 +66,6 @@ struct net_queue
 
   struct net_buff *packet;
 } __attribute__((packed));
-
-struct netbuf
-{
-  uint16_t length,data_len;
-  void *framebuf;
-};
 
 /**
  * \struct net_bridge
@@ -90,6 +95,16 @@ struct netdev
   struct net_queue *queue_head;
 };
 
+struct packet_type
+{
+  struct packet_type *next;
+  struct packet_type *children;
+  struct packet_type *parent;
+  
+  enum ptype type;
+  int (*rx_hook)(struct net_buff*);
+};
+
 struct net_buff
 {
   struct net_buff *next;
@@ -99,6 +114,8 @@ struct net_buff
   unsigned short data_len;
   struct netdev *dev;
 
+  struct packet_type type;
+  struct net_bridge *bridge;
   net_buff_data_t transport_hdr;
   net_buff_data_t network_hdr;
   net_buff_data_t datalink_hdr;
@@ -176,6 +193,23 @@ static size_t net_rx_vfio(struct vfile *, char*, size_t);
  * Transmit a buffer using virtual files.
  */
 static size_t net_tx_vfio(struct vfile*, char*, size_t);
+
+static int add_protocol_handlers();
+
+static void init_ptype_tree();
+
+void add_ptype(struct packet_type *parent, struct packet_type *item);
+
+extern struct packet_type ptype_tree;
+/**
+ * \fn get_ptype_tree()
+ * @return The packet_type tree.
+ */
+static inline struct packet_type*
+get_ptype_tree()
+{
+  return &ptype_tree;
+}
 
 #ifdef __cplusplus
 }

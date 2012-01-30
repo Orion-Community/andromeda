@@ -66,7 +66,8 @@ enum eth_type
 };
 #endif
 
-void receive_ethernet_frame(struct net_buff *);
+void init_eth();
+int receive_ethernet_frame(struct net_buff *);
 static int process_ethernet_frame(struct net_buff *buff);
 
 void debug_ethernet_stack();

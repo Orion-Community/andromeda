@@ -18,6 +18,15 @@
 
 #include <stdlib.h>
 #include <networking/eth/eth.h>
+#include <networking/net.h>
+
+void
+init_eth()
+{
+  struct packet_type *root = get_ptype_tree();
+  root->type = ETHERNET;
+  root->rx_hook = &receive_ethernet_frame;
+}
 
 /**
  * \fn receive_ethernet_frame(net_buff)
@@ -28,7 +37,7 @@
  * \param nb The net_buff to queue.
  * \see process_ether_net_frame
  */
-void
+int
 receive_ethernet_frame(struct net_buff *nb)
 {
   return;

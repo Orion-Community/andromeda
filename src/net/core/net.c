@@ -19,10 +19,43 @@
 #include <stdlib.h>
 #include <andromeda/drivers.h>
 #include <networking/net.h>
+#include <networking/eth/eth.h>
+#include <networking/arp.h>
+#include <networking/eth/ipv4.h>
 
 static struct net_queue *net_core_queue;
+struct packet_type ptype_tree;
+static bool initialized = FALSE;
 
-int init_netif()
+/**
+ * \fn net_get_queue
+ * \brief Returns the current net_queue head.
+ * @return The current net_queue head.
+ */
+static inline struct net_queue *
+net_get_queue()
+{
+  return net_core_queue;
+}
+
+/**
+ * \fn net_set_queue(head)
+ * \brief Sets a new new net_queue head.
+ * \param new_head The new queue head.
+ */
+static inline void
+net_set_queue(struct net_queue *new_head)
+{
+  net_core_queue = new_head;
+}
+
+/**
+ * \fn init_netif()
+ * \brief Initialize the net core driver.
+ * @return Error code.
+ */
+int 
+init_netif()
 {
   struct device *dev = kalloc(sizeof(*dev));
   device_id_alloc(dev);
@@ -41,6 +74,7 @@ int init_netif()
   struct net_queue *head = kalloc(sizeof(*head));
   memset(head, 0, sizeof(*head));
   net_set_queue(head);  
+  initialized = TRUE;
 }
 
 int
@@ -187,28 +221,6 @@ get_net_driver(uint64_t id)
 }
 
 /**
- * \fn net_get_queue
- * \brief Returns the current net_queue head.
- * @return The current net_queue head.
- */
-static inline struct net_queue *
-net_get_queue()
-{
-  return net_core_queue;
-}
-
-/**
- * \fn net_set_queue(head)
- * \brief Sets a new new net_queue head.
- * \param new_head The new queue head.
- */
-static inline void
-net_set_queue(struct net_queue *new_head)
-{
-  net_core_queue = new_head;
-}
-
-/**
  * \fn net_queue_append_list(head, item)
  * \brief This function will append an item to the end of the core driver queue.
  * \param head The queue head.
@@ -244,12 +256,15 @@ net_queue_append_list(struct net_queue *queue, struct net_queue* item)
  * \param queue The queue head.
  * \return  The removed entry.
  */
-static struct net_queue *remove_queue_entry(struct net_queue *head,
-                                                    struct net_queue *item)
+static struct net_queue *
+remove_queue_entry(struct net_queue *head, struct net_queue *item)
 {
   if(head == item)
   {
-    
+    head->next->previous = NULL;
+    net_set_queue(head->next);
+    head->next = NULL;
+
   }
   struct net_queue *carriage = head;
   while(carriage != NULL)
@@ -291,4 +306,28 @@ print_mac(struct netdev *netdev)
     printf("%x:", netdev->hwaddr[i]);
 
   printf("%x\n", netdev->hwaddr[5]);
+}
+
+static void 
+init_ptype_tree()
+{
+  struct packet_type *root = &ptype_tree;
+  memset(root, 0, sizeof(*root));
+}
+
+void 
+add_ptype(struct packet_type *parent, struct packet_type *item)
+{
+  struct packet_type *carriage = parent->children;
+  do
+  {
+    if(carriage == NULL)
+      parent->children = item;
+    if(carriage->next == NULL)
+    {
+      carriage->next = item;
+      item->parent = parent;
+    }
+    carriage = carriage->next;
+  } while(carriage != NULL);
 }
