@@ -17,6 +17,7 @@
  */
 
 #include <stdlib.h>
+#include <arch/x86/timer.h>
 #include <andromeda/drivers.h>
 #include <networking/net.h>
 #include <networking/eth/eth.h>
@@ -152,7 +153,11 @@ alloc_buff_frame(unsigned int frame_len)
 {
         struct net_buff *buff = kalloc(sizeof (*buff));
         buff->length = frame_len;
-        buff->datalink_hdr = kalloc(frame_len);
+        buff->head = kalloc(frame_len);
+        buff->data = buff->head;
+        buff->tail = buff->head;
+        buff->end = buff->head + frame_len;
+        
         return buff;
 }
 
@@ -202,12 +207,16 @@ netif_process_net_buff(struct net_buff *buff)
         int retval = P_DROPPED;
         protocol_deliver_handler_t handle;
         
-        /*if(!check_tstamp(skb))
+        if(!check_net_buff_tstamp(buff))
         {
-            netif_drop_net_buff(buff);    
+                netif_drop_net_buff(buff);
+                goto out;
         }
-        if(net_poll(buff))
-                netif_drop_net_buff(buff);*/
+        if(netpoll_dev(buff->dev))
+        {
+                netif_drop_net_buff(buff);
+                goto out;
+        }
         
         net_buff_reset_net_hdr(buff);
         net_buff_reset_datalink_hdr(buff);
@@ -226,7 +235,9 @@ netif_process_net_buff(struct net_buff *buff)
         if(handle)
         {
                 old_type = ptype;
-                handle(buff);
+                retval = handle(buff);
+                if(retval == P_DROPPED || retval == P_LOST)
+                        goto out;
                 if(ptype != old_type)
                         goto next_round;
         }
@@ -238,17 +249,26 @@ netif_process_net_buff(struct net_buff *buff)
                  */
                 switch(dev->rx_pull_handle(buff))
                 {
+                        
                         case P_ANOTHER_ROUND:
                                 goto next_round;
                                 break;
+                        case P_DELIVERED:
+                                goto out;
+                                break;
                         case P_DROPPED:
+                                goto out;
+                                break;
+                        default:
+                                warning("Packet handled incorrectly");
                                 goto out;
                                 break;
                 }
         }
         
         out:
-        return -E_NOFUNCTION;
+        free_net_buff_list(buff);
+        return retval;
 }
 
 /**
@@ -435,6 +455,16 @@ get_ptype(struct packet_type *parent, enum ptype type)
                         return ptype;
         }
         return NULL;
+}
+
+static int
+check_net_buff_tstamp(struct net_buff *buff)
+{
+        unsigned long long current = get_cpu_tick();
+        if(buff->tstamp <= current)
+                return -E_SUCCESS;
+        else
+                return -E_CORRUPT;
 }
 
 #if 1

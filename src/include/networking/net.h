@@ -125,6 +125,7 @@ struct netdev
         struct net_queue *queue_head;
         enum ptype frame_type;
         netif_rx_pull rx_pull_handle;
+        int poll_support : 1;
 };
 
 struct packet_type
@@ -173,6 +174,7 @@ struct net_buff
         struct net_buff *previous;
 
         unsigned int length, total_len;
+        unsigned long long tstamp;
         unsigned short data_len;
         struct netdev *dev;
 
@@ -240,7 +242,14 @@ static struct net_queue *remove_queue_entry(struct net_queue *head,
   */
 static int net_queue_append_list(struct net_queue *queue, struct net_queue* item);
 
+/**
+ * \fn netif_drop_net_buff(buff)
+ * \brief Packet is not valid/usable, drop it.
+ * \param buff The packet to drop.
+ */
 void netif_drop_net_buff(struct net_buff *buff);
+
+static int check_net_buff_tstamp(struct net_buff *buff);
 
 void print_mac(struct netdev *netdev);
 
@@ -310,6 +319,12 @@ static inline void
 net_buff_reset_datalink_hdr(struct net_buff *buff)
 {
         buff->datalink_hdr = buff->data;
+}
+
+static inline int
+netpoll_dev(struct netdev *dev)
+{
+        return !(dev->poll_support);
 }
 
 void debug_packet_type_tree();
