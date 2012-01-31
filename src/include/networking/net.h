@@ -125,7 +125,7 @@ struct netdev
         struct net_queue *queue_head;
         enum ptype frame_type;
         netif_rx_pull rx_pull_handle;
-        int poll_support : 1;
+        uint poll_support : 1;
 };
 
 struct packet_type
@@ -137,6 +137,28 @@ struct packet_type
         enum ptype type;
         int (*deliver_packet)(struct net_buff*);
 };
+
+/**
+ * \struct vlan_tag
+ * \brief The Virtual Lan info struct.
+ */
+typedef struct vlan_tag
+{
+        /**
+         * \var protocol_tag
+         * \brief Indicates the protocol it is encapsulated in.
+         * \var priority
+         * \brief Frame priority.
+         * \var format_indicator
+         * \brief Token ring ecapsulation.
+         * \var vlan_id
+         * \brief ID of the virtual lan.
+         */
+        unsigned short protocol_tag;
+        uint priority : 3;
+        uint format_indicator : 1;
+        uint vlan_id : 12;
+} *vlan_tag_t;
 
 /**
  * \struct net_buff
