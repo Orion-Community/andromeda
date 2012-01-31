@@ -143,14 +143,7 @@ struct rxcommand
                    driver after having pre-allocated the buffer at initialization,
                    or the host has released the buffer to the driver.
                  */
-  struct vlan_tag
-  {
-    uint vidh : 4;
-    uint vidl : 8;
-    uint prio : 3; /* priority flag */
-    uint cfi : 1;
-  } vlan;
-
+  struct vlan_tag vlan;
   uint tava : 1; /* tag available flag */
   uint32_t rxbufl; /* lower buffer address */
   uint32_t rxbuffh; /* higher buffer address */

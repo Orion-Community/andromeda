@@ -201,7 +201,7 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
 static int
 netif_process_net_buff(struct net_buff *buff)
 {
-        struct packet_type *ptype, *old_type, 
+        struct packet_type *ptype, *old_type, *tmp, 
           *root = get_ptype_tree();
         struct netdev *dev;
         int retval = P_DROPPED;
@@ -223,22 +223,32 @@ netif_process_net_buff(struct net_buff *buff)
         net_buff_reset_tail(buff);
         
         dev = buff->dev;
-        buff->type = get_ptype(root, buff->dev->frame_type);
-        ptype = get_ptype(root, buff->type->type);
+        buff->type = get_ptype(root, buff->dev->frame_type)->type;
         
         next_round:
-        handle = ptype->deliver_packet;
+        for_each_ll_entry_safe(root, ptype, tmp)
+        {
+                if(ptype->type == buff->type)
+                {
+                        handle = ptype->deliver_packet;
+                        old_type = ptype;
+                        break;
+                }
+        }
         
         /*
          * We dont want to use NULL handles.
          */
         if(handle)
         {
-                old_type = ptype;
                 retval = handle(buff);
                 if(retval == P_DROPPED || retval == P_LOST)
                         goto out;
-                if(ptype != old_type)
+                if(retval == P_ANOTHER_ROUND)
+                /*
+                 * The handler will have changed the buffer protocol
+                 * type.
+                 */ 
                         goto next_round;
         }
         
@@ -254,7 +264,6 @@ netif_process_net_buff(struct net_buff *buff)
                                 goto next_round;
                                 break;
                         case P_DELIVERED:
-                                goto out;
                                 break;
                         case P_DROPPED:
                                 goto out;
@@ -265,6 +274,8 @@ netif_process_net_buff(struct net_buff *buff)
                                 break;
                 }
         }
+        
+        return retval;
         
         out:
         free_net_buff_list(buff);
@@ -417,44 +428,29 @@ init_ptype_tree()
 }
 
 void
-add_ptype(struct packet_type *parent, struct packet_type *item)
+add_ptype(struct packet_type *head, struct packet_type *item)
 {
-        struct packet_type *carriage = parent->children;
-        do
+        struct packet_type *carriage, *tmp;
+        for_each_ll_entry_safe(head, carriage, tmp)
         {
-                if (carriage == NULL)
-                {
-                        parent->children = item;
-                        item->parent = parent;
-                        return;
-                }
-                if (carriage->next == NULL)
+                if(carriage->next == NULL)
                 {
                         carriage->next = item;
-                        item->parent = parent;
-                        return;
+                        item->previous = carriage;
+                        break;
                 }
-                carriage = carriage->next;
         }
-        while (carriage != NULL);
 }
 
 struct packet_type *
-get_ptype(struct packet_type *parent, enum ptype type)
+get_ptype(struct packet_type *head, enum ptype type)
 {
-        if (parent->type == type)
-                return parent;
-
         struct packet_type *carriage, *tmp;
-        struct packet_type *ptype = NULL;
-
-        for_each_ll_entry_safe(parent->children, carriage, tmp)
+        for_each_ll_entry_safe(head, carriage, tmp)
         {
-                ptype = get_ptype(carriage, type);
-                if (ptype != NULL)
-                        return ptype;
+                if(carriage->type == type)
+                        return carriage;
         }
-        return NULL;
 }
 
 static int
@@ -476,6 +472,6 @@ debug_packet_type_tree()
         if (carriage == NULL)
                 return;
 
-        debug("packet child: %x\n", carriage->parent->type);
+        debug("packet type: %x\n", carriage->type);
 }
 #endif

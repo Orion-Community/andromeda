@@ -131,8 +131,7 @@ struct netdev
 struct packet_type
 {
         struct packet_type *next;
-        struct packet_type *children;
-        struct packet_type *parent;
+        struct packet_type *previous;
 
         enum ptype type;
         int (*deliver_packet)(struct net_buff*);
@@ -200,7 +199,7 @@ struct net_buff
         unsigned short data_len;
         struct netdev *dev;
 
-        struct packet_type *type;
+        enum ptype type;
         struct net_bridge *bridge;
         net_buff_data_t transport_hdr;
         net_buff_data_t network_hdr;
@@ -292,20 +291,14 @@ static size_t net_tx_vfio(struct vfile*, char*, size_t);
 static void init_ptype_tree();
 
 /**
-  * \fn get_ptye(type)
-  * \brief Returns the correspondending packet type
-  * \param type The type identifier to look for.
-  * \return 
-  */
-struct packet_type *get_ptype(struct packet_type *parent, enum ptype type);
-
-/**
   * \fn add_ptye(parent, item)
   * \brief Adds a packet type to to tree.
   * \param parent Parent node.
   * \param item Item which should be added.
   */
 void add_ptype(struct packet_type *parent, struct packet_type *item);
+
+struct packet_type *get_ptype(struct packet_type *head, enum ptype type);
 
 extern struct packet_type ptype_tree;
 
