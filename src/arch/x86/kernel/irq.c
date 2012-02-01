@@ -259,17 +259,17 @@ free_irq_entry(struct irq_data* irq)
   return -1;
 }
 
-static void 
+static void
 setup_irq_handler(unsigned int irq)
 {
   struct irq_data *idata = get_irq_data(irq);
   unsigned int stub_size = get_general_irqstub_size();
   void *stub = kalloc(stub_size);
   memcpy(stub, gen_irq_stub, stub_size);
-  
+
   /*
    * Now we will change the content of the IRQ handler data:
-   * 
+   *
    * The irq_handler first, then the irq number
    */
   writel(stub+DYNAMIC_IRQ_HANDLER_VALUE, (unsigned int)&do_irq);
@@ -287,7 +287,7 @@ native_setup_irq_handler(unsigned int irq)
   {
     setup_irq_handler(irq);
   }
-  
+
   /* now we check if we might have to reset some values.. */
   if(data->base_handle == NULL || data->base_handle == &do_irq)
   {
@@ -297,7 +297,7 @@ native_setup_irq_handler(unsigned int irq)
   else
   {
     /*
-     * A different base handler has to be used. 
+     * A different base handler has to be used.
      */
     writel((void*)data->irq_base+DYNAMIC_IRQ_HANDLER_VALUE, (uint32_t)data->
                                                                    base_handle);

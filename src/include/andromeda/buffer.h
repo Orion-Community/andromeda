@@ -34,7 +34,7 @@ extern "C" {
 #define BUFFER_ALLOW_DUPLICATE  (1<<0)
 #define BUFFER_ALLOW_GROWTH     (1<<1)
 
-#define BUFFER_TREE_DEPTH       4
+#define BUFFER_TREE_DEPTH       5
 
 typedef enum {lineair_access, random_access} mode_t;
 

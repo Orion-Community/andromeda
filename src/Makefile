@@ -12,6 +12,10 @@ DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o
 .PHONY: all
 all: x86
 
+.PHONY: stripped
+stripped: x86
+	strip -s $(OUT)
+
 .PHONY: amd64
 amd64:
 	@echo "Not yet implemented"

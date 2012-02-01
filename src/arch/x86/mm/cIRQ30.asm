@@ -53,7 +53,7 @@ cIRQ30:
 
 	cmp eax, 0010b
 	jz createmmap
-	
+
 	cmp eax, 0011b
 	jz updatecmos
 
@@ -63,12 +63,12 @@ cIRQ30:
 
 ; ------------------------------------------------------------------------------
 
-; 
-; This function probe's for ram. It expects a starting address in esi and 
-; the amount of bytes to probe for in ecx (note that the minimum size is 4kb). 
+;
+; This function probe's for ram. It expects a starting address in esi and
+; the amount of bytes to probe for in ecx (note that the minimum size is 4kb).
 ; When it returns, esi contains the correct (blockrounded (rounded down))
 ; starting address and ecx the amount of bytes found.
-; 
+;
 proberam:
 	xor eax, eax
 	in al, OL_PIC1_DATA
@@ -138,7 +138,7 @@ proberam:
 ; ------------------------------------------------------------------------------
 
 ;
-; Get a memory map from the cmos. Retuns amount of entries in ecx and a 
+; Get a memory map from the cmos. Retuns amount of entries in ecx and a
 ; pointer to the first entry in edx.
 ;
 createmmap:
@@ -192,10 +192,10 @@ createmmap:
 
 ; ------------------------------------------------------------------------------
 
-; 
-; get low memory from the cmos. If it is not available, probe for it and then set it with func 1 and 2 
+;
+; get low memory from the cmos. If it is not available, probe for it and then set it with func 1 and 2
 ; of this interrupt.
-; 
+;
 cmoslowmmap:
 	call copy_empty_entry
 
@@ -206,14 +206,14 @@ cmoslowmmap:
 	xor ax, ax
 	in al, OL_CMOS_INPUT
 	push ax	 ; sava data temp
-	
+
 	mov al, OL_CMOS_LOW_MEM_HIGH_ORDER_REGISTER ; most sig byte
 	out OL_CMOS_OUTPUT, al
 	call iowait
 
 	xor ax, ax
 	in al, OL_CMOS_INPUT	; collect data
-	
+
 	pop dx
 	shl ax, 8	; put al in ah
 	or ax, dx ; ah is the most significant byte, dl the least significant
@@ -221,7 +221,7 @@ cmoslowmmap:
 	and eax, 0xffff
 	shl eax, 10	; eax*1024 -> convert to bytes
 	push eax	; save for the low reserved mmap
-	
+
 	mov [es:edi], dword OL_LOW_BASE
 	mov [es:edi+8], eax
 	mov [es:edi+16], dword OL_USABLE_MEM
@@ -255,21 +255,21 @@ addmemoryhole:
 	call copy_empty_entry
 	cmp eax, (15 << 20) ; 15 mb in bytes
 	jb .remainder
-	
+
 	; first 14 mb are usable
 	mov [es:edi], dword OL_EXT_BASE
 	mov [es:edi+8], dword 0x00E00000 ; length = 14 mb
 	mov [es:edi+16], dword OL_USABLE_MEM	; usable memory
 	mov [es:edi+20], dword OL_ACPI	; acpi 3.0
-	
+
 	call .next
-	
-.hole:	
+
+.hole:
 	mov [es:edi], dword 0x00F00000
 	mov [es:edi+8], dword 0x00100000	; length = 1mb
 	mov [es:edi+16], dword OL_BAD_MEM	; bad memory
 	mov [es:edi+20], dword OL_ACPI	; acpi 3.0
-	
+
 	sub eax, (15 << 20)	; substract 15 mb (the reserved mem + the memory already defined as usable) from it
 	pop ecx
 	inc ecx
@@ -325,9 +325,9 @@ copy_empty_entry:	; this subroutine copies an emty memory map to the location sp
 
 ; ------------------------------------------------------------------------------
 
-; 
+;
 ; Update the cmos memory registers. Amount of low memory in bytes in ebx and the amount of extended memory (in bytes) in edx.
-; 
+;
 updatecmos:
 	mov ebx, dword [ebp+24]
 	mov edx, dword [ebp+28]	; extended memory above 1M (formot 2^n-1)

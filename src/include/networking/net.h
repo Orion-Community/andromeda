@@ -70,7 +70,7 @@ struct net_bridge
   /**
    * \var input
    * \brief The input interface.
-   * 
+   *
    * \var output
    * \brief The output interface.
    */
@@ -99,7 +99,7 @@ struct net_buff
   net_buff_data_t transport_hdr;
   net_buff_data_t network_hdr;
   net_buff_data_t datalink_hdr;
-  
+
   unsigned char* head, data, tail, end;
 } __attribute__((packed));
 

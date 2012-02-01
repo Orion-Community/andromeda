@@ -169,7 +169,7 @@ int device_id_alloc(struct device* dev)
 int
 device_alloc_id()
 {
-  
+
 }
 
 static int

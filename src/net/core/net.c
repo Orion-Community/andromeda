@@ -27,7 +27,7 @@ int init_netif()
   dev_setup_driver(dev, &net_rx_vfio, &net_tx_vfio);
   dev->type = net_dev;
   dev->open = &device_open_driver_io;
-  
+
   /*
    * attach the device driver to the the virtual bus.
    */
@@ -42,11 +42,11 @@ register_net_dev(struct device *dev, struct netdev* netdev)
   dev->open = &device_open_driver_io;
   dev->driver->io->fs_data = (void*)netdev;
   dev->driver->io->fs_data_size = sizeof(*netdev);
-  
+
   /*
    * attach the device driver to the core driver.
    */
-  struct device *core_dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
+  struct device *core_dev = dev_find_devtype(dev_find_devtype(get_root_device(),
                                                               virtual_bus), net_dev);
   device_attach(core_dev, dev);
   return -E_SUCCESS;
@@ -55,7 +55,7 @@ register_net_dev(struct device *dev, struct netdev* netdev)
 int
 unregister_net_dev(uint64_t id)
 {
-  struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(), 
+  struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(),
                                                               virtual_bus), net_dev);
   if(dev == NULL)
     return -E_NULL_PTR;

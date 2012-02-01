@@ -81,13 +81,13 @@ struct rtl_cfg
   /**
    * \var transmit
    * \brief Transmit configuration
-   * 
+   *
    * \var receive
    * \brief Receive configuration register.
-   * 
+   *
    * \var command
    * \brief Command register. Also holds the CPLUS command register.
-   * 
+   *
    * \var next
    * \brief A pointer to another configuration.
    */
@@ -99,13 +99,13 @@ struct rtl_cfg
   /**
    * \var portbase
    * \brief I/O base port
-   * 
+   *
    * \var device_id
    * \brief The device ID in the andromeda driver list.
-   * 
+   *
    * \var raw_rx_buff
    * \brief Memory space to receive data in.
-   * 
+   *
    * \var raw_tx_buff
    * \brief Memory space buffer to transmit data.
    */
@@ -113,12 +113,12 @@ struct rtl_cfg
   uint64_t device_id;
   void *raw_rx_buff;
   void *raw_tx_buff;
-  
+
   /**
    * \var rx_buff_length
    * \brief Allocated memory length of raw_rx_buff.
    * \see raw_rx_buff
-   * 
+   *
    * \var tx_buff_length
    * \brief Allocated memory length of raw_tx_buff.
    * \see raw_tx_buff
@@ -159,7 +159,7 @@ struct rxcommand
 /**
  * \fn rtl_conf_b(data,portbase,offset)
  * \brief Generic function to sent data to the rtl device.
- * 
+ *
  * @param data Data to sent to the device.
  * @param portbase Portbase of the NIC.
  * @param offset Port register offset
@@ -173,7 +173,7 @@ rtl_conf_b(uint8_t data, uint16_t portbase, uint16_t offset)
 /**
  * \fn rtl_conf_w(data,portbase,offset)
  * \brief Generic function to sent data to the rtl device.
- * 
+ *
  * @param data Data to sent to the device.
  * @param portbase Portbase of the NIC.
  * @param offset Port register offset
@@ -187,7 +187,7 @@ rtl_conf_w(uint16_t data, uint16_t portbase, uint16_t offset)
 /**
  * \fn rtl_conf_l(data,portbase,offset)
  * \brief Generic function to sent data to the rtl device.
- * 
+ *
  * @param data Data to sent to the device.
  * @param portbase Portbase of the NIC.
  * @param offset Port register offset

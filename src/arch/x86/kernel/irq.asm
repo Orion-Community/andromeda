@@ -319,7 +319,7 @@ gen_irq_stub:
   call label
 label:
   pop eax
- 
+
   push dword [eax + (irq_num_addr - label)]
   call [eax + (irq_fp - label)]
   add esp, 4
