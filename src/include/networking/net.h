@@ -201,7 +201,7 @@ struct net_buff
         struct netdev *dev;
 
         enum ptype type;
-        struct vlan_tag vlan;
+        struct vlan_tag *vlan;
         uint32_t raw_vlan;
         struct net_bridge *bridge;
         net_buff_data_t transport_hdr;
@@ -273,6 +273,14 @@ static int net_queue_append_list(struct net_queue *queue, struct net_queue* item
  * \param buff The packet to drop.
  */
 void netif_drop_net_buff(struct net_buff *buff);
+
+/**
+ * \fn vlan_untag(buff)
+ * \brief Converts raw vlan tags to a better readable the better readable struct
+ * vlan_tag.
+ * \see vlan_tag
+ */
+static int vlan_untag(struct net_buff *buff);
 
 static int check_net_buff_tstamp(struct net_buff *buff);
 

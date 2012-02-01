@@ -224,7 +224,7 @@ netif_process_net_buff(struct net_buff *buff)
         net_buff_reset_tail(buff);
         
         dev = buff->dev;
-        buff->type = dev->frame_type
+        buff->type = dev->frame_type;
         
         next_round:
         for_each_ll_entry_safe(root, ptype, tmp)
@@ -233,7 +233,9 @@ netif_process_net_buff(struct net_buff *buff)
                 {
                         handle = ptype->deliver_packet;
                         atomic_inc(&buff->users);
-                        buff->type = ptype->type
+                        buff->type = ptype->type;
+                        if(buff->type == ETHERNET)
+                                vlan_untag(buff);
                         break;
                 }
         }
@@ -489,7 +491,7 @@ static int
 vlan_untag(struct net_buff *buff)
 {
         if(buff->raw_vlan == 0)
-                return -E_ALREADY_INITIALISED
+                return -E_ALREADY_INITIALISED;
                 
         unsigned int raw = buff->raw_vlan;
         buff->vlan = kalloc(sizeof(*(buff->vlan)));
@@ -499,7 +501,11 @@ vlan_untag(struct net_buff *buff)
 
         buff->raw_vlan = 0; /* make sure it doesn't get detagged again */
         
-        
+        buff->vlan->protocol_tag = (raw >> 16) & 0xffff;
+        buff->vlan->priority = (raw >> 13) & 3;
+        buff->vlan->format_indicator = (raw >> 12) & 1;
+        buff->vlan->vlan_id = raw & 0xfff;
+        return -E_SUCCESS;
 }
 
 #if 1
