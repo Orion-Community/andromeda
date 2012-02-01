@@ -41,6 +41,9 @@ virtual.o:
 legacy.o:
 	$(MAKE) -C legacy/ $(MAKEEND)
 
+timer.o:
+	$(MAKE) -C timer/ $(MAKEEND)
+
 .PHONY: clean
 clean:
 	$(MAKE) -C graphics/ clean

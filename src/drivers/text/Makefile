@@ -9,7 +9,7 @@ DEPS=include/out.h
 .PHONY: all
 all: text.o vga_text.o
 	$(LD) $(LDFLAGS) -o txt.o *o
-	mv txt.o ../text.o
+	mv -vf txt.o ../text.o
 
 text.o: $(TARGETS) $(DEPS)
 	$(CC) $(CFLAGS) $(FLAGS) $(TARGETS) -o text.o

@@ -81,7 +81,7 @@ void init_rtl_device(struct pci_dev *dev)
   } while(portbase == 0 && i <= 5);
   debug("RealTek base: %x\n", portbase);
   cfg->portbase = portbase;
-  
+
   cfg->raw_rx_buff = kalloc(RX_BUFFER_SIZE);
   cfg->rx_buff_length = RX_BUFFER_SIZE;
   cfg->raw_tx_buff = kalloc(TX_BUFFER_SIZE);
@@ -121,15 +121,15 @@ init_core_driver(pci_dev_t pci)
     struct device *dev = kalloc(sizeof(*dev));
     dev->dev_id = device_id_alloc(dev);
     carriage->device_id = dev->dev_id;
-    
+
     struct netdev *netdev = kalloc(sizeof(*netdev));
     netdev->dev = pci;
     netdev->dev_id = dev->dev_id;
-    
+
     get_mac(pci, netdev);
     rtl_setup_irq_handle(&rtl8168_irq_handler, netdev);
     register_net_dev(dev, netdev);
-    
+
     if(carriage->next == NULL)
       break;
     else
@@ -241,13 +241,13 @@ reset_rtl_device(struct rtl_cfg *cfg)
   return -1;
 }
 
-static struct rtl_cfg* 
+static struct rtl_cfg*
 get_rtl_dev_list()
 {
   return rtl_devs;
 }
 
-static int 
+static int
 get_rtl_dev_num()
 {
   int i = 0;
@@ -267,7 +267,7 @@ get_rtl_dev_num()
 /**
  * \fn get_rtl_device(dev)
  * \brief Get a device based on the device number in the list.
- * 
+ *
  * @param dev Index in the device list.
  */
 static struct rtl_cfg*
@@ -289,7 +289,7 @@ get_rtl_device(int dev)
 static int
 rtl_conf_rx(struct rtl_cfg *cfg)
 {
-  
+
 }
 
 void
