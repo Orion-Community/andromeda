@@ -84,7 +84,7 @@ void shutdown();
 
 #define for_each_ll_entry_safe(head, carriage, tmp) \
                                                 for(carriage = (head), tmp = \
-                                                (head)->next; carriage != (NULL), \
+                                                (head)->next; carriage != (NULL) && \
                                                 carriage != (carriage)->next; \
                                                 carriage = (tmp), tmp = \
                                                 (carriage)->next)

@@ -74,6 +74,7 @@ enum packet_state
 {
         P_DELIVERED,
         P_ANOTHER_ROUND,
+        P_DONE,
         P_DROPPED,
         P_LOST,
 };
@@ -118,11 +119,11 @@ struct packet_type
         struct packet_type *previous;
 
         enum ptype type;
-        enum ptype (*deliver_packet)(struct net_buff*, struct packet_type*);
+        enum ptype (*deliver_packet)(struct net_buff*);
 };
 
 typedef enum ptype (*netif_rx_pull)(struct net_buff*);
-typedef enum ptype (*protocol_deliver_handler_t)(struct net_buff*, struct packet_type*);
+typedef enum ptype (*protocol_deliver_handler_t)(struct net_buff*);
 
 /**
  * \struct vlan_tag
@@ -206,6 +207,7 @@ struct net_buff
         net_buff_data_t datalink_hdr;
 
         unsigned char* head, *data, *tail, *end;
+        atomic_t users;
 } __attribute__((packed));
 
 /**

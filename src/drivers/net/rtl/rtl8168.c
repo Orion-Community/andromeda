@@ -125,7 +125,7 @@ init_rtl_device(struct pci_dev *dev)
 enum ptype
 rtl_rx_pull_dev(struct net_buff *buff)
 {
-        return P_DELIVERED;
+        return P_DONE;
 }
 
 static int

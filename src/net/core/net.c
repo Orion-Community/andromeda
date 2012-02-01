@@ -231,7 +231,7 @@ netif_process_net_buff(struct net_buff *buff)
                 if(ptype->type == buff->type)
                 {
                         handle = ptype->deliver_packet;
-                        memcpy(old_type, ptype, sizeof(*old_type));
+                        atomic_inc(&buff->users);
                         break;
                 }
         }
@@ -241,14 +241,10 @@ netif_process_net_buff(struct net_buff *buff)
          */
         if(handle)
         {
-                retval = handle(buff, old_type);
+                retval = handle(buff);
                 if(retval == P_DROPPED || retval == P_LOST)
                         goto out;
                 if(retval == P_ANOTHER_ROUND)
-                /*
-                 * The handler will have changed the buffer protocol
-                 * type.
-                 */ 
                         goto next_round;
         }
         
@@ -257,7 +253,7 @@ netif_process_net_buff(struct net_buff *buff)
                 /*
                  * if a pull function is given, try to pull for more packets
                  */
-                switch(dev->rx_pull_handle(buff))
+                switch(retval = dev->rx_pull_handle(buff))
                 {
                         
                         case P_ANOTHER_ROUND:
@@ -268,10 +264,24 @@ netif_process_net_buff(struct net_buff *buff)
                         case P_DROPPED:
                                 goto out;
                                 break;
+                        case P_DONE:
+                                break;
                         default:
                                 warning("Packet handled incorrectly");
-                                goto out;
                                 break;
+                }
+        }
+        
+        /*
+         * If one last packet has dropped out..
+         */
+        for_each_ll_entry_safe(root, ptype, tmp)
+        {
+                if(retval == P_DELIVERED && ptype->type == buff->type)
+                {
+                        retval = ptype->deliver_packet(buff);
+                        atomic_inc(&buff->users);
+                        break;
                 }
         }
         

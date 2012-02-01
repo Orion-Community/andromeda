@@ -40,9 +40,9 @@ init_eth()
  * \see process_ether_net_frame
  */
 static enum ptype
-receive_ethernet_frame(struct net_buff *nb, struct packet_type *ptype)
+receive_ethernet_frame(struct net_buff *nb)
 {
-        debug("Handeling a protocol of type %x\n", ptype->type);
+        debug("Handeling a protocol of type %x\n", nb->type);
         return P_DELIVERED;
 }
 
