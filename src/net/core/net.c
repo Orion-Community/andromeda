@@ -78,7 +78,6 @@ init_netif()
         init_eth();
         netif_netlayer_init();
         initialized = TRUE;
-        debug_packet_type_tree();
 }
 
 int
@@ -201,17 +200,18 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
 static int
 netif_process_net_buff(struct net_buff *buff)
 {
-        struct packet_type *ptype, *old_type, *tmp, 
+        struct packet_type *ptype, *old_type = kalloc(sizeof(*old_type)), *tmp, 
           *root = get_ptype_tree();
         struct netdev *dev;
         int retval = P_DROPPED;
         protocol_deliver_handler_t handle;
         
-        if(!check_net_buff_tstamp(buff))
+        if(check_net_buff_tstamp(buff))
         {
                 netif_drop_net_buff(buff);
                 goto out;
         }
+        
         if(netpoll_dev(buff->dev))
         {
                 netif_drop_net_buff(buff);
@@ -231,7 +231,7 @@ netif_process_net_buff(struct net_buff *buff)
                 if(ptype->type == buff->type)
                 {
                         handle = ptype->deliver_packet;
-                        old_type = ptype;
+                        memcpy(old_type, ptype, sizeof(*old_type));
                         break;
                 }
         }
@@ -241,7 +241,7 @@ netif_process_net_buff(struct net_buff *buff)
          */
         if(handle)
         {
-                retval = handle(buff);
+                retval = handle(buff, old_type);
                 if(retval == P_DROPPED || retval == P_LOST)
                         goto out;
                 if(retval == P_ANOTHER_ROUND)
@@ -275,9 +275,11 @@ netif_process_net_buff(struct net_buff *buff)
                 }
         }
         
+        kfree(old_type);
         return retval;
         
         out:
+        kfree(old_type);
         free_net_buff_list(buff);
         return retval;
 }
@@ -302,6 +304,7 @@ static size_t
 net_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
         struct net_buff *buffer = (struct net_buff*) buf;
+        netif_process_net_buff(buffer);
         debug("Packet arrived in the core driver successfully. MAC address:");
         print_mac(buffer->dev);
         return -E_SUCCESS;
@@ -457,10 +460,10 @@ static int
 check_net_buff_tstamp(struct net_buff *buff)
 {
         unsigned long long current = get_cpu_tick();
-        if(buff->tstamp <= current)
-                return -E_SUCCESS;
-        else
+        if(buff->tstamp > current)
                 return -E_CORRUPT;
+        else
+                return -E_SUCCESS;
 }
 
 #if 1

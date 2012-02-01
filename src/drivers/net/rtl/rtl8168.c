@@ -122,6 +122,12 @@ init_rtl_device(struct pci_dev *dev)
               cmd->ccommand.rxchecksum);
 }
 
+enum ptype
+rtl_rx_pull_dev(struct net_buff *buff)
+{
+        return P_DELIVERED;
+}
+
 static int
 init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
 {
@@ -137,8 +143,10 @@ init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
                 carriage->device_id = dev->dev_id;
                 struct netdev *netdev = kalloc(sizeof (*netdev));
                 netdev->dev = pci;
+                netdev->rx_pull_handle = &rtl_rx_pull_dev;
                 netdev->dev_id = dev->dev_id;
-
+                netdev->frame_type = ETHERNET;
+                netdev->poll_support = TRUE;
                 get_mac(pci, netdev);
                 rtl_setup_irq_handle(&rtl8168_irq_handler, netdev);
                 register_net_dev(dev, netdev);

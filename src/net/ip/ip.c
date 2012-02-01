@@ -30,7 +30,8 @@ netif_init_ip()
   add_ptype(root, item);
 }
 
-int netif_rx_ip(struct net_buff *buff)
+enum ptype
+netif_rx_ip(struct net_buff *buff, struct packet_type *ptype)
 {
-  return -E_NOFUNCTION;
+        return P_DELIVERED;
 }

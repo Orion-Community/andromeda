@@ -39,10 +39,11 @@ init_eth()
  * \param nb The net_buff to queue.
  * \see process_ether_net_frame
  */
-int
-receive_ethernet_frame(struct net_buff *nb)
+static enum ptype
+receive_ethernet_frame(struct net_buff *nb, struct packet_type *ptype)
 {
-  return;
+        debug("Handeling a protocol of type %x\n", ptype->type);
+        return P_DELIVERED;
 }
 
 /**
@@ -51,8 +52,8 @@ receive_ethernet_frame(struct net_buff *nb)
  *
  * @param frame The frame which has to be processed.
  */
-static int
-process_ethernet_frame(struct net_buff *buff)
+static enum ptype
+process_ethernet_frame(struct net_buff *buff, struct packet_type *type)
 {
   return -E_NOFUNCTION;
 }

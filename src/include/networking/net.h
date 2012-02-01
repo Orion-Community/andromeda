@@ -112,30 +112,17 @@ struct net_bridge
         struct netdev *output;
 };
 
-typedef int (*netif_rx_pull)(struct net_buff*);
-typedef int (*protocol_deliver_handler_t)(struct net_buff*);
-
-struct netdev
-{
-        uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
-        atomic_t state;
-        struct pci_dev *dev;
-        void *device_data;
-        uint64_t dev_id;
-        struct net_queue *queue_head;
-        enum ptype frame_type;
-        netif_rx_pull rx_pull_handle;
-        uint poll_support : 1;
-};
-
 struct packet_type
 {
         struct packet_type *next;
         struct packet_type *previous;
 
         enum ptype type;
-        int (*deliver_packet)(struct net_buff*);
+        enum ptype (*deliver_packet)(struct net_buff*, struct packet_type*);
 };
+
+typedef enum ptype (*netif_rx_pull)(struct net_buff*);
+typedef enum ptype (*protocol_deliver_handler_t)(struct net_buff*, struct packet_type*);
 
 /**
  * \struct vlan_tag
@@ -158,6 +145,19 @@ typedef struct vlan_tag
         uint format_indicator : 1;
         uint vlan_id : 12;
 } *vlan_tag_t;
+
+struct netdev
+{
+        uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
+        atomic_t state;
+        struct pci_dev *dev;
+        void *device_data;
+        uint64_t dev_id;
+        struct net_queue *queue_head;
+        enum ptype frame_type;
+        netif_rx_pull rx_pull_handle;
+        uint poll_support : 1;
+};
 
 /**
  * \struct net_buff

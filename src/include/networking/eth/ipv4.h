@@ -32,7 +32,7 @@ extern "C" {
     uint options;
   };
 
-  int netif_rx_ip(struct net_buff *buff);
+  enum ptype netif_rx_ip(struct net_buff *buff, struct packet_type *type);
 #ifdef	__cplusplus
 }
 #endif
