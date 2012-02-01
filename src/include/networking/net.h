@@ -201,6 +201,8 @@ struct net_buff
         struct netdev *dev;
 
         enum ptype type;
+        struct vlan_tag vlan;
+        uint32_t raw_vlan;
         struct net_bridge *bridge;
         net_buff_data_t transport_hdr;
         net_buff_data_t network_hdr;

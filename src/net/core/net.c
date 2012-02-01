@@ -24,6 +24,7 @@
 #include <networking/netlayer.h>
 
 static struct net_queue *net_core_queue;
+static struct net_queue *net_tx_core_queue;
 struct packet_type ptype_tree;
 static bool initialized = FALSE;
 
@@ -281,6 +282,8 @@ netif_process_net_buff(struct net_buff *buff)
                 {
                         retval = ptype->deliver_packet(buff);
                         atomic_inc(&buff->users);
+                        if(retval == P_DROPPED || retval == P_LOST)
+                                goto out;
                         break;
                 }
         }
@@ -292,6 +295,11 @@ netif_process_net_buff(struct net_buff *buff)
         kfree(old_type);
         free_net_buff_list(buff);
         return retval;
+}
+
+static int
+netif_start_tx(struct net_buff *buff)
+{
 }
 
 /**
@@ -474,6 +482,23 @@ check_net_buff_tstamp(struct net_buff *buff)
                 return -E_CORRUPT;
         else
                 return -E_SUCCESS;
+}
+
+static int
+vlan_untag(struct net_buff *buff)
+{
+        if(buff->raw_vlan == 0)
+                return -E_ALREADY_INITIALISED
+                
+        unsigned int raw = buff->raw_vlan;
+        buff->vlan = kalloc(sizeof(*(buff->vlan)));
+        
+        if(buff->vlan == NULL)
+                return -E_NOMEM;
+
+        buff->raw_vlan = 0; /* make sure it doesn't get detagged again */
+        
+        
 }
 
 #if 1
