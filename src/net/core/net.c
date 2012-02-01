@@ -224,7 +224,7 @@ netif_process_net_buff(struct net_buff *buff)
         net_buff_reset_tail(buff);
         
         dev = buff->dev;
-        buff->type = get_ptype(root, buff->dev->frame_type)->type;
+        buff->type = dev->frame_type
         
         next_round:
         for_each_ll_entry_safe(root, ptype, tmp)
@@ -233,6 +233,7 @@ netif_process_net_buff(struct net_buff *buff)
                 {
                         handle = ptype->deliver_packet;
                         atomic_inc(&buff->users);
+                        buff->type = ptype->type
                         break;
                 }
         }
