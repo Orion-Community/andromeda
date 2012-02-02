@@ -21,6 +21,7 @@ KERN=kernel.o
 ACPI=acpi.o
 CPU=i386.o
 TASK=task.o
+TIMER=timer.o
 
 # sources
 
@@ -34,7 +35,7 @@ PIC_SRC=pic.c
 PIT_SRC=pit.c
 TASK_SRC=task.c
 KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC) \
-$(ACPI) $(CPU) $(SCHED)
+$(ACPI) $(CPU) $(SCHED) $(TIMER)
 
 
 .PHONY: all $(APIC) $(ACPI) $(CPU)
@@ -79,6 +80,9 @@ $(PIT): $(PIT_SRC)
 
 $(TASK): $(TASK_SRC)
 	$(CC) $(CCFLAGS) $(TASK_SRC) -o $(TASK)
+	
+$(TIMER): timer.c
+	$(CC) $(CCFLAGS) timer.c -o $(TIMER)
 
 .PHONY: clean
 clean:

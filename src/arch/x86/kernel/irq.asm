@@ -305,34 +305,34 @@ irqStub:
 [EXTERN test_func]
 [GLOBAL gen_irq_stub]
 gen_irq_stub:
-  pushad
-  xor edx, edx
-  mov dx, ds
-  push ds
+        pushad
+        xor edx, edx
+        mov dx, ds
+        push edx
 
-  mov dx, 0x10
-	mov ds, dx
-	mov es, dx
-	mov fs, dx
-	mov gs, dx
+        mov dx, 0x10
+        mov ds, dx
+        mov es, dx
+        mov fs, dx
+        mov gs, dx
 
-  call label
-label:
-  pop eax
+        call label
+        label:
+        pop eax
 
-  push dword [eax + (irq_num_addr - label)]
-  call [eax + (irq_fp - label)]
-  add esp, 4
+        push dword [eax + (irq_num_addr - label)]
+        call [eax + (irq_fp - label)]
+        add esp, 4
 
-  pop edx
+        pop edx
 
-	mov ds, dx
-	mov es, dx
-	mov fs, dx
-	mov gs, dx
+        mov ds, dx
+        mov es, dx
+        mov fs, dx
+        mov gs, dx
 
-  popad
-  iret
+        popad
+        iret
 irq_num_addr:  dd 0
 irq_fp:  dd 0
 [GLOBAL __end_of_irq_stub]

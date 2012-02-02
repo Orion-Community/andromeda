@@ -1,5 +1,5 @@
 /*
- *   Andromeda Project - Ethernet frame header file
+ *   Andromeda Project - Byte reorder functions.
  *   Copyright (C) 2011  Michel Megens - dev@michelmegens.net
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,60 +16,22 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ETH_H
-#define __ETH_H
-
-#include <stdlib.h>
-#include <networking/net.h>
+#ifndef __BYTE_ORDER_H
+#define __BYTE_ORDER_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-#define IP 0x800
-//#define ARP 0x806
+typedef unsigned short __16be;
+typedef unsigned int   __32be;
 
-#define MAC_BROADCAST 0xffffffffffff
+__16be htons(uint16_t);
+__32be htonl(uint32_t);
 
-typedef void* frame_buf_t;
-
-typedef struct ethframe
-{
-  uint8_t preamble[8];
-  uint8_t sof;
-  uint8_t destaddr[6];
-  uint8_t srcaddr[6];
-  uint8_t type[2];
-  frame_buf_t data;
-  uint8_t fcs[4];
-} *ethframe_t;
-
-enum eth_error
-{
-  NO_ERROR = 0,
-  BROADCAST = 1,
-  WIRELESS = 2,
-  MAC_MISMATCH= -1,
-  UNKNOWN_PROTOCOL = -2
-};
-
-#if 0
-enum eth_type
-{
-  IP = 0x800,
-  X75,
-  NBS,
-  ECMA,
-  CHAOSNET,
-  X25,
-  ARP
-};
-#endif
-
-void init_eth();
-static enum ptype receive_ethernet_frame(struct net_buff *buff);
-
-void debug_ethernet_stack();
+unsigned short ntohs(__16be val);
+unsigned int ntohl(__32be val);
 
 #ifdef __cplusplus
 }

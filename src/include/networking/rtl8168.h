@@ -32,6 +32,8 @@ extern "C" {
 #define DEVICE_ID 0x8129
 #define VENDOR_ID 0x10ec
 
+#define RAW_VLAN (0x81 << 16) | (0x2 << 13) | 0x20
+
 #define CPLUS_COMMAND_PORT_OFFSET 0xe0
 #define COMMAND_PORT_OFFSET 0x37
 
@@ -143,14 +145,7 @@ struct rxcommand
                    driver after having pre-allocated the buffer at initialization,
                    or the host has released the buffer to the driver.
                  */
-  struct vlan_tag
-  {
-    uint vidh : 4;
-    uint vidl : 8;
-    uint prio : 3; /* priority flag */
-    uint cfi : 1;
-  } vlan;
-
+  struct vlan_tag vlan;
   uint tava : 1; /* tag available flag */
   uint32_t rxbufl; /* lower buffer address */
   uint32_t rxbuffh; /* higher buffer address */
@@ -168,6 +163,12 @@ static inline void
 rtl_conf_b(uint8_t data, uint16_t portbase, uint16_t offset)
 {
   outb(portbase+offset, data);
+}
+
+static inline struct rtl_cfg*
+rtl_cfg(struct netdev *dev)
+{
+  return (struct rtl_cfg*)dev->device_data;
 }
 
 /**
@@ -199,8 +200,6 @@ rtl_conf_l(uint32_t data, uint16_t portbase, uint16_t offset)
 }
 
 void init_rtl_device(struct pci_dev *);
-int rtl_transmit_buff(struct net_buff *buf);
-int rtl_receive_buff(struct net_buff *buf);
 void init_network();
 
 void rtl8168_irq_handler(unsigned int irq, irq_stack_t stack);
@@ -210,7 +209,7 @@ static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
 static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
-static int init_core_driver(pci_dev_t dev);
+static int init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg);
 static struct rtl_cfg* get_rtl_dev_list();
 static struct rtl_cfg* get_rtl_device(int dev);
 static int get_rtl_dev_num();

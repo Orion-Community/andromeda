@@ -22,7 +22,7 @@
 extern "C"
 {
 #endif
-
+#include <stdlib.h>
 typedef struct arp
 {
   uint16_t hwtype; /* hardware type */

@@ -53,6 +53,8 @@
 #include <networking/eth/eth.h>
 #include <arch/x86/apic/ioapic.h>
 
+#include <lib/byteorder.h>
+
 // Define the place of the heap
 
 multiboot_memory_map_t* mmap;
@@ -149,7 +151,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         init_ioapic();
         setup_irq_data();
         ol_pci_init();
-
+        printf("Little endian 0xf in net endian %x\n", htons(0xf));
 #ifdef __IOAPIC_DBG
         ioapic_debug();
 #endif

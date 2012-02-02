@@ -10,7 +10,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 #targets
 NET=net.o
-TARGET=core.o ip.o ethernet.o
+TARGET=core.o ip.o ethernet.o netlayer.o
 
 .PHONY: all core.o ip.o ethernet.o
 all: $(NET)
@@ -27,3 +27,6 @@ ip.o:
 
 ethernet.o:
 	$(MAKE) -C eth/ $(MAKEEND)
+	
+netlayer.o:
+	$(CC) $(CCFLAGS) -o netlayer.o netlayer.c

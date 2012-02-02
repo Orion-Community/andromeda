@@ -36,6 +36,7 @@ typedef enum {
         root_bus,       /** \enum root_bus */
         virtual_bus,    /** \enum virtual_bus */
         legacy_bus,     /** \enum legacy_bus */
+        net_core_dev,   /** \enum net_core_dev */
         net_dev,        /** \enum net_dev */
         disk,           /** \enum disk */
         partition,      /** \enum partition */
