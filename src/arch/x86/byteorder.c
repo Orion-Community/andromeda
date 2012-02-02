@@ -32,6 +32,12 @@ htons(unsigned short val)
         return (val | tmp);
 }
 
+unsigned short
+ntohs(__16be val)
+{
+        return htons(val);
+}
+
 __32be
 htonl(unsigned int val)
 {
@@ -44,4 +50,9 @@ htonl(unsigned int val)
                val |= tmp;
         }
         return val;
+}
+
+unsigned int ntohl(__32be val)
+{
+        return htonl(val);
 }

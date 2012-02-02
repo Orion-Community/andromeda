@@ -504,7 +504,7 @@ vlan_untag(struct net_buff *buff)
 
         buff->raw_vlan = 0; /* make sure it doesn't get detagged again */
         
-        buff->vlan->protocol_tag = (raw >> 16) & 0xffff;
+        buff->vlan->protocol_tag = ntohs((raw >> 16) & 0xffff);
         buff->vlan->priority = (raw >> 13) & 3;
         buff->vlan->format_indicator = (raw >> 12) & 1;
         buff->vlan->vlan_id = raw & 0xfff;

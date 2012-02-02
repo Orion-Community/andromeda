@@ -19,10 +19,22 @@
 #ifndef __BYTE_ORDER_H
 #define __BYTE_ORDER_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 typedef unsigned short __16be;
 typedef unsigned int   __32be;
 
 __16be htons(uint16_t);
 __32be htonl(uint32_t);
+
+unsigned short ntohs(__16be val);
+unsigned int ntohl(__32be val);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
