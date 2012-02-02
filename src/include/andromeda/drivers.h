@@ -33,10 +33,11 @@ extern uint64_t lgcy_bus;
 
 /** \typedef enum device_type_t */
 typedef enum {
+        root_bus,       /** \enum root_bus */
         virtual_bus,    /** \enum virtual_bus */
         legacy_bus,     /** \enum legacy_bus */
-        root_bus,       /** \enum root_bus*/
-        net_dev,
+        net_core_dev,   /** \enum net_core_dev */
+        net_dev,        /** \enum net_dev */
         disk,           /** \enum disk */
         partition,      /** \enum partition */
         tty,            /** \enum tty */
@@ -129,7 +130,7 @@ extern struct device dev_root;
 /**
  * \fn get_root_device()
  * \brief Returns the andromeda root device.
- * 
+ *
  * @return The andromeda root device.
  */
 static inline struct device*

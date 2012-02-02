@@ -22,131 +22,340 @@
 #include <stdlib.h>
 #include <fs/vfs.h>
 #include <sys/dev/pci.h>
+#include <lib/byteorder.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #define MAC_ADDR_SIZE 6
 
-/* loops */
+        /* loops */
 #define for_each_queue_item_safe(head, carriage) for((carriage) = (head); \
                                                     (carriage)->next != null, \
                                                     (carriage) != (carriage)->next; \
                                                     (carriage) = (carriage)->next)
+#define for_each_net_buff_entry_safe(head, carriage, tmp) for_each_ll_entry_safe(\
+                                                        head, carriage, tmp)
 
 #define RX_BUFFER_SIZE (1024*8)+16+1500 /* 8KiB + header + 1 extra frame */
 #define TX_BUFFER_SIZE 1500+16 /* 1 frame + header */
 typedef void* net_buff_data_t;
 
+
+enum ptype
+{
+        ROOT = 0,
+        ETHERNET,
+        ARP,
+        IPv4,
+        IPv6,
+        IMCP,
+        TCP,
+        UDP
+};
+
 /**
- * \struct net_queue
- * \brief Incoming packets will be queued using this structure. When a packed
- * arrives, it will be appended after the last current entry. The core driver
- * will empty the queue from the beginning on, this creates a FIFO situation.
- * Used like an inverted Java Queue object.
+ * \enum packet_state
+ * \brief The current state of a packet.
+ *
+ * \var P_DELIVERED
+ * \brief The packet has been delivered to the location it has to be.
+ * \var P_ANOTHER_ROUND
+ * \brief The protocol handler found another protocol inside and needs to be
+ * handled again.
+ * \var P_DROPPED
+ * \brief The received packet does not belong to the receiving machine.
+ * \var P_LOST
+ * \brief The packet is lost during processing. This can mean that an encapsulated
+ * protocol is not supported.
  */
+enum packet_state
+{
+        P_DELIVERED,
+        P_ANOTHER_ROUND,
+        P_DONE,
+        P_DROPPED,
+        P_LOST,
+};
+
+/**
+  * \struct net_queue
+  * \brief Incoming packets will be queued using this structure. When a packed
+  * arrives, it will be appended after the last current entry. The core driver
+  * will empty the queue from the beginning on, this creates a FIFO situation.
+  * Used like an inverted Java Queue object.
+  */
 struct net_queue
 {
-  struct net_queue *next;
-  struct net_queue *previous;
+        struct net_queue *next;
+        struct net_queue *previous;
 
-  struct net_buff *packet;
-} __attribute__((packed));
+        struct net_buff *packet;
+}
+__attribute__((packed));
 
-struct netbuf
+/**
+  * \struct net_bridge
+  * \brief Used to bridge a packet between two network interfaces.
+  * \see struct netdev
+  */
+struct net_bridge
 {
-  uint16_t length,data_len;
-  void *framebuf;
+        /**
+          * \var input
+          * \brief The input interface.
+          *
+          * \var output
+          * \brief The output interface.
+          */
+        struct netdev *input;
+        struct netdev *output;
+};
+
+typedef enum ptype (*netif_rx_pull)(struct net_buff*);
+typedef enum ptype (*protocol_deliver_handler_t)(struct net_buff*);
+
+struct packet_type
+{
+        struct packet_type *next;
+        struct packet_type *previous;
+
+        enum ptype type;
+        protocol_deliver_handler_t deliver_packet;
 };
 
 /**
- * \struct net_bridge
- * \brief Used to bridge a packet between two network interfaces.
- * \see struct netdev
+ * \struct vlan_tag
+ * \brief The Virtual Lan info struct.
  */
-struct net_bridge
+typedef struct vlan_tag
 {
-  /**
-   * \var input
-   * \brief The input interface.
-   * 
-   * \var output
-   * \brief The output interface.
-   */
-  struct netdev *input;
-  struct netdev *output;
-};
+        /**
+         * \var protocol_tag
+         * \brief Indicates the protocol it is encapsulated in.
+         * \var priority
+         * \brief Frame priority.
+         * \var format_indicator
+         * \brief Token ring ecapsulation.
+         * \var vlan_id
+         * \brief ID of the virtual lan.
+         */
+        unsigned short protocol_tag;
+        uint priority : 3;
+        uint format_indicator : 1;
+        uint vlan_id : 12;
+} *vlan_tag_t;
 
 struct netdev
 {
-  uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
-  atomic_t state;
-  struct pci_dev *dev;
-  uint64_t dev_id;
-  struct net_queue *queue_head;
+        uint8_t hwaddr[MAC_ADDR_SIZE]; /* The NIC's MAC address */
+        atomic_t state;
+        struct pci_dev *dev;
+        void *device_data;
+        uint64_t dev_id;
+        struct net_queue *queue_head;
+        enum ptype frame_type;
+        netif_rx_pull rx_pull_handle;
+        uint poll_support : 1;
 };
 
+/**
+ * \struct net_buff
+ * \brief The protocol independent network stack buffer.
+ */
 struct net_buff
 {
-  struct net_buff *next;
-  struct net_buff *previous;
+        /**
+        * \var next
+        * \brief Next pointer
+        * \var previous
+        * \brief Prev pointer
+        * \var length
+        * \brief Used length
+        * \var toal_len
+        * \brief Allocated length
+        * \var data_len
+        * \brief Length of the actual data
+        * \var transport_hdr
+        * \brief Pointer to the transport header
+        * \var network_hdr
+        * \brief Pointer to the network header
+        * \var datalink_hdr
+        * \brief Pointer to the datalink header
+        * \var head
+        * \brief Buffer head
+        * \var data
+        * \brief Data head
+        * \var tail
+        * \brief Buffer tail pointer
+        * \var end
+        * \brief End of the buffer
+        */
+        struct net_buff *next;
+        struct net_buff *previous;
 
-  unsigned int lenth;
-  unsigned short data_len;
-  struct netdev dev;
+        unsigned int length, total_len;
+        unsigned long long tstamp;
+        unsigned short data_len;
+        struct netdev *dev;
 
-  net_buff_data_t transport_hdr;
-  net_buff_data_t network_hdr;
-  net_buff_data_t datalink_hdr;
-  
-  unsigned char* head, data, tail, end;
+        enum ptype type;
+        struct vlan_tag *vlan;
+        __32be raw_vlan;
+        struct net_bridge *bridge;
+        net_buff_data_t transport_hdr;
+        net_buff_data_t network_hdr;
+        net_buff_data_t datalink_hdr;
+
+        unsigned char* head, *data, *tail, *end;
+        atomic_t users;
 } __attribute__((packed));
 
 /**
- * \fn register_net_dev(dev)
- * \brief Register a NIC device driver in the core driver.
- */
+  * \fn register_net_dev(dev)
+  * \brief Register a NIC device driver in the core driver.
+  */
 int register_net_dev(struct device *dev, struct netdev* netdev);
 
 /**
- * \fn unregister_net_dev(dev)
- * \brief Unregisters the given <i>netdev</i> in the kernel.
- *
- * @param dev The device id to unregister.
- * @return E code.
- */
+  * \fn unregister_net_dev(dev)
+  * \brief Unregisters the given <i>netdev</i> in the kernel.
+  *
+  * @param dev The device id to unregister.
+  * @return E code.
+  */
 int unregister_net_dev(uint64_t id);
+
+struct device *get_net_driver(uint64_t id);
 
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
 static int free_net_buff_list(struct net_buff* nb);
 
 /**
- * \fn rx_process_net_buff(buff)
- * \brief Processes the received net_buff trough the entire network stack.
- * \warning Should only be called from net_rx_vfio(vfile, char*, size_t)
- *
- * \param buff The received net buffer.
- */
+  * \fn rx_process_net_buff(buff)
+  * \brief Processes the received net_buff trough the entire network stack.
+  * \warning Should only be called from net_rx_vfio(vfile, char*, size_t)
+  *
+  * \param buff The received net buffer.
+  */
 static int rx_process_net_buff(struct net_buff* buff);
 
-static int net_buff_append_list(struct net_buff *alpha, struct net_buff *beta);
-static struct net_queue *remove_first_queue_entry(struct net_queue queue);
-static int net_queue_append_list(struct net_queue queue, struct net_queue* item);
+/**
+  * \fn net_buff_append_list(head, x)
+  * \brief The net_buff item x will be appended to the net_buff head <i>head</i>.
+  * \param head The list head.
+  * \param x Item to be appended.
+  * \return Error code.
+  */
+static int net_buff_append_list(struct net_buff *head, struct net_buff *x);
 
 /**
- * \fn net_rx_vfio(vfile, buf, size)
- *
- * Receive a buffer from the device driver.
+  * \fn remove_queue_entry(head,queue_entry)
+  * \brief Removes the giver entry from the queue.
+  * \param queue The queue head.
+  * \return  The removed entry.
+  */
+static struct net_queue *remove_queue_entry(struct net_queue *head,
+                                            struct net_queue *item);
+/**
+  * \fn net_queue_append_list(head, item)
+  * \brief This function will append an item to the end of the core driver queue.
+  * \param head The queue head.
+  * \param item The item which should be added after the last current item.
+  * \return Error code.
+  */
+static int net_queue_append_list(struct net_queue *queue, struct net_queue* item);
+
+/**
+ * \fn netif_drop_net_buff(buff)
+ * \brief Packet is not valid/usable, drop it.
+ * \param buff The packet to drop.
  */
+void netif_drop_net_buff(struct net_buff *buff);
+
+/**
+ * \fn vlan_untag(buff)
+ * \brief Converts raw vlan tags to a better readable the better readable struct
+ * vlan_tag.
+ * \see vlan_tag
+ */
+static int vlan_untag(struct net_buff *buff);
+
+static int check_net_buff_tstamp(struct net_buff *buff);
+
+void print_mac(struct netdev *netdev);
+
+/**
+  * \fn net_rx_vfio(vfile, buf, size)
+  *
+  * Receive a buffer from the device driver.
+  */
 static size_t net_rx_vfio(struct vfile *, char*, size_t);
 
 /**
- * \fn net_tx_vfio(vfile, buf, size)
- *
- * Transmit a buffer using virtual files.
- */
+  * \fn net_tx_vfio(vfile, buf, size)
+  *
+  * Transmit a buffer using virtual files.
+  */
 static size_t net_tx_vfio(struct vfile*, char*, size_t);
+
+static void init_ptype_tree();
+
+/**
+  * \fn add_ptye(parent, item)
+  * \brief Adds a packet type to to tree.
+  * \param parent Parent node.
+  * \param item Item which should be added.
+  */
+void add_ptype(struct packet_type *parent, struct packet_type *item);
+
+struct packet_type *get_ptype(struct packet_type *head, enum ptype type);
+
+extern struct packet_type ptype_tree;
+
+/**
+  * \fn get_ptype_tree()
+  * @return The packet_type tree.
+  */
+static inline struct packet_type*
+get_ptype_tree()
+{
+        return &ptype_tree;
+}
+
+/*
+ * Packet buffer pointer functions
+ */
+
+void net_buff_reserve(struct net_buff *nb, int size);
+
+static inline void
+net_buff_reset_tail(struct net_buff *buff)
+{
+        buff->tail = buff->data;
+}
+
+static inline void
+net_buff_reset_net_hdr(struct net_buff *buff)
+{
+        buff->network_hdr = buff->data;
+}
+
+static inline void
+net_buff_reset_datalink_hdr(struct net_buff *buff)
+{
+        buff->datalink_hdr = buff->data;
+}
+
+static inline int
+netpoll_dev(struct netdev *dev)
+{
+        return !(dev->poll_support);
+}
+
+void debug_packet_type_tree();
 
 #ifdef __cplusplus
 }

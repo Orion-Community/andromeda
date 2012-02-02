@@ -18,20 +18,32 @@
 
 #include <stdlib.h>
 #include <networking/eth/eth.h>
+#include <networking/net.h>
+
+void
+init_eth()
+{
+  struct packet_type *root = get_ptype_tree();
+  struct packet_type *carriage = kalloc(sizeof(*carriage));
+  carriage->type = ETHERNET;
+  carriage->deliver_packet = &receive_ethernet_frame;
+  add_ptype(root, carriage);
+}
 
 /**
  * \fn receive_ethernet_frame(net_buff)
  * \brief Receives a net_buff which has to be processed through the datalink
  * layer. This function will queue the buffer for processing. When it will be
  * processed is not known. process_ethernet_frame is called by the scheduler.
- * 
+ *
  * \param nb The net_buff to queue.
  * \see process_ether_net_frame
  */
-void
+static enum ptype
 receive_ethernet_frame(struct net_buff *nb)
 {
-  return;
+        debug("Handeling a protocol of type %x\n", nb->type);
+        return P_DELIVERED;
 }
 
 /**
@@ -40,8 +52,8 @@ receive_ethernet_frame(struct net_buff *nb)
  *
  * @param frame The frame which has to be processed.
  */
-static int
-process_ethernet_frame(struct net_buff *buff)
+static enum ptype
+process_ethernet_frame(struct net_buff *buff, struct packet_type *type)
 {
   return -E_NOFUNCTION;
 }

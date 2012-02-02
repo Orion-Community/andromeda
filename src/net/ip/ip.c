@@ -1,5 +1,5 @@
 /*
- *   Andromeda Project - Ethernet frame header file
+ *   Andromeda Project - General IP file.
  *   Copyright (C) 2011  Michel Megens - dev@michelmegens.net
  *
  *   This program is free software: you can redistribute it and/or modify
@@ -16,63 +16,22 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ETH_H
-#define __ETH_H
-
 #include <stdlib.h>
 #include <networking/net.h>
+#include <networking/eth/ipv4.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define IP 0x800
-//#define ARP 0x806
-
-#define MAC_BROADCAST 0xffffffffffff
-
-typedef void* frame_buf_t;
-
-typedef struct ethframe
+int
+netif_init_ip()
 {
-  uint8_t preamble[8];
-  uint8_t sof;
-  uint8_t destaddr[6];
-  uint8_t srcaddr[6];
-  uint8_t type[2];
-  frame_buf_t data;
-  uint8_t fcs[4];
-} *ethframe_t;
-
-enum eth_error
-{
-  NO_ERROR = 0,
-  BROADCAST = 1,
-  WIRELESS = 2,
-  MAC_MISMATCH= -1,
-  UNKNOWN_PROTOCOL = -2
-};
-
-#if 0
-enum eth_type
-{
-  IP = 0x800,
-  X75,
-  NBS,
-  ECMA,
-  CHAOSNET,
-  X25,
-  ARP
-};
-#endif
-
-void init_eth();
-static enum ptype receive_ethernet_frame(struct net_buff *buff);
-
-void debug_ethernet_stack();
-
-#ifdef __cplusplus
+  struct packet_type *root = get_ptype(get_ptype_tree(), ETHERNET);
+  struct packet_type *item = kalloc(sizeof(*item));
+  item->type = IPv4;
+  item->deliver_packet = &netif_rx_ip;
+  add_ptype(root, item);
 }
-#endif
 
-#endif
+static enum ptype
+netif_rx_ip(struct net_buff *buff)
+{
+        return P_DELIVERED;
+}

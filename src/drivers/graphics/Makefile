@@ -8,7 +8,7 @@ HEADERS=Include/VGA.h Include/graphics.h Include/text.h
 
 .PHONY: all
 all: $(TARGETS)
-	mv vga.o ../graphics.o;
+	mv -fv vga.o ../graphics.o;
 
 $(TARGETS): $(DEPS) $(HEADERS)
 	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)

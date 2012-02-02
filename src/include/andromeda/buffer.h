@@ -25,6 +25,14 @@
 extern "C" {
 #endif
 
+/**
+ * \def BUFFER_OFFSET_BITS
+ * \brief No. bits in BUFFER_LIST_SIZE
+ * \def BUFFER_LIST_SIZE
+ * \brief Size of buffer branch list. HAS TO BE POWER OF 2!!!!
+ * \def BUFFER_BLOCK_SIZE
+ * \brief Size of buffer block. HAS TO BE POWER OF 2!!!!
+ */
 #define BUFFER_OFFSET_BITS 0x8
 #define BUFFER_LIST_SIZE 0x100
 #define BUFFER_BLOCK_SIZE 0x1000
@@ -34,7 +42,7 @@ extern "C" {
 #define BUFFER_ALLOW_DUPLICATE  (1<<0)
 #define BUFFER_ALLOW_GROWTH     (1<<1)
 
-#define BUFFER_TREE_DEPTH       4
+#define BUFFER_TREE_DEPTH       6
 
 typedef enum {lineair_access, random_access} mode_t;
 

@@ -508,7 +508,5 @@ merge_memnode(volatile memory_node_t* alpha, volatile memory_node_t* beta)
 	alpha->next = beta->next;
 	alpha->used = FALSE;
 
-        debug("Next ptr: %X\n", (int)alpha->next);
-
 	return alpha;
 }

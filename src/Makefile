@@ -3,14 +3,18 @@ include scripts/x86
 
 MAKEEND=FLAGS="$(FLAGS) "
 
-MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __IOAPIC_DBG -D __PCI_DEBUG -D MSI -D \
-MSIX -D MSIX_DEBUG -D WARN -D MSG_DBG -D ETH_DBG"
+MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __PCI_DEBUG -D MSI -D \
+MSIX -D MSIX_DEBUG -D WARN -D MSG_DBG"
 # MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
 DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o
 
 .PHONY: all
 all: x86
+
+.PHONY: stripped
+stripped: x86
+	strip -s $(OUT)
 
 .PHONY: amd64
 amd64:
@@ -26,6 +30,7 @@ $(OUT): $(DEPS)
 # 	$(MAKE) -C boot $(MAKEEND)
 # 	mv -vf boot/start.o ./
 
+.PHONY: arch.o andromeda.o mm.o maths.o sys.o drivers.o fs.o net.o
 arch.o:
 	$(MAKE) -C arch $(MAKEEND)
 

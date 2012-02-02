@@ -12,6 +12,8 @@ all: arch.o
 arch.o: x86.o
 	$(LD) $(LDFLAGS) *.o -o arch.o
 
+
+.PHONY: x86.o
 x86.o:
 
 	$(MAKE) $(MAKEEND) -C x86

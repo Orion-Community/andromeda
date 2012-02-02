@@ -10,7 +10,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 #targets
 IP=ip.o
-TARGET=arp.o
+TARGET=arp.o ip_.o
 
 all: $(IP)
 
@@ -20,3 +20,6 @@ $(IP): $(TARGET)
 
 arp.o: arp.c
 	$(CC) $(CCFLAGS) -o arp.o arp.c
+	
+ip_.o:
+	$(CC) $(CCFLAGS) -o ip_.o ip.c

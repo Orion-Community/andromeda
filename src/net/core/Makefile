@@ -2,7 +2,7 @@
 ##
 ## User: michel
 ## Time: Jan 22, 2012 3:27:57 PM
-## Makefile created by Oracle Solaris Studio.
+## Makefile created by Michel Megens.
 ##
 ##
 
@@ -11,7 +11,7 @@ AS=nasm
 ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
 CC=gcc
 CCFLAGS=-I"../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-builtin -nostdinc $(FLAGS)
+-finline-functions-called-once -fno-builtin -nostdinc -O0 $(FLAGS)
 MAKE=make
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
