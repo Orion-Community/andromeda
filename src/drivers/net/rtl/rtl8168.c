@@ -219,6 +219,8 @@ rtl_rx_vfio(struct vfile *file, char *buf, size_t size)
 
         struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(),
                                                                virtual_bus), net_core_dev);
+        struct net_buff *buff = (struct net_buff*)buf;
+        buff->raw_vlan = RAW_VLAN;
         if (dev == NULL)
                 return -E_NULL_PTR;
         struct vfile *io = dev->open(dev);

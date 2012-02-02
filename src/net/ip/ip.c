@@ -26,12 +26,12 @@ netif_init_ip()
   struct packet_type *root = get_ptype(get_ptype_tree(), ETHERNET);
   struct packet_type *item = kalloc(sizeof(*item));
   item->type = IPv4;
-  item->deliver_packet = &netif_init_ip;
+  item->deliver_packet = &netif_rx_ip;
   add_ptype(root, item);
 }
 
-enum ptype
-netif_rx_ip(struct net_buff *buff, struct packet_type *ptype)
+static enum ptype
+netif_rx_ip(struct net_buff *buff)
 {
         return P_DELIVERED;
 }

@@ -326,8 +326,10 @@ net_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
         struct net_buff *buffer = (struct net_buff*) buf;
         netif_process_net_buff(buffer);
-        debug("Packet arrived in the core driver successfully. MAC address:");
-        print_mac(buffer->dev);
+        debug("Packet arrived in the core driver successfully. Protocol type: %x\n",
+                buffer->vlan->protocol_tag
+        );
+        //print_mac(buffer->dev);
         return -E_SUCCESS;
 }
 

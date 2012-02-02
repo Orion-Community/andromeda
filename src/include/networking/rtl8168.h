@@ -32,6 +32,8 @@ extern "C" {
 #define DEVICE_ID 0x8129
 #define VENDOR_ID 0x10ec
 
+#define RAW_VLAN (0x8100 << 16) | (0x2 << 13) | 0x20
+
 #define CPLUS_COMMAND_PORT_OFFSET 0xe0
 #define COMMAND_PORT_OFFSET 0x37
 

@@ -113,17 +113,17 @@ struct net_bridge
         struct netdev *output;
 };
 
+typedef enum ptype (*netif_rx_pull)(struct net_buff*);
+typedef enum ptype (*protocol_deliver_handler_t)(struct net_buff*);
+
 struct packet_type
 {
         struct packet_type *next;
         struct packet_type *previous;
 
         enum ptype type;
-        enum ptype (*deliver_packet)(struct net_buff*);
+        protocol_deliver_handler_t deliver_packet;
 };
-
-typedef enum ptype (*netif_rx_pull)(struct net_buff*);
-typedef enum ptype (*protocol_deliver_handler_t)(struct net_buff*);
 
 /**
  * \struct vlan_tag
