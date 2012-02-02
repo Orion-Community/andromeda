@@ -22,6 +22,7 @@
 #include <networking/net.h>
 #include <networking/eth/eth.h>
 #include <networking/netlayer.h>
+#include <lib/byteorder.h>
 
 static struct net_queue *net_core_queue;
 static struct net_queue *net_tx_core_queue;
