@@ -26,13 +26,13 @@
 #include <networking/net.h>
 #include <andromeda/buffer.h>
 
-#define RL_SHUTDOWN	0x0
-#define RL_RUN0		0x1
-#define RL_RUN1		0x2
-#define RL_RUN2		0x3
-#define RL_RUN3		0x4
-#define RL_RUN4		0x5
-#define RL_REBOOT	0x6
+#define RL_SHUTDOWN     0x0
+#define RL_RUN0         0x1
+#define RL_RUN1         0x2
+#define RL_RUN2         0x3
+#define RL_RUN3         0x4
+#define RL_RUN4         0x5
+#define RL_REBOOT       0x6
 
 void demand_key();
 
@@ -70,27 +70,30 @@ void buf_dbg()
         f->read(f, ret_msg, strlen(blaat));
 
         printf("MSG: %s\n", ret_msg);
+        debug("1\n");
         f->close(f);
+        debug("2\n");
         kfree(ret_msg);
+        debug("3\n");
         examine_heap();
         demand_key();
 }
 
 void shutdown()
 {
-	printf("You can now shutdown your PC\n");
-	for(;;)
-	{
-		endProg();
-	}
+        printf("You can now shutdown your PC\n");
+        for(;;)
+        {
+                endProg();
+        }
 }
 
 volatile uint32_t rl = RL_RUN0;
 
 void init_set(uint32_t i)
 {
-	debug("Changing run level to %i\n", i);
-	rl = i;
+        debug("Changing run level to %i\n", i);
+        rl = i;
 }
 
 void core_loop()

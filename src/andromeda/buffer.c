@@ -20,11 +20,11 @@
 #include <stdlib.h>
 #include <andromeda/buffer.h>
 
-inline static idx_t get_idx(idx_t offset, idx_t depth)
+inline static idx_t get_idx(idx_t offset, int depth)
 {
         int mul = BUFFER_TREE_DEPTH-depth;
         int shift = mul*BUFFER_OFFSET_BITS;
-        idx_t ret = (offset>>shift)&BUFFER_LIST_SIZE-1;
+        idx_t ret = (offset>>shift)&(BUFFER_LIST_SIZE-1);
         return ret;
 }
 
@@ -57,9 +57,13 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
         if (this == NULL)
                 goto err;
 
+        debug("1.2.3.%X.1.%X.1\n", offset, depth);
+
         mutex_lock(&this->lock);
 
         idx_t idx = get_idx(offset, depth);
+
+        debug("1.2.3.%X.1.%X.2\n", offset, depth);
 
         int ret = -E_SUCCESS;
         if (depth != BUFFER_TREE_DEPTH)
@@ -72,10 +76,16 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
                 {
                 case -E_CLEAN_PARENT:
                         kfree(this->lists[idx]);
+                        this->lists[idx] = NULL;
+                        debug("Cleaning parent %X of offset %X\n",depth,offset);
                         if (atomic_dec(&this->used) == 0)
+                        {
+                                mutex_unlock(&this->lock);
                                 return -E_CLEAN_PARENT;
+                        }
                         break;
                 default:
+                        mutex_unlock(&list->lock);
                         return ret;
                 }
         }
@@ -84,6 +94,8 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
                 goto err_locked;
         kfree(this->blocks[idx]);
         this->blocks[idx] = NULL;
+
+        mutex_unlock(&this->lock);
         if (atomic_dec(&this->used) == 0)
                 return -E_CLEAN_PARENT;
 
@@ -109,12 +121,17 @@ buffer_clean_up(struct buffer* this)
                 return -E_NULL_PTR;
 
         /** Clean up from the location last cleaned untill base_idx */
+        debug("1.2.2\n");
 
         idx_t idx = this->cleaned;
         for (; idx < (this->base_idx/BUFFER_BLOCK_SIZE); idx++)
         {
+                debug("1.2.3.%X.1\n", idx);
                 buffer_rm_block(this->blocks, idx, 0);
+                debug("1.2.3.%X.2\n", idx);
         }
+
+        debug("1.2.4\n");
 
         this->cleaned = idx;
 
@@ -146,6 +163,8 @@ idx_t depth;
         int ret = 0;
         idx_t list_idx = get_idx(offset, depth);
 
+        debug("Currently at list_idx %X at depth %X\n", list_idx, depth);
+
         mutex_lock(&list->lock);
 
         if (depth != BUFFER_TREE_DEPTH)
@@ -176,6 +195,7 @@ idx_t depth;
         }
 
         atomic_inc(&(list->used));
+        debug("Current list val: %X\n", list->used.cnt);
         list->blocks[list_idx] = this;
         mutex_unlock(&list->lock);
         return -E_SUCCESS;
@@ -269,6 +289,7 @@ buffer_write(struct vfile* this, char* buf, size_t num)
                         demand_key();
                         if (b == NULL)
                         {
+                                debug("Adding block to offset: %X\n", offset);
                                 buffer_add_block(kalloc(
                                                    sizeof(struct buffer_block)),
                                                                  buffer->blocks,
@@ -432,13 +453,17 @@ buffer_close(struct vfile* this)
         if (this == NULL || this->fs_data == NULL)
                 return -E_NULL_PTR;
 
+        debug("1.1\n");
+
         struct buffer* buf = (struct buffer*)this->fs_data;
 
         if (atomic_dec(&(buf->opened)) == 0)
         {
+                debug("1.2.1\n");
                 /** clean up the entire buffer */
                 buf->base_idx = buf->size;
                 int ret = buffer_clean_up(this->fs_data);
+                debug("1.3\n");
                 free(buf->blocks);
                 free(buf);
                 free(this);
@@ -446,6 +471,7 @@ buffer_close(struct vfile* this)
                         return -E_SUCCESS;
                 return -E_GENERIC;
         };
+        debug("1.2.2\n");
         free(this);
         /** we have removed this instance by running atomic_dec  */
         return -E_SUCCESS;
