@@ -5,7 +5,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 # TARGETS
 TARGETS=text.o net.o kbd.o disk.o pci.o root.o virtual.o legacy.o
 
-.PHONY: all
+.PHONY: all graphics.o text.o net.o kbd.o disk.o pci.o virtual.o legacy.o timer.o
 all: drivers.o
 
 

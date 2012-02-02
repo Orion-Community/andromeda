@@ -30,6 +30,7 @@ $(OUT): $(DEPS)
 # 	$(MAKE) -C boot $(MAKEEND)
 # 	mv -vf boot/start.o ./
 
+.PHONY: arch.o andromeda.o mm.o maths.o sys.o drivers.o fs.o net.o
 arch.o:
 	$(MAKE) -C arch $(MAKEEND)
 

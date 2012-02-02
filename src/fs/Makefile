@@ -5,7 +5,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 INCLUDES=../include/fs/stream.h ../include/fs/file.h ../include/fs/vfs.h\
 ../include/fs/path.h
 
-.PHONY: all
+.PHONY: all procfs.o ramfs.o
 all: path.o ramfs.o vfs.o procfs.o
 	$(LD) -o fs.o *.o $(LDFLAGS)
 	mv fs.o ../
