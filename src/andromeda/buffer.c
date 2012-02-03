@@ -59,9 +59,9 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
 
         debug("1.2.3.%X.1.%X.1\n", offset, depth);
 
-        mutex_lock(&this->lock);
-
         idx_t idx = get_idx(offset, depth);
+
+        mutex_lock(&this->lock);
 
         debug("1.2.3.%X.1.%X.2\n", offset, depth);
 
@@ -78,14 +78,12 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
                         kfree(this->lists[idx]);
                         this->lists[idx] = NULL;
                         debug("Cleaning parent %X of offset %X\n",depth,offset);
+                        mutex_unlock(&this->lock);
                         if (atomic_dec(&this->used) == 0)
-                        {
-                                mutex_unlock(&this->lock);
                                 return -E_CLEAN_PARENT;
-                        }
-                        break;
+                        return -E_SUCCESS;
                 default:
-                        mutex_unlock(&list->lock);
+                        mutex_unlock(&this->lock);
                         return ret;
                 }
         }
