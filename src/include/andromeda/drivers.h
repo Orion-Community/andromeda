@@ -42,7 +42,7 @@ typedef enum {
         partition,      /** \enum partition */
         tty,            /** \enum tty */
         cpu,            /** \enum cpu */
-        apic,           /** \enum apic */
+        apic_dev,       /** \enum apic */
         pit,            /** \enum pit */
         pci,            /** \enum pci */
         usb,            /** \enum usb */

@@ -205,7 +205,7 @@ netif_process_net_buff(struct net_buff *buff)
         struct packet_type *ptype, *old_type = kalloc(sizeof(*old_type)), *tmp, 
           *root = get_ptype_tree();
         struct netdev *dev;
-        int retval = P_DROPPED;
+        enum packet_state retval = P_DROPPED;
         protocol_deliver_handler_t handle;
         
         if(check_net_buff_tstamp(buff))
@@ -248,11 +248,12 @@ netif_process_net_buff(struct net_buff *buff)
         {
                 retval = handle(buff);
                 if(retval == P_DROPPED || retval == P_LOST)
-                        goto out;
+                        goto poll;
                 if(retval == P_ANOTHER_ROUND)
                         goto next_round;
         }
-        
+
+        poll:
         if(buff->dev->rx_pull_handle)
         {
                 /*
@@ -345,6 +346,17 @@ netif_process_queue(struct net_queue *head, unsigned int load)
 static int
 netif_start_tx(struct net_buff *buff)
 {
+        if(buff->next)
+        {
+                /* just one buffer */
+                struct device *dev = get_net_core_driver();
+                struct vfile *io = dev->open(dev);
+                io->write(io, (void*)buff, sizeof(*buff));                
+        }
+        else
+        {
+                /* sent buffer list one by one */
+        }
 }
 
 /**
@@ -546,6 +558,7 @@ vlan_untag(struct net_buff *buff)
         buff->raw_vlan = 0; /* make sure it doesn't get detagged again */
         
         buff->vlan->protocol_tag = ntohs((raw >> 16) & 0xffff);
+        raw = ntohs(raw & 0xffff);
         buff->vlan->priority = (raw >> 13) & 3;
         buff->vlan->format_indicator = (raw >> 12) & 1;
         buff->vlan->vlan_id = raw & 0xfff;

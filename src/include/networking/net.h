@@ -23,6 +23,7 @@
 #include <fs/vfs.h>
 #include <sys/dev/pci.h>
 #include <lib/byteorder.h>
+#include <andromeda/drivers.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -362,6 +363,17 @@ static inline int
 netpoll_dev(struct netdev *dev)
 {
         return !(dev->poll_support);
+}
+
+/**
+ * \fn  get_net_core_driver()
+ * \brief Returns the core device structure for net-core.
+ */
+static inline struct device *
+get_net_core_driver()
+{
+        return dev_find_devtype(dev_find_devtype(
+                                get_root_device(), virtual_bus), net_core_dev);
 }
 
 void debug_packet_type_tree();
