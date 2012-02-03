@@ -240,7 +240,7 @@ static int free_net_buff_list(struct net_buff* nb);
   *
   * \param buff The received net buffer.
   */
-static int rx_process_net_buff(struct net_buff* buff);
+static enum packet_state rx_process_net_buff(struct net_buff* buff);
 
 /**
   * \fn net_buff_append_list(head, x)
@@ -310,6 +310,15 @@ static void init_ptype_tree();
   * \param item Item which should be added.
   */
 void add_ptype(struct packet_type *parent, struct packet_type *item);
+
+/**
+ * \fn netif_process_queue(head, load)
+ * \brief Processes <i>load</i> amount of packets from the queue. The packets
+ * taken from the queue are passed to <i>netif_process_net_buff(buff)</i>.
+ * \param head The head of the receive queue.
+ * \param load The amount of packets to process
+ */
+static int netif_process_queue(struct net_queue *head, unsigned int load);
 
 struct packet_type *get_ptype(struct packet_type *head, enum ptype type);
 

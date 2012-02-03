@@ -131,31 +131,21 @@ rtl_rx_pull_dev(struct net_buff *buff)
 static int
 init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
 {
-        struct rtl_cfg *carriage, *tmp;
-
-        for_each_ll_entry_safe(get_rtl_dev_list(), carriage, tmp)
-        {
-                struct device *dev = kalloc(sizeof (*dev));
-                if (dev == NULL)
-                        panic("No memory in init_core_driver!");
-                dev->dev_id = device_id_alloc(dev);
-                dev_setup_driver(dev, rtl_rx_vfio, rtl_tx_vfio);
-                carriage->device_id = dev->dev_id;
-                struct netdev *netdev = kalloc(sizeof (*netdev));
-                netdev->dev = pci;
-                netdev->rx_pull_handle = &rtl_rx_pull_dev;
-                netdev->dev_id = dev->dev_id;
-                netdev->frame_type = ETHERNET;
-                netdev->poll_support = TRUE;
-                get_mac(pci, netdev);
-                rtl_setup_irq_handle(&rtl8168_irq_handler, netdev);
-                register_net_dev(dev, netdev);
-
-                if (carriage->next == NULL)
-                        break;
-                else
-                        continue;
-        }
+        struct device *dev = kalloc(sizeof (*dev));
+        if (dev == NULL)
+                panic("No memory in init_core_driver!");
+        dev->dev_id = device_id_alloc(dev);
+        dev_setup_driver(dev, rtl_rx_vfio, rtl_tx_vfio);
+        cfg->device_id = dev->dev_id;
+        struct netdev *netdev = kalloc(sizeof (*netdev));
+        netdev->dev = pci;
+        netdev->rx_pull_handle = &rtl_rx_pull_dev;
+        netdev->dev_id = dev->dev_id;
+        netdev->frame_type = ETHERNET;
+        netdev->poll_support = TRUE;
+        get_mac(pci, netdev);
+        rtl_setup_irq_handle(&rtl8168_irq_handler, netdev);
+        register_net_dev(dev, netdev);
 }
 
 static void

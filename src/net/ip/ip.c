@@ -33,5 +33,6 @@ netif_init_ip()
 static enum ptype
 netif_rx_ip(struct net_buff *buff)
 {
+        printf("Received an IP packet! %x\n", buff->type);
         return P_DELIVERED;
 }

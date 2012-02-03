@@ -42,8 +42,8 @@ init_eth()
 static enum ptype
 receive_ethernet_frame(struct net_buff *nb)
 {
-        debug("Handeling a protocol of type %x\n", nb->type);
-        return P_DELIVERED;
+        nb->type = IPv4;
+        return P_ANOTHER_ROUND;
 }
 
 /**

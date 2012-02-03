@@ -76,11 +76,12 @@ void shutdown();
  * Default loops
  */
 
-#define for_each_ll_entry_safe_count(head, carriage, i) for((carriage) = (head), \
-                                          (i) = 0; \
-                                          (carriage) != NULL, carriage != \
-                                          (carriage)->next; carriage = \
-                                          (carriage)->next, (i)++)
+#define for_each_ll_entry_safe_count(head, carriage, tmp, i) \
+                                                for(carriage = (head), tmp = \
+                                                (head)->next; carriage != (NULL) && \
+                                                carriage != (carriage)->next; \
+                                                carriage = (tmp), tmp = \
+                                                (carriage)->next, (i)++)
 
 #define for_each_ll_entry_safe(head, carriage, tmp) \
                                                 for(carriage = (head), tmp = \

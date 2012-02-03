@@ -199,7 +199,7 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
  *
  * \param buff The received net buffer.
  */
-static int
+static enum packet_state
 netif_process_net_buff(struct net_buff *buff)
 {
         struct packet_type *ptype, *old_type = kalloc(sizeof(*old_type)), *tmp, 
@@ -235,7 +235,7 @@ netif_process_net_buff(struct net_buff *buff)
                         handle = ptype->deliver_packet;
                         atomic_inc(&buff->users);
                         buff->type = ptype->type;
-                        if(buff->type == ETHERNET)
+                        if(buff->type == ETHERNET && buff->raw_vlan != 0)
                                 vlan_untag(buff);
                         break;
                 }
@@ -271,6 +271,9 @@ netif_process_net_buff(struct net_buff *buff)
                                 break;
                         case P_DONE:
                                 break;
+                        case P_LOST:
+                                goto out;
+                                break;
                         default:
                                 warning("Packet handled incorrectly");
                                 break;
@@ -299,6 +302,44 @@ netif_process_net_buff(struct net_buff *buff)
         kfree(old_type);
         free_net_buff_list(buff);
         return retval;
+}
+
+/**
+ * \fn netif_process_queue(head, load)
+ * \brief Processes <i>load</i> amount of packets from the queue. The packets
+ * taken from the queue are passed to <i>netif_process_net_buff(buff)</i>.
+ * \param head The head of the receive queue.
+ * \param load The amount of packets to process
+ */
+static int
+netif_process_queue(struct net_queue *head, unsigned int load)
+{
+        struct net_queue *carriage, *tmp;
+        unsigned int i = 0;
+        int retval;
+        auto struct net_buff *get_entry(struct net_queue*);
+        
+        for_each_ll_entry_safe_count(head, carriage, tmp, i)
+        {
+                struct net_buff *buff = get_entry(carriage);
+                if(buff == NULL)
+                        continue;
+                netif_process_net_buff(buff);
+                
+                if(i >= load)
+                        break;
+        }
+
+        return retval;
+
+        auto struct net_buff *get_entry(struct net_queue *entry)
+        {
+                if(remove_queue_entry(head, entry) == NULL)
+                        return NULL;
+                struct net_buff *ret = entry->packet;
+                kfree(entry);
+                return ret;
+        }
 }
 
 static int
@@ -401,7 +442,7 @@ remove_queue_entry(struct net_queue *head, struct net_queue *item)
         {
                 head->next->previous = NULL;
                 net_set_queue(head->next);
-                head->next = NULL;
+                //head->next = NULL;
 
         }
         struct net_queue *carriage = head;
