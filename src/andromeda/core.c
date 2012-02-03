@@ -38,8 +38,6 @@ void demand_key();
 
 void buf_dbg()
 {
-        examine_heap();
-        demand_key();
         struct vfile* f = kalloc(sizeof(struct vfile));
         if (f == NULL)
                 panic("No mem in buf_dbg");
@@ -70,13 +68,8 @@ void buf_dbg()
         f->read(f, ret_msg, strlen(blaat));
 
         printf("MSG: %s\n", ret_msg);
-        debug("1\n");
         f->close(f);
-        debug("2\n");
         kfree(ret_msg);
-        debug("3\n");
-        examine_heap();
-        demand_key();
 }
 
 void shutdown()
