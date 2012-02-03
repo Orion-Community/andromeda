@@ -20,9 +20,10 @@
 #include <stdlib.h>
 #include <andromeda/buffer.h>
 
-inline static idx_t get_idx(idx_t offset, int depth)
+static idx_t
+get_idx(idx_t offset, int depth)
 {
-        int mul = BUFFER_TREE_DEPTH-depth;
+        int mul = BUFFER_TREE_DEPTH-(int)depth;
         int shift = mul*BUFFER_OFFSET_BITS;
         idx_t ret = (offset>>shift)&(BUFFER_LIST_SIZE-1);
         return ret;
@@ -49,7 +50,7 @@ buffer_init_branch(struct buffer_list* this, struct buffer* parent)
  */
 
 static int
-buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
+buffer_rm_block(struct buffer_list* this, idx_t offset, int depth)
 {
         if (depth > BUFFER_TREE_DEPTH)
                 return -E_INVALID_ARG;
@@ -151,17 +152,22 @@ buffer_add_block(this, list, offset, depth)
 struct buffer_block* this;
 struct buffer_list* list;
 idx_t offset;
-idx_t depth;
+int depth;
 {
         if (list == NULL)
                 return -E_NULL_PTR;
         if (offset > list->parent->size/BUFFER_BLOCK_SIZE)
                 return -E_OUTOFBOUNDS;
 
+        debug("Debuging depth: %X\n", depth);
+
         int ret = 0;
         idx_t list_idx = get_idx(offset, depth);
 
-        debug("Currently at list_idx %X at depth %X\n", list_idx, depth);
+        debug("Currently at list_idx %X at depth %X\n", list_idx, (int)depth);
+        debug("This ptr: %X\tlist ptr: %X\n", (int)this, (int)list);
+        if (list_idx == 1)
+                demand_key();
 
         mutex_lock(&list->lock);
 
@@ -179,9 +185,11 @@ idx_t depth;
                         buffer_init_branch(list->lists[list_idx], list->parent);
                         atomic_inc(&(list->used));
                 }
+                debug("Calling\n");
                 ret = buffer_add_block(this, list->lists[list_idx],
                                                                          offset,
                                                                        depth+1);
+                debug("Returning\n");
                 mutex_unlock(&list->lock);
                 return ret;
         }
@@ -209,7 +217,7 @@ idx_t depth;
  */
 
 static struct buffer_block*
-buffer_find_block(struct buffer_list* this, idx_t offset, idx_t depth)
+buffer_find_block(struct buffer_list* this, idx_t offset, int depth)
 {
         if (this == NULL)
                 goto err;
