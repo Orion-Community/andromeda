@@ -356,6 +356,13 @@ netif_start_tx(struct net_buff *buff)
         else
         {
                 /* sent buffer list one by one */
+                struct net_buff *carriage, *tmp;
+                for_each_ll_entry_safe(buff, carriage, tmp)
+                {
+                        struct device *dev = get_net_core_driver();
+                        struct vfile *io = dev->open(dev);
+                        io->write(io, (void*)buff, sizeof(*buff));
+                }
         }
 }
 
