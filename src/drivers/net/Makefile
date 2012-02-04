@@ -3,7 +3,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 TARGETS=rtl.o
 
-.PHONY: all
+.PHONY: all rtl.o
 all: net.o
 
 net.o: $(TARGETS)

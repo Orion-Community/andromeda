@@ -85,6 +85,7 @@ init_netif()
 int
 register_net_dev(struct device *dev, struct netdev* netdev)
 {
+
         dev->type = net_dev;
         dev->open = &device_open_driver_io;
         dev->driver->io->fs_data = (void*) netdev;
@@ -108,7 +109,6 @@ unregister_net_dev(uint64_t id)
                 return -E_NULL_PTR;
         if (device_detach(dev, device_find_id(dev, id)) == -E_NOTFOUND)
                 return -E_NOTFOUND;
-
         else
         {
                 kfree(dev->driver->io->fs_data); // free the netdev data
@@ -158,7 +158,7 @@ alloc_buff_frame(unsigned int frame_len)
         buff->data = buff->head;
         buff->tail = buff->head;
         buff->end = buff->head + frame_len;
-        
+
         return buff;
 }
 
@@ -202,31 +202,31 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
 static enum packet_state
 netif_process_net_buff(struct net_buff *buff)
 {
-        struct packet_type *ptype, *old_type = kalloc(sizeof(*old_type)), *tmp, 
+        struct packet_type *ptype, *old_type = kalloc(sizeof(*old_type)), *tmp,
           *root = get_ptype_tree();
         struct netdev *dev;
         enum packet_state retval = P_DROPPED;
         protocol_deliver_handler_t handle;
-        
+
         if(check_net_buff_tstamp(buff))
         {
                 netif_drop_net_buff(buff);
                 goto out;
         }
-        
+
         if(netpoll_dev(buff->dev))
         {
                 netif_drop_net_buff(buff);
                 goto out;
         }
-        
+
         net_buff_reset_net_hdr(buff);
         net_buff_reset_datalink_hdr(buff);
         net_buff_reset_tail(buff);
-        
+
         dev = buff->dev;
         buff->type = dev->frame_type;
-        
+
         next_round:
         for_each_ll_entry_safe(root, ptype, tmp)
         {
@@ -240,7 +240,7 @@ netif_process_net_buff(struct net_buff *buff)
                         break;
                 }
         }
-        
+
         /*
          * We dont want to use NULL handles.
          */
@@ -261,7 +261,7 @@ netif_process_net_buff(struct net_buff *buff)
                  */
                 switch(retval = dev->rx_pull_handle(buff))
                 {
-                        
+
                         case P_ANOTHER_ROUND:
                                 goto next_round;
                                 break;
@@ -280,7 +280,7 @@ netif_process_net_buff(struct net_buff *buff)
                                 break;
                 }
         }
-        
+
         /*
          * If one last packet has dropped out..
          */
@@ -295,10 +295,10 @@ netif_process_net_buff(struct net_buff *buff)
                         break;
                 }
         }
-        
+
         kfree(old_type);
         return retval;
-        
+
         out:
         kfree(old_type);
         free_net_buff_list(buff);
@@ -371,7 +371,7 @@ netif_start_tx(struct net_buff *buff)
  * \brief Drop a packet.
  * \param buff Packet(s) to drop
  */
-void 
+void
 netif_drop_net_buff(struct net_buff *buff)
 {
         return;
@@ -555,15 +555,15 @@ vlan_untag(struct net_buff *buff)
 {
         if(buff->raw_vlan == 0)
                 return -E_ALREADY_INITIALISED;
-                
+
         unsigned int raw = buff->raw_vlan;
         buff->vlan = kalloc(sizeof(*(buff->vlan)));
-        
+
         if(buff->vlan == NULL)
                 return -E_NOMEM;
 
         buff->raw_vlan = 0; /* make sure it doesn't get detagged again */
-        
+
         buff->vlan->protocol_tag = ntohs((raw >> 16) & 0xffff);
         raw = ntohs(raw & 0xffff);
         buff->vlan->priority = (raw >> 13) & 3;

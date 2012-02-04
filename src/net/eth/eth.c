@@ -35,7 +35,7 @@ init_eth()
  * \brief Receives a net_buff which has to be processed through the datalink
  * layer. This function will queue the buffer for processing. When it will be
  * processed is not known. process_ethernet_frame is called by the scheduler.
- * 
+ *
  * \param nb The net_buff to queue.
  * \see process_ether_net_frame
  */

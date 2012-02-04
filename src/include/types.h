@@ -106,7 +106,7 @@ typedef unsigned char uint8_t;
 
 // typedef struct __TYPE_REGISTERS isrVal_t;
 typedef unsigned long size_t;
-typedef unsigned long idx_t;
+typedef unsigned long long idx_t;
 typedef long time_t; // Time variables are specified to be signed
 
 typedef unsigned long addr_t;

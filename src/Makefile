@@ -12,6 +12,10 @@ DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o
 .PHONY: all
 all: x86
 
+.PHONY: stripped
+stripped: x86
+	strip -s $(OUT)
+
 .PHONY: amd64
 amd64:
 	@echo "Not yet implemented"
@@ -26,6 +30,7 @@ $(OUT): $(DEPS)
 # 	$(MAKE) -C boot $(MAKEEND)
 # 	mv -vf boot/start.o ./
 
+.PHONY: arch.o andromeda.o mm.o maths.o sys.o drivers.o fs.o net.o
 arch.o:
 	$(MAKE) -C arch $(MAKEEND)
 

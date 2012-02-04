@@ -278,7 +278,7 @@ get_rtl_dev_num()
 /**
  * \fn get_rtl_device(dev)
  * \brief Get a device based on the device number in the list.
- * 
+ *
  * @param dev Index in the device list.
  */
 static struct rtl_cfg*

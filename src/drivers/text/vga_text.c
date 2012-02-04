@@ -63,10 +63,10 @@ static struct vfile* vga_text_open(struct device *this)
 
 static int vga_text_resume(struct device* this)
 {
-        mutex_lock(this->lock);
+        mutex_lock(&this->lock);
         if (this->suspended != FALSE)
         {
-                mutex_unlock(this->lock);
+                mutex_unlock(&this->lock);
                 return -E_SUCCESS;
         }
 
@@ -74,16 +74,16 @@ static int vga_text_resume(struct device* this)
 
         device_recurse_resume(this);
 
-        mutex_unlock(this->lock);
+        mutex_unlock(&this->lock);
         return -E_SUCCESS;
 }
 
 static int vga_text_suspend(struct device* this)
 {
-        mutex_lock(this->lock);
+        mutex_lock(&this->lock);
         if (this->suspended == TRUE)
         {
-                mutex_unlock(this->lock);
+                mutex_unlock(&this->lock);
                 return -E_SUCCESS;
         }
 
@@ -91,7 +91,7 @@ static int vga_text_suspend(struct device* this)
 
         this->suspended = TRUE;
 
-        mutex_unlock(this->lock);
+        mutex_unlock(&this->lock);
         return -E_SUCCESS;
 }
 

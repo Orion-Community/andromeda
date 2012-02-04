@@ -60,7 +60,7 @@ enum ptype
 /**
  * \enum packet_state
  * \brief The current state of a packet.
- * 
+ *
  * \var P_DELIVERED
  * \brief The packet has been delivered to the location it has to be.
  * \var P_ANOTHER_ROUND
@@ -107,7 +107,7 @@ struct net_bridge
         /**
           * \var input
           * \brief The input interface.
-          * 
+          *
           * \var output
           * \brief The output interface.
           */
@@ -169,15 +169,15 @@ struct netdev
 struct net_buff
 {
         /**
-        * \var next 
+        * \var next
         * \brief Next pointer
-        * \var previous 
+        * \var previous
         * \brief Prev pointer
-        * \var length 
+        * \var length
         * \brief Used length
-        * \var toal_len 
+        * \var toal_len
         * \brief Allocated length
-        * \var data_len 
+        * \var data_len
         * \brief Length of the actual data
         * \var transport_hdr
         * \brief Pointer to the transport header

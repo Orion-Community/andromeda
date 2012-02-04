@@ -20,11 +20,13 @@
 #include <stdlib.h>
 #include <andromeda/buffer.h>
 
-inline static idx_t get_idx(idx_t offset, idx_t depth)
+static idx_t
+get_idx(idx_t offset, int depth)
 {
-        int mul = BUFFER_TREE_DEPTH-depth;
-        int shift = mul*12;
-        return (offset>>shift)&BUFFER_LIST_SIZE;
+        int mul = BUFFER_TREE_DEPTH-(int)depth;
+        int shift = mul*BUFFER_OFFSET_BITS;
+        idx_t ret = (offset>>shift)&(BUFFER_LIST_SIZE-1);
+        return ret;
 }
 
 static int
@@ -48,17 +50,17 @@ buffer_init_branch(struct buffer_list* this, struct buffer* parent)
  */
 
 static int
-buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
+buffer_rm_block(struct buffer_list* this, idx_t offset, int depth)
 {
-        if (depth > 5)
+        if (depth > BUFFER_TREE_DEPTH)
                 return -E_INVALID_ARG;
 
         if (this == NULL)
                 goto err;
 
-        mutex_lock(this->lock);
-
         idx_t idx = get_idx(offset, depth);
+
+        mutex_lock(&this->lock);
 
         int ret = -E_SUCCESS;
         if (depth != BUFFER_TREE_DEPTH)
@@ -70,28 +72,31 @@ buffer_rm_block(struct buffer_list* this, idx_t offset, idx_t depth)
                 switch(ret)
                 {
                 case -E_CLEAN_PARENT:
-                        debug("Cleaning parent!\n");
                         kfree(this->lists[idx]);
+                        this->lists[idx] = NULL;
+                        mutex_unlock(&this->lock);
                         if (atomic_dec(&this->used) == 0)
                                 return -E_CLEAN_PARENT;
-                        break;
+                        return -E_SUCCESS;
                 default:
+                        mutex_unlock(&this->lock);
                         return ret;
                 }
         }
 
         if (this->blocks[idx] == NULL)
                 goto err_locked;
-
         kfree(this->blocks[idx]);
         this->blocks[idx] = NULL;
+
+        mutex_unlock(&this->lock);
         if (atomic_dec(&this->used) == 0)
                 return -E_CLEAN_PARENT;
 
         return -E_SUCCESS;
 
 err_locked:
-        mutex_unlock(this->lock);
+        mutex_unlock(&this->lock);
 err:
         return -E_NULL_PTR;
 }
@@ -135,7 +140,7 @@ buffer_add_block(this, list, offset, depth)
 struct buffer_block* this;
 struct buffer_list* list;
 idx_t offset;
-idx_t depth;
+int depth;
 {
         if (list == NULL)
                 return -E_NULL_PTR;
@@ -145,7 +150,7 @@ idx_t depth;
         int ret = 0;
         idx_t list_idx = get_idx(offset, depth);
 
-        mutex_lock(list->lock);
+        mutex_lock(&list->lock);
 
         if (depth != BUFFER_TREE_DEPTH)
         {
@@ -155,28 +160,28 @@ idx_t depth;
                                                    (sizeof(struct buffer_list));
                         if (list->lists[list_idx] == NULL)
                         {
-                                mutex_unlock(list->lock);
+                                mutex_unlock(&list->lock);
                                 return -E_NULL_PTR;
                         }
                         buffer_init_branch(list->lists[list_idx], list->parent);
                         atomic_inc(&(list->used));
                 }
-                ret =  buffer_add_block(this, list->lists[list_idx],
+                ret = buffer_add_block(this, list->lists[list_idx],
                                                                          offset,
                                                                        depth+1);
-                mutex_unlock(list->lock);
+                mutex_unlock(&list->lock);
                 return ret;
         }
 
         if (list->blocks[list_idx] != NULL)
         {
-                mutex_unlock(list->lock);
+                mutex_unlock(&list->lock);
                 return -E_ALREADY_INITIALISED;
         }
 
         atomic_inc(&(list->used));
         list->blocks[list_idx] = this;
-        mutex_unlock(list->lock);
+        mutex_unlock(&list->lock);
         return -E_SUCCESS;
 }
 
@@ -190,7 +195,7 @@ idx_t depth;
  */
 
 static struct buffer_block*
-buffer_find_block(struct buffer_list* this, idx_t offset, idx_t depth)
+buffer_find_block(struct buffer_list* this, idx_t offset, int depth)
 {
         if (this == NULL)
                 goto err;
@@ -201,7 +206,9 @@ buffer_find_block(struct buffer_list* this, idx_t offset, idx_t depth)
         if (depth != BUFFER_TREE_DEPTH)
                 ret = buffer_find_block(this->lists[list_idx], offset, depth+1);
         else
+        {
                 ret = this->blocks[list_idx];
+        }
         return ret;
 
 err:

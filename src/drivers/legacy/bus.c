@@ -32,10 +32,10 @@ legacy_bus_detect(struct device* dev)
 static int
 legacy_bus_suspend(struct device* this)
 {
-        mutex_lock(this->lock);
+        mutex_lock(&this->lock);
         if (this->suspended == TRUE)
         {
-                mutex_unlock(this->lock);
+                mutex_unlock(&this->lock);
                 return -E_SUCCESS;
         }
 
@@ -43,17 +43,17 @@ legacy_bus_suspend(struct device* this)
 
         this->suspended = TRUE;
 
-        mutex_unlock(this->lock);
+        mutex_unlock(&this->lock);
         return -E_SUCCESS;
 }
 
 static int
 legacy_bus_resume(struct device* this)
 {
-        mutex_lock(this->lock);
+        mutex_lock(&this->lock);
         if (this->suspended != FALSE)
         {
-                mutex_unlock(this->lock);
+                mutex_unlock(&this->lock);
                 return -E_SUCCESS;
         }
 
@@ -61,7 +61,7 @@ legacy_bus_resume(struct device* this)
 
         device_recurse_resume(this);
 
-        mutex_unlock(this->lock);
+        mutex_unlock(&this->lock);
         return -E_SUCCESS;
 }
 

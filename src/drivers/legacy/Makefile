@@ -7,7 +7,7 @@ TARGETS=legacy.o
 
 .PHONY: all
 all: $(TARGETS)
-	mv $(TARGETS) ../
+	mv -fv $(TARGETS) ../
 
 $(TARGETS): $(DEPS)
 	$(CC) $(CFLAGS) $(FLAGS) $(DEPS)

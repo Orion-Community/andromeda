@@ -12,6 +12,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 NET=net.o
 TARGET=core.o ip.o ethernet.o netlayer.o
 
+.PHONY: all core.o ip.o ethernet.o
 all: $(NET)
 
 $(NET): $(TARGET)

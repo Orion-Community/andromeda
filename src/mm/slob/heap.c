@@ -87,16 +87,16 @@ heap_add_blocks(void* base, uint32_t size)
 	initHdr(node, size - sizeof (memory_node_t));
 	if (heap == NULL)
 	{
-		mutex_lock(prot);
+		mutex_lock(&prot);
 		heap = node;
-		mutex_unlock(prot);
+		mutex_unlock(&prot);
 	}
 	else
 	{
-		printf("Warning: Using untested feature in heap_add_blocks!\n");
-		mutex_lock(prot);
+		warning("Using untested feature in heap_add_blocks!\n");
+		mutex_lock(&prot);
 		if (heap_inset_block(heap, node) != -E_SUCCESS)
 			panic("Could not add blocks to map");
-		mutex_unlock(prot);
+		mutex_unlock(&prot);
 	}
 }

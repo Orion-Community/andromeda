@@ -25,6 +25,7 @@ all: x86.o
 x86.o: $(DEPS)
 	$(LD) -o $(X86) $(DEPS) $(LDFLAGS)
 
+.PHONY: mm.o kernel.o boot.o asm.o
 mm.o:
 	$(MAKE) $(MAKEEND) -C mm/
 	mv -fv mm/mm.o ./

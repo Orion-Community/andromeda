@@ -26,20 +26,18 @@
 #include <networking/net.h>
 #include <andromeda/buffer.h>
 
-#define RL_SHUTDOWN	0x0
-#define RL_RUN0		0x1
-#define RL_RUN1		0x2
-#define RL_RUN2		0x3
-#define RL_RUN3		0x4
-#define RL_RUN4		0x5
-#define RL_REBOOT	0x6
+#define RL_SHUTDOWN     0x0
+#define RL_RUN0         0x1
+#define RL_RUN1         0x2
+#define RL_RUN2         0x3
+#define RL_RUN3         0x4
+#define RL_RUN4         0x5
+#define RL_REBOOT       0x6
 
 void demand_key();
 
 void buf_dbg()
 {
-        examine_heap();
-        demand_key();
         struct vfile* f = kalloc(sizeof(struct vfile));
         if (f == NULL)
                 panic("No mem in buf_dbg");
@@ -70,55 +68,36 @@ void buf_dbg()
         f->read(f, ret_msg, strlen(blaat));
 
         printf("MSG: %s\n", ret_msg);
-        demand_key();
         f->close(f);
         kfree(ret_msg);
-
-        examine_heap();
-        demand_key();
-        printf(
-                "Sizeof file: %X\n"
-                "Sizeof buffer: %X\n",
-               sizeof(struct vfile),
-               sizeof(struct buffer)
-        );
 }
 
 void shutdown()
 {
-	printf("You can now shutdown your PC\n");
-	for(;;)
-	{
-		endProg();
-	}
+        printf("You can now shutdown your PC\n");
+        for(;;)
+        {
+                endProg();
+        }
 }
 
 volatile uint32_t rl = RL_RUN0;
 
 void init_set(uint32_t i)
 {
-	debug("Changing run level to %i\n", i);
-	rl = i;
-}
-
-extern uint32_t key_pressed;
-
-void demand_key()
-{
-	printf("Press any key to continue!\n");
-	key_pressed = 0;
-	while(key_pressed == 0)
-		halt();
-	return;
+        debug("Changing run level to %i\n", i);
+        rl = i;
 }
 
 void core_loop()
 {
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");
+
         init_netif();
         init_network();
         trigger_soft_irq30();
+
 #ifdef SCHED_DBG
         /**
          * Will have to be improved to actually do a context

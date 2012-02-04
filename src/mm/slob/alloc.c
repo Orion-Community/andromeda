@@ -46,7 +46,12 @@ examine_heap()
 	volatile memory_node_t* carriage;
 	for (carriage = heap; carriage != NULL; carriage = carriage->next)
 	{
-		printf("node: 0x%X\tsize: 0x%X\n",(int)carriage,carriage->size);
+                printf(
+                        "node: 0x%X\tsize: 0x%X\tnext: 0x%X\n",
+                       (int)carriage,
+                       carriage->size,
+                       (int)carriage->next
+                );
 	}
 }
 
@@ -96,7 +101,7 @@ alloc(size_t size, boolean pageAlligned)
 	{
 		return NULL;
 	}
-	mutexEnter(prot);
+	mutex_lock(&prot);
 	volatile memory_node_t* carriage = heap;
 	for (; carriage != NULL; carriage = carriage->next)
 	{
@@ -130,7 +135,7 @@ alloc(size_t size, boolean pageAlligned)
 					use_memnode_block(ret);
 					// Mark the block as used
 					//return the desired block
-					mutexRelease(prot);
+					mutex_unlock(&prot);
 					return (void*) ret + sizeof
 								(memory_node_t);
 				}
@@ -162,7 +167,7 @@ alloc(size_t size, boolean pageAlligned)
 			{
 				continue;
 			}
-			mutexRelease(prot);
+			mutex_unlock(&prot);
 			return (void*) carriage + sizeof (memory_node_t);
 		}
 		else if (carriage->size >= size + sizeof (memory_node_t))
@@ -178,7 +183,7 @@ alloc(size_t size, boolean pageAlligned)
 			// split the block
 
 			use_memnode_block(tmp);
-			mutexRelease(prot);
+			mutex_unlock(&prot);
 			return (void*) tmp + sizeof (memory_node_t);
 		}
 		if (carriage->next == NULL || carriage->next == carriage)
@@ -198,7 +203,7 @@ alloc(size_t size, boolean pageAlligned)
 			 */
 		}
 	}
-	mutexRelease(prot);
+	mutex_unlock(&prot);
 	return NULL;
 }
 
@@ -210,12 +215,12 @@ free(void* ptr)
 #endif
 	if (ptr == NULL)
 		return -1;
-	mutexEnter(prot);
+	mutex_lock(&prot);
 	volatile memory_node_t* block = (void*) ptr - sizeof (memory_node_t);
 	volatile memory_node_t* carriage;
 	if (block->hdrMagic != MM_NODE_MAGIC)
 	{
-		mutexRelease(prot);
+		mutex_unlock(&prot);
 		return -1;
 	}
 
@@ -263,13 +268,12 @@ free(void* ptr)
 				wait();
 #endif
 				continue;
-				mutexRelease(prot);
-				return -1;
 			}
 			else
 			{
-				block = test;
-				carriage = test;
+                                break;
+// 				block = test;
+// 				carriage = test->previous;
 				/**
 				* We can now continue trying to merge the rest
 				* of the list, which might be possible.
@@ -283,7 +287,7 @@ free(void* ptr)
 	examineHeap();
 	printf("\n");
 #endif
-	mutexRelease(prot);
+	mutex_unlock(&prot);
 	return 0; // Return success
 }
 
@@ -337,20 +341,27 @@ return_memnode_block(volatile memory_node_t* block)
 	/* We're apparently not at the top of the list */
 	for (carriage = heap; carriage != NULL; carriage = carriage->next)
 	// Loop through the heap list.
-		{
-		if (carriage < block && carriage->next > block)
+        {
+                if ((addr_t)carriage < (addr_t)block &&
+                                       (addr_t)(carriage->next) > (addr_t)block)
 		{
 			block->previous = carriage;
 			block->next = carriage->next;
 			carriage->next = block;
+                        block->next->previous = block;
 			return;
 		}
-		else if (carriage->next == NULL)
+		if (carriage->next == NULL)
 		{
 			/* we are at the end of the list, add the block here */
 			carriage -> next = block;
 			block -> previous = carriage;
 			carriage->next->next = NULL;
+                        debug("We're done at %X with block %X of size %X\n",
+                              (int)carriage,
+                              (int)block,
+                              (int)(block->size)
+                        );
 			return;
 		}
 	}
@@ -488,13 +499,14 @@ merge_memnode(volatile memory_node_t* alpha, volatile memory_node_t* beta)
 	{
 		// if the blocks are in reversed order, put them in the
 		// right order
-		tmp = alpha;
-		alpha = beta;
-		beta = tmp;
+                tmp = alpha;
+                alpha = beta;
+                beta = tmp;
 	}
 
 	alpha->size += beta->size + sizeof (memory_node_t);
 	alpha->next = beta->next;
 	alpha->used = FALSE;
+
 	return alpha;
 }

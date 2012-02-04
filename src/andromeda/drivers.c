@@ -150,7 +150,7 @@ int device_id_alloc(struct device* dev)
 {
         int ret = 0;
         uint64_t begin = dev_id-1;
-        mutex_lock(dev_id_lock);
+        mutex_lock(&dev_id_lock);
         struct device* iterator = device_find_id(&dev_root, dev_id);
         while (iterator != NULL)
         {
@@ -163,7 +163,7 @@ int device_id_alloc(struct device* dev)
         dev->dev_id = dev_id;
         ret = dev_id;
 
-        mutex_unlock(dev_id_lock);
+        mutex_unlock(&dev_id_lock);
         return ret;
 }
 

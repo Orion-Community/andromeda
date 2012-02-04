@@ -39,11 +39,11 @@ extern "C" {
 #define TRIGGER_LEVEL 1
 #define TRIGGER_LEVEL_ASSERT 1
 #define TRIGGER_LEVEL_DEASSERT 0
-  
+
   /* dynamic code allocation */
 #define DYNAMIC_IRQ_VALUE get_general_irqstub_size()-8
 #define DYNAMIC_IRQ_HANDLER_VALUE get_general_irqstub_size()-4
-  
+
   /**
    * \fp irq_handler_t(irq_stack)
    * \brief Function pointer definition for irq handlers

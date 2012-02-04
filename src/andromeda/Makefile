@@ -13,7 +13,8 @@ PANIC=panic.c
 all: andromeda.o
 	mv -fv andromeda.o ../
 
-andromeda.o: load.o timer.o sched.o core.o syscall.o panic.o drivers.o buffer.o
+andromeda.o: load.o timer.o sched.o core.o syscall.o panic.o drivers.o buffer.o \
+atomic.o lib.o
 	$(LD) $(LDFLAGS) *.o -o andromeda.o
 
 load.o: $(ELF)
@@ -39,6 +40,12 @@ drivers.o: drivers.c
 
 buffer.o: buffer.c
 	$(CC) $(CFLAGS) $(FLAGS) buffer.c
+
+atomic.o: atomic.c
+	$(CC) $(CFLAGS) $(FLAGS) atomic.c
+
+lib.o: lib.c
+	$(CC) $(CFLAGS) $(FLAGS) lib.c
 
 .PHONY: clean
 clean:

@@ -38,7 +38,7 @@ KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC) \
 $(ACPI) $(CPU) $(SCHED) $(TIMER)
 
 
-.PHONY: all
+.PHONY: all $(APIC) $(ACPI) $(CPU)
 all: $(KERNEL_DEPS)
 	$(LD) $(LDFLAGS) $(KERNEL_DEPS) -o $(KERN)
 
