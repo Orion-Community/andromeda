@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   ipv4.h
  * Author: michel
  *

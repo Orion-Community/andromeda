@@ -16,30 +16,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <mm/cache.h>
+#ifndef __MM_CACHE_H
+#define __MM_CACHE_H
 
-static struct list* caches = NULL;
-static mutex_t init_lock = mutex_unlocked;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int init_slab()
-{
-        mutex_lock(&init_lock);
-        if (caches != NULL)
-        {
-                mutex_unlock(&init_lock);
-                return -E_ALREADY_INITIALISED;
-        }
+struct mm_cache {
 
-        caches = kalloc(sizeof(struct list));
-        if (caches == NULL)
-        {
-                mutex_unlock(&init_lock);
-                return -E_NOMEM;
-        }
-        memset(caches, 0, sizeof(struct list));
-        mutex_unlock(&init_lock);
+};
 
-        return -E_NOFUNCTION;
+#ifdef __cplusplus
 }
+#endif
+
+#endif

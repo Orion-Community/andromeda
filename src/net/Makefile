@@ -27,6 +27,6 @@ ip.o:
 
 ethernet.o:
 	$(MAKE) -C eth/ $(MAKEEND)
-	
+
 netlayer.o:
 	$(CC) $(CCFLAGS) -o netlayer.o netlayer.c
