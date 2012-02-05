@@ -16,6 +16,11 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file net.h
+ * \brief Net-core header file.
+ */
+
 #ifndef __NET_H
 #define __NET_H
 

@@ -16,6 +16,11 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file net.c
+ * \brief Contains the implementation of the net core driver.
+ */
+
 #include <stdlib.h>
 #include <arch/x86/timer.h>
 #include <andromeda/drivers.h>
