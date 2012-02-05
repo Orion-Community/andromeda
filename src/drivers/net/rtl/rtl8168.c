@@ -302,7 +302,10 @@ get_rtl_device(int dev)
 static int
 rtl_conf_rx(struct rtl_cfg *cfg)
 {
+        uint32_t raw = 0;
         struct rxconfig *rxc = kalloc(sizeof(*rxc));
+        if(!rxc)
+                return -E_NOMEM;
         cfg->receive = rxc;
 
         /*
@@ -318,7 +321,17 @@ rtl_conf_rx(struct rtl_cfg *cfg)
         rxc->eeprom = 1;
         rxc->dma_burst = 0b010;
         rxc->threshold = 0b111;
-        return -E_NOFUNCTION;
+
+        raw = (rxc->dest_addr_accept) | (rxc->phys_match_accept << 1)
+                | (rxc->multi_cast_accept << 2) | (rxc->broadcast_accept << 3)
+                | (rxc->runt_accept << 4) | (rxc->error_accept << 5)
+                | (rxc->eeprom << 6)
+                | (rxc->dma_burst << 8) | (rxc->threshold << 13);
+        outl(cfg->portbase+RTL_RX_CONFIG_PORT_OFFSET, raw);
+#ifdef X86
+        outl(cfg->portbase+RTL_RX_DESC_PORT_OFFSET, (uint32_t)cfg->raw_rx_buff);
+#endif
+        return -E_SUCCESS;
 }
 
 void

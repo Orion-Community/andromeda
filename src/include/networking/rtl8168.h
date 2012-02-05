@@ -37,6 +37,8 @@ extern "C" {
 
 #define CPLUS_COMMAND_PORT_OFFSET 0xe0
 #define COMMAND_PORT_OFFSET 0x37
+#define RTL_RX_CONFIG_PORT_OFFSET 0x44
+#define RTL_RX_DESC_PORT_OFFSET 0xe4
 
 struct txconfig
 {
