@@ -192,8 +192,16 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
         return buff->data;
 }
 
+/**
+ * \fn netif_rx_process(nb)
+ * \brief Receives, processess and polls for incoming packets.
+ *
+ * @param nb The first packet to handle.
+ * @return State of handled packet
+ */
 static enum packet_state
-netif_rx_process(struct net_buff *nb)
+netif_rx_process(nb)
+struct net_buff *nb;
 {
         struct protocol *prot, *tmp, *root = get_ptype_tree();
         struct netdev *dev;
@@ -243,10 +251,12 @@ netif_rx_process(struct net_buff *nb)
                         case P_DELIVERED:
                                 break;
                         case P_DROPPED:
+                                goto out;
                                 break;
                         case P_DONE:
                                 break;
                         case P_LOST:
+                                goto out;
                                 break;
                         default:
                                 warning("Packet handled incorrectly");
@@ -254,13 +264,15 @@ netif_rx_process(struct net_buff *nb)
                 }
         }
 
-        out:
         if(retval == P_DELIVERED)
         {
                 do
                         retval = handle_packet(nb);
                 while(retval == P_ANOTHER_ROUND);
+                return retval;
         }
+        
+        out:
         if(retval != P_DONE)
         {
                 free_net_buff_list(nb);
