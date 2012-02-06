@@ -81,6 +81,7 @@ enum packet_state
 {
         P_DELIVERED,
         P_ANOTHER_ROUND,
+        P_QUEUED,
         P_DONE,
         P_DROPPED,
         P_LOST,
@@ -123,6 +124,7 @@ struct net_bridge
 
 typedef enum ptype (*netif_rx_pull)(struct net_buff*);
 typedef enum ptype (*protocol_deliver_handler_t)(struct net_buff*);
+typedef void (*protocol_queue_notify_handler_t)();
 
 struct protocol
 {
@@ -131,6 +133,7 @@ struct protocol
 
         enum ptype type;
         protocol_deliver_handler_t deliver_packet;
+        protocol_queue_notify_handler_t notify;
 };
 
 /**

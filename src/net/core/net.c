@@ -239,7 +239,21 @@ struct net_buff *nb;
 
         next:
         do
+        {
                 retval = handle_packet(nb);
+                if(retval == P_QUEUED)
+                {
+                        for_each_ll_entry_safe(root, prot, tmp)
+                        {
+                                if(nb->type == prot->type)
+                                {
+                                        prot->notify();
+                                        break;
+                                }
+                        }
+                        break;
+                }
+        }
         while(retval == P_ANOTHER_ROUND);
 
         if(nb->dev->rx_pull_handle)
