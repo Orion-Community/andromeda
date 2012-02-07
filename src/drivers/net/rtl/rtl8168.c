@@ -24,6 +24,11 @@
 #include <fs/vfs.h>
 #include <arch/x86/irq.h>
 
+/**
+ * \file rtl8168.h
+ * \brief RealTek 8168 NIC driver.
+ */
+
 static struct rtl_cfg *rtl_devs = NULL;
 
 void
@@ -306,6 +311,7 @@ get_rtl_device(int dev)
  * @param port The output port.
  * @param data Data to send.
  * @param size Size of the data to send (size <= 4)
+ * @return Error code. Zero for success.
  */
 static int
 rtl_generic_cfg_out(port, data, size)
@@ -329,6 +335,40 @@ uint8_t size;
                         retval = -E_GENERIC;
                         break;
                         
+        }
+        return retval;
+}
+
+/**
+ * \fn rtl_generic_cfg_in(port, store, size)
+ * \brief Reads config info from port <i>port</i> and stores it in <i>store</i>.
+ *
+ * @param port The I/O port address.
+ * @param store Memory space storage address.
+ * @param size Size of the read.
+ * @return Error code.
+ */
+static int
+rtl_generic_cfg_in(port, store, size)
+uint16_t port;
+void *store;
+uint8_t size;
+{
+        int retval = -E_SUCCESS;
+        switch(size)
+        {
+                case 1:
+                        writeb(store, inb(port));
+                        break;
+                case 2:
+                        writew(store, inw(port));
+                        break;
+                case 4:
+                        writel(store, inl(port));
+                        break;
+                default:
+                        retval = -E_GENERIC;
+                        break;
         }
         return retval;
 }

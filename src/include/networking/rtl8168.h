@@ -16,6 +16,11 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file rtl8168.h
+ * \brief RealTek 8168 NIC driver.
+ */
+
 #ifndef __RTL8168
 #define __RTL8168
 
@@ -260,8 +265,21 @@ static int read_command_registers(struct rtlcommand *, uint16_t);
  * @param port The output port.
  * @param data Data to send.
  * @param size Size of the data to send (size <= 4)
+ * @return Error code. Zero for success.
  */
 static int rtl_generic_cfg_out(uint16_t port, void *data, uint8_t size);
+
+/**
+ * \fn rtl_generic_cfg_in(port, store, size)
+ * \brief Reads config info from port <i>port</i> and stores it in <i>store</i>.
+ *
+ * @param port The I/O port address.
+ * @param store Memory space storage address.
+ * @param size Size of the read.
+ * @return Error code.
+ */
+static int
+rtl_generic_cfg_in(uint16_t port, void *store, uint8_t size);
 
 /**
  * \fn net_rx_vfio(vfile, buf, size)

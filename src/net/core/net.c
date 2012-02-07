@@ -240,8 +240,7 @@ struct net_buff *nb;
         next:
         do
         {
-                retval = handle_packet(nb);
-                if(retval == P_QUEUED)
+                if((retval = handle_packet(nb)) == P_QUEUED)
                 {
                         for_each_ll_entry_safe(root, prot, tmp)
                         {
