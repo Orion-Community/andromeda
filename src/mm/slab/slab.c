@@ -20,10 +20,18 @@
 #include <stdlib.h>
 #include <mm/cache.h>
 
-static struct list* caches = NULL;
+static struct mm_cache* caches = NULL;
 static mutex_t init_lock = mutex_unlocked;
 
-int init_slab()
+int
+cache_init(char* name, size_t obj_size, size_t cache_size)
+{
+
+        return -E_NOFUNCTION;
+}
+
+int
+init_slab()
 {
         mutex_lock(&init_lock);
         if (caches != NULL)

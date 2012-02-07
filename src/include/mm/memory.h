@@ -1,5 +1,5 @@
 /*
-    Orion OS, The educational operatingsystem
+    Andromeda
     Copyright (C) 2011  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify

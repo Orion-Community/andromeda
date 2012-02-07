@@ -23,9 +23,23 @@
 extern "C" {
 #endif
 
-struct mm_cache {
+#define CACHE_NAME_SIZE 255
 
+struct slab {
+        struct slab* next;
+        void* data_ptr;
+        void* page_ptr;
 };
+
+struct mm_cache {
+        char name[CACHE_NAME_SIZE];
+        struct slab* slabs_full;
+        struct slab* slabs_partial;
+        struct slab* slabs_empty;
+        size_t obj_size;
+        size_t pages;
+};
+
 
 #ifdef __cplusplus
 }
