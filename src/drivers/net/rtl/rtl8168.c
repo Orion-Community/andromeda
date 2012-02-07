@@ -299,6 +299,40 @@ get_rtl_device(int dev)
         }
 }
 
+/**
+ * \fn rtl_generic_cfg_out(port, data, size)
+ * \brief Send the data specified in <i>data</i> to the output port <i>port</i>.
+ *
+ * @param port The output port.
+ * @param data Data to send.
+ * @param size Size of the data to send (size <= 4)
+ */
+static int
+rtl_generic_cfg_out(port, data, size)
+uint16_t port;
+void *data;
+uint8_t size;
+{
+        int retval = -E_SUCCESS;
+        switch(size)
+        {
+                case 1:
+                        outb(port, *((uint8_t*)data));
+                        break;
+                case 2:
+                        outw(port, *((uint16_t*)data));
+                        break;
+                case 4:
+                        outl(port, *((uint32_t*)data));
+                        break;
+                default:
+                        retval = -E_GENERIC;
+                        break;
+                        
+        }
+        return retval;
+}
+
 static int
 rtl_conf_rx(struct rtl_cfg *cfg)
 {

@@ -40,6 +40,38 @@ extern "C" {
 #define RTL_RX_CONFIG_PORT_OFFSET 0x44
 #define RTL_RX_DESC_PORT_OFFSET 0xe4
 
+/**
+ * \struct rtl_irq_status
+ * \brief The RTL8168 interrupt status register.
+ */
+struct rtl_irq_status
+{
+        /**
+         * \var rx_ok
+         * \brief When set, a frame has been received succesfully.
+         * \var rx_err
+         * \brief When set to 1, this bit indicates that a packet has either a
+                        CRC error or a frame alignment error (FAE).
+         * \var tx_ok
+         * \brief When set to 1, a frame has been transmitted succesfully.
+         * \var tx_err
+         * \brief When set to 1, there was an error while transmitting a frame.
+         */
+
+        uint rx_ok : 1;
+        uint rx_err : 1;
+        uint tx_ok : 1;
+        uint tx_err : 1;
+        uint rx_du : 1;
+        uint link_change : 1;
+        uint rx_overflow : 1;
+        uint tx_du : 1;
+        uint si : 1;
+        uint ff_emp : 1;
+        uint timeout : 1;
+        
+};
+
 struct txconfig
 {
   uint dma_burst : 3;
@@ -210,9 +242,7 @@ static int init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg);
 void rtl8168_irq_handler(unsigned int irq, irq_stack_t stack);
 static int reset_rtl_device(struct rtl_cfg *cfg);
 
-
 static void add_rtl_device(struct rtl_cfg *cfg);
-
 
 static struct rtl_cfg* get_rtl_dev_list();
 static struct rtl_cfg* get_rtl_device(int dev);
@@ -222,6 +252,16 @@ static void get_mac(struct pci_dev *dev, struct netdev *netdev);
 static int rtl_conf_rx(struct rtl_cfg *cfg);
 static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
+
+/**
+ * \fn rtl_generic_cfg_out(port, data, size)
+ * \brief Send the data specified in <i>data</i> to the output port <i>port</i>.
+ *
+ * @param port The output port.
+ * @param data Data to send.
+ * @param size Size of the data to send (size <= 4)
+ */
+static int rtl_generic_cfg_out(uint16_t port, void *data, uint8_t size);
 
 /**
  * \fn net_rx_vfio(vfile, buf, size)
