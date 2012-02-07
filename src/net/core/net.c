@@ -277,6 +277,10 @@ struct net_buff *nb;
                         case P_LOST:
                                 goto out;
                                 break;
+                        case P_QUEUED:
+                                retval = P_DONE;
+                                goto out;
+                                break;
                         default:
                                 warning("Packet handled incorrectly");
                                 break;
@@ -288,6 +292,16 @@ struct net_buff *nb;
                 do
                         retval = handle_packet(nb);
                 while(retval == P_ANOTHER_ROUND);
+                if(retval == P_QUEUED)
+                {
+                        for_each_ll_entry_safe(root, prot, tmp)
+                        {
+                                if(prot->type == nb->type)
+                                {
+                                        prot->notify();
+                                }
+                        }
+                }
                 return retval;
         }
         
