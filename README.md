@@ -91,4 +91,4 @@ Deadline: 07-03-2013
 
 * Read an initrd from Grub (Mechanism)
 * Mount the initrd (Policy)
-* start the firs task from initrd (Policy)
+* start the first task from initrd (Policy)
