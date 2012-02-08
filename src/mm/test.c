@@ -131,3 +131,6 @@ void testAlloc()
 }
 
 #endif
+
+/** \file */
+

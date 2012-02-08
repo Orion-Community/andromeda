@@ -88,3 +88,5 @@ extern volatile mutex_t map_lock;
 #endif
 
 #endif
+
+/** \file */

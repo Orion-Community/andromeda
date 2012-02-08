@@ -237,3 +237,5 @@ size_t strlen(char* string)
 	for (; *(string + i) != '\0'; i++);
 	return i;
 }
+
+/** \file */

@@ -114,3 +114,5 @@ writeCR3(unsigned int);
 #endif
 
 #endif
+
+/** \file */

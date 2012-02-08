@@ -19,24 +19,26 @@
 #ifndef PAGING_H
 #define PAGING_H
 
+#include <defines.h>
 #include <andromeda/cpu.h>
 #include <boot/mboot.h>
 #include <thread.h>
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif /* __cplusplus */
 
 #ifdef X86
-#define PAGES       0x100000
-#define PAGESIZE    0x1000
-#define PAGETABLES  0x400
-#define PAGEDIRS    0x400
-#define PAGEENTRIES 0x400
+#define PAGES           0x100000
+#define PAGESIZE        0x1000
+#define PAGETABLES      0x400
+#define PAGEDIRS        0x400
+#define PAGEENTRIES     0x400
+#define MINIMUM_PAGES   0x800
+#define PAGE_BITS       0xFFF
+#define BYTES_IN_PAGE   0x1000
 
-#define PAGE_BITS   0xFFF
-
-#endif
+#endif /* X86 */
 
 #define CHECKALLIGN(a) ((a%PAGESIZE) ? FALSE : TRUE)
 
@@ -98,15 +100,15 @@ struct mm_page_descriptor {
         size_t page_size;
         time_t last_referenced;
 
-        boolean swapable;
-        boolean free;
-        boolean dma;
+        bool swapable;
+        bool free;
+        bool dma;
 
         mutex_t lock;
 
 #ifdef SLAB
         struct slab* allocated_slab;
-#endif
+#endif /* SLAB */
 };
 
 extern volatile addr_t offset;
@@ -122,22 +124,32 @@ addr_t page_phys_addr(addr_t, struct page_dir*);
  * \brief The pointer to the multiboot map data
  * \param mboot_map_size
  * \brief The size of the map
+ * \return Standard error code
  *
  * \fn mm_page_free
  * \brief Free the page previously allocated
  * \param page
+ * \return Standard error code
  *
  * \fn mm_page_alloc
  * \brief Used to allocate pages
  * \param size
  * \brief The ammount of pages
+ * \return The allocated page(s)
+ *
+ * \fn mm_page_setup
+ * \brief Initialise the first pages
+ * \return Standard error code
  */
 int mm_page_setup(multiboot_memory_map_t*, int mboot_map_size);
 int mm_page_free(void* page);
 void* mm_page_alloc(size_t size);
+int mm_page_init(size_t mem_size);
 
 #ifdef __cplusplus
 }
-#endif
+#endif /* __cplusplus */
 
 #endif
+
+/** \file */

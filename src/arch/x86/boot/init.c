@@ -120,6 +120,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         {
                 memsize = hdr->mem_upper;
                 memsize += 1024;
+                mm_page_init(memsize);
         }
         else
         {
@@ -129,6 +130,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         {
                 mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
                 build_map(mmap, (unsigned int) hdr->mmap_length);
+                mm_page_setup(mmap, (uint32_t)hdr->mmap_length);
         }
         else
         {
@@ -151,7 +153,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         init_ioapic();
         setup_irq_data();
         ol_pci_init();
-        printf("Little endian 0xf in net endian %x\n", htons(0xf));
+        debug("Little endian 0xf in net endian %x\n", htons(0xf));
 #ifdef __IOAPIC_DBG
         ioapic_debug();
 #endif

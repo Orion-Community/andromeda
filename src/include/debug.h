@@ -64,3 +64,5 @@ extern "C" {
 #endif
 
 #endif // __DEBUG_H
+
+/** \file */

@@ -21,14 +21,13 @@
 #include <mm/paging.h>
 #include <boot/mboot.h>
 
-static struct mm_page_decriptor* pages = NULL;
+static struct mm_page_descriptor base_pages[0x800];
+static struct mm_page_descriptor* pages = NULL;
 
-/**
- * \fn mm_page_alloc
- * \brief Used to allocate pages
- * \param size
- * \brief The ammount of pages
- */
+static struct mm_page_descriptor*
+mm_get_page(void* addr, bool phys)
+{
+}
 
 void*
 mm_page_alloc(size_t size)
@@ -36,30 +35,45 @@ mm_page_alloc(size_t size)
         return NULL;
 }
 
-/**
- * \fn mm_page_free
- * \brief Free the page previously allocated
- * \param page
- */
 int
 mm_page_free(void* page)
 {
         return -E_NOFUNCTION;
 }
 
-/**
- * \fn mm_page_setup
- * \brief Build a list of available pages based on multiboot info
- * \param hdr
- * \brief The pointer to the multiboot data
- */
+struct page_dir*
+mm_page_generate_pd()
+{
+        return NULL;
+}
+
 int
 mm_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 {
         if (pages != NULL)
                 return -E_ALREADY_INITIALISED;
 
+        multiboot_memory_map_t* mmap = map;
 
+        idx_t idx = 0;
+        while ((addr_t)mmap < (addr_t)map + mboot_map_size)
+        {
+
+
+                mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
+        }
 
         return -E_NOFUNCTION;
 }
+
+int
+mm_page_init(size_t mem_size)
+{
+        debug("Machine mem size: %X, required: %X\n", mem_size*0x400, MINIMUM_PAGES*BYTES_IN_PAGE);
+        if (mem_size*0x400 < MINIMUM_PAGES*BYTES_IN_PAGE)
+                panic("Machine has not enough memory!");
+
+        int i = 0;
+}
+
+/** \file */

@@ -53,3 +53,5 @@ int atoi(char* str);
 #endif
 
 #endif
+
+/** \file */

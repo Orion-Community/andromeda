@@ -50,3 +50,5 @@ extern unsigned int end;
 #endif
 
 #endif
+
+/** \file */

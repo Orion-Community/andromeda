@@ -96,3 +96,5 @@ extern volatile mutex_t prot;
 #endif
 
 #endif
+
+/** \file */
