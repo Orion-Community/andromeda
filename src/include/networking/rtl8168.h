@@ -44,6 +44,7 @@ extern "C" {
 #define COMMAND_PORT_OFFSET 0x37
 #define RTL_RX_CONFIG_PORT_OFFSET 0x44
 #define RTL_RX_DESC_PORT_OFFSET 0xe4
+#define RTL_IRQ_STATUS_PORT_OFFSET 0x3e
 
 /**
  * \struct rtl_irq_status
@@ -294,6 +295,15 @@ static size_t rtl_rx_vfio(struct vfile *file, char *buf, size_t size);
  * Transmit a buffer using virtual files.
  */
 static size_t rtl_tx_vfio(struct vfile *file, char *buf, size_t size);
+
+/**
+ * \fn rtl_poll_data(nb)
+ * \brief Polls the device for data.
+ *
+ * @param nb The net buffer to put the data in.
+ * @return The packet error code.
+ */
+enum packet_state rtl_poll_data(struct net_buff *nb);
 
 static inline uint16_t
 get_rtl_port_base(struct pci_dev *dev, uint8_t offset)

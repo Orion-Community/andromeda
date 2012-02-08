@@ -155,6 +155,30 @@ init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
         register_net_dev(dev, netdev);
 }
 
+enum packet_state
+rtl_poll_data(struct net_buff *nb)
+{
+        struct rtl_cfg *cfg = nb->dev->device_data;
+        uint16_t irq_state;
+        
+        rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET, &irq_state,
+                           sizeof(irq_state));
+        if(irq_state & 1)
+        {
+                irq_stack_t = 1;
+                rtl_generic_cfg_out(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET,
+                                    &irq_state, sizeof(irq_state));
+                rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET,
+                                   &irq_state, sizeof(irq_state));
+                if(irq_state & 1)
+                        return P_ANOTHERROUND;
+                else
+                        return P_DELIVERED;
+        }
+
+        return P_NOTCOMPATIBLE;
+}
+
 static void
 sent_command_registers(struct rtlcommand *cmd, uint16_t port)
 {
