@@ -20,6 +20,8 @@
 #define PAGING_H
 
 #include <andromeda/cpu.h>
+#include <boot/mboot.h>
+#include <thread.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,11 +72,69 @@ struct page_table
 } __attribute__((packed));
 typedef struct page_table page_table_t;
 
+/**
+ * \struct mm_page_descriptor
+ * \brief Used for page allocation and administration
+ */
+struct mm_page_descriptor {
+        /**
+         * \var next
+         * \var page_ptr
+         * \brief pointer to physical page
+         * \var virt_ptr
+         * \brief pointer to virtual page
+         * \var page_size
+         * \var last_referenced
+         * \brief Used for determining the age when swapping
+         * \var swapable
+         * \var free
+         * \var dma
+         * \brief Is this page direct memor access?
+         */
+        struct mm_page_descriptor* next;
+        void* page_ptr;
+        void* virt_ptr;
+
+        size_t page_size;
+        time_t last_referenced;
+
+        boolean swapable;
+        boolean free;
+        boolean dma;
+
+        mutex_t lock;
+
+#ifdef SLAB
+        struct slab* allocated_slab;
+#endif
+};
+
 extern volatile addr_t offset;
 
 void init_paging();
 int page_unmap_low_mem();
 addr_t page_phys_addr(addr_t, struct page_dir*);
+
+/**
+ * \fn mm_page_setup
+ * \brief Build a list of available pages based on multiboot info
+ * \param map
+ * \brief The pointer to the multiboot map data
+ * \param mboot_map_size
+ * \brief The size of the map
+ *
+ * \fn mm_page_free
+ * \brief Free the page previously allocated
+ * \param page
+ *
+ * \fn mm_page_alloc
+ * \brief Used to allocate pages
+ * \param size
+ * \brief The ammount of pages
+ */
+int mm_page_setup(multiboot_memory_map_t*, int mboot_map_size);
+int mm_page_free(void* page);
+void* mm_page_alloc(size_t size);
 
 #ifdef __cplusplus
 }

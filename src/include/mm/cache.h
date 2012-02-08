@@ -25,19 +25,51 @@ extern "C" {
 
 #define CACHE_NAME_SIZE 255
 
+/**
+ * \struct slab
+ * \brief The slab descriptor
+ */
+
 struct slab {
+        /**
+         * \var next
+         * \var cache
+         * \var obj_ptr
+         * \brief pointer to first object in slab
+         * \var page_ptr
+         * \brief Which page are we talking about?
+         * \var slab_size
+         * \var objs_full
+         * \var objs_total
+         */
         struct slab* next;
-        void* data_ptr;
+        struct mm_cache* cache;
+
+        void* obj_ptr;
         void* page_ptr;
+
+        size_t slab_size;
+
+        int objs_full;
+        int objs_total;
 };
+
+/**
+ * \struct mm_cache
+ * \brief The slab allocation caches
+ */
 
 struct mm_cache {
         char name[CACHE_NAME_SIZE];
         struct slab* slabs_full;
         struct slab* slabs_partial;
         struct slab* slabs_empty;
+
         size_t obj_size;
         size_t pages;
+
+        void (*ctor)(void*, struct mm_cache*, uint32_t flags);
+        void (*dtor)(void*, struct mm_cache*, uint32_t flags);
 };
 
 

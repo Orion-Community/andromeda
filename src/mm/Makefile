@@ -10,7 +10,7 @@ INCLUDES=../include/mm/heap.h ../include/mm/map.h ../include/mm/memory.h\
 all: mm.o
 	mv -fv mm.o ../
 
-mm.o: map.o memory.o test.o slob.o page_alloc.o
+mm.o: map.o memory.o test.o slob.o page_alloc.o slab.o
 	$(LD) -o mm.o *.o $(LDFLAGS)
 
 slob.o:

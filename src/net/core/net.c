@@ -319,14 +319,14 @@ netif_process_queue(struct net_queue *head, unsigned int load)
         unsigned int i = 0;
         int retval;
         auto struct net_buff *get_entry(struct net_queue*);
-        
+
         for_each_ll_entry_safe_count(head, carriage, tmp, i)
         {
                 struct net_buff *buff = get_entry(carriage);
                 if(buff == NULL)
                         continue;
                 netif_process_net_buff(buff);
-                
+
                 if(i >= load)
                         break;
         }
@@ -351,7 +351,7 @@ netif_start_tx(struct net_buff *buff)
                 /* just one buffer */
                 struct device *dev = get_net_core_driver();
                 struct vfile *io = dev->open(dev);
-                io->write(io, (void*)buff, sizeof(*buff));                
+                io->write(io, (void*)buff, sizeof(*buff));
         }
         else
         {

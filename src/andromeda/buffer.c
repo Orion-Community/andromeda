@@ -156,8 +156,8 @@ int depth;
         {
                 if (list->lists[list_idx] == NULL)
                 {
-                        list->lists[list_idx] = kalloc
-                                                   (sizeof(struct buffer_list));
+                        list->lists[list_idx] = kalloc(
+                                                sizeof(*list->lists[list_idx]));
                         if (list->lists[list_idx] == NULL)
                         {
                                 mutex_unlock(&list->lock);
@@ -242,7 +242,7 @@ buffer_write(struct vfile* this, char* buf, size_t num)
 
         if (buffer->blocks == NULL)
         {
-                buffer->blocks = kalloc(sizeof(struct buffer_list));
+                buffer->blocks = kalloc(sizeof(*buffer->blocks));
                 if (buffer->blocks == NULL)
                         return 0;
                 buffer_init_branch(buffer->blocks ,buffer);
@@ -250,7 +250,7 @@ buffer_write(struct vfile* this, char* buf, size_t num)
         struct buffer_block* b = buffer_find_block(buffer->blocks, offset, 0);
         if (b == NULL)
         {
-                void* block = kalloc(sizeof(struct buffer_block));
+                struct buffer_block* block = kalloc(sizeof(*block));
                 buffer_add_block(block, buffer->blocks, offset, 0);
                 b = buffer_find_block(buffer->blocks, offset, 0);
                 if (b == NULL)
@@ -468,10 +468,10 @@ buffer_duplicate(struct buffer *this)
         if (!(this->rights & (BUFFER_ALLOW_DUPLICATE)))
                 return NULL;
 
-        struct vfile* file = kalloc(sizeof(struct buffer));
+        struct vfile* file = kalloc(sizeof(*file));
         if (file == NULL)
                 return NULL;
-        memset(file, 0, sizeof(struct buffer));
+        memset(file, 0, sizeof(*file));
 
         file->close = buffer_close;
         file->write = buffer_write;
@@ -479,7 +479,7 @@ buffer_duplicate(struct buffer *this)
         file->seek = buffer_seek;
 
         file->fs_data = this;
-        file->fs_data_size = sizeof(struct buffer);
+        file->fs_data_size = sizeof(*this);
 
         atomic_inc(&(this->opened));
         return file;
@@ -506,10 +506,10 @@ buffer_init(struct vfile* this, idx_t size, idx_t base_idx)
         if (this == NULL)
                 return -E_NULL_PTR;
 
-        struct buffer* b = kalloc(sizeof(struct buffer));
+        struct buffer* b = kalloc(sizeof(*b));
         if (b == NULL)
                 return -E_NOMEM;
-        memset(b, 0, sizeof(struct buffer));
+        memset(b, 0, sizeof(*b));
 
         this->read = buffer_read;
         this->seek = buffer_seek;
@@ -525,6 +525,6 @@ buffer_init(struct vfile* this, idx_t size, idx_t base_idx)
         atomic_inc(&b->opened);
 
         this->fs_data = b;
-        this->fs_data_size = sizeof(struct buffer);
+        this->fs_data_size = sizeof(*b);
         return -E_SUCCESS;
 }
