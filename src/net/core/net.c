@@ -333,6 +333,8 @@ struct net_buff *nb;
                                 if(buff->type == ETHERNET &&
                                         buff->raw_vlan != 0)
                                         vlan_untag(buff);
+                                if(!buff)
+                                        return P_NOTCOMPATIBLE;
                                 break;
                         }
                 }

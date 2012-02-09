@@ -155,7 +155,7 @@ init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
         register_net_dev(dev, netdev);
 }
 
-enum packet_state
+static enum packet_state
 rtl_poll_data(struct net_buff *nb)
 {
         struct rtl_cfg *cfg = nb->dev->device_data;
@@ -165,13 +165,14 @@ rtl_poll_data(struct net_buff *nb)
                            sizeof(irq_state));
         if(irq_state & 1)
         {
-                irq_stack_t = 1;
+                irq_state = 1;
                 rtl_generic_cfg_out(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET,
                                     &irq_state, sizeof(irq_state));
+                /* insert short delay here */
                 rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET,
                                    &irq_state, sizeof(irq_state));
                 if(irq_state & 1)
-                        return P_ANOTHERROUND;
+                        return P_ANOTHER_ROUND;
                 else
                         return P_DELIVERED;
         }

@@ -303,7 +303,7 @@ static size_t rtl_tx_vfio(struct vfile *file, char *buf, size_t size);
  * @param nb The net buffer to put the data in.
  * @return The packet error code.
  */
-enum packet_state rtl_poll_data(struct net_buff *nb);
+static enum packet_state rtl_poll_data(struct net_buff *nb);
 
 static inline uint16_t
 get_rtl_port_base(struct pci_dev *dev, uint8_t offset)
