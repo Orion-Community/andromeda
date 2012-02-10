@@ -120,7 +120,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         {
                 memsize = hdr->mem_upper;
                 memsize += 1024;
-                mm_page_init(memsize);
         }
         else
         {
@@ -143,6 +142,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         page_unmap_low_mem();
         pic_init();
         setIDT();
+        mm_page_init(memsize);
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
         ol_cpu_t cpu = kalloc(sizeof (*cpu));
         ol_cpu_init(cpu);

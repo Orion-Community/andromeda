@@ -85,7 +85,8 @@ struct mm_page_descriptor {
          * \brief pointer to physical page
          * \var virt_ptr
          * \brief pointer to virtual page
-         * \var page_size
+         * \var size
+         * \brief Number of standard size pages described by the descriptor
          * \var last_referenced
          * \brief Used for determining the age when swapping
          * \var swapable
@@ -97,7 +98,7 @@ struct mm_page_descriptor {
         void* page_ptr;
         void* virt_ptr;
 
-        size_t page_size;
+        size_t size;
         time_t last_referenced;
 
         bool swapable;

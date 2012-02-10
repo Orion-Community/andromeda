@@ -51,3 +51,5 @@ init_slab()
 
         return -E_NOFUNCTION;
 }
+
+/** \file */
