@@ -16,6 +16,11 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file net.c
+ * \brief Contains the implementation of the net core driver.
+ */
+
 #include <stdlib.h>
 #include <arch/x86/timer.h>
 #include <andromeda/drivers.h>
@@ -26,7 +31,7 @@
 
 static struct net_queue *net_core_queue;
 static struct net_queue *net_tx_core_queue;
-struct packet_type ptype_tree;
+struct protocol ptype_tree;
 static bool initialized = FALSE;
 
 /**
@@ -193,77 +198,74 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
 }
 
 /**
- * \fn netif_process_net_buff(buff)
- * \brief Processes the received net_buff trough the entire network stack.
- * \warning Should only be called from net_rx_vfio(vfile, char*, size_t)
+ * \fn netif_rx_process(nb)
+ * \brief Receives, processess and polls for incoming packets.
  *
- * \param buff The received net buffer.
+ * @param nb The first packet to handle.
+ * @return State of handled packet
  */
 static enum packet_state
-netif_process_net_buff(struct net_buff *buff)
+netif_rx_process(nb)
+struct net_buff *nb;
 {
-        struct packet_type *ptype, *old_type = kalloc(sizeof(*old_type)), *tmp,
-          *root = get_ptype_tree();
+        struct protocol *prot, *tmp, *root = get_ptype_tree();
         struct netdev *dev;
         enum packet_state retval = P_DROPPED;
-        protocol_deliver_handler_t handle;
+        auto enum packet_state handle_packet(struct net_buff*);
 
-        if(check_net_buff_tstamp(buff))
+        if(check_net_buff_tstamp(nb))
         {
-                netif_drop_net_buff(buff);
+                netif_drop_net_buff(nb);
+                retval = P_LOST;
                 goto out;
         }
 
-        if(netpoll_dev(buff->dev))
+        dev = nb->dev;
+
+        if(netpoll_dev(dev))
         {
-                netif_drop_net_buff(buff);
+                netif_drop_net_buff(nb);
+                retval = P_NOTCOMPATIBLE;
                 goto out;
-        }
-
-        net_buff_reset_net_hdr(buff);
-        net_buff_reset_datalink_hdr(buff);
-        net_buff_reset_tail(buff);
-
-        dev = buff->dev;
-        buff->type = dev->frame_type;
-
-        next_round:
-        for_each_ll_entry_safe(root, ptype, tmp)
-        {
-                if(ptype->type == buff->type)
-                {
-                        handle = ptype->deliver_packet;
-                        atomic_inc(&buff->users);
-                        buff->type = ptype->type;
-                        if(buff->type == ETHERNET && buff->raw_vlan != 0)
-                                vlan_untag(buff);
-                        break;
-                }
         }
 
         /*
-         * We dont want to use NULL handles.
+         * init header pointers
          */
-        if(handle)
-        {
-                retval = handle(buff);
-                if(retval == P_DROPPED || retval == P_LOST)
-                        goto poll;
-                if(retval == P_ANOTHER_ROUND)
-                        goto next_round;
-        }
+        net_buff_reset_datalink_hdr(nb);
+        net_buff_reset_net_hdr(nb);
+        net_buff_reset_tail(nb);
+        nb->type = dev->frame_type;
 
-        poll:
-        if(buff->dev->rx_pull_handle)
+        next:
+        do
+        {
+                retval = handle_packet(nb);
+                if(retval == P_QUEUED)
+                {
+                        for_each_ll_entry_safe(root, prot, tmp)
+                        {
+                                if(nb->type == prot->type)
+                                {
+                                        prot->notify();
+                                        break;
+                                }
+                        }
+                        break;
+                }
+        }
+        while(retval == P_ANOTHER_ROUND);
+
+        if(nb->dev->rx_pull_handle)
         {
                 /*
                  * if a pull function is given, try to pull for more packets
                  */
-                switch(retval = dev->rx_pull_handle(buff))
+                switch(retval = dev->rx_pull_handle(nb))
                 {
 
                         case P_ANOTHER_ROUND:
-                                goto next_round;
+                                goto next;
                                 break;
                         case P_DELIVERED:
                                 break;
@@ -281,28 +283,52 @@ netif_process_net_buff(struct net_buff *buff)
                 }
         }
 
-        /*
-         * If one last packet has dropped out..
-         */
-        for_each_ll_entry_safe(root, ptype, tmp)
+        if(retval == P_DELIVERED)
         {
-                if(retval == P_DELIVERED && ptype->type == buff->type)
-                {
-                        retval = ptype->deliver_packet(buff);
-                        atomic_inc(&buff->users);
-                        if(retval == P_DROPPED || retval == P_LOST)
-                                goto out;
-                        break;
-                }
+                do
+                        retval = handle_packet(nb);
+                while(retval == P_ANOTHER_ROUND);
+                return retval;
         }
 
-        kfree(old_type);
-        return retval;
-
         out:
-        kfree(old_type);
-        free_net_buff_list(buff);
-        return retval;
+        if(retval != P_DONE)
+        {
+                free_net_buff_list(nb);
+                return retval;
+        }
+        if(retval == P_DONE)
+                return retval;
+
+
+        /**
+         * \fn handle_packet(buff)
+         * \brief Handles a packet once and returns the result.
+         *
+         * @return The result from the packet handler.
+         */
+        auto enum packet_state
+        handle_packet(struct net_buff *buff)
+        {
+                protocol_deliver_handler_t handle;
+                for_each_ll_entry_safe(root, prot, tmp)
+                {
+                        if(buff->type == prot->type)
+                        {
+                                handle = prot->deliver_packet;
+                                atomic_inc(&buff->users);
+                                if(buff->type == ETHERNET &&
+                                        buff->raw_vlan != 0)
+                                        vlan_untag(buff);
+                                break;
+                        }
+                }
+
+                if(handle)
+                        return handle(buff);
+                else
+                        return P_NOTCOMPATIBLE;
+        }
 }
 
 /**
@@ -325,8 +351,8 @@ netif_process_queue(struct net_queue *head, unsigned int load)
                 struct net_buff *buff = get_entry(carriage);
                 if(buff == NULL)
                         continue;
-                netif_process_net_buff(buff);
 
+                netif_rx_process(buff);
                 if(i >= load)
                         break;
         }
@@ -386,7 +412,7 @@ static size_t
 net_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
         struct net_buff *buffer = (struct net_buff*) buf;
-        netif_process_net_buff(buffer);
+        netif_rx_process(buffer);
         debug("Packet arrived in the core driver successfully. Protocol type: %x\n",
                 buffer->vlan->protocol_tag
         );
@@ -509,15 +535,15 @@ print_mac(struct netdev *netdev)
 static void
 init_ptype_tree()
 {
-        struct packet_type *root = &ptype_tree;
+        struct protocol *root = &ptype_tree;
         memset(root, 0, sizeof (*root));
         root->type = ROOT;
 }
 
 void
-add_ptype(struct packet_type *head, struct packet_type *item)
+add_ptype(struct protocol *head, struct protocol *item)
 {
-        struct packet_type *carriage, *tmp;
+        struct protocol *carriage, *tmp;
         for_each_ll_entry_safe(head, carriage, tmp)
         {
                 if(carriage->next == NULL)
@@ -529,10 +555,10 @@ add_ptype(struct packet_type *head, struct packet_type *item)
         }
 }
 
-struct packet_type *
-get_ptype(struct packet_type *head, enum ptype type)
+struct protocol *
+get_ptype(struct protocol *head, enum ptype type)
 {
-        struct packet_type *carriage, *tmp;
+        struct protocol *carriage, *tmp;
         for_each_ll_entry_safe(head, carriage, tmp)
         {
                 if(carriage->type == type)
@@ -577,7 +603,7 @@ vlan_untag(struct net_buff *buff)
 void
 debug_packet_type_tree()
 {
-        struct packet_type *carriage = get_ptype(get_ptype_tree(), IPv4);
+        struct protocol *carriage = get_ptype(get_ptype_tree(), IPv4);
         if (carriage == NULL)
                 return;
 

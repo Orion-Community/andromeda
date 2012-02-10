@@ -68,6 +68,7 @@ enum eth_type
 
 void init_eth();
 static enum ptype receive_ethernet_frame(struct net_buff *buff);
+static void eth_queue_notifier();
 
 void debug_ethernet_stack();
 

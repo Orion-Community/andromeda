@@ -16,6 +16,11 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file net.h
+ * \brief Net-core header file.
+ */
+
 #ifndef __NET_H
 #define __NET_H
 
@@ -76,9 +81,11 @@ enum packet_state
 {
         P_DELIVERED,
         P_ANOTHER_ROUND,
+        P_QUEUED,
         P_DONE,
         P_DROPPED,
         P_LOST,
+        P_NOTCOMPATIBLE,
 };
 
 /**
@@ -117,14 +124,16 @@ struct net_bridge
 
 typedef enum ptype (*netif_rx_pull)(struct net_buff*);
 typedef enum ptype (*protocol_deliver_handler_t)(struct net_buff*);
+typedef void (*protocol_queue_notify_handler_t)();
 
-struct packet_type
+struct protocol
 {
-        struct packet_type *next;
-        struct packet_type *previous;
+        struct protocol *next;
+        struct protocol *previous;
 
         enum ptype type;
         protocol_deliver_handler_t deliver_packet;
+        protocol_queue_notify_handler_t notify;
 };
 
 /**
@@ -175,7 +184,7 @@ struct net_buff
         * \brief Prev pointer
         * \var length
         * \brief Used length
-        * \var toal_len
+        * \var total_length
         * \brief Allocated length
         * \var data_len
         * \brief Length of the actual data
@@ -229,19 +238,19 @@ int register_net_dev(struct device *dev, struct netdev* netdev);
   */
 int unregister_net_dev(uint64_t id);
 
+/**
+ * \fn netif_rx_process(nb)
+ * \brief Receives, processess and polls for incoming packets.
+ *
+ * @param nb The first packet to handle.
+ * @return State of handled packet
+ */
+static enum packet_state netif_rx_process(struct net_buff *nb);
+
 struct device *get_net_driver(uint64_t id);
 
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
 static int free_net_buff_list(struct net_buff* nb);
-
-/**
-  * \fn rx_process_net_buff(buff)
-  * \brief Processes the received net_buff trough the entire network stack.
-  * \warning Should only be called from net_rx_vfio(vfile, char*, size_t)
-  *
-  * \param buff The received net buffer.
-  */
-static enum packet_state rx_process_net_buff(struct net_buff* buff);
 
 /**
   * \fn net_buff_append_list(head, x)
@@ -310,7 +319,7 @@ static void init_ptype_tree();
   * \param parent Parent node.
   * \param item Item which should be added.
   */
-void add_ptype(struct packet_type *parent, struct packet_type *item);
+void add_ptype(struct protocol *parent, struct protocol *item);
 
 /**
  * \fn netif_process_queue(head, load)
@@ -321,15 +330,15 @@ void add_ptype(struct packet_type *parent, struct packet_type *item);
  */
 static int netif_process_queue(struct net_queue *head, unsigned int load);
 
-struct packet_type *get_ptype(struct packet_type *head, enum ptype type);
+struct protocol *get_ptype(struct protocol *head, enum ptype type);
 
-extern struct packet_type ptype_tree;
+extern struct protocol ptype_tree;
 
 /**
   * \fn get_ptype_tree()
   * @return The packet_type tree.
   */
-static inline struct packet_type*
+static inline struct protocol*
 get_ptype_tree()
 {
         return &ptype_tree;
