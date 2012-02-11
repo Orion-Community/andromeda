@@ -68,6 +68,9 @@ void heapStub();
 
 void heap_add_blocks(void* base, uint32_t size);
 
+void*
+boot_alloc(size_t size);
+
 #define kalloc(size) alloc(size, FALSE)
 #define kfree(ptr)   free(ptr);
 

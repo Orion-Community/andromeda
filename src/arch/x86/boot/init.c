@@ -122,19 +122,15 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 memsize += 1024;
         }
         else
-        {
                 panic("No memory flags!");
-        }
-        if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
-        {
-                mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
-                build_map(mmap, (unsigned int) hdr->mmap_length);
-                mm_page_setup(mmap, (uint32_t)hdr->mmap_length);
-        }
-        else
-        {
+        if (!(hdr->flags & MULTIBOOT_INFO_MEM_MAP))
                 panic("Invalid memory map");
-        }
+
+        /** For now this is the temporary page table map */
+        mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
+        build_map(mmap, (unsigned int) hdr->mmap_length);
+
+
 
         page_init();
         printf("%s\n", welcome);
@@ -142,11 +138,14 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         page_unmap_low_mem();
         pic_init();
         setIDT();
-        mm_page_init(memsize);
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
         ol_cpu_t cpu = kalloc(sizeof (*cpu));
         ol_cpu_init(cpu);
         acpi_init();
+
+        /** Set up paging administration */
+        mm_page_init(memsize);
+        mm_page_setup(mmap, (uint32_t)hdr->mmap_length);
 
         ol_ps2_init_keyboard();
         ol_apic_init(cpu);

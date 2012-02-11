@@ -21,7 +21,8 @@
 #include <mm/paging.h>
 #include <boot/mboot.h>
 
-static struct mm_page_descriptor base_page;
+static uint32_t mm_page_bitmap[0x40000/32];
+
 static struct mm_page_descriptor* pages = NULL;
 
 static struct mm_page_descriptor*
@@ -75,9 +76,7 @@ mm_page_init(size_t mem_size)
         if (mem_size*0x400 < MINIMUM_PAGES*BYTES_IN_PAGE)
                 panic("Machine has not enough memory!");
 
-        memset(&base_page, 0, sizeof(base_page));
-        (&base_page)->size = 0x40000; // 1 GiB of memory
-        (&base_page)->virt_ptr = (void*)0xC0000000; /** 3 GiB */
+
 }
 
 /** \file */
