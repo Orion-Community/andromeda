@@ -130,7 +130,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
         build_map(mmap, (unsigned int) hdr->mmap_length);
 
-
+        task_init();
 
         page_init();
         printf("%s\n", welcome);
@@ -156,7 +156,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #ifdef __IOAPIC_DBG
         ioapic_debug();
 #endif
-
 #ifdef __MEMTEST
         ol_detach_all_devices(); /* free's al the pci devices */
 #endif

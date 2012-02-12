@@ -249,7 +249,7 @@ int fork()
 
 	struct __TASK_STATE* running = current_task();
 	if (running == NULL)
-		return;
+		return -E_NOMEM;
 
 	memcpy (new, running, sizeof (struct __TASK_STATE));
         if (thread_copy(running, new) != -E_SUCCESS)

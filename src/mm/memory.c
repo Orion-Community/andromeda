@@ -35,7 +35,7 @@ int
 init_heap()
 {
 	heap_add_blocks(&heap_base, BASE_HEAP_SIZE);
-	return;
+        return -E_SUCCESS;
 }
 
 void memset(void *dest, int sval, size_t count)

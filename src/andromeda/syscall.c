@@ -17,6 +17,7 @@
 */
 
 #include <andromeda/syscall.h>
+#include <andromeda/sched.h>
 
 int syscall(int call_number, int arg1, int arg2, int arg3)
 {
@@ -36,7 +37,8 @@ int syscall(int call_number, int arg1, int arg2, int arg3)
 	case SYS_FORK:
 		return fork();
 	case SYS_KILL:
-		return kill(arg1);
+		kill(arg1);
+                break;
 	case SYS_SIG:
 	case SYS_EXIT:
 	case SYS_EXEC:
@@ -59,4 +61,5 @@ int syscall(int call_number, int arg1, int arg2, int arg3)
 		panic("These system management system calls aren't supported yet!");
 		break;
   }
+  return -E_SUCCESS;
 }

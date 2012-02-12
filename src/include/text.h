@@ -26,8 +26,8 @@ extern "C" {
 #endif
 
 #include <types.h>
-void println(unsigned char*);
-void printf(unsigned char*, ...);
+void println(char*);
+void printf(char*, ...);
 void putc(uint8_t c);
 void printNum(int index, unsigned int base, boolean sInt, boolean capital);
 #define printnum(a,b,c,d) printNum(a,b,c,d)

@@ -72,7 +72,6 @@ mm_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 
         multiboot_memory_map_t* mmap = map;
 
-        idx_t idx = 0;
         while ((addr_t)mmap < (addr_t)map + mboot_map_size)
         {
 
@@ -102,6 +101,7 @@ mm_page_init(size_t mem_size)
         pages->allocator = TRUE;
 
         pages->lock = mutex_unlocked;
+        return -E_SUCCESS;
 }
 
 /** \file */

@@ -46,30 +46,13 @@ void* alloc(size_t, boolean);
 void* nalloc(size_t);
 int free(void*);
 
-int
-initHdr(volatile memory_node_t*, size_t);
-
-static boolean
-use_memnode_block(volatile memory_node_t* block);
-
-static void
-return_memnode_block(volatile memory_node_t*);
-
-static volatile memory_node_t*
-split(volatile memory_node_t*, size_t);
-
-static volatile memory_node_t*
-splitMul(volatile memory_node_t*, size_t, boolean);
-
-static volatile memory_node_t*
-merge_memnode(volatile memory_node_t*, volatile memory_node_t*);
-
+int initHdr(volatile memory_node_t*, size_t);
 void heapStub();
-
 void heap_add_blocks(void* base, uint32_t size);
-
-void*
-boot_alloc(size_t size);
+void* boot_alloc(size_t size);
+#define examineHeap examine_heap
+#define ol_dbg_heap examine_heap
+void examine_heap();
 
 #define kalloc(size) alloc(size, FALSE)
 #define kfree(ptr)   free(ptr);
@@ -79,12 +62,9 @@ boot_alloc(size_t size);
 #define ALLOC_MAX HEAPSIZE
 
 #ifdef MMTEST
-void examineHeap();
 void wait();
 void testAlloc();
 #endif
-#define examineHeap examine_heap
-#define ol_dbg_heap examine_heap
 
 #if 0
 extern long heapBase;

@@ -84,6 +84,9 @@ ol_ps2_init_keyboard();
 void
 ol_detach_all_devices();
 
+int
+ol_ps2_config_keyboard(uint8_t confval);
+
 #ifdef __cplusplus
 }
 #endif

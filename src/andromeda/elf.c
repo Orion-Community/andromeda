@@ -28,7 +28,6 @@
 boolean elfCheck(Elf32_Ehdr* hdr)
 {
 	unsigned char* e_ident = hdr->e_ident;
-	int i;
 #ifdef MODS
 	printf("Addr: 0x%x\n", (int)hdr);
 	printf("ELF magic: 0x%x%c%c%c\n", (unsigned int)e_ident[EI_MAG0],
@@ -135,12 +134,12 @@ int coreCheck(void* image)
 
 void elfJmp(void* image)
 {
-	Elf32_Ehdr *elfHeader = (Elf32_Ehdr*) image;
-	void* addr = (void*)(elfHeader->e_entry);
-#ifdef ELFDBG
-	printf("entry point: 0x%X\n", addr);
-#endif
-//   elfJump(addr, bitmap, modules);
+//         Elf32_Ehdr *elfHeader = (Elf32_Ehdr*) image;
+//         void* addr = (void*)(elfHeader->e_entry);
+// #ifdef ELFDBG
+//         printf("entry point: 0x%X\n", addr);
+// #endif
+// //         elfJump(addr, bitmap, modules);
 }
 
 /*
@@ -185,8 +184,8 @@ int elfExec(void* image)
 			void *sectionHeader = (void*)(((unsigned long)elfHeader)
 					     + ((unsigned long)sectionAddress));
 			void *thisSection = NULL;
-			int noSHdrs = elfHeader->e_shnum;
-			int shdrSize = elfHeader->e_shentsize;
+// 			int noSHdrs = elfHeader->e_shnum;
+// 			int shdrSize = elfHeader->e_shentsize;
 			i = 0;
 			printf("Section header\n");
 			for (thisSection = sectionHeader; i < noHdrs; i++)

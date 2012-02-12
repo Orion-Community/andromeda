@@ -21,6 +21,7 @@
 #include <text.h>
 #include "include/out.h"
 
+int reloc(int loc_x, int loc_y);
 struct curPos cursor;
 const uint8_t col = 0x07;
 
@@ -60,17 +61,16 @@ void scroll(unsigned char lines)
 	cursor.y -= lines;
 }
 
-void println(unsigned char *line)
+void println(char *line)
 {
 	printf(line);
 	putc('\n');
 }
 
-void printf(unsigned char *line, ...)
+void printf(char *line, ...)
 {
 	int i;
 	va_list list;
-	unsigned int tmp;
 	va_start(list, line);
 	for (i = 0; line[i] != '\0'; i++)
 	{
@@ -151,7 +151,6 @@ int atoi(char* str)
 
 int formatInt(void* buffer, int num, unsigned int base, boolean sInt, boolean capital)
 {
-	int bufBase = (int) buffer;
 	if (base > 36 || base < 2)
 		return 0;
 	int count = 0;

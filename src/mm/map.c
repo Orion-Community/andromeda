@@ -33,7 +33,6 @@ volatile mutex_t map_lock = mutex_unlocked;
 
 int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
-	addr_t memory_map_end;
 	page_map = kalloc(map_size*sizeof(struct page));
 	if(map == NULL)
 		panic("No memory in build_map");
@@ -179,8 +178,6 @@ addr_t map_rm_page(addr_t page_index)
 
 	addr_t prev_idx = page_map[page_index].prev_idx;
 	addr_t next_idx = page_map[page_index].next_idx;
-
-	addr_t list_start = BMP_FREE;
 
 	if (prev_idx != BMP_FREE)
 		page_map[prev_idx].next_idx = next_idx;
