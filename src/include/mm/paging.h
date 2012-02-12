@@ -105,6 +105,8 @@ struct mm_page_descriptor {
         bool free;
         bool dma;
 
+        bool allocator;
+
         mutex_t lock;
 
 #ifdef SLAB

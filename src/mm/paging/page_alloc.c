@@ -21,13 +21,29 @@
 #include <mm/paging.h>
 #include <boot/mboot.h>
 
-static uint32_t mm_page_bitmap[0x40000/32];
 
 static struct mm_page_descriptor* pages = NULL;
 
 static struct mm_page_descriptor*
 mm_get_page(void* addr, bool phys)
 {
+        return NULL;
+}
+
+static struct mm_page_descriptor*
+mm_page_split(page, base_size)
+struct mm_page_descriptor* page;
+size_t base_size;
+{
+        return NULL;
+}
+
+static struct mm_page_descriptor*
+mm_page_merge(page1, page2)
+struct mm_page_descriptor* page1;
+struct mm_page_descriptor* page2;
+{
+        return NULL;
 }
 
 void*
@@ -76,7 +92,16 @@ mm_page_init(size_t mem_size)
         if (mem_size*0x400 < MINIMUM_PAGES*BYTES_IN_PAGE)
                 panic("Machine has not enough memory!");
 
+        pages->next = NULL;
+        pages->page_ptr = NULL;
+        pages->virt_ptr = (void*)0xC0000000;
 
+        pages->swapable = FALSE;
+        pages->free = TRUE;
+        pages->dma = FALSE;
+        pages->allocator = TRUE;
+
+        pages->lock = mutex_unlocked;
 }
 
 /** \file */
