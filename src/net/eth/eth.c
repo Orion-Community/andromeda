@@ -23,10 +23,11 @@
 void
 init_eth()
 {
-  struct packet_type *root = get_ptype_tree();
-  struct packet_type *carriage = kalloc(sizeof(*carriage));
+  struct protocol *root = get_ptype_tree();
+  struct protocol *carriage = kalloc(sizeof(*carriage));
   carriage->type = ETHERNET;
   carriage->deliver_packet = &receive_ethernet_frame;
+  carriage->notify = &eth_queue_notifier;
   add_ptype(root, carriage);
 }
 
@@ -42,8 +43,8 @@ init_eth()
 static enum ptype
 receive_ethernet_frame(struct net_buff *nb)
 {
-        nb->type = IPv4;
-        return P_ANOTHER_ROUND;
+        //nb->type = IPv4;
+        return P_QUEUED;
 }
 
 /**
@@ -53,9 +54,16 @@ receive_ethernet_frame(struct net_buff *nb)
  * @param frame The frame which has to be processed.
  */
 static enum ptype
-process_ethernet_frame(struct net_buff *buff, struct packet_type *type)
+process_ethernet_frame(struct net_buff *buff, struct protocol *type)
 {
   return -E_NOFUNCTION;
+}
+
+static void
+eth_queue_notifier()
+{
+        debug("Eth frame has been queued\n");
+        return;
 }
 
 #if 0

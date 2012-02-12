@@ -63,7 +63,8 @@ clean:
 
 .PHONY: test
 test: all
-	kvm -kernel $(OUT) -net nic,model=rtl8139,vlan=1,macaddr=c0:de:00:ba:be:00 -m 64M -monitor stdio
+	kvm -kernel $(OUT) -net nic,model=rtl8139,vlan=0,macaddr=48:5d:60:bf:51:a9 \
+-net socket,vlan=0,connect=127.0.0.1:8080 -m 64M -monitor stdio
 
 .PHONY: ctest
 ctest: clean all

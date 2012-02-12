@@ -115,6 +115,7 @@ init_rtl_device(struct pci_dev *dev)
 
         sent_command_registers(cmd, portbase);
         read_command_registers(cmd, portbase);
+        rtl_conf_rx(cfg);
         init_core_driver(dev, cfg);
 
 
@@ -143,6 +144,7 @@ init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
         netdev->dev_id = dev->dev_id;
         netdev->frame_type = ETHERNET;
         netdev->poll_support = TRUE;
+        netdev->device_data = cfg;
         get_mac(pci, netdev);
         rtl_setup_irq_handle(&rtl8168_irq_handler, netdev);
         register_net_dev(dev, netdev);
@@ -300,7 +302,36 @@ get_rtl_device(int dev)
 static int
 rtl_conf_rx(struct rtl_cfg *cfg)
 {
+        uint32_t raw = 0;
+        struct rxconfig *rxc = kalloc(sizeof(*rxc));
+        if(!rxc)
+                return -E_NOMEM;
+        cfg->receive = rxc;
 
+        /*
+         * only accept packets which are conform to RFC's.
+         */
+        rxc->dest_addr_accept = 1;
+        rxc->phys_match_accept = 1;
+        rxc->multi_cast_accept = 1;
+        rxc->broadcast_accept = 1;
+        rxc->runt_accept = 0;
+        rxc->error_accept = 0;
+
+        rxc->eeprom = 1;
+        rxc->dma_burst = 0b010;
+        rxc->threshold = 0b111;
+
+        raw = (rxc->dest_addr_accept) | (rxc->phys_match_accept << 1)
+                | (rxc->multi_cast_accept << 2) | (rxc->broadcast_accept << 3)
+                | (rxc->runt_accept << 4) | (rxc->error_accept << 5)
+                | (rxc->eeprom << 6)
+                | (rxc->dma_burst << 8) | (rxc->threshold << 13);
+        outl(cfg->portbase+RTL_RX_CONFIG_PORT_OFFSET, raw);
+#ifdef X86
+        outl(cfg->portbase+RTL_RX_DESC_PORT_OFFSET, (uint32_t)cfg->raw_rx_buff);
+#endif
+        return -E_SUCCESS;
 }
 
 void

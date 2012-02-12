@@ -37,6 +37,8 @@ extern "C" {
 
 #define CPLUS_COMMAND_PORT_OFFSET 0xe0
 #define COMMAND_PORT_OFFSET 0x37
+#define RTL_RX_CONFIG_PORT_OFFSET 0x44
+#define RTL_RX_DESC_PORT_OFFSET 0xe4
 
 struct txconfig
 {
@@ -202,18 +204,24 @@ rtl_conf_l(uint32_t data, uint16_t portbase, uint16_t offset)
 
 void init_rtl_device(struct pci_dev *);
 void init_network();
+static int rtl_setup_irq_handle(irq_handler_t handle, struct netdev *irq_data);
+static int init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg);
 
 void rtl8168_irq_handler(unsigned int irq, irq_stack_t stack);
-static int rtl_setup_irq_handle(irq_handler_t handle, struct netdev *irq_data);
-static void get_mac(struct pci_dev *dev, struct netdev *netdev);
-static void sent_command_registers(struct rtlcommand *, uint16_t);
-static int read_command_registers(struct rtlcommand *, uint16_t);
-static void add_rtl_device(struct rtl_cfg *cfg);
 static int reset_rtl_device(struct rtl_cfg *cfg);
-static int init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg);
+
+
+static void add_rtl_device(struct rtl_cfg *cfg);
+
+
 static struct rtl_cfg* get_rtl_dev_list();
 static struct rtl_cfg* get_rtl_device(int dev);
 static int get_rtl_dev_num();
+static void get_mac(struct pci_dev *dev, struct netdev *netdev);
+
+static int rtl_conf_rx(struct rtl_cfg *cfg);
+static void sent_command_registers(struct rtlcommand *, uint16_t);
+static int read_command_registers(struct rtlcommand *, uint16_t);
 
 /**
  * \fn net_rx_vfio(vfile, buf, size)
@@ -229,7 +237,8 @@ static size_t rtl_rx_vfio(struct vfile *file, char *buf, size_t size);
  */
 static size_t rtl_tx_vfio(struct vfile *file, char *buf, size_t size);
 
-static inline uint16_t get_rtl_port_base(struct pci_dev *dev, uint8_t offset)
+static inline uint16_t
+get_rtl_port_base(struct pci_dev *dev, uint8_t offset)
 {
   uint16_t addr = (uint16_t)(ol_pci_read_dword(dev, 0x10+offset));
   if((addr & 1) != 0)
