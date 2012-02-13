@@ -93,6 +93,9 @@ struct mm_page_descriptor {
          * \var free
          * \var dma
          * \brief Is this page direct memor access?
+         * \var allocator
+         * \brief Which allocator is used, true for slab/slob
+         * \var lock
          */
         struct mm_page_descriptor* next;
         void* page_ptr;

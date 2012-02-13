@@ -86,19 +86,21 @@ int
 mm_page_init(size_t mem_size)
 {
         debug("Machine mem size: %X, required: %X\n",
-                                                                 mem_size*0x400,
-                                                   MINIMUM_PAGES*BYTES_IN_PAGE);
+              mem_size*0x400,
+              MINIMUM_PAGES*BYTES_IN_PAGE
+        );
+
         if (mem_size*0x400 < MINIMUM_PAGES*BYTES_IN_PAGE)
                 panic("Machine has not enough memory!");
 
         pages->next = NULL;
-        pages->page_ptr = NULL;
-        pages->virt_ptr = (void*)0xC0000000;
+        pages->page_ptr = NULL; /** page ptr = 0 */
+        pages->virt_ptr = (void*)0xC0000000; /** Map all memoy to 3 GiB */
 
-        pages->swapable = FALSE;
-        pages->free = TRUE;
-        pages->dma = FALSE;
-        pages->allocator = TRUE;
+        pages->swapable = FALSE;        /** Not swappable */
+        pages->free = TRUE;             /** Free */
+        pages->dma = FALSE;             /** No direct memory access */
+        pages->allocator = FALSE;       /** Non-freeable allocated */
 
         pages->lock = mutex_unlocked;
         return -E_SUCCESS;
