@@ -177,7 +177,7 @@ struct netdev
  */
 struct net_buff
 {
-        /**
+       /**
         * \var next
         * \brief Next pointer
         * \var previous

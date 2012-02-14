@@ -108,6 +108,8 @@ void shutdown();
                                           carriage != NULL; carriage = \
                                           carriage->next)
 
+#define addressof(p) &(p)
+
 #ifdef __cplusplus
 }
 #endif
