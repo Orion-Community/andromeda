@@ -40,6 +40,11 @@ rtl8168_irq_handler(unsigned int irq, irq_stack_t stack)
         struct vfile *io = rtl->open(rtl);
         struct net_buff *buff = alloc_buff_frame(496);
         buff->dev = dev;
+        struct rtl_cfg *cfg = dev->device_data;
+        unsigned short irq_state = 0;
+        rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET,
+                                   &irq_state, sizeof(irq_state));
+        printf("IRQ status: %x\n", irq_state);
         if (io->read(io, (void*) buff, sizeof (*buff)) != -E_SUCCESS)
                 warning("failure to call rtl io reader\n");
 
