@@ -16,11 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * \file clock.h
- * \brief Specifies data structures and functions about the real time clock.
- * \author Michel Megens
- */
+/** \file */
 
 #ifndef __CLOCK
 #define __CLOCK
