@@ -116,6 +116,7 @@ sleep:
 
 .done:
 	mov [isSleeping], byte 0
+        sti
 	pop eax
 	pop ebp
 	ret

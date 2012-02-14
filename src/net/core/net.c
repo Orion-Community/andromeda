@@ -298,6 +298,7 @@ struct net_buff *nb;
                                 if(prot->type == nb->type)
                                 {
                                         prot->notify();
+                                        break;
                                 }
                         }
                 }
