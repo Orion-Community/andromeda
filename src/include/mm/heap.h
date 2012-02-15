@@ -73,6 +73,7 @@ extern long heapSize;
 
 extern volatile memory_node_t* heap;
 extern volatile mutex_t prot;
+extern boolean freeable_allocator;
 
 #ifdef __cplusplus
 }

@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <mm/paging.h>
 #include <mm/map.h>
+#include <mm/heap.h>
 
 #define BASE_HEAP_SIZE 0x100000
 
@@ -35,6 +36,7 @@ int
 init_heap()
 {
 	heap_add_blocks(&heap_base, BASE_HEAP_SIZE);
+        freeable_allocator = TRUE;
         return -E_SUCCESS;
 }
 

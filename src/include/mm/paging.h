@@ -101,14 +101,14 @@ struct mm_page_descriptor {
         void* page_ptr;
         void* virt_ptr;
 
-        size_t size;
+        uint64_t size;
         time_t last_referenced;
 
         bool swapable;
         bool free;
         bool dma;
 
-        bool allocator;
+        bool freeable;
 
         mutex_t lock;
 
