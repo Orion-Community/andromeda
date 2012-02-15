@@ -16,10 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * \file net.h
- * \brief Net-core header file.
- */
+/** \file */
 
 #ifndef __NET_H
 #define __NET_H
@@ -239,11 +236,17 @@ int register_net_dev(struct device *dev, struct netdev* netdev);
 int unregister_net_dev(uint64_t id);
 
 /**
- * \fn netif_rx_process(nb)
+ * \fn netif_rx_process(struct net_buff*)
  * \brief Receives, processess and polls for incoming packets.
  *
- * @param nb The first packet to handle.
- * @return State of handled packet
+ * \param nb The first packet to handle.
+ * \return State of handled packet
+ * \see netif_process_queue(struct net_queue *head, unsigned int load)
+ * \see struct net_buff, struct netdev
+ * 
+ * This function handles all packets which are fresh from the device driver or
+ * the netif queue (see <i>netif_process_queue(head, load)</i>). After handling
+ * a packet it will poll from the device driver for more incoming packets.
  */
 static enum packet_state netif_rx_process(struct net_buff *nb);
 
@@ -322,11 +325,14 @@ static void init_ptype_tree();
 void add_ptype(struct protocol *parent, struct protocol *item);
 
 /**
- * \fn netif_process_queue(head, load)
- * \brief Processes <i>load</i> amount of packets from the queue. The packets
- * taken from the queue are passed to <i>netif_process_net_buff(buff)</i>.
+ * \fn netif_process_queue(struct net_queue *head, unsigned int load)
+ * \brief Processes <i>load</i> amount of packets from the queue.
  * \param head The head of the receive queue.
  * \param load The amount of packets to process
+ * \return The error code. Returns 0 on success.
+ * 
+ * The packets taken from the queue are passed to 
+ * <i>netif_process_net_buff(buff)</i>.
  */
 static int netif_process_queue(struct net_queue *head, unsigned int load);
 

@@ -202,11 +202,15 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
 }
 
 /**
- * \fn netif_rx_process(nb)
+ * \fn netif_rx_process(struct net_buff*)
  * \brief Receives, processess and polls for incoming packets.
  *
  * @param nb The first packet to handle.
  * @return State of handled packet
+ * 
+ * This function handles all packets which are fresh from the device driver or
+ * the netif queue (see <i>netif_process_queue(head, load)</i>). After handling
+ * a packet it will poll from the device driver for more incoming packets.
  */
 static enum packet_state
 netif_rx_process(nb)
@@ -319,11 +323,10 @@ struct net_buff *nb;
                 return retval;
         
 
-        /**
-         * \fn handle_packet(buff)
-         * \brief Handles a packet once and returns the result.
-         *
-         * @return The result from the packet handler.
+        /*
+         * Handles one packet and returns the result of the packet handler. If
+         * a certain packet type is not known within andromeda, the return type
+         * will be enum packet_state.P_NOTCOMPATIBLE.
          */
         auto enum packet_state
         handle_packet(struct net_buff *buff)

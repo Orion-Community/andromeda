@@ -21,7 +21,24 @@
 
 #include <andromeda/clock.h>
 
+/**
+ * \var rtc
+ * \brief Global variable for the real time clock.
+ * 
+ * At boot, this is the uninitialized rtc. The function <i>setup_rtc()</i> has
+ * to be called to initialise the rtc and make sure it is kept up to date.
+ */
+RTC rtc;
+
+/**
+ * \fn setup_rtc
+ * \brief Setup the RTC.
+ * 
+ * This function initialises the Real Time Clock object. It also registers and
+ * initialises an IRQ/ISR to keep the RTC object up to date.
+ */
 int
 setup_rtc()
 {
+        
 }
