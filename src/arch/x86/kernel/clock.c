@@ -87,6 +87,15 @@ setup_rtc()
         rtc_dev->device_data = clock;
 }
 
+/**
+ * \fn rtc_create_driver(struct device *dev)
+ * \brief Allocate the device driver.
+ * \param dev Allocated device structure.
+ * \return The error code. See error.h
+ *
+ * This function will allocate a new device driver and add an communication
+ * file to the device. Returns 0 on success error code otherwise.
+ */
 static int
 rtc_create_driver(struct device *dev)
 {
