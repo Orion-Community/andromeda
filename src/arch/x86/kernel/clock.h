@@ -23,6 +23,8 @@
 
 #include <stdlib.h>
 
+#include <andromeda/drivers.h>
+
 /**
  * \struct RTC
  * \brief Describes a RTC object.
@@ -56,7 +58,18 @@ typedef struct _rtc
  * At boot, this is the uninitialized rtc. The function <i>setup_rtc()</i> has
  * to be called to initialise the rtc and make sure it is kept up to date.
  */
-extern RTC rtc;
+extern struct device *rtc_dev;
+
+/**
+ * \fn rtc_create_driver(struct device *dev)
+ * \brief Allocate the device driver.
+ * \param dev Allocated device structure.
+ * \return The error code. See error.h
+ *
+ * This function will allocate a new device driver and add an communication
+ * file to the device. Returns 0 on success error code otherwise.
+ */
+static int rtc_create_driver(struct device *dev);
 
 /**
  * \fn get_main_rtc()
@@ -69,7 +82,37 @@ extern RTC rtc;
 static inline RTC*
 get_main_rtc()
 {
-        return &rtc;
+        return (RTC*)(rtc_dev->device_data);
+}
+
+/**
+ * \fn read_rtc_value(RTC *clock)
+ * \brief Get the current count of the real time clock.
+ * \param clock The clock to read the timestamp from.
+ * \return Current value of the real time clock.
+ *
+ * This function returns the current time stamp of the real time clock. This count
+ * are the seconds since 1970.
+ */
+static inline unsigned long long
+read_rtc_value(RTC *clock)
+{
+        return clock->timestamp;
+}
+
+/**
+ * \fn set_rtc_value(RTC *clock, unsigned long long timestamp)
+ * \brief Set RTC stamp.
+ * \param clock The real time clock to set.
+ * \param timestamp The offset to set to the clock.
+ * \warning <b>This function will overwrite the current count on the clock!</b>
+ * 
+ * With this function you can set an offset for the real time clock.
+ */
+static inline void
+set_rtc_value(RTC *clock, unsigned long long timestamp)
+{
+        clock->timestamp = timestamp;
 }
 
 #endif

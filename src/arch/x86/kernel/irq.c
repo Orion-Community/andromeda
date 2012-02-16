@@ -87,6 +87,7 @@ void cIRQ6(irq_stack_t regs)
 
 void cIRQ7(irq_stack_t regs)
 {
+  pic_eoi(7);
   return;
 }
 

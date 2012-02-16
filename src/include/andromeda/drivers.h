@@ -44,6 +44,7 @@ typedef enum {
         cpu,            /** \enum cpu */
         apic_dev,       /** \enum apic */
         pit,            /** \enum pit */
+        rtc,            /** \enum rtc */
         pci,            /** \enum pci */
         usb,            /** \enum usb */
         ata,            /** \enum ata aka ide */
