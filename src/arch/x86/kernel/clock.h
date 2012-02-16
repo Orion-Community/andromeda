@@ -71,7 +71,7 @@ typedef struct _rtc
          */
         char *name;
         time_t timestamp;
-        uint16_t frequency;
+        uint16_t rate;
         
 } RTC;
 
@@ -138,5 +138,17 @@ set_rtc_value(RTC *clock, unsigned long long timestamp)
 {
         clock->timestamp = timestamp;
 }
+
+/**
+ * \fn get_rtc_frq(RTC *rtc)
+ * \param rtc Configured real time clock object.
+ * \brief Returns the frequention of a real time clock object.
+ * \return Clock frequention in Hertz
+ * 
+ * This function returns the configured frequention in Hertz of the given RTC
+ * object. If the RTC is not configured correctly or when it is turned of the
+ * return value will be 0.
+ */
+inline unsigned short get_rtc_frq(RTC *rtc);
 
 #endif
