@@ -1,6 +1,6 @@
 
     Andromeda
-    Copyright (C) 2011 Michel Megens and Bart Kuivenhoven
+    Copyright (C) 2011, 2012 Michel Megens and Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -29,7 +29,8 @@ Bart Kuivenhoven
 
 Michel Megens
 	dev@michelmegens.net
-	booting and hardware interfaceing
+	booting, hardware interfaceing, network stack,
+	timers & counters, scheduling
 
 Steven van der Schoot
 	<E-mail>

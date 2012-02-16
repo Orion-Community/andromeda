@@ -305,6 +305,18 @@ native_setup_irq_handler(unsigned int irq)
   }
 }
 
+void
+disable_irqs()
+{
+        __asm__ __volatile__("cli\n");
+}
+
+void
+enable_irqs()
+{
+        __asm__ __volatile__("sti\n");
+}
+
 #ifdef IRQ_DBG
 uint32_t
 debug_dynamic_irq()

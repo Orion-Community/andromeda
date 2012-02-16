@@ -41,6 +41,8 @@ extern "C" {
 #include <math/math.h>
 #include <debug.h>
 
+#define BIT(x) (1 << (x))
+
 struct list_node;
 
 

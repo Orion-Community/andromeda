@@ -158,6 +158,23 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
+
+/**
+ * \fn enable_irqs()
+ * \brief Enable the IRQs
+ * 
+ * This function sets the Interrupt Enable flag in the (E)FLAGS register.
+ */
+void enable_irqs();
+
+/**
+ * \fn disable_irqs()
+ * \brief Disable the IRQs
+ * 
+ * This function will clear the Interrupt Enable flag in de (E)FLAGS register.
+ */
+void disable_irqs();
+
 #if 0
 extern void irq16();
 extern void irq17();

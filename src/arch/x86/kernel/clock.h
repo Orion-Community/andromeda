@@ -25,6 +25,11 @@
 
 #include <andromeda/drivers.h>
 
+#define CMOS_RTC_TIMER 0xa
+#define CMOS_RTC_ALARM 0xb
+#define CMOS_RTC_IRQ_ 0xc
+#define CMOS_RTC_VALID_BYTE 0xd
+
 /**
  * \def RTC_RATE_MAX
  * \brief Maxiumum RTC rate.
@@ -94,6 +99,16 @@ extern struct device *rtc_dev;
  * file to the device. Returns 0 on success error code otherwise.
  */
 static int rtc_create_driver(struct device *dev);
+
+/**
+ * \fn program_rtc(struct device *dev)
+ * \param dev The clock device.
+ * \brief Config the real time clock.
+ * 
+ * program_rtc configures the hardware RTC. It will set the clock to the correct
+ * frequency and enable the IRQ.
+ */
+static void program_rtc(struct device *dev);
 
 /**
  * \fn get_main_rtc()
