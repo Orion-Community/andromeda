@@ -28,22 +28,23 @@ extern "C" {
 #define mutex_locked 1
 #define mutex_unlocked 0
 
-typedef volatile unsigned int mutex_t;
+typedef volatile unsigned int spinlock_t;
+#define mutex_t spinlock_t
 
 typedef struct {
         int64_t cnt;
-        mutex_t lock;
+        spinlock_t lock;
 } atomic_t;
 
 typedef struct {
         int64_t cnt;
-        mutex_t lock;
+        spinlock_t lock;
         int64_t limit;
 }semaphore_t;
 
-extern void mutex_lock(mutex_t*);
-extern unsigned int mutex_test(mutex_t*);
-extern void mutex_unlock(mutex_t*);
+extern void mutex_lock(spinlock_t*);
+extern unsigned int mutex_test(spinlock_t*);
+extern void mutex_unlock(spinlock_t*);
 
 int64_t atomic_add(atomic_t* d, int cnt);
 int64_t atomic_sub(atomic_t* d, int cnt);

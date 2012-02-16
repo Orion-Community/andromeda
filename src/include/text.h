@@ -21,11 +21,12 @@
 #ifndef __TEXT_H
 #define __TEXT_H
 
+#include <types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <types.h>
 void println(char*);
 void printf(char*, ...);
 void putc(uint8_t c);

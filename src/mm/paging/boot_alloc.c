@@ -26,6 +26,13 @@ static char boot_heap_mem[BOOT_HEAP_SIZE];
 static void* boot_heap = &boot_heap_mem;
 static size_t boot_heap_free = BOOT_HEAP_SIZE;
 
+/**
+ * \fn boot_alloc
+ * \brief Allocate non-freeable memory
+ * \param size
+ * \brief Size to be allocated
+ */
+
 void*
 boot_alloc(size_t size)
 {

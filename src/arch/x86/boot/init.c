@@ -132,6 +132,12 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         task_init();
 
+        /** Set up paging administration */
+        x86_page_init(memsize);
+        x86_page_setup(mmap, (uint32_t)hdr->mmap_length);
+
+        for (;;);
+
         page_init();
         printf("%s\n", welcome);
         setGDT();
@@ -142,10 +148,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         ol_cpu_t cpu = kalloc(sizeof (*cpu));
         ol_cpu_init(cpu);
         acpi_init();
-
-        /** Set up paging administration */
-        mm_page_init(memsize);
-        mm_page_setup(mmap, (uint32_t)hdr->mmap_length);
 
         ol_ps2_init_keyboard();
         ol_apic_init(cpu);
