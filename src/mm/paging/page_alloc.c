@@ -158,8 +158,6 @@ mm_show_pages()
         }
 }
 
-#define THREE_GIB 0xC0000000
-
 int
 x86_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 {

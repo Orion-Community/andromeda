@@ -37,6 +37,8 @@ extern "C" {
 #define MINIMUM_PAGES   0x800
 #define PAGE_BITS       0xFFF
 #define BYTES_IN_PAGE   0x1000
+#define GIB             0x40000000
+#define THREE_GIB       0xC0000000
 
 #endif /* X86 */
 
@@ -124,7 +126,7 @@ int page_unmap_low_mem();
 addr_t page_phys_addr(addr_t, struct page_dir*);
 
 /**
- * \fn x86_page_setup
+ * \fn mm_page_setup
  * \brief Build a list of available pages based on multiboot info
  * \param map
  * \brief The pointer to the multiboot map data
@@ -143,14 +145,14 @@ addr_t page_phys_addr(addr_t, struct page_dir*);
  * \brief The ammount of pages
  * \return The allocated page(s)
  *
- * \fn x86_page_setup
+ * \fn mm_page_setup
  * \brief Initialise the first pages
  * \return Standard error code
  */
-int x86_page_setup(multiboot_memory_map_t*, int mboot_map_size);
+int mm_page_setup(multiboot_memory_map_t*, int mboot_map_size);
 int mm_page_free(void* page);
 void* mm_page_alloc(size_t size);
-int x86_page_init(size_t mem_size);
+int mm_page_init(size_t mem_size);
 
 #ifdef __cplusplus
 }
