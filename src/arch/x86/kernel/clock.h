@@ -26,6 +26,30 @@
 #include <andromeda/drivers.h>
 
 /**
+ * \def RTC_RATE_MAX
+ * \brief Maxiumum RTC rate.
+ *
+ * The maximum timer rate is 8kHz or 122.070us.
+ */
+#define RTC_RATE_MAX 0x3
+
+/**
+ * \def RTC_RATE_SCHED
+ * \brief Timer rate used for the scheduling by default.
+ *
+ * The schedular is called every 1/256 of a second (aka 3.90625ms).
+ */
+#define RTC_RATE_SCHED 0x6
+
+/**
+ * \def RTC_RATE_MIN
+ * \brief Slowest RTC rate possible.
+ *
+ * The slowest rate possible for the RTC is 2Hz (500ms).
+ */
+#define RTC_RATE_MIN 0xF
+
+/**
  * \struct RTC
  * \brief Describes a RTC object.
  * 
