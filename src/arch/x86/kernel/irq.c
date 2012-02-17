@@ -93,6 +93,7 @@ void cIRQ7(irq_stack_t regs)
 
 void cIRQ8(irq_stack_t regs)
 {
+  printf("test\n");
   pic_eoi(8);
   return;
 }

@@ -23,6 +23,7 @@
 #include <andromeda/clock.h>
 #include <andromeda/drivers.h>
 #include <andromeda/error.h>
+#include <andromeda/panic.h>
 #include <andromeda/irq.h>
 
 #include <drivers/root.h>
@@ -75,13 +76,15 @@ get_rtc_frq(RTC *clock)
  * initialises an IRQ/ISR to keep the RTC object up to date.
  */
 int
-setup_rtc()
+setup_rtc(void)
 {
         rtc_dev = kalloc(sizeof(*rtc_dev));
         if(rtc_dev == NULL)
                 panic("No memory during RTC init!\n");
         rtc_create_driver(rtc_dev);
         RTC *clock = kzalloc(sizeof(*clock));
+        if(clock == NULL)
+                return -E_NOMEM;
         clock->name = "clock0";
         clock->rate = RTC_RATE_SCHED;
         rtc_dev->device_data = clock;
@@ -116,6 +119,7 @@ rtc_create_driver(struct device *dev)
 static void
 program_rtc(struct device *dev)
 {
+        RTC *rtc = (RTC*)dev->device_data;
         disable_irqs();
         
         /* select CMOS register B to set the RTC to a periodic clock. */
@@ -123,6 +127,13 @@ program_rtc(struct device *dev)
         unsigned char val = inb(CMOS_DATA);
         
         outb(CMOS_SELECT, CMOS_RTC_ALARM);
-        outb(CMOS_DATA, BIT(6));
+        outb(CMOS_DATA, val | BIT(6));
+
+        /* set the RTC frequency */
+        outb(CMOS_SELECT, CMOS_RTC_TIMER);
+        val = inb(CMOS_DATA);
+
+        outb(CMOS_SELECT, CMOS_RTC_TIMER);
+        outb(CMOS_DATA, (val & 0xF0) | (rtc->rate & 0xF));
         enable_irqs();
 }
