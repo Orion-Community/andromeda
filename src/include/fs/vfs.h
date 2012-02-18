@@ -27,6 +27,10 @@ extern "C" {
 
 #define DIR_LIST_SIZE 0xFF
 
+#define VFIO(fn, arg1, arg2, arg3) \
+static unsigned long fn(struct vfile* arg1, char* arg2, unsigned long arg3); \
+static unsigned long fn(struct vfile* arg1, char* arg2, unsigned long arg3)
+
 struct vfile;
 
 typedef size_t (*vfs_read_hook_t)(struct vfile*, char*, size_t);

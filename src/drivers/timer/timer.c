@@ -43,11 +43,13 @@ init_timer_obj(char *name, timer_tick_t tick_handle, void *data)
         timer->name = name;
         timer->tick_handle = tick_handle;
         timer->data = data;
+        timer->config = 0xff;
         
         struct device *root = get_root_device();
         struct device *dev = kalloc(sizeof(*dev));
         dev_timer_init(dev, root);
         dev_timer_setup_io(dev);
+        dev->device_data = timer;
 }
 
 static int 
@@ -74,7 +76,7 @@ dev_timer_init(struct device* dev, struct device* parent)
         dev->driver->find = device_find_id;
         device_id_alloc(dev);
 
-        dev->type = legacy_bus;
+        dev->type = timer_dev;
 
         parent->driver->attach(parent, dev);
 
@@ -88,4 +90,34 @@ vfs_read_hook_t read;
 vfs_write_hook_t write;
 {
         dev->driver->io = kzalloc(sizeof(*(dev->driver->io)));
+        struct vfile *io = dev->driver->io;
+        
+        io->type = file;
+        io->read = read;
+        io->write = write;
+}
+
+VFIO(timer_write, file, data, size)
+{
+        TIMER *timer = (TIMER*)data;
+        switch(timer->config)
+        {
+                case 0x4:
+                        timer->set_mode(timer);
+                        break;
+                case 0x2:
+                        timer->set_frq(timer);
+                        break;
+                case 0x1:
+                        /* get the tick offset */
+                        if(size <= sizeof(void*))
+                                return 0;
+                        uint64_t offset = *((uint64_t*)(data+sizeof(void*)));
+                        timer->set_tick(timer, offset);
+                        break;
+                case 0xff: /* all bits set, nothing to do here */
+                        break;
+                default: /* unknown config word.. reset bits set? */
+                        break;
+        }
 }

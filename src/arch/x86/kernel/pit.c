@@ -16,12 +16,20 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <andromeda/timer.h>
+
 #include <arch/x86/pit.h>
 #include <stdlib.h>
 #include <sys/io.h>
 #include <text.h>
 
 static ol_pit_system_timer_t pit_chan0 = NULL;
+
+void
+pit_set_frq(TIMER *timer)
+{
+        
+}
 
 int
 ol_pit_init(uint32_t hz)

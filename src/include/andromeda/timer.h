@@ -49,6 +49,9 @@ typedef struct timer
          * \var name
          * \brief Unique name for the timer
          * 
+         * \var frq
+         * \brief The timer frequency.
+         * 
          * \var tick
          * \brief The timer tick.
          * 
@@ -59,9 +62,16 @@ typedef struct timer
          * \brief Private data specific for each different timer.
          */
         char *name;
+        unsigned short frq;
         unsigned long long tick;
         timer_tick_t tick_handle;
-        void *timer_data;        
+        void *timer_data;
+        unsigned char config,
+                      mode;
+                      
+        void (*set_frq)(struct timer*);
+        void (*set_mode)(struct timer*);
+        void (*set_tick)(struct timer*);
 } TIMER;
 
 /**
@@ -85,6 +95,24 @@ extern volatile boolean scheduling;
  * This function creates a virtual file to communicate with the device.
  */
 static int dev_timer_setup_io(struct device *, vfs_read_hook_t, vfs_write_hook_t);
+
+static inline unsigned long long
+get_timer_tick(TIMER *timer)
+{
+        return timer->tick;
+}
+
+static inline void
+set_timer_tick(TIMER *timer, unsigned long long tick)
+{
+        timer->tick = tick;
+}
+
+static inline unsigned short
+get_timer_frq(TIMER *timer)
+{
+        return timer->frq;
+}
 
 void setupTimer(unsigned int freq, void* scheduler, void* hwInit);
 void setTimerFrequency(int);
