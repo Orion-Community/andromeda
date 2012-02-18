@@ -16,16 +16,21 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "clock.h"
 #include <text.h>
+#include <stdlib.h>
+
 #include <arch/x86/idt.h>
 #include <arch/x86/interrupts.h>
 #include <arch/x86/irq.h>
 #include <arch/x86/pic.h>
+
+#include <interrupts/int.h>
+
 #include <sys/keyboard.h>
-#include <stdlib.h>
 #include <sys/dev/ps2.h>
 #include <sys/dev/pci.h>
-#include <interrupts/int.h>
+
 
 
 uint64_t pit_timer = 0;
@@ -94,6 +99,8 @@ void cIRQ7(irq_stack_t regs)
 void cIRQ8(irq_stack_t regs)
 {
   printf("test\n");
+  outb(CMOS_SELECT, CMOS_RTC_IRQ);
+  inb(CMOS_DATA);
   pic_eoi(8);
   return;
 }

@@ -44,7 +44,9 @@ rtl8168_irq_handler(unsigned int irq, irq_stack_t stack)
         unsigned short irq_state = 0;
         rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET,
                                    &irq_state, sizeof(irq_state));
+#ifdef RTL_DBG
         printf("IRQ status: %x\n", irq_state);
+#endif
         if (io->read(io, (void*) buff, sizeof (*buff)) != -E_SUCCESS)
                 warning("failure to call rtl io reader\n");
 

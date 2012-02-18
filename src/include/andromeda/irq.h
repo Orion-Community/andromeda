@@ -16,4 +16,11 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __IRQ_H
+#define __IRQ_H
 #include <arch/x86/irq.h>
+
+#define IRQ(fn, arg1, arg2) \
+static void fn(unsigned int arg1, irq_stack_t arg2); \
+static void fn(unsigned int arg1, irq_stack_t arg2)
+#endif

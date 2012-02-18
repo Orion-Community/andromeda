@@ -17,9 +17,20 @@
  */
 
 #include <andromeda/drivers.h>
+#include <andromeda/irq.h>
+
 #include <drivers/root.h>
 
-int drv_timer_init(struct device* dev, struct device* parent)
+IRQ(clk0, irq, stack)
+{
+        struct device *dev;
+        struct idata data = get_irq_data(irq);
+        dev = data->irq_data;
+        
+        TIMER *timer = dev->device_data;
+}
+
+static int dev_timer_init(struct device* dev, struct device* parent)
 {
         if (dev == NULL || parent == NULL)
                 return -E_NULL_PTR;

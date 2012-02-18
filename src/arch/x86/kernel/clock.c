@@ -88,6 +88,7 @@ setup_rtc(void)
         clock->name = "clock0";
         clock->rate = RTC_RATE_SCHED;
         rtc_dev->device_data = clock;
+        program_rtc(rtc_dev);
 }
 
 /**
@@ -127,7 +128,7 @@ program_rtc(struct device *dev)
         unsigned char val = inb(CMOS_DATA);
         
         outb(CMOS_SELECT, CMOS_RTC_ALARM);
-        outb(CMOS_DATA, val | BIT(6));
+        outb(CMOS_DATA, val |0x40);
 
         /* set the RTC frequency */
         outb(CMOS_SELECT, CMOS_RTC_TIMER);
@@ -135,5 +136,6 @@ program_rtc(struct device *dev)
 
         outb(CMOS_SELECT, CMOS_RTC_TIMER);
         outb(CMOS_DATA, (val & 0xF0) | (rtc->rate & 0xF));
+        enable_legacy_irq(RTC_IRQ_LINE);
         enable_irqs();
 }

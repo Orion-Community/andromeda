@@ -143,7 +143,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         pic_init();
         setIDT();
         setup_irq_data();
-        setup_rtc();
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
         ol_cpu_t cpu = kalloc(sizeof (*cpu));
         ol_cpu_init(cpu);
@@ -153,6 +152,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         ol_apic_init(cpu);
         init_ioapic();
         ol_pci_init();
+        setup_rtc();
         printf("Little endian 0xf in net endian %x\n", htons(0xf));
 #ifdef __IOAPIC_DBG
         ioapic_debug();

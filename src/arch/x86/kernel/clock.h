@@ -27,8 +27,10 @@
 
 #define CMOS_RTC_TIMER 0xa
 #define CMOS_RTC_ALARM 0xb
-#define CMOS_RTC_IRQ_ 0xc
+#define CMOS_RTC_IRQ 0xc
 #define CMOS_RTC_VALID_BYTE 0xd
+
+#define RTC_IRQ_LINE 0x8
 
 /**
  * \def RTC_RATE_MAX

@@ -17,11 +17,14 @@
  */
 
 #include <stdlib.h>
+#include <text.h>
+
 #include <andromeda/panic.h>
+#include <andromeda/error.h>
+
 #include <arch/x86/pic.h>
 #include <arch/x86/pit.h>
 #include <arch/x86/irq.h>
-#include <text.h>
 
 void pic_remap(uint32_t offset1, uint32_t offset2)
 {
@@ -54,7 +57,7 @@ void pic_remap(uint32_t offset1, uint32_t offset2)
 	iowait();
 
 	outb(0x21, 0x3c);
-	outb(0xa1, 0x3f);
+	outb(0xa1, 0x3e);
 
 #if 0
 	outb(OL_PIC2_DATA, 0xff);	// disable irq's
@@ -70,6 +73,17 @@ void pic_eoi(uint8_t irq)
 		outb(OL_PIC2_COMMAND, OL_PIC_EOI);
 	}
 	outb(OL_PIC1_COMMAND, OL_PIC_EOI);
+}
+
+int
+pic_clear_irq_mask(uint8_t irq)
+{
+        uint16_t port = (irq < 8) ? OL_PIC1_DATA : OL_PIC2_DATA;
+        uint8_t mask = inb(port) & ~(BIT((irq<8) ? irq : (irq - 8)));
+        outb(port, mask);
+        printf("Masking irq: %x - new mask: %x\n", irq, inb(port));
+        
+        return -E_NOFUNCTION;
 }
 
 void pic_init()

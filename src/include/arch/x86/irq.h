@@ -40,6 +40,8 @@ extern "C" {
 #define TRIGGER_LEVEL_ASSERT 1
 #define TRIGGER_LEVEL_DEASSERT 0
 
+#define enable_legacy_irq(x) pic_clear_irq_mask(x)
+
   /* dynamic code allocation */
 #define DYNAMIC_IRQ_VALUE get_general_irqstub_size()-8
 #define DYNAMIC_IRQ_HANDLER_VALUE get_general_irqstub_size()-4
