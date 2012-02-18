@@ -43,7 +43,7 @@ typedef enum {
         tty,            /** \enum tty */
         cpu,            /** \enum cpu */
         apic_dev,       /** \enum apic */
-        pit,            /** \enum pit */
+        timer_dev,      /** \enum timer */
         rtc,            /** \enum rtc */
         pci,            /** \enum pci */
         usb,            /** \enum usb */
@@ -75,13 +75,17 @@ struct driver
         int (*detach)(struct device* dev, struct device* child);
         int (*suspend)(struct device* dev);
         int (*resume)(struct device* dev);
-        /** \var io
-         *  \brief ptr to the file descriptor associated with the device. */
+        /** 
+         * \var io
+         *  \brief ptr to the file descriptor associated with the device. 
+         */
         struct vfile *io;
 
         mutex_t driver_lock; /** \var lock */
-        /** \var attach_cnt
-         *  \brief how many times has the driver been attached. */
+        /** 
+         * \var attach_cnt
+         *  \brief how many times has the driver been attached. 
+         */
         atomic_t attach_cnt;
 };
 

@@ -21,22 +21,10 @@
 
 #include <stdlib.h>
 
-#include <andromeda/irq.h>
-
 struct cpu_time
 {
         unsigned int low, high;
 };
-
-typedef struct timer
-{
-        char *name;
-        unsigned long long tick;
-        irq_handler_t handle;
-        void *timer_data;        
-} TIMER;
-
-extern boolean scheduling;
 
 unsigned long long get_cpu_tick();
 static int __get_cpu_tick_inline();

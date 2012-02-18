@@ -18,19 +18,40 @@
 
 #include <andromeda/drivers.h>
 #include <andromeda/irq.h>
+#include <andromeda/timer.h>
+
+#include <fs/vfs.h>
 
 #include <drivers/root.h>
 
-IRQ(clk0, irq, stack)
+IRQ(timer, irq, stack)
 {
         struct device *dev;
         struct idata data = get_irq_data(irq);
         dev = data->irq_data;
         
         TIMER *timer = dev->device_data;
+        timer->timer_tick(timer);
 }
 
-static int dev_timer_init(struct device* dev, struct device* parent)
+static TIMER *
+init_timer_obj(char *name, timer_tick_t tick_handle, void *data)
+{
+        TIMER *timer = kzalloc(sizeof(*timer));
+        if(NULL == timer)
+                return timer;
+        timer->name = name;
+        timer->tick_handle = tick_handle;
+        timer->data = data;
+        
+        struct device *root = get_root_device();
+        struct device *dev = kalloc(sizeof(*dev));
+        dev_timer_init(dev, root);
+        dev_timer_setup_io(dev);
+}
+
+static int 
+dev_timer_init(struct device* dev, struct device* parent)
 {
         if (dev == NULL || parent == NULL)
                 return -E_NULL_PTR;
@@ -40,7 +61,7 @@ static int dev_timer_init(struct device* dev, struct device* parent)
         dev->driver = kalloc(sizeof(struct driver));
 
         if (dev->driver == NULL)
-                panic("Out of memory in intialisiation of timer device");
+                panic("Out of memory in intialisiation of timer device\n");
 
         memset(dev->driver, 0, sizeof(struct driver));
 
@@ -58,4 +79,13 @@ static int dev_timer_init(struct device* dev, struct device* parent)
         parent->driver->attach(parent, dev);
 
         return -E_SUCCESS;
+}
+
+static int
+dev_timer_setup_io(dev, read, write)
+struct device *dev;
+vfs_read_hook_t read;
+vfs_write_hook_t write;
+{
+        dev->driver->io = kzalloc(sizeof(*(dev->driver->io)));
 }

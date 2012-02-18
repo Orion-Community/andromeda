@@ -37,7 +37,6 @@ extern "C" {
 #include <andromeda/panic.h>
 #include <andromeda/error.h>
 #include <mm/memory.h>
-#include <andromeda/timer.h>
 #include <math/math.h>
 #include <debug.h>
 

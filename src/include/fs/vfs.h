@@ -27,6 +27,11 @@ extern "C" {
 
 #define DIR_LIST_SIZE 0xFF
 
+struct vfile;
+
+typedef size_t (*vfs_read_hook_t)(struct vfile*, char*, size_t);
+typedef size_t (*vfs_write_hook_t)(struct vfile*, char*, size_t);
+
 typedef enum { SEEK_SET, SEEK_CUR, SEEK_END } seek_t;
 typedef enum {dir, block_dev, char_dev, file} file_type_t;
 
@@ -120,9 +125,6 @@ struct vmount
         struct vdir_ent *mount_point;
         struct vmount* next;
 };
-
-typedef size_t (*vfs_read_hook_t)(struct vfile*, char*, size_t);
-typedef size_t (*vfs_write_hook_t)(struct vfile*, char*, size_t);
 
 struct vfile*   vfs_open(struct vdir_ent* entry);
 int             vfs_close(struct vfile* stream);

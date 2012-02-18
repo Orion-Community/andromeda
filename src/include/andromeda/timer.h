@@ -16,6 +16,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/** \file */
+
+#include <stdlib.h>
+
+#include <andromeda/drivers.h>
+#include <andromeda/irq.h>
+
 #ifndef __KERN_TIMER_H
 #define __KERN_TIMER_H
 
@@ -25,6 +32,59 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct timer;
+
+typedef void (*timer_tick_t)(struct timer*);
+
+/**
+ * \struct timer
+ * \brief Basic timer structure.
+ * \var TIMER
+ * \brief Typedef of struct timer.
+ */
+typedef struct timer
+{
+        /**
+         * \var name
+         * \brief Unique name for the timer
+         * 
+         * \var tick
+         * \brief The timer tick.
+         * 
+         * \var handle
+         * \brief The irq handle which is called every time.
+         * 
+         * \var timer_data
+         * \brief Private data specific for each different timer.
+         */
+        char *name;
+        unsigned long long tick;
+        timer_tick_t tick_handle;
+        void *timer_data;        
+} TIMER;
+
+/**
+ * \var scheduling
+ * \brief Indicates the activity of the scheduler.
+ * 
+ * When set to false, the scheduler is not acitve and there should be performed
+ * any I/O actions with the scheduler before it is (re-)enabled.
+ * TRUE means full functionality of the scheduler.
+ */
+extern volatile boolean scheduling;
+
+/**
+ * \fn dev_timer_setup_io(struct device *dev)
+ * \brief Setup the device I/O.
+ * \param dev Device to create I/O for.
+ * \param read File read function.
+ * \param write File write routine.
+ * \return Error code.
+ * 
+ * This function creates a virtual file to communicate with the device.
+ */
+static int dev_timer_setup_io(struct device *, vfs_read_hook_t, vfs_write_hook_t);
 
 void setupTimer(unsigned int freq, void* scheduler, void* hwInit);
 void setTimerFrequency(int);
