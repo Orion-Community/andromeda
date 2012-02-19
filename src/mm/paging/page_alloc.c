@@ -200,7 +200,11 @@ mm_map_kernel_element(struct mm_page_descriptor* carriage)
                 if (carriage->free == FALSE)
                         return -E_SUCCESS;
 
-                if (mm_page_split(carriage, end_ptr-phys) == NULL)
+                size_t block_size = end_ptr-phys;
+                if (block_size % PAGESIZE)
+                        block_size += PAGESIZE-(block_size%PAGESIZE);
+
+                if (mm_page_split(carriage, block_size) == NULL)
                         return -E_GENERIC;
         }
         // Mark the current page descriptor as allocated
