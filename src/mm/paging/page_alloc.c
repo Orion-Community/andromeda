@@ -62,7 +62,38 @@ mm_page_split(page, base_size)
 struct mm_page_descriptor* page;
 size_t base_size;
 {
-        return NULL;
+        if (page == NULL || base_size < PAGESIZE ||base_size % PAGESIZE != 0)
+                return NULL;
+
+        if (page->size == base_size)
+                return NULL;
+
+        mutex_lock(&page->lock);
+
+        struct mm_page_descriptor* tmp;
+        if (freeable_allocator)
+                tmp = kalloc(sizeof(*tmp));
+        else
+                tmp = boot_alloc(sizeof(*tmp));
+
+        if (tmp == NULL)
+        {
+                mutex_unlock(&page->lock);
+                debug("Returning NULL\n");
+                return NULL;
+        }
+
+        memcpy(tmp, page, sizeof(*tmp));
+
+        tmp->size = page->size-base_size;
+        tmp->virt_ptr = (void*)((addr_t)page->virt_ptr + base_size);
+        tmp->page_ptr = (void*)((addr_t)page->page_ptr + base_size);
+        page->next = tmp;
+        page->size = base_size;
+        tmp->freeable = freeable_allocator;
+        mutex_unlock(&page->lock);
+        mutex_unlock(&tmp->lock);
+        return page;
 }
 
 /**
@@ -159,6 +190,27 @@ mm_show_pages()
 }
 
 int
+mm_page_map_higher_half()
+{
+        struct mm_page_descriptor* carriage = pages;
+        if (carriage == NULL)
+                panic("Page administration not initialised!");
+
+        addr_t phys;
+        for (; carriage != NULL; carriage = carriage->next)
+        {
+                phys = (addr_t)carriage->page_ptr;
+                if (phys < GIB)
+                {
+                        if (phys + carriage->size > GIB)
+                                mm_page_split(carriage, GIB - phys);
+                        carriage->virt_ptr = (void*)(phys+THREE_GIB);
+                }
+        }
+        return 0;
+}
+
+int
 x86_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 {
         printf("Pages: %X\n", (uint32_t)pages);
@@ -179,7 +231,7 @@ x86_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                 if ((uint32_t)mmap->addr == 0)
                 {
                         pages->page_ptr = NULL;
-                        pages->virt_ptr = (void*)THREE_GIB;
+                        pages->virt_ptr = NULL;
 
                         pages->size = mmap->len;
                         pages->free = (mmap->type == 1) ? TRUE : FALSE;
@@ -202,12 +254,17 @@ x86_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                         carriage->size = mmap->len;
                         carriage->free = (mmap->type == 1) ? TRUE : FALSE;
                         carriage->page_ptr = (void*)((uint32_t)mmap->addr);
-                        carriage->virt_ptr = (void*)((uint32_t)(mmap->addr+THREE_GIB));
+                        carriage->virt_ptr = NULL;
                 }
 
                 mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
         }
+        debug("\nFirst try\n");
+        mm_show_pages();
 
+        mm_page_map_higher_half();
+
+        debug("\nSecond try\n");
         mm_show_pages();
 
         return -E_SUCCESS;
