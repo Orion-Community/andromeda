@@ -190,6 +190,42 @@ mm_show_pages()
 }
 
 int
+mm_map_kernel_element(struct mm_page_descriptor* carriage)
+{
+        addr_t phys = (addr_t)carriage->page_ptr;
+        addr_t end_ptr = (addr_t)&end - THREE_GIB;
+        if (phys + carriage->size > end_ptr)
+        {
+                // Some splitting needs to be done!
+                if (carriage->free == FALSE)
+                        return -E_SUCCESS;
+
+                if (mm_page_split(carriage, end_ptr-phys) == NULL)
+                        return -E_GENERIC;
+        }
+        // Mark the current page descriptor as allocated
+        carriage->free = FALSE;
+        return -E_SUCCESS;
+}
+
+int
+mm_map_kernel()
+{
+        addr_t end_ptr = (addr_t)&end - THREE_GIB;
+        struct mm_page_descriptor* carriage = pages;
+        for (; carriage != NULL; carriage = carriage->next)
+        {
+                addr_t phys = (addr_t)carriage->page_ptr;
+                if (phys < end_ptr)
+                {
+                        if (mm_map_kernel_element(carriage) != -E_SUCCESS)
+                                panic("Couldn't map kernel image!");
+                }
+        }
+        return -E_SUCCESS;
+}
+
+int
 mm_page_map_higher_half()
 {
         struct mm_page_descriptor* carriage = pages;
@@ -259,12 +295,15 @@ x86_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 
                 mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
         }
-        debug("\nFirst try\n");
+        debug("\nFirst run\n");
         mm_show_pages();
 
         mm_page_map_higher_half();
+        debug("\nSecond run\n");
+        mm_show_pages();
 
-        debug("\nSecond try\n");
+        mm_map_kernel();
+        debug("\nThird run\n");
         mm_show_pages();
 
         return -E_SUCCESS;
