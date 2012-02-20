@@ -34,6 +34,24 @@ static mutex_t page_lock = mutex_unlocked;
 struct mm_page_descriptor*
 mm_next_free_page(size_t size)
 {
+        mutex_lock(&page_lock);
+        struct mm_page_descriptor* carriage = pages;
+        if (carriage == NULL)
+        {
+                mutex_unlock(&page_lock);
+                return NULL;
+        }
+
+        for (; carriage != NULL; carriage = carriage->next)
+        {
+                if (carriage->free == TRUE)
+                {
+                        mutex_unlock(&page_lock);
+                        return carriage;
+                }
+        }
+
+        mutex_unlock(&page_lock);
         return NULL;
 }
 
@@ -43,8 +61,36 @@ mm_next_free_page(size_t size)
  */
 
 static struct mm_page_descriptor*
-mm_get_page(void* addr, bool phys)
+mm_get_page(addr_t addr, bool physical)
 {
+        struct mm_page_descriptor* carriage = pages;
+        if (pages == NULL)
+                return NULL;
+        mutex_lock(&page_lock);
+
+        for (; carriage != NULL; carriage = carriage->next)
+        {
+                if (physical)
+                {
+                        addr_t phys = (addr_t)carriage->page_ptr;
+                        if (phys <= addr && phys+carriage->size > addr)
+                        {
+                                mutex_unlock(&page_lock);
+                                return carriage;
+                        }
+                }
+                else
+                {
+                        addr_t virt = (addr_t)carriage->virt_ptr;
+                        if (virt <= addr && virt+carriage->size > addr)
+                        {
+                                mutex_unlock(&page_lock);
+                                return carriage;
+                        }
+                }
+        }
+
+        mutex_unlock(&page_lock);
         return NULL;
 }
 
@@ -104,13 +150,41 @@ size_t base_size;
  * \param page2
  * \brief The other page to merge
  * \return The resulting page descriptor
+ * \warning Use returned value to continue if in a loop
  */
 static struct mm_page_descriptor*
 mm_page_merge(page1, page2)
 struct mm_page_descriptor* page1;
 struct mm_page_descriptor* page2;
 {
-        return NULL;
+        if (page1 == NULL || page2 == NULL)
+                return NULL;
+        addr_t phys1 = (addr_t)page1->page_ptr;
+        addr_t phys2 = (addr_t)page2->page_ptr;
+
+        if (!(phys1+page1->size != phys2 || phys2+page2->size != phys1))
+                return NULL;
+
+        if (page1->free != page2->free || page1->dma != page2->dma)
+                return NULL;
+
+        if (phys2+page2->size == phys1)
+        {
+                struct mm_page_descriptor* tmp_desc = page2;
+                page2 = page1;
+                page1 = tmp_desc;
+
+                addr_t tmp_addr = phys2;
+                phys2 = phys1;
+                phys1 = tmp_addr;
+        }
+
+        page1->size += page2->size;
+        page1->next = page2->next;
+        if (page2->freeable)
+                kfree(page2);
+
+        return page1;
 }
 
 
@@ -251,7 +325,7 @@ mm_page_map_higher_half()
 }
 
 int
-x86_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
+mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 {
         printf("Pages: %X\n", (uint32_t)pages);
 

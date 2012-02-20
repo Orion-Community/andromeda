@@ -134,7 +134,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         /** Set up paging administration */
         x86_page_init(memsize);
-        x86_page_setup(mmap, (uint32_t)hdr->mmap_length);
+        mboot_page_setup(mmap, (uint32_t)hdr->mmap_length);
+
+        for (;;);
 
         page_init();
         printf("%s\n", welcome);

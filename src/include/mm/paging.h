@@ -126,7 +126,7 @@ int page_unmap_low_mem();
 addr_t page_phys_addr(addr_t, struct page_dir*);
 
 /**
- * \fn mm_page_setup
+ * \fn mboot_page_setup
  * \brief Build a list of available pages based on multiboot info
  * \param map
  * \brief The pointer to the multiboot map data
@@ -145,14 +145,14 @@ addr_t page_phys_addr(addr_t, struct page_dir*);
  * \brief The ammount of pages
  * \return The allocated page(s)
  *
- * \fn mm_page_setup
+ * \fn x86_page_init
  * \brief Initialise the first pages
  * \return Standard error code
  */
-int mm_page_setup(multiboot_memory_map_t*, int mboot_map_size);
+int mboot_page_setup(multiboot_memory_map_t*, int mboot_map_size);
 int mm_page_free(void* page);
 void* mm_page_alloc(size_t size);
-int mm_page_init(size_t mem_size);
+int x86_page_init(size_t mem_size);
 
 #ifdef __cplusplus
 }
