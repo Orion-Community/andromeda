@@ -28,8 +28,8 @@ extern "C" {
 #define DIR_LIST_SIZE 0xFF
 
 #define VFIO(fn, arg1, arg2, arg3) \
-static unsigned long fn(struct vfile* arg1, char* arg2, unsigned long arg3); \
-static unsigned long fn(struct vfile* arg1, char* arg2, unsigned long arg3)
+static size_t fn(struct vfile* arg1, char* arg2, size_t arg3); \
+static size_t fn(struct vfile* arg1, char* arg2, size_t arg3)
 
 struct vfile;
 
