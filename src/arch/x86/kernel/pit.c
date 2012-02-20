@@ -17,6 +17,8 @@
  */
 
 #include <andromeda/timer.h>
+#include <andromeda/irq.h>
+#include <andromeda/sched.h>
 
 #include <arch/x86/pit.h>
 #include <stdlib.h>
@@ -25,52 +27,82 @@
 
 static ol_pit_system_timer_t pit_chan0 = NULL;
 
+static void
+pit_set_tick(TIMER *timer, unsigned long long offset)
+{
+        timer->tick = offset;
+        return;
+}
+
+/**
+ * \warning NOT YET IMPLEMENTED
+ */
+static void
+pit_set_mode(TIMER *timer)
+{
+        return;
+}
+
 void
 pit_set_frq(TIMER *timer)
+        {
+                unsigned int hz = timer->frq;
+        if (hz <= OL_PIT_MIN_FREQ)
+        {
+                pit_chan0->reload_value = 0xffff;
+                ol_pit_calculate_freq(pit_chan0); // slowest reload value
+        }
+
+        else if (hz >= OL_PIT_MAX_FREQ)
+        {
+                putc(0x42);
+                pit_chan0->reload_value = 1;
+                ol_pit_calculate_freq(pit_chan0); // fastest reload value
+        }
+        else
+        {
+                pit_chan0->reload_value = ol_pit_calculate_reload(hz);
+                ol_pit_calculate_freq(pit_chan0);
+        }
+        ol_pit_program_pit(pit_chan0);
+#ifdef __MEMTEST
+        free(pit_chan0);
+#endif
+}
+
+static void pit_irq(TIMER *);
+static void pit_irq(TIMER *timer)
 {
-        
+//         if(scheduling && (timer->tick % 256))
+//         {
+//                 
+//         }
 }
 
 int
 ol_pit_init(uint32_t hz)
 {
-  if (pit_chan0 == NULL)
-  {
-    pit_chan0 = kalloc(sizeof(struct ol_pit));
+        if (pit_chan0 == NULL)
+        {
+                pit_chan0 = kalloc(sizeof(struct ol_pit));
 
-  }
-  else
-    return -1;
+        }
+        else /* the pit is already initialised */
+                return -1;
 
-  pit_chan0->channel = 0;
-  pit_chan0->mode = OL_PIT_RATE_GEN;
-  pit_chan0->access = 3;
-  pit_chan0->cport = OL_PIT_COMMAND;
-  pit_chan0->dport = OL_PIT_CHAN0_DATA;
-
-  if (hz <= OL_PIT_MIN_FREQ)
-  {
-
-    pit_chan0->reload_value = 0xffff;
-    ol_pit_calculate_freq(pit_chan0); // slowest reload value
-  }
-
-  else if (hz >= OL_PIT_MAX_FREQ)
-  {
-    putc(0x42);
-    pit_chan0->reload_value = 1;
-    ol_pit_calculate_freq(pit_chan0); // fastest reload value
-  }
-  else
-  {
-    pit_chan0->reload_value = ol_pit_calculate_reload(hz);
-    ol_pit_calculate_freq(pit_chan0);
-  }
-  ol_pit_program_pit(pit_chan0);
-#ifdef __MEMTEST
-  free(pit_chan0);
-#endif
-  return 0;
+        pit_chan0->channel = 0;
+        pit_chan0->mode = OL_PIT_RATE_GEN;
+        pit_chan0->access = 3;
+        pit_chan0->cport = OL_PIT_COMMAND;
+        pit_chan0->dport = OL_PIT_CHAN0_DATA;
+        
+        TIMER *timer = init_timer_obj("pit0", &pit_irq, (void*)pit_chan0);
+        timer->set_frq = &pit_set_frq;
+        timer->set_mode = &pit_set_mode;
+        timer->set_tick = &pit_set_tick;
+        timer->frq = hz;
+        timer->mode = OL_PIT_RATE_GEN;
+        pit_set_frq(timer);
 }
 
 static ol_pit_reload_val_t

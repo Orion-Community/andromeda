@@ -24,17 +24,18 @@
 
 #include <drivers/root.h>
 
-IRQ(timer, irq, stack)
+IRQ(timer_irq, irq, stack)
 {
         struct device *dev;
         struct idata data = get_irq_data(irq);
         dev = data->irq_data;
         
         TIMER *timer = dev->device_data;
+        timer->tick++;
         timer->timer_tick(timer);
 }
 
-static TIMER *
+TIMER *
 init_timer_obj(char *name, timer_tick_t tick_handle, void *data)
 {
         TIMER *timer = kzalloc(sizeof(*timer));
@@ -48,8 +49,11 @@ init_timer_obj(char *name, timer_tick_t tick_handle, void *data)
         struct device *root = get_root_device();
         struct device *dev = kalloc(sizeof(*dev));
         dev_timer_init(dev, root);
-        dev_timer_setup_io(dev);
         dev->device_data = timer;
+        dev_timer_setup_io(dev);
+        timer->id = dev->id;
+        
+        return timer;
 }
 
 static int 
@@ -95,29 +99,50 @@ vfs_write_hook_t write;
         io->type = file;
         io->read = read;
         io->write = write;
+        
+        TIMER *timer = (TIMER*)dev->device_data;
+        struct irq_data *data = alloc_irq();
+        data->base_handle = &do_irq;
+        data->handle = &timer_irq;
+        data->irq_data = (void*)dev;
+        if(!native_setup_irq_handler(data->irq))
+                install_irq_vector(data);
+        else
+                return -E_GENERIC
 }
 
 VFIO(timer_write, file, data, size)
 {
         TIMER *timer = (TIMER*)data;
-        switch(timer->config)
+        unsigned char cnf = 1;
+        timer->config = timer->config & 0x7
+        while(timer->config)
         {
-                case 0x4:
-                        timer->set_mode(timer);
-                        break;
-                case 0x2:
-                        timer->set_frq(timer);
-                        break;
-                case 0x1:
-                        /* get the tick offset */
-                        if(size <= sizeof(void*))
-                                return 0;
-                        uint64_t offset = *((uint64_t*)(data+sizeof(void*)));
-                        timer->set_tick(timer, offset);
-                        break;
-                case 0xff: /* all bits set, nothing to do here */
-                        break;
-                default: /* unknown config word.. reset bits set? */
+                cnf &= timer->config;
+                switch(cnf)
+                {
+                        case 0x4:
+                                timer->set_mode(timer);
+                                break;
+                        case 0x2:
+                                timer->set_frq(timer);
+                                break;
+                        case 0x1:
+                                /* get the tick offset */
+                                if(size <= sizeof(void*))
+                                        return 0;
+                                uint64_t offset = *((uint64_t*)(data+
+                                                                sizeof(void*)));
+                                timer->set_tick(timer, offset);
+                                break;
+
+                        default: /* unknown config word.. reset bits set? */
+                                break;
+                }
+                timer->config &= (~cnf); /* disable just checked bit */
+                cnf <<= 1;
+                if(cnf >= 1>>3)
                         break;
         }
+        return E_SUCCESS;
 }
