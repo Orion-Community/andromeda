@@ -136,8 +136,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         x86_page_init(memsize);
         mboot_page_setup(mmap, (uint32_t)hdr->mmap_length);
 
-        for (;;);
-
         page_init();
         printf("%s\n", welcome);
         setGDT();

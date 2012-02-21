@@ -211,7 +211,35 @@ mm_page_alloc(size_t size)
 int
 mm_page_free(void* page)
 {
-        return -E_NOFUNCTION;
+        struct mm_page_descriptor* to_free = mm_get_page(page, TRUE);
+        if (to_free == NULL)
+                return -E_GENERIC;
+
+        if (to_free->page_ptr != page)
+                return -E_INVALID_ARG;
+
+        mutex_lock(&page_lock);
+        to_free->free = TRUE;
+
+        struct mm_page_descriptor* carriage = pages;
+        for (; carriage != NULL; carriage = carriage->next)
+        {
+                addr_t next = (addr_t)carriage->next;
+                addr_t phys = (addr_t)carriage->page_ptr;
+                if (phys+carriage->size == next)
+                {
+                        carriage = mm_page_merge(carriage, carriage->next);
+                        if (carriage == NULL)
+                        {
+                                warning("Page stack corruption!\n");
+                                return -E_NULL_PTR;
+                        }
+                }
+        }
+
+        mutex_unlock(&page_lock);
+
+        return -E_SUCCESS;
 }
 
 /**
