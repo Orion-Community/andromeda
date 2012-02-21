@@ -20,11 +20,11 @@
 [GLOBAL irq%1]
 [EXTERN cIRQ%1]
 irq%1:
-	cli	; no interrupts while we handle this one
-	push cIRQ%1
-  mov eax, %1
-  push eax
-	jmp irqStub
+        cli	; no interrupts while we handle this one
+        push cIRQ%1
+        mov eax, %1
+        push eax
+        jmp irqStub
 %endmacro
 
 [EXTERN do_irq]
@@ -305,6 +305,7 @@ irqStub:
 [EXTERN test_func]
 [GLOBAL gen_irq_stub]
 gen_irq_stub:
+        cli
         pushad
         xor edx, edx
         mov dx, ds

@@ -154,7 +154,7 @@ int
 install_irq_vector(struct irq_data *data)
 {
   uint8_t entry = data->irq_config->vector;
-  if(entry != 0)
+  if(0 != entry)
   {
     ol_idt_t idt = (ol_idt_t)get_idt();
 

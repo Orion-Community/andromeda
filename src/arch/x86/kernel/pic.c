@@ -89,5 +89,4 @@ pic_clear_irq_mask(uint8_t irq)
 void pic_init()
 {
   pic_remap(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE+8);
-  ol_pit_init(1000); // program pic to 100 hertz
 }

@@ -112,7 +112,7 @@ static int dev_timer_setup_io(struct device *, vfs_read_hook_t, vfs_write_hook_t
  * This function will create a new TIMER object and initialise a correspondending
  * device structure. Also it will setup an interrupt.
  */
-TIMER *init_timer_obj(char *name, timer_tick_t tick_handle, void *data);
+static TIMER *create_timer_obj(char *name, timer_tick_t tick_handle, void *data);
 
 /**
  * \fn dev_timer_init(struct device *dev, struct device *parent)
@@ -124,6 +124,11 @@ TIMER *init_timer_obj(char *name, timer_tick_t tick_handle, void *data);
  * This function will setup the device structure for a timer.
  */
 static int dev_timer_init(struct device* dev, struct device* parent);
+
+static int setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector);
+
+TIMER *init_timer_obj(char *name, timer_tick_t tick_handle, void *data, 
+                                        bool forse_vec, unsigned char vec);
 
 static inline unsigned long long
 get_timer_tick(TIMER *timer)

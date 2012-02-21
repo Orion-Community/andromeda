@@ -16,14 +16,17 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+#include <sys/io.h>
+#include <text.h>
+
 #include <andromeda/timer.h>
 #include <andromeda/irq.h>
 #include <andromeda/sched.h>
 
+#include <arch/x86/idt.h>
 #include <arch/x86/pit.h>
-#include <stdlib.h>
-#include <sys/io.h>
-#include <text.h>
+#include <arch/x86/pic.h>
 
 static ol_pit_system_timer_t pit_chan0 = NULL;
 
@@ -45,8 +48,8 @@ pit_set_mode(TIMER *timer)
 
 void
 pit_set_frq(TIMER *timer)
-        {
-                unsigned int hz = timer->frq;
+{
+        unsigned int hz = timer->frq;
         if (hz <= OL_PIT_MIN_FREQ)
         {
                 pit_chan0->reload_value = 0xffff;
@@ -55,7 +58,6 @@ pit_set_frq(TIMER *timer)
 
         else if (hz >= OL_PIT_MAX_FREQ)
         {
-                putc(0x42);
                 pit_chan0->reload_value = 1;
                 ol_pit_calculate_freq(pit_chan0); // fastest reload value
         }
@@ -73,6 +75,7 @@ pit_set_frq(TIMER *timer)
 static void pit_irq(TIMER *);
 static void pit_irq(TIMER *timer)
 {
+        pic_eoi(0);
 //         if(scheduling && (timer->tick % 256))
 //         {
 //                 
@@ -96,7 +99,8 @@ ol_pit_init(uint32_t hz)
         pit_chan0->cport = OL_PIT_COMMAND;
         pit_chan0->dport = OL_PIT_CHAN0_DATA;
         
-        TIMER *timer = init_timer_obj("pit0", &pit_irq, (void*)pit_chan0);
+        TIMER *timer = init_timer_obj("pit0", &pit_irq, (void*)pit_chan0, TRUE,
+                0+IDT_VECTOR_OFFSET);
         timer->set_frq = &pit_set_frq;
         timer->set_mode = &pit_set_mode;
         timer->set_tick = &pit_set_tick;

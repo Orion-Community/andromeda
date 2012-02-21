@@ -75,8 +75,8 @@ VFIO(timer_read, file, data, size)
         return (size_t)((TIMER*)data)->tick;
 }
 
-TIMER *
-init_timer_obj(char *name, timer_tick_t tick_handle, void *data)
+static TIMER *
+create_timer_obj(char *name, timer_tick_t tick_handle, void *data)
 {
         TIMER *timer = kzalloc(sizeof(*timer));
         if(NULL == timer)
@@ -93,6 +93,17 @@ init_timer_obj(char *name, timer_tick_t tick_handle, void *data)
         dev_timer_setup_io(dev, &timer_read, &timer_write);
         timer->id = dev->dev_id;
         
+        return timer;
+}
+
+TIMER *
+init_timer_obj(char *name, timer_tick_t tick_handle, void *data, bool forse_vec,
+                                                        unsigned char vec)
+{
+        TIMER *timer = create_timer_obj(name, tick_handle, data);
+        if(NULL == timer)
+                return timer;
+        setup_timer_irq(timer, forse_vec, vec);
         return timer;
 }
 
@@ -138,14 +149,26 @@ vfs_write_hook_t write;
         io->type = file;
         io->read = read;
         io->write = write;
-        
-        TIMER *timer = (TIMER*)dev->device_data;
+
+}
+
+static int
+setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector)
+{
         struct irq_data *data = alloc_irq();
         data->base_handle = &do_irq;
         data->handle = &timer_irq;
-        data->irq_data = (void*)dev;
+        data->irq_data = device_find_id(get_root_device(), timer->id);
+        if(forse_vec)
+        {
+                data->irq_config->vector = vector;
+        }
         if(!native_setup_irq_handler(data->irq))
+        {
+                debug("laldfjasldfjadsf\n");
                 install_irq_vector(data);
+                return -E_SUCCESS;
+        }
         else
                 return -E_GENERIC;
 }

@@ -158,6 +158,7 @@ do_irq(struct general_irq_stack stack)
 #endif
   struct irq_data *data = get_irq_data(stack.irq);
   data->handle(stack.irq, stack.regs);
+  printf("test\n");
   return;
 }
 
@@ -181,7 +182,7 @@ __list_all_irqs()
   irqs[13] = (uint32_t)&irq13;
   irqs[14] = (uint32_t)&irq14;
   irqs[15] = (uint32_t)&irq15;
-  int i = 16;
+  int i = 0;
   for(; i < MAX_IRQ_NUM; i++)
   {
     irq_data[i].irq = i;
@@ -291,7 +292,9 @@ native_setup_irq_handler(unsigned int irq)
 {
   struct irq_data *data = get_irq_data(irq);
   if(data->handle == NULL)
+  {
     return -E_NULL_PTR;
+  }
   else
   {
     setup_irq_handler(irq);
@@ -311,6 +314,7 @@ native_setup_irq_handler(unsigned int irq)
     writel((void*)data->irq_base+DYNAMIC_IRQ_HANDLER_VALUE, (uint32_t)data->
                                                                    base_handle);
   }
+  return 0;
 }
 
 void
