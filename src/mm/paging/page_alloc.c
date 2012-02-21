@@ -222,7 +222,8 @@ mm_page_free(void* page)
         to_free->free = TRUE;
 
         struct mm_page_descriptor* carriage = pages;
-        for (; carriage != NULL; carriage = carriage->next)
+        for (; carriage->next != NULL && carriage != NULL;
+                                                      carriage = carriage->next)
         {
                 addr_t next = (addr_t)carriage->next;
                 addr_t phys = (addr_t)carriage->page_ptr;
@@ -232,6 +233,7 @@ mm_page_free(void* page)
                         if (carriage == NULL)
                         {
                                 warning("Page stack corruption!\n");
+                                mutex_unlock(&page_lock);
                                 return -E_NULL_PTR;
                         }
                 }
