@@ -211,7 +211,7 @@ mm_page_alloc(size_t size)
 int
 mm_page_free(void* page)
 {
-        struct mm_page_descriptor* to_free = mm_get_page(page, TRUE);
+        struct mm_page_descriptor* to_free = mm_get_page((addr_t)page, TRUE);
         if (to_free == NULL)
                 return -E_GENERIC;
 
