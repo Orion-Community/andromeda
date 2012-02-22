@@ -198,6 +198,29 @@ struct mm_page_descriptor* page2;
 void*
 mm_page_alloc(size_t size)
 {
+        mutex_lock(&page_lock);
+
+        struct mm_page_descriptor* carriage = pages;
+        if (carriage == NULL)
+                goto err;
+
+        for (; carriage != NULL; carriage = carriage->next)
+        {
+                if (carriage->free && carriage->size >= size)
+                {
+                        if (carriage->size > size)
+                                carriage = mm_page_split(carriage, size);
+                        if (carriage == NULL)
+                                goto err;
+
+                        carriage->free = FALSE;
+                        mutex_unlock(&page_lock);
+                        return carriage;
+                }
+        }
+
+err:
+        mutex_unlock(&page_lock);
         return NULL;
 }
 
