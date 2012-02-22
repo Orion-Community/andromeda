@@ -143,8 +143,14 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         pic_init();
         setIDT();
         setup_irq_data();
-        ol_pit_init(1000); // program pic to 1000 hertz
+        
+        if (dev_init() != -E_SUCCESS)
+                panic("Couldn't initialise /dev");
+        
+        ol_pit_init(1024); // program pic to 1024 hertz
+        
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
+        
         ol_cpu_t cpu = kalloc(sizeof (*cpu));
         ol_cpu_init(cpu);
         acpi_init();

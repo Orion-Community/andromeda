@@ -75,11 +75,16 @@ pit_set_frq(TIMER *timer)
 static void pit_irq(TIMER *);
 static void pit_irq(TIMER *timer)
 {
+        long tick = (long)timer->tick;
+#ifdef TIMER_DBG
+        if((tick % 1024) == 0)
+                printf("timer tick!: %i\n", tick);
+#endif
+        if(scheduling && ((tick % 256) == 0))
+        {
+                
+        }
         pic_eoi(0);
-//         if(scheduling && (timer->tick % 256))
-//         {
-//                 
-//         }
 }
 
 int
@@ -101,6 +106,8 @@ ol_pit_init(uint32_t hz)
         
         TIMER *timer = init_timer_obj("pit0", &pit_irq, (void*)pit_chan0, TRUE,
                 0+IDT_VECTOR_OFFSET);
+        if(NULL == timer)
+                panic("NO MEM!");
         timer->set_frq = &pit_set_frq;
         timer->set_mode = &pit_set_mode;
         timer->set_tick = &pit_set_tick;

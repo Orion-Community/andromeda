@@ -30,7 +30,6 @@ IRQ(timer_irq, irq, stack)
         struct device *dev = (struct device *)(data->irq_data);
         
         TIMER *timer = dev->device_data;
-        debug("timer: %x\n", dev);
         timer->tick++;
         timer->tick_handle(timer);
         return;
@@ -92,8 +91,8 @@ create_timer_obj(char *name, timer_tick_t tick_handle, void *data)
         struct device *dev = kalloc(sizeof(*dev));
         dev_timer_init(dev, root);
         dev->device_data = timer;
-        dev_timer_setup_io(dev, &timer_read, &timer_write);
         timer->id = dev->dev_id;
+        dev_timer_setup_io(dev, &timer_read, &timer_write);
         
         return timer;
 }
@@ -158,16 +157,17 @@ static int
 setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector)
 {
         struct irq_data *data = alloc_irq();
+        struct device *root = get_root_device();
         data->base_handle = &do_irq;
         data->handle = &timer_irq;
-        data->irq_data = device_find_id(get_root_device(), timer->id);
+        data->irq_data = root->driver->find(root, timer->id);
+        
         if(forse_vec)
         {
                 data->irq_config->vector = vector;
         }
         if(!native_setup_irq_handler(data->irq))
         {
-                debug("laldfjasldfjadsf\n");
                 install_irq_vector(data);
                 return -E_SUCCESS;
         }
