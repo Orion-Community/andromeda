@@ -30,8 +30,10 @@ IRQ(timer_irq, irq, stack)
         struct device *dev = (struct device *)(data->irq_data);
         
         TIMER *timer = dev->device_data;
+        debug("timer: %x\n", dev);
         timer->tick++;
         timer->tick_handle(timer);
+        return;
 }
 
 VFIO(timer_write, file, data, size)

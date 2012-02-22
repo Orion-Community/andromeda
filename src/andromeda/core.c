@@ -96,7 +96,7 @@ void core_loop()
 
 //         init_netif();
 //         init_network();
-//         trigger_soft_irq30();
+        trigger_soft_irq30();
 
 #ifdef SCHED_DBG
         /**

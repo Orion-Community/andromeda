@@ -153,12 +153,12 @@ void cIRQ15(irq_stack_t regs)
 void
 do_irq(struct general_irq_stack stack)
 {
-#ifdef IRQ_DBG
-  debug("Called irq: %x\n", stack.irq);
-#endif
+// #ifdef IRQ_DBG
+//   debug("Called irq: %x\n", stack.irq);
+// #endif
   struct irq_data *data = get_irq_data(stack.irq);
   data->handle(stack.irq, stack.regs);
-  printf("test\n");
+  pic_eoi(stack.irq);
   return;
 }
 
@@ -193,7 +193,7 @@ void
 setup_irq_data(void)
 {
   __list_all_irqs();
-  int i = 0;
+  int i = 1;
   uint16_t vector;
   for(; i < 16; i++)
   {
