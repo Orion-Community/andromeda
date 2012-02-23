@@ -102,6 +102,7 @@ mm_get_page(addr_t addr, bool physical)
  * \param base_size
  * \brief The size of the lower page after the split
  * \return The pointer to the lower page
+ * \warning Use the returned pointer to reset the carriage if itterating
  */
 static struct mm_page_descriptor*
 mm_page_split(page, base_size)
@@ -250,7 +251,8 @@ mm_page_free(void* page)
         {
                 addr_t next = (addr_t)carriage->next;
                 addr_t phys = (addr_t)carriage->page_ptr;
-                if (phys+carriage->size == next)
+                if (phys+carriage->size == next && carriage->free == TRUE &&
+                                                   carriage->next->free == TRUE)
                 {
                         carriage = mm_page_merge(carriage, carriage->next);
                         if (carriage == NULL)
