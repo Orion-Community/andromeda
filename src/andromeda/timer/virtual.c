@@ -20,3 +20,39 @@
 
 #include <andromeda/timer.h>
 #include <andromeda/timer/virtual.h>
+#include <andromeda/timer.h>
+
+static struct virtual_timer head;
+
+static inline struct virtual_timer *
+get_virtual_timer_head()
+{
+        return &head;
+}
+
+THREAD(virtual_ktimer, timer_data)
+{
+        VIRT_TIMER *timers = (VIRT_TIMER*)timer_data;
+
+        VIRT_TIMER *carriage, *tmp, *head = get_virtual_timer_head();
+        for_each_ll_entry_safe(head, carriage, tmp)
+        {
+                long tick = (long)carriage->hwtimer->tick;
+                if((tick % carriage->frq) == 0 && carriage->active)
+                {
+                        carriage->handle((void*)carriage);
+                        if(ONE_SHOT == carriage->mode)
+                                destroy_virt_timer(carriage);
+                }
+        }
+}
+
+static int destroy_virt_timer(struct virtual_timer* timer)
+{
+        if(timer->previous)
+        {
+                timer->previous->next = timer->next;
+                timer->next->previous = timer->previous;
+        }
+        return -E_NOFUNCTION;
+}

@@ -32,13 +32,21 @@ typedef enum
 
 typedef struct virtual_timer
 {
+        struct virtual_timer *next;
+        struct virtual_timer *previous;
+        
         char *name;
         uint64_t id;
+        bool active;
 
         uint32_t frq;
         uint64_t tick;
         timer_tick_t handle;
         virtual_timer_mode_t mode;
+
+        TIMER *hwtimer;
 } VIRT_TIMER;
+
+static int destroy_virt_timer(struct virtual_timer*);
 
 #endif
