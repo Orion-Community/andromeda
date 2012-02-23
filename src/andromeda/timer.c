@@ -38,8 +38,6 @@ struct __kern_sig
 	void (*function)();
 };
 
-extern boolean scheduling;
-
 struct __kern_timer *timer;
 
 void setupTimer(unsigned int freq, void* scheduler, void* hwInit)

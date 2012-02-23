@@ -38,6 +38,12 @@ extern "C" {
 #define __readw(addr) (*((volatile uint16_t*)(addr)))
 #define __readb(addr) (*((volatile uint8_t*)(addr)))
 
+/*
+ * generic i/o registers
+ */
+#define CMOS_SELECT 0x70
+#define CMOS_DATA   0x71
+
 static inline void
 writel(volatile void* addr, uint32_t data)
 {

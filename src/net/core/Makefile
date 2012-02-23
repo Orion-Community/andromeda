@@ -16,20 +16,23 @@ MAKE=make
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-TARGETS=net.o
-all: core.o
+# source files
+SRC=net.c
+# target object files
+TARGET=core.o
+OBJS=$(SRC:.c=.o)
+
+all: $(TARGET)
+	-mv -v $(TARGET) ../
 
 ## Target: core.o
-core.o: net.o
-	$(LD) $(LDFLAGS) -o core.o $(TARGETS)
-	mv -vf core.o ../
+$(TARGET): $(OBJS)
+	$(LD) $(LDFLAGS) -o $(TARGET) $(OBJS)
 
-## Target: net.o
-net.o: net.c
-	$(CC) $(CCFLAGS) -o net.o net.c
+%o: %c
+	$(CC) $(CCFLAGS) $< -o $@
 
 
 #### Clean target deletes all generated files ####
 clean:
-
-
+	-rm -Rv `find -name "*.o"`

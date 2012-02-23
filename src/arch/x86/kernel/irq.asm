@@ -20,11 +20,11 @@
 [GLOBAL irq%1]
 [EXTERN cIRQ%1]
 irq%1:
-	cli	; no interrupts while we handle this one
-	push cIRQ%1
-  mov eax, %1
-  push eax
-	jmp irqStub
+        cli	; no interrupts while we handle this one
+        push cIRQ%1
+        mov eax, %1
+        push eax
+        jmp irqStub
 %endmacro
 
 [EXTERN do_irq]
@@ -302,9 +302,11 @@ irqStub:
 	add esp, 4	; pop func pointer
 	iret	; interrupt return
 
-[EXTERN test_func]
+; [EXTERN test_func]
+[EXTERN putc]
 [GLOBAL gen_irq_stub]
 gen_irq_stub:
+        cli
         pushad
         xor edx, edx
         mov dx, ds
@@ -315,6 +317,7 @@ gen_irq_stub:
         mov es, dx
         mov fs, dx
         mov gs, dx
+        
 
         call label
         label:
@@ -330,7 +333,7 @@ gen_irq_stub:
         mov es, dx
         mov fs, dx
         mov gs, dx
-
+        sti
         popad
         iret
 irq_num_addr:  dd 0
@@ -351,7 +354,7 @@ exec_addr:
 [GLOBAL trigger_soft_irq30]
 trigger_soft_irq30:
   pushad
-  int 0x30
+  int 0x20
   popad
   ret
 

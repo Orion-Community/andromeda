@@ -16,16 +16,21 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "clock.h"
 #include <text.h>
+#include <stdlib.h>
+
 #include <arch/x86/idt.h>
 #include <arch/x86/interrupts.h>
 #include <arch/x86/irq.h>
 #include <arch/x86/pic.h>
+
+#include <interrupts/int.h>
+
 #include <sys/keyboard.h>
-#include <stdlib.h>
 #include <sys/dev/ps2.h>
 #include <sys/dev/pci.h>
-#include <interrupts/int.h>
+
 
 
 uint64_t pit_timer = 0;
@@ -87,11 +92,15 @@ void cIRQ6(irq_stack_t regs)
 
 void cIRQ7(irq_stack_t regs)
 {
+  pic_eoi(7);
   return;
 }
 
 void cIRQ8(irq_stack_t regs)
 {
+  printf("test\n");
+  outb(CMOS_SELECT, CMOS_RTC_IRQ);
+  inb(CMOS_DATA);
   pic_eoi(8);
   return;
 }
@@ -172,7 +181,7 @@ __list_all_irqs()
   irqs[13] = (uint32_t)&irq13;
   irqs[14] = (uint32_t)&irq14;
   irqs[15] = (uint32_t)&irq15;
-  int i = 16;
+  int i = 0;
   for(; i < MAX_IRQ_NUM; i++)
   {
     irq_data[i].irq = i;
@@ -183,7 +192,7 @@ void
 setup_irq_data(void)
 {
   __list_all_irqs();
-  int i = 0;
+  int i = 1;
   uint16_t vector;
   for(; i < 16; i++)
   {
@@ -282,7 +291,9 @@ native_setup_irq_handler(unsigned int irq)
 {
   struct irq_data *data = get_irq_data(irq);
   if(data->handle == NULL)
+  {
     return -E_NULL_PTR;
+  }
   else
   {
     setup_irq_handler(irq);
@@ -302,6 +313,19 @@ native_setup_irq_handler(unsigned int irq)
     writel((void*)data->irq_base+DYNAMIC_IRQ_HANDLER_VALUE, (uint32_t)data->
                                                                    base_handle);
   }
+  return 0;
+}
+
+void
+disable_irqs()
+{
+        __asm__ __volatile__("cli\n");
+}
+
+void
+enable_irqs()
+{
+        __asm__ __volatile__("sti\n");
 }
 
 #ifdef IRQ_DBG

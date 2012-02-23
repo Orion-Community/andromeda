@@ -60,6 +60,15 @@ extern void initPIT();
  */
 void pic_init();
 
+/**
+ * \fn pic_clear_irq_mask(uint8_t irq)
+ * \brief Enables an irq.
+ * \param irq The irq to enable.
+ * 
+ * Clears the bit mask in the PIC to enable the irq.
+ */
+int pic_clear_irq_mask(uint8_t irq);
+
 #ifdef __cplusplus
 }
 #endif

@@ -6,4 +6,27 @@ COMPRESSED=-D\ __COMPRESSED
 MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 test=$(foreach T,$($(1)),$(if $($(firstword $(subst :, ,$T))),$(lastword $(subst :, ,$T)),))
 WARNINGS=-Wunused-variable -Wimplicit-function-declaration -Wreturn-type
-CFLAGS=-nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 -D __INTEL -mtune=i686 -march=i386 -pipe $(WARNINGS)
+CFLAGS=-nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 \
+                -D __INTEL -mtune=i686 -march=i386 -pipe $(WARNINGS)
+DBG_FLAGS=-Waddress \
+          -Warray-bounds \
+          -Wchar-subscripts \
+          -Wenum-compare \
+          -Wimplicit-int \
+          -Wimplicit-function-declaration \
+          -Wcomment \
+          -Wformat \
+          -Wmain \
+          -Wmissing-braces \
+          -Wnonnull \
+          -Wparentheses \
+          -Wsequence-point \
+          -Wstrict-aliasing \
+          -Wstrict-overflow=1 \
+          -Wswitch \
+          -Wtrigraphs \
+          -Wuninitialized \
+          -Wunknown-pragmas \
+          -Wunused-label \
+          -Wunused-value \
+          -Wvolatile-register-var

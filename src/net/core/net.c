@@ -22,11 +22,15 @@
  */
 
 #include <stdlib.h>
+
 #include <arch/x86/timer.h>
+
 #include <andromeda/drivers.h>
+
 #include <networking/net.h>
 #include <networking/eth/eth.h>
 #include <networking/netlayer.h>
+
 #include <lib/byteorder.h>
 
 static struct net_queue *net_core_queue;
@@ -198,11 +202,15 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
 }
 
 /**
- * \fn netif_rx_process(nb)
+ * \fn netif_rx_process(struct net_buff*)
  * \brief Receives, processess and polls for incoming packets.
  *
  * @param nb The first packet to handle.
  * @return State of handled packet
+ * 
+ * This function handles all packets which are fresh from the device driver or
+ * the netif queue (see <i>netif_process_queue(head, load)</i>). After handling
+ * a packet it will poll from the device driver for more incoming packets.
  */
 static enum packet_state
 netif_rx_process(nb)
@@ -240,8 +248,7 @@ struct net_buff *nb;
         next:
         do
         {
-                retval = handle_packet(nb);
-                if(retval == P_QUEUED)
+                if((retval = handle_packet(nb)) == P_QUEUED)
                 {
                         for_each_ll_entry_safe(root, prot, tmp)
                         {
@@ -277,6 +284,10 @@ struct net_buff *nb;
                         case P_LOST:
                                 goto out;
                                 break;
+                        case P_QUEUED:
+                                retval = P_DONE;
+                                goto out;
+                                break;
                         default:
                                 warning("Packet handled incorrectly");
                                 break;
@@ -288,6 +299,17 @@ struct net_buff *nb;
                 do
                         retval = handle_packet(nb);
                 while(retval == P_ANOTHER_ROUND);
+                if(retval == P_QUEUED)
+                {
+                        for_each_ll_entry_safe(root, prot, tmp)
+                        {
+                                if(prot->type == nb->type)
+                                {
+                                        prot->notify();
+                                        break;
+                                }
+                        }
+                }
                 return retval;
         }
 
@@ -301,11 +323,10 @@ struct net_buff *nb;
                 return retval;
 
 
-        /**
-         * \fn handle_packet(buff)
-         * \brief Handles a packet once and returns the result.
-         *
-         * @return The result from the packet handler.
+        /*
+         * Handles one packet and returns the result of the packet handler. If
+         * a certain packet type is not known within andromeda, the return type
+         * will be enum packet_state.P_NOTCOMPATIBLE.
          */
         auto enum packet_state
         handle_packet(struct net_buff *buff)
@@ -320,6 +341,8 @@ struct net_buff *nb;
                                 if(buff->type == ETHERNET &&
                                         buff->raw_vlan != 0)
                                         vlan_untag(buff);
+                                if(!buff)
+                                        return P_NOTCOMPATIBLE;
                                 break;
                         }
                 }
