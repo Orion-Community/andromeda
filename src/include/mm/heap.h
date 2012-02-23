@@ -55,7 +55,9 @@ void* boot_alloc(size_t size);
 void examine_heap();
 
 #define kalloc(size) alloc(size, FALSE)
-#define kfree(ptr)   free(ptr);
+#define kfree(ptr)   free(ptr)
+#define knalloc(size) nalloc(size)
+#define kzalloc(size) knalloc(size)
 
 // Alloc_max = 1 MB
 #define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end) - offset)

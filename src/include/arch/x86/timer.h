@@ -16,7 +16,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-static int __get_cpu_tick_inline();
+#ifndef TIMER_H
+#define TIMER_H
+
+#include <stdlib.h>
 
 struct cpu_time
 {
@@ -24,3 +27,6 @@ struct cpu_time
 };
 
 unsigned long long get_cpu_tick();
+static int __get_cpu_tick_inline();
+
+#endif

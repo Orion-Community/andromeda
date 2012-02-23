@@ -16,6 +16,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/** \file file */
+
 #include <stdlib.h>
 
 #ifndef __THREAD_H
@@ -27,6 +29,29 @@ extern "C" {
 
 #define mutex_locked 1
 #define mutex_unlocked 0
+
+/**
+ * \def THREAD
+ * \brief Definition of a thread handler.
+ * \param fn The function name.
+ * \param argv The name of the function argument pointer.
+ *
+ * This thread defines the header of a runnable thread. All runnable threads are
+ * <i><b>static void</b></i> functions and they take one <i><b>void pointer</b>
+ * </i> as argument.
+ */
+#define THREAD(fn, argv) \
+static void fn(void *argv); \
+static void fn(void *argv)
+
+/**
+ * \fn thread_t
+ * \brief Thread function pointer.
+ * \param argv Arguments which are passed to the thread.
+ *
+ * This function pointer is used to call the thread from the scheduler.
+ */
+typedef void (*thread_t)(void *argv);
 
 typedef volatile unsigned int spinlock_t;
 #define mutex_t spinlock_t

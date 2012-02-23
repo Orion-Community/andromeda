@@ -24,6 +24,11 @@
 #include <fs/vfs.h>
 #include <arch/x86/irq.h>
 
+/**
+ * \file rtl8168.h
+ * \brief RealTek 8168 NIC driver.
+ */
+
 static struct rtl_cfg *rtl_devs = NULL;
 
 void
@@ -35,6 +40,13 @@ rtl8168_irq_handler(unsigned int irq, irq_stack_t stack)
         struct vfile *io = rtl->open(rtl);
         struct net_buff *buff = alloc_buff_frame(496);
         buff->dev = dev;
+        struct rtl_cfg *cfg = dev->device_data;
+        unsigned short irq_state = 0;
+        rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET,
+                                   &irq_state, sizeof(irq_state));
+#ifdef RTL_DBG
+        printf("IRQ status: %x\n", irq_state);
+#endif
         if (io->read(io, (void*) buff, sizeof (*buff)) != -E_SUCCESS)
                 warning("failure to call rtl io reader\n");
 
@@ -148,6 +160,31 @@ init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
         get_mac(pci, netdev);
         rtl_setup_irq_handle(&rtl8168_irq_handler, netdev);
         register_net_dev(dev, netdev);
+}
+
+static enum packet_state
+rtl_poll_data(struct net_buff *nb)
+{
+        struct rtl_cfg *cfg = nb->dev->device_data;
+        uint16_t irq_state;
+        
+        rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET, &irq_state,
+                           sizeof(irq_state));
+        if(irq_state & 1)
+        {
+                irq_state = 1;
+                rtl_generic_cfg_out(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET,
+                                    &irq_state, sizeof(irq_state));
+                /* insert short delay here */
+                rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET,
+                                   &irq_state, sizeof(irq_state));
+                if(irq_state & 1)
+                        return P_ANOTHER_ROUND;
+                else
+                        return P_DELIVERED;
+        }
+
+        return P_NOTCOMPATIBLE;
 }
 
 static void
@@ -297,6 +334,75 @@ get_rtl_device(int dev)
                 else
                         continue;
         }
+}
+
+/**
+ * \fn rtl_generic_cfg_out(port, data, size)
+ * \brief Send the data specified in <i>data</i> to the output port <i>port</i>.
+ *
+ * @param port The output port.
+ * @param data Data to send.
+ * @param size Size of the data to send (size <= 4)
+ * @return Error code. Zero for success.
+ */
+static int
+rtl_generic_cfg_out(port, data, size)
+uint16_t port;
+void *data;
+uint8_t size;
+{
+        int retval = -E_SUCCESS;
+        switch(size)
+        {
+                case 1:
+                        outb(port, *((uint8_t*)data));
+                        break;
+                case 2:
+                        outw(port, *((uint16_t*)data));
+                        break;
+                case 4:
+                        outl(port, *((uint32_t*)data));
+                        break;
+                default:
+                        retval = -E_GENERIC;
+                        break;
+                        
+        }
+        return retval;
+}
+
+/**
+ * \fn rtl_generic_cfg_in(port, store, size)
+ * \brief Reads config info from port <i>port</i> and stores it in <i>store</i>.
+ *
+ * @param port The I/O port address.
+ * @param store Memory space storage address.
+ * @param size Size of the read.
+ * @return Error code.
+ */
+static int
+rtl_generic_cfg_in(port, store, size)
+uint16_t port;
+void *store;
+uint8_t size;
+{
+        int retval = -E_SUCCESS;
+        switch(size)
+        {
+                case 1:
+                        writeb(store, inb(port));
+                        break;
+                case 2:
+                        writew(store, inw(port));
+                        break;
+                case 4:
+                        writel(store, inl(port));
+                        break;
+                default:
+                        retval = -E_GENERIC;
+                        break;
+        }
+        return retval;
 }
 
 static int

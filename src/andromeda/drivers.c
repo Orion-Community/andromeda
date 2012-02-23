@@ -133,7 +133,7 @@ device_find_id(struct device* this, uint64_t dev_id)
 
         struct device* carriage = this->children;
 
-        struct device *dev;
+        struct device *dev = NULL;
         while (carriage != NULL)
         {
                 if (carriage->driver == NULL)

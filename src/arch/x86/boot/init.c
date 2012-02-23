@@ -50,6 +50,7 @@
 
 #include <andromeda/cpu.h>
 #include <andromeda/core.h>
+#include <andromeda/clock.h>
 #include <networking/eth/eth.h>
 #include <arch/x86/apic/ioapic.h>
 
@@ -142,7 +143,15 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         page_unmap_low_mem();
         pic_init();
         setIDT();
+        setup_irq_data();
+        
+        if (dev_init() != -E_SUCCESS)
+                panic("Couldn't initialise /dev");
+        
+        ol_pit_init(1024); // program pic to 1024 hertz
+        
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
+        
         ol_cpu_t cpu = kalloc(sizeof (*cpu));
         ol_cpu_init(cpu);
         acpi_init();
@@ -150,7 +159,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         ol_ps2_init_keyboard();
         ol_apic_init(cpu);
         init_ioapic();
-        setup_irq_data();
         ol_pci_init();
         debug("Little endian 0xf in net endian %x\n", htons(0xf));
 #ifdef __IOAPIC_DBG

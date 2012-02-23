@@ -37,9 +37,10 @@ extern "C" {
 #include <andromeda/panic.h>
 #include <andromeda/error.h>
 #include <mm/memory.h>
-#include <andromeda/timer.h>
 #include <math/math.h>
 #include <debug.h>
+
+#define BIT(x) (1 << (x))
 
 struct list_node;
 
@@ -107,6 +108,8 @@ void shutdown();
 #define for_each_ll_entry(head, carriage) for(carriage = (head); \
                                           carriage != NULL; carriage = \
                                           carriage->next)
+
+#define addressof(p) &(p)
 
 #ifdef __cplusplus
 }
