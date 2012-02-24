@@ -21,7 +21,6 @@
 
 #include <stdlib.h>
 
-#include <andromeda/timer/virtual.h>
 #include <andromeda/timer.h>
 
 typedef enum
@@ -37,7 +36,7 @@ typedef struct virtual_timer
         
         char *name;
         uint64_t id;
-        bool active;
+        timer_state_t active;
 
         uint32_t frq;
         uint64_t tick;

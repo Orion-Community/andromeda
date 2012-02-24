@@ -47,12 +47,53 @@ THREAD(virtual_ktimer, timer_data)
         }
 }
 
-static int destroy_virt_timer(struct virtual_timer* timer)
+static int
+destroy_virt_timer(struct virtual_timer* timer)
 {
         if(timer->previous)
         {
                 timer->previous->next = timer->next;
-                timer->next->previous = timer->previous;
+                if(timer->next)
+                        timer->next->previous = timer->previous;
+                free(timer);
         }
-        return -E_NOFUNCTION;
+        else if(timer == get_virtual_timer_head())
+        {
+                /* we are at the beginning of the list */
+                memset(timer, 0, sizeof(*timer));
+        }
+        return -E_SUCCESS;
+}
+
+static int
+virt_register_timer(VIRT_TIMER *timer)
+{
+        VIRT_TIMER *head = get_virtual_timer_head(), *tmp, *carriage;
+        for_each_ll_entry_safe(head, carriage, tmp)
+        {
+                if(NULL == carriage->next)
+                {
+                        carriage->next = timer;
+                        timer->next = NULL;
+                        timer->previous = carriage;
+                        break;
+                }
+        }
+        return -E_SUCCESS;
+}
+
+int
+create_virtual_timer(unsigned int frequency, TIMER *hw, timer_tick_t handle)
+{
+        VIRT_TIMER *timer = kzalloc(sizeof(*timer));
+        if(NULL == timer)
+                return -E_NULL_PTR;
+        timer->frq = frequency;
+        timer->hwtimer = hw;
+        timer->handle = handle;
+        timer->active = TIMER_ACTIVE;
+        if(!virt_register_timer(timer))
+                return -E_SUCCESS;
+        else
+                return -E_GENERIC;
 }

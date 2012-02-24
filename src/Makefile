@@ -7,7 +7,7 @@ MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __PCI_DEBUG -D MSI -D \
 MSIX -D MSIX_DEBUG -D WARN -D MSG_DBG"
 # MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
-DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o
+DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o lib.o
 
 .PHONY: all
 all: x86
@@ -55,6 +55,9 @@ fs.o:
 
 net.o:
 	$(MAKE) -C net $(MAKEEND)
+
+lib.o:
+	$(MAKE) -C lib $(MAKEEND)
 
 .PHONY: clean
 clean:
