@@ -51,7 +51,12 @@ mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
                 list->tail = node;
                 node->next = NULL;
                 node->prev = NULL;
+                return node;
         }
+        list->tail->next = node;
+        node->prev = list->tail;
+        node->next = NULL;
+        list->tail = node;
         return node;
 }
 
@@ -348,6 +353,7 @@ void
 mm_show_pages()
 {
         struct mm_page_descriptor* carriage = free_pages.head;
+        debug("Free pages\n");
         while (carriage != NULL)
         {
                 debug(
@@ -359,7 +365,8 @@ mm_show_pages()
                 );
                 carriage = carriage->next;
         }
-        carriage = allocated_pages.tail;
+        debug("Allocated pages\n");
+        carriage = allocated_pages.head;
         while (carriage != NULL)
         {
                 debug(
@@ -483,41 +490,36 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                 if (mmap->type != 1)
                 {
                         if (mm_page_append(&allocated_pages, tmp) == NULL)
-                        {
-                                allocated_pages.head = tmp;
-                                allocated_pages.tail = tmp;
-                        }
+                                panic("Couldn't add page!");
                         tmp->free = FALSE;
                 }
                 else
                 {
                         if (mm_page_append(&free_pages, tmp) == NULL)
-                        {
-                                free_pages.head = tmp;
-                                free_pages.tail = tmp;
-                        }
+                                panic("Couldn't add page!");
                         tmp->free = TRUE;
                 }
                 mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
         }
         debug("\nFirst run\n");
         mm_show_pages();
-        for(;;);
 
         mm_page_map_higher_half();
         debug("\nSecond run\n");
         mm_show_pages();
 
         mm_map_kernel();
-        debug("\nThird run\n");
+        debug("\nThird run (maps the kernel)\n");
         mm_show_pages();
 
+        for (;;);
+
         void* addr = mm_page_alloc(0x1000);
-        debug("\nFifth run\n");
+        debug("\nFourth run\n");
         mm_show_pages();
 
         mm_page_free(addr);
-        debug("\nSixth run\n");
+        debug("\nFifth run\n");
         mm_show_pages();
 
         for (;;);
@@ -535,6 +537,9 @@ x86_page_init(size_t mem_size)
 
         if (mem_size*0x400 < MINIMUM_PAGES*BYTES_IN_PAGE)
                 panic("Machine has not enough memory!");
+
+        memset(&free_pages, 0, sizeof(free_pages));
+        memset(&allocated_pages, 0, sizeof(allocated_pages));
 
         return -E_SUCCESS;
 }
