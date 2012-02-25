@@ -23,36 +23,69 @@
 #include <mm/heap.h>
 #include <types.h>
 
-static struct mm_page_descriptor* pages = NULL;
+static struct mm_page_list free_pages;
+static struct mm_page_list allocated_pages;
+
 boolean freeable_allocator = FALSE;
 static mutex_t page_lock = mutex_unlocked;
 
 /**
- * \fn mm_next_free_page
- * \return The first free page in the list of pages
+ * \fn mm_page_append
+ * \brief Append a page descriptor to the end of the list
+ * \param list
+ * \brief The list to append to
+ * \param node
+ * \brief The node to append
+ * \return NULL for error, node for success
  */
 struct mm_page_descriptor*
-mm_next_free_page(size_t size)
+mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
 {
-        mutex_lock(&page_lock);
-        struct mm_page_descriptor* carriage = pages;
-        if (carriage == NULL)
-        {
-                mutex_unlock(&page_lock);
+        if (list == NULL || node == NULL)
                 return NULL;
-        }
-
-        for (; carriage != NULL; carriage = carriage->next)
+        if (list->tail == NULL && list->head != NULL)
+                return NULL;
+        if (list->tail == NULL)
         {
-                if (carriage->free == TRUE)
-                {
-                        mutex_unlock(&page_lock);
-                        return carriage;
-                }
+                list->head = node;
+                list->tail = node;
+                node->next = NULL;
+                node->prev = NULL;
         }
+        return node;
+}
 
-        mutex_unlock(&page_lock);
-        return NULL;
+/**
+ * \fn mm_page_rm
+ * \brief Remove an item from a page list
+ * \param node
+ * \brief The node to be removed from the list
+ * \return The released node
+ */
+struct mm_page_descriptor*
+mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node)
+{
+        if (node == NULL || list == NULL)
+                return NULL;
+
+        if (node->next == NULL)
+        {
+                if (list->head != node)
+                        return NULL;
+                list->head = node->next;
+        }
+        if (node->prev == NULL)
+        {
+                if (list->tail != node)
+                        return NULL;
+                list->tail = node->prev;
+        }
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+        node->next = NULL;
+        node->prev = NULL;
+
+        return node;
 }
 
 /**
@@ -61,10 +94,15 @@ mm_next_free_page(size_t size)
  */
 
 static struct mm_page_descriptor*
-mm_get_page(addr_t addr, bool physical)
+mm_get_page(addr_t addr, bool physical, bool free)
 {
-        struct mm_page_descriptor* carriage = pages;
-        if (pages == NULL || addr % PAGESIZE != 0)
+        struct mm_page_descriptor* carriage;
+        if (free)
+                carriage = free_pages.head;
+        else
+                carriage = allocated_pages.head;
+
+        if (carriage == NULL || addr % PAGESIZE != 0)
                 return NULL;
         mutex_lock(&page_lock);
 
@@ -126,7 +164,7 @@ size_t base_size;
         if (tmp == NULL)
         {
                 mutex_unlock(&page->lock);
-                debug("Returning NULL\n");
+                debug("OUT OF MEMORY!\n");
                 return NULL;
         }
 
@@ -181,7 +219,7 @@ struct mm_page_descriptor* page2;
         }
 
         page1->size += page2->size;
-        page1->next = page2->next;
+        page2->prev->next = page2->next;
         if (page2->freeable)
                 kfree(page2);
 
@@ -201,7 +239,7 @@ mm_page_alloc(size_t size)
 {
         if (size % PAGESIZE)
                 return NULL;
-        struct mm_page_descriptor* carriage = pages;
+        struct mm_page_descriptor* carriage = free_pages.head;
         if (carriage == NULL)
                 return NULL;
         mutex_lock(&page_lock);
@@ -236,7 +274,7 @@ err:
 int
 mm_page_free(void* page)
 {
-        struct mm_page_descriptor* to_free = mm_get_page((addr_t)page, TRUE);
+        struct mm_page_descriptor* to_free = mm_get_page((addr_t)page, TRUE, FALSE);
         debug("Page to free: %X\n", (int)page);
         debug("Page descriptor to free: %X\n", (int)to_free);
         if (to_free == NULL)
@@ -247,8 +285,10 @@ mm_page_free(void* page)
 
         mutex_lock(&page_lock);
         to_free->free = TRUE;
+        mm_page_rm(&allocated_pages, to_free);
+        mm_page_append(&free_pages, to_free);
 
-        struct mm_page_descriptor* carriage = pages;
+        struct mm_page_descriptor* carriage = free_pages.head;
         for (; carriage->next != NULL && carriage != NULL;
                                                       carriage = carriage->next)
         {
@@ -307,7 +347,19 @@ x86_page_update_pd(uint32_t proc_id)
 void
 mm_show_pages()
 {
-        struct mm_page_descriptor* carriage = pages;
+        struct mm_page_descriptor* carriage = free_pages.head;
+        while (carriage != NULL)
+        {
+                debug(
+                      "phys: %X\tvirt: %X\tsize: %X\tfree: %X\n",
+                      (uint32_t)carriage->page_ptr,
+                      (uint32_t)carriage->virt_ptr,
+                      (uint32_t)carriage->size,
+                      carriage->free
+                );
+                carriage = carriage->next;
+        }
+        carriage = allocated_pages.tail;
         while (carriage != NULL)
         {
                 debug(
@@ -340,6 +392,8 @@ mm_map_kernel_element(struct mm_page_descriptor* carriage)
                         return -E_GENERIC;
         }
         // Mark the current page descriptor as allocated
+        mm_page_rm(&free_pages, carriage);
+        mm_page_append(&allocated_pages, carriage);
         carriage->free = FALSE;
         return -E_SUCCESS;
 }
@@ -348,9 +402,11 @@ int
 mm_map_kernel()
 {
         addr_t end_ptr = (addr_t)&end - THREE_GIB;
-        struct mm_page_descriptor* carriage = pages;
-        for (; carriage != NULL; carriage = carriage->next)
+        struct mm_page_descriptor* carriage = free_pages.head;
+        struct mm_page_descriptor* tmp;
+        for (; carriage != NULL; carriage = tmp)
         {
+                tmp = carriage->next;
                 addr_t phys = (addr_t)carriage->page_ptr;
                 if (phys < end_ptr)
                 {
@@ -364,11 +420,21 @@ mm_map_kernel()
 int
 mm_page_map_higher_half()
 {
-        struct mm_page_descriptor* carriage = pages;
-        if (carriage == NULL)
-                panic("Page administration not initialised!");
+        struct mm_page_descriptor* carriage = free_pages.head;
 
         addr_t phys;
+        for (; carriage != NULL; carriage = carriage->next)
+        {
+                phys = (addr_t)carriage->page_ptr;
+                if (phys < GIB)
+                {
+                        if (phys + carriage->size > GIB)
+                                mm_page_split(carriage, GIB - phys);
+                        carriage->virt_ptr = (void*)(phys+THREE_GIB);
+                }
+        }
+
+        carriage = allocated_pages.head;
         for (; carriage != NULL; carriage = carriage->next)
         {
                 phys = (addr_t)carriage->page_ptr;
@@ -385,12 +451,12 @@ mm_page_map_higher_half()
 int
 mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 {
-        printf("Pages: %X\n", (uint32_t)pages);
+        printf("Pages: %X\n", (uint32_t)free_pages.head);
 
         multiboot_memory_map_t* mmap = map;
 
-        struct mm_page_descriptor* carriage = pages;
         printf("Setting up!\n");
+
         while ((addr_t)mmap < (addr_t)map + mboot_map_size)
         {
                 debug("Size: %X\tbase: %X\tlength: %X\ttype: %X\n",
@@ -400,39 +466,43 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                         mmap->type
                 );
 
-                if ((uint32_t)mmap->addr == 0)
-                {
-                        pages->page_ptr = NULL;
-                        pages->virt_ptr = NULL;
+                struct mm_page_descriptor* tmp;
+                if (freeable_allocator)
+                        tmp = kalloc(sizeof(*tmp));
+                else
+                        tmp = boot_alloc(sizeof(*tmp));
+                if (tmp == NULL)
+                        panic("Out of memory!");
+                memset(tmp, 0, sizeof(*tmp));
+                tmp->freeable = freeable_allocator;
 
-                        pages->size = mmap->len;
-                        pages->free = (mmap->type == 1) ? TRUE : FALSE;
+                tmp->page_ptr = (void*)((addr_t)mmap->addr);
+                tmp->virt_ptr = tmp->page_ptr;
+                tmp->size = (size_t)mmap->len;
+
+                if (mmap->type != 1)
+                {
+                        if (mm_page_append(&allocated_pages, tmp) == NULL)
+                        {
+                                allocated_pages.head = tmp;
+                                allocated_pages.tail = tmp;
+                        }
+                        tmp->free = FALSE;
                 }
                 else
                 {
-                        if (freeable_allocator)
+                        if (mm_page_append(&free_pages, tmp) == NULL)
                         {
-                                carriage->next = kalloc(sizeof(*pages));
-                                carriage->next->freeable = TRUE;
+                                free_pages.head = tmp;
+                                free_pages.tail = tmp;
                         }
-                        else
-                        {
-                                carriage->next = boot_alloc(sizeof(*pages));
-                                carriage->next->freeable = FALSE;
-                        }
-                        if (carriage -> next == NULL)
-                                panic("Out of memory!");
-                        carriage = carriage->next;
-                        carriage->size = mmap->len;
-                        carriage->free = (mmap->type == 1) ? TRUE : FALSE;
-                        carriage->page_ptr = (void*)((uint32_t)mmap->addr);
-                        carriage->virt_ptr = NULL;
+                        tmp->free = TRUE;
                 }
-
                 mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
         }
         debug("\nFirst run\n");
         mm_show_pages();
+        for(;;);
 
         mm_page_map_higher_half();
         debug("\nSecond run\n");
@@ -443,11 +513,11 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
         mm_show_pages();
 
         void* addr = mm_page_alloc(0x1000);
-        debug("\nFourth run\n");
+        debug("\nFifth run\n");
         mm_show_pages();
 
         mm_page_free(addr);
-        debug("\nFifth run\n");
+        debug("\nSixth run\n");
         mm_show_pages();
 
         for (;;);
@@ -466,28 +536,6 @@ x86_page_init(size_t mem_size)
         if (mem_size*0x400 < MINIMUM_PAGES*BYTES_IN_PAGE)
                 panic("Machine has not enough memory!");
 
-        if (freeable_allocator)
-                pages = kalloc(sizeof(*pages));
-        else
-                pages = boot_alloc(sizeof(*pages));
-
-        if (pages == NULL)
-                panic("Out of memory!");
-
-        pages->next = NULL;
-        pages->page_ptr = NULL; /** page ptr = 0 */
-        pages->virt_ptr = (void*)THREE_GIB; /** Map all memoy to 3 GiB */
-
-        pages->size = 0; /** Size will be set later */
-        pages->last_referenced = 0; /** last_referenced doesn't matter yet */
-
-        pages->swapable = FALSE;        /** pages isn't swappable */
-        pages->free = TRUE;             /** The page is free */
-        pages->dma = FALSE;             /** Not direct memory access */
-        /** Can the page be freed to the allocator or not? */
-        pages->freeable = (freeable_allocator) ? TRUE : FALSE;
-
-        pages->lock = mutex_unlocked;
         return -E_SUCCESS;
 }
 

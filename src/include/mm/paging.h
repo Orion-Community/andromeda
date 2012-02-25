@@ -76,6 +76,11 @@ struct page_table
 } __attribute__((packed));
 typedef struct page_table page_table_t;
 
+struct mm_page_list {
+        struct mm_page_descriptor* head;
+        struct mm_page_descriptor* tail;
+};
+
 /**
  * \struct mm_page_descriptor
  * \brief Used for page allocation and administration
@@ -100,10 +105,11 @@ struct mm_page_descriptor {
          * \var lock
          */
         struct mm_page_descriptor* next;
+        struct mm_page_descriptor* prev;
         void* page_ptr;
         void* virt_ptr;
 
-        uint64_t size;
+        size_t size;
         time_t last_referenced;
 
         bool swapable;
