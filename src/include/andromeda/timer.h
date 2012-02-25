@@ -48,23 +48,23 @@ typedef struct timer
         /**
          * \var name
          * \brief Unique name for the timer
-         * 
+         *
          * \var frq
          * \brief The timer frequency.
-         * 
+         *
          * \var tick
          * \brief The timer tick.
-         * 
+         *
          * \var handle
          * \brief The irq handle which is called every time.
-         * 
+         *
          * \var timer_data
          * \brief Private data specific for each different timer.
          */
         /* object specific shizzle */
         char *name;
         unsigned long long id;
-        
+
         /* timer config */
         unsigned int frq;
         unsigned long long tick;
@@ -82,7 +82,7 @@ typedef struct timer
 /**
  * \var scheduling
  * \brief Indicates the activity of the scheduler.
- * 
+ *
  * When set to false, the scheduler is not acitve and there should be performed
  * any I/O actions with the scheduler before it is (re-)enabled.
  * TRUE means full functionality of the scheduler.
@@ -96,7 +96,7 @@ extern volatile boolean scheduling;
  * \param read File read function.
  * \param write File write routine.
  * \return Error code.
- * 
+ *
  * This function creates a virtual file to communicate with the device.
  */
 static int dev_timer_setup_io(struct device *, vfs_read_hook_t, vfs_write_hook_t);
@@ -108,7 +108,7 @@ static int dev_timer_setup_io(struct device *, vfs_read_hook_t, vfs_write_hook_t
  * \param tick_handle The routine which will handle timer IRQ's for this timer.
  * \param data Additional data to store.
  * \return The created timer object. NULL if creation failed.
- * 
+ *
  * This function will create a new TIMER object and initialise a correspondending
  * device structure. Also it will setup an interrupt.
  */
@@ -120,14 +120,14 @@ static TIMER *create_timer_obj(char *name, timer_tick_t tick_handle, void *data)
  * \param dev The timer device.
  * \param parent The parent device of the timer.
  * \return The error code. Zero on success, non-zero on failure.
- * 
+ *
  * This function will setup the device structure for a timer.
  */
 static int dev_timer_init(struct device* dev, struct device* parent);
 
 static int setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector);
 
-TIMER *init_timer_obj(char *name, timer_tick_t tick_handle, void *data, 
+TIMER *init_timer_obj(char *name, timer_tick_t tick_handle, void *data,
                                         bool forse_vec, unsigned char vec);
 
 static inline unsigned long long

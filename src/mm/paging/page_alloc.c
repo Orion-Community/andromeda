@@ -64,7 +64,7 @@ static struct mm_page_descriptor*
 mm_get_page(addr_t addr, bool physical)
 {
         struct mm_page_descriptor* carriage = pages;
-        if (pages == NULL)
+        if (pages == NULL || addr % PAGESIZE != 0)
                 return NULL;
         mutex_lock(&page_lock);
 
@@ -73,7 +73,7 @@ mm_get_page(addr_t addr, bool physical)
                 if (physical)
                 {
                         addr_t phys = (addr_t)carriage->page_ptr;
-                        if (phys <= addr && phys+carriage->size > addr)
+                        if (phys <= addr && phys + carriage->size > addr)
                         {
                                 mutex_unlock(&page_lock);
                                 return carriage;
@@ -199,11 +199,12 @@ struct mm_page_descriptor* page2;
 void*
 mm_page_alloc(size_t size)
 {
-        mutex_lock(&page_lock);
-
+        if (size % PAGESIZE)
+                return NULL;
         struct mm_page_descriptor* carriage = pages;
         if (carriage == NULL)
-                goto err;
+                return NULL;
+        mutex_lock(&page_lock);
 
         for (; carriage != NULL; carriage = carriage->next)
         {
@@ -216,7 +217,7 @@ mm_page_alloc(size_t size)
 
                         carriage->free = FALSE;
                         mutex_unlock(&page_lock);
-                        return carriage;
+                        return carriage->page_ptr;
                 }
         }
 
@@ -236,6 +237,8 @@ int
 mm_page_free(void* page)
 {
         struct mm_page_descriptor* to_free = mm_get_page((addr_t)page, TRUE);
+        debug("Page to free: %X\n", (int)page);
+        debug("Page descriptor to free: %X\n", (int)to_free);
         if (to_free == NULL)
                 return -E_GENERIC;
 
@@ -438,6 +441,16 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
         mm_map_kernel();
         debug("\nThird run\n");
         mm_show_pages();
+
+        void* addr = mm_page_alloc(0x1000);
+        debug("\nFourth run\n");
+        mm_show_pages();
+
+        mm_page_free(addr);
+        debug("\nFifth run\n");
+        mm_show_pages();
+
+        for (;;);
 
         return -E_SUCCESS;
 }
