@@ -73,13 +73,13 @@ mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node)
         if (node == NULL || list == NULL)
                 return NULL;
 
-        if (node->next == NULL)
+        if (node->prev == NULL)
         {
                 if (list->head != node)
                         return NULL;
                 list->head = node->next;
         }
-        if (node->prev == NULL)
+        if (node->next == NULL)
         {
                 if (list->tail != node)
                         return NULL;
@@ -178,6 +178,7 @@ size_t base_size;
         tmp->size = page->size-base_size;
         tmp->virt_ptr = (void*)((addr_t)page->virt_ptr + base_size);
         tmp->page_ptr = (void*)((addr_t)page->page_ptr + base_size);
+        tmp->prev = page;
         page->next = tmp;
         page->size = base_size;
         tmp->freeable = freeable_allocator;
@@ -357,11 +358,12 @@ mm_show_pages()
         while (carriage != NULL)
         {
                 debug(
-                      "phys: %X\tvirt: %X\tsize: %X\tfree: %X\n",
+                      "phys: %X\tvirt: %X\tsize: %X\tfree: %X\tcarriage: %X\n",
                       (uint32_t)carriage->page_ptr,
                       (uint32_t)carriage->virt_ptr,
                       (uint32_t)carriage->size,
-                      carriage->free
+                      carriage->free,
+                      (uint32_t)carriage
                 );
                 carriage = carriage->next;
         }
@@ -370,11 +372,12 @@ mm_show_pages()
         while (carriage != NULL)
         {
                 debug(
-                      "phys: %X\tvirt: %X\tsize: %X\tfree: %X\n",
+                      "phys: %X\tvirt: %X\tsize: %X\tfree: %X\tcarriage: %X\n",
                       (uint32_t)carriage->page_ptr,
                       (uint32_t)carriage->virt_ptr,
                       (uint32_t)carriage->size,
-                      carriage->free
+                      carriage->free,
+                      (uint32_t)carriage
                 );
                 carriage = carriage->next;
         }
