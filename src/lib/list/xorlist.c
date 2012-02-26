@@ -52,7 +52,7 @@ xorll_get_next(XOR_HEAD *prev, XOR_HEAD *this)
  *
  * This function will insert the xornode node between alpha and beta.
  */
-static int
+int
 xorll_list_insert(XOR_HEAD *prev, XOR_HEAD *this, XOR_HEAD *new)
 {
         ulong uprev = (ulong)prev;
@@ -147,4 +147,37 @@ xorll_list_add(XOR_HEAD *listHead, XOR_HEAD *node, XOR_HEAD *new)
         }
 
         return OK;
+}
+
+/**
+ * \fn iterate_xor_list(XOR_HEAD *prev, XOR_HEAD *head, xor_list_iterator_t hook)
+ * \param prev Previous node of the starting point <i>head</i>
+ * \param head Iterate starting point.
+ * \param hook Will be called every iteration.
+ * \return An error code.
+ * \brief Iterates trough a XOR linked list.
+ *
+ * This function returns trough a XOR-linkedlist and it will call hook on every
+ * iteration.
+ */
+int
+iterate_xor_list(XOR_HEAD *prev, XOR_HEAD *head, xor_list_iterator_t hook)
+{
+        XOR_HEAD *carriage = head, *tmp;
+        int result = -1;
+
+        if(!hook)
+                return NULL_PTR;
+        while(carriage)
+        {
+                tmp = carriage; // save to set prev later
+                carriage = xorll_get_next(prev, tmp); // get next one..
+                if(prev)
+                        if(HOOK_DONE == (result = hook(prev)))
+                                break;
+                prev = tmp;
+        }
+        result = hook(prev);
+
+        return result;
 }

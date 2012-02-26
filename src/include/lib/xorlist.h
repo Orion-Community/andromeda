@@ -18,22 +18,22 @@
 
 #ifndef __LIST_H
 #define __LIST_H
+struct xor_llist_head;
+
+typedef hook_result_t (*xor_list_iterator_t)(struct xor_llist_head*);
+
 /**
- * \struct xor_list_head
+ * \typedef XOR_HEAD
  * \brief The linked list nodes the library works with.
  */
-struct xor_list_head
+typedef struct xor_llist_head
 {
         /**
          * \var pointer
          * \brief In the pointer variable are the previous and next pointer stored.
-         * \var value
-         * \brief Debug value.
          */
         void *pointer;
-        unsigned int value;
-} __attribute__((packed));
-typedef struct xor_list_head XOR_HEAD;
+} XOR_HEAD;
 
 /**
  * \fn xorll_get_next(XOR_HEAD *prev, XOR_HEAD *this)
@@ -58,7 +58,7 @@ XOR_HEAD *xorll_get_next(XOR_HEAD *prev, XOR_HEAD *this);
  *
  * This function will insert the xornode node after the <i>this</i> node.
  */
-static int xorll_list_insert(XOR_HEAD *prev, XOR_HEAD *this, XOR_HEAD *new);
+int xorll_list_insert(XOR_HEAD *prev, XOR_HEAD *this, XOR_HEAD *new);
 
 /**
  * \fn xorll_remove_node(XOR_HEAD *prev, XOR_HEAD *this)
@@ -83,6 +83,29 @@ int xorll_remove_node(XOR_HEAD *prev, XOR_HEAD *this);
  */
 int xorll_list_add(XOR_HEAD *listHead, XOR_HEAD *node, XOR_HEAD *new);
 
+/**
+ * \fn iterate_xor_list(XOR_HEAD *prev, XOR_HEAD *head, xor_list_iterator_t hook)
+ * \param prev Previous node of the starting point <i>head</i>
+ * \param head Iterate starting point.
+ * \param hook Will be called every iteration.
+ * \return An error code.
+ * \brief Iterates trough a XOR linked list.
+ *
+ * This function returns trough a XOR-linkedlist and it will call hook on every
+ * iteration.
+ */
+int iterate_xor_list(XOR_HEAD *prev, XOR_HEAD *head, xor_list_iterator_t hook);
+
+/**
+ * \fn get_prev_node(XOR_HEAD *this, XOR_HEAD *next)
+ * \param this 'Current' node.
+ * \param next Consecutive node of <i>this</i>.
+ * \brief This function returns the previous node of <i>this</i>
+ * \return The previous node of <i>this</i>.
+ *
+ * This function calculates the previous node of <i>this</i> using the <i>next</i>
+ * node.
+ */
 static inline XOR_HEAD*
 get_prev_node(XOR_HEAD *this, XOR_HEAD *next)
 {
