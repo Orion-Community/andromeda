@@ -19,16 +19,43 @@
 #ifndef __ERROR_H
 #define __ERROR_H
 
+/**
+ * \typedef error_t
+ */
 typedef enum
 {
+        /**
+         * \enum OK
+         * \brief SUCCESS return value.
+         *
+         * \enum NULL_PTR
+         * \brief Returned when a null pointer is found
+         *
+         * \enum GENERAL_ERR
+         * \brief Returned on undefined errors.
+         *
+         * \enum NO_MEM
+         * \brief Returned when allocation failed.
+         */
         OK = 0,
         NULL_PTR,
         GENERAL_ERR,
         NO_MEM,
 } error_t;
 
+/**
+ * \typedef hook_result_t
+ * \brief Hook result types. The iterater will act on the returned result.
+ */
 typedef enum
 {
+        /**
+         * \enum HOOK_DONE
+         * \brief Returned by iterate handlers when the iteration is done.
+         *
+         * \enum HOOK_NOT_DONE
+         * \brief When returned, the iterater will continue with the next node.
+         */
         HOOK_DONE,
         HOOK_NOT_DONE,
 } hook_result_t;
