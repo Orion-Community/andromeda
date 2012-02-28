@@ -50,6 +50,7 @@ To compile:
 * g++
 * ld
 * nasm
+* A working linux installation (for compilation without tweaks to the Makefiles)
 
 To test:
 
