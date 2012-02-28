@@ -25,6 +25,7 @@
 extern "C" {
 #endif
 
+extern uint8_t cpu_get_num();
 
 extern int getVendor();
 extern void halt();
