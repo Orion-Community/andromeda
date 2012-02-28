@@ -44,6 +44,17 @@ struct mp_fp_header
   uint8_t reserved2, reserved3, reserved4; /* feature bytes 3-5 */
 } __attribute((packed));
 
+typedef struct mp_proc_entry
+{
+        uint8_t type;
+        uint8_t id;
+        uint8_t version;
+        uint8_t flags;
+
+        uint32_t signature;
+        uint32_t features;
+} MP_PROC_ENTRY;
+
 #ifdef __cplusplus
 }
 #endif
