@@ -22,6 +22,7 @@
 #include <boot/mboot.h>
 #include <mm/heap.h>
 #include <types.h>
+#include <mm/memory.h>
 
 static struct mm_page_list free_pages;
 static struct mm_page_list allocated_pages;
@@ -459,6 +460,32 @@ mm_page_map_higher_half()
 }
 
 int
+mboot_map_special_entry(addr_t ptr,addr_t virt,size_t size,bool free,bool dma)
+{
+        struct mm_page_descriptor* tmp;
+        if (freeable_allocator)
+                tmp = kalloc(sizeof(*tmp));
+        else
+                tmp = boot_alloc(sizeof(*tmp));
+
+        if (tmp == NULL)
+                panic("OUT OF MEMORY!");
+
+        memset(tmp, 0, sizeof(*tmp));
+        tmp->page_ptr = (void*)ptr;
+        tmp->virt_ptr = (void*)virt;
+        tmp->size = size;
+        tmp->free = free;
+        tmp->dma = dma;
+        if (free)
+                mm_page_append(&free_pages, tmp);
+        else
+                mm_page_append(&allocated_pages, tmp);
+
+        return -E_SUCCESS;
+}
+
+int
 mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 {
         printf("Pages: %X\n", (uint32_t)free_pages.head);
@@ -477,6 +504,16 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                 );
 
                 struct mm_page_descriptor* tmp;
+                if (mmap->addr < SIZE_MEG)
+                {
+                        if (mmap->addr+mmap->size > SIZE_MEG)
+                        {
+                                mboot_map_special_entry(SIZE_MEG, SIZE_MEG,
+                                                mmap->addr+mmap->size-SIZE_MEG,
+                                       (mmap->type == 1) ? TRUE : FALSE, FALSE);
+                        }
+                        goto skip;
+                }
                 if (freeable_allocator)
                         tmp = kalloc(sizeof(*tmp));
                 else
@@ -502,6 +539,7 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                                 panic("Couldn't add page!");
                         tmp->free = TRUE;
                 }
+skip:
                 mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
         }
         debug("\nFirst run\n");
@@ -543,6 +581,24 @@ x86_page_init(size_t mem_size)
 
         memset(&free_pages, 0, sizeof(free_pages));
         memset(&allocated_pages, 0, sizeof(allocated_pages));
+
+        struct mm_page_descriptor* meg;
+        if (freeable_allocator)
+                meg = kalloc(sizeof(*meg));
+        else
+                meg = boot_alloc(sizeof(*meg));
+
+        if (meg == NULL)
+                panic("OUT OF MEMORY!");
+
+        memset(meg, 0, sizeof(*meg));
+        meg->freeable = freeable_allocator;
+        meg->page_ptr = NULL;
+        meg->size = SIZE_MEG; /** meg->size = one megabyte */
+
+        allocated_pages.head = meg;
+        allocated_pages.tail = meg;
+
 
         return -E_SUCCESS;
 }
