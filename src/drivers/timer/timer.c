@@ -32,6 +32,7 @@ IRQ(timer_irq, irq, stack)
         TIMER *timer = dev->device_data;
         timer->tick++;
         timer->tick_handle(timer);
+
         return;
 }
 

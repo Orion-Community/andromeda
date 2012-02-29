@@ -238,6 +238,12 @@ struct __TASK_STATE* dest;
   return -E_SUCCESS;
 }
 
+void
+sched_next_task(irq_stack_t regs)
+{
+        return;
+}
+
 /**
  * Basically make a copy of the current process
  */

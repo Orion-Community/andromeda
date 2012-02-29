@@ -81,11 +81,12 @@ struct __THREAD_LIST
 /**
  * This keeps track of the actual task itself.
  */
-struct __TASK_STATE
+typedef struct __TASK_STATE
 {
 	/** Keep track of threads and task level registers */
 	struct __THREAD_LIST *threads;
 	struct __PROC_REGS regs;
+        REGS *registers;
 
 	/** What state are we in */
 	enum task_state state;
@@ -117,7 +118,7 @@ struct __TASK_STATE
 	/** How large are those segments? */
 	addr_t code_size;
 	addr_t data_size;
-};
+} TASK_STATE;
 
 /** Structure for keeping track of threads in the shape of a tree. */
 struct __TASK_BRANCH_NODE
@@ -136,7 +137,7 @@ struct __TASK_BRANCH_NODE
 extern struct __TASK_BRANCH_NODE        *task_stack;
 
 /** Some nice functions for you to call ... */
-void sched();    /** Go to the next task */
+extern void sched_next_task();
 int fork  ();    /** Copy the current task to a new one */
 void sig  (int); /** Send a signal to the current task */
 void kill (int);

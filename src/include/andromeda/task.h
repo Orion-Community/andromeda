@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2012 Michel Megens
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,37 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef __ARCH_X86_TASK_H
-#define __ARCH_X86_TASK_H
+#ifndef __TASK_h
+#define __TASK_h
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdlib.h>
 
-struct __PROC_REGS
-{
-        uint64_t cr0, cr1, cr2, cr3;
-        uint16_t cs, ss, ds;
-};
+#include <andromeda/sched.h>
 
-typedef struct general_registers
-{
-        unsigned long eax, ebx, ecx, edx;
-        unsigned long edi, esi;
-        unsigned long esp, ebp;
-} REGS;
-
-struct isr_regs
-{
-        uint16_t ds;
-        unsigned long edi, esi, ebp, esp, ebx, edx, ecx, eax;
-        unsigned long funcPtr, errCode;
-        unsigned long eip, cs, eflags, procesp, ss;
-} __attribute__((packed));
-typedef struct isr_regs isrVal_t;
-
-#ifdef __cplusplus
-}
-#endif
+extern int switch_context(__THREAD_STATE *thread);
 
 #endif

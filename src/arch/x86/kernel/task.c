@@ -16,6 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
+
+#include <andromeda/task.h>
 #include <andromeda/sched.h>
 #include <andromeda/error.h>
 
@@ -43,11 +46,14 @@ struct __THREAD_STATE *new_thread;
 }
 
 /**
- * If regs is a pointer to the argument offered to the ISR, it will actually
- * perform a context switch (lacking only floating point registers and memory
- * protection
+ * \fn load_task(__THREAD_STATE *thread)
+ * \brief Switch to another <i>thread</i>.
+ * \param thread New thread to which has to be loaded.
+ * \return Error code. See <i>error.h</i> for more information.
+ *
+ * This function loads a new task and starts the execution.
  */
-int load_task(thread)
+int context_switch(thread)
 struct __THREAD_STATE *thread;
 {
         if (thread == NULL)
