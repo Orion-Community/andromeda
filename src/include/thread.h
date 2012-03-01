@@ -35,7 +35,7 @@ extern "C" {
  * \brief Definition of a thread handler.
  * \param fn The function name.
  * \param argv The name of the function argument pointer.
- * 
+ *
  * This thread defines the header of a runnable thread. All runnable threads are
  * <i><b>static void</b></i> functions and they take one <i><b>void pointer</b>
  * </i> as argument.
@@ -48,27 +48,28 @@ static void fn(void *argv)
  * \fn thread_t
  * \brief Thread function pointer.
  * \param argv Arguments which are passed to the thread.
- * 
+ *
  * This function pointer is used to call the thread from the scheduler.
  */
 typedef void (*thread_t)(void *argv);
 
-typedef volatile unsigned int mutex_t;
+typedef volatile unsigned int spinlock_t;
+#define mutex_t spinlock_t
 
 typedef struct {
         int64_t cnt;
-        mutex_t lock;
+        spinlock_t lock;
 } atomic_t;
 
 typedef struct {
         int64_t cnt;
-        mutex_t lock;
+        spinlock_t lock;
         int64_t limit;
 }semaphore_t;
 
-extern void mutex_lock(mutex_t*);
-extern unsigned int mutex_test(mutex_t*);
-extern void mutex_unlock(mutex_t*);
+extern void mutex_lock(spinlock_t*);
+extern unsigned int mutex_test(spinlock_t*);
+extern void mutex_unlock(spinlock_t*);
 
 int64_t atomic_add(atomic_t* d, int cnt);
 int64_t atomic_sub(atomic_t* d, int cnt);

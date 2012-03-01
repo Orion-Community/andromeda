@@ -53,7 +53,7 @@ extern "C" {
 #define STREAM_DBG
 #endif //STREAM_DBG
 
-#define assert(a) if (!a) {panic("Assertion failed!")}
+#define assert(a) if (!a) {panic("Assertion failed!");}
 #else
 #define assert(a)
 
@@ -64,3 +64,5 @@ extern "C" {
 #endif
 
 #endif // __DEBUG_H
+
+/** \file */

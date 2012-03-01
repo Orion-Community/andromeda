@@ -1,5 +1,5 @@
 /*
-    Orion OS, The educational operatingsystem
+    Andromeda
     Copyright (C) 2011  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
@@ -24,6 +24,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define SIZE_MEG 0x100000
 
 void paging();
 void memset(void*, int, size_t);
@@ -50,3 +52,5 @@ extern unsigned int end;
 #endif
 
 #endif
+
+/** \file */

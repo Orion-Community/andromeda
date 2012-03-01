@@ -20,6 +20,7 @@
 #include <arch/x86/apic/msi.h>
 #include <arch/x86/apic/apic.h>
 #include <arch/x86/irq.h>
+#include <arch/x86/idt.h>
 #include <sys/dev/pci.h>
 #include <mm/map.h>
 #include <io.h>

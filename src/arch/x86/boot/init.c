@@ -126,18 +126,20 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 memsize += 1024;
         }
         else
-        {
                 panic("No memory flags!");
-        }
-        if (hdr->flags & MULTIBOOT_INFO_MEM_MAP)
-        {
-                mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
-                build_map(mmap, (unsigned int) hdr->mmap_length);
-        }
-        else
-        {
+        if (!(hdr->flags & MULTIBOOT_INFO_MEM_MAP))
                 panic("Invalid memory map");
-        }
+
+        mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
+
+        /** Set up paging administration */
+        x86_page_init(memsize);
+        mboot_page_setup(mmap, (uint32_t)hdr->mmap_length);
+
+        /** For now this is the temporary page table map */
+        build_map(mmap, (unsigned int) hdr->mmap_length);
+
+        task_init();
 
         page_init();
         printf("%s\n", welcome);
@@ -146,14 +148,14 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         pic_init();
         setIDT();
         setup_irq_data();
-        
+
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");
-        
+
         ol_pit_init(1024); // program pic to 1024 hertz
-        
+
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
-        
+
         ol_cpu_t cpu = kalloc(sizeof (*cpu));
         ol_cpu_init(cpu);
         acpi_init();
@@ -162,11 +164,10 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         ol_apic_init(cpu);
         init_ioapic();
         ol_pci_init();
-        printf("Little endian 0xf in net endian %x\n", htons(0xf));
+        debug("Little endian 0xf in net endian %x\n", htons(0xf));
 #ifdef __IOAPIC_DBG
         ioapic_debug();
 #endif
-
 #ifdef __MEMTEST
         ol_detach_all_devices(); /* free's al the pci devices */
 #endif

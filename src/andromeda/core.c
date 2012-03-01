@@ -115,10 +115,9 @@ void core_loop()
         buf_dbg();
 #endif
 
-        uint32_t pid = 0;
+//         uint32_t pid = 0;
 
         debug("Entering core loop\n");
-
         while (TRUE) // Infinite loop, to make the kernel wait when there is nothing to do
         {
                 switch (rl)

@@ -81,7 +81,7 @@ $(PIT): $(PIT_SRC)
 
 $(TASK): $(TASK_SRC)
 	$(CC) $(CCFLAGS) $(TASK_SRC) -o $(TASK)
-	
+
 $(TIMER): timer.c
 	$(CC) $(CCFLAGS) timer.c -o $(TIMER)
 	

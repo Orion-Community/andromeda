@@ -19,6 +19,7 @@
 #include <andromeda/drivers.h>
 #include <andromeda/irq.h>
 #include <andromeda/timer.h>
+#include <andromeda/idt.h>
 
 #include <fs/vfs.h>
 
@@ -151,7 +152,7 @@ vfs_write_hook_t write;
         io->type = file;
         io->read = read;
         io->write = write;
-
+        return -E_SUCCESS;
 }
 
 static int

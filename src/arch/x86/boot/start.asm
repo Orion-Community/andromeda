@@ -27,6 +27,9 @@ MBOOT_HEADER_MAGIC  equ 0x1BADB002 ; Multiboot Magic value
 MBOOT_HEADER_FLAGS  equ MBOOT_PAGE_ALIGN | MBOOT_MEM_INFO
 MBOOT_CHECKSUM      equ -(MBOOT_HEADER_MAGIC + MBOOT_HEADER_FLAGS)
 
+GIB_PAGE_TABLES         equ 0x40000
+GIB_PAGE_DIRS           equ 0x100
+PAGE_TABLE_SIZE         equ 0x1000
 
 [BITS 32]                       ; All instructions should be 32-bit.
 
@@ -75,14 +78,14 @@ boot_setup_paging:
   xor eax, eax
   xor ebx, ebx
 
-; Configure all the page tables in one single go (0x400000)
+; Configure all the page tables in one single go (GIB_PAGE_TABLES)
 .1:
   mov ecx, ebx
   or ecx, 3
   mov [page_table_boot+eax*4], ecx
-  add ebx, 0x1000
+  add ebx, PAGE_TABLE_SIZE
   inc eax
-  cmp eax, 0x40000
+  cmp eax, GIB_PAGE_TABLES
   jne .1
 
 ; Set up page directory pointer
@@ -99,9 +102,9 @@ boot_setup_paging:
 .2:
   mov [ebx], eax
   add ebx, 4
-  add eax, 0x1000
+  add eax, PAGE_TABLE_SIZE
   inc ecx
-  cmp ecx, 0x100
+  cmp ecx, GIB_PAGE_DIRS
   jne .2
 
 ; The 3 GiB part
@@ -116,9 +119,9 @@ boot_setup_paging:
 .3:
   mov [ebx], eax
   add ebx, 4
-  add eax, 0x1000
+  add eax, PAGE_TABLE_SIZE
   inc ecx
-  cmp ecx, 0x100
+  cmp ecx, GIB_PAGE_DIRS
   jne .3
 
 ; Set the PG bit

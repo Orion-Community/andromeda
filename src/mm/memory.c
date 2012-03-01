@@ -1,5 +1,5 @@
 /*
-    Orion OS, The educational operatingsystem
+    Andromeda
     Copyright (C) 2011  Bart Kuivenhoven & Steven van der Schoot
 
     This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <mm/paging.h>
 #include <mm/map.h>
+#include <mm/heap.h>
 
 #define BASE_HEAP_SIZE 0x100000
 
@@ -35,7 +36,8 @@ int
 init_heap()
 {
 	heap_add_blocks(&heap_base, BASE_HEAP_SIZE);
-	return;
+        freeable_allocator = TRUE;
+        return -E_SUCCESS;
 }
 
 void memset(void *dest, int sval, size_t count)
@@ -237,3 +239,5 @@ size_t strlen(char* string)
 	for (; *(string + i) != '\0'; i++);
 	return i;
 }
+
+/** \file */

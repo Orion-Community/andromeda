@@ -20,6 +20,6 @@ $(IP): $(TARGET)
 
 arp.o: arp.c
 	$(CC) $(CCFLAGS) -o arp.o arp.c
-	
+
 ip_.o:
 	$(CC) $(CCFLAGS) -o ip_.o ip.c

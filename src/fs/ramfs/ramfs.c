@@ -73,16 +73,19 @@ ram_fs_close(struct vfile* this)
         return -E_NOFUNCTION;
 }
 
+int
 ram_fs_seek(struct vfile* this, size_t idx, seek_t type)
 {
         return -E_NOFUNCTION;
 }
 
+int
 ram_fs_read(struct vfile* this, char* buf, size_t num)
 {
         return -E_NOFUNCTION;
 }
 
+int
 ram_fs_write(struct vfile* this, char* buf, size_t num)
 {
         return -E_NOFUNCTION;

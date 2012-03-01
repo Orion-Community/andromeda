@@ -116,7 +116,7 @@ struct rtlcommand
 };
 
 /**
- * \struct struct rtl_cfg
+ * \struct rtl_cfg
  * \brief RealTek configuration data structure.
  */
 struct rtl_cfg

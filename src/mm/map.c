@@ -1,5 +1,5 @@
 /*
-    Orion OS, The educational operatingsystem
+    Andromeda
     Copyright (C) 2011  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
@@ -33,7 +33,6 @@ volatile mutex_t map_lock = mutex_unlocked;
 
 int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
-	addr_t memory_map_end;
 	page_map = kalloc(map_size*sizeof(struct page));
 	if(map == NULL)
 		panic("No memory in build_map");
@@ -180,8 +179,6 @@ addr_t map_rm_page(addr_t page_index)
 	addr_t prev_idx = page_map[page_index].prev_idx;
 	addr_t next_idx = page_map[page_index].next_idx;
 
-	addr_t list_start = BMP_FREE;
-
 	if (prev_idx != BMP_FREE)
 		page_map[prev_idx].next_idx = next_idx;
 	if (next_idx != BMP_FREE)
@@ -235,3 +232,5 @@ void map_show_list(addr_t list_idx)
 		printf("Node: %X\t IDX: %X\n", i, idx);
 	}
 }
+
+/** \file */

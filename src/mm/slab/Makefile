@@ -7,7 +7,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 all: slab_alloc.o
 	mv -fv slab_alloc.o ../slab.o
 
-slab_alloc.o:
+slab_alloc.o: slab.o
 	$(LD) -o slab_alloc.o *.o $(LDFLAGS)
 
 slab.o:

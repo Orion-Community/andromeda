@@ -21,6 +21,7 @@
 #include <andromeda/task.h>
 #include <andromeda/sched.h>
 #include <andromeda/error.h>
+#include <mm/paging.h>
 
 /**
  * If regs is a pointer to the argument provided to the ISR, this will store the
@@ -71,6 +72,8 @@ struct __TASK_STATE *task;
                 : "r" (thread->stack)
                 : "esp"
         );
+
+        x86_page_set_list(task->pglist);
 
         return -E_SUCCESS;
 }

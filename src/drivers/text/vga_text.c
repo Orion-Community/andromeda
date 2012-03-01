@@ -21,7 +21,7 @@
 #include <andromeda/drivers.h>
 #include <drivers/vga_text.h>
 
-static int vga_text_count = 0;
+atomic_t vga_text_count;
 static mutex_t vga_text_lock = mutex_unlocked;
 static struct device* vga_dev = NULL;
 
@@ -117,6 +117,8 @@ int vga_text_init(struct device* parent)
         }
         memset (this->driver, 0, sizeof(struct driver));
 
+        atomic_inc(&vga_text_count);
+        vga_dev = this;
         this->device_data = (void*)0xB8000;
         this->device_data_size = 0x1000;
 

@@ -21,13 +21,14 @@
 #ifndef __TEXT_H
 #define __TEXT_H
 
+#include <types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <types.h>
-void println(unsigned char*);
-void printf(unsigned char*, ...);
+void println(char*);
+void printf(char*, ...);
 void putc(uint8_t c);
 void printNum(int index, unsigned int base, boolean sInt, boolean capital);
 #define printnum(a,b,c,d) printNum(a,b,c,d)
@@ -53,3 +54,5 @@ int atoi(char* str);
 #endif
 
 #endif
+
+/** \file */

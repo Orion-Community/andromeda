@@ -20,36 +20,28 @@
 #include <stdlib.h>
 #include <mm/cache.h>
 
-static struct mm_cache* caches = NULL;
-static mutex_t init_lock = mutex_unlocked;
+#define BOOT_HEAP_SIZE 0x10000
 
-int
-cache_init(char* name, size_t obj_size, size_t cache_size)
+static char boot_heap_mem[BOOT_HEAP_SIZE];
+static void* boot_heap = &boot_heap_mem;
+static size_t boot_heap_free = BOOT_HEAP_SIZE;
+
+/**
+ * \fn boot_alloc
+ * \brief Allocate non-freeable memory
+ * \param size
+ * \brief Size to be allocated
+ */
+
+void*
+boot_alloc(size_t size)
 {
+        if (boot_heap_free < size)
+                return NULL;
 
-        return -E_NOFUNCTION;
-}
-
-int
-init_slab()
-{
-        mutex_lock(&init_lock);
-        if (caches != NULL)
-        {
-                mutex_unlock(&init_lock);
-                return -E_ALREADY_INITIALISED;
-        }
-
-        caches = kalloc(sizeof(struct list));
-        if (caches == NULL)
-        {
-                mutex_unlock(&init_lock);
-                return -E_NOMEM;
-        }
-        memset(caches, 0, sizeof(struct list));
-        mutex_unlock(&init_lock);
-
-        return -E_NOFUNCTION;
+        void* ret = boot_heap;
+        boot_heap = (void*)((addr_t)boot_heap + size);
+        return ret;
 }
 
 /** \file */

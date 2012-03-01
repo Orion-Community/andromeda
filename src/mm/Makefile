@@ -6,11 +6,11 @@ INCLUDES=../include/mm/heap.h ../include/mm/map.h ../include/mm/memory.h\
                                                           ../include/mm/paging.h
 
 
-.PHONY: all
+.PHONY: all paging.o slab.o slob.o
 all: mm.o
 	mv -fv mm.o ../
 
-mm.o: map.o memory.o test.o slob.o
+mm.o: map.o memory.o test.o slob.o slab.o paging.o
 	$(LD) -o mm.o *.o $(LDFLAGS)
 
 slob.o:
@@ -27,6 +27,9 @@ memory.o: memory.c $(INCLUDES)
 
 test.o: test.c $(INCLUDES)
 	$(CC) $(FLAGS) $(CFLAGS) test.c
+
+paging.o:
+	$(MAKE) -C paging/
 
 
 .PHONY: clean

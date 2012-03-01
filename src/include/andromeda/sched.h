@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <types.h>
 #include <arch/x86/task.h>
+#include <mm/paging.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,6 +35,12 @@ extern "C" {
 
 /** Defines the standard size of a task list element */
 #define TASK_LIST_SIZE 0x100
+
+/*
+ * Algorithm defs
+ */
+#define SCHED_PRIO_SIZE 40
+#define SCHED_REALTIME_LIST 0x0
 
 /**
  * tast_list_type is used to note down the type of __TASK_BRANCH_NODE.
@@ -83,6 +90,7 @@ struct __THREAD_LIST
  */
 typedef struct __TASK_STATE
 {
+        struct __TASK_STATE *next;
 	/** Keep track of threads and task level registers */
 	struct __THREAD_LIST *threads;
         uint8_t current_thread;
@@ -119,6 +127,9 @@ typedef struct __TASK_STATE
 	/** How large are those segments? */
 	addr_t code_size;
 	addr_t data_size;
+
+        /** page list */
+        struct mm_page_list *pglist;
 } TASK_STATE;
 
 /** Structure for keeping track of threads in the shape of a tree. */
@@ -134,8 +145,17 @@ struct __TASK_BRANCH_NODE
 	};
 };
 
+struct task_list_head
+{
+        struct task_list_head *next;
+        struct task_list_head *prev;
+
+        struct __TASK_STATE *task;
+        struct __TASK_STATE *tail;
+};
+
 /** Some things that might need sharing in the future */
-extern struct __TASK_BRANCH_NODE        *task_stack;
+extern struct __TASK_BRANCH_NODE *task_stack;
 extern TASK_STATE *current_task;
 
 static inline struct __TASK_STATE*

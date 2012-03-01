@@ -341,6 +341,13 @@ struct protocol *get_ptype(struct protocol *head, enum ptype type);
 extern struct protocol ptype_tree;
 
 /**
+ * \fn init_netif()
+ * \brief Initialize the net core driver.
+ * @return Error code.
+ */
+int init_netif();
+
+/**
   * \fn get_ptype_tree()
   * @return The packet_type tree.
   */

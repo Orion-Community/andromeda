@@ -5,8 +5,10 @@ OUT=andromeda.img
 COMPRESSED=-D\ __COMPRESSED
 MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 test=$(foreach T,$($(1)),$(if $($(firstword $(subst :, ,$T))),$(lastword $(subst :, ,$T)),))
+WARNINGS=-Wunused-variable -Wimplicit-function-declaration -Wreturn-type
 CFLAGS=-nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 \
-                -D __INTEL -mtune=i686 -march=i386 -pipe -O0
+-D __INTEL -mtune=i686 -march=i386 -pipe $(WARNINGS) -O0
+
 DBG_FLAGS=-Waddress \
           -Warray-bounds \
           -Wchar-subscripts \
@@ -29,4 +31,3 @@ DBG_FLAGS=-Waddress \
           -Wunused-label \
           -Wunused-value \
           -Wvolatile-register-var
-          

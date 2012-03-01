@@ -24,7 +24,13 @@
 
 volatile boolean scheduling = FALSE;
 
+/**
+ * \var stack
+ * \brief Kernel stack
+ */
 unsigned char stack[STD_STACK_SIZE];
+
+struct task_list_head sched_task_queue[SCHED_PRIO_SIZE];
 
 struct __TASK_BRANCH_NODE *task_stack = NULL;
 uint32_t current = 0; /** Index into the task stack (or tree) */
@@ -254,7 +260,7 @@ int fork()
 
 	struct __TASK_STATE* running = get_current_task();
 	if (running == NULL)
-		return;
+		return -E_NOMEM;
 
 	memcpy (new, running, sizeof (struct __TASK_STATE));
         if (thread_copy(running, new) != -E_SUCCESS)

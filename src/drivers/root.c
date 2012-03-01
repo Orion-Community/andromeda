@@ -21,6 +21,8 @@
 #include <andromeda/drivers.h>
 #include <drivers/root.h>
 #include <drivers/virt.h>
+#include <drivers/vga_text.h>
+#include <drivers/legacy.h>
 
 static int drv_root_suspend(struct device* root)
 {

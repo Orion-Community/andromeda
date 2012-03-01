@@ -21,6 +21,10 @@
 #include <drivers/root.h>
 #include <fs/vfs.h>
 
+
+static int drv_setup_io(struct device *dev, struct driver *drv,
+                        struct vfile *io, vfs_read_hook_t, vfs_write_hook_t);
+
 struct device dev_root;
 uint64_t dev_id = 0;
 mutex_t dev_id_lock;
@@ -232,8 +236,7 @@ dev_find_devtype(struct device *dev, device_type_t type)
                         }
                 }
         }
-        else
-                return NULL;
+        return NULL;
 }
 
 void dev_dbg()

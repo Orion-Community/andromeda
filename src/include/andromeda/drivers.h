@@ -75,16 +75,16 @@ struct driver
         int (*detach)(struct device* dev, struct device* child);
         int (*suspend)(struct device* dev);
         int (*resume)(struct device* dev);
-        /** 
+        /**
          * \var io
-         *  \brief ptr to the file descriptor associated with the device. 
+         *  \brief ptr to the file descriptor associated with the device.
          */
         struct vfile *io;
 
         mutex_t driver_lock; /** \var lock */
-        /** 
+        /**
          * \var attach_cnt
-         *  \brief how many times has the driver been attached. 
+         *  \brief how many times has the driver been attached.
          */
         atomic_t attach_cnt;
 };
@@ -161,8 +161,6 @@ int device_attach(struct device* this, struct device* child);
 int device_detach(struct device* this, struct device* child);
 struct device* device_find_id(struct device* this, uint64_t dev_id);
 int device_id_alloc(struct device* dev);
-static int drv_setup_io(struct device *dev, struct driver *drv,
-                        struct vfile *io, vfs_read_hook_t, vfs_write_hook_t);
 int dev_setup_driver(struct device *dev, vfs_read_hook_t, vfs_write_hook_t);
 struct device *dev_find_devtype(struct device *dev, device_type_t type);
 

@@ -1,5 +1,5 @@
 /*
-    Orion OS, The educational operatingsystem
+    Andromeda
     Copyright (C) 2011  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
@@ -33,6 +33,17 @@
 
 #include <stdlib.h>
 #include <thread.h>
+
+static boolean
+use_memnode_block(volatile memory_node_t* block);
+static void
+return_memnode_block(volatile memory_node_t*);
+static volatile memory_node_t*
+split(volatile memory_node_t*, size_t);
+static volatile memory_node_t*
+splitMul(volatile memory_node_t*, size_t, boolean);
+static volatile memory_node_t*
+merge_memnode(volatile memory_node_t*, volatile memory_node_t*);
 
 volatile memory_node_t* heap; /* heap pointer */
 volatile mutex_t prot;
