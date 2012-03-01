@@ -55,13 +55,13 @@ struct __THREAD_STATE *new_thread;
  * This function loads a new task and starts the execution.
  */
 int context_switch(task)
-struct __TASK_STATE *task;
+struct task *task;
 {
         if (task == NULL)
                 return -E_NULL_PTR;
 
         /** Restore floats here */
-       TASK_STATE *old = get_current_task();
+       struct task *old = get_current_task();
        save_task(old, task);
        set_current_task(task);
        THREAD_STATE *thread = task->threads->thread[task->current_thread];

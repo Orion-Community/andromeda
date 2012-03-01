@@ -41,6 +41,8 @@ extern "C" {
  */
 #define SCHED_PRIO_SIZE 40
 #define SCHED_REALTIME_LIST 0x0
+#define SCHED_GRAB_BOX 0x1
+#define EPOCH 0x10
 
 /**
  * tast_list_type is used to note down the type of __TASK_BRANCH_NODE.
@@ -52,13 +54,13 @@ enum task_list_type
 	branch_list
 };
 
-enum task_state
+enum task_status
 {
-	runnable,
-	waiting,
-	io_waiting,
-	dead,
-	zombie
+	RUNNABLE,
+	WAITING,
+	IO_WAITING,
+	DEAD,
+	ZOMBIE
 };
 
 /**
@@ -67,9 +69,10 @@ enum task_state
 typedef struct __THREAD_STATE
 {
 	void* stack;
-
 	void* ss;
 	addr_t ss_size;
+        
+        enum task_status state;
 } THREAD_STATE;
 
 /**
@@ -80,6 +83,7 @@ typedef struct __THREAD_STATE
 struct __THREAD_LIST
 {
         struct __THREAD_STATE *thread[SCHED_LIST_SIZE];
+        enum task_status state;
 
         struct __THREAD_LIST *next;
         struct __THREAD_LIST *prev;
@@ -88,9 +92,9 @@ struct __THREAD_LIST
 /**
  * This keeps track of the actual task itself.
  */
-typedef struct __TASK_STATE
+typedef struct task
 {
-        struct __TASK_STATE *next;
+        struct task *next;
 	/** Keep track of threads and task level registers */
 	struct __THREAD_LIST *threads;
         uint8_t current_thread;
@@ -98,7 +102,7 @@ typedef struct __TASK_STATE
         REGS *registers;
 
 	/** What state are we in */
-	enum task_state state;
+	enum task_status state;
 
 	/** Who's your daddy? */
 	uint16_t parent_id;
@@ -106,9 +110,6 @@ typedef struct __TASK_STATE
 	/** speaks for itself */
 	uint8_t priority;
 	uint8_t ring_level;
-
-	/** Doubt this is the right implementation, will do for now */
-	uint16_t signal;
 
 	/** We're keeping track of how much time you used. It needs to be fair! */
 	uint32_t time_used;
@@ -130,7 +131,7 @@ typedef struct __TASK_STATE
 
         /** page list */
         struct mm_page_list *pglist;
-} TASK_STATE;
+} TASK;
 
 /** Structure for keeping track of threads in the shape of a tree. */
 struct __TASK_BRANCH_NODE
@@ -140,7 +141,7 @@ struct __TASK_BRANCH_NODE
 
 	struct __TASK_BRANCH_NODE* parent;
 	union {
-		struct __TASK_STATE       *task   [TASK_LIST_SIZE];
+		struct task       *task   [TASK_LIST_SIZE];
 		struct __TASK_BRANCH_NODE *branch [TASK_LIST_SIZE];
 	};
 };
@@ -150,38 +151,36 @@ struct task_list_head
         struct task_list_head *next;
         struct task_list_head *prev;
 
-        struct __TASK_STATE *task;
-        struct __TASK_STATE *tail;
+        struct task *head;
+        struct task *tail;
 };
 
 /** Some things that might need sharing in the future */
-extern struct __TASK_BRANCH_NODE *task_stack;
-extern TASK_STATE *current_task;
+extern struct task_list_head task_stack[SCHED_PRIO_SIZE];
+extern struct task *current_task;
 
-static inline struct __TASK_STATE*
+static inline struct task*
 get_current_task()
 {
         return current_task;
 }
 
 static inline void
-set_current_task(struct __TASK_STATE *task)
+set_current_task(struct task *task)
 {
         current_task = task;
 }
 
-/** Some nice functions for you to call ... */
-extern void sched_next_task();
-
-int fork();    /** Copy the current task to a new one */
-void sig  (int); /** Send a signal to the current task */
-void kill (int);
+extern void sched();
+extern int fork();    /** Copy the current task to a new one */
+extern void sig(int); /** Send a signal to the current task */
+extern void kill(int);
 
 int task_init(); /** Can we please initialise some administration? */
 
 void print_task_stack(); /** Can you show me a proccess dump? */
 
-struct __TASK_STATE* find_task(uint32_t pid);
+struct task* find_task(uint32_t pid);
 
 #ifdef __cplusplus
 }
