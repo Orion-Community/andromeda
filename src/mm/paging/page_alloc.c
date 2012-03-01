@@ -567,8 +567,6 @@ itteration_skip:
         debug("\nFifth run\n");
         mm_show_pages();
 
-        for (;;);
-
         return -E_SUCCESS;
 }
 
