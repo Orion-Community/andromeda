@@ -30,7 +30,7 @@ int save_task(old_thread, new_thread)
 struct __THREAD_STATE *old_thread;
 struct __THREAD_STATE *new_thread;
 {
-        if (thread == NULL)
+        if (old_thread == NULL || new_thread == NULL)
                 return -E_NULL_PTR;
 
         /** Move the register to threads stack pointer */
@@ -46,20 +46,24 @@ struct __THREAD_STATE *new_thread;
 }
 
 /**
- * \fn load_task(__THREAD_STATE *thread)
- * \brief Switch to another <i>thread</i>.
- * \param thread New thread to which has to be loaded.
+ * \fn load_task(TASK_STATE *task)
+ * \brief Switch to another <i>task</i>.
+ * \param task New task to which has to be loaded.
  * \return Error code. See <i>error.h</i> for more information.
  *
  * This function loads a new task and starts the execution.
  */
-int context_switch(thread)
-struct __THREAD_STATE *thread;
+int context_switch(task)
+struct __TASK_STATE *task;
 {
-        if (thread == NULL)
+        if (task == NULL)
                 return -E_NULL_PTR;
 
         /** Restore floats here */
+       TASK_STATE *old = get_current_task();
+       save_task(old, task);
+       set_current_task(task);
+       THREAD_STATE *thread = task->threads->thread[task->current_thread];
 
         /** Move the threads stack pointer to register */
         __asm__ ("mov %0, %%esp"

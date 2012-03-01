@@ -28,14 +28,9 @@ unsigned char stack[STD_STACK_SIZE];
 
 struct __TASK_BRANCH_NODE *task_stack = NULL;
 uint32_t current = 0; /** Index into the task stack (or tree) */
+TASK_STATE *current_task = NULL;
 
 mutex_t sched_lock = mutex_unlocked;
-
-struct __TASK_STATE*
-current_task()
-{
-	return (find_task(current));
-}
 
 int
 init_node(parent, parent_idx, type)
@@ -80,6 +75,8 @@ int find_free_pid()
 	}
 	return -1;
 }
+
+
 
 int
 add_task(task)
@@ -255,7 +252,7 @@ int fork()
 	if (new == NULL)
 		goto err;
 
-	struct __TASK_STATE* running = current_task();
+	struct __TASK_STATE* running = get_current_task();
 	if (running == NULL)
 		return;
 

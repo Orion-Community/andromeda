@@ -57,13 +57,13 @@ enum task_state
 /**
  * This structure actually holds the state of the current thread
  */
-struct __THREAD_STATE
+typedef struct __THREAD_STATE
 {
 	void* stack;
 
 	void* ss;
 	addr_t ss_size;
-};
+} THREAD_STATE;
 
 /**
  * It's kinda handy to keep track of which threads you're running
@@ -72,10 +72,10 @@ struct __THREAD_STATE
  */
 struct __THREAD_LIST
 {
-	struct __THREAD_STATE *thread[SCHED_LIST_SIZE];
+        struct __THREAD_STATE *thread[SCHED_LIST_SIZE];
 
-	struct __THREAD_LIST *next;
-	struct __THREAD_LIST *prev;
+        struct __THREAD_LIST *next;
+        struct __THREAD_LIST *prev;
 };
 
 /**
@@ -85,6 +85,7 @@ typedef struct __TASK_STATE
 {
 	/** Keep track of threads and task level registers */
 	struct __THREAD_LIST *threads;
+        uint8_t current_thread;
 	struct __PROC_REGS regs;
         REGS *registers;
 
@@ -135,10 +136,24 @@ struct __TASK_BRANCH_NODE
 
 /** Some things that might need sharing in the future */
 extern struct __TASK_BRANCH_NODE        *task_stack;
+extern TASK_STATE *current_task;
+
+static inline struct __TASK_STATE*
+get_current_task()
+{
+        return current_task;
+}
+
+static inline void
+set_current_task(struct __TASK_STATE *task)
+{
+        current_task = task;
+}
 
 /** Some nice functions for you to call ... */
 extern void sched_next_task();
-int fork  ();    /** Copy the current task to a new one */
+
+int fork();    /** Copy the current task to a new one */
 void sig  (int); /** Send a signal to the current task */
 void kill (int);
 
