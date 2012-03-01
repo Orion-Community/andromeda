@@ -42,7 +42,7 @@ extern "C" {
 #define SCHED_PRIO_SIZE 40
 #define SCHED_REALTIME_LIST 0x0
 #define SCHED_GRAB_BOX 0x1
-#define EPOCH 0x10
+#define SCHED_EPOCH_SIZE 0x10
 
 /**
  * tast_list_type is used to note down the type of __TASK_BRANCH_NODE.
