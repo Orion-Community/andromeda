@@ -261,6 +261,8 @@ mm_page_alloc(size_t size)
                                 goto err;
 
                         carriage->free = FALSE;
+                        mm_page_rm(&free_pages, carriage);
+                        mm_page_append(&allocated_pages, carriage);
                         mutex_unlock(&page_lock);
                         return carriage->page_ptr;
                 }
@@ -292,9 +294,11 @@ mm_page_free(void* page)
 
         mutex_lock(&page_lock);
         to_free->free = TRUE;
-        mm_page_rm(&allocated_pages, to_free);
-        mm_page_append(&free_pages, to_free);
-
+        if(mm_page_rm(&allocated_pages, to_free) == NULL)
+                debug("page_rm failed\n");
+        if(mm_page_append(&free_pages, to_free) == NULL)
+                debug("append failed\n");
+/*
         struct mm_page_descriptor* carriage = free_pages.head;
         for (; carriage->next != NULL && carriage != NULL;
                                                       carriage = carriage->next)
@@ -313,6 +317,7 @@ mm_page_free(void* page)
                         }
                 }
         }
+*/
 
         mutex_unlock(&page_lock);
 
@@ -512,7 +517,7 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                                                 mmap->addr+mmap->size-SIZE_MEG,
                                        (mmap->type == 1) ? TRUE : FALSE, FALSE);
                         }
-                        goto skip;
+                        goto itteration_skip;
                 }
                 if (freeable_allocator)
                         tmp = kalloc(sizeof(*tmp));
@@ -539,7 +544,7 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                                 panic("Couldn't add page!");
                         tmp->free = TRUE;
                 }
-skip:
+itteration_skip:
                 mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
         }
         debug("\nFirst run\n");
@@ -553,8 +558,7 @@ skip:
         debug("\nThird run (maps the kernel)\n");
         mm_show_pages();
 
-        for (;;);
-
+        /** mm_page_alloc doesn't move the page to the allocated list */
         void* addr = mm_page_alloc(0x1000);
         debug("\nFourth run\n");
         mm_show_pages();
