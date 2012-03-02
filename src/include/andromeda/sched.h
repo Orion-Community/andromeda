@@ -153,6 +153,7 @@ struct task_list_head
 
         struct task *head;
         struct task *tail;
+        uint32_t size;
 };
 
 /** Some things that might need sharing in the future */
