@@ -2,12 +2,27 @@ CC=gcc
 LD=ld
 MAKE=make
 OUT=andromeda.img
-COMPRESSED=-D\ __COMPRESSED
 MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 test=$(foreach T,$($(1)),$(if $($(firstword $(subst :, ,$T))),$(lastword $(subst :, ,$T)),))
-WARNINGS=-Wunused-variable -Wimplicit-function-declaration -Wreturn-type
-CFLAGS=-nostdlib -fno-builtin -nostdinc -fno-stack-protector -m32 -c -D X86 \
-                -D __INTEL -mtune=i686 -march=i386 -pipe $(WARNINGS)
+
+WARNINGS=-Wunused-variable \
+         -Wimplicit-function-declaration \
+         -Wreturn-type
+
+CFLAGS= -nostdlib \
+        -fno-builtin \
+        -nostdinc \
+        -fno-stack-protector \
+        -m32 \
+        -c \
+        -D X86 \
+        -D __INTEL \
+        -mtune=i686 \
+        -march=i386 \
+        -pipe \
+        $(WARNINGS) \
+        -Os
+
 DBG_FLAGS=-Waddress \
           -Warray-bounds \
           -Wchar-subscripts \
