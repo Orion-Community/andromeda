@@ -22,6 +22,7 @@
 
 lgdt:
   enter
+  push eax
   mov eax, [ebp+8]
   lgdt [eax]
 
@@ -35,4 +36,5 @@ lgdt:
   jmp 0x08:.flush
 .flush:
 
+  pop eax
   return

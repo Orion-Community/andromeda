@@ -18,59 +18,85 @@
 
 [GLOBAL readCR0]
 readCR0:
-  mov eax, cr0
-  ret
+        mov eax, cr0
+        ret
 
 [GLOBAL writeCR0]
-  enter
+        enter
 
-  mov eax, [ebp+8]
-  mov cr0, eax
+        push eax
 
-  return
+        mov eax, [ebp+8]
+        mov cr0, eax
+
+        pop eax
+
+        return
 
 [GLOBAL readCR3]
 readCR3:
-  mov eax, cr3
-  ret
+        mov eax, cr3
+        ret
 
 [GLOBAL writeCR3]
 writeCR3:
-  enter
+        enter
 
-  mov eax, [ebp+8]
-  mov cr3, eax
+        push eax
 
-  return
+        mov eax, [ebp+8]
+        mov cr3, eax
+
+        pop eax
+
+        return
 
 [GLOBAL mutex_lock]
 mutex_lock:
-  enter
+        enter
 
-  mov eax, 1
-  mov ebx, [ebp+8]
+        push eax
+        push ebx
+
+        mov eax, 1
+        mov ebx, [ebp+8]
 .spin:
-  xchg [ebx], eax
-  test eax, eax
-  jnz .spin
+        xchg [ebx], eax
+        test eax, eax
+        jnz .spin
 
-  return
+        pop ebx
+        pop eax
+
+        return
 
 [GLOBAL mutex_test] ; // Return 0 if mutex was unlocked, 1 if locked
 mutex_test:
-  enter
+        enter
 
-  mov eax, 1
-  mov ebx, [ebp+8]
-  xchg [ebx], eax
+        push ebx
 
-  return
+        mov eax, 1
+        mov ebx, [ebp+8]
+        xchg [ebx], eax
+
+        pop ebx
+
+        return
 
 
 [GLOBAL mutex_unlock]
 mutex_unlock:
-  enter
-  xor eax, eax
-  mov ebx, [ebp+8]
-  mov [ebx], eax
-  return
+        enter
+
+        push eax
+        push ebx
+
+        xor eax, eax
+        mov ebx, [ebp+8]
+        mov [ebx], eax
+
+        pop ebx
+        pop eax
+
+        return
