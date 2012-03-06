@@ -38,6 +38,7 @@ static mutex_t page_lock = mutex_unlocked;
  * \param node
  * \brief The node to append
  * \return NULL for error, node for success
+ * \TODO Rewrite mm_page_append function
  */
 struct mm_page_descriptor*
 mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
@@ -52,12 +53,15 @@ mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
                 list->tail = node;
                 node->next = NULL;
                 node->prev = NULL;
+                debug("Alternate append\n");
                 return node;
         }
+        debug("list tail: %X\n", (int)list->tail);
         list->tail->next = node;
         node->prev = list->tail;
         node->next = NULL;
         list->tail = node;
+        debug("Prefered append\n");
         return node;
 }
 
@@ -67,6 +71,7 @@ mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
  * \param node
  * \brief The node to be removed from the list
  * \return The released node
+ * \TODO Rewrite the mm_page_rm function
  */
 struct mm_page_descriptor*
 mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node)
@@ -74,13 +79,13 @@ mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node)
         if (node == NULL || list == NULL)
                 return NULL;
 
-        if (node->prev == NULL)
+        if (node->prev == NULL || list->head == node)
         {
                 if (list->head != node)
                         return NULL;
                 list->head = node->next;
         }
-        if (node->next == NULL)
+        if (node->next == NULL || list->tail == node)
         {
                 if (list->tail != node)
                         return NULL;
@@ -91,6 +96,8 @@ mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node)
         node->next = NULL;
         node->prev = NULL;
 
+        debug("rm succeeded\n");
+        debug("list head: %X\tlist tail: %X\n", (int)list->head, (int)list->tail);
         return node;
 }
 
@@ -110,7 +117,6 @@ mm_get_page(addr_t addr, bool physical, bool free)
 
         if (carriage == NULL || addr % PAGESIZE != 0)
                 return NULL;
-        mutex_lock(&page_lock);
 
         for (; carriage != NULL; carriage = carriage->next)
         {
@@ -119,7 +125,6 @@ mm_get_page(addr_t addr, bool physical, bool free)
                         addr_t phys = (addr_t)carriage->page_ptr;
                         if (phys <= addr && phys + carriage->size > addr)
                         {
-                                mutex_unlock(&page_lock);
                                 return carriage;
                         }
                 }
@@ -128,13 +133,11 @@ mm_get_page(addr_t addr, bool physical, bool free)
                         addr_t virt = (addr_t)carriage->virt_ptr;
                         if (virt <= addr && virt+carriage->size > addr)
                         {
-                                mutex_unlock(&page_lock);
                                 return carriage;
                         }
                 }
         }
 
-        mutex_unlock(&page_lock);
         return NULL;
 }
 
@@ -283,16 +286,23 @@ err:
 int
 mm_page_free(void* page)
 {
+        mutex_lock(&page_lock);
         struct mm_page_descriptor* to_free = mm_get_page((addr_t)page, TRUE, FALSE);
         debug("Page to free: %X\n", (int)page);
         debug("Page descriptor to free: %X\n", (int)to_free);
+
         if (to_free == NULL)
+        {
+                mutex_unlock(&page_lock);
                 return -E_GENERIC;
+        }
 
         if (to_free->page_ptr != page)
+        {
+                mutex_unlock(&page_lock);
                 return -E_INVALID_ARG;
+        }
 
-        mutex_lock(&page_lock);
         to_free->free = TRUE;
         if(mm_page_rm(&allocated_pages, to_free) == NULL)
                 debug("page_rm failed\n");
@@ -408,7 +418,11 @@ mm_map_kernel_element(struct mm_page_descriptor* carriage)
                         return -E_GENERIC;
         }
         // Mark the current page descriptor as allocated
+        debug("\nBefore\n");
+        mm_show_pages();
         mm_page_rm(&free_pages, carriage);
+        debug("\nAfter\n");
+        mm_show_pages();
         mm_page_append(&allocated_pages, carriage);
         carriage->free = FALSE;
         return -E_SUCCESS;
@@ -558,6 +572,8 @@ itteration_skip:
         debug("\nThird run (maps the kernel)\n");
         mm_show_pages();
 
+        for (;;);
+
         /** mm_page_alloc doesn't move the page to the allocated list */
         void* addr = mm_page_alloc(0x1000);
         debug("\nFourth run\n");
@@ -566,6 +582,8 @@ itteration_skip:
         mm_page_free(addr);
         debug("\nFifth run\n");
         mm_show_pages();
+
+        for (;;);
 
         return -E_SUCCESS;
 }

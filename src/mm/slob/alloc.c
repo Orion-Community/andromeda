@@ -46,7 +46,7 @@ static volatile memory_node_t*
 merge_memnode(volatile memory_node_t*, volatile memory_node_t*);
 
 volatile memory_node_t* heap; /* heap pointer */
-volatile mutex_t prot;
+volatile mutex_t prot = mutex_unlocked;
 
 void
 examine_heap()
