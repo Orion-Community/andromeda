@@ -152,7 +152,8 @@ mm_get_page(addr_t addr, bool physical, bool free)
  * \warning Use the returned pointer to reset the carriage if itterating
  */
 static struct mm_page_descriptor*
-mm_page_split(page, base_size)
+mm_page_split(list, page, base_size)
+struct mm_page_list* list;
 struct mm_page_descriptor* page;
 size_t base_size;
 {
@@ -186,6 +187,8 @@ size_t base_size;
         page->next = tmp;
         page->size = base_size;
         tmp->freeable = freeable_allocator;
+        if (tmp->next == NULL)
+                list->tail = tmp;
         mutex_unlock(&page->lock);
         mutex_unlock(&tmp->lock);
         return page;
@@ -259,7 +262,8 @@ mm_page_alloc(size_t size)
                 if (carriage->free && carriage->size >= size)
                 {
                         if (carriage->size > size)
-                                carriage = mm_page_split(carriage, size);
+                                carriage = mm_page_split(&free_pages, carriage,
+                                                                          size);
                         if (carriage == NULL)
                                 goto err;
 
@@ -400,7 +404,9 @@ mm_show_pages()
 }
 
 int
-mm_map_kernel_element(struct mm_page_descriptor* carriage)
+mm_map_kernel_element(list, carriage)
+struct mm_page_list* list;
+struct mm_page_descriptor* carriage;
 {
         addr_t phys = (addr_t)carriage->page_ptr;
         addr_t end_ptr = (addr_t)&end - THREE_GIB;
@@ -414,7 +420,7 @@ mm_map_kernel_element(struct mm_page_descriptor* carriage)
                 if (block_size % PAGESIZE)
                         block_size += PAGESIZE-(block_size%PAGESIZE);
 
-                if (mm_page_split(carriage, block_size) == NULL)
+                if (mm_page_split(list, carriage, block_size) == NULL)
                         return -E_GENERIC;
         }
         // Mark the current page descriptor as allocated
@@ -440,7 +446,8 @@ mm_map_kernel()
                 addr_t phys = (addr_t)carriage->page_ptr;
                 if (phys < end_ptr)
                 {
-                        if (mm_map_kernel_element(carriage) != -E_SUCCESS)
+                        if (mm_map_kernel_element(&free_pages, carriage)
+                                                                  != -E_SUCCESS)
                                 panic("Couldn't map kernel image!");
                 }
         }
@@ -459,7 +466,7 @@ mm_page_map_higher_half()
                 if (phys < GIB)
                 {
                         if (phys + carriage->size > GIB)
-                                mm_page_split(carriage, GIB - phys);
+                                mm_page_split(&free_pages, carriage, GIB-phys);
                         carriage->virt_ptr = (void*)(phys+THREE_GIB);
                 }
         }
@@ -471,7 +478,8 @@ mm_page_map_higher_half()
                 if (phys < GIB)
                 {
                         if (phys + carriage->size > GIB)
-                                mm_page_split(carriage, GIB - phys);
+                                mm_page_split(allocated_pages, carriage,
+                                                                    GIB - phys);
                         carriage->virt_ptr = (void*)(phys+THREE_GIB);
                 }
         }
