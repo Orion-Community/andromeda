@@ -38,6 +38,25 @@ struct timer;
 typedef void (*timer_tick_t)(struct timer*);
 
 /**
+ * \typedef timer_state_t
+ * \brief Describes the current state of a timer.
+ * \see struct timer
+ */
+typedef enum
+{
+        /**
+         * \enum TIMER_STOPPED
+         * \brief Indicates that the timer should not fire anymore
+         */
+        TIMER_STOPPED,
+        /**
+         * \enum TIMER_ACTIVE
+         * \brief Indicates that the timer is active and running.
+         */
+        TIMER_ACTIVE,
+} timer_state_t;
+
+/**
  * \struct timer
  * \brief Basic timer structure.
  * \var TIMER

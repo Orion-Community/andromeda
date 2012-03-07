@@ -32,6 +32,7 @@ typedef unsigned char boolean;
 typedef char           byte;
 typedef unsigned short word;
 typedef unsigned long  dword;
+typedef unsigned long  ulong;
 
 /*
  * Code untill end nicked, is nicked from FreeBSD

@@ -37,7 +37,7 @@ struct __THREAD_STATE *new_thread;
 
         /** Save floats here */
 
-        /** Switch memory segments here!!!
+        /** Switch memory segments here!!! */
 
         return -E_SUCCESS;
 }
