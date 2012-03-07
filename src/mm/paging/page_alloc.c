@@ -572,8 +572,6 @@ itteration_skip:
         debug("\nThird run (maps the kernel)\n");
         mm_show_pages();
 
-        for (;;);
-
         /** mm_page_alloc doesn't move the page to the allocated list */
         void* addr = mm_page_alloc(0x1000);
         debug("\nFourth run\n");
@@ -582,8 +580,6 @@ itteration_skip:
         mm_page_free(addr);
         debug("\nFifth run\n");
         mm_show_pages();
-
-        for (;;);
 
         return -E_SUCCESS;
 }

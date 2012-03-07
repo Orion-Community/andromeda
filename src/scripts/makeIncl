@@ -17,7 +17,7 @@ CFLAGS= -nostdlib \
         -c \
         -D X86 \
         -D __INTEL \
-        -mtune=i686 \
+        -mtune=native \
         -march=i386 \
         -pipe \
         $(WARNINGS) \
