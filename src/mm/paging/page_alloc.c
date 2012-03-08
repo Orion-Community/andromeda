@@ -38,7 +38,6 @@ static mutex_t page_lock = mutex_unlocked;
  * \param node
  * \brief The node to append
  * \return NULL for error, node for success
- * \TODO Rewrite mm_page_append function
  */
 struct mm_page_descriptor*
 mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
@@ -53,15 +52,12 @@ mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
                 list->tail = node;
                 node->next = NULL;
                 node->prev = NULL;
-                debug("Alternate append\n");
                 return node;
         }
-        debug("list tail: %X\n", (int)list->tail);
         list->tail->next = node;
         node->prev = list->tail;
         node->next = NULL;
         list->tail = node;
-        debug("Prefered append\n");
         return node;
 }
 
@@ -71,7 +67,6 @@ mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
  * \param node
  * \brief The node to be removed from the list
  * \return The released node
- * \TODO Rewrite the mm_page_rm function
  */
 struct mm_page_descriptor*
 mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node)
@@ -96,8 +91,6 @@ mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node)
         node->next = NULL;
         node->prev = NULL;
 
-        debug("rm succeeded\n");
-        debug("list head: %X\tlist tail: %X\n", (int)list->head, (int)list->tail);
         return node;
 }
 
@@ -424,11 +417,15 @@ struct mm_page_descriptor* carriage;
                         return -E_GENERIC;
         }
         // Mark the current page descriptor as allocated
+#ifdef PAGE_ALLOC_DBG
         debug("\nBefore\n");
         mm_show_pages();
+#endif
         mm_page_rm(&free_pages, carriage);
+#ifdef PAGE_ALLOC_DBG
         debug("\nAfter\n");
         mm_show_pages();
+#endif
         mm_page_append(&allocated_pages, carriage);
         carriage->free = FALSE;
         return -E_SUCCESS;
@@ -515,20 +512,18 @@ mboot_map_special_entry(addr_t ptr,addr_t virt,size_t size,bool free,bool dma)
 int
 mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 {
-        printf("Pages: %X\n", (uint32_t)free_pages.head);
-
         multiboot_memory_map_t* mmap = map;
-
-        printf("Setting up!\n");
 
         while ((addr_t)mmap < (addr_t)map + mboot_map_size)
         {
+#ifdef PAGE_ALLOC_DBG
                 debug("Size: %X\tbase: %X\tlength: %X\ttype: %X\n",
                         mmap->size,
                         (uint32_t)mmap->addr,
                         (uint32_t)mmap->len,
                         mmap->type
                 );
+#endif
 
                 struct mm_page_descriptor* tmp;
                 if (mmap->addr < SIZE_MEG)
@@ -569,6 +564,7 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 itteration_skip:
                 mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
         }
+#ifdef PAGE_ALLOC_DBG
         debug("\nFirst run\n");
         mm_show_pages();
 
@@ -588,6 +584,9 @@ itteration_skip:
         mm_page_free(addr);
         debug("\nFifth run\n");
         mm_show_pages();
+
+        for (;;);
+#endif
 
         return -E_SUCCESS;
 }
