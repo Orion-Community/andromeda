@@ -38,7 +38,7 @@ struct task *current_task = NULL;
 /**
  * \var task_stack
  * \brief Task priority queue's.
- * 
+ *
  * Each priority has its own stack and every run the entire queue is moved one
  * down.
  */
@@ -49,22 +49,23 @@ struct task_list_head task_stack[SCHED_PRIO_SIZE], *sched_task_waiting;
  * \brief Switch to the next epoch.
  * \return Returns the next epoch head.
  * \warning UNTESTED!
- * 
+ *
  * This function will reset and resort the current epoch and create a new one.
  */
-static struct task *sched_switch_epoch()
+static struct task_head *sched_switch_epoch()
 {
         /*
          * first of all we sort the current epoch back
          */
-        struct task *carriage = task_stack[SCHED_GRAB_BOX].head, *tmp = NULL;
-        
+        struct task_head* carriage = task_stack[SCHED_GRAB_BOX].head;
+        struct task_head* tmp = NULL;
+
         task_stack[SCHED_REALTIME_LIST].tail->next = NULL;
         while(carriage)
         {
-                struct task *tail = NULL;
-                if(carriage->state == WAITING)
-                        tail = task_stack[carriage->priority].tail;
+                struct task_head *tail = NULL;
+                if(carriage->task->state == WAITING)
+                        tail = task_stack[carriage->task->priority].tail;
                 else
                         tail = sched_task_waiting->tail;
                 if(tail->next == NULL)
@@ -74,7 +75,7 @@ static struct task *sched_switch_epoch()
                 }
                 else /* error in linked list */
                         return NULL;
-                
+
                 carriage = carriage->next;
                 tmp->next = NULL;
                 if(carriage->next != NULL)
@@ -82,17 +83,17 @@ static struct task *sched_switch_epoch()
                 else
                         break;
         }
-        
+
         /*
          * Move the entire runnable task stack one down.
          */
-        uint8_t i = 2; /* entry 0 is the real time list and 1 doesn't need to 
+        uint8_t i = 2; /* entry 0 is the real time list and 1 doesn't need to
                           be moved */
         for(; i < SCHED_PRIO_SIZE; i++)
         {
-                struct task *this = task_stack[i].head;
-                struct task *prev = task_stack[i-1].tail;
-                
+                struct task_head* this = task_stack[i].head;
+                struct task_head* prev = task_stack[i-1].tail;
+
                 if(NULL == prev->next)
                 {
                         prev->next = this;
@@ -101,14 +102,14 @@ static struct task *sched_switch_epoch()
                 else
                         return NULL; /* ll error */
         }
-        
+
         sched_starvation_watchdog();
-        
+
         /*
          * Create the new runnable epoch
          * TODO: Make it work with max epoch size (SCHED_EPOCH_SIZE).
          */
-        struct task *epoch = task_stack[SCHED_REALTIME_LIST].tail;
+        struct task_head *epoch = task_stack[SCHED_REALTIME_LIST].tail;
         if(epoch->next != NULL)
                 return NULL;
         else
@@ -117,7 +118,7 @@ static struct task *sched_switch_epoch()
                 task_stack[SCHED_GRAB_BOX].head->next = NULL;
                 return task_stack[SCHED_REALTIME_LIST].head;
         }
-        
+
         return NULL; // shouldn't get here, if it does, complain.
 }
 
@@ -125,7 +126,7 @@ static struct task *sched_switch_epoch()
  * \fn sched_starvation_watchdog()
  * \brief Checks if there is no starvation.
  * \TODO: Write the actual function.
- * 
+ *
  * This function will set tasks temporarily to a lower priority if there is
  * starvation.
  */
@@ -144,7 +145,7 @@ int fork()
 }
 
 void sig(int sig)
-{} 
+{}
 
 void kill(int num)
 {}

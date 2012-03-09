@@ -23,6 +23,6 @@
 
 #include <andromeda/sched.h>
 
-extern int switch_context(struct __THREAD_STATE *thread);
+extern int switch_context(struct thread_state *thread);
 
 #endif

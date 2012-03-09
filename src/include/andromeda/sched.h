@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2011  Bart Kuivenhoven, Michel Megens
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -94,7 +94,6 @@ struct thread_list
  */
 struct task
 {
-        struct task *next;
         /** Keep track of threads and task level registers */
         struct thread_list* threads;
         uint8_t current_thread;
@@ -146,13 +145,21 @@ struct task_branch_node
         };
 };
 
+struct task_head
+{
+        struct task_head* next;
+        struct task_head* prev;
+
+        struct task* task;
+};
+
 struct task_list_head
 {
         struct task_list_head *next;
         struct task_list_head *prev;
 
-        struct task *head;
-        struct task *tail;
+        struct task_head *head;
+        struct task_head *tail;
         uint32_t size;
 };
 
