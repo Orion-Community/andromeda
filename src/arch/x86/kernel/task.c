@@ -16,8 +16,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
+
+#include <andromeda/task.h>
 #include <andromeda/sched.h>
 #include <andromeda/error.h>
+#include <mm/paging.h>
 
 /**
  * If regs is a pointer to the argument provided to the ISR, this will store the
@@ -27,7 +31,7 @@ int save_task(old_thread, new_thread)
 struct __THREAD_STATE *old_thread;
 struct __THREAD_STATE *new_thread;
 {
-        if (thread == NULL)
+        if (old_thread == NULL || new_thread == NULL)
                 return -E_NULL_PTR;
 
         /** Move the register to threads stack pointer */
@@ -43,17 +47,24 @@ struct __THREAD_STATE *new_thread;
 }
 
 /**
- * If regs is a pointer to the argument offered to the ISR, it will actually
- * perform a context switch (lacking only floating point registers and memory
- * protection
+ * \fn load_task(TASK_STATE *task)
+ * \brief Switch to another <i>task</i>.
+ * \param task New task to which has to be loaded.
+ * \return Error code. See <i>error.h</i> for more information.
+ *
+ * This function loads a new task and starts the execution.
  */
-int load_task(thread)
-struct __THREAD_STATE *thread;
+int context_switch(task)
+struct task *task;
 {
-        if (thread == NULL)
+        if (task == NULL)
                 return -E_NULL_PTR;
 
         /** Restore floats here */
+       struct task *old = get_current_task();
+       save_task(old, task);
+       set_current_task(task);
+       THREAD_STATE *thread = task->threads->thread[task->current_thread];
 
         /** Move the threads stack pointer to register */
         __asm__ ("mov %0, %%esp"
@@ -61,6 +72,8 @@ struct __THREAD_STATE *thread;
                 : "r" (thread->stack)
                 : "esp"
         );
+
+        x86_page_set_list(task->pglist);
 
         return -E_SUCCESS;
 }

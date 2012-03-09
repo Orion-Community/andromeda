@@ -1,6 +1,6 @@
 /*
- *  Andromeda - CPU Timer system
- *  Copyright (C) 2012  Michel Megens
+ *  Andromeda
+ *  Copyright (C) 2012 Michel Megens
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,26 +16,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdlib.h>
-#include <arch/x86/timer.h>
-
-static int
-__get_cpu_tick_inline(struct cpu_time *time)
-{
-        unsigned int low, high;
-        __asm__ __volatile__("rdtsc\n"
-                                : "=a" (low), "=d" (high)
-                                );
-        time->low = low;
-        time->high = high;
-        return -E_SUCCESS;
-}
-
-unsigned long long
-get_cpu_tick()
-{
-        struct cpu_time *time = kalloc(sizeof(*time));
-        unsigned long long ret = time->low;
-        ret |= ((unsigned long long)(time->high)) << 32;
-}
-
+#ifdef X86
+#include <arch/x86/idt.h>
+#endif

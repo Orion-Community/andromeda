@@ -91,3 +91,4 @@ iowait (void)
                        : /* no input */
                        : "%eax");
 }
+

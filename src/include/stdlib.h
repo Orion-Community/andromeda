@@ -106,8 +106,8 @@ void shutdown();
                                                 carriage = (tmp), tmp = \
                                                 (carriage)->next)
 #define for_each_ll_entry(head, carriage) for(carriage = (head); \
-                                          carriage != NULL; carriage = \
-                                          carriage->next)
+                                          carriage != (NULL); carriage = \
+                                          (carriage)->next)
 
 #define addressof(p) &(p)
 

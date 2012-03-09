@@ -42,9 +42,9 @@ struct irq_stack
 {
 	uint32_t ds;
 	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
-        uint32_t interruptHandler;
+//         uint32_t interruptHandler;
 	uint32_t eip;
-	uint16_t cs;
+	uint32_t cs;
 	uint32_t eflags, proc_esp;
 	uint32_t ss;
 } __attribute__((packed));

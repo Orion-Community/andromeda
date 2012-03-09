@@ -358,7 +358,7 @@ x86_page_destroy_pd(struct page_dir* pd)
 }
 
 int
-x86_page_update_pd(uint32_t proc_id)
+x86_page_set_list(struct mm_page_list *list)
 {
         return -E_NOFUNCTION;
 }

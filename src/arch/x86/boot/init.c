@@ -30,15 +30,12 @@
 #include <version.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <andromeda/cpu.h>
-#include <andromeda/elf.h>
+
 #include <mm/paging.h>
 #include <mm/map.h>
-#include <interrupts/int.h>
-#include <arch/x86/idt.h>
-#include <boot/mboot.h>
 #include <mm/map.h>
-#include <arch/x86/pic.h>
+
+#include <boot/mboot.h>
 
 #include <sys/dev/ps2.h>
 #include <sys/dev/pci.h>
@@ -47,12 +44,18 @@
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
 #include <arch/x86/acpi/acpi.h>
+#include <arch/x86/mp.h>
+#include <arch/x86/apic/ioapic.h>
+#include <arch/x86/idt.h>
+#include <arch/x86/pic.h>
+
+#include <interrupts/int.h>
 
 #include <andromeda/cpu.h>
 #include <andromeda/core.h>
 #include <andromeda/clock.h>
-#include <networking/eth/eth.h>
-#include <arch/x86/apic/ioapic.h>
+#include <andromeda/cpu.h>
+#include <andromeda/elf.h>
 
 #include <lib/byteorder.h>
 

@@ -36,7 +36,7 @@ PIC_SRC=pic.c
 PIT_SRC=pit.c
 TASK_SRC=task.c
 KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC) \
-$(ACPI) $(CPU) $(SCHED) $(TIMER) $(CLOCK)
+$(ACPI) $(CPU) $(SCHED) $(TIMER) $(CLOCK) $(TASK)
 
 
 .PHONY: all $(APIC) $(ACPI) $(CPU)

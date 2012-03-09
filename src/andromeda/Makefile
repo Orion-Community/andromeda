@@ -4,10 +4,11 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 ELF=elf.c exec.c
 TIMER=timer.c
-SCHED=sched.c
 CORE=core.c
 SYSCALL=syscall.c
 PANIC=panic.c
+
+MK_FLAGS=FLAGS="$(FLAGS)"
 
 .PHONY: all
 all: andromeda.o
@@ -21,10 +22,10 @@ load.o: $(ELF)
 	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
 
 ktimer.o:
-	$(MAKE) -C timer/
+	$(MAKE) -C timer/ $(MK_FLAGS)
 
-sched.o: $(SCHED)
-	$(CC) $(CFLAGS) $(FLAGS) $(SCHED)
+sched.o:
+	$(MAKE) -C scheduling/ $(MK_FLAGS)
 
 core.o: $(CORE)
 	$(CC) $(CFLAGS) $(FLAGS) $(CORE)

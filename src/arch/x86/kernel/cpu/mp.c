@@ -16,5 +16,8 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+
 #include <arch/x86/mp.h>
 
+static const uint8_t table_len[] = { 0x14, 0x8, 0x8, 0x8, 0x8 };
