@@ -64,13 +64,6 @@
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-char *welcome = "Andromeda " VERSION " - " NAME
-"\nCopyright (C) 2010, 2011 - Michel Megens,"
-"Bart Kuivenhoven\nThis program comes with ABSOLUTELY NO WARRANTY;\n"
-"This is free software, and you are welcome to redistribute it.\n"
-"For more info refer to the COPYING file in the source repository or look at\n"
-"http://www.gnu.org/licenses/gpl-3.0.html\n";
-
 int page_dir_boot [0x400];
 int page_table_boot [0x40000];
 
@@ -142,7 +135,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         task_init();
 
         page_init();
-        printf("%s\n", welcome);
+        printf(WELCOME);
         setGDT();
         page_unmap_low_mem();
         pic_init();

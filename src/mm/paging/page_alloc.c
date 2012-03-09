@@ -337,7 +337,7 @@ mm_page_free(void* page)
  * \return The newly generated page directory (the physical address)
  */
 struct page_dir*
-x86_page_generate_pd(uint32_t proc_id)
+x86_page_generate_pd(struct mm_page_list* pages)
 {
         return NULL;
 }
@@ -346,9 +346,9 @@ x86_page_generate_pd(uint32_t proc_id)
  * extern int mboot = start of kernel image
  * extern int end = end of kernel image + stdata
  * The memory map shows which regions of memory space are used for hardware
- *      access.
+ * access.
  * The rest is either free or in use by the initrd or modules (which we don't
- *      support yet).
+ * support yet).
  */
 
 int
@@ -584,8 +584,6 @@ itteration_skip:
         mm_page_free(addr);
         debug("\nFifth run\n");
         mm_show_pages();
-
-        for (;;);
 #endif
 
         return -E_SUCCESS;
@@ -621,7 +619,6 @@ x86_page_init(size_t mem_size)
 
         allocated_pages.head = meg;
         allocated_pages.tail = meg;
-
 
         return -E_SUCCESS;
 }

@@ -28,8 +28,8 @@
  * registers as they existed at the time of interrupting for later rescheduling.
  */
 int save_task(old_thread, new_thread)
-struct __THREAD_STATE *old_thread;
-struct __THREAD_STATE *new_thread;
+struct thread_state* old_thread;
+struct thread_state* new_thread;
 {
         if (old_thread == NULL || new_thread == NULL)
                 return -E_NULL_PTR;
@@ -64,7 +64,7 @@ struct task *task;
        struct task *old = get_current_task();
        save_task(old, task);
        set_current_task(task);
-       THREAD_STATE *thread = task->threads->thread[task->current_thread];
+       struct thread_state* thread = task->threads->thread[task->current_thread];
 
         /** Move the threads stack pointer to register */
         __asm__ ("mov %0, %%esp"

@@ -50,100 +50,100 @@ extern "C" {
  */
 enum task_list_type
 {
-	task_list,
-	branch_list
+        task_list,
+        branch_list
 };
 
 enum task_status
 {
-	RUNNABLE,
-	WAITING,
-	IO_WAITING,
-	DEAD,
-	ZOMBIE
+        RUNNABLE,
+        WAITING,
+        IO_WAITING,
+        DEAD,
+        ZOMBIE
 };
 
 /**
  * This structure actually holds the state of the current thread
  */
-typedef struct __THREAD_STATE
+struct thread_state
 {
-	void* stack;
-	void* ss;
-	addr_t ss_size;
-        
+        void* stack;
+        void* ss;
+        addr_t ss_size;
+
         enum task_status state;
-} THREAD_STATE;
+};
 
 /**
  * It's kinda handy to keep track of which threads you're running
  * This is done by keeping a list of lists of thread states. Can you still keep
  * up?
  */
-struct __THREAD_LIST
+struct thread_list
 {
-        struct __THREAD_STATE *thread[SCHED_LIST_SIZE];
+        struct thread_state* thread[SCHED_LIST_SIZE];
         enum task_status state;
 
-        struct __THREAD_LIST *next;
-        struct __THREAD_LIST *prev;
+        struct thread_list* next;
+        struct thread_list* prev;
 };
 
 /**
  * This keeps track of the actual task itself.
  */
-typedef struct task
+struct task
 {
         struct task *next;
-	/** Keep track of threads and task level registers */
-	struct __THREAD_LIST *threads;
+        /** Keep track of threads and task level registers */
+        struct thread_list* threads;
         uint8_t current_thread;
-	struct __PROC_REGS regs;
-        REGS *registers;
+        struct prog_regs regs;
+        //REGS* registers;
 
-	/** What state are we in */
-	enum task_status state;
+        /** What state are we in */
+        enum task_status state;
 
-	/** Who's your daddy? */
-	uint16_t parent_id;
+        /** Who's your daddy? */
+        uint16_t parent_id;
 
-	/** speaks for itself */
-	uint8_t priority;
-	uint8_t ring_level;
+        /** speaks for itself */
+        uint8_t priority;
+        uint8_t ring_level;
 
-	/** We're keeping track of how much time you used. It needs to be fair! */
-	uint32_t time_used;
-	uint32_t time_granted;
+        /** We're keeping track of how much time you used. It needs to be fair! */
+        uint32_t time_used;
+        uint32_t time_granted;
 
-	/** Where can we find more code if we swapped some out? */
-	char *path_to_bin;
+        /** Where can we find more code if we swapped some out? */
+        char *path_to_bin;
 
-	/** Which physical pages are you using? Probbably going down for rewrite. */
-	uint64_t phys_map_idx;
+        /** Which physical pages are you using? Probbably going down for rewrite. */
+        uint64_t phys_map_idx;
 
-	/** Where are your code and data segments starting? */
-	void *code;
-	void *data;
+        /** Where are your code and data segments starting? */
+        void *code;
+        void *data;
 
-	/** How large are those segments? */
-	addr_t code_size;
-	addr_t data_size;
+        /** How large are those segments? */
+        addr_t code_size;
+        addr_t data_size;
 
         /** page list */
         struct mm_page_list *pglist;
-} TASK;
+};
 
 /** Structure for keeping track of threads in the shape of a tree. */
-struct __TASK_BRANCH_NODE
+struct task_branch_node
 {
-	uint16_t full; /** Bitmap of which entries are full */
-	enum task_list_type type;
+        uint16_t full; /** Bitmap of which entries are full */
+        enum task_list_type type;
 
-	struct __TASK_BRANCH_NODE* parent;
-	union {
-		struct task       *task   [TASK_LIST_SIZE];
-		struct __TASK_BRANCH_NODE *branch [TASK_LIST_SIZE];
-	};
+        struct task_branch_node* parent;
+        union {
+                struct task_state*       task   [TASK_LIST_SIZE];
+                struct task_branch_node* branch [TASK_LIST_SIZE];
+        };
 };
 
 struct task_list_head

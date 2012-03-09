@@ -23,8 +23,14 @@
 extern "C" {
 #endif
 
-#define VERSION "0.1.1"
+#define VERSION "0.1.2"
 #define NAME "Betelgeuse (Alpha Orionis)"
+#define WELCOME "Andromeda " VERSION " - " NAME\
+"\nCopyright (C) 2010, 2011 - Michel Megens, Bart Kuivenhoven\n"\
+"This program comes with ABSOLUTELY NO WARRANTY;\n"\
+"This is free software, and you are welcome to redistribute it.\n"\
+"For more info refer to the COPYING file in the source repository or look at\n"\
+"http://www.gnu.org/licenses/gpl-3.0.html\n"
 
 #ifdef __cplusplus
 }

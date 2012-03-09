@@ -23,18 +23,20 @@
 extern "C" {
 #endif
 
-struct __PROC_REGS
+struct prog_regs
 {
         uint64_t cr0, cr1, cr2, cr3;
         uint16_t cs, ss, ds;
 };
 
+/**
 typedef struct general_registers
 {
         unsigned long eax, ebx, ecx, edx;
         unsigned long edi, esi;
         unsigned long esp, ebp;
 } REGS;
+*/
 
 struct isr_regs
 {
