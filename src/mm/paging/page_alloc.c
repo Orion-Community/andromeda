@@ -346,7 +346,7 @@ mm_page_free(void* page)
  * \return The newly generated page directory (the physical address)
  */
 struct page_dir*
-x86_page_generate_pd(struct mm_page_list* pages)
+x86_page_generate_pd(struct task* task)
 {
         return NULL;
 }
@@ -367,7 +367,7 @@ x86_page_destroy_pd(struct page_dir* pd)
 }
 
 int
-x86_page_set_list(struct mm_page_list *list)
+x86_page_set_list(struct task* list)
 {
         return -E_NOFUNCTION;
 }

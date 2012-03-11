@@ -23,6 +23,7 @@
 #include <andromeda/cpu.h>
 #include <boot/mboot.h>
 #include <thread.h>
+#include <andromeda/sched.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -162,7 +163,7 @@ int mboot_page_setup(multiboot_memory_map_t*, int mboot_map_size);
 int mm_page_free(void* page);
 void* mm_page_alloc(size_t size);
 int x86_page_init(size_t mem_size);
-int x86_page_set_list(struct mm_page_list *);
+int x86_page_set_list(struct task*);
 
 #ifdef __cplusplus
 }

@@ -73,7 +73,7 @@ struct task *task;
                 : "esp"
         );
 
-        x86_page_set_list(task->pglist);
+        x86_page_set_list(task);
 
         return -E_SUCCESS;
 }
