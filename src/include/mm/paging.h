@@ -106,11 +106,14 @@ struct mm_page_descriptor {
          */
         struct mm_page_descriptor* next;
         struct mm_page_descriptor* prev;
+
         void* page_ptr;
         void* virt_ptr;
 
         size_t size;
         time_t last_referenced;
+
+        struct task_list_head* tasks;
 
         bool swapable;
         bool free;

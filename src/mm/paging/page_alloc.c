@@ -142,7 +142,7 @@ mm_get_page(addr_t addr, bool physical, bool free)
  * \param base_size
  * \brief The size of the lower page after the split
  * \return The pointer to the lower page
- * \warning Use the returned pointer to reset the carriage if itterating
+ * \warning The resulting page descriptor can no longer be used when itterating
  */
 static struct mm_page_descriptor*
 mm_page_split(list, page, base_size)
@@ -195,10 +195,11 @@ size_t base_size;
  * \param page2
  * \brief The other page to merge
  * \return The resulting page descriptor
- * \warning Use returned value to continue if in a loop
+ * \warning The resulting page descriptors can no longer be used when itterating
  */
 static struct mm_page_descriptor*
-mm_page_merge(page1, page2)
+mm_page_merge(lst, page1, page2)
+struct mm_page_list* lst;
 struct mm_page_descriptor* page1;
 struct mm_page_descriptor* page2;
 {
@@ -226,6 +227,12 @@ struct mm_page_descriptor* page2;
 
         page1->size += page2->size;
         page2->prev->next = page2->next;
+
+        if (lst->head == page2)
+                lst->head = page1;
+        if (lst->tail == page2)
+                lst->tail = page1;
+
         if (page2->freeable)
                 kfree(page2);
 
@@ -305,26 +312,28 @@ mm_page_free(void* page)
                 debug("page_rm failed\n");
         if(mm_page_append(&free_pages, to_free) == NULL)
                 debug("append failed\n");
-/*
+
         struct mm_page_descriptor* carriage = free_pages.head;
         for (; carriage->next != NULL && carriage != NULL;
                                                       carriage = carriage->next)
         {
-                addr_t next = (addr_t)carriage->next;
-                addr_t phys = (addr_t)carriage->page_ptr;
-                if (phys+carriage->size == next && carriage->free == TRUE &&
-                                                   carriage->next->free == TRUE)
+                addr_t phys = (addr_t)to_free->page_ptr;
+                addr_t it_phys = (addr_t)carriage->page_ptr;
+                if (carriage->free == FALSE)
+                        panic("Page administration failure!");
+                if (it_phys + carriage->size == phys)
                 {
-                        carriage = mm_page_merge(carriage, carriage->next);
-                        if (carriage == NULL)
-                        {
-                                warning("Page stack corruption!\n");
-                                mutex_unlock(&page_lock);
-                                return -E_NULL_PTR;
-                        }
+                        // Merge the page descriptors
+                        to_free = mm_page_merge(&free_pages, to_free, carriage);
+                        carriage = free_pages.head;
+                }
+                else if (phys + to_free->size == it_phys)
+                {
+                        // Also merge the page descriptors
+                        to_free = mm_page_merge(&free_pages, to_free, carriage);
+                        carriage = free_pages.head;
                 }
         }
-*/
 
         mutex_unlock(&page_lock);
 
