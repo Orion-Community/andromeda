@@ -34,14 +34,14 @@ struct thread_state* new_thread;
         if (old_thread == NULL || new_thread == NULL)
                 return -E_NULL_PTR;
 
-        /** Move the register to threads stack pointer */
-        __asm__ ("mov %%esp, %0"
-                : "=r" (old_thread->stack)
-        );
-
         /** Save floats here */
 
         /** Switch memory segments here!!! */
+
+        /** Move the register to threads stack pointer */
+        __asm__ ("mov %%esp, %0"
+        : "=r" (old_thread->stack)
+        );
 
         return -E_SUCCESS;
 }
@@ -61,10 +61,13 @@ struct task *task;
                 return -E_NULL_PTR;
 
         /** Restore floats here */
-       struct task *old = get_current_task();
-       save_task(old, task);
-       set_current_task(task);
-       struct thread_state* thread = task->threads->thread[task->current_thread];
+        struct task *old = get_current_task();
+        save_task(old, task);
+        set_current_task(task);
+        struct thread_state* thread = task->threads->
+                                                   thread[task->current_thread];
+
+        x86_page_set_list(task);
 
         /** Move the threads stack pointer to register */
         __asm__ ("mov %0, %%esp"
@@ -72,8 +75,6 @@ struct task *task;
                 : "r" (thread->stack)
                 : "esp"
         );
-
-        x86_page_set_list(task);
 
         return -E_SUCCESS;
 }
