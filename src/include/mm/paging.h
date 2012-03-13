@@ -29,6 +29,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
+/**
+ * \defgroup paging
+ * This module handles paging
+ * @{
+ */
+
 #ifdef X86
 #define PAGES           0x100000
 #define PAGESIZE        0x1000
@@ -164,6 +170,10 @@ int mm_page_free(void* page);
 void* mm_page_alloc(size_t size);
 int x86_page_init(size_t mem_size);
 int x86_page_set_list(struct task*);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

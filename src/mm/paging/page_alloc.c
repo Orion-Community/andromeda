@@ -15,7 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+/**
+ * \AddToGroup paging
+ * @{
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <mm/paging.h>
@@ -632,4 +635,7 @@ x86_page_init(size_t mem_size)
         return -E_SUCCESS;
 }
 
-/** \file */
+/**
+ * @}
+ * \file
+ */
