@@ -46,6 +46,8 @@ extern "C" {
 #define BYTES_IN_PAGE   0x1000
 #define GIB             0x40000000
 #define THREE_GIB       0xC0000000
+#define KERNEL_CPL      0
+#define USER_CPL        3
 
 #endif /* X86 */
 
@@ -164,12 +166,45 @@ addr_t page_phys_addr(addr_t, struct page_dir*);
  * \fn x86_page_init
  * \brief Initialise the first pages
  * \return Standard error code
+ *
+ * \fn mm_page_append
+ * \brief Append a page descriptor to the end of the list
+ * \param list
+ * \brief The list to append to
+ * \param node
+ * \brief The node to append
+ * \return NULL for error, node for success
+ *
+ * \fn mm_page_split
+ * \brief Split the page into two leaving the lowe page in the requested size
+ * \param page
+ * \brief The physical page to split
+ * \param base_size
+ * \brief The size of the lower page after the split
+ * \return The pointer to the lower page
+ * \warning The resulting page descriptor can no longer be used when itterating
+ *
+ * \fn mm_page_rm
+ * \brief Remove an item from a page list
+ * \param node
+ * \brief The node to be removed from the list
+ * \return The released node
  */
 int mboot_page_setup(multiboot_memory_map_t*, int mboot_map_size);
 int mm_page_free(void* page);
 void* mm_page_alloc(size_t size);
 int x86_page_init(size_t mem_size);
 int x86_page_set_list(struct task*);
+struct mm_page_descriptor*
+mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node);
+struct mm_page_descriptor*
+mm_page_split(struct mm_page_list* list, struct mm_page_descriptor* page1,
+                                                              size_t base_size);
+struct mm_page_descriptor*
+mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node);
+
+extern struct mm_page_list free_pages;
+extern struct mm_page_list allocated_pages;
 
 /**
  * @}
