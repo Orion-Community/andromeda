@@ -92,11 +92,12 @@ uint8_t cpl;
         return -E_SUCCESS;
 }
 
+/**
+ * \fn x86_get_pagedir
+ * \return the physical address of the page directory
+ */
 addr_t x86_get_pagedir()
 {
-        #ifdef PAGEDBG
-        printf("WARNING! Page directory address not reliable!\n");
-        #endif
         return getCR3();
 }
 
@@ -132,6 +133,13 @@ x86_page_set_list(struct task* list)
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn x86_page_init
+ * \brief Call this function ti initiate page administration on X86
+ * \param mem_size
+ * \brief The size of memory in KiB
+ * \return Error code
+ */
 int
 x86_page_init(size_t mem_size)
 {
@@ -166,6 +174,11 @@ x86_page_init(size_t mem_size)
         return -E_SUCCESS;
 }
 
+/**
+ * \fn x86_page_map_higher_half
+ * \brief Map the higher half part of the kernel
+ * \return A satndard error code
+ */
 int
 x86_page_map_higher_half()
 {
@@ -198,6 +211,15 @@ x86_page_map_higher_half()
         return 0;
 }
 
+/**
+ * \fn x86_map_kernel_element
+ * \brief Map a specific kernel entry in the page lists
+ * \param list
+ * \brief The list to mark in
+ * \param carriage
+ * \brief The pointer to the block which has to be marked
+ * \return A standardised error code
+ */
 int
 x86_map_kernel_element(list, carriage)
 struct mm_page_list* list;
@@ -233,6 +255,11 @@ struct mm_page_descriptor* carriage;
         return -E_SUCCESS;
 }
 
+/**
+ * \fn x86_map_kernel
+ * \brief Map the kernel to physical memory
+ * \return A standardised error code
+ */
 int
 x86_map_kernel()
 {
