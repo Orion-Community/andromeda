@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mm/paging.h>
+#include <boot/mboot.h>
 
 int
 mboot_map_special_entry(addr_t ptr,addr_t virt,size_t size,bool free,bool dma)
@@ -105,15 +106,19 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                 itteration_skip:
                 mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
         }
-        #ifdef PAGE_ALLOC_DBG
+#ifdef PAGE_ALLOC_DBG
         debug("\nFirst run\n");
         mm_show_pages();
+#endif
 
         mm_page_map_higher_half();
+#ifdef PAGE_ALLOC_DBG
         debug("\nSecond run\n");
         mm_show_pages();
+#endif
 
         mm_map_kernel();
+#ifdef PAGE_ALLOC_DBG
         debug("\nThird run (maps the kernel)\n");
         mm_show_pages();
 
@@ -125,7 +130,7 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
         mm_page_free(addr);
         debug("\nFifth run\n");
         mm_show_pages();
-        #endif
+#endif
 
         return -E_SUCCESS;
 }

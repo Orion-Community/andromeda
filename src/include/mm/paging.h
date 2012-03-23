@@ -189,6 +189,14 @@ addr_t page_phys_addr(addr_t, struct page_dir*);
  * \param node
  * \brief The node to be removed from the list
  * \return The released node
+ *
+ * \fn x86_page_map_higher_half
+ * \brief Map the higher half part of the kernel
+ * \return A satndard error code
+ *
+ * \fn x86_map_kernel
+ * \brief Map the kernel to physical memory
+ * \return A standardised error code
  */
 int mboot_page_setup(multiboot_memory_map_t*, int mboot_map_size);
 int mm_page_free(void* page);
@@ -202,6 +210,9 @@ mm_page_split(struct mm_page_list* list, struct mm_page_descriptor* page1,
                                                               size_t base_size);
 struct mm_page_descriptor*
 mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node);
+int x86_page_map_higher_half();
+int x86_map_kernel();
+
 
 extern struct mm_page_list free_pages;
 extern struct mm_page_list allocated_pages;

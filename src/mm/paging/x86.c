@@ -205,7 +205,7 @@ x86_page_map_higher_half()
                         if (phys + carriage->size > GIB)
                                 mm_page_split(&allocated_pages, carriage,
                                               GIB - phys);
-                                carriage->virt_ptr = (void*)(phys+THREE_GIB);
+                        carriage->virt_ptr = (void*)(phys+THREE_GIB);
                 }
         }
         return 0;

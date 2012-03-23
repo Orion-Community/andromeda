@@ -23,9 +23,13 @@
 extern "C" {
 #endif
 
-#define VERSION "0.1.2"
+#ifndef VERSION
+#define VERSION "'custom release'"
+#endif
+
 #define NAME "Betelgeuse (Alpha Orionis)"
 #define YEARS "2011 - 2012"
+
 #define WELCOME "Andromeda " VERSION " - " NAME\
 "\nCopyright (C) " YEARS " - Michel Megens, Bart Kuivenhoven\n"\
 "This program comes with ABSOLUTELY NO WARRANTY;\n"\
