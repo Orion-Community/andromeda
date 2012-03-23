@@ -1,12 +1,14 @@
+include ../../../../scripts/makeIncl
 # compliler shizle
 AS=nasm
 ASFLAGS=-felf32 -I"../../../../include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-builtin -nostdinc $(FLAGS)
-MAKE=make
+#CC=gcc
+#CCFLAGS=-I"../../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
+#-finline-functions-called-once -fno-builtin -nostdinc $(FLAGS)
+#MAKE=make
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
+CCFLAGS:=$(CFLAGS) $(FLAGS) -I"../../../../include" -finline-functions-called-once
 
 ## TARGETS
 APIC_=apic_.o
