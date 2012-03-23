@@ -8,7 +8,7 @@ all: paging.o
 	mv -fv paging.o ../
 
 paging.o: boot_alloc.o page_alloc.o x86.o mboot.o
-	$(LD) -o paging.o *.o $(LDFLAGS)
+	$(LD) $(LDFLAGS) -o paging.o *.o
 
 boot_alloc.o: boot_alloc.c
 	$(CC) $(FLAGS) $(CFLAGS) boot_alloc.c

@@ -111,13 +111,13 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
         mm_show_pages();
 #endif
 
-        mm_page_map_higher_half();
+        x86_page_map_higher_half();
 #ifdef PAGE_ALLOC_DBG
         debug("\nSecond run\n");
         mm_show_pages();
 #endif
 
-        mm_map_kernel();
+        x86_map_kernel();
 #ifdef PAGE_ALLOC_DBG
         debug("\nThird run (maps the kernel)\n");
         mm_show_pages();
