@@ -90,6 +90,8 @@ struct mm_page_list {
         struct mm_page_descriptor* tail;
 };
 
+void page_init();
+
 /**
  * \struct mm_page_descriptor
  * \brief Used for page allocation and administration

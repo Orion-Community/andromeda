@@ -33,7 +33,7 @@
 
 #include <mm/paging.h>
 #include <mm/map.h>
-#include <mm/map.h>
+#include <mm/memory.h>
 
 #include <boot/mboot.h>
 
@@ -56,6 +56,7 @@
 #include <andromeda/clock.h>
 #include <andromeda/cpu.h>
 #include <andromeda/elf.h>
+#include <andromeda/drivers.h>
 
 #include <lib/byteorder.h>
 
@@ -68,6 +69,8 @@ int page_dir_boot [0x400];
 int page_table_boot [0x40000];
 
 int vendor = 0;
+
+void setIDT();
 
 boolean setupCore(module_t mod)
 {
