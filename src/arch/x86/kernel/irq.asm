@@ -317,7 +317,7 @@ gen_irq_stub:
         mov es, dx
         mov fs, dx
         mov gs, dx
-        
+
 
         call label
         label:

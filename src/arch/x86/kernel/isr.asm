@@ -142,7 +142,7 @@ isrStub:
 	mov eax, [ebp+32]
 
 	mov dx, ds
-	push dx
+	push edx
 	mov dx, 0x10	; kernel ring
 
 	mov ds, dx
@@ -152,7 +152,7 @@ isrStub:
 
 	call eax
 
-	pop dx
+	pop edx
 	mov ds, dx
 	mov es, dx
 	mov gs, dx

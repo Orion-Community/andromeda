@@ -40,10 +40,10 @@ typedef struct general_registers
 
 struct isr_regs
 {
-        uint16_t ds;
-        unsigned long edi, esi, ebp, esp, ebx, edx, ecx, eax;
-        unsigned long funcPtr, errCode;
-        unsigned long eip, cs, eflags, procesp, ss;
+        uint32_t ds;
+        uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax;
+        uint32_t funcPtr, errCode;
+        uint32_t eip, cs, eflags, procesp, ss;
 } __attribute__((packed));
 typedef struct isr_regs isrVal_t;
 

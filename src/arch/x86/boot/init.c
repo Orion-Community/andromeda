@@ -149,9 +149,11 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
 
-        ol_cpu_t cpu = kalloc(sizeof (*cpu));
-        ol_cpu_init(cpu);
         acpi_init();
+        ol_cpu_t cpu = kalloc(sizeof (*cpu));
+        if (cpu == NULL)
+                panic("OUT OF MEMORY!");
+        ol_cpu_init(cpu);
 
         ol_ps2_init_keyboard();
         ol_apic_init(cpu);

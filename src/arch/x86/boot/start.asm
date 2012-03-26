@@ -80,7 +80,7 @@ boot_setup_paging:
 ; Configure all the page tables in one single go (GIB_PAGE_TABLES)
 .1:
   mov ecx, ebx
-  or ecx, 3
+  or ecx, 3 ; Set some bits!!!
   mov [page_table_boot+eax*4], ecx
   add ebx, PAGE_TABLE_SIZE
   inc eax
@@ -126,7 +126,7 @@ boot_setup_paging:
 ; Set the PG bit
   mov eax, cr0
   or eax, 0x80000000
-  mov cr0, eax
+  mov cr0, eax ; We're in virtual memory now!
 
   mov esp, ebp
   pop ebp
