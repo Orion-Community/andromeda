@@ -64,6 +64,26 @@ vmem_map(void* phys, void* virt)
         return -E_SUCCESS;
 }
 
+int vmem_map_region(void* phys, void* virt, size_t size)
+{
+        if (phys == NULL || virt == NULL)
+                return -E_NULL_PTR;
+        if (lookup_tree == NULL)
+                return -E_NOT_YET_INITIALISED;
+        if (!((addr_t)phys & TWELVE_BITS) || !((addr_t)virt & TWELVE_BITS) ||
+                                                        !(size & TWELVE_BITS))
+                return -E_INVALID_ARG;
+
+        int idx = 0;
+        for (; idx < size; idx += PAGE_SIZE)
+        {
+                int ret = vmem_map((void*)((addr_t)phys+idx),(void*)((addr_t)virt+idx));
+                if (ret != -E_SUCCESS)
+                        return ret;
+        }
+        return -E_SUCCESS;
+}
+
 void*
 phys_to_virt(void* phys)
 {
