@@ -8,7 +8,7 @@ extern "C" {
 struct vmem_branch {
         union {
                 struct vmem_branch* branches[16];
-                void* phys_addr[16];
+                void* virt_addr[16];
         };
 };
 

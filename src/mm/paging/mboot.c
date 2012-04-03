@@ -66,6 +66,7 @@ mboot_map_special_entry(addr_t ptr,addr_t virt,size_t size,bool free,bool dma)
         return -E_SUCCESS;
 }
 
+#ifdef MODULES
 /**
  * \fn mboot_map_module
  * \brief Use this function to map kernel modules into the page lists
@@ -94,10 +95,12 @@ mboot_map_module(struct multiboot_mod_list* module)
 
         return -E_NOFUNCTION;
 }
+#endif
 
 int
 mboot_map_modules(struct multiboot_mod_list *modules, idx_t no_mods)
 {
+#ifdef MODULES
         register idx_t i = 0;
         printf("No modules: %X\n", no_mods);
         printf("End ptr: %X\n", ((int)(&end)));
@@ -107,6 +110,7 @@ mboot_map_modules(struct multiboot_mod_list *modules, idx_t no_mods)
                 if (ret != -E_SUCCESS)
                         return ret;
         }
+#endif
         return -E_SUCCESS;
 }
 
