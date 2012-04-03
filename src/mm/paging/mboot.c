@@ -25,6 +25,21 @@
 #include <mm/paging.h>
 #include <boot/mboot.h>
 
+/**
+ * \fn mboot_map_special_entry
+ * \brief Set a specific entry in the page list to a certain value
+ * \param ptr
+ * \brief Where does the physical page reside
+ * \param virt
+ * \brief Where does the virtual page reside
+ * \param size
+ * \brief what's the amount of pages that need to be marked (in bytes)
+ * \param free
+ * \brief Can the descriptor be used for other things than kernel purposes?
+ * \param dma
+ * \brief Is hardware mapped to this page or not
+ * \return A generic error code
+ */
 int
 mboot_map_special_entry(addr_t ptr,addr_t virt,size_t size,bool free,bool dma)
 {
@@ -51,6 +66,59 @@ mboot_map_special_entry(addr_t ptr,addr_t virt,size_t size,bool free,bool dma)
         return -E_SUCCESS;
 }
 
+/**
+ * \fn mboot_map_module
+ * \brief Use this function to map kernel modules into the page lists
+ * \param module
+ * \brief The module to map
+ */
+int
+mboot_map_module(struct multiboot_mod_list* module)
+{
+        addr_t module_start = module->mod_start;
+        addr_t module_end = module->mod_end;
+
+        printf("mod_start: %X\tmod_end: %X\n", module_start, module_end);
+        if (module_start > module_end)
+        {
+                module_start ^= module_end;
+                module_end ^= module_start;
+                module_start ^= module_end;
+                printf("mod_start: %X\tmod_end: %X\n", module_start, module_end);
+        }
+        printf("mod_size: %X\n", module_end - module_start);
+        char* data = (char*)(module_start+0xC0000000-(module_end-module_start-16));
+        idx_t i = 0;
+        for (; i < module_end - module_start; i++)
+                putc(*(data++));
+
+        return -E_NOFUNCTION;
+}
+
+int
+mboot_map_modules(struct multiboot_mod_list *modules, idx_t no_mods)
+{
+        register idx_t i = 0;
+        printf("No modules: %X\n", no_mods);
+        printf("End ptr: %X\n", ((int)(&end)));
+        for (; i < no_mods; i++)
+        {
+                int ret = mboot_map_module(&modules[i]);
+                if (ret != -E_SUCCESS)
+                        return ret;
+        }
+        return -E_SUCCESS;
+}
+
+/**
+ * \fn mboot_page_setup
+ * \brief Setup the multiboot memory region list
+ * \param map
+ * \brief The pointer to the list of regions
+ * \param mboot_map_size
+ * \brief How big is the list?
+ * \return A generic error code
+ */
 int
 mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
 {

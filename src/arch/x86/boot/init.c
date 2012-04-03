@@ -131,6 +131,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         /** Set up paging administration */
         x86_page_init(memsize);
         mboot_page_setup(mmap, (uint32_t)hdr->mmap_length);
+        mboot_map_modules(hdr->mods_addr, hdr->mods_count);
 
         /** For now this is the temporary page table map */
         build_map(mmap, (unsigned int) hdr->mmap_length);
