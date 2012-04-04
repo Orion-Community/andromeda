@@ -14,11 +14,12 @@ SECTIONS
         *(.PD)
         . = ALIGN(0x1000);
     }
-    page_dir_boot = .;
+    page_dir_boot = .; _page_dir_boot = .; __page_dir_boot = .;
     . += 0x1000;
-    page_table_boot = .;
-
+    page_table_boot = .; _page_table_boot = .; __page_table_boot = .;
     . += 0xC0100000;
+    initial_slab_space = .;
+    . += 0x40000;
 
     .higherhalf : AT (ADDR(.higherhalf) - 0xC0000000)
     {

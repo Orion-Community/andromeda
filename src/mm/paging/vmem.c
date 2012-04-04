@@ -175,7 +175,7 @@ phys_to_virt(void* phys)
 int
 vmem_test_tree()
 {
-        printf("\n\nTesting the vmem lookup tree\n");
+        printf("Testing the vmem lookup tree\n");
         if (lookup_tree == NULL)
         {
                 printf("TEST FAILED!\n");
@@ -208,8 +208,9 @@ vmem_test_tree()
         {
                 printf("TEST FAILED!\n");
                 printf("Translating the physical address returned:  %X\n", (int)tst);
+                return -E_GENERIC;
         }
-        printf("\nTest completed successfully!\n\n");
+        printf("Test completed successfully!\n\n");
         return -E_SUCCESS;
 }
 

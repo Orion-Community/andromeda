@@ -35,7 +35,13 @@ struct vmem_branch {
         };
 };
 
+/**
+* \fn vmem_test_tree
+* \brief A unit test for the vmem lookup tree
+* \return A generic error code
+*/
 int vmem_test_tree();
+int vmem_init();
 
 #ifdef __cplusplus
 }

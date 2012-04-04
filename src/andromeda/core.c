@@ -115,8 +115,7 @@ void core_loop()
 #ifdef BUF_DBG
         buf_dbg();
 #endif
-        vmem_test_tree();
-
+        debug("Address of higher half: %X\n", (int)&higherhalf);
 //         uint32_t pid = 0;
 
         debug("Entering core loop\n");

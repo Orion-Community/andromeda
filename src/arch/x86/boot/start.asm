@@ -144,6 +144,7 @@ boot_stack:
 
 [EXTERN page_dir_boot]
 [EXTERN page_table_boot]
+[EXTERN initial_slab_space]
 
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
 [GLOBAL higherhalf]

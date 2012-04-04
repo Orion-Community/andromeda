@@ -57,6 +57,7 @@
 #include <andromeda/cpu.h>
 #include <andromeda/elf.h>
 #include <andromeda/drivers.h>
+#include <mm/x86/vmem.h>
 
 #include <lib/byteorder.h>
 
@@ -135,6 +136,11 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         /** For now this is the temporary page table map */
         build_map(mmap, (unsigned int) hdr->mmap_length);
+
+        vmem_init();
+#ifdef VMEM_TEST
+        vmem_test_tree();
+#endif
 
         task_init();
 
