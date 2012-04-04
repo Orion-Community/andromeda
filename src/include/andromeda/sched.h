@@ -130,8 +130,6 @@ struct task
 
         /** page list */
         struct mm_page_list *pglist;
-        /** Page directory */
-        struct page_dir* pd;
 };
 
 /** Structure for keeping track of threads in the shape of a tree. */

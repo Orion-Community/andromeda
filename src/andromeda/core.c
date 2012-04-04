@@ -25,6 +25,7 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/buffer.h>
+#include <mm/x86/vmem.h>
 
 #define RL_SHUTDOWN     0x0
 #define RL_RUN0         0x1
@@ -114,6 +115,7 @@ void core_loop()
 #ifdef BUF_DBG
         buf_dbg();
 #endif
+        vmem_test_tree();
 
 //         uint32_t pid = 0;
 
