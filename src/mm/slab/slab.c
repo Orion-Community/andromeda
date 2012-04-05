@@ -19,7 +19,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mm/cache.h>
-
+/**
+ * \AddToGroup slab
+ * @{
+ */
 static struct mm_cache* caches = NULL;
 static mutex_t init_lock = mutex_unlocked;
 
@@ -29,6 +32,8 @@ cache_init(char* name, size_t obj_size, size_t cache_size)
 
         return -E_NOFUNCTION;
 }
+
+extern int initial_slab_space;
 
 int
 init_slab()
@@ -40,16 +45,19 @@ init_slab()
                 return -E_ALREADY_INITIALISED;
         }
 
-        caches = kalloc(sizeof(struct list));
-        if (caches == NULL)
+        caches = &initial_slab_space;
+        register int i = 0;
+        for (; i < 0x10; i++)
         {
-                mutex_unlock(&init_lock);
-                return -E_NOMEM;
+
         }
-        memset(caches, 0, sizeof(struct list));
+
         mutex_unlock(&init_lock);
 
         return -E_NOFUNCTION;
 }
 
-/** \file */
+/**
+ * @}
+ *\file
+ */

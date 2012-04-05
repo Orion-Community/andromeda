@@ -19,9 +19,19 @@
 #ifndef __MM_CACHE_H
 #define __MM_CACHE_H
 
+#include <defines.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// #ifdef SLAB
+
+/**
+ * \defgroup slab
+ * The slab allocator
+ * @{
+ */
 
 #define CACHE_NAME_SIZE 255
 
@@ -72,6 +82,7 @@ struct mm_cache {
         void (*dtor)(void*, struct mm_cache*, uint32_t flags);
 };
 
+// #endif
 
 #ifdef __cplusplus
 }
@@ -79,4 +90,7 @@ struct mm_cache {
 
 #endif
 
-/** \file */
+/**
+ * @}
+ *\file
+ */

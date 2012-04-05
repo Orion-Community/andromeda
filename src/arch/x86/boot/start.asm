@@ -26,8 +26,8 @@ MBOOT_HEADER_MAGIC  equ 0x1BADB002 ; Multiboot Magic value
 MBOOT_HEADER_FLAGS  equ MBOOT_PAGE_ALIGN | MBOOT_MEM_INFO
 MBOOT_CHECKSUM      equ -(MBOOT_HEADER_MAGIC + MBOOT_HEADER_FLAGS)
 
-GIB_PAGE_TABLES         equ 0x40000
-GIB_PAGE_DIRS           equ 0x100
+GIB_PAGE_TABLES         equ 0x1000
+GIB_PAGE_DIRS           equ 0x4
 PAGE_TABLE_SIZE         equ 0x1000
 
 [BITS 32]                       ; All instructions should be 32-bit.
@@ -96,7 +96,7 @@ boot_setup_paging:
   mov eax, page_table_boot
   or eax, 3
 
-; The first 1 GiB
+; The first 16 MiB
 ; Registers should be correct already, so lets loop
 .2:
   mov [ebx], eax
@@ -144,7 +144,6 @@ boot_stack:
 
 [EXTERN page_dir_boot]
 [EXTERN page_table_boot]
-[EXTERN initial_slab_space]
 
 [SECTION .higherhalf]           ; Defined as start of image for the C kernel
 [GLOBAL higherhalf]
