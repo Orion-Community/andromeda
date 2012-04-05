@@ -41,7 +41,7 @@ extern "C" {
 #define PAGETABLES      0x400
 #define PAGEDIRS        0x400
 #define PAGEENTRIES     0x400
-#define MINIMUM_PAGES   0x800
+#define MINIMUM_PAGES   0x1000
 #define PAGE_BITS       0xFFF
 #define BYTES_IN_PAGE   0x1000
 #define GIB             0x40000000

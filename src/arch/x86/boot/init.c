@@ -157,7 +157,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         ol_pit_init(1024); // program pic to 1024 hertz
 
-        debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
+        debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, heap);
 
         acpi_init();
         ol_cpu_t cpu = kalloc(sizeof (*cpu));

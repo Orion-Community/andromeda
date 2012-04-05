@@ -45,11 +45,13 @@ init_slab()
                 return -E_ALREADY_INITIALISED;
         }
 
-        caches = &initial_slab_space;
+        caches = (void*)&initial_slab_space;
+        struct mm_cache* carriage = caches;
         register int i = 0;
         for (; i < 0x10; i++)
         {
-
+                memset(carriage, 0, sizeof(*carriage));
+                carriage++;
         }
 
         mutex_unlock(&init_lock);

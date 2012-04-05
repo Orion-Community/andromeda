@@ -21,7 +21,7 @@
 #include <mm/map.h>
 #include <mm/heap.h>
 
-#define BASE_HEAP_SIZE 0x100000
+#define BASE_HEAP_SIZE 0x40000
 
 int heap_base[BASE_HEAP_SIZE]; // Heap base = 4 MiB
 

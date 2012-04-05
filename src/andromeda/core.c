@@ -116,6 +116,7 @@ void core_loop()
         buf_dbg();
 #endif
         debug("Address of higher half: %X\n", (int)&higherhalf);
+        debug("Address of end ptr:     %X\n", (int)&end);
 //         uint32_t pid = 0;
 
         debug("Entering core loop\n");
