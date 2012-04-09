@@ -60,7 +60,7 @@ Contributing
 ------------
 
 This kernel is free software and we welcome contributions of any form. Below is
-a list of possible things you could help with. Or you could just scratch your
+a list of possible things you could help with, or you could just scratch your
 own itch, that's just fine.
 
 TODO
