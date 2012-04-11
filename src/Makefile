@@ -107,3 +107,15 @@ usage:
 	@echo "	-D\ FAST"
 	@echo "		Use some functions which introduce slightly less overhead"
 	@echo "		over the more readable functions"
+
+.PHONY: love
+love:
+	@echo "Not warcraft."
+
+.PHONY: friends
+friends:
+	@echo "Hi, I'm `hostname`, want to be friends? :3"
+
+.PHONY: time
+time:
+	@date +%H:%M:%S
