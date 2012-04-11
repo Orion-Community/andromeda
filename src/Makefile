@@ -113,3 +113,15 @@ usage:
 .PHONY: sandwich
 sandwich:
 	@scripts/sandwich.sh
+
+.PHONY: love
+love:
+	@echo "Not warcraft."
+
+.PHONY: friends
+friends:
+	@echo "Hi, I'm `hostname`, want to be friends? :3"
+
+.PHONY: time
+time:
+	@date +%H:%M:%S
