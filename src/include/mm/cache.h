@@ -80,7 +80,12 @@ struct mm_cache {
 
         void (*ctor)(void*, struct mm_cache*, uint32_t flags);
         void (*dtor)(void*, struct mm_cache*, uint32_t flags);
+
+        struct mm_cache* next;
+        struct mm_cache* prev;
 };
+
+int slab_alloc_init();
 
 // #endif
 

@@ -16,8 +16,8 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __LIST_H
-#define __LIST_H
+#ifndef __LIB_LIST_H
+#define __LIB_LIST_H
 
 struct list_head
 {
