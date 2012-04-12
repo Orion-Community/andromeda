@@ -15,7 +15,10 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+/**
+ * \AddToGroup xor_linked_list
+ * @{
+ */
 #include <stdlib.h>
 #include "error.h"
 
@@ -181,3 +184,5 @@ iterate_xor_list(XOR_HEAD *prev, XOR_HEAD *head, xor_list_iterator_t hook)
 
         return result;
 }
+
+/** @} \file */
