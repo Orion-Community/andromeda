@@ -93,13 +93,13 @@ void memset(void *dest, int sval, size_t count)
         return;
 }
 
-void memset(void* var, int val, size_t count)
-{
-        for (;count != 0; count --)
-        {
-                *(char*)((long)var+count) = (char) val;
-        }
-}
+// void memset(void* var, int val, size_t count)
+// {
+//         for (;count != 0; count --)
+//         {
+//                 *(char*)((long)var+count) = (char) val;
+//         }
+// }
 
 void memcpyBack(void *dest, void *src, size_t count)
 {

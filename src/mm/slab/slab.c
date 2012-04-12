@@ -53,7 +53,7 @@ int slab_alloc_init()
                 printf("Object size of cache[%X] = %X\n", idx, caches[idx].obj_size);
                 /** Slab setup goes here ... */
         }
-        for (;;);
+//         for (;;);
         return -E_NOFUNCTION;
 }
 
