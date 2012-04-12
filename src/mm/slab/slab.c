@@ -24,11 +24,51 @@
  * @{
  */
 
-/** \def NO_STD_CACHES */
+/**
+ * \def NO_STD_CACHES
+ * \brief This define is related to the initial_slab_space in the linker script.
+ * \warning If changing this number, check that the linker script still is ok.
+ */
 #define NO_STD_CACHES 13
 static struct mm_cache* caches = NULL;
 static struct mm_cache initial_caches[NO_STD_CACHES];
+static struct slab initial_slabs[NO_STD_CACHES];
 static mutex_t init_lock = mutex_unlocked;
+
+/**
+ * \fn calc_no_pages
+ * \brief Calculate the number of pages (in bytes) required for an initial slab
+ * \note Also takes allocation region into account
+ * \param element_size
+ * \param no_elements
+ * \param alignment
+ * \return result of calculation in bytes
+ */
+size_t
+calc_no_pages(size_t element_size, size_t allignment)
+{
+        /** Check the arguments */
+        if (size == 0)
+                return 0;
+
+        /** Get the size of the elements right */
+        if (element_size % allignment != 0)
+                size += allignment - element_size % allignment;
+
+        /** How much space is required for the allocation_frame */
+        size_t allocation_frame = no_elements*4;
+        if (allocation_frame % allignment != 0)
+                allocation_frame += allignment - allocation_frame % allignment;
+
+        /** How much space is required for the actual elements + frame */
+        size_t req = allocation_frame + size * no_elements;
+
+        /** Pad the requirement to page size */
+        if (req % PAGESIZE != 0)
+                req += PAGESIZE - req % PAGESIZE;
+
+        return req;
+}
 
 /**
  * \fn slab_alloc_init
@@ -50,10 +90,13 @@ int slab_alloc_init()
                         caches[idx].prev = &caches[idx-1];
                 if (idx != NO_STD_CACHES-1)
                         caches[idx].next = &caches[idx+1];
-                printf("Object size of cache[%X] = %X\n", idx, caches[idx].obj_size);
+                printf("Object size of cache[%X] = %X\n", idx,
+                                                          caches[idx].obj_size);
+
                 /** Slab setup goes here ... */
+                caches[idx].slabs_empty = &initial_slabs[idx];
+                memset(&initial_slabs[idx], 0, sizeof(initial_slabs[idx]));
         }
-//         for (;;);
         return -E_NOFUNCTION;
 }
 
