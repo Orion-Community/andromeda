@@ -45,23 +45,24 @@ static mutex_t init_lock = mutex_unlocked;
  * \return result of calculation in bytes
  */
 size_t
-calc_no_pages(size_t element_size, size_t allignment)
+calc_no_pages(size_t element_size, idx_t no_elements, size_t allignment)
 {
+
         /** Check the arguments */
-        if (size == 0)
+        if (element_size == 0)
                 return 0;
 
         /** Get the size of the elements right */
         if (element_size % allignment != 0)
-                size += allignment - element_size % allignment;
+                element_size += allignment - element_size % allignment;
 
         /** How much space is required for the allocation_frame */
-        size_t allocation_frame = no_elements*4;
+        size_t allocation_frame = SLAB_MAX_OBJS * sizeof(int);
         if (allocation_frame % allignment != 0)
                 allocation_frame += allignment - allocation_frame % allignment;
 
         /** How much space is required for the actual elements + frame */
-        size_t req = allocation_frame + size * no_elements;
+        size_t req = allocation_frame + element_size * no_elements;
 
         /** Pad the requirement to page size */
         if (req % PAGESIZE != 0)
