@@ -69,55 +69,55 @@ void println(char *line)
 
 void printf(char *line, ...)
 {
-	int i;
-	va_list list;
-	va_start(list, line);
-	for (i = 0; line[i] != '\0'; i++)
-	{
-		if (line[i] != '%')
-		{
-			putc(line[i]);
-		}
-		else
-		{
-			i++;
-			if (line[i] == '\0')
-			{
-				putc('%');
-				break;
-			}
-			switch (line[i])
-			{
-			case 'd':
-				printDecimalNum(va_arg(list, double), 10);
-				break;
-			case 'i':
-				printNum(va_arg(list, unsigned int), 10, TRUE, FALSE);
-				break;
-			case 'u':
-				printNum(va_arg(list, unsigned int), 10, FALSE, FALSE);
-				break;
-			case 'x':
-				printNum(va_arg(list, unsigned int), 16, FALSE, FALSE);
-				break;
-			case 'X':
-				printNum(va_arg(list, unsigned int), 16, FALSE, TRUE);
-				break;
-			case 'c':
-				putc((char) va_arg(list, unsigned int));
-				break;
-			case 's':
-				printf(va_arg(list, char*));
-				break;
-			case '%':
-				putc('%');
-				break;
-			default:
-				break;
-			}
-		}
-	va_end(list);
-	}
+        int i;
+        va_list list;
+        va_start(list, line);
+        for (i = 0; line[i] != '\0'; i++)
+        {
+                if (line[i] != '%')
+                {
+                        putc(line[i]);
+                }
+                else
+                {
+                        i++;
+                        if (line[i] == '\0')
+                        {
+                                putc('%');
+                                break;
+                        }
+                        switch (line[i])
+                        {
+                        case 'd':
+                                printDecimalNum(va_arg(list, double), 10);
+                                break;
+                        case 'i':
+                                printNum(va_arg(list, unsigned int), 10, TRUE, FALSE);
+                                break;
+                        case 'u':
+                                printNum(va_arg(list, unsigned int), 10, FALSE, FALSE);
+                                break;
+                        case 'x':
+                                printNum(va_arg(list, unsigned int), 16, FALSE, FALSE);
+                                break;
+                        case 'X':
+                                printNum(va_arg(list, unsigned int), 16, FALSE, TRUE);
+                                break;
+                        case 'c':
+                                putc((char) va_arg(list, unsigned int));
+                                break;
+                        case 's':
+                                printf(va_arg(list, char*));
+                                break;
+                        case '%':
+                                putc('%');
+                                break;
+                        default:
+                                break;
+                        }
+                }
+        va_end(list);
+        }
 }
 
 char hex[36] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
@@ -404,6 +404,143 @@ void putc(uint8_t c)
 		scroll(cursor.y % VGA_HEIGHT + 1);
 	}
 	reloc(cursor.x, cursor.y);
+}
+
+int sprintnum(char* str, size_t min_size, int num, int base, bool capital, bool sign)
+{
+        if (base > 36 || base < 2)
+                return -E_INVALID_ARG;
+
+        if (num == 0)
+        {
+                int i = 0;
+                for (; i < min_size-1; i++)
+                {
+                        *(str++) = ' ';
+                }
+                *(str++) = '0';
+                return min_size;
+        }
+        int32_t idx = 0;
+        uint32_t unum = (uint32_t)num;
+        if (num < 0 && sign)
+                unum = -num;
+
+        char tmp_str[32];
+        memset(tmp_str, 0, sizeof(tmp_str));
+
+        for (;unum != 0; idx++)
+        {
+                tmp_str[sizeof(tmp_str) - idx] = (capital) ? HEX[unum % base] : hex[unum % base];
+                unum /= base;
+        }
+        if (num < 0 && sign)
+        {
+                tmp_str[sizeof(tmp_str) - idx] = '-';
+                idx++;
+        }
+        int ret = idx;
+        if (idx < min_size)
+        {
+                int i = 0;
+                for (; i < min_size - idx; i++)
+                        *(str++) = ' ';
+                ret = min_size;
+        }
+        idx --;
+        for (; idx >= 0; idx--)
+        {
+                int i = 0;
+                for (; i < 0x1FFFFFFF; i++);
+                *(str++) = tmp_str[sizeof(tmp_str) - idx];
+        }
+        return ret;
+}
+
+/**
+ * \fn sprintf
+ * \brief Print a format to a string
+ * \param str
+ * \brief The string to print to
+ * \param fmt
+ * \brief The format
+ * \param ...
+ * \brief Random arguments which have to match the format
+ * \return The number of characters succesfully printed
+ */
+int sprintf(char* str, char* fmt, ...)
+{
+        int num = 0;
+        va_list list;
+        va_start(list, fmt);
+
+        for (; *fmt != '\0'; fmt++, str++, num++)
+        {
+                if (*fmt == '%')
+                {
+                        int pre  = 0;
+                        int post = 0;
+                        bool dotted = false;
+                        for (; *(fmt + 1) >= '0' && *(fmt + 1) <= '9' ||
+                                                       *(fmt + 1) == '.'; fmt++)
+                        {
+                                if (*(fmt + 1) == '.')
+                                {
+                                        dotted = true;
+                                        continue;
+                                }
+                                if (dotted)
+                                {
+                                        post *= 10;
+                                        post += (*(fmt+1) - '0');
+                                }
+                                else
+                                {
+                                        pre *= 10;
+                                        pre += (*(fmt+1) - '0');
+                                }
+                        }
+                        if (pre == 0)
+                                pre = 1;
+                        if (post == 0)
+                                post = 1;
+                        int inc = 0;
+                        switch(*(++fmt))
+                        {
+                        case 'x':
+                                inc = sprintnum(str, pre, (int)va_arg(list, int), 16, false, false);
+                                break;
+                        case 'X':
+                                inc = sprintnum(str, pre, (int)va_arg(list, int), 16, true, false);
+                                break;
+                        case 'f':
+                                break;
+                        case 'i':
+                                inc = sprintnum(str, pre, (int)va_arg(list, int), 10, false, false);
+                                break;
+                        case 'd':
+                                inc = sprintnum(str, pre, (int)va_arg(list, int), 10, false, true);
+                                break;
+                        case 'c':
+                                inc = 1;
+                                *str = (char)va_arg(list, int);
+                                break;
+                        case 's':
+                                inc = sprintf(str, va_arg(list, char*));
+                                break;
+                        default:
+                                *str = *fmt;
+                                continue;
+                        }
+                        num += inc;
+                        str += inc;
+                }
+                else
+                        *str = *fmt;
+        }
+
+        va_end(list);
+        return num;
 }
 
 int reloc(int loc_x, int loc_y)

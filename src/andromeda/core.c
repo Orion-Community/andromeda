@@ -90,6 +90,21 @@ void init_set(uint32_t i)
         rl = i;
 }
 
+void test_sprintf()
+{
+        char *test = kalloc(255);
+        if (test == NULL)
+                panic("OUT OF MEMORY!");
+        memset(test, 0, 255);
+        int ret = sprintf(test, "hello: %8Xschaap\n    \n", 0xC0DEBABE);
+        printf("%X\t%s\n", ret, test);
+        int i = 0;
+        for (; test[i] != '\0'; i++)
+                printf("%X = %c\n", test[i], test[i]);
+
+        free(test);
+}
+
 void core_loop()
 {
 //         init_netif();
@@ -117,6 +132,7 @@ void core_loop()
 #endif
         debug("Address of higher half: %X\n", (int)&higherhalf);
         debug("Address of end ptr:     %X\n", (int)&end);
+        test_sprintf();
 //         uint32_t pid = 0;
 
         debug("Entering core loop\n");

@@ -28,7 +28,8 @@
 extern "C" {
 #endif
 
-
+int sprintf(char* str, char* fmt, ...);
+int sprintnum(char* str, size_t min_size, int num, int base, bool capital);
 
 #ifdef __cplusplus
 }
