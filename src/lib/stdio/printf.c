@@ -48,7 +48,7 @@ sprintnum(char* str, size_t min_size, int num, int base, bool capital, bool sign
 {
         if (base > 36 || base < 2)
                 return -E_INVALID_ARG;
-        /** If num == 0, the result is always the same, so optimize that out */
+        /* If num == 0, the result is always the same, so optimize that out */
         if (num == 0)
         {
                 int i = 0;
@@ -61,14 +61,14 @@ sprintnum(char* str, size_t min_size, int num, int base, bool capital, bool sign
         }
         int32_t idx = 0;
         uint32_t unum = (uint32_t)num;
-        /** If signedness is allowed, check for signedness */
+        /* If signedness is allowed, check for signedness */
         if (num < 0 && sign)
                 unum = -num;
 
         char tmp_str[32];
         memset(tmp_str, 0, sizeof(tmp_str));
 
-        /**
+        /*
          * Convert the integer into an ascii representation
          * This unfortunately reverses the string order
          */
@@ -78,14 +78,14 @@ sprintnum(char* str, size_t min_size, int num, int base, bool capital, bool sign
                 hex[unum % base];
                 unum /= base;
         }
-        /** If signed and negative, append the - sign */
+        /* If signed and negative, append the - sign */
         if (num < 0 && sign)
         {
                 tmp_str[sizeof(tmp_str) - idx] = '-';
                 idx++;
         }
         int ret = idx;
-        /**
+        /*
          * If the string doesn't cut the minimal length requirements, make it a
          * little longer by appending a couple of characters
          */
@@ -97,7 +97,7 @@ sprintnum(char* str, size_t min_size, int num, int base, bool capital, bool sign
                 ret = min_size;
         }
         idx --;
-        /**
+        /*
          * Now take the temp string, reverse it and put it in the output string
          * The reversal to get the correct order again.
          */
@@ -119,20 +119,20 @@ sprintnum(char* str, size_t min_size, int num, int base, bool capital, bool sign
  */
 int sprintf(char* str, char* fmt, ...)
 {
-        /** Check the preconditions first. */
+        /* Check the preconditions first. */
         if (str == NULL || fmt == NULL)
                 return 0;
         int num = 0;
         va_list list;
         va_start(list, fmt);
 
-        /** Itterate through the string to put every character in place. */
+        /* Itterate through the string to put every character in place. */
         for (; *fmt != '\0'; fmt++, str++, num++)
         {
-                /** If formatted? */
+                /* If formatted? */
                 if (*fmt == '%')
                 {
-                        /** Interpret the format numbering. */
+                        /* Interpret the format numbering. */
                         int pre  = 0;
                         int post = 0;
                         bool dotted = false;
@@ -160,7 +160,7 @@ int sprintf(char* str, char* fmt, ...)
                         if (post == 0)
                                 post = 1;
                         int inc = 0;
-                        /** Now finally choose the type of format. */
+                        /* Now finally choose the type of format. */
                         switch(*(++fmt))
                         {
                                 case 'x':
@@ -188,7 +188,7 @@ int sprintf(char* str, char* fmt, ...)
                                         *str = *fmt;
                                         continue;
                         }
-                        /**
+                        /*
                          * Update the looping info.
                          * The -1 below compensates for the increment by the for
                          * loop.
@@ -196,7 +196,7 @@ int sprintf(char* str, char* fmt, ...)
                         num += inc - 1;
                         str += inc - 1;
                 }
-                /** Else just copy the character over. */
+                /* Else just copy the character over. */
                 else
                         *str = *fmt;
         }
