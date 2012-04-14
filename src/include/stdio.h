@@ -15,6 +15,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/**
+ * \defgroup stdio
+ * @{
+ */
 
 #ifndef __STDIO_H
 #define __STDIO_H
@@ -29,10 +33,11 @@ extern "C" {
 #endif
 
 int sprintf(char* str, char* fmt, ...);
-int sprintnum(char* str, size_t min_size, int num, int base, bool capital);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+
+/** @} \file */

@@ -214,6 +214,7 @@ struct mm_page_descriptor*
 mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node);
 int x86_page_map_higher_half();
 int x86_map_kernel();
+int mboot_map_modules(struct multiboot_mod_list *modules, idx_t no_mods);
 
 
 extern struct mm_page_list free_pages;

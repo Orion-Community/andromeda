@@ -26,6 +26,7 @@
 #include <networking/net.h>
 #include <andromeda/buffer.h>
 #include <mm/x86/vmem.h>
+#include <stdio.h>
 
 #define RL_SHUTDOWN     0x0
 #define RL_RUN0         0x1

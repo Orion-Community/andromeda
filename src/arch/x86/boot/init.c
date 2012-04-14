@@ -34,6 +34,7 @@
 #include <mm/paging.h>
 #include <mm/map.h>
 #include <mm/memory.h>
+#include <mm/cache.h>
 
 #include <boot/mboot.h>
 
@@ -71,6 +72,8 @@ int page_table_boot [0x40000];
 
 int vendor = 0;
 
+void elfJmp(void*);
+void coreAugment(void*);
 void setIDT();
 
 boolean setupCore(module_t mod)
@@ -94,10 +97,10 @@ boolean setupCore(module_t mod)
 		printf("Unknown return value");
 		return TRUE;
 	}
-	coreAugment(mod.addr);
+	coreAugment((void*)mod.addr);
 
 	// Jump into the high memory image
-	elfJmp(mod.addr);
+	elfJmp((void*)mod.addr);
 
 	return FALSE; //Doesn't get reached, ever, if all goes well
 }
@@ -135,7 +138,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         /** Set up paging administration */
         x86_page_init(memsize);
         mboot_page_setup(mmap, (uint32_t)hdr->mmap_length);
-        mboot_map_modules(hdr->mods_addr, hdr->mods_count);
+        mboot_map_modules((void*)hdr->mods_addr, hdr->mods_count);
 
         /** For now this is the temporary page table map */
         build_map(mmap, (unsigned int) hdr->mmap_length);
