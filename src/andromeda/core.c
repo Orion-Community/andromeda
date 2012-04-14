@@ -96,11 +96,8 @@ void test_sprintf()
         if (test == NULL)
                 panic("OUT OF MEMORY!");
         memset(test, 0, 255);
-        int ret = sprintf(test, "hello: %8Xschaap\n    \n", 0xC0DEBABE);
-        printf("%X\t%s\n", ret, test);
-        int i = 0;
-        for (; test[i] != '\0'; i++)
-                printf("%X = %c\n", test[i], test[i]);
+        int ret = sprintf(test, "hello: %8X\n", 0xC0DE);
+        printf("%X\t%s", ret, test);
 
         free(test);
 }
