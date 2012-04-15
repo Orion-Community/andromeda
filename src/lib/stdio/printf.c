@@ -44,7 +44,13 @@ extern char hex[];
  * \return The number of chars printed.
  */
 int
-sprintnum(char* str, size_t min_size, int num, int base, bool capital, bool sign)
+sprintnum(str, min_size, num, base, capital, sign)
+char* str;
+size_t min_size;
+int num;
+int base;
+bool capital;
+bool sign;
 {
         if (base > 36 || base < 2)
                 return -E_INVALID_ARG;
@@ -137,7 +143,7 @@ int sprintf(char* str, char* fmt, ...)
                         int post = 0;
                         bool dotted = false;
                         for (; *(fmt + 1) >= '0' && *(fmt + 1) <= '9' ||
-                                *(fmt + 1) == '.'; fmt++)
+                                                       *(fmt + 1) == '.'; fmt++)
                         {
                                 if (*(fmt + 1) == '.')
                                 {
@@ -163,28 +169,44 @@ int sprintf(char* str, char* fmt, ...)
                         /* Now finally choose the type of format. */
                         switch(*(++fmt))
                         {
-                                case 'x':
-                                        inc = sprintnum(str, pre, (int)va_arg(list, int), 16, false, false);
+                                case 'x': /* Print lower case hex numbers */
+                                        inc = sprintnum(str, pre,
+                                                         (int)va_arg(list, int),
+                                                                             16,
+                                                                          false,
+                                                                         false);
                                         break;
-                                case 'X':
-                                        inc = sprintnum(str, pre, (int)va_arg(list, int), 16, true, false);
+                                case 'X': /* Print upper case hex numbers */
+                                        inc = sprintnum(str, pre,
+                                                         (int)va_arg(list, int),
+                                                                             16,
+                                                                           true,
+                                                                         false);
                                         break;
-                                case 'f':
+                                case 'f': /* Print floats (not yet supported) */
                                         break;
-                                case 'i':
-                                        inc = sprintnum(str, pre, (int)va_arg(list, int), 10, false, false);
+                                case 'i': /* Print unsigned decimals */
+                                        inc = sprintnum(str, pre,
+                                                         (int)va_arg(list, int),
+                                                                             10,
+                                                                          false,
+                                                                         false);
                                         break;
-                                case 'd':
-                                        inc = sprintnum(str, pre, (int)va_arg(list, int), 10, false, true);
+                                case 'd': /* Print signed decimals */
+                                        inc = sprintnum(str, pre,
+                                                         (int)va_arg(list, int),
+                                                                             10,
+                                                                          false,
+                                                                          true);
                                         break;
-                                case 'c':
+                                case 'c': /* Print character */
                                         inc = 1;
                                         *str = (char)va_arg(list, int);
                                         break;
-                                case 's':
+                                case 's': /* Print string of characters */
                                         inc = sprintf(str, va_arg(list, char*));
                                         break;
-                                default:
+                                default: /* Undefined, just print fmt */
                                         *str = *fmt;
                                         continue;
                         }
