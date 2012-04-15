@@ -33,6 +33,7 @@ extern "C" {
 #endif
 
 int sprintf(char* str, char* fmt, ...);
+int vsprintf(char* str, char* fmt, va_list list);
 
 #ifdef __cplusplus
 }

@@ -114,23 +114,39 @@ bool sign;
 
 /**
  * \fn sprintf
- * \brief Print a format to a string
+ * \brief Print a format to string
  * \param str
- * \brief The string to print to
  * \param fmt
- * \brief The format
- * \param ...
- * \brief Random arguments which have to match the format
  * \return The number of characters succesfully printed
  */
 int sprintf(char* str, char* fmt, ...)
+{
+        if (str == NULL || fmt == NULL)
+                return 0;
+        va_list list;
+        va_start(list, fmt);
+
+        int ret = vsprintf(str, fmt, list);
+
+        va_end(list);
+        return ret;
+}
+
+/**
+ * \fn vsprintf
+ * \brief Print a format to string using granted variable argument list
+ * \param string
+ * \param fmt
+ * \param list
+ * \brief The list of arguments to use
+ * \return The number of characters succesfully printed
+ */
+int vsprintf(char* str, char* fmt, va_list list)
 {
         /* Check the preconditions first. */
         if (str == NULL || fmt == NULL)
                 return 0;
         int num = 0;
-        va_list list;
-        va_start(list, fmt);
 
         /* Itterate through the string to put every character in place. */
         for (; *fmt != '\0'; fmt++, str++, num++)
@@ -223,7 +239,6 @@ int sprintf(char* str, char* fmt, ...)
                         *str = *fmt;
         }
 
-        va_end(list);
         return num;
 }
 
