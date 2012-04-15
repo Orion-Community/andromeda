@@ -45,21 +45,20 @@ static mutex_t init_lock = mutex_unlocked;
  * \return result of calculation in bytes
  */
 size_t
-calc_no_pages(size_t element_size, idx_t no_elements, size_t allignment)
+calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
 {
-
         /** Check the arguments */
         if (element_size == 0)
                 return 0;
 
         /** Get the size of the elements right */
-        if (element_size % allignment != 0)
-                element_size += allignment - element_size % allignment;
+        if (element_size % alignment != 0)
+                element_size += alignment - element_size % alignment;
 
         /** How much space is required for the allocation_frame */
         size_t allocation_frame = SLAB_MAX_OBJS * sizeof(int);
-        if (allocation_frame % allignment != 0)
-                allocation_frame += allignment - allocation_frame % allignment;
+        if (allocation_frame % alignment != 0)
+                allocation_frame += alignment - allocation_frame % alignment;
 
         /** How much space is required for the actual elements + frame */
         size_t req = allocation_frame + element_size * no_elements;
@@ -69,6 +68,21 @@ calc_no_pages(size_t element_size, idx_t no_elements, size_t allignment)
                 req += PAGESIZE - req % PAGESIZE;
 
         return req;
+}
+
+/**
+ * \fn calc_data_offset
+ * \brief Calculate the offset of the data to the start of the slab
+ * \param alignment
+ * \return The result of the calculation in pages
+ */
+size_t
+calc_data_offset(size_t alignment)
+{
+        size_t offset = SLAB_MAX_OBJS * sizeof(int);
+        if (offset % alignment != 0)
+                offset += alignment - offset % alignment;
+        return offset;
 }
 
 /**
