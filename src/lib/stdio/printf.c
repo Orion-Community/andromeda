@@ -59,9 +59,7 @@ bool sign;
         {
                 int i = 0;
                 for (; i < min_size-1; i++)
-                {
                         *(str++) = PRINTNUM_PADDING;
-                }
                 *(str++) = '0';
                 return min_size;
         }
@@ -81,7 +79,7 @@ bool sign;
         for (;unum != 0; idx++)
         {
                 tmp_str[sizeof(tmp_str) - idx] = (capital) ? HEX[unum % base] :
-                hex[unum % base];
+                                                               hex[unum % base];
                 unum /= base;
         }
         /* If signed and negative, append the - sign */
@@ -112,6 +110,75 @@ bool sign;
         return ret;
 }
 
+int fprintf(struct vfile* stream, char* fmt, ...)
+{
+        if (stream == NULL || fmt == NULL)
+                return 0;
+
+        va_list list;
+        va_start(list, fmt);
+
+        int ret = vfprintf(stream, fmt, list);
+
+        va_end(list);
+        return ret;
+}
+
+int vfprintf(struct vfile* stream, char* fmt, va_list list)
+{
+        if (stream == NULL || fmt == NULL)
+                return 0;
+        if (stream->write == NULL)
+                return 0;
+
+        int ret = 0;
+
+        size_t str_len = 0;
+        int i = 0;
+        bool escaped = false;
+#define LENGTH_HEX 8
+#define LENGTH_DEC 11
+
+        for (; fmt[i] != '\0'; str_len++, i++)
+        {
+                switch(fmt[str_len])
+                {
+                case '%':
+                        escaped != escaped;
+                        break;
+                case 'x':
+                case 'X':
+                        if (escaped)
+                                str_len += LENGTH_HEX - 1;
+                        break;
+                case 'i':
+                case 'd':
+                        if (escaped)
+                                str_len += LENGTH_DEC - 1;
+                        break;
+                default:
+                        if (escaped)
+                                escaped != escaped;
+                        break;
+                }
+        }
+        if (str_len == 0)
+                goto err;
+        char* tmp_str = kalloc(str_len + 1);
+        if (tmp_str == NULL)
+                goto err;
+        memset(tmp_str, 0, str_len + 1);
+
+        if (vsprintf(tmp_str, fmt, list) == 0)
+                goto err1;
+        ret = stream->write(stream, fmt, strlen(fmt));
+
+err:
+        free(tmp_str);
+err1:
+        return ret;
+}
+
 /**
  * \fn sprintf
  * \brief Print a format to string
@@ -123,11 +190,14 @@ int sprintf(char* str, char* fmt, ...)
 {
         if (str == NULL || fmt == NULL)
                 return 0;
+        /* Set up the variable argument list for vsprintf */
         va_list list;
         va_start(list, fmt);
 
+        /* Now actually do your job */
         int ret = vsprintf(str, fmt, list);
 
+        /* Destroy the variable argument list */
         va_end(list);
         return ret;
 }
@@ -185,46 +255,46 @@ int vsprintf(char* str, char* fmt, va_list list)
                         /* Now finally choose the type of format. */
                         switch(*(++fmt))
                         {
-                                case 'x': /* Print lower case hex numbers */
-                                        inc = sprintnum(str, pre,
+                        case 'x': /* Print lower case hex numbers */
+                                inc = sprintnum(str, pre,
                                                          (int)va_arg(list, int),
                                                                              16,
                                                                           false,
                                                                          false);
-                                        break;
-                                case 'X': /* Print upper case hex numbers */
-                                        inc = sprintnum(str, pre,
+                                break;
+                        case 'X': /* Print upper case hex numbers */
+                                inc = sprintnum(str, pre,
                                                          (int)va_arg(list, int),
                                                                              16,
                                                                            true,
                                                                          false);
-                                        break;
-                                case 'f': /* Print floats (not yet supported) */
-                                        break;
-                                case 'i': /* Print unsigned decimals */
-                                        inc = sprintnum(str, pre,
+                                break;
+                        case 'f': /* Print floats (not yet supported) */
+                                break;
+                        case 'i': /* Print unsigned decimals */
+                                inc = sprintnum(str, pre,
                                                          (int)va_arg(list, int),
                                                                              10,
                                                                           false,
                                                                          false);
-                                        break;
-                                case 'd': /* Print signed decimals */
-                                        inc = sprintnum(str, pre,
+                                break;
+                        case 'd': /* Print signed decimals */
+                                inc = sprintnum(str, pre,
                                                          (int)va_arg(list, int),
                                                                              10,
                                                                           false,
                                                                           true);
-                                        break;
-                                case 'c': /* Print character */
-                                        inc = 1;
-                                        *str = (char)va_arg(list, int);
-                                        break;
-                                case 's': /* Print string of characters */
-                                        inc = sprintf(str, va_arg(list, char*));
-                                        break;
-                                default: /* Undefined, just print fmt */
-                                        *str = *fmt;
-                                        continue;
+                                break;
+                        case 'c': /* Print character */
+                                inc = 1;
+                                *str = (char)va_arg(list, int);
+                                break;
+                        case 's': /* Print string of characters */
+                                inc = sprintf(str, va_arg(list, char*));
+                                break;
+                        default: /* Undefined, just print fmt */
+                                *str = *fmt;
+                                continue;
                         }
                         /*
                          * Update the looping info.

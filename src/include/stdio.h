@@ -34,6 +34,8 @@ extern "C" {
 
 int sprintf(char* str, char* fmt, ...);
 int vsprintf(char* str, char* fmt, va_list list);
+int vfprintf(struct vfile* stream, char* fmt, va_list list);
+int fprintf(struct vfile* stream, char* fmt, ...);
 
 #ifdef __cplusplus
 }
