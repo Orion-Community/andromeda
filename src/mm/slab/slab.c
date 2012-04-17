@@ -30,6 +30,9 @@
  * \warning If changing this number, check that the linker script still is ok.
  */
 #define NO_STD_CACHES 13
+
+extern int initial_slab_space;
+
 static struct mm_cache* caches = NULL;
 static struct mm_cache initial_caches[NO_STD_CACHES];
 static struct slab initial_slabs[NO_STD_CACHES];
@@ -47,23 +50,23 @@ static mutex_t init_lock = mutex_unlocked;
 size_t
 calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
 {
-        /** Check the arguments */
+        /* Check the arguments */
         if (element_size == 0)
                 return 0;
 
-        /** Get the size of the elements right */
+        /* Get the size of the elements right */
         if (element_size % alignment != 0)
                 element_size += alignment - element_size % alignment;
 
-        /** How much space is required for the allocation_frame */
+        /* How much space is required for the allocation_frame */
         size_t allocation_frame = SLAB_MAX_OBJS * sizeof(int);
         if (allocation_frame % alignment != 0)
                 allocation_frame += alignment - allocation_frame % alignment;
 
-        /** How much space is required for the actual elements + frame */
+        /* How much space is required for the actual elements + frame */
         size_t req = allocation_frame + element_size * no_elements;
 
-        /** Pad the requirement to page size */
+        /* Pad the requirement to page size */
         if (req % PAGESIZE != 0)
                 req += PAGESIZE - req % PAGESIZE;
 
@@ -86,6 +89,63 @@ calc_data_offset(size_t alignment)
 }
 
 /**
+ * \fn calc_max_no_objects
+ * \brief Calculate the max number of objects per unit of memory
+ * \param alignment
+ * \brief To what are the addresses aligned
+ * \param obj_space
+ * \brief What is the space in bytes we can use to allocate
+ * \param obj_size
+ * \brief How big are the objects we're going to allocate
+ * \return The number of objects usable within the unit of memory
+ */
+size_t
+calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size)
+{
+        if (obj_size == 0 || obj_space == 0)
+                return 0;
+
+        if (obj_size % alignment != 0)
+                obj_size += alignment - obj_size % alignment;
+
+        size_t alloc_bytes = SLAB_MAX_OBJS * sizeof(int);
+        if (alloc_bytes % alignment != 0)
+                alloc_bytes += alignment - alloc_bytes % alignment;
+
+        obj_space -= alloc_bytes;
+        return obj_space / obj_size;
+}
+
+int test_calc_unit(int size, int alignment, int no_objects)
+{
+        char* txt = kalloc(256);
+        if (txt == NULL)
+                return -E_NOMEM;
+        memset(txt, 0, 256);
+
+        int pages = calc_no_pages(size, no_objects, alignment);
+        int no_elements = calc_max_no_objects(alignment, pages, size);
+        int offset = calc_data_offset(alignment);
+
+        sprintf(txt, "Pages: %8X\telements: %8X\toffset: %8X\n", pages, no_elements, offset);
+        printf(txt);
+
+        free(txt);
+        return -E_SUCCESS;
+}
+
+int
+test_calculation_functions()
+{
+        test_calc_unit(16, 16, 16);
+        test_calc_unit(32, 16, 16);
+        test_calc_unit(16, 32, 16);
+        test_calc_unit(0x1000, 0x1000, 16);
+        test_calc_unit(0x400, 0x1000, 16);
+        return -E_SUCCESS;
+}
+
+/**
  * \fn slab_alloc_init
  * \brief Initialise the first caches, so the first allocations can be made
  * \return Standard error code
@@ -95,22 +155,34 @@ int slab_alloc_init()
         textInit();
         caches = initial_caches;
         int idx = 0;
+        void* data = &initial_slab_space;
+
         /** Configure the first caches, one by one */
         for (; idx < NO_STD_CACHES; idx++)
         {
+                int alignment = pow(2, idx+4);
                 /** Memset first, then set some pointers */
                 memset(&caches[idx], 0, sizeof(*caches));
-                caches[idx].obj_size = pow(2, idx+4);
+                caches[idx].obj_size = alignment;
                 if (idx != 0)
                         caches[idx].prev = &caches[idx-1];
+                else
+                        caches[idx].prev = NULL;
                 if (idx != NO_STD_CACHES-1)
                         caches[idx].next = &caches[idx+1];
+                else
+                        caches[idx].prev = NULL;
                 printf("Object size of cache[%X] = %X\n", idx,
                                                           caches[idx].obj_size);
 
                 /** Slab setup goes here ... */
                 caches[idx].slabs_empty = &initial_slabs[idx];
                 memset(&initial_slabs[idx], 0, sizeof(initial_slabs[idx]));
+                struct slab* slab = caches[idx].slabs_empty;
+
+                slab->page_ptr = data;
+                slab->obj_ptr = data + calc_data_offset(alignment);
+                data += calc_no_pages(alignment, /* No. objects */16, alignment);
         }
         return -E_NOFUNCTION;
 }
@@ -120,8 +192,6 @@ cache_init(char* name, size_t obj_size, size_t cache_size)
 {
         return -E_NOFUNCTION;
 }
-
-extern int initial_slab_space;
 
 int
 init_slab()
