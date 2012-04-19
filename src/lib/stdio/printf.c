@@ -25,7 +25,7 @@
 extern char HEX[];
 extern char hex[];
 
-#define PRINTNUM_PADDING '0'
+#define PRINTNUM_PADDING ' '
 /**
  * \fn sprintnum
  * \brief Write integer numbers according to a format and base number.
@@ -44,13 +44,14 @@ extern char hex[];
  * \return The number of chars printed.
  */
 int
-sprintnum(str, min_size, num, base, capital, sign)
+sprintnum(str, min_size, num, base, capital, sign, padding)
 char* str;
 size_t min_size;
 int num;
 int base;
 bool capital;
 bool sign;
+char padding;
 {
         if (base > 36 || base < 2)
                 return -E_INVALID_ARG;
@@ -59,7 +60,7 @@ bool sign;
         {
                 int i = 0;
                 for (; i < min_size-1; i++)
-                        *(str++) = PRINTNUM_PADDING;
+                        *(str++) = padding;
                 *(str++) = '0';
                 return min_size;
         }
@@ -97,7 +98,7 @@ bool sign;
         {
                 int i = 0;
                 for (; i < min_size - idx; i++)
-                        *(str++) = PRINTNUM_PADDING;
+                        *(str++) = padding;
                 ret = min_size;
         }
         idx --;
@@ -110,6 +111,13 @@ bool sign;
         return ret;
 }
 
+/**
+ * \fn fprintf
+ * \brief Write a formatted string to a file
+ * \param stream
+ * \param fmt
+ * \return The number of characters printed
+ */
 int fprintf(struct vfile* stream, char* fmt, ...)
 {
         if (stream == NULL || fmt == NULL)
@@ -118,12 +126,24 @@ int fprintf(struct vfile* stream, char* fmt, ...)
         va_list list;
         va_start(list, fmt);
 
+        /* Basically let vfprintf do all the hard work! */
         int ret = vfprintf(stream, fmt, list);
 
         va_end(list);
         return ret;
 }
 
+/**
+ * \fn vfprintf
+ * \brief Print a format and several arguments to a file
+ * \bug If the minimum required number of chars in an int exeeds the max of the
+ * \bug type of output, these things aren't taken into account when allocating
+ * \bug memory!
+ * \param stream
+ * \param fmt
+ * \param list
+ * \return The number of chars printed
+ */
 int vfprintf(struct vfile* stream, char* fmt, va_list list)
 {
         if (stream == NULL || fmt == NULL)
@@ -131,17 +151,25 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
         if (stream->write == NULL)
                 return 0;
 
+        /*
+         * ret = the return number
+         * str_len = the number of bytes to reserve for the output string
+         * i the counter for looping through the fmt
+         * escaped is to mark an %
+         * LENGTH_HEX denotes the max length a hexadecimal will generally use
+         * LENGTH_DEC does the same as LENGTH_HEX for decimals
+         */
         int ret = 0;
-
         size_t str_len = 0;
         int i = 0;
         bool escaped = false;
 #define LENGTH_HEX 8
 #define LENGTH_DEC 11
 
+        /* Figure out the length of the string we'll need */
         for (; fmt[i] != '\0'; str_len++, i++)
         {
-                switch(fmt[str_len])
+                switch(fmt[i])
                 {
                 case '%':
                         escaped != escaped;
@@ -149,19 +177,32 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
                 case 'x':
                 case 'X':
                         if (escaped)
+                        {
                                 str_len += LENGTH_HEX - 1;
+                                escaped = false;
+                        }
                         break;
                 case 'i':
                 case 'd':
                         if (escaped)
+                        {
                                 str_len += LENGTH_DEC - 1;
+                                escaped = false;
+                        }
                         break;
                 default:
                         if (escaped)
-                                escaped != escaped;
+                        {
+                                if (fmt[i] > '0' && fmt[i] < '9')
+                                        continue;
+                                if (fmt[i] == '.')
+                                        continue;
+                                escaped = false;
+                        }
                         break;
                 }
         }
+        /* Initialise the output string */
         if (str_len == 0)
                 goto err;
         char* tmp_str = kalloc(str_len + 1);
@@ -169,8 +210,11 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
                 goto err;
         memset(tmp_str, 0, str_len + 1);
 
+        /* Make vsprintf do all the hard work */
         if (vsprintf(tmp_str, fmt, list) == 0)
                 goto err1;
+
+        /* Now make the file pointer do all the hard work of placing the data */
         ret = stream->write(stream, fmt, strlen(fmt));
 
 err:
@@ -217,6 +261,7 @@ int vsprintf(char* str, char* fmt, va_list list)
         if (str == NULL || fmt == NULL)
                 return 0;
         int num = 0;
+        char padding = PRINTNUM_PADDING;
 
         /* Itterate through the string to put every character in place. */
         for (; *fmt != '\0'; fmt++, str++, num++)
@@ -243,6 +288,11 @@ int vsprintf(char* str, char* fmt, va_list list)
                                 }
                                 else
                                 {
+                                        if (pre == 0 && *(fmt+1) == '0')
+                                        {
+                                                padding = '0';
+                                                continue;
+                                        }
                                         pre *= 10;
                                         pre += (*(fmt+1) - '0');
                                 }
@@ -260,14 +310,16 @@ int vsprintf(char* str, char* fmt, va_list list)
                                                          (int)va_arg(list, int),
                                                                              16,
                                                                           false,
-                                                                         false);
+                                                                          false,
+                                                                       padding);
                                 break;
                         case 'X': /* Print upper case hex numbers */
                                 inc = sprintnum(str, pre,
                                                          (int)va_arg(list, int),
                                                                              16,
                                                                            true,
-                                                                         false);
+                                                                          false,
+                                                                       padding);
                                 break;
                         case 'f': /* Print floats (not yet supported) */
                                 break;
@@ -276,14 +328,16 @@ int vsprintf(char* str, char* fmt, va_list list)
                                                          (int)va_arg(list, int),
                                                                              10,
                                                                           false,
-                                                                         false);
+                                                                          false,
+                                                                       padding);
                                 break;
                         case 'd': /* Print signed decimals */
                                 inc = sprintnum(str, pre,
                                                          (int)va_arg(list, int),
                                                                              10,
                                                                           false,
-                                                                          true);
+                                                                           true,
+                                                                       padding);
                                 break;
                         case 'c': /* Print character */
                                 inc = 1;
@@ -303,6 +357,7 @@ int vsprintf(char* str, char* fmt, va_list list)
                          */
                         num += inc - 1;
                         str += inc - 1;
+                        padding = PRINTNUM_PADDING;
                 }
                 /* Else just copy the character over. */
                 else

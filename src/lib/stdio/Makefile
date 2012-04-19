@@ -10,7 +10,7 @@ all: stdio.o
 stdio.o: printf.o
 	$(LD) -o stdio.o *.o $(LDFLAGS)
 
-printf.o:
+printf.o: printf.c
 	$(CC) $(FLAGS) $(CFLAGS) printf.c
 
 .PHONY: clean
