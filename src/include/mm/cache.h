@@ -88,6 +88,7 @@ struct mm_cache {
 };
 
 int slab_alloc_init();
+int test_calculation_functions();
 
 // #endif
 

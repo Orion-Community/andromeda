@@ -127,7 +127,8 @@ int test_calc_unit(int size, int alignment, int no_objects)
         int no_elements = calc_max_no_objects(alignment, pages, size);
         int offset = calc_data_offset(alignment);
 
-        sprintf(txt, "Pages: %8X\telements: %8X\toffset: %8X\n", pages, no_elements, offset);
+        sprintf(txt, "Pages: %8X\telements: %8X\toffset: %8X\n", pages,
+                                                           no_elements, offset);
         printf(txt);
 
         free(txt);
@@ -137,11 +138,17 @@ int test_calc_unit(int size, int alignment, int no_objects)
 int
 test_calculation_functions()
 {
-        test_calc_unit(16, 16, 16);
-        test_calc_unit(32, 16, 16);
-        test_calc_unit(16, 32, 16);
-        test_calc_unit(0x1000, 0x1000, 16);
-        test_calc_unit(0x400, 0x1000, 16);
+        if (test_calc_unit(16, 16, 16) != -E_SUCCESS)
+                return -E_GENERIC;
+        if (test_calc_unit(32, 16, 16) != -E_SUCCESS)
+                return -E_GENERIC;
+        if (test_calc_unit(16, 32, 16) != -E_SUCCESS)
+                return -E_GENERIC;
+        if (test_calc_unit(0x1000, 0x1000, 16) != -E_SUCCESS)
+                return -E_GENERIC;
+        if (test_calc_unit(0x400, 0x1000, 16) != -E_GENERIC)
+                return -E_GENERIC;
+
         return -E_SUCCESS;
 }
 

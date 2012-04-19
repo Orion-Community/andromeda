@@ -10,7 +10,7 @@ all: slab_alloc.o
 slab_alloc.o: slab.o
 	$(LD) -o slab_alloc.o *.o $(LDFLAGS)
 
-slab.o:
+slab.o: slab.c
 	$(CC) $(FLAGS) $(CFLAGS) slab.c
 
 .PHONY: clean

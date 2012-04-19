@@ -26,6 +26,7 @@
 #include <networking/net.h>
 #include <andromeda/buffer.h>
 #include <mm/x86/vmem.h>
+#include <mm/cache.h>
 #include <stdio.h>
 
 #define RL_SHUTDOWN     0x0
@@ -131,6 +132,7 @@ void core_loop()
         debug("Address of higher half: %X\n", (int)&higherhalf);
         debug("Address of end ptr:     %X\n", (int)&end);
         test_sprintf();
+        test_calculation_functions();
 //         uint32_t pid = 0;
 
         debug("Entering core loop\n");
