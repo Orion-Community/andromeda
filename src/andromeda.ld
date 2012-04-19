@@ -19,7 +19,7 @@ SECTIONS
     page_table_boot = .; _page_table_boot = .; __page_table_boot = .;
     . += 0xC0004000;
     initial_slab_space = .;
-    . += 0x40000;
+    . += 0x8E000;
 
     .higherhalf : AT (ADDR(.higherhalf) - 0xC0000000)
     {

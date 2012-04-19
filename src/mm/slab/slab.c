@@ -29,13 +29,15 @@
  * \brief This define is related to the initial_slab_space in the linker script.
  * \warning If changing this number, check that the linker script still is ok.
  */
-#define NO_STD_CACHES 13
+#define NO_STD_CACHES 11
+#define SLAB_MIN_OBJS 16
 
 extern int initial_slab_space;
 
 static struct mm_cache* caches = NULL;
 static struct mm_cache initial_caches[NO_STD_CACHES];
 static struct slab initial_slabs[NO_STD_CACHES];
+static void* init_slab_ptr = NULL;
 static mutex_t init_lock = mutex_unlocked;
 
 /**
@@ -129,7 +131,7 @@ int test_calc_unit(int size, int alignment, int no_objects)
 
         sprintf(txt, "Pages: %8X\telements: %8X\toffset: %8X\n", pages,
                                                            no_elements, offset);
-        printf(txt);
+        debug(txt);
 
         free(txt);
         return -E_SUCCESS;
@@ -152,6 +154,29 @@ test_calculation_functions()
         return -E_SUCCESS;
 }
 
+int
+cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
+{
+        register size_t no_pages = calc_no_pages(cache->obj_size,
+                                                                  SLAB_MIN_OBJS,
+                                                              cache->alignment);
+        register size_t no_elements = calc_max_no_objects(cache->alignment,
+                                                                       no_pages,
+                                                               cache->obj_size);
+        register size_t data_offset = calc_data_offset(cache->alignment);
+
+        cache->slabs_empty = &initial_slabs[slab_idx];
+        memset(cache->slabs_empty, 0, sizeof(*cache->slabs_empty));
+        cache->slabs_empty->page_ptr = init_slab_ptr;
+        cache->slabs_empty->obj_ptr = init_slab_ptr + data_offset;
+        cache->slabs_empty->slab_size = no_pages;
+        cache->slabs_empty->cache = cache;
+        cache->slabs_empty->objs_total = no_elements;
+
+        init_slab_ptr+= no_pages;
+        return -E_SUCCESS;
+}
+
 /**
  * \fn slab_alloc_init
  * \brief Initialise the first caches, so the first allocations can be made
@@ -160,10 +185,10 @@ test_calculation_functions()
 int slab_alloc_init()
 {
         textInit();
+        debug("Initial slab ptr: %X\n", &initial_slab_space);
         caches = initial_caches;
         int idx = 0;
-        void* data = &initial_slab_space;
-
+        init_slab_ptr = &initial_slab_space;
         /** Configure the first caches, one by one */
         for (; idx < NO_STD_CACHES; idx++)
         {
@@ -171,6 +196,8 @@ int slab_alloc_init()
                 /** Memset first, then set some pointers */
                 memset(&caches[idx], 0, sizeof(*caches));
                 caches[idx].obj_size = alignment;
+                caches[idx].alignment = alignment;
+
                 if (idx != 0)
                         caches[idx].prev = &caches[idx-1];
                 else
@@ -179,18 +206,14 @@ int slab_alloc_init()
                         caches[idx].next = &caches[idx+1];
                 else
                         caches[idx].prev = NULL;
-                printf("Object size of cache[%X] = %X\n", idx,
+                debug("Object size of cache[%X] = %X\n", idx,
                                                           caches[idx].obj_size);
 
-                /** Slab setup goes here ... */
-                caches[idx].slabs_empty = &initial_slabs[idx];
-                memset(&initial_slabs[idx], 0, sizeof(initial_slabs[idx]));
-                struct slab* slab = caches[idx].slabs_empty;
-
-                slab->page_ptr = data;
-                slab->obj_ptr = data + calc_data_offset(alignment);
-                data += calc_no_pages(alignment, /* No. objects */16, alignment);
+                cache_find_slab_space(&caches[idx], idx);
         }
+        debug("Final slab ptr: %X\n", init_slab_ptr);
+        debug("Address of higherhalf: %X\n", &higherhalf);
+//         for (;;);
         return -E_NOFUNCTION;
 }
 

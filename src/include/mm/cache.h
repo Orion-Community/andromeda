@@ -77,7 +77,6 @@ struct mm_cache {
         struct slab* slabs_empty;
 
         size_t obj_size;
-        size_t pages;
         size_t alignment;
 
         void (*ctor)(void*, struct mm_cache*, uint32_t flags);
