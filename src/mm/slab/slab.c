@@ -16,6 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef SLAB
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <mm/cache.h>
@@ -251,3 +253,5 @@ init_slab()
  * @}
  *\file
  */
+
+#endif

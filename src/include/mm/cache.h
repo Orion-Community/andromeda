@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-// #ifdef SLAB
+#ifdef SLAB
 
 /**
  * \defgroup slab
@@ -63,6 +63,7 @@ struct slab {
 
         int objs_full;
         int objs_total;
+        mutex_t lock;
 };
 
 /**
@@ -89,7 +90,7 @@ struct mm_cache {
 int slab_alloc_init();
 int test_calculation_functions();
 
-// #endif
+#endif
 
 #ifdef __cplusplus
 }
