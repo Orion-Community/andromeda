@@ -66,6 +66,8 @@ struct slab {
         mutex_t lock;
 };
 
+typedef void (*cinit)(void*, struct mm_cache*, uint32_t flags);
+
 /**
  * \struct mm_cache
  * \brief The slab allocation caches
@@ -80,15 +82,17 @@ struct mm_cache {
         size_t obj_size;
         size_t alignment;
 
-        void (*ctor)(void*, struct mm_cache*, uint32_t flags);
-        void (*dtor)(void*, struct mm_cache*, uint32_t flags);
+        cinit ctor;
+        cinit dtor;
 
         struct mm_cache* next;
         struct mm_cache* prev;
 };
 
+
 int slab_alloc_init();
 int test_calculation_functions();
+int cache_init(char*, size_t, size_t, cinit, cinit);
 
 #endif
 

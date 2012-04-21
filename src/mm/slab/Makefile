@@ -4,14 +4,17 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 
 .PHONY: all
-all: slab_alloc.o
-	 mv -fv slab_alloc.o ../slab.o
+all: slab.o
+	 mv -fv slab.o ../
 
-slab_alloc.o: slab.o
-	$(LD) -o slab_alloc.o *.o $(LDFLAGS)
+slab.o: slab_init.o
+	$(LD) -o slab.o *.o $(LDFLAGS)
 
-slab.o: slab.c
-	$(CC) $(FLAGS) $(CFLAGS) slab.c
+slab_init.o: slab_init.c
+	$(CC) $(FLAGS) $(CFLAGS) slab_init.c
+
+slab_alloc.o: slab_alloc.c
+	$(CC) $(FLAGS) $(CFLAGS) slab_alloc.c
 
 .PHONY: clean
 clean:

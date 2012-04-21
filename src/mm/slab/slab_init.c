@@ -16,11 +16,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifdef SLAB
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <mm/cache.h>
+
+#ifdef SLAB
+
 /**
  * \AddToGroup slab
  * @{
@@ -122,9 +123,7 @@ calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size)
 
 int test_calc_unit(int size, int alignment, int no_objects)
 {
-        char* txt = kalloc(256);
-        if (txt == NULL)
-                return -E_NOMEM;
+        char txt[256];
         memset(txt, 0, 256);
 
         int pages = calc_no_pages(size, no_objects, alignment);
@@ -135,25 +134,38 @@ int test_calc_unit(int size, int alignment, int no_objects)
                                                            no_elements, offset);
         debug(txt);
 
-        free(txt);
         return -E_SUCCESS;
 }
 
 int
 test_calculation_functions()
 {
+        int ret = 1;
         if (test_calc_unit(16, 16, 16) != -E_SUCCESS)
-                return -E_GENERIC;
+                goto err;
+        ret ++;
         if (test_calc_unit(32, 16, 16) != -E_SUCCESS)
-                return -E_GENERIC;
+                goto err;
+        ret++;
         if (test_calc_unit(16, 32, 16) != -E_SUCCESS)
-                return -E_GENERIC;
+                goto err;
+        ret ++;
         if (test_calc_unit(0x1000, 0x1000, 16) != -E_SUCCESS)
-                return -E_GENERIC;
-        if (test_calc_unit(0x400, 0x1000, 16) != -E_GENERIC)
-                return -E_GENERIC;
+                goto err;
+        ret ++;
+        if (test_calc_unit(0x400, 0x1000, 16) != -E_SUCCESS)
+                goto err;
+        ret ++;
+
+        if (cache_init("Blaat", sizeof(struct mm_cache), 255, NULL, NULL)
+                                                                  != -E_SUCCESS)
+                goto err;
+        ret ++;
 
         return -E_SUCCESS;
+err:
+        printf("The test failed on item: %X\n", ret);
+        return ret;
 }
 
 int
@@ -219,10 +231,39 @@ int slab_alloc_init()
         return -E_NOFUNCTION;
 }
 
+mutex_t cache_lock = mutex_unlocked;
+
 int
-cache_init(char* name, size_t obj_size, size_t cache_size)
+cache_init(char* name, size_t obj_size, size_t alignment, cinit ctor,cinit dtor)
 {
-        return -E_NOFUNCTION;
+        struct mm_cache* cariage = caches;
+        if (caches == NULL || name == NULL)
+                return -E_NULL_PTR;
+        if (obj_size == 0)
+                return -E_INVALID_ARG;
+
+        mutex_lock(&cache_lock);
+
+        for (; cariage->next != NULL; cariage = cariage->next);
+
+        cariage->next = kalloc(sizeof(*cariage->next));
+        if (cariage->next == NULL)
+                goto err_nomem;
+        cariage = cariage->next;
+        memset(cariage, 0, sizeof(*cariage));
+
+        memcpy(cariage->name, name, strlen(name));
+        cariage->obj_size = obj_size;
+        cariage->alignment = alignment;
+        cariage->ctor = ctor;
+        cariage->dtor = dtor;
+
+        mutex_unlock(&cache_lock);
+
+        return -E_SUCCESS;
+err_nomem:
+        mutex_unlock(&cache_lock);
+        return -E_NOMEM;
 }
 
 int
@@ -236,12 +277,12 @@ init_slab()
         }
 
         caches = (void*)&initial_slab_space;
-        struct mm_cache* carriage = caches;
+        struct mm_cache* cariage = caches;
         register int i = 0;
         for (; i < 0x10; i++)
         {
-                memset(carriage, 0, sizeof(*carriage));
-                carriage++;
+                memset(cariage, 0, sizeof(*cariage));
+                cariage++;
         }
 
         mutex_unlock(&init_lock);
