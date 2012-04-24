@@ -18,6 +18,7 @@
 /**
  * \AddToGroup paging
  * @{
+ * \todo Figure out a more optimized way to keep track of physical pages
  */
 
 #include <stdio.h>
