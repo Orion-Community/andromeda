@@ -39,7 +39,7 @@ extern int initial_slab_space;
 
 static struct mm_cache* caches = NULL;
 static struct mm_cache initial_caches[NO_STD_CACHES];
-static struct slab initial_slabs[NO_STD_CACHES];
+static struct mm_slab initial_slabs[NO_STD_CACHES];
 static void* init_slab_ptr = NULL;
 static mutex_t init_lock = mutex_unlocked;
 
@@ -157,8 +157,8 @@ test_calculation_functions()
                 goto err;
         ret ++;
 
-        if (cache_init("Blaat", sizeof(struct mm_cache), 255, NULL, NULL)
-                                                                  != -E_SUCCESS)
+        if (mm_cache_init("Blaat", sizeof(struct mm_cache), 255, NULL, NULL)
+                                                                        == NULL)
                 goto err;
         ret ++;
 
@@ -168,24 +168,66 @@ err:
         return ret;
 }
 
+/**
+ * \fn slab_setup
+ * \brief The code that actually sets up the slab itself
+ * \param slab
+ * \brief The slab to be initialised
+ * \param cache
+ * \brief The cache which is its parent
+ * \param pages
+ * \brief The pointer to the pages we can use
+ * \param no_pages
+ * \brief The number of pages that are allocated to us, WRITTEN IN BYTES
+ * \param no_elements
+ * \brief The number of elements that we've got in our slab
+ * \return An error code or success
+ */
+int
+slab_setup (slab, cache, pages, no_pages, no_elements)
+struct mm_slab* slab;
+struct mm_cache* cache;
+void* pages;
+register size_t no_pages;
+register size_t no_elements;
+{
+        if (slab == NULL || cache == NULL || pages == NULL)
+                return -E_NULL_PTR;
+        if (no_pages == 0 || no_elements == 0)
+                return -E_INVALID_ARG;
+        register size_t data_offset = calc_data_offset(cache->alignment);
+
+        memset(slab, 0, sizeof(*slab));
+        slab->page_ptr = pages;
+        slab->obj_ptr = pages + data_offset;
+        slab->slab_size = no_pages;
+        slab->cache = cache;
+        slab->objs_total = no_elements;
+        memset(pages, 0, no_pages);
+        int i = 0;
+        int* alloc_space = pages;
+        for (; i < no_elements; i++)
+        {
+                alloc_space[i] = i+1;
+        }
+        memset (&alloc_space[i+1], ~0, (SLAB_MAX_OBJS - i) * sizeof(int));
+        printf("RESULT: %X\n", alloc_space[i+1]);
+
+        return -E_SUCCESS;
+}
+
 int
 cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
 {
-        register size_t no_pages = calc_no_pages(cache->obj_size,
-                                                                  SLAB_MIN_OBJS,
+        size_t no_pages = calc_no_pages(cache->obj_size, SLAB_MIN_OBJS,
                                                               cache->alignment);
-        register size_t no_elements = calc_max_no_objects(cache->alignment,
-                                                                       no_pages,
+        size_t no_elements = calc_max_no_objects(cache->alignment, no_pages,
                                                                cache->obj_size);
-        register size_t data_offset = calc_data_offset(cache->alignment);
-
         cache->slabs_empty = &initial_slabs[slab_idx];
-        memset(cache->slabs_empty, 0, sizeof(*cache->slabs_empty));
-        cache->slabs_empty->page_ptr = init_slab_ptr;
-        cache->slabs_empty->obj_ptr = init_slab_ptr + data_offset;
-        cache->slabs_empty->slab_size = no_pages;
-        cache->slabs_empty->cache = cache;
-        cache->slabs_empty->objs_total = no_elements;
+
+        if (slab_setup(cache->slabs_empty, cache, init_slab_ptr, no_pages,
+                                                     no_elements) != -E_SUCCESS)
+                panic("Something somewhere went terribly wrong (SLAB)!");
 
         init_slab_ptr+= no_pages;
         return -E_SUCCESS;
@@ -233,14 +275,32 @@ int slab_alloc_init()
 
 mutex_t cache_lock = mutex_unlocked;
 
-int
-cache_init(char* name, size_t obj_size, size_t alignment, cinit ctor,cinit dtor)
+/**
+ * \fn mm_cache_init
+ * \brief Initialise and return a new cache
+ * \param name
+ * \brief A description of the cache
+ * \param obj_size
+ * \param alignment
+ * \param ctor
+ * \brief A constructor for objects to be allocated
+ * \param dtor
+ * \brief A deconstuctor for the objects to be freed
+ * \return The new cache
+ */
+struct mm_cache*
+mm_cache_init(name, obj_size, alignment, ctor, dtor)
+char* name;
+size_t obj_size;
+size_t alignment;
+cinit ctor;
+cinit dtor;
 {
         struct mm_cache* cariage = caches;
         if (caches == NULL || name == NULL)
-                return -E_NULL_PTR;
+                return NULL;
         if (obj_size == 0)
-                return -E_INVALID_ARG;
+                return NULL;
 
         mutex_lock(&cache_lock);
 
@@ -260,34 +320,51 @@ cache_init(char* name, size_t obj_size, size_t alignment, cinit ctor,cinit dtor)
 
         mutex_unlock(&cache_lock);
 
-        return -E_SUCCESS;
+        return cariage;
+
 err_nomem:
         mutex_unlock(&cache_lock);
-        return -E_NOMEM;
+        return NULL;
 }
 
-int
-init_slab()
+struct mm_slab*
+mm_slab_init (cache, obj_size, no_objects, alignment)
+struct mm_cache* cache;
+size_t obj_size;
+size_t no_objects;
+size_t alignment;
 {
-        mutex_lock(&init_lock);
-        if (caches != NULL)
-        {
-                mutex_unlock(&init_lock);
-                return -E_ALREADY_INITIALISED;
-        }
+        if (cache == NULL || obj_size == 0 || no_objects == 0 || alignment == 0)
+                goto err;
+        struct mm_slab* slab = kalloc(sizeof(*slab));
+        if (slab == NULL)
+                goto err;
 
-        caches = (void*)&initial_slab_space;
-        struct mm_cache* cariage = caches;
-        register int i = 0;
-        for (; i < 0x10; i++)
-        {
-                memset(cariage, 0, sizeof(*cariage));
-                cariage++;
-        }
+        size_t no_pages = calc_no_pages(cache->obj_size, SLAB_MIN_OBJS,
+                                                              cache->alignment);
+        size_t no_elements = calc_max_no_objects(cache->alignment, no_pages,
+                                                               cache->obj_size);
+        /**
+         * \todo Actually allocate a page in mm_slab_init
+         */
+        void* page = NULL; // Should alloc pages here!
+        if (page == NULL)
+                goto err_alloced;
 
-        mutex_unlock(&init_lock);
+        if (slab_setup(cache->slabs_empty, cache, page, no_pages, no_elements)
+                                                                  != -E_SUCCESS)
+                goto err_page;
 
-        return -E_NOFUNCTION;
+        return slab;
+err_page:
+        /**
+         * \todo Actually free the page in mm_slab_init
+         */
+        // Should free pages here!
+err_alloced:
+        kfree(slab);
+err:
+        return NULL;
 }
 
 /**

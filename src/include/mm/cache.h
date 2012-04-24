@@ -20,6 +20,8 @@
 #define __MM_CACHE_H
 
 #include <defines.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +43,7 @@ extern "C" {
  * \brief The slab descriptor
  */
 
-struct slab {
+struct mm_slab {
         /**
          * \var next
          * \var cache
@@ -53,7 +55,7 @@ struct slab {
          * \var objs_full
          * \var objs_total
          */
-        struct slab* next;
+        struct mm_slab* next;
         struct mm_cache* cache;
 
         void* obj_ptr;
@@ -61,6 +63,7 @@ struct slab {
 
         size_t slab_size;
 
+        int first_free;
         int objs_full;
         int objs_total;
         mutex_t lock;
@@ -75,9 +78,9 @@ typedef void (*cinit)(void*, struct mm_cache*, uint32_t flags);
 
 struct mm_cache {
         char name[CACHE_NAME_SIZE];
-        struct slab* slabs_full;
-        struct slab* slabs_partial;
-        struct slab* slabs_empty;
+        struct mm_slab* slabs_full;
+        struct mm_slab* slabs_partial;
+        struct mm_slab* slabs_empty;
 
         size_t obj_size;
         size_t alignment;
@@ -92,7 +95,7 @@ struct mm_cache {
 
 int slab_alloc_init();
 int test_calculation_functions();
-int cache_init(char*, size_t, size_t, cinit, cinit);
+struct mm_cache* mm_cache_init(char*, size_t, size_t, cinit, cinit);
 
 #endif
 

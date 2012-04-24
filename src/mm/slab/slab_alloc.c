@@ -27,6 +27,34 @@
  * @{
  */
 
+/**
+ * \todo Build mm_cache_alloc
+ * \todo Build mm_cache_free
+ * \todo Build kmem_alloc
+ * \todo Build kmem_free
+ */
+void* mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
+{
+        if (cache == NULL || flags == 0)
+                return NULL;
+        return NULL;
+}
+
+void mm_cache_free()
+{
+}
+
+void* kmem_alloc(size_t size, uint16_t flags)
+{
+        if (size == 0 || flags == 0)
+                return NULL;
+
+        return NULL;
+}
+
+void kmem_free()
+{
+}
 
 
 /**
