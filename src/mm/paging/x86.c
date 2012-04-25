@@ -155,16 +155,12 @@ x86_page_init(size_t mem_size)
         memset(&allocated_pages, 0, sizeof(allocated_pages));
 
         struct mm_page_descriptor* meg;
-        if (freeable_allocator)
-                meg = kalloc(sizeof(*meg));
-        else
-                meg = boot_alloc(sizeof(*meg));
+        meg = kalloc(sizeof(*meg));
 
         if (meg == NULL)
                 panic("OUT OF MEMORY!");
 
         memset(meg, 0, sizeof(*meg));
-        meg->freeable = freeable_allocator;
         meg->page_ptr = NULL;
         meg->size = SIZE_MEG; /** meg->size = one megabyte */
 

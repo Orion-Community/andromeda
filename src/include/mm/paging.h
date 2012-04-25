@@ -130,8 +130,6 @@ struct mm_page_descriptor {
         bool free;
         bool dma;
 
-        bool freeable;
-
         mutex_t lock;
 
 #ifdef SLAB

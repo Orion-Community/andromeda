@@ -44,10 +44,7 @@ int
 mboot_map_special_entry(addr_t ptr,addr_t virt,size_t size,bool free,bool dma)
 {
         struct mm_page_descriptor* tmp;
-        if (freeable_allocator)
-                tmp = kalloc(sizeof(*tmp));
-        else
-                tmp = boot_alloc(sizeof(*tmp));
+        tmp = kalloc(sizeof(*tmp));
 
         if (tmp == NULL)
                 panic("OUT OF MEMORY!");
@@ -150,14 +147,10 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                         }
                         goto itteration_skip;
                 }
-                if (freeable_allocator)
-                        tmp = kalloc(sizeof(*tmp));
-                else
-                        tmp = boot_alloc(sizeof(*tmp));
+                tmp = kalloc(sizeof(*tmp));
                 if (tmp == NULL)
                         panic("Out of memory!");
                 memset(tmp, 0, sizeof(*tmp));
-                tmp->freeable = freeable_allocator;
 
                 tmp->page_ptr = (void*)((addr_t)mmap->addr);
                 tmp->virt_ptr = tmp->page_ptr;

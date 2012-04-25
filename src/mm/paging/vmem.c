@@ -23,12 +23,6 @@
 #include <mm/paging.h>
 #include <andromeda/error.h>
 
-/**
- * \todo build function that maps page tables into the page directory
- * \todo build function that maps pages into page tables
- * \todo build function that maps entries into the tree.
- */
-
 struct vmem_branch* lookup_tree;
 
 /**

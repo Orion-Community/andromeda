@@ -166,8 +166,6 @@ size_t base_size;
         struct mm_page_descriptor* tmp;
         if (freeable_allocator)
                 tmp = kalloc(sizeof(*tmp));
-        else
-                tmp = boot_alloc(sizeof(*tmp));
 
         if (tmp == NULL)
         {
@@ -184,7 +182,6 @@ size_t base_size;
         tmp->prev = page;
         page->next = tmp;
         page->size = base_size;
-        tmp->freeable = freeable_allocator;
         if (tmp->next == NULL)
                 list->tail = tmp;
         mutex_unlock(&page->lock);
@@ -237,9 +234,6 @@ struct mm_page_descriptor* page2;
                 lst->head = page1;
         if (lst->tail == page2)
                 lst->tail = page1;
-
-        if (page2->freeable)
-                kfree(page2);
 
         return page1;
 }
