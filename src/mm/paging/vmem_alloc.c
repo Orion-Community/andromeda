@@ -23,16 +23,44 @@
 #include <mm/paging.h>
 #include <andromeda/error.h>
 
-/**
- * \todo build function that maps page tables into the page directory
- * \todo build function that maps pages into page tables
- * \todo build function that maps entries into the tree.
- */
+static mutex_t vmem_lock = mutex_unlocked;
+
+void vmem_alloc_init()
+{
+}
 
 /**
- * \fn vmem_map_pages
+ * \fn vmem_alloc
+ * \brief Allocate virtual pages which are then mapped to physical ones
+ * \param pages
+ * \brief The number of pages requested in bytes
+ * \return A pointer to the allocated region, NULL if failed
+ * \todo Build the vmem_alloc function
  */
-int vmem_map_pages()
+void*
+vmem_alloc(size_t pages)
+{
+        if (pages == 0 || pages % PAGESIZE != 0)
+                return NULL;
+        mutex_lock(&vmem_lock);
+
+
+
+        mutex_unlock(&vmem_lock);
+        return NULL;
+}
+
+/**
+ * \fn vmem_free
+ * \brief Free the previously allocated pages
+ * \param ptr
+ * \brief A pointer to the region to be freed
+ * \param pages
+ * \brief The number of pages requested in bytes on alloc
+ * \return An error code on success or failure
+ */
+int
+vmem_free(void* ptr, size_t pages)
 {
         return -E_NOFUNCTION;
 }

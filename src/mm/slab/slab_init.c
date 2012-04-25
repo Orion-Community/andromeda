@@ -273,7 +273,7 @@ int slab_alloc_init()
         return -E_NOFUNCTION;
 }
 
-mutex_t cache_lock = mutex_unlocked;
+static mutex_t cache_lock = mutex_unlocked;
 
 /**
  * \fn mm_cache_init
