@@ -661,3 +661,26 @@ powl(long double x, long double exponent)
 		ret *= exp(ln(x)*exponent);
 	return ret;
 }
+
+int log2i(int x)
+{
+        int ret = sizeof(int)*8-1;
+        while(!(x&(1<<ret)))
+        {
+                if(ret==0)
+                        return 0;
+                ret -= 1;
+        }
+        return ret;
+}
+unsigned int log2ui(unsigned int x)
+{
+        unsigned int ret = sizeof(int)*8-1;
+        while(!(x&(1<<ret)))
+        {
+                if(ret==0)
+                        return 0;
+                ret -= 1;
+        }
+        return ret;
+}

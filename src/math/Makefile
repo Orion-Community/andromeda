@@ -11,10 +11,10 @@ all: $(TARGETS)
 $(TARGETS): math.o
 	$(LD) $(LDFLAGS) -o $(TARGETS) *.o
 
-math.o:
+math.o: math.c
 	$(CC) $(CFLAGS) $(FLAGS) math.c
 
-complex.o:
+complex.o: complex.c
 	$(CC) $(CFLAGS) $(FLAGS) complex.c
 
 .PHONY: clean
