@@ -32,7 +32,7 @@
  */
 
 struct vmem_buddy_system*
-vmem_buddy_system_init(size_t size)
+vmem_buddy_system_init()
 {
         return NULL;
 }
@@ -43,10 +43,45 @@ vmem_buddy_system_reset(struct vmem_buddy_system* system)
         return -E_NOFUNCTION;
 }
 
+int
+vmem_buddy_purge(struct vmem_buddy* buddy, idx_t list)
+{
+        return -E_NOFUNCTION;
+}
+
+int
+vmem_buddy_set(struct vmem_buddy* buddy, idx_t list)
+{
+        return -E_NOFUNCTION;
+}
+
+struct vmem_buddy*
+find_adjecent(struct vmem_buddy* buddy)
+{
+}
+
 struct vmem_buddy*
 vmem_buddy_split(struct vmem_buddy* buddy)
 {
-        return NULL;
+        if (buddy == NULL)
+                return NULL;
+
+        struct vmem_buddy* new = kalloc(sizeof(*new));
+        if (new == NULL)
+                return NULL;
+        memset(new, 0, sizeof(*new));
+
+        buddy->size /= 2;
+        new->size = buddy->size;
+        new->ptr = buddy->ptr + buddy->size;
+        new->prev = buddy;
+        new->next = buddy->next;
+        new->system = buddy->system;
+        buddy->next = new;
+        vmem_buddy_purge(buddy, log2i(buddy->size)+1);
+        vmem_buddy_purge(new, log2i(new->size)+1);
+        vmem_buddy_set(buddy, log2i(buddy->size));
+        vmem_buddy_set(new, log2i(new->size));
 }
 
 int

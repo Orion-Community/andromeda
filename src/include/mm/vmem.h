@@ -47,8 +47,10 @@ struct vmem_branch {
  */
 struct vmem_buddy {
         size_t size;
+        void* ptr;
         struct vmem_buddy* next;
-        struct vmem_buddy* previous;
+        struct vmem_buddy* prev;
+        struct vmem_buddy_system* system;
 };
 
 /**
@@ -63,8 +65,6 @@ struct vmem_buddy_system {
          * \brief entry 0 being 1KiB, 8 being 256KiB
          * \var allocated
          */
-        size_t system_size;
-        void* system_ptr;
         struct vmem_buddy* buddies[9];
         struct vmem_buddy* allocated;
 };

@@ -15,6 +15,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/**
+ * \AddToGroup paging
+ * @{
+ */
 
 #include <math/math.h>
 #include <mm/memory.h>
@@ -685,3 +689,7 @@ unsigned int log2ui(unsigned int x)
         }
         return ret-1;
 }
+
+/**
+ * @} \file
+ */

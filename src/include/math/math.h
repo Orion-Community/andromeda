@@ -15,6 +15,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/**
+ * \defgroup math
+ * The virtual memory sub system
+ * @{
+ */
 #ifndef __MATH_MATH_H
 #define __MATH_MATH_H
 
@@ -106,3 +111,8 @@ unsigned int log2ui(unsigned int x);
 #endif
 
 #endif
+
+/**
+ * @}
+ * \file
+ */
