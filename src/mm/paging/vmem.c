@@ -19,7 +19,7 @@
  * \AddToGroup vmem
  * @{
  */
-#include <mm/x86/vmem.h>
+#include <mm/vmem.h>
 #include <mm/paging.h>
 #include <andromeda/error.h>
 
@@ -35,7 +35,6 @@ vmem_init()
         if (lookup_tree != NULL)
                 return -E_ALREADY_INITIALISED;
         lookup_tree = kalloc(sizeof(*lookup_tree));
-        vmem_alloc_init();
 
         return -E_SUCCESS;
 }

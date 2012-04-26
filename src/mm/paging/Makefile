@@ -7,7 +7,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 all: paging.o
 	mv -fv paging.o ../
 
-paging.o: page_alloc.o x86.o mboot.o vmem.o vmem_alloc.o
+paging.o: page_alloc.o x86.o mboot.o vmem.o vmem_buddy.o
 	$(LD) $(LDFLAGS) -o paging.o *.o
 
 page_alloc.o: page_alloc.c
@@ -22,8 +22,8 @@ mboot.o: mboot.c
 vmem.o: vmem.c
 	$(CC) $(FLAGS) $(CFLAGS) vmem.c
 
-vmem_alloc.o: vmem_alloc.c
-	$(CC) $(FLAGS) $(CFLAGS) vmem_alloc.c
+vmem_buddy.o: vmem_buddy.c
+	$(CC) $(FLAGS) $(CFLAGS) vmem_buddy.c
 
 .PHONY: clean
 clean:

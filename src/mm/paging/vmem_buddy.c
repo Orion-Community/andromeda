@@ -19,50 +19,51 @@
  * \AddToGroup vmem
  * @{
  */
-#include <mm/x86/vmem.h>
+#include <mm/vmem.h>
 #include <mm/paging.h>
 #include <andromeda/error.h>
 
-static mutex_t vmem_lock = mutex_unlocked;
-
-void vmem_alloc_init()
-{
-}
-
 /**
- * \fn vmem_alloc
- * \brief Allocate virtual pages which are then mapped to physical ones
- * \param pages
- * \brief The number of pages requested in bytes
- * \return A pointer to the allocated region, NULL if failed
- * \todo Build the vmem_alloc function
+ * \todo Build a buddy allocator initialiser
+ * \todo Build a buddy region splitter
+ * \todo Build a buddy region merger
+ * \todo Build the buddy allocator
+ * \todo Build the buddy freeing function
  */
-void*
-vmem_alloc(size_t pages)
+
+struct vmem_buddy_system*
+vmem_buddy_system_init(size_t size)
 {
-        if (pages == 0 || pages % PAGESIZE != 0)
-                return NULL;
-        mutex_lock(&vmem_lock);
-
-
-
-        mutex_unlock(&vmem_lock);
         return NULL;
 }
 
-/**
- * \fn vmem_free
- * \brief Free the previously allocated pages
- * \param ptr
- * \brief A pointer to the region to be freed
- * \param pages
- * \brief The number of pages requested in bytes on alloc
- * \return An error code on success or failure
- */
 int
-vmem_free(void* ptr, size_t pages)
+vmem_buddy_system_reset(struct vmem_buddy_system* system)
 {
         return -E_NOFUNCTION;
+}
+
+struct vmem_buddy*
+vmem_buddy_split(struct vmem_buddy* buddy)
+{
+        return NULL;
+}
+
+int
+vmem_buddy_merge(struct vmem_buddy* a, struct vmem_buddy* b)
+{
+        return -E_NOFUNCTION;
+}
+
+void*
+vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
+{
+        return NULL;
+}
+
+void
+vmem_buddy_free(struct vmem_buddy_system* system, void* ptr)
+{
 }
 
 /**

@@ -25,7 +25,7 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/buffer.h>
-#include <mm/x86/vmem.h>
+#include <mm/vmem.h>
 #include <mm/cache.h>
 #include <stdio.h>
 
@@ -133,6 +133,11 @@ void core_loop()
         debug("Address of end ptr:     %X\n", (int)&end);
         test_sprintf();
         test_calculation_functions();
+
+        printf("2log4 = %i\n", log2i(4));
+        printf("2log6 = %i\n", log2i(6));
+        printf("2log8 = %i\n", log2i(8));
+
 //         uint32_t pid = 0;
 
         debug("Entering core loop\n");

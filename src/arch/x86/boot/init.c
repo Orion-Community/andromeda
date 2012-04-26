@@ -58,7 +58,7 @@
 #include <andromeda/cpu.h>
 #include <andromeda/elf.h>
 #include <andromeda/drivers.h>
-#include <mm/x86/vmem.h>
+#include <mm/vmem.h>
 
 #include <lib/byteorder.h>
 

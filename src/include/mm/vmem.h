@@ -20,19 +20,53 @@
  * The virtual memory sub system
  * @{
  */
+#ifndef __MM_VMEM_H
+#define __MM_VMEM_H
 
-#ifndef __MM_X86_VMEM_H
-#define __MM_X86_VMEM_H
+#include <defines.h>
+#include <types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * \struct vmem_branch
+ * \brief Used in the physical to virtual translation
+ */
 struct vmem_branch {
         union {
                 struct vmem_branch* branches[16];
                 void* virt_addr[16];
         };
+};
+
+/**
+ * \struct vmem_buddy
+ * \brief Determines the condition a particular buddy resides in
+ */
+struct vmem_buddy {
+        size_t size;
+        struct vmem_buddy* next;
+        struct vmem_buddy* previous;
+};
+
+/**
+ * \struct vmem_buddy_system
+ * \brief Defines the buddy system
+ */
+struct vmem_buddy_system {
+        /**
+         * \var system_size
+         * \var buddies
+         * \brief This an array of lists of buddies, sorted by size
+         * \brief entry 0 being 1KiB, 8 being 256KiB
+         * \var allocated
+         */
+        size_t system_size;
+        void* system_ptr;
+        struct vmem_buddy* buddies[9];
+        struct vmem_buddy* allocated;
 };
 
 /**
@@ -42,6 +76,7 @@ struct vmem_branch {
 */
 int vmem_test_tree();
 int vmem_init();
+void vmem_alloc_init();
 
 #ifdef __cplusplus
 }
