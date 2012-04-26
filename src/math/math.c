@@ -664,23 +664,24 @@ powl(long double x, long double exponent)
 
 int log2i(int x)
 {
-        int ret = sizeof(int)*8-1;
-        while(!(x&(1<<ret)))
+        int ret = 0;
+        while((x&( ((unsigned int)-1)<<ret )))
         {
-                if(ret==0)
-                        return 0;
-                ret -= 1;
+                if(ret==sizeof(int)*8-1)
+                        return sizeof(int)*8-1;
+                ret++;
         }
-        return ret;
+        return ret-1;
 }
+
 unsigned int log2ui(unsigned int x)
 {
-        unsigned int ret = sizeof(int)*8-1;
-        while(!(x&(1<<ret)))
+        unsigned int ret = 0;
+        while((x&( ((unsigned int)-1)<<ret )))
         {
-                if(ret==0)
-                        return 0;
-                ret -= 1;
+                if(ret==sizeof(int)*8-1)
+                        return sizeof(int)*8-1;
+                ret++;
         }
-        return ret;
+        return ret-1;
 }
