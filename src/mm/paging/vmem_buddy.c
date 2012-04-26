@@ -24,46 +24,70 @@
 #include <andromeda/error.h>
 
 /**
- * \todo Build a buddy allocator initialiser
- * \todo Build a buddy region splitter
- * \todo Build a buddy region merger
- * \todo Build the buddy allocator
- * \todo Build the buddy freeing function
+ * \todo Build a buddy system initialiser
  */
-
 struct vmem_buddy_system*
 vmem_buddy_system_init()
 {
         return NULL;
 }
 
-int
-vmem_buddy_system_reset(struct vmem_buddy_system* system)
-{
-        return -E_NOFUNCTION;
-}
-
+/**
+ * \todo Build a function that removes a buddy from its list
+ */
 int
 vmem_buddy_purge(struct vmem_buddy* buddy, idx_t list)
 {
         return -E_NOFUNCTION;
 }
 
+/**
+ * \todo Build a function that inserts a buddy into a list
+ */
 int
 vmem_buddy_set(struct vmem_buddy* buddy, idx_t list)
 {
         return -E_NOFUNCTION;
 }
 
+/**
+ * \todo Write a function that finds buddies adjecent to this one
+ */
 struct vmem_buddy*
 find_adjecent(struct vmem_buddy* buddy)
 {
+        if (buddy == NULL)
+                return NULL;
+        struct vmem_buddy_system* system = buddy->system;
+        if (system == NULL)
+                return NULL;
+
+        size_t size = buddy->size >> 12;
+        idx_t buddy_power = log2i(size);
+        struct vmem_buddy* cariage = system->buddies[buddy_power];
+        for (; cariage != NULL; cariage = cariage->next)
+        {
+                if (cariage->ptr + cariage->size == buddy->ptr)
+                        return cariage;
+                if (buddy->ptr + buddy->size == cariage->ptr)
+                        return cariage;
+        }
+        return NULL;
 }
 
+/**
+ * \fn vmem_buddy_split
+ * \brief Use this function to split up a buddy entry
+ * \param buddy
+ * \brief The buddy to be split
+ * \return The newly formed buddy
+ */
 struct vmem_buddy*
 vmem_buddy_split(struct vmem_buddy* buddy)
 {
         if (buddy == NULL)
+                return NULL;
+        if (buddy->size <= 0x1000 || buddy->size % PAGESIZE != 0)
                 return NULL;
 
         struct vmem_buddy* new = kalloc(sizeof(*new));
@@ -78,24 +102,71 @@ vmem_buddy_split(struct vmem_buddy* buddy)
         new->next = buddy->next;
         new->system = buddy->system;
         buddy->next = new;
-        vmem_buddy_purge(buddy, log2i(buddy->size)+1);
-        vmem_buddy_purge(new, log2i(new->size)+1);
-        vmem_buddy_set(buddy, log2i(buddy->size));
-        vmem_buddy_set(new, log2i(new->size));
+        if (vmem_buddy_purge(buddy, log2i(buddy->size)+1) != -E_SUCCESS)
+                goto err;
+        if (vmem_buddy_purge(new, log2i(new->size)+1) != -E_SUCCESS)
+                goto err;
+        if (vmem_buddy_set(buddy, log2i(buddy->size)) != -E_SUCCESS)
+                goto err;
+        if (vmem_buddy_set(new, log2i(new->size)) != -E_SUCCESS)
+                goto err;
+
+        return new;
+err:
+        buddy->size += buddy->size;
+        buddy->next = new->next;
+        memset(new, 0, sizeof(*new));
+        kfree(new);
+        new = NULL;
+        return NULL;
 }
 
-int
+/**
+ * \todo Write a function that merges two buddies that are adjecent
+ * \fn vmem_buddy_merge
+ * \brief Use this to merge two adjecent buddies
+ * \return The merged buddy
+ */
+struct vmem_buddy*
 vmem_buddy_merge(struct vmem_buddy* a, struct vmem_buddy* b)
 {
-        return -E_NOFUNCTION;
+        if (a == NULL || b == NULL)
+                return NULL;
+        if (a->size != b->size)
+                return NULL;
+        if (a->ptr + a->size != b->ptr && b->ptr + b->size != a->ptr)
+                return NULL;
+        if (a->ptr == b->ptr || a == b)
+                return NULL;
+
+        if (b->ptr < a->ptr)
+        {
+                struct vmem_buddy* c = a;
+                a = b;
+                b = c;
+        }
+        a->size += a->size;
+        if (b->prev != NULL)
+                b->prev->next = b->next;
+        if (b->next != NULL)
+                b->next->prev = b->prev;
+        memset(b, 0, sizeof(*b));
+        kfree(b);
+        return NULL;
 }
 
+/**
+ * \todo Write the allocation function
+ */
 void*
 vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
 {
         return NULL;
 }
 
+/**
+ * \todo Write the freeing function
+ */
 void
 vmem_buddy_free(struct vmem_buddy_system* system, void* ptr)
 {
