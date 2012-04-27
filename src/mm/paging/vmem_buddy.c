@@ -257,12 +257,62 @@ vmem_buddy_merge(struct vmem_buddy* a, struct vmem_buddy* b)
         return NULL;
 }
 
+int
+vmem_buddy_mark(struct vmem_buddy* buddy)
+{
+        if (buddy == NULL)
+                return -E_NULL_PTR;
+
+        vmem_buddy_purge(buddy);
+        buddy->next = buddy->system->allocated;
+        buddy->system->allocated = buddy;
+
+        return -E_SUCCESS;
+}
+
+int
+vmem_buddy_unmark(struct vmem_buddy* buddy)
+{
+        if (buddy == NULL)
+                return -E_NULL_PTR;
+
+        buddy->prev->next = buddy->next;
+        buddy->next->prev = buddy->prev;
+
+        vmem_buddy_set(buddy);
+        return -E_SUCCESS;
+}
+
 /**
  * \todo Write the allocation function
  */
 void*
 vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
 {
+        if (system == NULL || size == 0)
+                return NULL;
+        idx_t buddy_power = log2i(size>>12);
+        if (buddy_power > BUDDY_NO_POWERS)
+                return NULL;
+
+        int i = buddy_power;
+        for (; i < BUDDY_NO_POWERS; i++)
+        {
+                if (system->buddies[i] != NULL)
+                        continue;
+        }
+        if (i > BUDDY_NO_POWERS)
+                goto err;
+        for (; i < buddy_power; i--)
+        {
+                vmem_buddy_split(system->buddies[i]);
+        }
+        struct vmem_buddy* c = system->buddies[i];
+        vmem_buddy_mark(c);
+        return c;
+
+err:
+        // maybe unlock spinlock
         return NULL;
 }
 
