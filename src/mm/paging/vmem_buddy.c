@@ -23,6 +23,8 @@
 #include <mm/paging.h>
 #include <andromeda/error.h>
 
+int vmem_buddy_set(struct vmem_buddy* buddy);
+
 /**
  * \fn vmem_buddy_system_init
  * \brief Create a new region allocatable by the buddy system
@@ -62,9 +64,9 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
                 if (buddy == NULL)
                         goto err_buddy;
 
-                memset(buddy, 0, sizeof(*buddies));
+                memset(buddy, 0, sizeof(*buddy));
                 buddy->size = allocated;
-                buddy->size = base_ptr;
+                buddy->ptr = base_ptr;
                 buddy->system = system;
                 base_ptr += allocated;
                 vmem_buddy_set(buddy);
@@ -72,6 +74,7 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
         return system;
 
 err_buddy:
+{
         int i = 0;
         struct vmem_buddy* cariage = NULL;
         struct vmem_buddy* next = NULL;
@@ -87,6 +90,7 @@ err_buddy:
         }
         memset(system, 0, sizeof(*system));
         kfree(system);
+}
 err:
         return NULL;
 }
