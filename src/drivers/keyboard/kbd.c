@@ -253,6 +253,6 @@ top:
         val = inb(OL_KBC_DATA_PORT);
         if(val == 0xfe) goto top;
 
-        printnum((uint32_t) val, 16, FALSE, FALSE);
+        printf("%x", (uint32_t)val);
         return TRUE;
 }

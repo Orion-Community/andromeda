@@ -30,6 +30,8 @@
 extern "C" {
 #endif
 
+#define BUDDY_NO_POWERS 9
+
 /**
  * \struct vmem_branch
  * \brief Used in the physical to virtual translation
@@ -65,7 +67,7 @@ struct vmem_buddy_system {
          * \brief entry 0 being 1KiB, 8 being 256KiB
          * \var allocated
          */
-        struct vmem_buddy* buddies[9];
+        struct vmem_buddy* buddies[BUDDY_NO_POWERS];
         struct vmem_buddy* allocated;
 };
 
@@ -77,6 +79,9 @@ struct vmem_buddy_system {
 int vmem_test_tree();
 int vmem_init();
 void vmem_alloc_init();
+struct vmem_buddy_system* vmem_buddy_system_init(void* base_ptr, size_t size);
+void* vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size);
+void vmem_buddy_free(struct vmem_buddy_system* system, void* ptr);
 
 #ifdef __cplusplus
 }
