@@ -39,33 +39,55 @@ struct vmem_buddy_system*
 vmem_buddy_system_init(void* base_ptr, size_t size)
 {
         if ((addr_t)base_ptr % PAGESIZE != 0 || size % PAGESIZE != 0)
-                return NULL;
+                goto err;
 
         if (size < 0x80*PAGESIZE)
-                return NULL;
+                goto err;
 
         struct vmem_buddy_system* system = kalloc(sizeof(*system));
         if (system == NULL)
-                return NULL;
-
-        struct vmem_buddy* buddy = kalloc(sizeof(*buddy));
-        if (buddy == NULL)
-                goto err_buddy;
+                goto err;
 
         memset(system, 0, sizeof(*system));
-        memset(buddy, 0, sizeof(*buddy));
 
-        buddy->size = size;
-        buddy->ptr = base_ptr;
-        buddy->system = system;
-        size_t c = size >> 12;
-        idx_t buddy_power = log2i(c);
-        system->buddies[buddy_power] = buddy;
+        size_t remaining = size;
+        size_t allocated = 0;
+        for (; PAGESIZE < remaining; remaining -= allocated)
+        {
+                if (log2i(remaining) > BUDDY_NO_POWERS-1)
+                        allocated = pow(2, BUDDY_NO_POWERS-1);
+                else
+                        allocated = pow(2, log2i(remaining));
+                struct vmem_buddy* buddy = kalloc(sizeof(*buddy));
+                if (buddy == NULL)
+                        goto err_buddy;
 
+                memset(buddy, 0, sizeof(*buddies));
+                buddy->size = allocated;
+                buddy->size = base_ptr;
+                buddy->system = system;
+                base_ptr += allocated;
+                vmem_buddy_set(buddy);
+        }
         return system;
+
 err_buddy:
+        int i = 0;
+        struct vmem_buddy* cariage = NULL;
+        struct vmem_buddy* next = NULL;
+        for (; i < BUDDY_NO_POWERS; i++)
+        {
+                cariage = system->buddies[i];
+
+                for (; cariage != NULL; cariage = next)
+                {
+                        next = cariage->next;
+                        kfree(cariage);
+                }
+        }
         memset(system, 0, sizeof(*system));
         kfree(system);
+err:
         return NULL;
 }
 
