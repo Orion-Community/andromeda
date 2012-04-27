@@ -34,27 +34,65 @@ vmem_buddy_system_init()
 
 /**
  * \todo Build a function that removes a buddy from its list
+ * \fn vmem_buddy_purge
+ * \brief Purge the given buddy from the system it points to
+ * \param buddy
+ * \brief The buddy to purge
+ * \return A generic error code
  */
 int
-vmem_buddy_purge(struct vmem_buddy* buddy, idx_t list)
+vmem_buddy_purge(struct vmem_buddy* buddy)
 {
-        return -E_NOFUNCTION;
+        if (buddy == NULL)
+                return -E_NULL_PTR;
+
+        if (buddy->prev != NULL)
+                buddy->prev->next = buddy->next;
+        else
+        {
+                size_t size = buddy->size >> 12;
+                idx_t buddy_power = log2i(size);
+                buddy->system->buddies[buddy_power] = buddy->next;
+        }
+        if (buddy->next != NULL)
+                buddy->next->prev = buddy->prev;
+
+        return -E_SUCCESS;
 }
 
 /**
- * \todo Build a function that inserts a buddy into a list
+ * \fn vmem_buddy_set
+ * \brief Insert a buddy into the list of the system pointed to by the buddy
+ * \param buddy
+ * \brief The buddy to inser
+ * \return A generic error code
  */
 int
-vmem_buddy_set(struct vmem_buddy* buddy, idx_t list)
+vmem_buddy_set(struct vmem_buddy* buddy)
 {
-        return -E_NOFUNCTION;
+        if (buddy == NULL)
+                return -E_NULL_PTR;
+        if (buddy->system == NULL)
+                return -E_NULL_PTR;
+
+        size_t size = buddy->size >> 12;
+        idx_t buddy_power = log2i(size);
+        buddy->prev = NULL;
+        buddy->next = buddy->system->buddies[buddy_power];
+        buddy->system->buddies[buddy_power] = buddy;
+
+        return -E_SUCCESS;
 }
 
 /**
- * \todo Write a function that finds buddies adjecent to this one
+ * \fn  vmem_buddy_find_adjecent
+ * \brief Find the first adjecent block to granted buddy
+ * \param buddy
+ * \brief The buddy to find the adjecents to
+ * \return The first adjecent buddy
  */
 struct vmem_buddy*
-find_adjecent(struct vmem_buddy* buddy)
+vmem_buddy_find_adjecent(struct vmem_buddy* buddy)
 {
         if (buddy == NULL)
                 return NULL;
@@ -95,20 +133,17 @@ vmem_buddy_split(struct vmem_buddy* buddy)
                 return NULL;
         memset(new, 0, sizeof(*new));
 
+        if (vmem_buddy_purge(buddy) != -E_SUCCESS)
+                goto err;
+
         buddy->size /= 2;
         new->size = buddy->size;
         new->ptr = buddy->ptr + buddy->size;
-        new->prev = buddy;
-        new->next = buddy->next;
         new->system = buddy->system;
-        buddy->next = new;
-        if (vmem_buddy_purge(buddy, log2i(buddy->size)+1) != -E_SUCCESS)
+
+        if (vmem_buddy_set(buddy) != -E_SUCCESS)
                 goto err;
-        if (vmem_buddy_purge(new, log2i(new->size)+1) != -E_SUCCESS)
-                goto err;
-        if (vmem_buddy_set(buddy, log2i(buddy->size)) != -E_SUCCESS)
-                goto err;
-        if (vmem_buddy_set(new, log2i(new->size)) != -E_SUCCESS)
+        if (vmem_buddy_set(new) != -E_SUCCESS)
                 goto err;
 
         return new;
