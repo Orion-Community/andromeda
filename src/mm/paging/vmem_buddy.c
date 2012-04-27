@@ -283,6 +283,8 @@ vmem_buddy_unmark(struct vmem_buddy* buddy)
         return -E_SUCCESS;
 }
 
+mutex_t vmem_buddy_lock = mutex_unlocked;
+
 /**
  * \todo Write the allocation function
  */
@@ -294,6 +296,8 @@ vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
         idx_t buddy_power = log2i(size>>12);
         if (buddy_power > BUDDY_NO_POWERS)
                 return NULL;
+
+        mutex_lock(&vmem_buddy_lock);
 
         int i = buddy_power;
         for (; i < BUDDY_NO_POWERS; i++)
@@ -309,10 +313,11 @@ vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
         }
         struct vmem_buddy* c = system->buddies[i];
         vmem_buddy_mark(c);
-        return c;
+        mutex_unlock(&vmem_buddy_lock);
+        return c->ptr;
 
 err:
-        // maybe unlock spinlock
+        mutex_unlock(&vmem_buddy_lock);
         return NULL;
 }
 
@@ -322,6 +327,27 @@ err:
 void
 vmem_buddy_free(struct vmem_buddy_system* system, void* ptr)
 {
+        if (ptr == NULL || system == NULL)
+                return;
+        mutex_lock(&vmem_buddy_lock);
+        struct vmem_buddy* cariage = system->allocated;
+        for(;cariage != NULL; cariage = cariage->next)
+        {
+                if (cariage->ptr == ptr)
+                {
+                        vmem_buddy_unmark(cariage);
+                        struct vmem_buddy* adjecent = NULL;
+                        while((adjecent = vmem_buddy_find_adjecent(cariage))
+                                                                        != NULL)
+                        {
+                                cariage = vmem_buddy_merge(cariage, adjecent);
+                        }
+                        mutex_unlock(&vmem_buddy_lock);
+                        return;
+                }
+        }
+        mutex_unlock(&vmem_buddy_lock);
+        return;
 }
 
 /**
