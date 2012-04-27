@@ -24,11 +24,48 @@
 #include <andromeda/error.h>
 
 /**
- * \todo Build a buddy system initialiser
+ * \fn vmem_buddy_system_init
+ * \brief Create a new region allocatable by the buddy system
+ * \param base_ptr
+ * \brief The pointer to the first allocatable object
+ * \warning This must be page aligned
+ * \param size
+ * \brief The size of the system
+ * \warning The size must be a multiple of PAGESIZE
+ * \warning The size must be at least 0x80 pages (0.5 MiB on intel)
+ * \return A pointer to the newly created buddy system descriptor
  */
 struct vmem_buddy_system*
-vmem_buddy_system_init()
+vmem_buddy_system_init(void* base_ptr, size_t size)
 {
+        if ((addr_t)base_ptr % PAGESIZE != 0 || size % PAGESIZE != 0)
+                return NULL;
+
+        if (size < 0x80*PAGESIZE)
+                return NULL;
+
+        struct vmem_buddy_system* system = kalloc(sizeof(*system));
+        if (system == NULL)
+                return NULL;
+
+        struct vmem_buddy* buddy = kalloc(sizeof(*buddy));
+        if (buddy == NULL)
+                goto err_buddy;
+
+        memset(system, 0, sizeof(*system));
+        memset(buddy, 0, sizeof(*buddy));
+
+        buddy->size = size;
+        buddy->ptr = base_ptr;
+        buddy->system = system;
+        size_t c = size >> 12;
+        idx_t buddy_power = log2i(c);
+        system->buddies[buddy_power] = buddy;
+
+        return system;
+err_buddy:
+        memset(system, 0, sizeof(*system));
+        kfree(system);
         return NULL;
 }
 
@@ -86,7 +123,7 @@ vmem_buddy_set(struct vmem_buddy* buddy)
 
 /**
  * \fn  vmem_buddy_find_adjecent
- * \brief Find the first adjecent block to granted buddy
+ * \brief Find the adjecent merge candidates not allocated (if existant)
  * \param buddy
  * \brief The buddy to find the adjecents to
  * \return The first adjecent buddy
@@ -102,12 +139,16 @@ vmem_buddy_find_adjecent(struct vmem_buddy* buddy)
 
         size_t size = buddy->size >> 12;
         idx_t buddy_power = log2i(size);
+        size_t merge_aligned = buddy->size + buddy->size;
+
+        int high = (addr_t)buddy->ptr % merge_aligned;
+
         struct vmem_buddy* cariage = system->buddies[buddy_power];
         for (; cariage != NULL; cariage = cariage->next)
         {
-                if (cariage->ptr + cariage->size == buddy->ptr)
+                if (cariage->ptr + cariage->size == buddy->ptr && high)
                         return cariage;
-                if (buddy->ptr + buddy->size == cariage->ptr)
+                if (buddy->ptr + buddy->size == cariage->ptr && !(high))
                         return cariage;
         }
         return NULL;
