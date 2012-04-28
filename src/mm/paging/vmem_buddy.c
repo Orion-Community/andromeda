@@ -59,10 +59,11 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
         debug("Remaining: %X\n", remaining);
         for (; PAGESIZE < remaining; remaining -= allocated)
         {
-                if (log2i(remaining) > BUDDY_NO_POWERS-1)
+                if (log2i(remaining>>12) > BUDDY_NO_POWERS-1)
                         allocated = pow(2, BUDDY_NO_POWERS-1);
                 else
-                        allocated = pow(2, log2i(remaining));
+                        allocated = pow(2, log2i(remaining>>12));
+                allocated *= PAGESIZE;
                 struct vmem_buddy* buddy = kalloc(sizeof(*buddy));
                 if (buddy == NULL)
                         goto err_buddy;
@@ -144,6 +145,7 @@ vmem_buddy_set(struct vmem_buddy* buddy)
 
         size_t size = buddy->size >> 12;
         idx_t buddy_power = log2i(size);
+        debug("Buddy going to size: 2^%i * 0x1000\n", buddy_power);
         buddy->prev = NULL;
         buddy->next = buddy->system->buddies[buddy_power];
         buddy->system->buddies[buddy_power] = buddy;
