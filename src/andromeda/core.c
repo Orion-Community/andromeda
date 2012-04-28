@@ -129,10 +129,18 @@ void core_loop()
 #ifdef BUF_DBG
         buf_dbg();
 #endif
+#ifdef BUDDY_DBG
+        if (vmem_buddy_test() != -E_SUCCESS)
+                panic("The buddy system failed!!!");
+#endif
+#ifdef VMEM_DBG
         debug("Address of higher half: %X\n", (int)&higherhalf);
         debug("Address of end ptr:     %X\n", (int)&end);
+#endif
+#ifdef SPRINTF_DBG
         test_sprintf();
         test_calculation_functions();
+#endif
 
 //         uint32_t pid = 0;
 

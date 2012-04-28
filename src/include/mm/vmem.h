@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 
-#define BUDDY_NO_POWERS 9
+#define BUDDY_NO_POWERS 13
 
 /**
  * \struct vmem_branch

@@ -42,6 +42,8 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
 {
         if ((addr_t)base_ptr % PAGESIZE != 0 || size % PAGESIZE != 0)
                 goto err;
+        if ((addr_t)base_ptr % (addr_t)pow(2, BUDDY_NO_POWERS-1) != 0)
+                goto err;
 
         if (size < 0x80*PAGESIZE)
                 goto err;
@@ -54,6 +56,7 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
 
         size_t remaining = size;
         size_t allocated = 0;
+        debug("Remaining: %X\n", remaining);
         for (; PAGESIZE < remaining; remaining -= allocated)
         {
                 if (log2i(remaining) > BUDDY_NO_POWERS-1)
@@ -70,6 +73,7 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
                 buddy->system = system;
                 base_ptr += allocated;
                 vmem_buddy_set(buddy);
+                debug("Remaining: %X\tallocated: %X\n", remaining, allocated);
         }
         return system;
 
@@ -348,6 +352,50 @@ vmem_buddy_free(struct vmem_buddy_system* system, void* ptr)
         }
         mutex_unlock(&vmem_buddy_lock);
         return;
+}
+
+void
+vmem_buddy_dump(struct vmem_buddy_system* system)
+{
+        if (system == NULL)
+                return;
+
+        struct vmem_buddy* cariage = system->allocated;
+        debug("Allocated:\t");
+        if (cariage == NULL)
+                debug("Empty\n");
+        else
+        {
+                debug("\n");
+                for (;cariage != NULL; cariage = cariage->next)
+                        debug("ptr: %X\tsize: %X\n", (int)cariage->ptr, cariage->size);
+        }
+        int i = 0;
+        for (; i < BUDDY_NO_POWERS; i++)
+        {
+                cariage = system->buddies[i];
+                debug("2^%i * 0x1000:\n", i);
+                for (; cariage != NULL; cariage = cariage->next)
+                        debug("ptr: %X\tsize: %X\n", (int)cariage->ptr, cariage->size);
+        }
+}
+
+int
+vmem_buddy_test()
+{
+        int start_addr = end;
+        debug("end:  %X\t", start_addr);
+        int size = 0x80*PAGESIZE;
+        if ((int)&start_addr % PAGESIZE != 0)
+                start_addr += PAGESIZE - ((int)start_addr % PAGESIZE);
+        debug("start_addr: %X\n", start_addr);
+
+        void* start_ptr = (void*)start_addr;
+        struct vmem_buddy_system* s = vmem_buddy_system_init(start_ptr, size);
+        if (s == NULL)
+                return -E_GENERIC;
+        vmem_buddy_dump(s);
+        return -E_SUCCESS;
 }
 
 /**
