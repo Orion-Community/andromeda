@@ -42,7 +42,15 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
 {
         if ((addr_t)base_ptr % PAGESIZE != 0 || size % PAGESIZE != 0)
                 goto err;
-        if ((addr_t)base_ptr % (addr_t)pow(2, BUDDY_NO_POWERS-1) != 0)
+
+#ifdef INTEL
+        if ((1>>(log2i(size<<12)) >> 12 != size)
+                goto err;
+#else
+        if ((int)pow(2, log2i(size/PAGESIZE))*PAGESIZE != size)
+                goto err;
+#endif
+        if ((addr_t)base_ptr % size != 0)
                 goto err;
 
         if (size < 0x80*PAGESIZE)
@@ -56,7 +64,6 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
 
         size_t remaining = size;
         size_t allocated = 0;
-        debug("Remaining: %X\n", remaining);
         for (; PAGESIZE < remaining; remaining -= allocated)
         {
                 if (log2i(remaining>>12) > BUDDY_NO_POWERS-1)
@@ -385,11 +392,11 @@ vmem_buddy_dump(struct vmem_buddy_system* system)
 int
 vmem_buddy_test()
 {
-        int start_addr = end;
+        int start_addr = &end;
         debug("end:  %X\t", start_addr);
         int size = 0x80*PAGESIZE;
-        if ((int)&start_addr % PAGESIZE != 0)
-                start_addr += PAGESIZE - ((int)start_addr % PAGESIZE);
+        if ((int)&start_addr % size != 0)
+                start_addr += size - ((int)start_addr % size);
         debug("start_addr: %X\n", start_addr);
 
         void* start_ptr = (void*)start_addr;
