@@ -43,13 +43,21 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
         if ((addr_t)base_ptr % PAGESIZE != 0 || size % PAGESIZE != 0)
                 goto err;
 
-#ifdef INTEL
-        if ((1>>(log2i(size<<12)) >> 12 != size)
+        if (log2i(size/PAGESIZE) < BUDDY_NO_POWERS)
+        {
+#ifdef X86
+        if ((1>>(log2i(size<<12)) >> 12) % (addr_t)base_ptr != 0)
                 goto err;
 #else
-        if ((int)pow(2, log2i(size/PAGESIZE))*PAGESIZE != size)
+        if (((int)pow(2, log2i(size/PAGESIZE))*PAGESIZE) % (addr_t)base_ptr != 0)
                 goto err;
 #endif
+        }
+        else
+        {
+                if ((addr_t)base_ptr % ((int)pow(2, BUDDY_NO_POWERS)*PAGESIZE) != 0)
+                        goto err;
+        }
         if ((addr_t)base_ptr % size != 0)
                 goto err;
 
@@ -392,10 +400,10 @@ vmem_buddy_dump(struct vmem_buddy_system* system)
 int
 vmem_buddy_test()
 {
-        int start_addr = &end;
+        addr_t start_addr = (addr_t)&end;
         debug("end:  %X\t", start_addr);
-        int size = 0x80*PAGESIZE;
-        if ((int)&start_addr % size != 0)
+        addr_t size = 0x80*PAGESIZE;
+        if (start_addr % size != 0)
                 start_addr += size - ((int)start_addr % size);
         debug("start_addr: %X\n", start_addr);
 
