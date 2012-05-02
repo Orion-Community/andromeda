@@ -87,7 +87,9 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
                 buddy->system = system;
                 base_ptr += allocated;
                 vmem_buddy_set(buddy);
+#ifdef BUDDY_DBG
                 debug("Remaining: %X\tallocated: %X\n", remaining, allocated);
+#endif
         }
         return system;
 
@@ -131,10 +133,21 @@ vmem_buddy_purge(struct vmem_buddy* buddy)
                 buddy->prev->next = buddy->next;
         size_t size = buddy->size >> 12;
         idx_t buddy_power = log2i(size);
+#ifdef BUDDY_DBG
+        debug("Buddy of size %X being removed: %X\n",
+              size,
+              (int)buddy
+        );
+#endif
         if (buddy->system->buddies[buddy_power] == buddy)
+        {
                 buddy->system->buddies[buddy_power] = buddy->next;
+        }
         if (buddy->next != NULL)
                 buddy->next->prev = buddy->prev;
+
+        buddy->next = NULL;
+        buddy->prev = NULL;
 
         return -E_SUCCESS;
 }
@@ -156,9 +169,12 @@ vmem_buddy_set(struct vmem_buddy* buddy)
 
         size_t size = buddy->size >> 12;
         idx_t buddy_power = log2i(size);
+#ifdef BUDDY_DBG
         debug("Buddy going to size: 2^%i * 0x1000\n", buddy_power);
+#endif
         buddy->prev = NULL;
         buddy->next = buddy->system->buddies[buddy_power];
+        buddy->next->prev = buddy;
         buddy->system->buddies[buddy_power] = buddy;
 
         return -E_SUCCESS;
@@ -371,21 +387,43 @@ vmem_buddy_free(struct vmem_buddy_system* system, void* ptr)
                 return;
         mutex_lock(&vmem_buddy_lock);
         struct vmem_buddy* cariage = system->allocated;
+#ifdef BUDDY_DBG
+        debug("1: cariage: %X\n", (int)cariage);
+        demand_key();
+#endif
         for(;cariage != NULL; cariage = cariage->next)
         {
+#ifdef BUDDY_DBG
+                debug("2: Trying: %X\n", cariage);
+#endif
                 if (cariage->ptr == ptr)
                 {
+#ifdef BUDDY_DBG
+                        debug("3: Found: %X\n", (int) cariage);
+                        demand_key();
+                        debug("4: Searching for adjecent blocks\n");
+#endif
                         vmem_buddy_unmark(cariage);
                         struct vmem_buddy* adjecent = NULL;
                         while((adjecent = vmem_buddy_find_adjecent(cariage))
                                                                         != NULL)
                         {
+#ifdef BUDDY_DBG
+                                debug("4.1: Found: %X\n", (int)adjecent);
+#endif
                                 cariage = vmem_buddy_merge(cariage, adjecent);
                         }
+#ifdef BUDDY_DBG
+                        demand_key();
+#endif
                         mutex_unlock(&vmem_buddy_lock);
                         return;
                 }
         }
+#ifdef BUDDY_DBG
+        debug("X: Returning empty handed!\n");
+        demand_key();
+#endif
         mutex_unlock(&vmem_buddy_lock);
         return;
 }
