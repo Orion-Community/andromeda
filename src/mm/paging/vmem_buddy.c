@@ -58,8 +58,6 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
                 if ((addr_t)base_ptr % ((int)pow(2, BUDDY_NO_POWERS)*PAGESIZE) != 0)
                         goto err;
         }
-        if ((addr_t)base_ptr % size != 0)
-                goto err;
 
         if (size < 0x80*PAGESIZE)
                 goto err;
@@ -72,7 +70,7 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
 
         size_t remaining = size;
         size_t allocated = 0;
-        for (; PAGESIZE < remaining; remaining -= allocated)
+        for (; 0 < remaining; remaining -= allocated)
         {
                 if (log2i(remaining>>12) > BUDDY_NO_POWERS-1)
                         allocated = pow(2, BUDDY_NO_POWERS-1);
@@ -131,12 +129,10 @@ vmem_buddy_purge(struct vmem_buddy* buddy)
 
         if (buddy->prev != NULL)
                 buddy->prev->next = buddy->next;
-        else
-        {
-                size_t size = buddy->size >> 12;
-                idx_t buddy_power = log2i(size);
+        size_t size = buddy->size >> 12;
+        idx_t buddy_power = log2i(size);
+        if (buddy->system->buddies[buddy_power] == buddy)
                 buddy->system->buddies[buddy_power] = buddy->next;
-        }
         if (buddy->next != NULL)
                 buddy->next->prev = buddy->prev;
 
@@ -268,14 +264,13 @@ vmem_buddy_merge(struct vmem_buddy* a, struct vmem_buddy* b)
                 a = b;
                 b = c;
         }
+        vmem_buddy_purge(a);
+        vmem_buddy_purge(b);
         a->size += a->size;
-        if (b->prev != NULL)
-                b->prev->next = b->next;
-        if (b->next != NULL)
-                b->next->prev = b->prev;
+        vmem_buddy_set(a);
         memset(b, 0, sizeof(*b));
         kfree(b);
-        return NULL;
+        return a;
 }
 
 int
@@ -299,6 +294,8 @@ vmem_buddy_unmark(struct vmem_buddy* buddy)
 
         buddy->prev->next = buddy->next;
         buddy->next->prev = buddy->prev;
+        if (buddy->system->allocated == buddy)
+                buddy->system->allocated = buddy->next;
 
         vmem_buddy_set(buddy);
         return -E_SUCCESS;
@@ -317,27 +314,49 @@ vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
         idx_t buddy_power = log2i(size>>12);
         if (buddy_power > BUDDY_NO_POWERS)
                 return NULL;
-
+#ifdef BUDDY_DBG
+        debug("1: buddy power: %X\n", buddy_power);
+#endif
         mutex_lock(&vmem_buddy_lock);
 
         int i = buddy_power;
         for (; i < BUDDY_NO_POWERS; i++)
         {
+#ifdef BUDDY_DBG
+                debug("2.0: Trying %X: %X\n", i, system->buddies[i]);
+#endif
                 if (system->buddies[i] != NULL)
-                        continue;
+                        break;
         }
+#ifdef BUDDY_DBG
+        debug("2.1: selected: %X\n", i);
+        demand_key();
+#endif
         if (i > BUDDY_NO_POWERS)
                 goto err;
-        for (; i < buddy_power; i--)
+        for (; i > buddy_power; i--)
         {
+#ifdef BUDDY_DBG
+                debug("3: Going for the split of: %X\n", i);
+#endif
                 vmem_buddy_split(system->buddies[i]);
         }
+#ifdef BUDDY_DBG
+        demand_key();
+        debug("4: marking from: %X\n", i);
+#endif
         struct vmem_buddy* c = system->buddies[i];
         vmem_buddy_mark(c);
         mutex_unlock(&vmem_buddy_lock);
+#ifdef BUDDY_DBG
+        demand_key();
+#endif
         return c->ptr;
 
 err:
+#ifdef BUDDY_DBG
+        debug("5: Something went wrong\n");
+#endif
         mutex_unlock(&vmem_buddy_lock);
         return NULL;
 }
@@ -391,6 +410,8 @@ vmem_buddy_dump(struct vmem_buddy_system* system)
         for (; i < BUDDY_NO_POWERS; i++)
         {
                 cariage = system->buddies[i];
+                if (cariage == NULL)
+                        continue;
                 debug("2^%i * 0x1000:\n", i);
                 for (; cariage != NULL; cariage = cariage->next)
                         debug("ptr: %X\tsize: %X\n", (int)cariage->ptr, cariage->size);
@@ -401,17 +422,42 @@ int
 vmem_buddy_test()
 {
         addr_t start_addr = (addr_t)&end;
-        debug("end:  %X\t", start_addr);
-        addr_t size = 0x80*PAGESIZE;
-        if (start_addr % size != 0)
-                start_addr += size - ((int)start_addr % size);
+        addr_t size = 0x80*PAGESIZE; // Give me a nice size!
+        debug("end: %X\t", start_addr);
+        // Get the preconditions right ...
+        if (size > 1 >> BUDDY_NO_POWERS >> 12)
+        {
+                size_t power = ((size_t)pow(2, log2i(size/PAGESIZE))*PAGESIZE);
+                if (start_addr % power != 0)
+                        start_addr += power - start_addr % power;
+        }
+        else if (start_addr % size != 0)
+                start_addr += size - start_addr % size;
         debug("start_addr: %X\n", start_addr);
 
         void* start_ptr = (void*)start_addr;
+        // Now test the initialiser
+        debug("Init\n");
         struct vmem_buddy_system* s = vmem_buddy_system_init(start_ptr, size);
-        if (s == NULL)
-                return -E_GENERIC;
         vmem_buddy_dump(s);
+        if (s == NULL)
+                return -1;
+        demand_key();
+
+        // Now test allocation
+        debug("alloc\n");
+        void* tst = vmem_buddy_alloc(s, 4*PAGESIZE);
+        vmem_buddy_dump(s);
+        if (tst == NULL)
+                return -2;
+        demand_key();
+
+        // Test the freeing scheme ...
+        debug("free\n");
+        vmem_buddy_free(s, tst);
+        vmem_buddy_dump(s);
+        demand_key();
+
         return -E_SUCCESS;
 }
 
