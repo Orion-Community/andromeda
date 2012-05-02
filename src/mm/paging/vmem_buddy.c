@@ -46,16 +46,16 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
         if (log2i(size/PAGESIZE) < BUDDY_NO_POWERS)
         {
 #ifdef X86
-        if ((1>>(log2i(size<<12)) >> 12) % (addr_t)base_ptr != 0)
+        if ((1>>(log2i(size<<12))>>12) % (addr_t)base_ptr != 0)
                 goto err;
 #else
-        if (((int)pow(2, log2i(size/PAGESIZE))*PAGESIZE) % (addr_t)base_ptr != 0)
+        if (((int)pow(2,log2i(size/PAGESIZE))*PAGESIZE)%(addr_t)base_ptr!=0)
                 goto err;
 #endif
         }
         else
         {
-                if ((addr_t)base_ptr % ((int)pow(2, BUDDY_NO_POWERS)*PAGESIZE) != 0)
+                if ((addr_t)base_ptr%((int)pow(2,BUDDY_NO_POWERS)*PAGESIZE)!=0)
                         goto err;
         }
 
