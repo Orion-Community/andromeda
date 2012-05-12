@@ -69,6 +69,9 @@ struct vmem_buddy_system {
          */
         struct vmem_buddy* buddies[BUDDY_NO_POWERS];
         struct vmem_buddy* allocated;
+        struct vmem_buddy_system* next;
+        struct vmem_buddy_system* prev;
+        bool full;
 };
 
 /**

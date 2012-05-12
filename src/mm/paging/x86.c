@@ -127,6 +127,9 @@ x86_page_destroy_pd(struct page_dir* pd)
         return -E_NOFUNCTION;
 }
 
+/**
+ * Switch page tables
+ */
 int
 x86_page_set_list(struct task* list)
 {

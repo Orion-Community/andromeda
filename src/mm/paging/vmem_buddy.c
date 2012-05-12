@@ -23,6 +23,59 @@
 #include <mm/paging.h>
 #include <andromeda/error.h>
 
+static struct vmem_buddy_system* systems;
+static mutex_t systems_lock = mutex_unlocked;
+
+int vmem_buddy_register(struct vmem_buddy_system* system)
+{
+        if (system == NULL)
+                goto err;
+        mutex_lock(&systems_lock);
+        if (systems == NULL)
+        {
+                systems = system;
+                goto ret;
+        }
+
+        struct vmem_buddy_system* cariage = systems;
+        for (; cariage->next != NULL; cariage = cariage->next);
+
+        cariage->next = system;
+ret:
+        mutex_unlock(&systems_lock);
+        return -E_SUCCESS;
+err:
+        return -E_INVALID_ARG;
+}
+
+int vmem_buddy_unregister(struct vmem_buddy_system* system)
+{
+        if (system == NULL)
+                goto err;
+        if (systems == NULL)
+                return -E_NOT_YET_INITIALISED;
+
+        mutex_lock(&systems_lock);
+
+        if (system->prev != NULL)
+                system->prev->next = system->next;
+        if (system->next != NULL)
+                system->next->prev = system->prev;
+
+        if (systems == system)
+                systems = systems->next;
+        system->next = NULL;
+        system->prev = NULL;
+
+        mutex_unlock(&systems_lock);
+        return -E_SUCCESS;
+
+err_locked:
+        mutex_unlock(&systems_lock);
+err:
+        return -E_INVALID_ARG;
+}
+
 int vmem_buddy_set(struct vmem_buddy* buddy);
 
 /**
@@ -91,6 +144,8 @@ vmem_buddy_system_init(void* base_ptr, size_t size)
                 debug("Remaining: %X\tallocated: %X\n", remaining, allocated);
 #endif
         }
+        if (vmem_buddy_register(system) != -E_SUCCESS)
+                goto err_buddy;
         return system;
 
 err_buddy:
@@ -327,12 +382,17 @@ vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
 {
         if (system == NULL || size == 0)
                 return NULL;
+        if (system->full == TRUE)
+                return NULL;
+
         idx_t buddy_power = log2i(size>>12);
         if (buddy_power > BUDDY_NO_POWERS)
                 return NULL;
+
 #ifdef BUDDY_DBG
         debug("1: buddy power: %X\n", buddy_power);
 #endif
+
         mutex_lock(&vmem_buddy_lock);
 
         int i = buddy_power;
@@ -348,6 +408,7 @@ vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
         debug("2.1: selected: %X\n", i);
         demand_key();
 #endif
+
         if (i > BUDDY_NO_POWERS)
                 goto err;
         for (; i > buddy_power; i--)
@@ -361,12 +422,22 @@ vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
         demand_key();
         debug("4: marking from: %X\n", i);
 #endif
+
         struct vmem_buddy* c = system->buddies[i];
         vmem_buddy_mark(c);
         mutex_unlock(&vmem_buddy_lock);
 #ifdef BUDDY_DBG
         demand_key();
 #endif
+
+        int check = 0;
+        for (i = 0; i < BUDDY_NO_POWERS; i++)
+        {
+                if (system->buddies[i] != NULL)
+                        check++;
+        }
+        if (check == 0)
+                system->full = TRUE;
         return c->ptr;
 
 err:
@@ -416,6 +487,8 @@ vmem_buddy_free(struct vmem_buddy_system* system, void* ptr)
 #ifdef BUDDY_DBG
                         demand_key();
 #endif
+
+                        system->full = FALSE;
                         mutex_unlock(&vmem_buddy_lock);
                         return;
                 }
@@ -428,6 +501,7 @@ vmem_buddy_free(struct vmem_buddy_system* system, void* ptr)
         return;
 }
 
+#ifdef BUDDY_DBG
 void
 vmem_buddy_dump(struct vmem_buddy_system* system)
 {
@@ -481,6 +555,15 @@ vmem_buddy_test()
         if (s == NULL)
                 return -1;
         demand_key();
+        struct vmem_buddy_system* cariage = systems;
+        for (; cariage != NULL; cariage = cariage->next)
+        {
+                debug("Element at: %X\tElement is ");
+                if (cariage->full == FALSE)
+                        debug("not ");
+                debug("full\n");
+        }
+        demand_key();
 
         // Now test allocation
         debug("alloc\n");
@@ -498,7 +581,7 @@ vmem_buddy_test()
 
         return -E_SUCCESS;
 }
-
+#endif
 /**
  * @}
  * \file
