@@ -105,9 +105,9 @@ static struct task_head *sched_switch_epoch()
 
         sched_starvation_watchdog();
 
-        /*
+        /**
          * Create the new runnable epoch
-         * TODO: Make it work with max epoch size (SCHED_EPOCH_SIZE).
+         * \TODO: Make it work with max epoch size (SCHED_EPOCH_SIZE).
          */
         struct task_head *epoch = task_stack[SCHED_REALTIME_LIST].tail;
         if(epoch->next != NULL)

@@ -105,8 +105,7 @@ boolean setupCore(module_t mod)
 	return FALSE; //Doesn't get reached, ever, if all goes well
 }
 
-	// The main function
-
+// The main function
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
         init_heap();
@@ -143,7 +142,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         /** For now this is the temporary page table map */
         build_map(mmap, (unsigned int) hdr->mmap_length);
 
-        vmem_init();
+        vmem_init(); /// Start physical page allocation
 #ifdef VMEM_TEST
         vmem_test_tree();
 #endif
@@ -151,7 +150,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         task_init();
 
         page_init();
-        printf(WELCOME);
+        printf(WELCOME); // The only screen output that should be maintained
         setGDT();
         page_unmap_low_mem();
         pic_init();
