@@ -21,10 +21,13 @@ amd64:
 	@echo "Not yet implemented"
 
 .PHONY: x86
-x86: $(OUT)
+x86: $(DEPS)
+	$(MAKE) -C arch x86 $(MAKEEND)
+	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) *.o
 
-$(OUT): $(DEPS)
-	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) $(DEPS)
+avr: $(DEPS)
+	$(MAGE) -C arch avr $(MAKEEND)
+	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) *.o
 
 # start.o:
 # 	$(MAKE) -C boot $(MAKEEND)
