@@ -378,7 +378,7 @@ mutex_t vmem_buddy_lock = mutex_unlocked;
  * \todo Write the allocation function
  */
 void*
-vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size)
+vmem_buddy_system_alloc(struct vmem_buddy_system* system, size_t size)
 {
         if (system == NULL || size == 0)
                 return NULL;
@@ -452,7 +452,7 @@ err:
  * \todo Write the freeing function
  */
 void
-vmem_buddy_free(struct vmem_buddy_system* system, void* ptr)
+vmem_buddy_system_free(struct vmem_buddy_system* system, void* ptr)
 {
         if (ptr == NULL || system == NULL)
                 return;
@@ -477,7 +477,7 @@ vmem_buddy_free(struct vmem_buddy_system* system, void* ptr)
                         vmem_buddy_unmark(cariage);
                         struct vmem_buddy* adjecent = NULL;
                         while((adjecent = vmem_buddy_find_adjecent(cariage))
-                                                                        != NULL)
+                                                                       != NULL)
                         {
 #ifdef BUDDY_DBG
                                 debug("4.1: Found: %X\n", (int)adjecent);
@@ -516,7 +516,8 @@ vmem_buddy_dump(struct vmem_buddy_system* system)
         {
                 debug("\n");
                 for (;cariage != NULL; cariage = cariage->next)
-                        debug("ptr: %X\tsize: %X\n", (int)cariage->ptr, cariage->size);
+                        debug("ptr: %X\tsize: %X\n", (int)cariage->ptr,
+                                                                cariage->size);
         }
         int i = 0;
         for (; i < BUDDY_NO_POWERS; i++)
@@ -526,7 +527,8 @@ vmem_buddy_dump(struct vmem_buddy_system* system)
                         continue;
                 debug("2^%i * 0x1000:\n", i);
                 for (; cariage != NULL; cariage = cariage->next)
-                        debug("ptr: %X\tsize: %X\n", (int)cariage->ptr, cariage->size);
+                        debug("ptr: %X\tsize: %X\n", (int)cariage->ptr,
+                                                                cariage->size);
         }
 }
 
@@ -567,7 +569,7 @@ vmem_buddy_test()
 
         // Now test allocation
         debug("alloc\n");
-        void* tst = vmem_buddy_alloc(s, 4*PAGESIZE);
+        void* tst = vmem_buddy_system_alloc(s, 4*PAGESIZE);
         vmem_buddy_dump(s);
         if (tst == NULL)
                 return -2;
@@ -575,7 +577,7 @@ vmem_buddy_test()
 
         // Test the freeing scheme ...
         debug("free\n");
-        vmem_buddy_free(s, tst);
+        vmem_buddy_system_free(s, tst);
         vmem_buddy_dump(s);
         demand_key();
 

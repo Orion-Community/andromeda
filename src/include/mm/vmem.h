@@ -83,8 +83,8 @@ int vmem_test_tree();
 int vmem_init();
 void vmem_alloc_init();
 struct vmem_buddy_system* vmem_buddy_system_init(void* base_ptr, size_t size);
-void* vmem_buddy_alloc(struct vmem_buddy_system* system, size_t size);
-void vmem_buddy_free(struct vmem_buddy_system* system, void* ptr);
+void* vmem_buddy_system_alloc(struct vmem_buddy_system* system, size_t size);
+void vmem_buddy_system_free(struct vmem_buddy_system* system, void* ptr);
 int vmem_buddy_test();
 #ifdef __cplusplus
 }
