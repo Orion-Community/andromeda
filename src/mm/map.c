@@ -77,7 +77,8 @@ addr_t map_find_headoflist(addr_t idx)
 {
 	for (; page_map[idx].prev_idx != BMP_FREE; idx = page_map[idx].prev_idx)
 	{
-		if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx==BMP_FREE)
+		if (page_map[idx].next_idx == BMP_FREE &&
+                                               page_map[idx].prev_idx==BMP_FREE)
 			return -E_BMP_CORRUPT;
 	}
 	return idx;
@@ -202,7 +203,8 @@ addr_t map_alloc_page(addr_t list_idx)
 	mutex_lock(&map_lock);
 	for (; idx < map_size; idx++)
 	{
-		if (page_map[idx].next_idx == BMP_FREE && page_map[idx].prev_idx==BMP_FREE)
+		if (page_map[idx].next_idx == BMP_FREE &&
+                                              page_map[idx].prev_idx==BMP_FREE)
 		{
 			map_add_page(list_idx, idx);
 			mutex_unlock(&map_lock);
@@ -234,3 +236,4 @@ void map_show_list(addr_t list_idx)
 }
 
 /** \file */
+
