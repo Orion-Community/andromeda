@@ -64,6 +64,34 @@ struct pte_shadow {
         int state;
 };
 
+/**
+ * \fn pte_init
+ * \brief Setup the first pte administration
+ * \param kern_boundary
+ * \brief Where does the kernel start?
+ * \todo Write pte_init
+ *
+ * \fn pte_switch
+ * \brief Switch to pte mode
+ * \todo write pte_switch
+ *
+ * \fn pte_map
+ * \brief Map a virtual page to a physical one
+ * \param phys
+ * \param virt
+ * \param pte
+ * \todo Write pte_map
+ *
+ * \fn pte_unmap
+ * \brief Unmap a particular page
+ * \param phys
+ * \param pte
+ */
+int pte_init(void* kern_boundary);
+int pte_switch();
+int pte_map(void* virt, void* phys, struct pte_shadow* pte);
+int pte_unmap(void* virt, struct pte_shadow* pte);
+
 #ifdef __cplusplus
 };
 #endif
