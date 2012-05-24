@@ -25,6 +25,7 @@
 #define __MM_PTE_H
 
 #include <mm/paging.h>
+#include <defines.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +33,8 @@ extern "C" {
 
 struct pte_shadow;
 extern struct pte_shadow* pte_core;
+
+#define PTE_SIZE 0x400
 
 /**
  * \struct pte
@@ -43,7 +46,7 @@ struct pte {
          * \var page_table
          * \brief The page table entries
          */
-        struct page_table table[0x400];
+        struct page_table table[PTE_SIZE];
 };
 
 /**
@@ -57,41 +60,43 @@ struct pte_shadow {
          * \var children
          * \brief The virtual descriptor of the children
          * \var state
-         * \brief An integer indicating the condition the page table entry has
+         * \brief An integer indicating the condition of the page table entry
          */
         struct pte* pte;
-        struct pte_shadow* children[1024];
+        struct pte_shadow* children[PTE_SIZE];
+        struct pte_shadow* parent;
         int state;
 };
 
 /**
+ * \todo write pte_init
+ * \todo write pte_switch
+ * \todo write pte_map
+ * \todo write pte_unmap
+ *
  * \fn pte_init
  * \brief Setup the first pte administration
  * \param kern_boundary
  * \brief Where does the kernel start?
- * \todo Write pte_init
  *
  * \fn pte_switch
- * \brief Switch to pte mode
- * \todo write pte_switch
+ * \brief Make the pte system take over control of paging
  *
  * \fn pte_map
  * \brief Map a virtual page to a physical one
  * \param phys
  * \param virt
  * \param pte
- * \todo Write pte_map
  *
  * \fn pte_unmap
  * \brief Unmap a particular page
  * \param phys
  * \param pte
  */
-int pte_init(void* kern_boundary);
+int pte_init(void* kernel_offset, size_t kernel_size);
 int pte_switch();
 int pte_map(void* virt, void* phys, struct pte_shadow* pte);
 int pte_unmap(void* virt, struct pte_shadow* pte);
-
 #ifdef __cplusplus
 };
 #endif
