@@ -35,6 +35,9 @@ struct pte_shadow;
 extern struct pte_shadow* pte_core;
 
 #define PTE_SIZE 0x400
+#ifdef X86
+#define KERN_ADDR 0xC0000000
+#endif
 
 /**
  * \struct pte

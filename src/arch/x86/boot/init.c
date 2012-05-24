@@ -34,6 +34,7 @@
 #include <andromeda/elf.h>
 #include <mm/paging.h>
 #include <mm/map.h>
+#include <mm/pte.h>
 #include <interrupts/int.h>
 #include <arch/x86/idt.h>
 #include <boot/mboot.h>
@@ -109,6 +110,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         init_heap();
         textInit();
         complement_heap(&end, HEAPSIZE);
+        pte_init((void*)KERN_ADDR, (size_t)(&end - KERN_ADDR));
         addr_t tmp = (addr_t)hdr + offset;
         hdr = (multiboot_info_t*)tmp;
 
