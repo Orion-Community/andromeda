@@ -31,7 +31,8 @@
  */
 struct pte_shadow* pte_core = NULL;
 
-int pte_init(void* kernel_offset, size_t kernel_size)
+int
+pte_init(void* kernel_offset, size_t kernel_size)
 {
         if (kernel_offset == NULL)
                 return -E_NULL_PTR;
@@ -48,17 +49,9 @@ int pte_init(void* kernel_offset, size_t kernel_size)
         idx_t pte1_size = kernel_size;
         addr_t page_cntr = 0;
 #ifdef X86
-        /**
-         * \note Shift right 22 bits, gives pd (pte0) entry on x86
-         * \note Shift right 12 bits, gives pt (pte1) entry on x86
-         * \note 0x3FF is bitmask for the index
-         */
-#define PTE0_OFFSET 22
-#define PTE1_OFFSET 12
-#define PTE1_MASK 0x3FF
         idx >>= PTE0_OFFSET;
         pte0_size >>= PTE0_OFFSET;
-        pte1_size = (pte1_size >> PTE1_OFFSET) & PTE1_MASK;
+        pte1_size = (pte1_size >> PTE1_OFFSET) & PTE_MASK;
         for (; idx <= pte0_size; idx++)
         {
                 pte_core->children[idx] = kalloc(sizeof(*pte_core));
@@ -90,17 +83,77 @@ int pte_init(void* kernel_offset, size_t kernel_size)
         return -E_SUCCESS;
 }
 
-int pte_switch()
+struct pte_shadow*
+pte_add_shadow(struct pte_shadow* parent, idx_t idx, struct pte* pte)
+{
+        struct pte_shadow* pte_s = kalloc(sizeof(*pte_s));
+        if (pte_s == NULL)
+                return NULL;
+        memset(pte_s, 0, sizeof(*pte_s));
+
+        pte_s->pte = pte;
+        pte_s->parent = parent;
+        parent->children[idx] = pte_s;
+
+        return pte_s;
+}
+
+int
+pte_set_entry(idx_t idx, struct pte_shadow* pte, struct pte_shadow* child)
+{
+        if (pte == NULL)
+                return -E_NULL_PTR;
+        if (idx > PTE_SIZE)
+                return -E_INVALID_ARG;
+
+        if (child == NULL)
+        {
+                child = kalloc(sizeof(*child));
+                if (child == NULL)
+                        panic("Could not allocate memory for page operation");
+                memset(child, 0, sizeof(*child));
+        }
+
+        pte->children[idx] = child;
+
+        return -E_SUCCESS;
+}
+
+int
+x86_pte_set_entry(void* virt, void* phys, struct pte* pte)
 {
         return -E_NOFUNCTION;
 }
 
-int pte_map(void* virt, void* phys, struct pte_shadow* pte)
+int
+pte_switch()
 {
         return -E_NOFUNCTION;
 }
 
-int pte_unmap(void* virt, struct pte_shadow* pte)
+int
+pte_map(void* virt, void* phys, struct pte_shadow* pte)
+{
+        if (virt == NULL || phys == NULL || pte == NULL)
+                return -E_NULL_PTR;
+
+        addr_t v =  ((addr_t)virt >> PTE0_OFFSET) & PTE_MASK;
+        addr_t vv = ((addr_t)virt >> PTE1_OFFSET) & PTE_MASK;
+        addr_t p =  ((addr_t)phys >> PTE0_OFFSET) & PTE_MASK;
+        addr_t pp = ((addr_t)phys >> PTE1_OFFSET) & PTE_MASK;
+#ifdef X86
+        if (pte->children[v] == NULL)
+        {
+                pte_set_entry(v, pte, NULL);
+        }
+#else
+        panic("pte_map not defined for this architecture");
+#endif
+        return -E_NOFUNCTION;
+}
+
+int
+pte_unmap(void* virt, struct pte_shadow* pte)
 {
         return -E_NOFUNCTION;
 }

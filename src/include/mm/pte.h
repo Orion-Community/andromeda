@@ -34,10 +34,20 @@ extern "C" {
 struct pte_shadow;
 extern struct pte_shadow* pte_core;
 
-#define PTE_SIZE 0x400
 #ifdef X86
-#define KERN_ADDR 0xC0000000
-#endif
+#define KERN_ADDR THREE_GIB
+#define PTE_SIZE 0x400
+/**
+ * \note Shift right 22 bits, gives pd (pte0) entry on x86
+ * \note Shift right 12 bits, gives pt (pte1) entry on x86
+ * \note 0x3FF is bitmask for the index
+ */
+#define PTE0_OFFSET 22
+#define PTE1_OFFSET 12
+#define PTE_MASK 0x3FF
+
+#endif /* x86 */
+
 
 /**
  * \struct pte
@@ -62,6 +72,8 @@ struct pte_shadow {
          * \brief The virtual reference to the page table
          * \var children
          * \brief The virtual descriptor of the children
+         * \var parent
+         * \brief A reference to the parent for quick lookups
          * \var state
          * \brief An integer indicating the condition of the page table entry
          */
