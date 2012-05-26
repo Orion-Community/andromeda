@@ -40,6 +40,8 @@ extern "C" {
 #define GIB             0x40000000
 #define THREE_GIB       0xC0000000
 
+#define PGIDX(a) ((a >> 12) & 0xFFFFF)
+
 #endif /* X86 */
 
 #define CHECKALLIGN(a) ((a%PAGESIZE) ? FALSE : TRUE)

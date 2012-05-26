@@ -63,17 +63,17 @@ pte_init(void* kernel_offset, size_t kernel_size)
                 if (pte0_size != idx)
                         for (; i < PTE_SIZE; i++)
                         {
-                                pte_core->children[idx]->children[i] =
-                                                           (struct pte_shadow*)
-                                                                     page_cntr;
+                                ((struct pte_shadow*)(pte_core->children[idx]))
+                                                                ->children[i] =
+                                                              (void*)page_cntr;
                                 page_cntr += PAGESIZE;
                         }
                 else
                         for (; i < pte1_size; i++)
                         {
-                                pte_core->children[idx]->children[i] =
-                                                           (struct pte_shadow*)
-                                                                     page_cntr;
+                                ((struct pte_shadow*)(pte_core->children[idx]))
+                                                                ->children[i] =
+                                                              (void*)page_cntr;
                                 page_cntr += PAGESIZE;
                         }
         }
@@ -137,18 +137,17 @@ pte_map(void* virt, void* phys, struct pte_shadow* pte)
         if (virt == NULL || phys == NULL || pte == NULL)
                 return -E_NULL_PTR;
 
-        addr_t v =  ((addr_t)virt >> PTE0_OFFSET) & PTE_MASK;
-        addr_t vv = ((addr_t)virt >> PTE1_OFFSET) & PTE_MASK;
-        addr_t p =  ((addr_t)phys >> PTE0_OFFSET) & PTE_MASK;
-        addr_t pp = ((addr_t)phys >> PTE1_OFFSET) & PTE_MASK;
-#ifdef X86
-        if (pte->children[v] == NULL)
+        addr_t v = ((addr_t)virt) >> PTE_OFFSET;
+        struct pte_shadow* cariage = pte;
+        idx_t i = 0;
+        for (; i < PTE_DEEP; i++)
         {
-                pte_set_entry(v, pte, NULL);
+                if (cariage->children[v] == NULL)
+                        pte_set_entry(v, cariage, NULL);
+                cariage = (struct pte_shadow*)cariage -> children[v];
         }
-#else
-        panic("pte_map not defined for this architecture");
-#endif
+        cariage->children[v] = virt;
+
         return -E_NOFUNCTION;
 }
 

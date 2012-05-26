@@ -34,6 +34,12 @@ extern "C" {
 struct pte_shadow;
 extern struct pte_shadow* pte_core;
 
+/**
+ * \def PTE_OFFSET
+ * \brief Twelve bits have to be shifted out of the address, for the next idx
+ */
+#define PTE_OFFSET 12
+
 #ifdef X86
 #define KERN_ADDR THREE_GIB
 #define PTE_SIZE 0x400
@@ -45,6 +51,8 @@ extern struct pte_shadow* pte_core;
 #define PTE0_OFFSET 22
 #define PTE1_OFFSET 12
 #define PTE_MASK 0x3FF
+
+#define PTE_DEEP 2
 
 #endif /* x86 */
 
@@ -59,7 +67,7 @@ struct pte {
          * \var page_table
          * \brief The page table entries
          */
-        struct page_table table[PTE_SIZE];
+        struct page_table entry[PTE_SIZE];
 };
 
 /**
@@ -71,14 +79,14 @@ struct pte_shadow {
          * \var pte
          * \brief The virtual reference to the page table
          * \var children
-         * \brief The virtual descriptor of the children
+         * \brief A set of pointers to the leaves / branches of the pte table
          * \var parent
          * \brief A reference to the parent for quick lookups
          * \var state
          * \brief An integer indicating the condition of the page table entry
          */
         struct pte* pte;
-        struct pte_shadow* children[PTE_SIZE];
+        void* children[PTE_SIZE];
         struct pte_shadow* parent;
         int state;
 };
