@@ -48,6 +48,9 @@ pte_init(void* kernel_offset, size_t kernel_size)
         idx_t pte0_size = kernel_size;
         idx_t pte1_size = kernel_size;
         addr_t page_cntr = 0;
+
+        // Maybe this could use a better approach ...
+
 #ifdef X86
         idx >>= PTE0_OFFSET;
         pte0_size >>= PTE0_OFFSET;
@@ -122,6 +125,13 @@ pte_set_entry(idx_t idx, struct pte_shadow* pte, struct pte_shadow* child)
 int
 x86_pte_set_entry(void* virt, void* phys, struct pte* pte)
 {
+        if (pte == NULL)
+                return -E_NULL_PTR;
+        if (((addr_t)virt ^ (addr_t)phys) % PAGESIZE != 0)
+                return -E_INVALID_ARG;
+
+        // Do something
+
         return -E_NOFUNCTION;
 }
 
@@ -134,8 +144,15 @@ pte_switch()
 int
 pte_map(void* virt, void* phys, struct pte_shadow* pte)
 {
-        if (virt == NULL || phys == NULL || pte == NULL)
+        /**
+         * \note Virt and Phys can be NULL
+         * \note Virt ^ Phys % PAGESIZE must be 0
+         */
+        if (pte == NULL)
                 return -E_NULL_PTR;
+
+        if (((addr_t)virt ^ (addr_t)phys) % PAGESIZE != 0)
+                return -E_INVALID_ARG;
 
         addr_t v = ((addr_t)virt) >> PTE_OFFSET;
         struct pte_shadow* cariage = pte;
@@ -154,6 +171,13 @@ pte_map(void* virt, void* phys, struct pte_shadow* pte)
 int
 pte_unmap(void* virt, struct pte_shadow* pte)
 {
+        if (pte == NULL)
+                return -E_NULL_PTR;
+        if ((addr_t)virt % PAGESIZE != 0)
+                return -E_INVALID_ARG;
+
+        // Do something
+
         return -E_NOFUNCTION;
 }
 
