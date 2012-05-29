@@ -44,45 +44,15 @@ pte_init(void* kernel_offset, size_t kernel_size)
                 panic("Couldn't allocate memory for page adminsitration");
         memset(pte_core, 0, sizeof(*pte_core));
 
+        // New part
+
         addr_t idx = (addr_t)kernel_offset;
-        idx_t pte0_size = kernel_size;
-        idx_t pte1_size = kernel_size;
-        addr_t page_cntr = 0;
-
-        // Maybe this could use a better approach ...
-
-#ifdef X86
-        idx >>= PTE0_OFFSET;
-        pte0_size >>= PTE0_OFFSET;
-        pte1_size = (pte1_size >> PTE1_OFFSET) & PTE_MASK;
-        for (; idx <= pte0_size; idx++)
+        for (; idx < (addr_t)kernel_offset + kernel_size; idx += PAGESIZE)
         {
-                pte_core->children[idx] = kalloc(sizeof(*pte_core));
-                if (pte_core->children[idx] == NULL)
-                        panic("Out of memory in pte_init");
-                memset(pte_core->children[idx], 0, sizeof(*pte_core));
-
-                int i = 0;
-                if (pte0_size != idx)
-                        for (; i < PTE_SIZE; i++)
-                        {
-                                ((struct pte_shadow*)(pte_core->children[idx]))
-                                                                ->children[i] =
-                                                              (void*)page_cntr;
-                                page_cntr += PAGESIZE;
-                        }
-                else
-                        for (; i < pte1_size; i++)
-                        {
-                                ((struct pte_shadow*)(pte_core->children[idx]))
-                                                                ->children[i] =
-                                                              (void*)page_cntr;
-                                page_cntr += PAGESIZE;
-                        }
+                pte_map((void*)idx, (void*)(idx - (addr_t)kernel_offset),
+                                                                     pte_core);
         }
-#else
-        panic("pte_init not implemented!");
-#endif
+
         return -E_SUCCESS;
 }
 
@@ -138,6 +108,8 @@ x86_pte_set_entry(void* virt, void* phys, struct pte* pte)
 int
 pte_switch()
 {
+        // Do something
+
         return -E_NOFUNCTION;
 }
 
@@ -154,11 +126,12 @@ pte_map(void* virt, void* phys, struct pte_shadow* pte)
         if (((addr_t)virt ^ (addr_t)phys) % PAGESIZE != 0)
                 return -E_INVALID_ARG;
 
-        addr_t v = ((addr_t)virt) >> PTE_OFFSET;
         struct pte_shadow* cariage = pte;
         idx_t i = 0;
+        addr_t v = 0;
         for (; i < PTE_DEEP; i++)
         {
+                v = ((addr_t)virt) >> (PTE_OFFSET * i) & PTE_MASK;
                 if (cariage->children[v] == NULL)
                         pte_set_entry(v, cariage, NULL);
                 cariage = (struct pte_shadow*)cariage -> children[v];
@@ -177,6 +150,7 @@ pte_unmap(void* virt, struct pte_shadow* pte)
                 return -E_INVALID_ARG;
 
         // Do something
+
 
         return -E_NOFUNCTION;
 }
