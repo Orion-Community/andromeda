@@ -29,42 +29,43 @@ extern "C" {
 #define E_NOFUNCTION            0x2
 #define E_UNFINISHED            0x3
 
-#define E_PAGE_MAPPING          0x4
-#define E_PAGE_NORIGHTS         0x5
-#define E_PAGE_NOPAGE           0x6
-#define E_PAGE_NOMEM            0x7
+#define E_GENERIC               0x4
+#define E_NORIGHTS              0x5
+#define E_NOTFOUND              0x6
+#define E_CORRUPT               0x7
 
-#define E_BMP_NOMAP             0x8
-#define E_BMP_NOLIST            0x9
-#define E_BMP_NOIDX             0xA
-#define E_BMP_NOMEM             0xB
-#define E_BMP_CORRUPT           0xC
+#define E_PAGE_MAPPING          0x10
+#define E_PAGE_NORIGHTS         0x11
+#define E_PAGE_NOPAGE           0x12
+#define E_PAGE_NOMEM            0x13
 
-#define E_FS_INIT               0xD
-#define E_FS_SYNC               0xE
-#define E_FS_UNKNOWN            0xF
-#define E_FILE_NOFILE           0x10
-#define E_FILE_NOBUFFER         0x11
-#define E_FILE_COB              0x12 /* Cursor out of bounds */
-#define E_FILE_NOSTREAM         0x13
-#define E_STREAM_FAILURE        0x14
+#define E_BMP_NOMAP             0x20
+#define E_BMP_NOLIST            0x21
+#define E_BMP_NOIDX             0x22
+#define E_BMP_NOMEM             0x23
+#define E_BMP_CORRUPT           0x24
 
-#define E_HEAP_GENERIC          0x15
-#define E_NULL_PTR              0x16
-#define E_ALREADY_INITIALISED   0x17
+#define E_FS_INIT               0x30
+#define E_FS_SYNC               0x31
+#define E_FS_UNKNOWN            0x32
+#define E_FILE_NOFILE           0x33
+#define E_FILE_NOBUFFER         0x34
+#define E_FILE_COB              0x35 /* Cursor out of bounds */
+#define E_FILE_NOSTREAM         0x36
+#define E_STREAM_FAILURE        0x37
 
-#define E_TASK_NOSPACE          0x20
+#define E_HEAP_GENERIC          0x40
+#define E_NULL_PTR              0x41
+#define E_ALREADY_INITIALISED   0x42
 
-#define E_INVALID_ARG           0x30
-#define E_TOOLARGE_ARG          0x31
-#define E_OUTOFBOUNDS           0x32
+#define E_TASK_NOSPACE          0x50
 
-#define E_LOCKED                0x40
+#define E_INVALID_ARG           0x60
+#define E_TOOLARGE_ARG          0x61
+#define E_OUTOFBOUNDS           0x62
 
-#define E_GENERIC               0x100
-#define E_NORIGHTS              0x101
-#define E_NOTFOUND              0x102
-#define E_CORRUPT               0x103
+#define E_LOCKED                0x70
+
 
 #define E_CLEAN_PARENT          0x200
 

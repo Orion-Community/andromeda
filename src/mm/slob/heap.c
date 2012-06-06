@@ -52,19 +52,31 @@
 // }
 
 int
-heap_inset_block(volatile memory_node_t* heap, volatile memory_node_t *block)
+heap_inset_block(volatile memory_node_t* heap_l, volatile memory_node_t *block)
 {
-	if (heap == NULL || block == NULL)
+	if (heap_l == NULL || block == NULL)
 		return -E_HEAP_GENERIC;
 
 	addr_t block_address = (addr_t) block;
 
-	volatile memory_node_t *carriage = heap;
+	volatile memory_node_t *carriage = heap_l;
 	volatile memory_node_t *last = NULL;
 
-	for (; carriage != NULL && (addr_t)heap < block_address;
-                                                                last = carriage,
-                                                     carriage = carriage->next);
+        if ((addr_t)heap_l >= block_address)
+        {
+//                 heap = block;
+//                 block->next = heap_l;
+//                 heap_l->previous = block;
+//                 return -E_SUCCESS;
+                debug("Heap: %X\tblock: %X\n", (int) heap_l, (int)block);
+                panic("Un expected condition");
+        }
+
+        while (carriage != NULL && (addr_t)heap_l < block_address)
+        {
+                last = carriage;
+                carriage = carriage->next;
+        }
 	if (last == NULL)
 		return -E_HEAP_GENERIC;
 
@@ -94,7 +106,9 @@ heap_add_blocks(void* base, uint32_t size)
 	else
 	{
 		warning("Using untested feature in heap_add_blocks!\n");
+                debug("Node: %X\n", (int)node);
 		mutex_lock(&prot);
+                debug("Heap: %X\tnode: %X\n", (int)heap, (int)node);
 		if (heap_inset_block(heap, node) != -E_SUCCESS)
 			panic("Could not add blocks to map");
 		mutex_unlock(&prot);

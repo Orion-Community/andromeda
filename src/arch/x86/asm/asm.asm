@@ -40,129 +40,158 @@ pgbit	dd	0 ;Paging is disabled per default
 %include "asm/call.mac"
 
 halt:
-  pushfd
-  sti
-  hlt
-  popfd
-  ret
+        pushfd
+        sti
+        hlt
+        popfd
+        ret
 
 DetectAPIC:
-  enter
+        enter
 
-  call getVendor
-  cmp eax, 1
-  jnz .testAPIC
-  cmp eax, 2
-  jnz .testAPIC
-  jmp .err
+        push eax
+        push ebx
+        push edx
+
+        call getVendor
+        cmp eax, 1
+        jnz .testAPIC
+        cmp eax, 2
+        jnz .testAPIC
+        jmp .err
 
 .testAPIC:
-  mov eax, 1 ; prepare CPUID
-  cpuid ; Issue CPUID
+        mov eax, 1 ; prepare CPUID
+        cpuid ; Issue CPUID
 
-  and edx, 1<<9 ; mask the flag out
-  mov eax, edx ; return value to eax
+        and edx, 1<<9 ; mask the flag out
+        mov eax, edx ; return value to eax
 
-  return
+        pop edx
+        pop ebx
+        pop eax
+
+        return
 
 .err: ; invalid CPUID
-  xor eax, eax ; return -1
-  sub eax, 1
-  return
+        pop edx
+        pop ebx
+        pop eax
+
+        xor eax, eax ; return -1
+        sub eax, 1
+
+        return
 
 getVendor:
-  enter
-  xor eax, eax
-  cpuid
+        enter
+        push ebx
+        push ecx
+        push edx
+        xor eax, eax
+        cpuid
 
-  cmp ebx, "Genu"
-  jz .intel
-  cmp ebx, 0x68747541
-  jz .amdTest
-  xor eax, eax
-  return
+        cmp ebx, "Genu"
+        jz .intel
+        cmp ebx, 0x68747541
+        jz .amdTest
+        xor eax, eax
+        pop edx
+        pop ecx
+        pop ebx
+        return
 
 .intel:
-  mov eax, 1
-  return
+        mov eax, 1
+        pop edx
+        pop ecx
+        pop ebx
+        return
 
 .amdTest:
-  mov eax, 2
-  return
+        pop edx
+        pop ecx
+        pop ebx
+        mov eax, 2
+        return
 
 getCS:
-  xor eax, eax
-  mov ax, cs
-  ret
+        xor eax, eax
+        mov ax, cs
+        ret
 
 getDS:
-  xor eax, eax
-  mov ax, ds
-  ret
+        xor eax, eax
+        mov ax, ds
+        ret
 
 getSS:
-  xor eax, eax
-  mov ax, ss
-  ret
+        xor eax, eax
+        mov ax, ss
+        ret
 
 getESP:
-  xor eax, eax
-  mov eax, esp
-  ret
+        xor eax, eax
+        mov eax, esp
+        ret
 
 getCR2:
-  %ifdef X86
-  mov eax, cr2
-  %else
-  mov rax, cr3
-  %endif
-  ret
+        %ifdef X86
+        mov eax, cr2
+        %else
+        mov rax, cr3
+        %endif
+        ret
 
 getCR3:
-  %ifdef X86
-  mov eax, cr3
-  %else
-  mov rax, cr3
-  %endif
-  ret
+        %ifdef X86
+        mov eax, cr3
+        %else
+        mov rax, cr3
+        %endif
+        ret
 
 msg db "NOT YET IMPLEMEMENTED!", 0
 
 setCR3:
-  enter
-  mov eax, mutex
-  push eax
-  call mutex_lock
-  add esp, 4
+        enter
+        pusha
+        mov eax, mutex
+        push eax
+        call mutex_lock
+        add esp, 4
 %ifdef X86
-  mov eax, [ebp+8]
-  mov cr3, eax
+        mov eax, [ebp+8]
+        mov cr3, eax
 %else
-  mov rdi, msg
-  call panic
+        mov rdi, msg
+        call panic
 %endif
-  mov eax, mutex
-  push eax
-  call mutex_unlock
-  add esp, 4
-  return
+        mov eax, mutex
+        push eax
+        call mutex_unlock
+        add esp, 4
+        popa
+        return
 
 setPGBit:
-  mov eax, cr0
-  or eax, 0x80000000
-  mov cr0, eax
-  ret
+        push eax
+        mov eax, cr0
+        or eax, 0x80000000
+        mov cr0, eax
+        pop eax
+        ret
 
 intdbg:
-  int3
-  ret
+        int3
+        ret
 
 endProg:
-  cli
-  hlt
-  jmp endProg
+        cli
+        hlt
+        jmp endProg
 
 elfJump:
-  mov ebx, [esp+12] ; Give the modules in ebx
-  mov eax, [esp+8] ; Give the memory map in eax
-  jmp [esp+4] ; jump toward the argument, don't care about the stack
+        mov ebx, [esp+12] ; Give the modules in ebx
+        mov eax, [esp+8] ; Give the memory map in eax
+        jmp [esp+4] ; jump toward the argument, don't care about the stack

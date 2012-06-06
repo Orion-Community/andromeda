@@ -7,7 +7,8 @@ MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __PCI_DEBUG -D MSI -D \
 MSIX -D MSIX_DEBUG -D WARN -D MSG_DBG"
 # MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
-DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o
+DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o lib.o
+QEMU=qemu
 
 .PHONY: all
 all: x86
@@ -56,6 +57,9 @@ fs.o:
 net.o:
 	$(MAKE) -C net $(MAKEEND)
 
+lib.o:
+	$(MAKE) -C lib $(MAKEEND)
+
 .PHONY: clean
 clean:
 	rm -fv $(OUT)
@@ -63,12 +67,12 @@ clean:
 
 .PHONY: test
 test: all
-	kvm -kernel $(OUT) -net nic,model=rtl8139,vlan=0,macaddr=48:5d:60:bf:51:a9 \
+	$(QEMU) -kernel $(OUT) -net nic,model=rtl8139,vlan=0,macaddr=48:5d:60:bf:51:a9 \
 -net socket,vlan=0,connect=127.0.0.1:8080 -m 64M -monitor stdio
 
 .PHONY: ctest
 ctest: clean all
-	kvm -kernel $(OUT) -net nic,model=rtl8139,vlan=1,macaddr=c0:de:00:ba:be:00 -m 64M -monitor stdio
+	$(QEMU) -kernel $(OUT) -net nic,model=rtl8139,vlan=1,macaddr=c0:de:00:ba:be:00 -m 64M -monitor stdio
 
 .PHONY: install
 install: all

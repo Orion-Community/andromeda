@@ -37,10 +37,6 @@ absl(long double num)
 	return (num>0)?num:-num;
 }
 
-#ifndef __COMPRESSED
-extern long long pit_timer;
-#endif
-
 unsigned int seedTwo = 1; // Store the seeds
 unsigned int seedOne = 1;
 

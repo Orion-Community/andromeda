@@ -38,7 +38,7 @@ IRQ(timer_irq, irq, stack)
 VFIO(timer_write, file, data, size)
 {
         TIMER *timer = (TIMER*)data;
-        unsigned char cnf = 1;
+        unsigned char cnf = 1, i = 1;
         timer->config = timer->config & 0x7;
         while(timer->config)
         {
@@ -64,7 +64,7 @@ VFIO(timer_write, file, data, size)
                                 break;
                 }
                 timer->config &= (~cnf); /* disable just checked bit */
-                cnf <<= 1;
+                cnf = (++i)<<1;
                 if(cnf >= 1>>3)
                         break;
         }

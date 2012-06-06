@@ -13,15 +13,15 @@ PANIC=panic.c
 all: andromeda.o
 	mv -fv andromeda.o ../
 
-andromeda.o: load.o timer.o sched.o core.o syscall.o panic.o drivers.o buffer.o \
+andromeda.o: load.o ktimer.o sched.o core.o syscall.o panic.o drivers.o buffer.o \
 atomic.o lib.o
 	$(LD) $(LDFLAGS) *.o -o andromeda.o
 
 load.o: $(ELF)
 	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
 
-timer.o: $(TIMER)
-	$(CC) $(CFLAGS) $(FLAGS) $(TIMER)
+ktimer.o:
+	$(MAKE) -C timer/
 
 sched.o: $(SCHED)
 	$(CC) $(CFLAGS) $(FLAGS) $(SCHED)

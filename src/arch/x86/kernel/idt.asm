@@ -33,11 +33,11 @@ installIDT:
 
 [GLOBAL get_idt]
 get_idt:
-  push ebp
-  mov ebp, esp
+        push ebp
+        mov ebp, esp
 
-  sidt [idt_ptr]
-  mov eax, idt_ptr
+        sidt [idt_ptr]
+        mov eax, idt_ptr
 
-  pop ebp
-  ret
+        pop ebp
+        ret

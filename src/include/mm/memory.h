@@ -25,6 +25,8 @@
 extern "C" {
 #endif
 
+#define SIZE_MEG 0x100000
+
 void paging();
 void memset(void*, int, size_t);
 void memcpy(void*, void*, size_t);
