@@ -8,7 +8,11 @@ MSIX -D MSIX_DEBUG -D WARN -D MSG_DBG"
 # MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
 DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o lib.o
-QEMU=qemu
+ifeq ($(wildcard /etc/fedora-release),)
+	QEMU=qemu
+else
+	QEMU=qemu-system-i386
+endif
 
 .PHONY: all
 all: x86
