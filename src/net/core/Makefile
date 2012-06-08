@@ -10,7 +10,7 @@
 AS=nasm
 ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
 CC=gcc
-CCFLAGS=-I"../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
+CFLAGS=-I"../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
 -finline-functions-called-once -fno-builtin -nostdinc -O0 $(FLAGS)
 MAKE=make
 LD=ld
@@ -30,7 +30,7 @@ $(TARGET): $(OBJS)
 	$(LD) $(LDFLAGS) -o $(TARGET) $(OBJS)
 
 %o: %c
-	$(CC) $(CCFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $< -o $@
 
 
 #### Clean target deletes all generated files ####

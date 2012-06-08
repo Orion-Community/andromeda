@@ -15,6 +15,8 @@ ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
 INCDIR=-I../../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
+CFLAGS += $(INCDIR)
+
 TARGET=ktimer.o
 
 # source files..

@@ -23,7 +23,7 @@ def comment_check(line, linenumber, array):
                  ,"hint":"Change them over to C-style comments"})
 
 def tabs_check(line, linenumber, array):
-  if (bool(re.match("^ ",line))):
+  if (bool(re.match("^\t",line))):
     array.append({"line":linenumber
                  ,"msg":"Please use tabs as indentation"
                  ,"hint":"Change spaces to tabs"})
