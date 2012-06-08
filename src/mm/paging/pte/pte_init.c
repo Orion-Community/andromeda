@@ -88,21 +88,31 @@ pte_set_entry(idx_t idx, struct pte_shadow* pte, struct pte_shadow* child)
         }
 
         pte->children[idx] = child;
+        pte->state ++;
 
         return -E_SUCCESS;
 }
 
+addr_t
+x86_get_phys(addr_t virt)
+{
+        return -E_NOFUNCTION;
+}
+
 int
-x86_pte_set_entry(void* virt, void* phys, struct pte* pte)
+x86_pte_set_entry(struct pte_shadow* pte, idx_t idx, void* phys)
 {
         if (pte == NULL)
                 return -E_NULL_PTR;
-        if (((addr_t)virt ^ (addr_t)phys) % PAGESIZE != 0)
+        if (idx > PTE_SIZE)
                 return -E_INVALID_ARG;
 
-        // Do something
+        if (pte->pte == NULL)
+                return -E_NULL_PTR;
 
-        return -E_NOFUNCTION;
+        pte->pte->entry[idx].pageIdx = (addr_t)phys >> PTE_OFFSET;
+
+        return -E_SUCCESS;
 }
 
 int
@@ -142,6 +152,28 @@ pte_map(void* virt, void* phys, struct pte_shadow* pte)
 }
 
 int
+pte_runmap(void* virt, struct pte_shadow* pte, idx_t deep)
+{
+        if (pte == NULL)
+                return -E_NULL_PTR;
+
+        addr_t v = (addr_t)virt >> (PTE_OFFSET * deep) & PTE_MASK;
+        if (deep != 0)
+        {
+                int ret = pte_runmap(virt, pte, deep--);
+                if (ret != -E_SUCCESS)
+                        return ret;
+        }
+        struct pte_shadow* tmp = pte->children[v];
+        if (tmp->state == NULL && tmp->pte == NULL)
+        {
+                pte->state--;
+                pte->children[v] = NULL;
+        }
+        return -E_SUCCESS;
+}
+
+int
 pte_unmap(void* virt, struct pte_shadow* pte)
 {
         if (pte == NULL)
@@ -149,9 +181,18 @@ pte_unmap(void* virt, struct pte_shadow* pte)
         if ((addr_t)virt % PAGESIZE != 0)
                 return -E_INVALID_ARG;
 
-        // Do something
+        return pte_runmap(virt, pte, PTE_DEEP);
+}
 
+// Implement the page in the architectual layer
+int pte_implement()
+{
+        return -E_NOFUNCTION;
+}
 
+// Purge the page from the architectual layer
+int pte_purge()
+{
         return -E_NOFUNCTION;
 }
 
