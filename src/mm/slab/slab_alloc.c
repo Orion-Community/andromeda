@@ -15,41 +15,51 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#include <mm/cache.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <mm/cache.h>
 
-static struct mm_cache* caches = NULL;
-static mutex_t init_lock = mutex_unlocked;
+#ifdef SLAB
 
-int
-cache_init(char* name, size_t obj_size, size_t cache_size)
+
+/**
+ * \AddToGroup slab
+ * @{
+ */
+
+/**
+ * \todo Build mm_cache_alloc
+ * \todo Build mm_cache_free
+ * \todo Build kmem_alloc
+ * \todo Build kmem_free
+ */
+void* mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
 {
-
-        return -E_NOFUNCTION;
+        if (cache == NULL || flags == 0)
+                return NULL;
+        return NULL;
 }
 
-int
-init_slab()
+void mm_cache_free()
 {
-        mutex_lock(&init_lock);
-        if (caches != NULL)
-        {
-                mutex_unlock(&init_lock);
-                return -E_ALREADY_INITIALISED;
-        }
-
-        caches = kalloc(sizeof(struct list));
-        if (caches == NULL)
-        {
-                mutex_unlock(&init_lock);
-                return -E_NOMEM;
-        }
-        memset(caches, 0, sizeof(struct list));
-        mutex_unlock(&init_lock);
-
-        return -E_NOFUNCTION;
 }
 
-/** \file */
+void* kmem_alloc(size_t size, uint16_t flags)
+{
+        if (size == 0 || flags == 0)
+                return NULL;
+
+        return NULL;
+}
+
+void kmem_free()
+{
+}
+
+
+/**
+ * @}
+ *\file
+ */
+
+#endif

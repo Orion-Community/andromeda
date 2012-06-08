@@ -38,3 +38,4 @@ get_cpu_tick()
         unsigned long long ret = time->low;
         ret |= ((unsigned long long)(time->high)) << 32;
 }
+

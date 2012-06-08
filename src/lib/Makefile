@@ -16,7 +16,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 MAKE_FLAGS=FLAGS="$(FLAGS) "
 TARGET=lib.o
 
-OBJS=list.o
+OBJS=list.o stdio.o
 
 .PHONY: all
 all: $(TARGET)
@@ -25,6 +25,10 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(LD) $(LDFLAGS) -o $(TARGET) $(OBJS)
 
-.PHONY: list.o
+.PHONY: list.o stdio.o
 list.o:
 	$(MAKE) -C list $(MAKE_FLAGS)
+
+stdio.o:
+	$(MAKE) -C stdio $(MAKE_FLAGS)
+

@@ -68,7 +68,7 @@ heap_inset_block(volatile memory_node_t* heap_l, volatile memory_node_t *block)
 //                 block->next = heap_l;
 //                 heap_l->previous = block;
 //                 return -E_SUCCESS;
-                debug("Heap: %X\tblock: %X\n", (int) heap_l, (int)block);
+                printf("Heap: %X\tblock: %X\n", (int) heap_l, (int)block);
                 panic("Un expected condition");
         }
 
@@ -105,10 +105,7 @@ heap_add_blocks(void* base, uint32_t size)
 	}
 	else
 	{
-		warning("Using untested feature in heap_add_blocks!\n");
-                debug("Node: %X\n", (int)node);
 		mutex_lock(&prot);
-                debug("Heap: %X\tnode: %X\n", (int)heap, (int)node);
 		if (heap_inset_block(heap, node) != -E_SUCCESS)
 			panic("Could not add blocks to map");
 		mutex_unlock(&prot);

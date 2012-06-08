@@ -60,36 +60,22 @@ Contributing
 ------------
 
 This kernel is free software and we welcome contributions of any form. Below is
-a list of possible things you could help with. Or you could just scratch your
+a list of possible things you could help with, or you could just scratch your
 own itch, that's just fine.
 
-Sprint 1
---------
+TODO
+----
 
-Deadline: 07-03-2012
-
-* provide task switching mechanism (Mechanism)
-* Make a multitasking system (Policy)
-* Fork the first kernel process (Policy)
-* Implement systemcalls policy (Policy)
-* Make stdio go through streams (stdin, stdout, stderr) (Policy)
-* Implement pipes and streams through files (Policy)
-
-Sprint 2
---------
-
-Deadline: 07-09-2012
-
-* Allow kernel to use provided memory map (Mechanism)
-* enable process protection mechanism (userspace) (Mechanism)
-* Make the kernel actually use the memory map (Dynamically scale heap) (Policy)
-* Build process protection policy (userspace) (Policy)
-
-Sprint 3
---------
-
-Deadline: 07-03-2013
-
-* Read an initrd from Grub (Mechanism)
-* Mount the initrd (Policy)
-* start the first task from initrd (Policy)
+* Provide a task swiching mechanism (in progress)
+* Make a multitasking policy (in progress)
+* Fork the first process
+* Implement systemcalls (made start, no progress)
+* Make stdin, stdout and stderr go through streams
+* Implement pipes and stream through files
+* Make kernel interpret memory map (complete)
+* Make kernel use memory map (complete)
+* Enable process protection mechanism (in progress)
+* Build process protection policy
+* Get the initrd from Grub
+* Mount the initrd
+* Start first task (/bin/init) from initrd

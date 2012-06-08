@@ -6,15 +6,17 @@ LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 .PHONY: all
-all: arch.o
+all: x86
 	mv -fv arch.o ../
 
-arch.o: x86.o
-	$(LD) $(LDFLAGS) *.o -o arch.o
-
-
-.PHONY: x86.o
-x86.o:
+.PHONY: x86
+x86:
 
 	$(MAKE) $(MAKEEND) -C x86
-	mv -fv x86/x86.o ./
+	mv -fv x86/x86.o ./arch.o
+
+
+.PHONY: avr
+avr:
+	$(MAKE) $(MAKEEND) -C avr
+	mv -fv avr/avr.o ./arch.o

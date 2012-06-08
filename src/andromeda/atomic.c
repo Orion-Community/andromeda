@@ -80,7 +80,7 @@ int64_t
 semaphore_inc(semaphore_t* s)
 {
         boolean condition = FALSE;
-        int64_t ret;
+        int64_t ret = 0;
         while (condition == FALSE)
         {
                 mutex_lock(&s->lock);
@@ -100,7 +100,7 @@ int64_t
 semaphore_dec(semaphore_t* s)
 {
         boolean condition = FALSE;
-        int64_t ret;
+        int64_t ret = 0;
         while (condition == FALSE)
         {
                 mutex_lock(&s->lock);

@@ -1,9 +1,11 @@
+#include ../../../scripts/makeIncl
 # compliler shizle
 AS=nasm
 ASFLAGS=-felf32 -I"../../../include/" $(FLAGS)
 CC=gcc
 CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
  -fno-builtin -nostdinc -finline-functions-called-once $(FLAGS)
+#CCFLAGS:=$(CFLAGS) -I"../../../include"
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
@@ -36,7 +38,7 @@ PIC_SRC=pic.c
 PIT_SRC=pit.c
 TASK_SRC=task.c
 KERNEL_DEPS=$(IDT) $(IDT2) $(IRQ) $(IRQ2) $(ISR) $(ISR2) $(PIC) $(PIT) $(APIC) \
-$(ACPI) $(CPU) $(SCHED) $(TIMER) $(CLOCK)
+$(ACPI) $(CPU) $(SCHED) $(TIMER) $(CLOCK) $(TASK)
 
 
 .PHONY: all $(APIC) $(ACPI) $(CPU)
@@ -84,7 +86,7 @@ $(TASK): $(TASK_SRC)
 
 $(TIMER): timer.c
 	$(CC) $(CCFLAGS) timer.c -o $(TIMER)
-	
+
 $(CLOCK): clock.c clock.h
 	$(CC) $(CCFLAGS) clock.c -o $(CLOCK)
 

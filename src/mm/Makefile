@@ -11,7 +11,7 @@ all: mm.o
 	mv -fv mm.o ../
 
 mm.o: map.o memory.o test.o slob.o slab.o paging.o
-	$(LD) -o mm.o *.o $(LDFLAGS)
+	$(LD) $(LDFLAGS) -o mm.o *.o
 
 slob.o:
 	$(MAKE) -C slob/
