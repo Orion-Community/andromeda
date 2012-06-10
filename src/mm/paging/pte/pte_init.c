@@ -31,6 +31,7 @@
  */
 struct pte_shadow* pte_core = NULL;
 
+// Initialise the pte system
 int
 pte_init(void* kernel_offset, size_t kernel_size)
 {
@@ -44,8 +45,6 @@ pte_init(void* kernel_offset, size_t kernel_size)
                 panic("Couldn't allocate memory for page adminsitration");
         memset(pte_core, 0, sizeof(*pte_core));
 
-        // New part
-
         addr_t idx = (addr_t)kernel_offset;
         for (; idx < (addr_t)kernel_offset + kernel_size; idx += PAGESIZE)
         {
@@ -56,6 +55,7 @@ pte_init(void* kernel_offset, size_t kernel_size)
         return -E_SUCCESS;
 }
 
+// Add a shadow pte to an existing one
 struct pte_shadow*
 pte_add_shadow(struct pte_shadow* parent, idx_t idx, struct pte* pte)
 {
@@ -71,6 +71,7 @@ pte_add_shadow(struct pte_shadow* parent, idx_t idx, struct pte* pte)
         return pte_s;
 }
 
+// Set a shadow pte entry
 int
 pte_set_entry(idx_t idx, struct pte_shadow* pte, struct pte_shadow* child)
 {
@@ -93,12 +94,14 @@ pte_set_entry(idx_t idx, struct pte_shadow* pte, struct pte_shadow* child)
         return -E_SUCCESS;
 }
 
+// Return the physical address of some virtual one
 addr_t
-x86_get_phys(addr_t virt)
+pte_get_phys(addr_t virt)
 {
         return -E_NOFUNCTION;
 }
 
+// Set some x86 dependent pte entry
 int
 x86_pte_set_entry(struct pte_shadow* pte, idx_t idx, void* phys)
 {
@@ -115,6 +118,7 @@ x86_pte_set_entry(struct pte_shadow* pte, idx_t idx, void* phys)
         return -E_SUCCESS;
 }
 
+// Switch pte contexts
 int
 pte_switch()
 {
@@ -123,6 +127,7 @@ pte_switch()
         return -E_NOFUNCTION;
 }
 
+// Map physical region into a virtual one
 int
 pte_map(void* virt, void* phys, struct pte_shadow* pte)
 {
@@ -151,13 +156,14 @@ pte_map(void* virt, void* phys, struct pte_shadow* pte)
         return -E_NOFUNCTION;
 }
 
+// Recursively unmap a virtual address
 int
 pte_runmap(void* virt, struct pte_shadow* pte, idx_t deep)
 {
         if (pte == NULL)
                 return -E_NULL_PTR;
 
-        addr_t v = (addr_t)virt >> (PTE_OFFSET * deep) & PTE_MASK;
+        addr_t v = (addr_t)virt >> (PTE_OFFSET * (PTE_DEEP - deep)) & PTE_MASK;
         if (deep != 0)
         {
                 int ret = pte_runmap(virt, pte, deep--);
@@ -173,6 +179,7 @@ pte_runmap(void* virt, struct pte_shadow* pte, idx_t deep)
         return -E_SUCCESS;
 }
 
+// Unmap a virtual address
 int
 pte_unmap(void* virt, struct pte_shadow* pte)
 {
