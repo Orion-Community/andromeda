@@ -96,9 +96,21 @@ pte_set_entry(idx_t idx, struct pte_shadow* pte, struct pte_shadow* child)
 
 // Return the physical address of some virtual one
 addr_t
-pte_get_phys(addr_t virt)
+pte_get_phys(addr_t virt, struct pte_shadow* pte)
 {
-        return -E_NOFUNCTION;
+        if (pte == NULL)
+                return -E_NULL_PTR;
+
+        int i = 0;
+        struct pte_shadow* cariage = pte;
+        for (; i < PTE_DEEP; i++)
+        {
+                addr_t v = virt >> (PTE_OFFSET * i) & PTE_MASK;
+                if (cariage->children[v] == NULL)
+                        return -E_CORRUPT;
+                cariage = cariage->children[v];
+        }
+        return (addr_t)cariage;
 }
 
 // Set some x86 dependent pte entry
@@ -153,7 +165,7 @@ pte_map(void* virt, void* phys, struct pte_shadow* pte)
         }
         cariage->children[v] = virt;
 
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
 }
 
 // Recursively unmap a virtual address
