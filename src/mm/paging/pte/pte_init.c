@@ -19,6 +19,7 @@
 #include <mm/pte.h>
 #include <andromeda/error.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <defines.h>
 
 /**
@@ -183,7 +184,7 @@ pte_runmap(void* virt, struct pte_shadow* pte, idx_t deep)
                         return ret;
         }
         struct pte_shadow* tmp = pte->children[v];
-        if (tmp->state == NULL && tmp->pte == NULL)
+        if (tmp->state == 0 && tmp->pte == NULL)
         {
                 pte->state--;
                 pte->children[v] = NULL;
@@ -214,5 +215,35 @@ int pte_purge()
 {
         return -E_NOFUNCTION;
 }
+#ifdef PTE_DBG
+void pte_dump_tree(struct pte_shadow* pte, char* prefix)
+{
+        if (pte == NULL)
+                return;
+
+        int i = 0;
+        for (; i < PTE_SIZE; i++)
+        {
+                if (pte->children[i] == NULL)
+                        continue;
+                printf("%s - %X = %X\n", prefix, i, pte->children[i]);
+                char* pref = kalloc(255);
+                if (pref == NULL)
+                        return;
+                memset(pref, 0, 255);
+                sprintf(pref, "%s - %X -", prefix, i);
+                pte_dump_tree(pte->children[i], pref);
+                kfree(pref);
+        }
+}
+
+int pte_test(struct pte_shadow* pte)
+{
+        if (pte == NULL)
+                return -E_NULL_PTR;
+
+
+}
+#endif
 
 /**  @}\file */
