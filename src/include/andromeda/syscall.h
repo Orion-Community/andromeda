@@ -50,7 +50,20 @@ extern "C" {
 #define SYS_HIBERNATE   0x32
 #define SYS_STANDBY     0x33
 
-int syscall(int call_number, int arg1, int arg2, int arg3);
+/**
+ * \struct syscall
+ * \brief The system call discriptor
+ */
+
+typedef int (*sc)(reg arg1, reg arg2, reg arg3);
+struct syscall {
+        int cpl;
+        sc syscall;
+};
+
+int sc_install(uint16_t idx, sc call, uint8_t cpl);
+int sc_uninstall(uint16_t idx);
+int sc_call(uint16_t idx, uint8_t cpl, reg reg1, reg reg2, reg reg3);
 
 #ifdef __cplusplus
 }
