@@ -216,7 +216,7 @@ int pte_purge()
         return -E_NOFUNCTION;
 }
 #ifdef PTE_DBG
-void pte_dump_tree(struct pte_shadow* pte, char* prefix)
+void pte_dump_tree(struct pte_shadow* pte, char* prefix, int depth)
 {
         if (pte == NULL)
                 return;
@@ -226,15 +226,18 @@ void pte_dump_tree(struct pte_shadow* pte, char* prefix)
         {
                 if (pte->children[i] == NULL)
                         continue;
-                printf("%s %X = %X\n", prefix, i, pte->children[i]);
+                printf("%s%X = %X\n", prefix, i, pte->children[i]);
+                if (depth == PTE_DEEP)
+                        continue;
                 char* pref = kalloc(255);
                 if (pref == NULL)
                         return;
                 memset(pref, 0, 255);
-                sprintf(pref, "%s %X - ", prefix, i);
-                pte_dump_tree(pte->children[i], pref);
+                sprintf(pref, "%s%X-", prefix, i);
+                pte_dump_tree(pte->children[i], pref, depth+1);
                 kfree(pref);
         }
+        demand_key();
 }
 
 int pte_test()
@@ -243,8 +246,13 @@ int pte_test()
                 return -E_NULL_PTR;
 
         printf("Dumping pte tree\n");
+        addr_t idx = 0;
+        for (idx; idx < 0x40000000; idx += PAGESIZE)
+        {
+                pte_map((void*)(idx+THREE_GIB), (void*)idx, pte_core);
+        }
 
-        pte_dump_tree(pte_core, "");
+        pte_dump_tree(pte_core, "", 0);
 
         printf("\n\n");
         return -E_SUCCESS;

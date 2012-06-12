@@ -154,7 +154,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         page_init();
         printf(WELCOME); // The only screen output that should be maintained
-        pte_test();
         setGDT();
         page_unmap_low_mem();
         pic_init();
@@ -201,6 +200,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 printf("MP specification signature: 0x%x\n", systables->mp->signature);
         }
 #endif
+        pte_test();
         core_loop();
         return 0; // To keep the compiler happy.
 }
