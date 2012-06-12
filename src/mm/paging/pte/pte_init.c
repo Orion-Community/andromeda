@@ -46,6 +46,12 @@ pte_init(void* kernel_offset, size_t kernel_size)
                 panic("Couldn't allocate memory for page adminsitration");
         memset(pte_core, 0, sizeof(*pte_core));
 
+        debug(
+                "koffset:\t%X\n"
+                "ksize:\t\t%X\n",
+               (uint32_t)kernel_offset,
+               (uint32_t)kernel_size
+        );
         addr_t idx = (addr_t)kernel_offset;
         for (; idx < (addr_t)kernel_offset + kernel_size; idx += PAGESIZE)
         {
@@ -159,7 +165,7 @@ pte_map(void* virt, void* phys, struct pte_shadow* pte)
         addr_t v = 0;
         for (; i < PTE_DEEP; i++)
         {
-                v = ((addr_t)virt) >> (PTE_OFFSET * i) & PTE_MASK;
+                v = ((addr_t)virt) >> (PTE_OFFSET * (PTE_DEEP - i)) & PTE_MASK;
                 if (cariage->children[v] == NULL)
                         pte_set_entry(v, cariage, NULL);
                 cariage = (struct pte_shadow*)cariage -> children[v];
@@ -226,15 +232,19 @@ void pte_dump_tree(struct pte_shadow* pte, char* prefix, int depth)
         {
                 if (pte->children[i] == NULL)
                         continue;
+
                 printf("%s%X = %X\n", prefix, i, pte->children[i]);
-                if (depth == PTE_DEEP)
+                if (depth == PTE_DEEP-1)
                         continue;
+
                 char* pref = kalloc(255);
                 if (pref == NULL)
                         return;
                 memset(pref, 0, 255);
+
                 sprintf(pref, "%s%X-", prefix, i);
                 pte_dump_tree(pte->children[i], pref, depth+1);
+
                 kfree(pref);
         }
         demand_key();
@@ -246,11 +256,6 @@ int pte_test()
                 return -E_NULL_PTR;
 
         printf("Dumping pte tree\n");
-        addr_t idx = 0;
-        for (idx; idx < 0x40000000; idx += PAGESIZE)
-        {
-                pte_map((void*)(idx+THREE_GIB), (void*)idx, pte_core);
-        }
 
         pte_dump_tree(pte_core, "", 0);
 
