@@ -150,7 +150,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #ifdef VMEM_TEST
         vmem_test_tree();
 #endif
-
         task_init();
 
         page_init();
@@ -200,6 +199,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 *(((uint32_t*) systables->rsdp->signature)));
                 printf("MP specification signature: 0x%x\n", systables->mp->signature);
         }
+#endif
+#ifdef PTE_DBG
+        pte_test();
 #endif
         core_loop();
         return 0; // To keep the compiler happy.
