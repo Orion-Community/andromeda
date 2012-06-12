@@ -31,6 +31,7 @@ extern "C" {
 
 #define E_GENERIC               0x4
 #define E_NORIGHTS              0x5
+#define E_UNAUTHORISED          E_NORIGHTS
 #define E_NOTFOUND              0x6
 #define E_CORRUPT               0x7
 

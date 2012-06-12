@@ -46,12 +46,14 @@ pte_init(void* kernel_offset, size_t kernel_size)
                 panic("Couldn't allocate memory for page adminsitration");
         memset(pte_core, 0, sizeof(*pte_core));
 
+#ifdef PTE_DBG
         debug(
                 "koffset:\t%X\n"
                 "ksize:\t\t%X\n",
                (uint32_t)kernel_offset,
                (uint32_t)kernel_size
         );
+#endif
         addr_t idx = (addr_t)kernel_offset;
         for (; idx < (addr_t)kernel_offset + kernel_size; idx += PAGESIZE)
         {

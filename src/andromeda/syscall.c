@@ -18,48 +18,50 @@
 
 #include <andromeda/syscall.h>
 #include <andromeda/sched.h>
+#include <andromeda/error.h>
+#include <stdlib.h>
 
-int syscall(int call_number, int arg1, int arg2, int arg3)
+#define SC_LIST_SIZE 0x100
+
+struct syscall sc_list[SC_LIST_SIZE] = {
+        {0, NULL},
+        {0, NULL},
+        {0, NULL}
+};
+
+int sc_install (uint16_t idx, sc call, uint8_t cpl)
 {
-	switch(call_number)
-	{
-	case SYS_WRITE:
-	case SYS_READ:
-	case SYS_OPEN:
-	case SYS_CLOSE:
-	case SYS_CREATE:
-		panic("File system related system calls aren't supported yet!");
-		break;
+        if (idx < SC_LIST_SIZE)
+                return -E_INVALID_ARG;
+        if (call == NULL)
+                return -E_NULL_PTR;
+        if (sc_list[idx].syscall != NULL)
+                return -E_ALREADY_INITIALISED;
 
-	case SYS_YIELD:
-		panic("Process related system calls aren't supported yet!");
-		break;
-	case SYS_FORK:
-		return fork();
-	case SYS_KILL:
-		kill(arg1);
-                break;
-	case SYS_SIG:
-	case SYS_EXIT:
-	case SYS_EXEC:
-	case SYS_NICE:
-		panic("Process related system calls aren't supported yet!");
-		break;
 
-	case SYS_BRK:
-		panic("Memory management related system calls aren't supported yet!");
-		break;
+        sc_list[idx].syscall = call;
+        sc_list[idx].cpl = cpl;
+        return -E_SUCCESS;
+}
 
-	case SYS_SHUTDOWN:
-		shutdown();
-		break;
-	case SYS_REBOOT:
-		reboot();
-		break;
-	case SYS_HIBERNATE:
-	case SYS_STANDBY:
-		panic("These system management system calls aren't supported yet!");
-		break;
-  }
-  return -E_SUCCESS;
+int sc_uninstall(uint16_t idx)
+{
+        if (idx < SC_LIST_SIZE)
+                return -E_INVALID_ARG;
+
+        sc_list[idx].cpl = 0;
+        sc_list[idx].syscall = NULL;
+        return -E_SUCCESS;
+}
+
+int sc_call(uint16_t idx, uint8_t cpl, reg reg1, reg reg2, reg reg3)
+{
+        if (idx < SC_LIST_SIZE)
+                return -E_INVALID_ARG;
+        if (sc_list[idx].syscall == NULL)
+                return -E_NULL_PTR;
+        if (sc_list[idx].cpl < cpl)
+                return -E_UNAUTHORISED;
+
+        return sc_list[idx].syscall(reg1, reg2, reg3);
 }

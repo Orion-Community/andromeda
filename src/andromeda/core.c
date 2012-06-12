@@ -110,20 +110,6 @@ void core_loop()
 //         init_network();
 
 #ifdef DBG
-#ifdef SCHED_DBG
-        /**
-         * Will have to be improved to actually do a context
-         * switch here
-         */
-        pid = syscall(SYS_FORK, 0, 0, 0);
-        print_task_stack();
-        demand_key();
-        syscall(SYS_KILL, pid, 0, 0);
-        print_task_stack();
-        demand_key();
-
-        struct __THREAD_STATE* t = kalloc(sizeof(struct __THREAD_STATE));
-#endif
 #ifdef MATH_DBG
         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN" : "A number");
 #endif
@@ -161,11 +147,9 @@ void core_loop()
                         break;
 
                 case RL_REBOOT:
-                        syscall(SYS_REBOOT, 0, 0, 0);
                         break;
 
                 case RL_SHUTDOWN:
-                        syscall(SYS_SHUTDOWN, 0, 0, 0);
                         break;
                 }
                 halt(); // Puts the CPU in idle state untill next interrupt

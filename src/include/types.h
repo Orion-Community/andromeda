@@ -112,6 +112,7 @@ typedef unsigned long long idx_t;
 typedef long time_t; // Time variables are specified to be signed
 
 typedef unsigned long addr_t;
+typedef long reg;
 
 #ifdef __cplusplus
 }
