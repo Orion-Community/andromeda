@@ -150,11 +150,11 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #ifdef VMEM_TEST
         vmem_test_tree();
 #endif
-
         task_init();
 
         page_init();
         printf(WELCOME); // The only screen output that should be maintained
+        pte_test();
         setGDT();
         page_unmap_low_mem();
         pic_init();

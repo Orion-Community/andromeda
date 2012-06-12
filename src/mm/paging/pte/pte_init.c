@@ -226,23 +226,28 @@ void pte_dump_tree(struct pte_shadow* pte, char* prefix)
         {
                 if (pte->children[i] == NULL)
                         continue;
-                printf("%s - %X = %X\n", prefix, i, pte->children[i]);
+                printf("%s %X = %X\n", prefix, i, pte->children[i]);
                 char* pref = kalloc(255);
                 if (pref == NULL)
                         return;
                 memset(pref, 0, 255);
-                sprintf(pref, "%s - %X -", prefix, i);
+                sprintf(pref, "%s %X - ", prefix, i);
                 pte_dump_tree(pte->children[i], pref);
                 kfree(pref);
         }
 }
 
-int pte_test(struct pte_shadow* pte)
+int pte_test()
 {
-        if (pte == NULL)
+        if (pte_core == NULL)
                 return -E_NULL_PTR;
 
+        printf("Dumping pte tree\n");
 
+        pte_dump_tree(pte_core, "");
+
+        printf("\n\n");
+        return -E_SUCCESS;
 }
 #endif
 
