@@ -178,6 +178,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         init_ioapic();
         ol_pci_init();
         debug("Little endian 0xf in net endian %x\n", htons(0xf));
+#ifdef DBG
 #ifdef __IOAPIC_DBG
         ioapic_debug();
 #endif
@@ -188,7 +189,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         printf("Heap list:\n");
         ol_dbg_heap();
 #endif
-#ifdef DBG
         printf("\nSome (temp) debug info:\n");
         printf("CPU vendor: %s\n", cpus->vendor);
 
@@ -199,9 +199,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 *(((uint32_t*) systables->rsdp->signature)));
                 printf("MP specification signature: 0x%x\n", systables->mp->signature);
         }
-#endif
 #ifdef PTE_DBG
         pte_test();
+#endif
 #endif
         core_loop();
         return 0; // To keep the compiler happy.

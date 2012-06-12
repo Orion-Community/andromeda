@@ -109,6 +109,7 @@ void core_loop()
 //         init_netif();
 //         init_network();
 
+#ifdef DBG
 #ifdef SCHED_DBG
         /**
          * Will have to be improved to actually do a context
@@ -140,6 +141,7 @@ void core_loop()
 #ifdef SPRINTF_DBG
         test_sprintf();
         test_calculation_functions();
+#endif
 #endif
 
 //         uint32_t pid = 0;
