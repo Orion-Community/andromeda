@@ -37,6 +37,7 @@ extern "C" {
 
 #define CACHE_NAME_SIZE 255
 #define SLAB_MAX_OBJS 256
+#define SLAB_ENTRY_ALLOCATED (~0)
 
 /**
  * \struct slab

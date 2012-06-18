@@ -35,14 +35,42 @@ void* mm_slab_alloc(struct mm_slab* slab)
 
         int* map = slab->page_ptr;
         int idx = slab->first_free;
-        slab->first_free = map[slab->first_free];
+        slab->first_free = map[idx];
+        map[idx] = SLAB_ENTRY_ALLOCATED;
 
         mutex_unlock(&slab->lock);
-        return NULL;
+
+        addr_t tmp = idx*slab->cache->obj_size;
+        tmp += (addr_t)slab->obj_ptr;
+
+        return (void*)tmp;
 }
 
 int mm_slab_free(struct mm_slab* slab, void* ptr)
 {
+        if (slab == NULL || ptr == NULL)
+                return -E_NULL_PTR;
+
+        addr_t idx = (addr_t)ptr - (addr_t)slab->obj_ptr;
+        if (idx % slab->cache->obj_size != 0)
+                return -E_INVALID_ARG;
+
+        idx /= slab->cache->obj_size;
+
+        int* map = slab->page_ptr;
+
+        mutex_lock(&slab->lock);
+
+        if (map[idx] != SLAB_ENTRY_ALLOCATED)
+        {
+                mutex_unlock(&slab->lock);
+                return -E_GENERIC;
+        }
+        map[idx] = slab->first_free;
+        slab->first_free = idx;
+
+        mutex_unlock(&slab->lock);
+
         return -E_NOFUNCTION;
 }
 
