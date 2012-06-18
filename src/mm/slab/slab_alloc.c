@@ -27,6 +27,19 @@
  * @{
  */
 
+void* mm_slab_alloc(struct mm_slab* slab)
+{
+        if (slab == NULL)
+                return NULL;
+
+        return NULL;
+}
+
+int mm_slab_free(struct mm_slab* slab, void* ptr)
+{
+        return -E_NOFUNCTION;
+}
+
 /**
  * \todo Build mm_cache_alloc
  * \todo Build mm_cache_free
@@ -37,11 +50,25 @@ void* mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
 {
         if (cache == NULL || flags == 0)
                 return NULL;
-        return NULL;
+
+        if (cache->slabs_partial == NULL)
+        {
+                struct mm_slab* tmp = cache->slabs_empty;
+                if (tmp == NULL)
+                        return NULL;
+                cache->slabs_empty = tmp->next;
+                cache->slabs_partial = tmp;
+                tmp->next = NULL;
+        }
+        return mm_slab_alloc(cache->slabs_partial);
 }
 
-void mm_cache_free()
+int mm_cache_free(struct mm_cache* cache, void* ptr)
 {
+        if (cache == NULL || ptr == NULL)
+                return -E_NULL_PTR;
+
+        return -E_NOFUNCTION;
 }
 
 void* kmem_alloc(size_t size, uint16_t flags)
