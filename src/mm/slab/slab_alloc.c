@@ -21,7 +21,6 @@
 
 #ifdef SLAB
 
-
 /**
  * \AddToGroup slab
  * @{
@@ -63,12 +62,27 @@ void* mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
         return mm_slab_alloc(cache->slabs_partial);
 }
 
+static struct mm_slab*
+mm_cache_search_ptr(struct mm_slab* list, void* ptr)
+{
+        for (; list != NULL; list = list->next)
+        {
+                if (list->page_ptr < ptr && list->page_ptr + list->slab_size > ptr)
+                        return list;
+        }
+        return NULL;
+}
+
 int mm_cache_free(struct mm_cache* cache, void* ptr)
 {
         if (cache == NULL || ptr == NULL)
                 return -E_NULL_PTR;
 
-        return -E_NOFUNCTION;
+        struct mm_slab* tmp = mm_cache_search_ptr(cache->slabs_full, ptr);
+        if(tmp != NULL)
+                tmp = mm_cache_search_ptr(cache->slabs_partial, ptr);
+
+        return mm_slab_free(tmp, ptr);
 }
 
 void* kmem_alloc(size_t size, uint16_t flags)
