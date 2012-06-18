@@ -130,9 +130,11 @@ int test_calc_unit(int size, int alignment, int no_objects)
         int no_elements = calc_max_no_objects(alignment, pages, size);
         int offset = calc_data_offset(alignment);
 
+#ifdef MSD_DBG
         sprintf(txt, "Pages: %8X\telements: %8X\toffset: %8X\n", pages,
                                                            no_elements, offset);
         debug(txt);
+#endif
 
         return -E_SUCCESS;
 }

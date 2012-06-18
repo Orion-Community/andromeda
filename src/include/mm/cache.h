@@ -90,6 +90,8 @@ struct mm_cache {
 
         struct mm_cache* next;
         struct mm_cache* prev;
+
+        mutex_t lock;
 };
 
 

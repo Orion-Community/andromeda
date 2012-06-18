@@ -31,6 +31,9 @@ void* mm_slab_alloc(struct mm_slab* slab)
         if (slab == NULL)
                 return NULL;
 
+        mutex_lock(&slab->lock);
+
+        mutex_unlock(&slab->lock);
         return NULL;
 }
 
@@ -50,15 +53,20 @@ void* mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
         if (cache == NULL || flags == 0)
                 return NULL;
 
+        mutex_lock(&cache->lock);
         if (cache->slabs_partial == NULL)
         {
                 struct mm_slab* tmp = cache->slabs_empty;
                 if (tmp == NULL)
+                {
+                        mutex_unlock(&cache->lock);
                         return NULL;
+                }
                 cache->slabs_empty = tmp->next;
                 cache->slabs_partial = tmp;
                 tmp->next = NULL;
         }
+        mutex_unlock(&cache->lock);
         return mm_slab_alloc(cache->slabs_partial);
 }
 
@@ -67,7 +75,9 @@ mm_cache_search_ptr(struct mm_slab* list, void* ptr)
 {
         for (; list != NULL; list = list->next)
         {
-                if (list->page_ptr < ptr && list->page_ptr + list->slab_size > ptr)
+                if (!(list->page_ptr < ptr))
+                        continue;
+                if (list->page_ptr + list->slab_size > ptr)
                         return list;
         }
         return NULL;
