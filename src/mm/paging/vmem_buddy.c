@@ -477,7 +477,7 @@ vmem_buddy_system_free(struct vmem_buddy_system* system, void* ptr)
                         vmem_buddy_unmark(cariage);
                         struct vmem_buddy* adjecent = NULL;
                         while((adjecent = vmem_buddy_find_adjecent(cariage))
-                                                                       != NULL)
+                                                                        != NULL)
                         {
 #ifdef BUDDY_DBG
                                 debug("4.1: Found: %X\n", (int)adjecent);
@@ -517,7 +517,7 @@ vmem_buddy_dump(struct vmem_buddy_system* system)
                 debug("\n");
                 for (;cariage != NULL; cariage = cariage->next)
                         debug("ptr: %X\tsize: %X\n", (int)cariage->ptr,
-                                                                cariage->size);
+                                                                 cariage->size);
         }
         int i = 0;
         for (; i < BUDDY_NO_POWERS; i++)
@@ -528,7 +528,7 @@ vmem_buddy_dump(struct vmem_buddy_system* system)
                 debug("2^%i * 0x1000:\n", i);
                 for (; cariage != NULL; cariage = cariage->next)
                         debug("ptr: %X\tsize: %X\n", (int)cariage->ptr,
-                                                                cariage->size);
+                                                                 cariage->size);
         }
 }
 

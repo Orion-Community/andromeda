@@ -33,6 +33,10 @@ void* mm_slab_alloc(struct mm_slab* slab)
 
         mutex_lock(&slab->lock);
 
+        int* map = slab->page_ptr;
+        int idx = slab->first_free;
+        slab->first_free = map[slab->first_free];
+
         mutex_unlock(&slab->lock);
         return NULL;
 }

@@ -58,7 +58,7 @@ pte_init(void* kernel_offset, size_t kernel_size)
         for (; idx < (addr_t)kernel_offset + kernel_size; idx += PAGESIZE)
         {
                 pte_map((void*)idx, (void*)(idx - (addr_t)kernel_offset),
-                                                                     pte_core);
+                                                                      pte_core);
         }
 
         return -E_SUCCESS;
