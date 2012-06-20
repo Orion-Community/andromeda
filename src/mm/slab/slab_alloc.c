@@ -26,7 +26,76 @@
  * @{
  */
 
-void* mm_slab_alloc(struct mm_slab* slab)
+static int
+mm_slab_move(cache, from, to, entry)
+struct mm_cache* cache;
+slab_state from;
+slab_state to;
+struct mm_slab* entry;
+{
+        if (cache == NULL || entry == NULL)
+                return -E_NULL_PTR;
+
+        if (from >= 3 || to >= 3 || to == from)
+                return -E_INVALID_ARG;
+
+        struct mm_slab* cariage = NULL;
+        mutex_lock(&cache->lock);
+        switch (from)
+        {
+        case state_empty:
+                cariage = cache->slabs_empty;
+                if (cariage == entry)
+                {
+                        cache->slabs_empty = entry->next;
+                        entry->next = NULL;
+                        goto p1;
+                }
+                break;
+        case state_partial:
+                cariage = cache->slabs_partial;
+                if (cariage == entry)
+                {
+                        cache->slabs_partial = entry->next;
+                        entry->next = NULL;
+                        goto p1;
+                }
+                break;
+        case state_full:
+                cariage = cache->slabs_full;
+                if (cariage == entry)
+                {
+                        cache->slabs_empty = entry->next;
+                        entry->next = NULL;
+                        goto p1;
+                }
+                break;
+        }
+        for (; cariage->next != entry; cariage = cariage->next);
+        cariage->next = entry->next;
+        entry->next = NULL;
+p1:
+        switch (to)
+        {
+        case state_empty:
+                entry->next = cache->slabs_empty;
+                cache->slabs_empty = entry;
+                break;
+        case state_partial:
+                entry->next = cache->slabs_partial;
+                cache->slabs_partial = entry;
+                break;
+        case state_full:
+                entry->next = cache->slabs_full;
+                cache->slabs_full = entry;
+                break;
+        }
+        mutex_unlock(&cache->lock);
+        return -E_SUCCESS;
+}
+
+static void*
+mm_slab_alloc(struct mm_slab* slab)
 {
         if (slab == NULL)
                 return NULL;
@@ -38,6 +107,11 @@ void* mm_slab_alloc(struct mm_slab* slab)
         slab->first_free = map[idx];
         map[idx] = SLAB_ENTRY_ALLOCATED;
 
+        slab->objs_full ++;
+        if (slab->objs_full == slab->objs_total)
+                // Move this slab over from slabs_partial to slabs_full
+                mm_slab_move(slab->cache, state_partial, state_full, slab);
+
         mutex_unlock(&slab->lock);
 
         addr_t tmp = idx*slab->cache->obj_size;
@@ -46,7 +120,8 @@ void* mm_slab_alloc(struct mm_slab* slab)
         return (void*)tmp;
 }
 
-int mm_slab_free(struct mm_slab* slab, void* ptr)
+static int
+mm_slab_free(struct mm_slab* slab, void* ptr)
 {
         if (slab == NULL || ptr == NULL)
                 return -E_NULL_PTR;
@@ -69,6 +144,15 @@ int mm_slab_free(struct mm_slab* slab, void* ptr)
         map[idx] = slab->first_free;
         slab->first_free = idx;
 
+        if (slab->objs_full == slab->objs_total)
+                // Move slab from slabs_full to slabs_partial
+                mm_slab_move(slab->cache, state_full, state_partial, slab);
+
+        slab->objs_full --;
+        if (slab->objs_full == 0)
+                // Move slab from slabs_partial to slabs_empty
+                mm_slab_move(slab->cache, state_partial, state_empty, slab);
+
         mutex_unlock(&slab->lock);
 
         return -E_NOFUNCTION;
@@ -80,7 +164,8 @@ int mm_slab_free(struct mm_slab* slab, void* ptr)
  * \todo Build kmem_alloc
  * \todo Build kmem_free
  */
-void* mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
+void*
+mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
 {
         if (cache == NULL || flags == 0)
                 return NULL;
@@ -115,7 +200,8 @@ mm_cache_search_ptr(struct mm_slab* list, void* ptr)
         return NULL;
 }
 
-int mm_cache_free(struct mm_cache* cache, void* ptr)
+int
+mm_cache_free(struct mm_cache* cache, void* ptr)
 {
         if (cache == NULL || ptr == NULL)
                 return -E_NULL_PTR;
@@ -127,7 +213,8 @@ int mm_cache_free(struct mm_cache* cache, void* ptr)
         return mm_slab_free(tmp, ptr);
 }
 
-void* kmem_alloc(size_t size, uint16_t flags)
+void*
+kmem_alloc(size_t size, uint16_t flags)
 {
         if (size == 0 || flags == 0)
                 return NULL;
@@ -135,9 +222,19 @@ void* kmem_alloc(size_t size, uint16_t flags)
         return NULL;
 }
 
-void kmem_free()
+void
+kmem_free()
 {
 }
+
+#ifdef SLAB_DBG
+
+int
+mm_cache_test()
+{
+        return -E_NOFUNCTION;
+}
+#endif
 
 
 /**

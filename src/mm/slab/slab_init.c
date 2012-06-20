@@ -211,8 +211,19 @@ register size_t no_elements;
         {
                 alloc_space[i] = i+1;
         }
-        memset (&alloc_space[i+1], ~0, (SLAB_MAX_OBJS - i) * sizeof(int));
-        printf("RESULT: %X\n", alloc_space[i+1]);
+        memset (&alloc_space[i+1], SLAB_ENTRY_FALSE, (SLAB_MAX_OBJS - i) * sizeof(int));
+#ifdef SLAB_DBG
+#ifdef SLAB_SHOW_OBJS
+        printf(
+                "%i + 1: %X\n"
+                "%i - 5: %X\n"
+                "0    : %X\n",
+               i, alloc_space[i+1],
+               i, alloc_space[i-5],
+               alloc_space[0]
+        );
+#endif
+#endif
 
         return -E_SUCCESS;
 }
@@ -242,7 +253,9 @@ cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
 int slab_alloc_init()
 {
         textInit();
+#ifdef SLAB_DBG
         debug("Initial slab ptr: %X\n", &initial_slab_space);
+#endif
         caches = initial_caches;
         int idx = 0;
         init_slab_ptr = &initial_slab_space;
@@ -263,14 +276,18 @@ int slab_alloc_init()
                         caches[idx].next = &caches[idx+1];
                 else
                         caches[idx].prev = NULL;
+#ifdef SLAB_DBG
                 debug("Object size of cache[%X] = %X\n", idx,
                                                           caches[idx].obj_size);
+#endif
 
                 cache_find_slab_space(&caches[idx], idx);
         }
+#ifdef SLAB_DBG
         debug("Final slab ptr: %X\n", init_slab_ptr);
         debug("Address of higherhalf: %X\n", &higherhalf);
-//         for (;;);
+        for (;;);
+#endif
         return -E_NOFUNCTION;
 }
 

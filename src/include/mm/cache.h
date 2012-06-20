@@ -37,7 +37,10 @@ extern "C" {
 
 #define CACHE_NAME_SIZE 255
 #define SLAB_MAX_OBJS 256
-#define SLAB_ENTRY_ALLOCATED (~0)
+#define SLAB_ENTRY_ALLOCATED ((~0)-1)
+#define SLAB_ENTRY_FALSE ((~0))
+
+typedef enum {state_empty, state_partial, state_full} slab_state;
 
 /**
  * \struct slab
