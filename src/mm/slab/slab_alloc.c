@@ -206,6 +206,10 @@ mm_slab_alloc(struct mm_slab* slab)
 static int
 mm_slab_free(struct mm_slab* slab, void* ptr)
 {
+        /*
+         * Some standard argument checking
+         * along with setting up the variables
+         */
         if (slab == NULL || ptr == NULL)
                 return -E_NULL_PTR;
 
@@ -217,28 +221,51 @@ mm_slab_free(struct mm_slab* slab, void* ptr)
 
         int* map = slab->page_ptr;
 
+        /*
+         * Verify that the entry actually is allocated
+         */
+        if (map[idx] != SLAB_ENTRY_ALLOCATED)
+                return -E_GENERIC;
+
+
+        /*
+         * And now the atomic parts
+         */
         mutex_lock(&slab->lock);
 
-        if (map[idx] != SLAB_ENTRY_ALLOCATED)
-        {
-                mutex_unlock(&slab->lock);
-                return -E_GENERIC;
-        }
+        /*
+         * Mark the entry as free
+         */
         map[idx] = slab->first_free;
         slab->first_free = idx;
 
+        /*
+         * Move the slab if no longer full
+         */
         if (slab->objs_full == slab->objs_total)
                 // Move slab from slabs_full to slabs_partial
                 mm_slab_move(state_full, state_partial, slab);
 
+        /*
+         * Update the allocated object counter
+         */
         slab->objs_full --;
+        /*
+         * Move the slab if it is empty
+         */
         if (slab->objs_full == 0)
                 // Move slab from slabs_partial to slabs_empty
                 mm_slab_move(state_partial, state_empty, slab);
 
+        /*
+         * Exit the atomic parts now
+         */
         mutex_unlock(&slab->lock);
 
-        return -E_NOFUNCTION;
+        /*
+         * Return the success error code
+         */
+        return -E_SUCCESS;
 }
 
 /**
