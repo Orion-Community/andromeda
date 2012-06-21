@@ -26,21 +26,44 @@
  * @{
  */
 
+/**
+ * \fn mm_slab_move
+ * \brief Move the requested entry from list to list.
+ * \param from
+ * \param to
+ * \param entry
+ * \return error code
+ */
 static int
-mm_slab_move(cache, from, to, entry)
-struct mm_cache* cache;
+mm_slab_move(from, to, entry)
 slab_state from;
 slab_state to;
 struct mm_slab* entry;
 {
-        if (cache == NULL || entry == NULL)
+        /*
+         * first some argument checking (as always)
+         */
+        if (entry == NULL)
                 return -E_NULL_PTR;
 
         if (from >= 3 || to >= 3 || to == from)
                 return -E_INVALID_ARG;
 
+        /*
+         * Set the initial variables
+         */
+        struct mm_cache* cache = entry->cache;
         struct mm_slab* cariage = NULL;
+
+        /*
+         * Enter the atomic section
+         */
         mutex_lock(&cache->lock);
+        /*
+         * Select the list to move from
+         * If entry is first in the list, unlock it from the pointer then skip
+         * the unlocking from the previous part.
+         */
         switch (from)
         {
         case state_empty:
@@ -71,10 +94,29 @@ struct mm_slab* entry;
                 }
                 break;
         }
-        for (; cariage->next != entry; cariage = cariage->next);
+        /*
+         * Try to unlock the entry from its previous pointer.
+         * Assuming the entry is in the list, if not we're screwed.
+         */
+        while (cariage->next != entry && cariage->next != NULL)
+                cariage = cariage->next;
+
+        if (cariage->next == NULL)
+        {
+                /*
+                 * Do the "We're screwed" part
+                 */
+                mutex_unlock(&cache->lock);
+                return -E_CORRUPT;
+        }
+
         cariage->next = entry->next;
         entry->next = NULL;
+
 p1:
+        /*
+         * Set the entry to be the first of the requested list
+         */
         switch (to)
         {
         case state_empty:
@@ -90,6 +132,9 @@ p1:
                 cache->slabs_full = entry;
                 break;
         }
+        /*
+         * Leave the atomic section and return success
+         */
         mutex_unlock(&cache->lock);
         return -E_SUCCESS;
 }
@@ -110,7 +155,7 @@ mm_slab_alloc(struct mm_slab* slab)
         slab->objs_full ++;
         if (slab->objs_full == slab->objs_total)
                 // Move this slab over from slabs_partial to slabs_full
-                mm_slab_move(slab->cache, state_partial, state_full, slab);
+                mm_slab_move(state_partial, state_full, slab);
 
         mutex_unlock(&slab->lock);
 
@@ -146,12 +191,12 @@ mm_slab_free(struct mm_slab* slab, void* ptr)
 
         if (slab->objs_full == slab->objs_total)
                 // Move slab from slabs_full to slabs_partial
-                mm_slab_move(slab->cache, state_full, state_partial, slab);
+                mm_slab_move(state_full, state_partial, slab);
 
         slab->objs_full --;
         if (slab->objs_full == 0)
                 // Move slab from slabs_partial to slabs_empty
-                mm_slab_move(slab->cache, state_partial, state_empty, slab);
+                mm_slab_move(state_partial, state_empty, slab);
 
         mutex_unlock(&slab->lock);
 
