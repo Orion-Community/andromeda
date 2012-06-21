@@ -139,32 +139,70 @@ p1:
         return -E_SUCCESS;
 }
 
+/**
+ * \fn mm_slab_alloc
+ * \brief The actual allocation on slab level
+ * \param slab
+ * \return Pointer to allocated memory
+ */
 static void*
 mm_slab_alloc(struct mm_slab* slab)
 {
+        /*
+         * Some argument checking
+         */
         if (slab == NULL)
                 return NULL;
 
+        /*
+         * Entering the atomic part
+         */
         mutex_lock(&slab->lock);
 
+        /*
+         * Set up the variables
+         */
         int* map = slab->page_ptr;
         int idx = slab->first_free;
+        /*
+         * Set up the correct first free
+         * From now on this memory can't be allocated any more
+         */
         slab->first_free = map[idx];
+        /*
+         * Mark the entry as allocated
+         */
         map[idx] = SLAB_ENTRY_ALLOCATED;
 
+        /*
+         * Do some counter maintainence
+         */
         slab->objs_full ++;
         if (slab->objs_full == slab->objs_total)
                 // Move this slab over from slabs_partial to slabs_full
                 mm_slab_move(state_partial, state_full, slab);
 
+        /*
+         * Leaving the atomic part
+         */
         mutex_unlock(&slab->lock);
 
+        /*
+         * Hand of the pointer to the just allocated memory
+         */
         addr_t tmp = idx*slab->cache->obj_size;
         tmp += (addr_t)slab->obj_ptr;
 
         return (void*)tmp;
 }
 
+/**
+ * \fn mm_slab_free
+ * \brief The actual freeing code
+ * \param slab
+ * \param ptr
+ * \return Error code
+ */
 static int
 mm_slab_free(struct mm_slab* slab, void* ptr)
 {
