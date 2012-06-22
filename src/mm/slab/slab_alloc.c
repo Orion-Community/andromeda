@@ -18,6 +18,7 @@
 #include <mm/cache.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <andromeda/core.h>
 
 #ifdef SLAB
 
@@ -435,6 +436,44 @@ kmem_free()
 #ifdef SLAB_DBG
 
 void
+mm_dump_slab(struct mm_slab* slab)
+{
+        int* array = slab->page_ptr;
+        int i = 0;
+        for (; i < slab->objs_total; i++)
+        {
+                if (i % 8 == 0)
+                        debug("\n");
+                debug("%X ->\t", array[i]);
+        }
+        debug("\n");
+        demand_key();
+}
+
+void
+mm_dump_slabs(struct mm_slab* slab)
+{
+        for (; slab != NULL; slab = slab->next)
+        {
+                debug(
+                        "Dumping slab:     %X\n"
+                        "slab->next:       %X\n"
+                        "slab->first_free: %X\n"
+                        "slab->objs_full:  %X\n"
+                        "slab->objs_total: %X\n"
+                        "slab->slab_size:  %X\n",
+                      (uint32_t)slab,
+                      (uint32_t)slab->next,
+                      slab->first_free,
+                      slab->objs_full,
+                      slab->objs_total,
+                      slab->slab_size
+                );
+                mm_dump_slab(slab);
+        }
+}
+
+void
 mm_dump_cache(struct mm_cache* cache)
 {
         debug(
@@ -451,6 +490,10 @@ mm_dump_cache(struct mm_cache* cache)
               (uint32_t)cache->slabs_partial,
               (uint32_t)cache->slabs_full
         );
+        demand_key();
+        mm_dump_slabs(cache->slabs_empty);
+        mm_dump_slabs(cache->slabs_partial);
+        mm_dump_slabs(cache->slabs_full);
 }
 
 int
@@ -483,6 +526,7 @@ mm_cache_test()
 
         debug("Free successful\n");
         mm_dump_cache(tst);
+        debug("\nTest successful\n");
 
         return -E_NOFUNCTION;
 }
