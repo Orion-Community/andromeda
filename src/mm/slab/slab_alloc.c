@@ -282,17 +282,17 @@ mm_slab_free(struct mm_slab* slab, void* ptr)
 }
 
 /**
- * \todo Build mm_cache_alloc
- * \todo Build mm_cache_free
- * \todo Build kmem_alloc
- * \todo Build kmem_free
+ * \fn mm_cache_alloc
+ * \brief Allocate memory from a particular cache
+ * \param cache
+ * \param flags
+ * \brief How should the allocator behave
+ * \note flags are yet to be implemented
+ * \return The allocated memory or NULL pointer
  */
 void*
 mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
 {
-        /**
-         * \note flags argument in mm_cache_alloc is still to be implemented
-         */
         /*
          * Some standard argument checking
          */
@@ -338,31 +338,83 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
         return mm_slab_alloc(cache->slabs_partial, flags);
 }
 
+/**
+ * \fn mm_cache_search_ptr
+ * \brief Figure out in which slab a pointer resides
+ * \param list
+ * \brief The list of slabs in which it should be
+ * \param ptr
+ * \brief The pointer to look for
+ * \return The pointer to the slab or NULL
+ */
 static struct mm_slab*
 mm_cache_search_ptr(struct mm_slab* list, void* ptr)
 {
+        /*
+         * Iterate through the list untill the slab has been found ...
+         */
         for (; list != NULL; list = list->next)
         {
+                /*
+                 * If both conditions are met, return the list pointer
+                 */
                 if (!(list->page_ptr < ptr))
                         continue;
                 if (list->page_ptr + list->slab_size > ptr)
                         return list;
         }
+        /*
+         * We didn't find anything, so return NULL
+         */
         return NULL;
 }
 
+/**
+ * \fn mm_cache_free
+ * \brief Free a pointer from the cache
+ * \param cache
+ * \param ptr
+ * \return Error code or success
+ */
 int
 mm_cache_free(struct mm_cache* cache, void* ptr)
 {
+        /*
+         * Standard argument checking
+         */
         if (cache == NULL || ptr == NULL)
                 return -E_NULL_PTR;
+
+        /*
+         * Enter the atomic section, we don't want to have the slab to move
+         * while we're looking for it.
+         */
+        mutex_lock(&cache->lock);
 
         struct mm_slab* tmp = mm_cache_search_ptr(cache->slabs_full, ptr);
         if(tmp != NULL)
                 tmp = mm_cache_search_ptr(cache->slabs_partial, ptr);
 
+        /*
+         * We have found the pointer (we hope) and nothing is going to change
+         * that, so we can now leave the atomic section
+         */
+        mutex_unlock(&cache->lock);
+
+        /*
+         * If the argument is correct, return the freeing error code else
+         * return an ivalid argument code
+         */
+        if (tmp == NULL)
+                return -E_INVALID_ARG;
+
         return mm_slab_free(tmp, ptr);
 }
+
+/**
+ * \todo Build kmem_alloc
+ * \todo Build kmem_free
+ */
 
 void*
 kmem_alloc(size_t size, uint16_t flags)
