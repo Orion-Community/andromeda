@@ -102,6 +102,8 @@ struct mm_cache {
 int slab_alloc_init();
 int test_calculation_functions();
 struct mm_cache* mm_cache_init(char*, size_t, size_t, cinit, cinit);
+void* mm_cache_alloc(struct mm_cache* cache, uint16_t flags);
+int mm_cache_free(struct mm_cache* cache, void* ptr);
 
 #endif
 

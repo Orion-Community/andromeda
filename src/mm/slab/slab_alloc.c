@@ -146,7 +146,7 @@ p1:
  * \return Pointer to allocated memory
  */
 static void*
-mm_slab_alloc(struct mm_slab* slab)
+mm_slab_alloc(struct mm_slab* slab, int flags)
 {
         /*
          * Some argument checking
@@ -158,6 +158,19 @@ mm_slab_alloc(struct mm_slab* slab)
          * Entering the atomic part
          */
         mutex_lock(&slab->lock);
+
+        /*
+         * If a race conflict has accidentally occured
+         * Simply give it another shot!
+         *
+         * Race conflicts can occur because the call to the mm_slab_alloc
+         * function isn't done in an atomic acton.
+         */
+        if (slab->objs_full == slab->objs_total)
+        {
+                mutex_unlock(&slab->lock);
+                return mm_cache_alloc(slab->cache, flags);
+        }
 
         /*
          * Set up the variables
@@ -277,12 +290,29 @@ mm_slab_free(struct mm_slab* slab, void* ptr)
 void*
 mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
 {
-        if (cache == NULL || flags == 0)
+        /**
+         * \note flags argument in mm_cache_alloc is still to be implemented
+         */
+        /*
+         * Some standard argument checking
+         */
+        if (cache == NULL)
                 return NULL;
 
+        /*
+         * Enter the atomic section
+         * Move the slabs around if necessary
+         */
         mutex_lock(&cache->lock);
+
+        /*
+         * If the slabs_partial list is empty, try to put a value in there
+         */
         if (cache->slabs_partial == NULL)
         {
+                /*
+                 * If the cache is really empty, return NULL
+                 */
                 struct mm_slab* tmp = cache->slabs_empty;
                 if (tmp == NULL)
                 {
@@ -293,8 +323,19 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
                 cache->slabs_partial = tmp;
                 tmp->next = NULL;
         }
+        /*
+         * Leave the atomic section
+         */
         mutex_unlock(&cache->lock);
-        return mm_slab_alloc(cache->slabs_partial);
+
+        /*
+         * Return the allocated memory
+         *
+         * This is outside of the mutexes, because lower functions might
+         * require the lock on the cache, when moving the slabs them selves
+         * around to mark them as full.
+         */
+        return mm_slab_alloc(cache->slabs_partial, flags);
 }
 
 static struct mm_slab*
