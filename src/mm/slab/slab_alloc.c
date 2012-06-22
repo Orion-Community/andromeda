@@ -332,13 +332,19 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
         mutex_unlock(&cache->lock);
 
         /*
-         * Return the allocated memory
-         *
-         * This is outside of the mutexes, because lower functions might
-         * require the lock on the cache, when moving the slabs them selves
-         * around to mark them as full.
+         * Allocate the memory and get the related pointer
          */
-        return mm_slab_alloc(cache->slabs_partial, flags);
+        void* ret = mm_slab_alloc(cache->slabs_partial, flags);
+        /*
+         * If a constructor exists, run it
+         */
+        if (cache->ctor != NULL)
+                cache->ctor(ret, cache, flags);
+
+        /*
+         * Can we now finally return the pointer?
+         */
+        return ret;
 }
 
 /**
@@ -411,6 +417,15 @@ mm_cache_free(struct mm_cache* cache, void* ptr)
         if (tmp == NULL)
                 return -E_INVALID_ARG;
 
+        /*
+         * Call the destructor if relevant
+         */
+        if (cache->dtor != NULL)
+                cache->dtor(ptr, cache, 0);
+
+        /*
+         * And do the actual freeing bit (can you beleive this, only one line!!!
+         */
         return mm_slab_free(tmp, ptr);
 }
 
@@ -434,17 +449,18 @@ kmem_free()
 }
 
 #ifdef SLAB_DBG
-
 void
 mm_dump_slab(struct mm_slab* slab)
 {
         int* array = slab->page_ptr;
         int i = 0;
-        for (; i < slab->objs_total; i++)
+        int next = slab->first_free;
+        for (; next >= 0; i++)
         {
                 if (i % 8 == 0)
                         debug("\n");
-                debug("%X ->\t", array[i]);
+                debug("%X ->\t", array[next]);
+                next = array[next];
         }
         debug("\n");
         demand_key();
@@ -497,6 +513,42 @@ mm_dump_cache(struct mm_cache* cache)
 }
 
 int
+mm_test_bulk(struct mm_cache* tst)
+{
+        debug("\nTesting bulk\n");
+        void* array[0x1C];
+        int i = 0;
+        for (; i < 0x1C; i++)
+        {
+                array[i] = mm_cache_alloc(tst, 0);
+                if (array[i] == NULL)
+                {
+                        debug("Test failed, could not allocate\n\n");
+                        mm_dump_cache(tst);
+                        return -E_GENERIC;
+                }
+        }
+        debug("Bulk seems successful\n");
+        mm_dump_cache(tst);
+        for (i = 0; i < 0x1C; i++)
+                debug("%X\t", array[i]);
+        demand_key();
+        debug("\nTesting bulk free\n");
+        for (i = 0; i < 0x1C; i++)
+        {
+                if (mm_cache_free(tst, array[i]) != -E_SUCCESS)
+                {
+                        debug("Test failed, could not free\n\n");
+                        mm_dump_cache(tst);
+                        return -E_GENERIC;
+                }
+        }
+        debug("Bulk free seems successful\n");
+        mm_dump_cache(tst);
+        return -E_SUCCESS;
+}
+
+int
 mm_cache_test()
 {
         if (caches == NULL)
@@ -515,7 +567,8 @@ mm_cache_test()
                 return -E_GENERIC;
         }
         debug("Test allocation: %X\n", (uint32_t) tmp);
-        mm_dump_cache(tst);
+        debug("\nTesting freeing\n");
+        (tst);
         int tmp1 = mm_cache_free(tst, tmp);
         if (tmp1 != -E_SUCCESS)
         {
@@ -526,6 +579,17 @@ mm_cache_test()
 
         debug("Free successful\n");
         mm_dump_cache(tst);
+
+        if (mm_test_bulk(tst) == -E_SUCCESS)
+        {
+                debug("\n\nGoing for second bulk\n\n");
+                if (mm_test_bulk(tst) != -E_SUCCESS)
+                        return -E_GENERIC;
+        }
+        else
+                return -E_GENERIC;
+
+
         debug("\nTest successful\n");
 
         return -E_NOFUNCTION;

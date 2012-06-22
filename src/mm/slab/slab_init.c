@@ -204,22 +204,29 @@ register size_t no_elements;
         slab->slab_size = no_pages;
         slab->cache = cache;
         slab->objs_total = no_elements;
+
         memset(pages, 0, no_pages);
+
         int i = 0;
         int* alloc_space = pages;
+
         for (; i < no_elements; i++)
-        {
                 alloc_space[i] = i+1;
-        }
-        memset (&alloc_space[i+1], SLAB_ENTRY_FALSE, (SLAB_MAX_OBJS - i) * sizeof(int));
+
+        int j = i;
+        for (;j < SLAB_MAX_OBJS; j++)
+                alloc_space[j] = SLAB_ENTRY_FALSE;
+
 #ifdef SLAB_DBG
 #ifdef SLAB_SHOW_OBJS
         debug(
+                "%i    : %X\n"
                 "%i + 1: %X\n"
-                "%i - 5: %X\n"
-                "0    : %X\n",
+                "%i - 1: %i\n"
+                "0     : %i\n",
+               i, alloc_space[i],
                i, alloc_space[i+1],
-               i, alloc_space[i-5],
+               i, alloc_space[i-1],
                alloc_space[0]
         );
 #endif
