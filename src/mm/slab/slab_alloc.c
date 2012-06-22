@@ -91,7 +91,7 @@ struct mm_slab* entry;
                 cariage = cache->slabs_full;
                 if (cariage == entry)
                 {
-                        cache->slabs_empty = entry->next;
+                        cache->slabs_full = entry->next;
                         entry->next = NULL;
                         goto p1;
                 }
