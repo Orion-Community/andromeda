@@ -513,7 +513,7 @@ mm_dump_cache(struct mm_cache* cache)
 }
 
 int
-mm_test_bulk(struct mm_cache* tst)
+mm_test_bulk(struct mm_cache* tst, int bastard_mode)
 {
         debug("\nTesting bulk\n");
         void* array[0x1C];
@@ -533,6 +533,20 @@ mm_test_bulk(struct mm_cache* tst)
         for (i = 0; i < 0x1C; i++)
                 debug("%X\t", array[i]);
         demand_key();
+
+        if (bastard_mode != 0)
+        {
+                void* bastard = mm_cache_alloc(tst, 0);
+                if (bastard != NULL)
+                {
+                        debug("Test failed as mm_cache_alloc returned %X\n",
+                                (uint32_t)bastard
+                        );
+                        mm_dump_cache(tst);
+                        return -E_GENERIC;
+                }
+                debug("\nBastard test completed\n");
+        }
         debug("\nTesting bulk free\n");
         for (i = 0; i < 0x1C; i++)
         {
@@ -580,10 +594,10 @@ mm_cache_test()
         debug("Free successful\n");
         mm_dump_cache(tst);
 
-        if (mm_test_bulk(tst) == -E_SUCCESS)
+        if (mm_test_bulk(tst, 0) == -E_SUCCESS)
         {
                 debug("\n\nGoing for second bulk\n\n");
-                if (mm_test_bulk(tst) != -E_SUCCESS)
+                if (mm_test_bulk(tst, 1) != -E_SUCCESS)
                         return -E_GENERIC;
         }
         else
