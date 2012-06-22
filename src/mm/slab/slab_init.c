@@ -164,7 +164,7 @@ test_calculation_functions()
 
         return -E_SUCCESS;
 err:
-        printf("The test failed on item: %X\n", ret);
+        debug("The test failed on item: %X\n", ret);
         return ret;
 }
 #endif
@@ -214,7 +214,7 @@ register size_t no_elements;
         memset (&alloc_space[i+1], SLAB_ENTRY_FALSE, (SLAB_MAX_OBJS - i) * sizeof(int));
 #ifdef SLAB_DBG
 #ifdef SLAB_SHOW_OBJS
-        printf(
+        debug(
                 "%i + 1: %X\n"
                 "%i - 5: %X\n"
                 "0    : %X\n",

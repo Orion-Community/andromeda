@@ -394,7 +394,7 @@ mm_cache_free(struct mm_cache* cache, void* ptr)
         mutex_lock(&cache->lock);
 
         struct mm_slab* tmp = mm_cache_search_ptr(cache->slabs_full, ptr);
-        if(tmp != NULL)
+        if(tmp == NULL)
                 tmp = mm_cache_search_ptr(cache->slabs_partial, ptr);
 
         /*
