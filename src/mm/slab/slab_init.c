@@ -37,7 +37,7 @@
 
 extern int initial_slab_space;
 
-static struct mm_cache* caches = NULL;
+struct mm_cache* caches = NULL;
 static struct mm_cache initial_caches[NO_STD_CACHES];
 static struct mm_slab initial_slabs[NO_STD_CACHES];
 static void* init_slab_ptr = NULL;
@@ -267,6 +267,7 @@ int slab_alloc_init()
                 memset(&caches[idx], 0, sizeof(*caches));
                 caches[idx].obj_size = alignment;
                 caches[idx].alignment = alignment;
+                sprintf(caches[idx].name, "size-%i", alignment);
 
                 if (idx != 0)
                         caches[idx].prev = &caches[idx-1];
@@ -286,7 +287,7 @@ int slab_alloc_init()
 #ifdef SLAB_DBG
         debug("Final slab ptr: %X\n", init_slab_ptr);
         debug("Address of higherhalf: %X\n", &higherhalf);
-        for (;;);
+//         for (;;);
 #endif
         return -E_NOFUNCTION;
 }

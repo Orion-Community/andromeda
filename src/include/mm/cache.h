@@ -105,6 +105,10 @@ struct mm_cache* mm_cache_init(char*, size_t, size_t, cinit, cinit);
 void* mm_cache_alloc(struct mm_cache* cache, uint16_t flags);
 int mm_cache_free(struct mm_cache* cache, void* ptr);
 
+#ifdef SLAB_DBG
+int mm_cache_test();
+#endif
+
 #endif
 
 #ifdef __cplusplus

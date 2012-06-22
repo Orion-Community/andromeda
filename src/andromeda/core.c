@@ -128,6 +128,9 @@ void core_loop()
         test_sprintf();
         test_calculation_functions();
 #endif
+#ifdef SLAB_DBG
+        mm_cache_test();
+#endif
 #endif
 
 //         uint32_t pid = 0;

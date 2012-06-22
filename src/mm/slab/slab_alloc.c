@@ -26,6 +26,8 @@
  * @{
  */
 
+extern struct mm_cache* caches;
+
 /**
  * \fn mm_slab_move
  * \brief Move the requested entry from list to list.
@@ -432,9 +434,56 @@ kmem_free()
 
 #ifdef SLAB_DBG
 
+void
+mm_dump_cache(struct mm_cache* cache)
+{
+        debug(
+                "Dumping:     %X\n"
+                "Cache name:  %s\n"
+                "Obj size:    %i\n"
+                "Empty ptr:   %X\n"
+                "Partial ptr: %X\n"
+                "Full ptr:    %X\n",
+              (uint32_t)cache,
+              cache->name,
+              cache->obj_size,
+              (uint32_t)cache->slabs_empty,
+              (uint32_t)cache->slabs_partial,
+              (uint32_t)cache->slabs_full
+        );
+}
+
 int
 mm_cache_test()
 {
+        if (caches == NULL)
+                return -E_NOT_YET_INITIALISED;
+
+        debug("\n\nTesting slab allocation\n");
+
+        struct mm_cache* tst = &caches[4];
+        mm_dump_cache(tst);
+
+        void* tmp = mm_cache_alloc(tst, 0);
+        if (tmp == NULL)
+        {
+                debug("Test failed, could not allocate\n\n");
+                mm_dump_cache(tst);
+                return -E_GENERIC;
+        }
+        debug("Test allocation: %X\n", (uint32_t) tmp);
+        mm_dump_cache(tst);
+        int tmp1 = mm_cache_free(tst, tmp);
+        if (tmp1 != -E_SUCCESS)
+        {
+                debug("Test failed, could not free\n\n");
+                mm_dump_cache(tst);
+                return -E_GENERIC;
+        }
+
+        debug("Free successful\n");
+        mm_dump_cache(tst);
+
         return -E_NOFUNCTION;
 }
 #endif
