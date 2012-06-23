@@ -206,7 +206,7 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
         /*
          * Hand of the pointer to the just allocated memory
          */
-        addr_t tmp = idx*slab->cache->obj_size;
+        addr_t tmp = idx*slab->cache->alignment;
         tmp += (addr_t)slab->obj_ptr;
 
         return (void*)tmp;
