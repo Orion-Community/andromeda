@@ -1,6 +1,7 @@
 /*
     Andromeda
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2011, 2012
+    Bart Kuivenhoven, Michel Megens, Steven van der Schoot
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

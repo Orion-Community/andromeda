@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2012  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -444,8 +444,9 @@ kmem_alloc(size_t size, uint16_t flags)
 }
 
 void
-kmem_free()
+kmem_free(void* ptr, size_t size)
 {
+        return;
 }
 
 #ifdef SLAB_DBG
