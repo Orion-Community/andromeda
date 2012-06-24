@@ -230,10 +230,10 @@ mm_slab_free(struct mm_slab* slab, void* ptr)
                 return -E_NULL_PTR;
 
         addr_t idx = (addr_t)ptr - (addr_t)slab->obj_ptr;
-        if (idx % slab->cache->obj_size != 0)
+        if (idx % slab->cache->alignment != 0)
                 return -E_INVALID_ARG;
 
-        idx /= slab->cache->obj_size;
+        idx /= slab->cache->alignment;
 
         int* map = slab->page_ptr;
 
