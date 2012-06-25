@@ -706,6 +706,32 @@ mm_cache_test()
         debug("Freeing succeeded\n");
         mm_dump_cache(last_cache);
 
+        debug("\nBulk allocating 0x20 in size\n");
+        int size =last_cache->slabs_empty->objs_total;
+        void* bulk[size];
+        int idx = 0;
+        for (; idx < size; idx++)
+        {
+                bulk[idx] = kmem_alloc(0x20, 0);
+                if (bulk[idx] == NULL)
+                {
+                        debug(
+                            "Bulk allocating through kmem_alloc failed at: %i\n"
+                            , idx
+                        );
+                        mm_dump_cache(last_cache);
+                        return -E_GENERIC;
+                }
+        }
+        debug("Allocated all of them!\n");
+        mm_dump_cache(last_cache);
+        for (idx = 0; idx < size; idx++)
+        {
+                kmem_free(bulk[idx], 0x20);
+        }
+        debug("Freed all of them!\n");
+        mm_dump_cache(last_cache);
+
         debug("\nTest successful\n");
 
         return -E_NOFUNCTION;
