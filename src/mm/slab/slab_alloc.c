@@ -447,7 +447,7 @@ kmem_find_size(struct mm_cache* cache, size_t size)
         size_t stage_s = ~0;
         for (; cache != NULL; cache = cache->next)
         {
-                if (cache->obj_size > size && cache->obj_size < stage_s)
+                if (cache->obj_size >= size && cache->obj_size < stage_s)
                 {
                         stage = cache;
                         stage_s = cache->obj_size;
