@@ -21,6 +21,9 @@
 #include <andromeda/core.h>
 
 #ifdef SLAB
+#ifdef SLAB_DBG
+struct mm_cache* last_cache = NULL;
+#endif
 
 /**
  * \AddToGroup slab
@@ -457,6 +460,9 @@ kmem_alloc(size_t size, uint16_t flags)
         }
         if (stage == NULL)
                 return NULL;
+#ifdef SLAB_DBG
+        last_cache = stage;
+#endif
 
         return mm_cache_alloc(stage, flags);
 }
@@ -470,7 +476,12 @@ kmem_free_size_e(void* ptr, struct mm_cache* cache)
                 if (cariage->obj_size == cache->obj_size)
                 {
                         if (mm_cache_free(cariage, ptr) == -E_SUCCESS)
+                        {
+#ifdef SLAB_DBG
+                                last_cache = cariage;
+#endif
                                 return -E_SUCCESS;
+                        }
                 }
         }
         return -E_CORRUPT;
@@ -648,13 +659,29 @@ mm_cache_test()
         else
                 return -E_GENERIC;
 
+        debug("Testing kmem_alloc\n");
+        tmp = kmem_alloc(0x20, 0);
+        mm_dump_cache(last_cache);
+
+        debug("Test allocation: %X\n", tmp);
+        debug("last_cache:      %X\n", last_cache);
+        demand_key();
+
+        struct mm_cache* stage = last_cache;
+        kmem_free(tmp, 0x20);
+        if (stage != last_cache)
+        {
+                debug("Freeing failed\n");
+                mm_dump_cache(stage);
+                mm_dump_cache(last_cache);
+                return -E_GENERIC;
+        }
 
         debug("\nTest successful\n");
 
         return -E_NOFUNCTION;
 }
 #endif
-
 
 /**
  * @}
