@@ -440,13 +440,57 @@ kmem_alloc(size_t size, uint16_t flags)
         if (size == 0 || flags == 0)
                 return NULL;
 
-        return NULL;
+        struct mm_cache* cariage = caches;
+        struct mm_cache* stage = NULL;
+        if (caches == NULL)
+                return NULL;
+
+        for (; cariage != NULL; cariage = cariage->next)
+        {
+                if (cariage->slabs_empty == NULL)
+                        if (cariage->slabs_partial == NULL)
+                                continue;
+
+                if (cariage->obj_size > size && cariage->obj_size <
+                                                                stage->obj_size)
+                        stage = cariage;
+        }
+        if (stage == NULL)
+                return NULL;
+
+        return mm_cache_alloc(stage, flags);
+}
+
+int
+kmem_free_size_e(void* ptr, struct mm_cache* cache)
+{
+        struct mm_cache* cariage = cache;
+        for (; cariage != NULL; cariage = cariage->next)
+        {
+                if (cariage->obj_size == cache->obj_size)
+                {
+                        if (mm_cache_free(cariage, ptr) == -E_SUCCESS)
+                                return -E_SUCCESS;
+                }
+        }
+        return -E_CORRUPT;
 }
 
 void
 kmem_free(void* ptr, size_t size)
 {
-        return;
+        struct mm_cache* cariage = caches;
+        struct mm_cache* stage = NULL;
+        for (; cariage != NULL; cariage = cariage->next)
+        {
+                if (cariage->obj_size > size && cariage->obj_size <
+                                                                stage->obj_size)
+                        stage = cariage;
+        }
+        if (stage == NULL)
+                return;
+
+        kmem_free_size_e(ptr, stage);
 }
 
 #ifdef SLAB_DBG
