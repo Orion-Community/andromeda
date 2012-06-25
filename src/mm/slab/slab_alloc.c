@@ -440,8 +440,11 @@ mm_cache_free(struct mm_cache* cache, void* ptr)
 void*
 kmem_alloc(size_t size, uint16_t flags)
 {
-        if (size == 0 || flags == 0)
+        if (size == 0)
                 return NULL;
+        /*
+         * Remember to check the flags once implemented
+         */
 
         struct mm_cache* cariage = caches;
         struct mm_cache* stage = NULL;
@@ -450,13 +453,23 @@ kmem_alloc(size_t size, uint16_t flags)
 
         for (; cariage != NULL; cariage = cariage->next)
         {
+#ifdef SLAB_DBG
+                debug("Having: %X of obj_size: %X\n", (int)cariage, cariage->obj_size);
+#endif
                 if (cariage->slabs_empty == NULL)
                         if (cariage->slabs_partial == NULL)
                                 continue;
 
-                if (cariage->obj_size > size && cariage->obj_size <
-                                                                stage->obj_size)
-                        stage = cariage;
+                if (cariage->obj_size >= size)
+                {
+                        if (stage != NULL)
+                        {
+                                if (cariage->obj_size < stage->obj_size)
+                                        stage = cariage;
+                        }
+                        else
+                                stage = cariage;
+                }
         }
         if (stage == NULL)
                 return NULL;
@@ -494,9 +507,16 @@ kmem_free(void* ptr, size_t size)
         struct mm_cache* stage = NULL;
         for (; cariage != NULL; cariage = cariage->next)
         {
-                if (cariage->obj_size > size && cariage->obj_size <
-                                                                stage->obj_size)
-                        stage = cariage;
+                if (cariage->obj_size >= size)
+                {
+                        if (stage != NULL)
+                        {
+                                if (cariage->obj_size < stage->obj_size)
+                                        stage = cariage;
+                        }
+                        else
+                                stage = cariage;
+                }
         }
         if (stage == NULL)
                 return;
