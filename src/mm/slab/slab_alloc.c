@@ -437,6 +437,34 @@ mm_cache_free(struct mm_cache* cache, void* ptr)
  * \todo Build kmem_free
  */
 
+static struct mm_cache*
+kmem_find_size(struct mm_cache* cache, size_t size)
+{
+        /*
+         * Find the smallest allocation candidate
+         */
+        struct mm_cache* stage = NULL;
+        size_t stage_s = ~0;
+        for (; cache != NULL; cache = cache->next)
+        {
+                if (cache->obj_size > size && cache->obj_size < stage_s)
+                {
+                        stage = cache;
+                        stage_s = cache->obj_size;
+                }
+        }
+        return stage;
+}
+
+static struct mm_cache*
+kmem_find_next_candidate(struct mm_cache* cache, size_t size)
+{
+        for(; cache != NULL; cache = cache->next)
+                if (cache->obj_size == size)
+                        return cache;
+        return NULL;
+}
+
 void*
 kmem_alloc(size_t size, uint16_t flags)
 {
@@ -446,82 +474,60 @@ kmem_alloc(size_t size, uint16_t flags)
          * Remember to check the flags once implemented
          */
 
-        struct mm_cache* cariage = caches;
-        struct mm_cache* stage = NULL;
-        if (caches == NULL)
+        struct mm_cache* candidate = kmem_find_size(caches, size);
+        if (candidate == NULL)
                 return NULL;
 
-        for (; cariage != NULL; cariage = cariage->next)
+        void* ret = mm_cache_alloc(candidate, flags);
+        if (ret != NULL)
+                goto found;
+
+        size = candidate->obj_size;
+        candidate = kmem_find_next_candidate(caches, size);
+        while (1)
         {
-#ifdef SLAB_DBG
-                debug("Having: %X of obj_size: %X\n", (int)cariage, cariage->obj_size);
-#endif
-                if (cariage->slabs_empty == NULL)
-                        if (cariage->slabs_partial == NULL)
-                                continue;
-
-                if (cariage->obj_size >= size)
-                {
-                        if (stage != NULL)
-                        {
-                                if (cariage->obj_size < stage->obj_size)
-                                        stage = cariage;
-                        }
-                        else
-                                stage = cariage;
-                }
+                if (candidate == NULL)
+                        return NULL;
+                ret = mm_cache_alloc(candidate, flags);
+                if (ret != NULL)
+                        goto found;
+                candidate = kmem_find_next_candidate(candidate, size);
         }
-        if (stage == NULL)
-                return NULL;
+        return NULL;
+found:
 #ifdef SLAB_DBG
-        last_cache = stage;
+        last_cache = candidate;
 #endif
-
-        return mm_cache_alloc(stage, flags);
-}
-
-int
-kmem_free_size_e(void* ptr, struct mm_cache* cache)
-{
-        struct mm_cache* cariage = cache;
-        for (; cariage != NULL; cariage = cariage->next)
-        {
-                if (cariage->obj_size == cache->obj_size)
-                {
-                        if (mm_cache_free(cariage, ptr) == -E_SUCCESS)
-                        {
-#ifdef SLAB_DBG
-                                last_cache = cariage;
-#endif
-                                return -E_SUCCESS;
-                        }
-                }
-        }
-        return -E_CORRUPT;
+        return ret;
 }
 
 void
 kmem_free(void* ptr, size_t size)
 {
-        struct mm_cache* cariage = caches;
-        struct mm_cache* stage = NULL;
-        for (; cariage != NULL; cariage = cariage->next)
-        {
-                if (cariage->obj_size >= size)
-                {
-                        if (stage != NULL)
-                        {
-                                if (cariage->obj_size < stage->obj_size)
-                                        stage = cariage;
-                        }
-                        else
-                                stage = cariage;
-                }
-        }
-        if (stage == NULL)
-                return;
+        struct mm_cache* candidate = kmem_find_size(caches, size);
 
-        kmem_free_size_e(ptr, stage);
+        if (candidate == NULL)
+                return;
+        size = candidate->obj_size;
+
+        if (mm_cache_free(candidate, ptr) == -E_SUCCESS)
+                goto found;
+
+        candidate = kmem_find_next_candidate(caches, size);
+        while (1)
+        {
+                if (candidate == NULL)
+                        return;
+                if (mm_cache_free(candidate, ptr) == -E_SUCCESS)
+                        goto found;
+                candidate = kmem_find_next_candidate(candidate, size);
+        }
+
+found:
+#ifdef SLAB_DBG
+        last_cache = candidate;
+#endif
+        return;
 }
 
 #ifdef SLAB_DBG
@@ -592,9 +598,10 @@ int
 mm_test_bulk(struct mm_cache* tst, int bastard_mode)
 {
         debug("\nTesting bulk\n");
-        void* array[0x1C];
+        int objs_total = tst->slabs_empty->objs_total;
+        void* array[objs_total];
         int i = 0;
-        for (; i < 0x1C; i++)
+        for (; i < objs_total; i++)
         {
                 array[i] = mm_cache_alloc(tst, 0);
                 if (array[i] == NULL)
@@ -606,7 +613,7 @@ mm_test_bulk(struct mm_cache* tst, int bastard_mode)
         }
         debug("Bulk seems successful\n");
         mm_dump_cache(tst);
-        for (i = 0; i < 0x1C; i++)
+        for (i = 0; i < objs_total; i++)
                 debug("%X\t", array[i]);
         demand_key();
 
@@ -624,7 +631,7 @@ mm_test_bulk(struct mm_cache* tst, int bastard_mode)
                 debug("\nBastard test completed\n");
         }
         debug("\nTesting bulk free\n");
-        for (i = 0; i < 0x1C; i++)
+        for (i = 0; i < objs_total; i++)
         {
                 if (mm_cache_free(tst, array[i]) != -E_SUCCESS)
                 {
@@ -696,6 +703,8 @@ mm_cache_test()
                 mm_dump_cache(last_cache);
                 return -E_GENERIC;
         }
+        debug("Freeing succeeded\n");
+        mm_dump_cache(last_cache);
 
         debug("\nTest successful\n");
 
