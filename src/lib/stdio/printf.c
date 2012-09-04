@@ -217,9 +217,9 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
         /* Now make the file pointer do all the hard work of placing the data */
         ret = stream->write(stream, fmt, strlen(fmt));
 
-err:
-        free(tmp_str);
 err1:
+        free(tmp_str);
+err:
         return ret;
 }
 
