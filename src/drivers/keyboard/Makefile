@@ -9,25 +9,16 @@ ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
 # targets
 
 KBD=kbd.o
-KBD_D=ps2.o kbd_.o
-
-#sources
-
-PS2=ps2.c
-KBD_=kbd.c
+TARGETS=ps2.o kbd.o
 
 .PHONY: all
-all: $(KBD)
+all: kdb
 
-$(KBD): $(KBD_D)
-	$(LD) $(LDFLAGS) $(KBD_D) -o $(KBD)
-	mv -vf ./$(KBD) ../$(KBD)
+kdb: $(TARGETS)
+	$(LD) $(LDFLAGS) $(TARGETS) -o ../$(KBD)
 
-ps2.o: $(PS2)
-	$(CC) $(CFLAGS) $(FLAGS) $(PS2) -o ps2.o
-
-kbd_.o: $(KBD_)
-	$(CC) $(CFLAGS) $(FLAGS) $(KBD_) -o kbd_.o
+%o: %c
+	$(CC) $(CFLAGS) $(FLAGS) $< -o $@
 
 .PHONY: clean
 clean:

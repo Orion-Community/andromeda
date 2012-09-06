@@ -9,25 +9,16 @@ ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
 # targets
 
 PCI=pci.o
-PCI_D=pci_.o msi.o
-
-#sources
-
-PCI_=pci.c
-MSI=msi.c
+TARGETS=pci.o msi.o
 
 .PHONY: all
-all: $(PCI)
+all: pci
 
-$(PCI): $(PCI_D)
-	$(LD) $(LDFLAGS) $(PCI_D) -o $(PCI)
-	mv -fv ./$(PCI) ../$(PCI)
+pci: $(TARGETS)
+	$(LD) $(LDFLAGS) $(TARGETS) -o ../$(PCI)
 
-pci_.o: $(PCI_)
-	$(CC) $(CFLAGS) $(FLAGS) $(PCI_) -o pci_.o
-
-msi.o: $(MSI)
-	$(CC) $(CFLAGS) $(FLAGS) $(MSI) -o msi.o
+%o: %c
+	$(CC) $(CFLAGS) $(FLAGS) $< -o $@
 
 .PHONY: clean
 clean:

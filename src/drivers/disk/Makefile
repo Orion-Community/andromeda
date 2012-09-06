@@ -22,9 +22,8 @@ DISK=ata.o
 .PHONY: all
 all: disk.o
 
-## Target: ata.o
-ata.o: ata.c
-	$(CC) $(CFLAGS) $(FLAGS) $(ATA) -o ata.o
+%o: %c
+	$(CC) $(CFLAGS) $(FLAGS) $< -o $@
 
 ## Target: disk.o
 disk.o: ata.o
