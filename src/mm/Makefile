@@ -5,6 +5,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 INCLUDES=../include/mm/heap.h ../include/mm/map.h ../include/mm/memory.h\
                                                           ../include/mm/paging.h
 
+TARGETS=map.o memory.o test.o
 
 .PHONY: all paging.o slab.o slob.o
 all: mm.o
@@ -19,18 +20,11 @@ slob.o:
 slab.o:
 	$(MAKE) -C slab/
 
-map.o: map.c $(INCLUDES)
-	$(CC) $(FLAGS) $(CFLAGS) map.c
-
-memory.o: memory.c $(INCLUDES)
-	$(CC) $(FLAGS) $(CFLAGS) memory.c
-
-test.o: test.c $(INCLUDES)
-	$(CC) $(FLAGS) $(CFLAGS) test.c
-
 paging.o:
 	$(MAKE) -C paging/
 
+%o: %c $(INCLUDES)
+	$(CC) $(CFLAGS) $(FLAGS) $< -o $@
 
 .PHONY: clean
 clean:

@@ -2,6 +2,9 @@ include ../scripts/makeIncl
 CFLAGS+=-I../include
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
+TARGETS=sched.o core.o syscall.o panic.o drivers.o buffer.o atomic.o lib.o \
+load.o ktimer.o
+
 ELF=elf.c exec.c
 TIMER=timer.c
 CORE=core.c
@@ -14,39 +17,20 @@ MK_FLAGS=FLAGS="$(FLAGS)"
 all: andromeda.o
 	mv -fv andromeda.o ../
 
-andromeda.o: load.o ktimer.o sched.o core.o syscall.o panic.o drivers.o buffer.o \
-atomic.o lib.o
+andromeda.o: $(TARGETS) ktimer.o
 	$(LD) $(LDFLAGS) *.o -o andromeda.o
 
 load.o: $(ELF)
 	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
+
+%o: %c
+	$(CC) $(CFLAGS) $(FLAGS) $< -o $@
 
 ktimer.o:
 	$(MAKE) -C timer/ $(MK_FLAGS)
 
 sched.o:
 	$(MAKE) -C scheduling/ $(MK_FLAGS)
-
-core.o: $(CORE)
-	$(CC) $(CFLAGS) $(FLAGS) $(CORE)
-
-syscall.o: $(SYSCALL)
-	$(CC) $(CFLAGS) $(FLAGS) $(SYSCALL)
-
-panic.o: $(PANIC)
-	$(CC) $(CFLAGS) $(FLAGS) $(PANIC)
-
-drivers.o: drivers.c
-	$(CC) $(CFLAGS) $(FLAGS) drivers.c
-
-buffer.o: buffer.c
-	$(CC) $(CFLAGS) $(FLAGS) buffer.c
-
-atomic.o: atomic.c
-	$(CC) $(CFLAGS) $(FLAGS) atomic.c
-
-lib.o: lib.c
-	$(CC) $(CFLAGS) $(FLAGS) lib.c
 
 .PHONY: clean
 clean:
