@@ -21,13 +21,24 @@
 #include <andromeda/error.h>
 #include <arch/x86/mm/page_alloc.h>
 
-#define PAGE_ALLOC_UNIT 16
-#define PAGE_SIZE 0x1000
-#define PAGE_LIST_SIZE 0x10000
-
 int pagemap[PAGE_LIST_SIZE];
+int first_free = 1;
 
 int page_alloc_init()
 {
+        int i = 0;
+        while (i < PAGE_LIST_SIZE)
+        {
+                pagemap[i] = i++;
+        }
+
+        pagemap[PAGE_LIST_SIZE-1] = PAGE_LIST_ALLOCATED;
+        pagemap[0] = PAGE_LIST_ALLOCATED;
+
+        /**
+         * Parse the grub memory map here to mark all the unusable pages as
+         * Allocated
+         */
+
         return -E_NOFUNCTION;
 }

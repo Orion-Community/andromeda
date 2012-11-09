@@ -3,7 +3,7 @@ CFLAGS+=-I../../../../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 INCLUDES:=
-TARGETS:=page_alloc_init.o
+TARGETS:=page_alloc_init.o page_allocate.o
 
 .PHONY: all
 all: page_alloc.o

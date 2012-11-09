@@ -23,6 +23,11 @@
 extern "C"  {
 #endif
 
+#define PAGE_ALLOC_UNIT         0x10
+#define PAGE_SIZE               0x1000
+#define PAGE_LIST_SIZE          0x10000
+#define PAGE_LIST_ALLOCATED     0xFFFFFFFF
+
 void* x86_page_alloc      ();
 int   x86_page_free       (void* page);
 int   x86_page_alloc_init ();
