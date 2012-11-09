@@ -12,7 +12,7 @@ MM=mm.o
 IRQ30=irq30.o
 
 ## deps
-MM_=gdt.o irq30.o paging.o
+MM_=gdt.o irq30.o paging.o page_alloc.o
 
 ## sources
 GDT_SRC=gdt.c
@@ -26,6 +26,9 @@ all: $(MM)
 
 $(MM): $(MM_)
 	$(LD) $(LDFLAGS) $(MM_) -o $(MM)
+
+page_alloc.o:
+	$(MAKE) -C page_alloc/
 
 gdt.o: $(GDT_SRC)
 	$(CC) $(CFLAGS) $(GDT_SRC) -o gdt.o
