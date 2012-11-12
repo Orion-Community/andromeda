@@ -90,6 +90,20 @@ struct pte_shadow {
         struct pte_shadow* parent;
         int state;
 };
+/**
+ * \struct pte_segment
+ * \brief Virtual memory segment discriptor
+ */
+struct pte_segment {
+        /**
+         * \var pagetables
+         * \brief pagetable discriptors
+         * \var pte_shadow
+         * \brief shadow table discriptors
+         */
+        struct pte* pagetables[0x10];
+        struct pte_shadow* shadowtables[0x10];
+};
 
 /**
  * \todo write pte_init

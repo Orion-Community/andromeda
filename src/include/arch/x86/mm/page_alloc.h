@@ -25,6 +25,7 @@ extern "C"  {
 
 #define PAGE_ALLOC_UNIT         0x10
 #define PAGE_SIZE               0x1000
+#define PAGE_ALLOC_FACTOR       (PAGE_ALLOC_UNIT*PAGE_SIZE)
 #define PAGE_LIST_SIZE          0x10000
 #define PAGE_LIST_ALLOCATED     0xFFFFFFFF
 

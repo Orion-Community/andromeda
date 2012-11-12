@@ -33,34 +33,42 @@ spinlock_t page_alloc_lock = mutex_unlocked;
  */
 void* page_alloc()
 {
+        /* Is there still memory left? */
         if (first_free == PAGE_LIST_ALLOCATED)
                 return NULL;
 
+        /* Enter critical */
         mutex_lock(&page_alloc_lock);
 
+        /* Fetch the pages to allocate */
         int allocated  = first_free;
+        /* Move the free pointer to the next free */
         first_free = pagemap[first_free];
+        /* Mark the allocated pages as allocated */
         pagemap[allocated] = PAGE_LIST_ALLOCATED;
 
+        /* Leave critical */
         mutex_unlock(&page_alloc_lock);
+        /* Convert to address and return pointer */
         return (void*)(allocated*PAGE_ALLOC_FACTOR);
 }
 
 int page_free(void* page)
 {
+        /* Determine validity of the pointer */
+        int p = (int)page/PAGE_ALLOC_FACTOR;
+        if (p % PAGE_ALLOC_FACTOR != 0)
+                return -E_INVALID_ARG;
+
+        /* Enter critical */
         mutex_lock(&page_alloc_lock);
 
-        int p = (int)page/PAGE_ALLOC_FACTOR;
-        if (p >= PAGE_LIST_SIZE)
-                goto err;
-
+        /* Mark pages as free */
         pagemap[p] = first_free;
+        /* Make pages first free (caching reasons) */
         first_free = p;
 
+        /* Leave critical */
         mutex_unlock(&page_alloc_lock);
         return -E_SUCCESS;
-
-err:
-        mutex_unlock(&page_alloc_lock);
-        return -INVALID_ARG;
 }
