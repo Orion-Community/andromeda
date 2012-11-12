@@ -103,6 +103,13 @@ struct pte_segment {
          */
         struct pte* pagetables[0x10];
         struct pte_shadow* shadowtables[0x10];
+        int cpl;
+        int code;
+};
+
+struct pte_discriptor {
+        struct pte_segment* segments[0x10];
+
 };
 
 /**

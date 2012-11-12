@@ -27,6 +27,15 @@
  */
 
 /**
+ * \todo Create statically allocated pte discriptor and segments.
+ * \todo Use existing page tables to attach to these segments.
+ * \todo Grow the existing "asm" pagetables to cover the whole 3GB area.
+ * \todo Create userspace pte initialiser
+ * \todo Create kernelspace pte initialiser
+ * \todo Create vmem context switcher
+ */
+
+/**
  * \var pte_core
  * \brief The pte tracker for the kernel
  */
