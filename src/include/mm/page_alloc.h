@@ -16,8 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __ARCH_X86_MM_PAGE_ALLOC_H
-#define __ARCH_X86_MM_PAGE_ALLOC_H
+#ifndef __MM_PAGE_ALLOC_H
+#define __MM_PAGE_ALLOC_H
 
 #ifdef __cplusplus
 extern "C"  {
@@ -28,6 +28,7 @@ extern "C"  {
 #define PAGE_ALLOC_FACTOR       (PAGE_ALLOC_UNIT*PAGE_SIZE)
 #define PAGE_LIST_SIZE          0x10000
 #define PAGE_LIST_ALLOCATED     0xFFFFFFFF
+#define PAGE_LIST_MARKED        0xFFFFFFFE
 
 void* x86_page_alloc      ();
 int   x86_page_free       (void* page);

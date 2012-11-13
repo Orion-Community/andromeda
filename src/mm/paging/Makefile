@@ -13,6 +13,9 @@ paging.o: page_alloc.o pte.o mboot.o x86.o vmem.o vmem_buddy.o
 page_alloc.o: page_alloc.c
 	$(CC) $(FLAGS) $(CFLAGS) page_alloc.c
 
+page_alloc2.o:
+	$(MAKE) -C page_alloc/
+
 pte.o:
 	$(MAKE) -C pte/
 

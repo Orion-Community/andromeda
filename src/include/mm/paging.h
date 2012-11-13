@@ -88,6 +88,9 @@ struct page_table
 typedef struct page_table page_table_t;
 
 struct mm_page_list {
+        /**
+         * \todo Phase out the mm_page_list
+         */
         struct mm_page_descriptor* head;
         struct mm_page_descriptor* tail;
 };
@@ -100,6 +103,7 @@ void page_init();
  */
 struct mm_page_descriptor {
         /**
+         * \todo Phase out the mm_page_descriptor
          * \var next
          * \var page_ptr
          * \brief pointer to physical page
@@ -146,6 +150,7 @@ int page_unmap_low_mem();
 addr_t page_phys_addr(addr_t, struct page_dir*);
 
 /**
+ * \todo Work around the mboot initialiser code to the new page allocator
  * \fn mboot_page_setup
  * \brief Build a list of available pages based on multiboot info
  * \param map
@@ -194,7 +199,7 @@ addr_t page_phys_addr(addr_t, struct page_dir*);
  *
  * \fn x86_page_map_higher_half
  * \brief Map the higher half part of the kernel
- * \return A satndard error code
+ * \return A standard error code
  *
  * \fn x86_map_kernel
  * \brief Map the kernel to physical memory

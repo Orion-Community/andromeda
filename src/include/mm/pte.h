@@ -31,8 +31,8 @@
 extern "C" {
 #endif
 
-struct pte_shadow;
-extern struct pte_shadow* pte_core;
+struct pte_segment;
+extern struct pte_segment* pte_core[];
 
 /**
  * \def PTE_OFFSET
@@ -71,76 +71,43 @@ struct pte {
 };
 
 /**
- * \struct pte_shadow
- * \brief The shadow discriptor of the page table
+ * \struct pte_segment
+ * \brief The description of a segment
  */
-struct pte_shadow {
+struct pte_segment {
         /**
+         * \var next
+         * \brief Pointer to the next segment in the list
          * \var pte
          * \brief The virtual reference to the page table
-         * \var children
+         * \var child
          * \brief A set of pointers to the leaves / branches of the pte table
          * \var parent
          * \brief A reference to the parent for quick lookups
          * \var state
          * \brief An integer indicating the condition of the page table entry
          */
+        struct pte_segment* next;
+
         struct pte* pte;
-        void* children[PTE_SIZE];
+        void* child[PTE_SIZE];
         struct pte_shadow* parent;
         int state;
 };
-/**
- * \struct pte_segment
- * \brief Virtual memory segment discriptor
- */
-struct pte_segment {
-        /**
-         * \var pagetables
-         * \brief pagetable discriptors
-         * \var pte_shadow
-         * \brief shadow table discriptors
-         */
-        struct pte* pagetables[0x10];
-        struct pte_shadow* shadowtables[0x10];
-        int cpl;
-        int code;
-};
-
-struct pte_discriptor {
-        struct pte_segment* segments[0x10];
-
-};
 
 /**
- * \todo write pte_init
- * \todo write pte_switch
- * \todo write pte_map
- * \todo write pte_unmap
- *
- * \fn pte_init
- * \brief Setup the first pte administration
- * \param kern_boundary
- * \brief Where does the kernel start?
- *
- * \fn pte_switch
- * \brief Make the pte system take over control of paging
- *
- * \fn pte_map
- * \brief Map a virtual page to a physical one
- * \param phys
- * \param virt
- * \param pte
- *
- * \fn pte_unmap
- * \brief Unmap a particular page
- * \param phys
- * \param pte
+ * \fn pte_segment_init
+ * \brief
+ * \fn pte_segment_alloc
+ * \brief
+ * \fn pte_segment_free
+ * \brief
  */
-int pte_init(void* kernel_offset, size_t kernel_size);
-int pte_switch();
-int pte_map(void* virt, void* phys, struct pte_shadow* pte);
-int pte_unmap(void* virt, struct pte_shadow* pte);
+
+void pte_segment_init(struct pte_segment*);
+struct pte_segment* pte_segment_alloc();
+void pte_segment_free(struct pte_segment*);
+
 #ifdef __cplusplus
 };
 #endif

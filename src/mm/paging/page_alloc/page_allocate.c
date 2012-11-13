@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <andromeda/error.h>
-#include <arch/x86/mm/page_alloc.h>
+#include <mm/page_alloc.h>
 #include <thread.h>
 
 extern int pagemap[];
@@ -53,6 +53,42 @@ void* page_alloc()
         return (void*)(allocated*PAGE_ALLOC_FACTOR);
 }
 
+int pagemap_find_reference(int p)
+{
+        int i = first_free;
+        for (; i != PAGE_LIST_ALLOCATED || PAGE_LIST_MARKED; i = pagemap[i])
+        {
+                if (pagemap[i] == p)
+                        return i;
+        }
+}
+
+/**
+ * \fn page_mark
+ * \brief Mark a page as unallocatable, or not
+ */
+int page_mark(void* page, int usable)
+{
+        int p = page / PAGE_ALLOC_FACTOR;
+        mutex_lock(&page_alloc_lock);
+        if (first_free == p && usable == 0)
+        {
+                first_free = pagemap[first_free];
+                pagemap[p] = PAGE_LIST_MARKED;
+                goto success;
+        }
+        else
+        {
+        }
+
+success:
+        mutex_unlock(&page_alloc_lock);
+        return -E_NOFUCNTION;
+}
+
+/**
+ * \fn page_free
+ */
 int page_free(void* page)
 {
         /* Determine validity of the pointer */

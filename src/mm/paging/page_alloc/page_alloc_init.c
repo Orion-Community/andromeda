@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <andromeda/error.h>
-#include <arch/x86/mm/page_alloc.h>
+#include <mm/page_alloc.h>
 
 int pagemap[PAGE_LIST_SIZE];
 int first_free = 1;
