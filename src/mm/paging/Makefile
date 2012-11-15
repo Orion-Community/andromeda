@@ -7,7 +7,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 all: paging.o
 	mv -fv paging.o ../
 
-paging.o: page_alloc.o pte.o mboot.o x86.o vmem.o vmem_buddy.o
+paging.o: page_alloc.o pte.o mboot.o x86.o vmem.o vmem_buddy.o page_alloc2.o
 	$(LD) -o paging.o *.o $(LDFLAGS)
 
 page_alloc.o: page_alloc.c

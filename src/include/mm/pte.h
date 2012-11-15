@@ -97,11 +97,11 @@ struct pte_segment {
 
 /**
  * \fn pte_segment_init
- * \brief
+ * \brief Initialises all elements
  * \fn pte_segment_alloc
- * \brief
+ * \brief Allocates userspace segments
  * \fn pte_segment_free
- * \brief
+ * \brief Frees userspace segments
  */
 
 void pte_segment_init(struct pte_segment*);

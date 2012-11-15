@@ -34,7 +34,7 @@ spinlock_t page_alloc_lock = mutex_unlocked;
 void* page_alloc()
 {
         /* Is there still memory left? */
-        if (first_free == PAGE_LIST_ALLOCATED)
+        if (first_free == PAGE_LIST_ALLOCATED || first_free == PAGE_LIST_MARKED)
                 return NULL;
 
         /* Enter critical */
@@ -53,37 +53,74 @@ void* page_alloc()
         return (void*)(allocated*PAGE_ALLOC_FACTOR);
 }
 
-int pagemap_find_reference(int p)
+addr_t pagemap_find_reference(addr_t p)
 {
-        int i = first_free;
+        if (p % PAGE_ALLOC_FACTOR != 0)
+                return -E_INVALID_ARG;
+
+        addr_t i = first_free;
         for (; i != PAGE_LIST_ALLOCATED || PAGE_LIST_MARKED; i = pagemap[i])
         {
                 if (pagemap[i] == p)
                         return i;
         }
+        return -E_INVALID_ARG;
 }
 
 /**
  * \fn page_mark
- * \brief Mark a page as unallocatable, or not
+ * \brief Mark an allocatable page as unallocatable
  */
-int page_mark(void* page, int usable)
+int page_mark(void* page)
 {
-        int p = page / PAGE_ALLOC_FACTOR;
+        if ((addr_t)page % PAGE_ALLOC_FACTOR != 0)
+                return -E_INVALID_ARG;
+
+        addr_t p = (addr_t)page / PAGE_ALLOC_FACTOR;
+
         mutex_lock(&page_alloc_lock);
-        if (first_free == p && usable == 0)
-        {
+
+        if (pagemap[p] == PAGE_LIST_ALLOCATED)
+                panic("An unallocatable page was allocated!");
+
+        if (first_free == p)
                 first_free = pagemap[first_free];
-                pagemap[p] = PAGE_LIST_MARKED;
-                goto success;
-        }
+
         else
         {
+                addr_t i = pagemap_find_reference(p);
+                if (i != -E_INVALID_ARG)
+                        pagemap[i] = pagemap[p];
         }
 
-success:
+        pagemap[p] = PAGE_LIST_MARKED;
+
         mutex_unlock(&page_alloc_lock);
-        return -E_NOFUCNTION;
+
+        return -E_SUCCESS;
+}
+
+/**
+ * \fn page_mark
+ * \brief Mark an unallocatable page as allocatable
+ */
+int page_unmark(void* page)
+{
+        if ((addr_t)page % PAGE_ALLOC_FACTOR != 0)
+                return -E_INVALID_ARG;
+
+        addr_t p = (addr_t)page / PAGE_ALLOC_FACTOR;
+        mutex_lock(&page_alloc_lock);
+
+        if (pagemap[p] != PAGE_LIST_MARKED)
+                goto err;
+
+        pagemap[p] = first_free;
+        first_free = p;
+
+err:
+        mutex_unlock(&page_alloc_lock);
+        return -E_NOFUNCTION;
 }
 
 /**
@@ -92,9 +129,9 @@ success:
 int page_free(void* page)
 {
         /* Determine validity of the pointer */
-        int p = (int)page/PAGE_ALLOC_FACTOR;
-        if (p % PAGE_ALLOC_FACTOR != 0)
+        if ((addr_t)page % PAGE_ALLOC_FACTOR != 0)
                 return -E_INVALID_ARG;
+        addr_t p = (addr_t)page / PAGE_ALLOC_FACTOR;
 
         /* Enter critical */
         mutex_lock(&page_alloc_lock);

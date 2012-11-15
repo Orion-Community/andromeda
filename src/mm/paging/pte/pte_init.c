@@ -27,7 +27,6 @@
  */
 
 /**
- * \todo Create statically allocated pte segments.
  * \todo Use existing page tables to attach to these segments.
  * \todo Grow the existing "asm" pagetables to cover the whole 3GB area.
  * \todo Create userspace pte initialiser.
@@ -36,15 +35,18 @@
  * \todo Rebuild practically the entire memory subsystem.
  */
 
+#define STATIC_SEGMENTS 16
 /**
  * \var pte_core
  * \brief The pte tracker for the kernel
  */
-struct pte_segment* pte_core[16];
+struct pte_segment* pte_core[STATIC_SEGMENTS];
 
 // Initialise the pte system
 int
 pte_init(void* kernel_offset, size_t kernel_size)
 {
+        int i = 0;
+        //for (;;);
         return -E_NOFUNCTION;
 }

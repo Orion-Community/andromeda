@@ -30,9 +30,11 @@ extern "C"  {
 #define PAGE_LIST_ALLOCATED     0xFFFFFFFF
 #define PAGE_LIST_MARKED        0xFFFFFFFE
 
-void* x86_page_alloc      ();
-int   x86_page_free       (void* page);
-int   x86_page_alloc_init ();
+void* page_alloc                ();
+int   page_free                 (void* page);
+int   page_mark                 (void* page);
+int   page_unmark               (void* page);
+int   page_alloc_init           ();
 
 #ifdef __cplusplus
 }

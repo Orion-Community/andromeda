@@ -20,20 +20,55 @@
 #include <stdlib.h>
 #include <andromeda/error.h>
 #include <mm/page_alloc.h>
+#include <boot/mboot.h>
 
 int pagemap[PAGE_LIST_SIZE];
-int first_free = 1;
+int first_free = PAGE_LIST_MARKED;
+
+int mboot_parse(multiboot_memory_map_t* map, int map_size)
+{
+        /* Pointer to the mboot list entry */
+        multiboot_memory_map_t* mmap = map;
+
+        /* While not outside of the mboot list */
+        while((addr_t)mmap < (addr_t)map + map_size)
+        {
+                if (mmap->type != MULTIBOOT_MEMORY_AVAILABLE)
+                        goto itteration_skip;
+                /* Parse each entry here */
+                if (mmap->addr < SIZE_MEG && mmap->addr + mmap->size > SIZE_MEG)
+                {
+                        addr_t ptr = SIZE_MEG;
+                        size_t size = mmap->size - (SIZE_MEG - mmap->addr);
+                        for (; ptr < mmap->addr+size; ptr += PAGE_ALLOC_FACTOR)
+                                page_unmark(ptr);
+                }
+                if (mmap->addr >= SIZE_MEG)
+                {
+                        addr_t ptr = mmap->addr;
+                        size_t size = mmap->size;
+                        for (; ptr < mmap->addr + mmap->size;
+                                ptr += PAGE_ALLOC_FACTOR)
+                        {
+                                page_unmark(ptr);
+                        }
+                }
+
+        itteration_skip:
+                mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
+        }
+}
 
 int page_alloc_init()
 {
         int i = 0;
         while (i < PAGE_LIST_SIZE)
         {
-                pagemap[i] = i++;
+                pagemap[i] = PAGE_LIST_MARKED;
         }
 
-        pagemap[PAGE_LIST_SIZE-1] = PAGE_LIST_ALLOCATED;
-        pagemap[0] = PAGE_LIST_ALLOCATED;
+        pagemap[PAGE_LIST_SIZE-1] = PAGE_LIST_MARKED;
+        pagemap[0] = PAGE_LIST_MARKED;
 
         /**
          * Parse the grub memory map here to mark all the unusable pages as
