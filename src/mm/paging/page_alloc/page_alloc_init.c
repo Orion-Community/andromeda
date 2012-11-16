@@ -33,21 +33,30 @@ int mboot_parse(multiboot_memory_map_t* map, int map_size)
         /* While not outside of the mboot list */
         while((addr_t)mmap < (addr_t)map + map_size)
         {
+#ifdef PA_DBG
+                printf( "Entry:\taddr: %X\n"
+                        "\tsize: %X\n"
+                        "\ttype: %X\n",
+                        (int)mmap->addr,
+                        (int)mmap->len,
+                        (int)mmap->type
+                );
+#endif
                 if (mmap->type != MULTIBOOT_MEMORY_AVAILABLE)
                         goto itteration_skip;
                 /* Parse each entry here */
                 if (mmap->addr < SIZE_MEG && mmap->addr + mmap->size > SIZE_MEG)
                 {
                         addr_t ptr = SIZE_MEG;
-                        size_t size = mmap->size - (SIZE_MEG - mmap->addr);
+                        size_t size = mmap->len - (SIZE_MEG - mmap->addr);
                         for (; ptr < mmap->addr+size; ptr += PAGE_ALLOC_FACTOR)
                                 page_unmark(ptr);
                 }
                 if (mmap->addr >= SIZE_MEG)
                 {
                         addr_t ptr = mmap->addr;
-                        size_t size = mmap->size;
-                        for (; ptr < mmap->addr + mmap->size;
+                        size_t size = mmap->len;
+                        for (; ptr < mmap->addr + mmap->len;
                                 ptr += PAGE_ALLOC_FACTOR)
                         {
                                 page_unmark(ptr);
@@ -59,12 +68,13 @@ int mboot_parse(multiboot_memory_map_t* map, int map_size)
         }
 }
 
-int page_alloc_init()
+int page_alloc_init(multiboot_memory_map_t* map, int map_size)
 {
         int i = 0;
         while (i < PAGE_LIST_SIZE)
         {
                 pagemap[i] = PAGE_LIST_MARKED;
+                i++;
         }
 
         pagemap[PAGE_LIST_SIZE-1] = PAGE_LIST_MARKED;
@@ -75,7 +85,7 @@ int page_alloc_init()
          * Allocated
          */
 
-
+        mboot_parse(map, map_size);
 
         return -E_NOFUNCTION;
 }

@@ -138,6 +138,10 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
 
+        /** Build the memory map and allow for allocation */
+        page_alloc_init(mmap, (unsigned int)hdr->mmap_length);
+
+        /** In the progress of phasing out */
         /** Set up paging administration */
         x86_page_init(memsize);
         mboot_page_setup(mmap, (uint32_t)hdr->mmap_length);
@@ -150,6 +154,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #ifdef VMEM_TEST
         vmem_test_tree();
 #endif
+        /** end of deprication */
         task_init();
 
         page_init();
