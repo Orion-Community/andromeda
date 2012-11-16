@@ -34,8 +34,11 @@ spinlock_t page_alloc_lock = mutex_unlocked;
 void* page_alloc()
 {
         /* Is there still memory left? */
-        if (first_free == PAGE_LIST_ALLOCATED || first_free == PAGE_LIST_MARKED)
+        if (first_free == PAGE_LIST_ALLOCATED || first_free == PAGE_LIST_MARKED
+                || first_free == PAGE_LIST_END)
+        {
                 return NULL;
+        }
 
         /* Enter critical */
         mutex_lock(&page_alloc_lock);
@@ -139,7 +142,15 @@ int page_unmark(void* page)
                 goto err;
 
         /* Mark the page as usable */
-        pagemap[p] = first_free;
+        if (first_free == PAGE_LIST_ALLOCATED || first_free == PAGE_LIST_END ||
+                first_free == PAGE_LIST_MARKED)
+        {
+                pagemap[p] = PAGE_LIST_END;
+        }
+        else
+        {
+                pagemap[p] = first_free;
+        }
         /* Nah, allocate this page as soon as possible! */
         first_free = p;
 
