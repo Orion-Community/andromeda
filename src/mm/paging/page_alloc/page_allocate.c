@@ -53,17 +53,28 @@ void* page_alloc()
         return (void*)(allocated*PAGE_ALLOC_FACTOR);
 }
 
+/**
+ * \fn pagemap_find_reference
+ * \brief internal allocator function
+ * \warning Assumes to be ran while page_alloc_lock is locked
+ * \param p
+ * \brief index of page to find
+ * \return index to found page
+ */
 addr_t pagemap_find_reference(addr_t p)
 {
-        if (p % PAGE_ALLOC_FACTOR != 0)
+        /* Verify the index to the best of our abilities */
+        if (p >= PAGE_LIST_SIZE)
                 return -E_INVALID_ARG;
-
-        addr_t i = first_free;
-        for (; i != PAGE_LIST_ALLOCATED || PAGE_LIST_MARKED; i = pagemap[i])
+        /* While not at end of list look at next entry */
+        addr_t i = 0;
+        for (; i < PAGE_LIST_SIZE; i++)
         {
+                /* If reference found, return it */
                 if (pagemap[i] == p)
                         return i;
         }
+        /* Otherwise the input was wrong */
         return -E_INVALID_ARG;
 }
 
@@ -73,19 +84,24 @@ addr_t pagemap_find_reference(addr_t p)
  */
 int page_mark(void* page)
 {
+        /* Verify the input */
         if ((addr_t)page % PAGE_ALLOC_FACTOR != 0)
                 return -E_INVALID_ARG;
 
+        /* Put the index into p */
         addr_t p = (addr_t)page / PAGE_ALLOC_FACTOR;
 
+        /* Enter critical, don't forget to leave */
         mutex_lock(&page_alloc_lock);
 
+        /* Do you know any better time to panic than memory corruption? */
         if (pagemap[p] == PAGE_LIST_ALLOCATED)
                 panic("An unallocatable page was allocated!");
 
+        /* If first free equals p, move it up */
         if (first_free == p)
                 first_free = pagemap[first_free];
-
+        /* Else do stuff in the list */
         else
         {
                 addr_t i = pagemap_find_reference(p);
@@ -93,10 +109,13 @@ int page_mark(void* page)
                         pagemap[i] = pagemap[p];
         }
 
+        /* Mark the page as being unavailable */
         pagemap[p] = PAGE_LIST_MARKED;
 
+        /* Phew, we can leave critical again */
         mutex_unlock(&page_alloc_lock);
 
+        /* Boy am I glad it is over */
         return -E_SUCCESS;
 }
 
@@ -106,21 +125,29 @@ int page_mark(void* page)
  */
 int page_unmark(void* page)
 {
+        /* Verify the pointer */
         if ((addr_t)page % PAGE_ALLOC_FACTOR != 0)
                 return -E_INVALID_ARG;
 
+        /* Get the index */
         addr_t p = (addr_t)page / PAGE_ALLOC_FACTOR;
+        /* Enter critical */
         mutex_lock(&page_alloc_lock);
 
+        /* Oh noes!!! Wait a sec, there's nothing to be done here! */
         if (pagemap[p] != PAGE_LIST_MARKED)
                 goto err;
 
+        /* Mark the page as usable */
         pagemap[p] = first_free;
+        /* Nah, allocate this page as soon as possible! */
         first_free = p;
 
 err:
+        /* Finally, leave critical */
         mutex_unlock(&page_alloc_lock);
-        return -E_NOFUNCTION;
+        /* That went well, didn't it? */
+        return -E_SUCCESS;
 }
 
 /**
