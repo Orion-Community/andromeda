@@ -17,7 +17,10 @@
  */
 
 #include <boot/mboot.h>
-
+/**
+ * \defgroup Page_alloc
+ * @{
+ */
 #ifndef __MM_PAGE_ALLOC_H
 #define __MM_PAGE_ALLOC_H
 
@@ -29,8 +32,9 @@ extern "C"  {
 #define PAGE_SIZE               0x1000
 #define PAGE_ALLOC_FACTOR       (PAGE_ALLOC_UNIT*PAGE_SIZE)
 #define PAGE_LIST_SIZE          0x10000
-#define PAGE_LIST_ALLOCATED     0xFFFFFFFF
-#define PAGE_LIST_MARKED        0xFFFFFFFE
+#define PAGE_LIST_ALLOCATED     (unsigned long)(-1)
+#define PAGE_LIST_MARKED        (unsigned long)(-2)
+#define PAGE_LIST_END           (unsigned long)(-3)
 
 void* page_alloc                ();
 int   page_free                 (void* page);
@@ -43,3 +47,8 @@ int   page_alloc_init           ();
 #endif
 
 #endif
+
+/**
+ * @}
+ * \file
+ */

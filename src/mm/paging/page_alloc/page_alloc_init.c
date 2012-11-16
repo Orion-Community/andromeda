@@ -1,6 +1,6 @@
 /*
  *  Orion OS, The educational operatingsystem
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2012  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,15 @@
 #include <andromeda/error.h>
 #include <mm/page_alloc.h>
 #include <boot/mboot.h>
+
+/**
+ * \AddToGroup Page_alloc
+ * @{
+ */
+
+/**
+ * \todo move page alloc initialisation out to architecture x86
+ */
 
 int pagemap[PAGE_LIST_SIZE];
 int first_free = PAGE_LIST_MARKED;
@@ -44,28 +53,32 @@ int mboot_parse(multiboot_memory_map_t* map, int map_size)
 #endif
                 if (mmap->type != MULTIBOOT_MEMORY_AVAILABLE)
                         goto itteration_skip;
+
+#ifdef PA_DBG
+                printf("\tWe get to do something now!\n");
+#endif
                 /* Parse each entry here */
                 if (mmap->addr < SIZE_MEG && mmap->addr + mmap->size > SIZE_MEG)
                 {
                         addr_t ptr = SIZE_MEG;
                         size_t size = mmap->len - (SIZE_MEG - mmap->addr);
                         for (; ptr < mmap->addr+size; ptr += PAGE_ALLOC_FACTOR)
-                                page_unmark(ptr);
+                                page_unmark((void*)ptr);
                 }
                 if (mmap->addr >= SIZE_MEG)
                 {
                         addr_t ptr = mmap->addr;
-                        size_t size = mmap->len;
                         for (; ptr < mmap->addr + mmap->len;
                                 ptr += PAGE_ALLOC_FACTOR)
                         {
-                                page_unmark(ptr);
+                                page_unmark((void*)ptr);
                         }
                 }
 
         itteration_skip:
                 mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
         }
+        return -E_SUCCESS;
 }
 
 int page_alloc_init(multiboot_memory_map_t* map, int map_size)
@@ -87,5 +100,15 @@ int page_alloc_init(multiboot_memory_map_t* map, int map_size)
 
         mboot_parse(map, map_size);
 
+        /**
+         * \todo mark memory in use by kernel as allocated
+         * \todo mark memory in use by mods as allocated
+         */
+
         return -E_NOFUNCTION;
 }
+
+/**
+ * @}
+ * \file
+ */

@@ -46,7 +46,5 @@ struct pte_segment* pte_core[STATIC_SEGMENTS];
 int
 pte_init(void* kernel_offset, size_t kernel_size)
 {
-        int i = 0;
-        //for (;;);
         return -E_NOFUNCTION;
 }

@@ -140,7 +140,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         /** Build the memory map and allow for allocation */
         page_alloc_init(mmap, (unsigned int)hdr->mmap_length);
-
+#ifdef PA_DBG
+        endProg();
+#endif
         /** In the progress of phasing out */
         /** Set up paging administration */
         x86_page_init(memsize);
