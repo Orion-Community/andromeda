@@ -132,6 +132,12 @@ void core_loop()
         mm_cache_test();
 #endif
 #endif
+#ifdef RR_EXP
+        extern void task_testA();
+        extern void task_testB();
+        rr_thread_init(task_testA);
+        rr_thread_init(task_testB);
+#endif
 
 //         uint32_t pid = 0;
         debug("Entering core loop\n");
@@ -145,7 +151,9 @@ void core_loop()
                 case RL_RUN3:
                 case RL_RUN4:
                      halt();
-//                      sched_next_task();
+#ifdef RR_EXP
+                     rr_sched();
+#endif
                         break;
 
                 case RL_REBOOT:
