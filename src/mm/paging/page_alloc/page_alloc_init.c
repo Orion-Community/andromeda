@@ -21,6 +21,7 @@
 #include <andromeda/error.h>
 #include <mm/page_alloc.h>
 #include <boot/mboot.h>
+#include <mm/paging.h>
 
 /**
  * \AddToGroup Page_alloc
@@ -33,6 +34,8 @@
 
 int pagemap[PAGE_LIST_SIZE];
 int first_free = PAGE_LIST_MARKED;
+extern int boot;
+
 
 int mboot_parse(multiboot_memory_map_t* map, int map_size)
 {
@@ -81,8 +84,32 @@ int mboot_parse(multiboot_memory_map_t* map, int map_size)
         return -E_SUCCESS;
 }
 
+int page_alloc_mark_kernel()
+{
+        /* Initialise the pointers */
+        addr_t start_addr = (int)&boot;
+        addr_t end_addr = (int)&end - THREE_GIB;
+
+#ifdef PA_DBG
+        /* Spam some debugging info */
+        printf( "Kernel info:\tstart:\t%X\n"
+                "\t\tend:\t%X\n",
+                (int)start_addr,
+                (int)end_addr
+        );
+#endif
+
+        /* Mark each page, one by one by one ... */
+        for (;start_addr < end_addr; start_addr += PAGE_ALLOC_FACTOR)
+                page_mark(start_addr);
+
+        /* Yay, success. Lets end the function here */
+        return -E_SUCCESS;
+}
+
 int page_alloc_init(multiboot_memory_map_t* map, int map_size)
 {
+        /* Initialise the page map, to everything marked */
         int i = 0;
         while (i < PAGE_LIST_SIZE)
         {
@@ -90,18 +117,18 @@ int page_alloc_init(multiboot_memory_map_t* map, int map_size)
                 i++;
         }
 
-        pagemap[PAGE_LIST_SIZE-1] = PAGE_LIST_MARKED;
-        pagemap[0] = PAGE_LIST_MARKED;
-
         /**
          * Parse the grub memory map here to mark all the unusable pages as
          * Allocated
          */
 
-        mboot_parse(map, map_size);
+        if (mboot_parse(map, map_size) != -E_SUCCESS)
+                panic("Memory corruption in page_alloc_init");
+
+        if (page_alloc_mark_kernel() != -E_SUCCESS)
+                panic("Something went wrong in mapping kernel");
 
         /**
-         * \todo mark memory in use by kernel as allocated
          * \todo mark memory in use by mods as allocated
          */
 
