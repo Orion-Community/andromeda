@@ -21,7 +21,10 @@
 #include <andromeda/error.h>
 #include <mm/page_alloc.h>
 #include <thread.h>
-
+/**
+ * \AddToGroup Page_alloc
+ * @{
+ */
 extern int pagemap[];
 extern int first_free;
 
@@ -183,3 +186,32 @@ int page_free(void* page)
         mutex_unlock(&page_alloc_lock);
         return -E_SUCCESS;
 }
+
+#ifdef PA_DBG
+void page_dump()
+{
+        int i = first_free;
+        int j = 0;
+        for (; !(i == PAGE_LIST_END || i == PAGE_LIST_MARKED || i == PAGE_LIST_ALLOCATED); i = pagemap[i], j++)
+        {
+                if (!(j % 8))
+                        demand_key();
+                printf("This: %X -> %X\n", i, pagemap[i]);
+        }
+}
+void page_dump2()
+{
+        int i = 0;
+        for (; i < PAGE_LIST_SIZE; i++)
+        {
+                if (!(i % 8))
+                        demand_key();
+                printf("This: %X -> %X\n", i, pagemap[i]);
+        }
+}
+#endif
+
+/**
+ * @}
+ * \file
+ */

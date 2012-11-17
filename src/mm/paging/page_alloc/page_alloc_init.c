@@ -101,7 +101,7 @@ int page_alloc_mark_kernel()
 
         /* Mark each page, one by one by one ... */
         for (;start_addr < end_addr; start_addr += PAGE_ALLOC_FACTOR)
-                page_mark(start_addr);
+                page_mark((void*)start_addr);
 
         /* Yay, success. Lets end the function here */
         return -E_SUCCESS;
@@ -117,9 +117,9 @@ int page_alloc_init(multiboot_memory_map_t* map, int map_size)
                 i++;
         }
 
-        /**
+        /*
          * Parse the grub memory map here to mark all the unusable pages as
-         * Allocated
+         * allocated.
          */
 
         if (mboot_parse(map, map_size) != -E_SUCCESS)

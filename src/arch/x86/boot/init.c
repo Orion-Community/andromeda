@@ -141,7 +141,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         /** Build the memory map and allow for allocation */
         page_alloc_init(mmap, (unsigned int)hdr->mmap_length);
 #ifdef PA_DBG
-        endProg();
+//         endProg();
 #endif
         /** In the progress of phasing out */
         /** Set up paging administration */
@@ -209,6 +209,12 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #ifdef PTE_DBG
         pte_test();
 #endif
+#endif
+#ifdef PA_DBG
+        addr_t p = (addr_t)page_alloc();
+        page_free((void*)p);
+        printf("Allocated: %X\n", p);
+        page_dump2();
 #endif
         core_loop();
         return 0; // To keep the compiler happy.
