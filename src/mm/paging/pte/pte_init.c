@@ -17,6 +17,7 @@
  */
 
 #include <mm/pte.h>
+#include <mm/page_alloc.h>
 #include <andromeda/error.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,6 +25,7 @@
 
 /**
  * \AddToGroup PTE
+ * @{
  */
 
 /**
@@ -34,12 +36,26 @@
  * \todo Rebuild practically the entire memory subsystem.
  */
 
-#define STATIC_SEGMENTS 16
+#define STATIC_SEGMENTS 256
 /**
+ * \var pte_core_segments
+ * \brief The statically allocated segments for the kernel
+ *
+ * The kernel is granted some segment descriptors (16 pages) to cover its memory
+ * needs without the need for a dynamic allocator, which isn't initialised at
+ * the time the module is being set up.
+ * This number is 256, because 256 times 16 pages equals the full 3 gigabyte
+ * range dedicated for kernel use.
+ *
  * \var pte_core
- * \brief The pte tracker for the kernel
+ * \brief The tracker for the kernel segments
+ *
+ * The kernel doesn't only need segment descriptors. it also needs something to
+ * reference these descriptors with. This too is done statically because of the
+ * reasons mentioned above.
  */
-struct pte_segment* pte_core[STATIC_SEGMENTS];
+struct pte_segment pte_core_segments[STATIC_SEGMENTS];
+struct pte_descriptor pte_core;
 
 /**
  * \fn pte_init
@@ -53,11 +69,66 @@ struct pte_segment* pte_core[STATIC_SEGMENTS];
  * physical pages. The pte system figures out where to put the data in virtual
  * memory itself.
  *
- * \todo Design segments
  * \todo Add kernel pages to segments
+ * \todo Create virt page allocation
+ * \todo Start work on userspace pte system
+ */
+
+/* boot resides at address of first code segment */
+extern int boot;
+/* page_table_boot is at address of statically allocated pagetables */
+extern int page_table_boot;
+
+/**
+ * \fn pte_map_kernel
+ * \brief The function that maps the kernel into the segments
  */
 int
-pte_init(void* kernel_offset, size_t kernel_size)
+pte_map_kernel()
 {
+        addr_t start_ptr = (addr_t)&boot + THREE_GIB;
+        addr_t end_ptr = (addr_t)&end;
+
+        int j = 0;
+        for (; start_ptr < end_ptr; start_ptr += PAGE_ALLOC_FACTOR, j++)
+        {
+                pte_core_segments[j].pte = (void*)((addr_t)&page_table_boot +
+                                                                    start_ptr);
+                pte_core_segments[j].mapped = true;
+
+#ifdef PA_DBG
+                printf("Mapping: %X\tidx: %X\n", (int)start_ptr, j);
+#endif
+        }
+
+        return -E_SUCCESS;
+}
+
+/**
+ * \fn pte_init
+ * \brief The function that initialises the pte core and segments
+ */
+int
+pte_init()
+{
+        memset(&pte_core, 0, sizeof(pte_core));
+
+        int i = 0;
+        while (i < STATIC_SEGMENTS)
+        {
+                memset(&pte_core_segments[i], 0, sizeof(pte_core_segments[i]));
+                pte_core_segments[i].next = &pte_core_segments[i++];
+
+                pte_core_segments[i].virt_base = (void*)(THREE_GIB + i * PAGE_ALLOC_FACTOR);
+        }
+        pte_core.segments = pte_core_segments;
+        if (pte_map_kernel() != -E_SUCCESS)
+                panic("Memory corruption in pte_map_kernel");
+
         return -E_NOFUNCTION;
 }
+
+/**
+ * @}
+ * \file
+ */

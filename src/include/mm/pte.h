@@ -31,31 +31,7 @@
 extern "C" {
 #endif
 
-struct pte_segment;
-extern struct pte_segment* pte_core[];
-
-/**
- * \def PTE_OFFSET
- * \brief Twelve bits have to be shifted out of the address, for the next idx
- */
-#define PTE_OFFSET 12
-
-#ifdef X86
-#define KERN_ADDR THREE_GIB
 #define PTE_SIZE 0x400
-/**
- * \note Shift right 22 bits, gives pd (pte0) entry on x86
- * \note Shift right 12 bits, gives pt (pte1) entry on x86
- * \note 0x3FF is bitmask for the index
- */
-#define PTE0_OFFSET 22
-#define PTE1_OFFSET 12
-#define PTE_MASK 0x3FF
-
-#define PTE_DEEP 2
-
-#endif /* x86 */
-
 
 /**
  * \struct pte
@@ -78,39 +54,43 @@ struct pte_segment {
         /**
          * \var next
          * \brief Pointer to the next segment in the list
+         * \var virt_base
+         * \brief A pointer indicating the start of the virtual memory described
          * \var pte
          * \brief The virtual reference to the page table
-         * \var child
-         * \brief A set of pointers to the leaves / branches of the pte table
-         * \var parent
-         * \brief A reference to the parent for quick lookups
          * \var state
          * \brief An integer indicating the condition of the page table entry
+         * \var swappable
+         * \brief Indicator for page swapping to be allowed or not
          */
         struct pte_segment* next;
 
+        void* virt_base;
+
         struct pte* pte;
-        void* child[PTE_SIZE];
-        struct pte_shadow* parent;
-        int state;
+        int mapped;
+        int swappable;
 };
 
-/**
- * \fn pte_segment_init
- * \brief Initialises all elements
- * \fn pte_segment_alloc
- * \brief Allocates userspace segments
- * \fn pte_segment_free
- * \brief Frees userspace segments
- */
-
-void pte_segment_init(struct pte_segment*);
-struct pte_segment* pte_segment_alloc();
-void pte_segment_free(struct pte_segment*);
+struct pte_descriptor {
+        /**
+         * \var segments
+         * \brief List of available segments to the application
+         * \var cpl
+         * \brief code privilage level
+         * \var pid
+         * \brief process identifier
+         */
+        struct pte_segment* segments;
+        unsigned int cpl;
+        unsigned int pid;
+};
 
 #ifdef __cplusplus
 };
 #endif
+
+int pte_init();
 
 #endif
 

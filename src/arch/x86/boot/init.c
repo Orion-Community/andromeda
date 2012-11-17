@@ -62,6 +62,7 @@
 #include <andromeda/elf.h>
 #include <andromeda/drivers.h>
 #include <mm/vmem.h>
+#include <mm/page_alloc.h>
 
 #include <lib/byteorder.h>
 
@@ -116,8 +117,10 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         slab_alloc_init();
 #endif
         textInit();
+        /**
+         * \todo Make complement_heap so that it allocates memory from pte
+         */
         complement_heap(&end, HEAPSIZE);
-        pte_init((void*)KERN_ADDR, (size_t)((addr_t)&end - (addr_t)KERN_ADDR));
         addr_t tmp = (addr_t)hdr + offset;
         hdr = (multiboot_info_t*)tmp;
 
@@ -140,6 +143,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         /** Build the memory map and allow for allocation */
         page_alloc_init(mmap, (unsigned int)hdr->mmap_length);
+        pte_init();
 #ifdef PA_DBG
 //         endProg();
 #endif

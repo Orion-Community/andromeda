@@ -36,6 +36,7 @@ extern "C"  {
 #define PAGE_LIST_MARKED        (unsigned long)(-2)
 #define PAGE_LIST_END           (unsigned long)(-3)
 
+int   page_alloc_init           (multiboot_memory_map_t* map, int map_size);
 void* page_alloc                ();
 int   page_free                 (void* page);
 int   page_mark                 (void* page);
