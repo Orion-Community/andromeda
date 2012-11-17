@@ -28,7 +28,6 @@
 
 /**
  * \todo Use existing page tables to attach to these segments.
- * \todo Grow the existing "asm" pagetables to cover the whole 3GB area.
  * \todo Create userspace pte initialiser.
  * \todo Create kernelspace pte initialiser.
  * \todo Create vmem context switcher.
@@ -42,7 +41,21 @@
  */
 struct pte_segment* pte_core[STATIC_SEGMENTS];
 
-// Initialise the pte system
+/**
+ * \fn pte_init
+ * \brief Initialise the pte subsystem
+ * \return standard error code
+ *
+ * This system should keep track of physical pages coupled to virtual ones
+ * through memory segmentation. Every segment is 16 pages in size, and can not
+ * overlap in physical memory.
+ * These segments are allocated from the page allocator, in the case of the
+ * physical pages. The pte system figures out where to put the data in virtual
+ * memory itself.
+ *
+ * \todo Design segments
+ * \todo Add kernel pages to segments
+ */
 int
 pte_init(void* kernel_offset, size_t kernel_size)
 {
