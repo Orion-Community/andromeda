@@ -31,6 +31,8 @@
 extern "C" {
 #endif
 
+#define PTE_CPL_USER 3
+#define PTE_CPL_CORE 0
 #define PTE_SIZE 0x400
 
 /**
@@ -70,6 +72,7 @@ struct pte_segment {
         struct pte* pte;
         int mapped;
         int swappable;
+        int code;
 };
 
 struct pte_descriptor {

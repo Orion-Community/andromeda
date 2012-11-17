@@ -36,7 +36,7 @@
  * \todo Rebuild practically the entire memory subsystem.
  */
 
-#define STATIC_SEGMENTS 256
+#define STATIC_SEGMENTS 64
 /**
  * \var pte_core_segments
  * \brief The statically allocated segments for the kernel
@@ -44,7 +44,7 @@
  * The kernel is granted some segment descriptors (16 pages) to cover its memory
  * needs without the need for a dynamic allocator, which isn't initialised at
  * the time the module is being set up.
- * This number is 256, because 256 times 16 pages equals the full 3 gigabyte
+ * This number is 64, because 64 times 1 page table equals the full 3 gigabyte
  * range dedicated for kernel use.
  *
  * \var pte_core
@@ -90,7 +90,7 @@ pte_map_kernel()
         addr_t end_ptr = (addr_t)&end;
 
         int j = 0;
-        for (; start_ptr < end_ptr; start_ptr += PAGE_ALLOC_FACTOR, j++)
+        for (; start_ptr < end_ptr; start_ptr += 1024*PAGESIZE, j++)
         {
                 pte_core_segments[j].pte = (void*)((addr_t)&page_table_boot +
                                                                     start_ptr);
@@ -100,6 +100,9 @@ pte_map_kernel()
                 printf("Mapping: %X\tidx: %X\n", (int)start_ptr, j);
 #endif
         }
+#ifdef PA_DBG
+        endProg();
+#endif
 
         return -E_SUCCESS;
 }
@@ -122,8 +125,13 @@ pte_init()
                 pte_core_segments[i].virt_base = (void*)(THREE_GIB + i * PAGE_ALLOC_FACTOR);
         }
         pte_core.segments = pte_core_segments;
+        pte_core.cpl = PTE_CPL_CORE;
         if (pte_map_kernel() != -E_SUCCESS)
                 panic("Memory corruption in pte_map_kernel");
+
+        /**
+         * \todo Map in the kernel modules loaded in by GRUB.
+         */
 
         return -E_NOFUNCTION;
 }
