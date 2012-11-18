@@ -34,6 +34,7 @@ extern "C" {
 #define PTE_CPL_USER 3
 #define PTE_CPL_CORE 0
 #define PTE_SIZE 0x400
+#define PTE_MEM_SIZE (PTE_SIZE*PAGESIZE)
 
 /**
  * \struct pte

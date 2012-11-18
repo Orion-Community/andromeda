@@ -88,21 +88,19 @@ pte_map_kernel()
 {
         addr_t start_ptr = (addr_t)&boot + THREE_GIB;
         addr_t end_ptr = (addr_t)&end;
+        start_ptr -= (start_ptr % PTE_MEM_SIZE);
 
         int j = 0;
-        for (; start_ptr < end_ptr; start_ptr += 1024*PAGESIZE, j++)
+        for (; start_ptr < end_ptr; start_ptr += PTE_MEM_SIZE, j++)
         {
-                pte_core_segments[j].pte = (void*)((addr_t)&page_table_boot +
-                                                                    start_ptr);
-                pte_core_segments[j].mapped = true;
+                struct pte_segment* s = &pte_core_segments[j];
+                s->pte = (void*)((addr_t)&page_table_boot + start_ptr);
+                s->mapped = true;
 
 #ifdef PA_DBG
                 printf("Mapping: %X\tidx: %X\n", (int)start_ptr, j);
 #endif
         }
-#ifdef PA_DBG
-        endProg();
-#endif
 
         return -E_SUCCESS;
 }
@@ -119,10 +117,11 @@ pte_init()
         int i = 0;
         while (i < STATIC_SEGMENTS)
         {
-                memset(&pte_core_segments[i], 0, sizeof(pte_core_segments[i]));
-                pte_core_segments[i].next = &pte_core_segments[i++];
+                struct pte_segment* s = &pte_core_segments[i];
+                memset(s, 0, sizeof(*s));
+                s->next = &pte_core_segments[i++];
 
-                pte_core_segments[i].virt_base = (void*)(THREE_GIB + i * PAGE_ALLOC_FACTOR);
+                s->virt_base = (void*)(THREE_GIB + i * PAGE_ALLOC_FACTOR);
         }
         pte_core.segments = pte_core_segments;
         pte_core.cpl = PTE_CPL_CORE;
