@@ -83,16 +83,26 @@ extern int page_table_boot;
  * \fn pte_map_kernel
  * \brief The function that maps the kernel into the segments
  */
-int
+void
 pte_map_kernel()
 {
+        /* Get the initial pointers going */
         addr_t start_ptr = (addr_t)&boot + THREE_GIB;
         addr_t end_ptr = (addr_t)&end;
+        /* The start pointer isn't necessarily 4 Meg aligned */
         start_ptr -= (start_ptr % PTE_MEM_SIZE);
 
+        /*
+         * Map the segments here
+         * Note that this will map the first meg into kernel memory.
+         * This implies that the first meg will be usable, while marked as
+         * unusable in the page allocator.
+         * Be carefull with this
+         */
         int j = 0;
         for (; start_ptr < end_ptr; start_ptr += PTE_MEM_SIZE, j++)
         {
+                /* Point the segment to the right pagetable */
                 struct pte_segment* s = &pte_core_segments[j];
                 s->pte = (void*)((addr_t)&page_table_boot + start_ptr);
                 s->mapped = true;
@@ -101,8 +111,6 @@ pte_map_kernel()
                 printf("Mapping: %X\tidx: %X\n", (int)start_ptr, j);
 #endif
         }
-
-        return -E_SUCCESS;
 }
 
 /**
@@ -112,21 +120,27 @@ pte_map_kernel()
 int
 pte_init()
 {
+        /* Nullify the pte core, so it can be set up */
         memset(&pte_core, 0, sizeof(pte_core));
 
+        /* Initialise all the segments! */
         int i = 0;
         while (i < STATIC_SEGMENTS)
         {
+                /* nullify the segment and point to next element */
                 struct pte_segment* s = &pte_core_segments[i];
                 memset(s, 0, sizeof(*s));
                 s->next = &pte_core_segments[i++];
 
-                s->virt_base = (void*)(THREE_GIB + i * PAGE_ALLOC_FACTOR);
+                /* Point the segments to the correct places */
+                s->virt_base = (void*)(THREE_GIB + i * PTE_MEM_SIZE);
         }
+        /* Map the segment into pte_core */
         pte_core.segments = pte_core_segments;
+        /* Set the privilage level */
         pte_core.cpl = PTE_CPL_CORE;
-        if (pte_map_kernel() != -E_SUCCESS)
-                panic("Memory corruption in pte_map_kernel");
+        /* Map the relevant pages */
+        pte_map_kernel();
 
         /**
          * \todo Map in the kernel modules loaded in by GRUB.
