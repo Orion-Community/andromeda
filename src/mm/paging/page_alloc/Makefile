@@ -12,6 +12,3 @@ all: page_alloc.o
 page_alloc.o: $(TARGETS)
 	$(LD) $(LDFLAGS) -o page_alloc.o *.o
 	cp -vf page_alloc.o ../page_alloc2.o
-
-%o: %c $(INCLUDES)
-	$(CC) $(CFLAGS) $(FLAGS) $< -o $@

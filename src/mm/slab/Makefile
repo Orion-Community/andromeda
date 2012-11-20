@@ -10,12 +10,6 @@ all: slab.o
 slab.o: slab_init.o slab_alloc.o
 	$(LD) -o slab.o *.o $(LDFLAGS)
 
-slab_init.o: slab_init.c
-	$(CC) $(FLAGS) $(CFLAGS) slab_init.c
-
-slab_alloc.o: slab_alloc.c
-	$(CC) $(FLAGS) $(CFLAGS) slab_alloc.c
-
 .PHONY: clean
 clean:
 	rm -fv *.o

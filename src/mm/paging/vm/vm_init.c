@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <mm/pte.h>
+#include <mm/vm.h>
 #include <mm/page_alloc.h>
 #include <andromeda/error.h>
 #include <stdlib.h>
@@ -24,7 +24,7 @@
 #include <defines.h>
 
 /**
- * \AddToGroup PTE
+ * \AddToGroup VM
  * @{
  */
 
@@ -38,7 +38,7 @@
 
 #define STATIC_SEGMENTS 64
 /**
- * \var pte_core_segments
+ * \var vm_core_segments
  * \brief The statically allocated segments for the kernel
  *
  * The kernel is granted some segment descriptors (16 pages) to cover its memory
@@ -47,15 +47,15 @@
  * This number is 64, because 64 times 1 page table equals the full 3 gigabyte
  * range dedicated for kernel use.
  *
- * \var pte_core
+ * \var vm_core
  * \brief The tracker for the kernel segments
  *
  * The kernel doesn't only need segment descriptors. it also needs something to
  * reference these descriptors with. This too is done statically because of the
  * reasons mentioned above.
  */
-struct pte_segment pte_core_segments[STATIC_SEGMENTS];
-struct pte_descriptor pte_core;
+struct vm_segment vm_core_segments[STATIC_SEGMENTS];
+struct vm_descriptor vm_core;
 
 /**
  * \fn pte_init
@@ -84,26 +84,27 @@ extern int page_table_boot;
  * \brief The function that maps the kernel into the segments
  */
 void
-pte_map_kernel()
+vm_map_kernel()
 {
         /* Get the initial pointers going */
         addr_t start_ptr = (addr_t)&boot + THREE_GIB;
         addr_t end_ptr = (addr_t)&end;
         /* The start pointer isn't necessarily 4 Meg aligned */
-        start_ptr -= (start_ptr % PTE_MEM_SIZE);
+        start_ptr -= (start_ptr % VM_MEM_SIZE);
 
         /*
          * Map the segments here
-         * Note that this will map the first meg into kernel memory.
-         * This implies that the first meg will be usable, while marked as
-         * unusable in the page allocator.
-         * Be carefull with this
+         * Because we assume 4 MB alignment, the 1 MG region at the start of
+         * memor is also mapped. This region is marked as unallocatable in the
+         * page allocator, and there is no desire to get as much memory out of
+         * it as possible. Just don't use it.
+         * It is mapped, and if we have to interface it, use this.
          */
         int j = 0;
-        for (; start_ptr < end_ptr; start_ptr += PTE_MEM_SIZE, j++)
+        for (; start_ptr < end_ptr; start_ptr += VM_MEM_SIZE, j++)
         {
                 /* Point the segment to the right pagetable */
-                struct pte_segment* s = &pte_core_segments[j];
+                struct vm_segment* s = &vm_core_segments[j];
                 s->pte = (void*)((addr_t)&page_table_boot + start_ptr);
                 s->mapped = true;
 
@@ -111,36 +112,39 @@ pte_map_kernel()
                 printf("Mapping: %X\tidx: %X\n", (int)start_ptr, j);
 #endif
         }
+#ifdef PA_DBG
+        panic("Testing!");
+#endif
 }
 
 /**
- * \fn pte_init
+ * \fn vm_init
  * \brief The function that initialises the pte core and segments
  */
 int
-pte_init()
+vm_init()
 {
         /* Nullify the pte core, so it can be set up */
-        memset(&pte_core, 0, sizeof(pte_core));
+        memset(&vm_core, 0, sizeof(vm_core));
 
         /* Initialise all the segments! */
         int i = 0;
         while (i < STATIC_SEGMENTS)
         {
                 /* nullify the segment and point to next element */
-                struct pte_segment* s = &pte_core_segments[i];
+                struct vm_segment* s = &vm_core_segments[i];
                 memset(s, 0, sizeof(*s));
-                s->next = &pte_core_segments[i++];
+                s->next = &vm_core_segments[i++];
 
                 /* Point the segments to the correct places */
-                s->virt_base = (void*)(THREE_GIB + i * PTE_MEM_SIZE);
+                s->virt_base = (void*)(THREE_GIB + i * VM_MEM_SIZE);
         }
         /* Map the segment into pte_core */
-        pte_core.segments = pte_core_segments;
+        vm_core.segments = vm_core_segments;
         /* Set the privilage level */
-        pte_core.cpl = PTE_CPL_CORE;
+        vm_core.cpl = VM_CPL_CORE;
         /* Map the relevant pages */
-        pte_map_kernel();
+        vm_map_kernel();
 
         /**
          * \todo Map in the kernel modules loaded in by GRUB.

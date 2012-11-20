@@ -33,7 +33,7 @@
 
 #include <mm/paging.h>
 #include <mm/map.h>
-#include <mm/pte.h>
+#include <mm/vm.h>
 #include <mm/memory.h>
 #include <mm/cache.h>
 #include <interrupts/int.h>
@@ -61,7 +61,6 @@
 #include <andromeda/cpu.h>
 #include <andromeda/elf.h>
 #include <andromeda/drivers.h>
-#include <mm/vmem.h>
 #include <mm/page_alloc.h>
 
 #include <lib/byteorder.h>
@@ -143,7 +142,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         /** Build the memory map and allow for allocation */
         page_alloc_init(mmap, (unsigned int)hdr->mmap_length);
-        pte_init();
+        vm_init();
 #ifdef PA_DBG
 //         endProg();
 #endif
@@ -156,10 +155,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         /** For now this is the temporary page table map */
         build_map(mmap, (unsigned int) hdr->mmap_length);
 
-        vmem_init(); /// Start physical page allocation
-#ifdef VMEM_TEST
-        vmem_test_tree();
-#endif
         /** end of deprication */
         task_init();
 

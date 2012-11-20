@@ -25,7 +25,7 @@ extern "C" {
 typedef unsigned char boolean;
 #define bool boolean
 #define FALSE 0
-#define TRUE !FALSE
+#define TRUE (!FALSE)
 #define false FALSE
 #define true TRUE
 

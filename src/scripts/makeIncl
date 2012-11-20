@@ -26,6 +26,8 @@ CFLAGS= -nostdlib \
         -Os \
         -D VERSION=\"$(VERSION)\"
 
+CFLAGS+=$(FLAGS)
+
 
 
 DBG_FLAGS=-Waddress \

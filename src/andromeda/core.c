@@ -25,7 +25,6 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/buffer.h>
-#include <mm/vmem.h>
 #include <mm/cache.h>
 #include <stdio.h>
 
@@ -115,10 +114,6 @@ void core_loop()
 #endif
 #ifdef BUF_DBG
         buf_dbg();
-#endif
-#ifdef BUDDY_DBG
-        if (vmem_buddy_test() != -E_SUCCESS)
-                panic("The buddy system failed!!!");
 #endif
 #ifdef VMEM_DBG
         debug("Address of higher half: %X\n", (int)&higherhalf);

@@ -21,6 +21,3 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(LD) $(LDFLAGS) -o$(TARGET) $(OBJS)
 	-mv $(TARGET) ../$(TARGET)
-
-%o: %c
-	$(CC) $(CFLAGS) -o $@ $<

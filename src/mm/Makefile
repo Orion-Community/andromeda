@@ -23,9 +23,6 @@ slab.o:
 paging.o:
 	$(MAKE) -C paging/
 
-%o: %c $(INCLUDES)
-	$(CC) $(CFLAGS) $(FLAGS) $< -o $@
-
 .PHONY: clean
 clean:
 	rm -fv *.o

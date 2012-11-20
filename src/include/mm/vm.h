@@ -31,14 +31,14 @@
 extern "C" {
 #endif
 
-#define PTE_CPL_USER 3
-#define PTE_CPL_CORE 0
+#define VM_CPL_USER 3
+#define VM_CPL_CORE 0
 #define PTE_SIZE 0x400
-#define PTE_MEM_SIZE (PTE_SIZE*PAGESIZE)
+#define VM_MEM_SIZE (PTE_SIZE*PAGESIZE)
 
 /**
- * \struct pte
- * \brief Page table entry
+ * \struct VM
+ * \brief The virtual memory subsystem
  * \todo Move this structure out into arch/x86
  */
 struct pte {
@@ -49,14 +49,35 @@ struct pte {
         struct page_table entry[PTE_SIZE];
 };
 
+struct vm_segment;
+
+/**
+ * \struct pte_subs
+ * \brief A list of sub segments, so the pte_segment doesn't grow to big
+ */
+struct vm_subs {
+        struct vm_segment* segment[PTE_SIZE];
+};
+
 /**
  * \struct pte_segment
  * \brief The description of a segment
+ *
+ * pte segments can be used to describe every level in the intel page table
+ * system, for ia32 and AMD64 architectures. With modifications to pte they
+ * should even be usable in other architectures as well.
+ *
+ * On the lowest level the pte segment describes 4 megs on intel. This however
+ * can vary per architecture. Segments can also cover a number of sub segments
+ * rather than pages. This is to allow for the tree like structure the Intel
+ * uses in its designs for 64 bits architectures.
  */
-struct pte_segment {
+struct vm_segment {
         /**
          * \var next
          * \brief Pointer to the next segment in the list
+         * \var sub
+         * \brief A pointer to a list of sub segments (for 64 bits machines)
          * \var virt_base
          * \brief A pointer indicating the start of the virtual memory described
          * \var pte
@@ -66,7 +87,8 @@ struct pte_segment {
          * \var swappable
          * \brief Indicator for page swapping to be allowed or not
          */
-        struct pte_segment* next;
+        struct vm_segment* next;
+        struct vm_segment* sub;
 
         void* virt_base;
 
@@ -76,7 +98,7 @@ struct pte_segment {
         int code;
 };
 
-struct pte_descriptor {
+struct vm_descriptor {
         /**
          * \var segments
          * \brief List of available segments to the application
@@ -85,7 +107,7 @@ struct pte_descriptor {
          * \var pid
          * \brief process identifier
          */
-        struct pte_segment* segments;
+        struct vm_segment* segments;
         unsigned int cpl;
         unsigned int pid;
 };

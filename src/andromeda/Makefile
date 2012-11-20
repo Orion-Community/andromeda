@@ -23,9 +23,6 @@ andromeda.o: $(TARGETS) ktimer.o
 load.o: $(ELF)
 	$(CC) $(CFLAGS) $(FLAGS) $(ELF)
 
-%o: %c
-	$(CC) $(CFLAGS) $(FLAGS) $< -o $@
-
 ktimer.o:
 	$(MAKE) -C timer/ $(MK_FLAGS)
 
