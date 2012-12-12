@@ -167,7 +167,7 @@ rtl_poll_data(struct net_buff *nb)
 {
         struct rtl_cfg *cfg = nb->dev->device_data;
         uint16_t irq_state;
-        
+
         rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET, &irq_state,
                            sizeof(irq_state));
         if(irq_state & 1)
@@ -366,7 +366,7 @@ uint8_t size;
                 default:
                         retval = -E_GENERIC;
                         break;
-                        
+
         }
         return retval;
 }

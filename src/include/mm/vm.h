@@ -17,7 +17,7 @@
  */
 
 /**
- * \defgroup PTE
+ * \defgroup VM
  * @{
  */
 
@@ -35,6 +35,12 @@ extern "C" {
 #define VM_CPL_CORE 0
 #define PTE_SIZE 0x400
 #define VM_MEM_SIZE (PTE_SIZE*PAGESIZE)
+
+#ifdef X86
+#define PAGE_ALIGNED(a) ((a & 0xFFF) == 0)
+#else
+#define PAGE_ALIGNED(a) ((a % PAGESIZE) == 0)
+#endif
 
 /**
  * \struct VM
@@ -88,14 +94,14 @@ struct vm_segment {
          * \brief Indicator for page swapping to be allowed or not
          */
         struct vm_segment* next;
-        struct vm_segment* sub;
 
         void* virt_base;
+        size_t size;
 
-        struct pte* pte;
-        int mapped;
-        int swappable;
-        int code;
+        struct mm_page_list* pages;
+        bool mapped;
+        bool swappable;
+        bool code;
 };
 
 struct vm_descriptor {
@@ -112,11 +118,16 @@ struct vm_descriptor {
         unsigned int pid;
 };
 
+int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
+int vm_free(struct vm_descriptor* p);
+
+void* pte_get_phys(void* virt, struct vm_segment* s);
+
 #ifdef __cplusplus
 };
 #endif
 
-int pte_init();
+int vm_init();
 
 #endif
 

@@ -207,7 +207,7 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
  *
  * @param nb The first packet to handle.
  * @return State of handled packet
- * 
+ *
  * This function handles all packets which are fresh from the device driver or
  * the netif queue (see <i>netif_process_queue(head, load)</i>). After handling
  * a packet it will poll from the device driver for more incoming packets.

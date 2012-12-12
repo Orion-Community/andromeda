@@ -2,8 +2,8 @@ include ../scripts/makeIncl
 CFLAGS+=-I../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-INCLUDES=../include/mm/heap.h ../include/mm/map.h ../include/mm/memory.h\
-                                                          ../include/mm/paging.h
+INCLUDES=../include/mm/heap.h ../include/mm/map.h ../include/mm/memory.h
+INCLUDES+=../include/mm/paging.h
 
 TARGETS=map.o memory.o test.o slob.o slab.o paging.o
 

@@ -74,16 +74,6 @@ vm_new_segment(void* virt, struct vm_descriptor* p)
         return s;
 }
 
-struct vm_segment*
-vm_new_segment_map(void* virt, struct vm_descriptor* p, struct pte* pte)
-{
-        struct vm_segment* s = vm_new_segment(virt, p);
-        if (vm_segment_map(s, pte) != -E_SUCCESS)
-                vm_free(s);
-
-        return s;
-}
-
 /**
  * \fn vm_free_page
  * \brief Free the physical page, if present
@@ -93,9 +83,6 @@ vm_new_segment_map(void* virt, struct vm_descriptor* p, struct pte* pte)
  */
 int vm_segment_free(struct vm_segment* s)
 {
-        if (s->pte == NULL)
-                return -E_SUCCESS;
-
         /**
          * \todo Iterate through page tables to find allocated pages
          * \todo Free up those allocated pages
@@ -114,9 +101,8 @@ int vm_segment_free(struct vm_segment* s)
  * \return A standard error code
  */
 int
-vm_segment_map(struct vm_segment* s, struct pte* pte)
+vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p)
 {
-        s->pte = pte;
         /**
          * \TODO: If pte_descriptor == loaded, map segment into page directory
          */
@@ -153,6 +139,40 @@ vm_free(struct vm_descriptor* p)
         }
         kfree(p);
         return -E_SUCCESS;
+}
+
+/**
+ * \fn vm_get_phys
+ * \brief Find the physical address for a virtual one
+ * \param vm
+ * \brief The descriptor to look in
+ * \param virt
+ * \brief The virtual address to find
+ * \return the physical page pointer
+ * \todo Implement the arch api call to look inside the tables
+ */
+void*
+vm_get_phys(struct vm_descriptor* vm, void* virt)
+{
+        if (vm == NULL || virt == NULL || !PAGE_ALIGNED((int)vm))
+                return NULL;
+
+        addr_t v = (addr_t)virt;
+
+        struct vm_segment* carriage = vm->segments;
+        for (; carriage != NULL; carriage = carriage->next)
+        {
+                addr_t vm_base = (addr_t)carriage->virt_base;
+                addr_t vm_end = (addr_t)carriage->virt_base + carriage->size;
+                if ((addr_t)virt >= vm_base && (addr_t)virt < vm_end)
+                {
+                        /* Call the architecture api to get the address */
+                        addr_t tmp = (addr_t)virt - vm_base;
+                        tmp /= PAGESIZE;
+                        return (void*)pte_get_phys(virt, carriage);
+                }
+        }
+        return NULL;
 }
 
 /**

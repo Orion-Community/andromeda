@@ -55,6 +55,7 @@ extern "C" {
 
 #define CHECKALLIGN(a) ((a%PAGESIZE) ? FALSE : TRUE)
 
+#ifdef X86
 struct page_dir
 {
   unsigned int present	: 1; // Must be 1 to be able to access
@@ -87,15 +88,13 @@ struct page_table
 } __attribute__((packed));
 typedef struct page_table page_table_t;
 
+#endif /* X86 */
+
 struct mm_page_list {
-        /**
-         * \todo Phase out the mm_page_list
-         */
         struct mm_page_descriptor* head;
         struct mm_page_descriptor* tail;
 };
 
-void page_init();
 
 /**
  * \struct mm_page_descriptor
@@ -116,7 +115,7 @@ struct mm_page_descriptor {
          * \var swapable
          * \var free
          * \var dma
-         * \brief Is this page direct memor access?
+         * \brief Is this page direct memory access?
          * \var allocator
          * \brief Which allocator is used, true for slab/slob
          * \var lock
@@ -126,6 +125,8 @@ struct mm_page_descriptor {
 
         void* page_ptr;
         void* virt_ptr;
+        void* pte;
+        struct mm_page_list children;
 
         size_t size;
         time_t last_referenced;
@@ -135,6 +136,7 @@ struct mm_page_descriptor {
         bool swapable;
         bool free;
         bool dma;
+        bool executable;
 
         mutex_t lock;
 
@@ -145,7 +147,9 @@ struct mm_page_descriptor {
 
 extern volatile addr_t offset;
 
+void page_init();
 void init_paging();
+
 int page_unmap_low_mem();
 addr_t page_phys_addr(addr_t, struct page_dir*);
 
