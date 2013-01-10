@@ -107,6 +107,10 @@ int page_alloc_mark_kernel()
         return -E_SUCCESS;
 }
 
+/**
+ * \fn page_alloc_init
+ * \brief Initialise the kernel memory map for physical page allocation
+ */
 int page_alloc_init(multiboot_memory_map_t* map, int map_size)
 {
         /* Initialise the page map, to everything marked */

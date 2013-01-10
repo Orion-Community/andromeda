@@ -12,7 +12,7 @@ MM=mm.o
 IRQ30=irq30.o
 
 ## deps
-MM_=gdt.o irq30.o paging.o page_table.o
+MM_=gdt.o irq30.o paging.o page_table.o page_api.o page_dir.o
 
 IRQ30_SRC=cIRQ30.asm
 MM_DEPS=irq30.o

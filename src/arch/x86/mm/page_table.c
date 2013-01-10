@@ -1,5 +1,4 @@
-/*
- * Andromeda
+/* * Andromeda
  * Copyright (C) 2012  Bart Kuivenhoven
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,37 +16,65 @@
  */
 
 #include <mm/page_alloc.h>
+#include <mm/paging.h>
 #include <mm/vm.h>
 #include <types.h>
 #include <andromeda/error.h>
 
 /**
- * \AddToGroup VM
+ * \AddToGroup paging
  * @{
  */
 
-struct page_dir *pd = NULL;
-extern struct page_dir page_dir_boot;
-
-int x86_pte_init()
+extern struct x86_page_table page_table_boot;
+struct x86_page_table *kerneltables = &page_table_boot;
+/**
+ * \fn x86_pte_set_page
+ * \brief Set the page table entry to the correct value
+ * \param virt
+ * \param phys
+ * \param cpl
+ * \param pt
+ */
+int x86_pte_set_page(void* virt, void* phys, int cpl, struct page_table* pte)
 {
-        pd = &page_dir_boot;
-        return -E_NOFUNCTION;
+        if ((cpl == 0 && pte != NULL) || (cpl != 0 && pte == NULL))
+                panic("Incorrect conditions for setting pte");
+
+        addr_t v = (addr_t) virt;
+
+        if (cpl == 0)
+        {
+                v -= THREE_GIB;
+                pte = &kerneltables[v >> 10].entry[v & 0xFFF];
+                pte->userMode = 0;
+                goto jmp; /* Reduce the no conditional branches ... */
+        }
+        pte->userMode = 1;
+jmp:    pte->pageIdx = (int)phys >> 12;
+        pte->present = 1;
+
+        return -E_SUCCESS;
 }
 
-void* pte_get_phys(void* virt, struct vm_segment* s)
+/**
+ * \fn x86_pte_unset_page
+ * \brief Set the page table entry as being cleared
+ */
+int x86_pte_unset_page(void* virt, int cpl, struct page_table* pte)
 {
-        return NULL;
-}
+        if ((cpl == 0 && pte != NULL) || (cpl != 0 && pte == NULL))
+                panic("Incorrect conditions for unsetting pte");
 
-int x86_pte_set(struct vm_segment* s)
-{
-        return -E_NOFUNCTION;
-}
+        addr_t v = (addr_t)virt;
 
-int x86_pte_unset(struct vm_segment* s)
-{
-        return -E_NOFUNCTION;
+        if (cpl == 0)
+        {
+                v -= THREE_GIB;
+                pte = &kerneltables[v >> 10].entry[v & 0xFFF];
+        }
+        pte->present = 0;
+        return -E_SUCCESS;
 }
 
 /**

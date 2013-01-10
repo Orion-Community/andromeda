@@ -88,6 +88,14 @@ struct page_table
 } __attribute__((packed));
 typedef struct page_table page_table_t;
 
+struct x86_page_table {
+        struct page_table entry[1024];
+};
+
+struct x86_page_dir {
+        struct page_dir entry[1024];
+};
+
 #endif /* X86 */
 
 struct mm_page_list {

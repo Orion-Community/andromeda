@@ -32,7 +32,7 @@ spinlock_t page_alloc_lock = mutex_unlocked;
 
 /**
  * \fn page_alloc
- * \brief Allocate a predefined number of pages
+ * \brief Allocate a predefined number of physical pages
  */
 void* page_alloc()
 {
@@ -86,7 +86,7 @@ addr_t pagemap_find_reference(addr_t p)
 
 /**
  * \fn page_mark
- * \brief Mark an allocatable page as unallocatable
+ * \brief Mark an allocatable physical page as unallocatable
  */
 int page_mark(void* page)
 {
@@ -127,7 +127,7 @@ int page_mark(void* page)
 
 /**
  * \fn page_mark
- * \brief Mark an unallocatable page as allocatable
+ * \brief Mark an unallocatable physical page as allocatable
  */
 int page_unmark(void* page)
 {
@@ -166,6 +166,7 @@ err:
 
 /**
  * \fn page_free
+ * \brief Mark a physical page as free
  */
 int page_free(void* page)
 {
