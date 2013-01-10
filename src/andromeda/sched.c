@@ -46,9 +46,8 @@ enum task_list_type type;
 	if (parent == NULL)
 		return -E_NULL_PTR;
 
-	if (parent->full &&
-							  (1 << parent_idx-1) ||
-					     parent->branch[parent_idx] != NULL)
+	if ((parent->full && (1 << (parent_idx-1)))
+                || parent->branch[parent_idx] != NULL)
 	{
 	mutex_unlock(&sched_lock);
 	return -E_ALREADY_INITIALISED;

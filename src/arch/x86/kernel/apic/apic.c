@@ -26,6 +26,10 @@
 
 #include <text.h>
 
+static void __apic_write_register(ol_apic_reg_t reg, uint16_t value);
+static uint16_t __apic_read_register(ol_apic_reg_t reg);
+static uint64_t correct_apic_address(uint64_t addr, ol_cpu_t cpu);
+
 struct apic *apic;
 
 static void

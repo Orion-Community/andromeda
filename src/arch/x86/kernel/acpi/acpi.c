@@ -26,6 +26,9 @@
 #include <arch/x86/acpi/acpi.h>
 
 struct acpi_apic_lists *acpi_apics = NULL;
+static void ol_acpi_enumerate(uint8_t type, acpi_enum_hook_t hook);
+static void acpi_apic_add_list(void *apic);
+static void acpi_ioapic_add_list(void *io);
 
 int
 acpi_init()

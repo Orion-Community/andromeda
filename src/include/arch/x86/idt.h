@@ -47,6 +47,7 @@ struct idt
 } __attribute__((packed));
 typedef struct idt *ol_idt_t;
 
+/*
 static void
 ol_idt_install_entry(uint16_t, uint32_t,
         uint16_t, uint8_t, ol_idt_t);
@@ -54,6 +55,7 @@ ol_idt_install_entry(uint16_t, uint32_t,
 static void installExceptions(ol_idt_t);
 static void installInterrupts(uint16_t, uint16_t, ol_idt_t);
 static int get_empty_idt_entry_number();
+*/
 int install_irq_vector(struct irq_data *);
 int alloc_idt_entry();
 extern void installIDT(ol_idt_t);

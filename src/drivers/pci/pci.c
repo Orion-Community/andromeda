@@ -26,6 +26,21 @@
 
 struct ol_pci_node* pcidevs;
 
+#pragma GCC diagnostic ignored "-Wunused-function"
+/*
+#ifdef __PCI_DEBUG
+static int show_pci_dev(ol_pci_iterate_dev_t);
+#endif
+*/
+
+static int ol_pci_is_mf(ol_pci_iterate_dev_t dev);
+static inline ol_pci_addr_t ol_pci_calculate_address(
+                                ol_pci_iterate_dev_t,
+                                uint16_t);
+static int pci_add_list(ol_pci_iterate_dev_t itdev);
+static uint32_t __ol_pci_read_dword(ol_pci_addr_t addr);
+static void debug_pci_list();
+
 static int
 ol_pci_iterate(ol_pci_iterate_dev_t dev)
 {
@@ -145,7 +160,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
   else
   {
     struct ol_pci_node *node;
-    for(node = pcidevs; node != NULL, node != node->next; node = node->next)
+    for(node = pcidevs; node != NULL && node != node->next; node = node->next)
     {
       if(node->next == NULL)
       {
@@ -297,7 +312,7 @@ static void
 debug_pci_list()
 {
   struct ol_pci_node *node;
-  for(node = pcidevs; node != NULL, node != node->next; node = node->next)
+  for(node = pcidevs; node != NULL && node != node->next; node = node->next)
   {
     //print_pci_dev(node->dev->class, node->dev->subclass);
     if(node->dev->class == 0x2)

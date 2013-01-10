@@ -57,7 +57,6 @@ ram_fs_init(struct device* drive)
 
 dev_alloc:
         free(super);
-err:
         return NULL;
 }
 

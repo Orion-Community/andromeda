@@ -60,6 +60,7 @@ typedef struct ol_ps2_dev
 
 } *ol_ps2_dev_t;
 
+#if 0
 static void
 ol_ps2_update_status(ol_ps2_dev_t);
 
@@ -77,7 +78,7 @@ ol_ps2_read(ol_ps2_dev_t);
 
 static int
 ol_ps2_write(ol_ps2_dev_t, uint8_t, bool);
-
+#endif
 int
 ol_ps2_init_keyboard();
 

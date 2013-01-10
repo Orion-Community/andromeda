@@ -19,16 +19,21 @@
 #include <andromeda/drivers.h>
 #include <andromeda/irq.h>
 #include <andromeda/timer.h>
+#include <arch/x86/idt.h>
 
 #include <fs/vfs.h>
 
 #include <drivers/root.h>
 
+static int dev_timer_init(struct device* dev, struct device* parent);
+static int dev_timer_setup_io(struct device*, vfs_read_hook_t, vfs_write_hook_t);
+static int setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector);
+
 IRQ(timer_irq, irq, stack)
 {
         struct irq_data *data = get_irq_data(irq);
         struct device *dev = (struct device *)(data->irq_data);
-        
+
         TIMER *timer = dev->device_data;
         timer->tick++;
         timer->tick_handle(timer);
@@ -86,14 +91,14 @@ create_timer_obj(char *name, timer_tick_t tick_handle, void *data)
         timer->tick_handle = tick_handle;
         timer->timer_data = data;
         timer->config = 0xff;
-        
+
         struct device *root = get_root_device();
         struct device *dev = kalloc(sizeof(*dev));
         dev_timer_init(dev, root);
         dev->device_data = timer;
         timer->id = dev->dev_id;
         dev_timer_setup_io(dev, &timer_read, &timer_write);
-        
+
         return timer;
 }
 
@@ -108,7 +113,7 @@ init_timer_obj(char *name, timer_tick_t tick_handle, void *data, bool forse_vec,
         return timer;
 }
 
-static int 
+static int
 dev_timer_init(struct device* dev, struct device* parent)
 {
         if (dev == NULL || parent == NULL)
@@ -146,10 +151,11 @@ vfs_write_hook_t write;
 {
         dev->driver->io = kzalloc(sizeof(*(dev->driver->io)));
         struct vfile *io = dev->driver->io;
-        
+
         io->type = file;
         io->read = read;
         io->write = write;
+        return -E_SUCCESS;
 
 }
 
@@ -161,7 +167,7 @@ setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector)
         data->base_handle = &do_irq;
         data->handle = &timer_irq;
         data->irq_data = root->driver->find(root, timer->id);
-        
+
         if(forse_vec)
         {
                 data->irq_config->vector = vector;

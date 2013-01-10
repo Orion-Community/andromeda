@@ -23,6 +23,10 @@
 #include <mm/memory.h>
 
 static void
+ol_idt_install_entry(uint16_t, uint32_t, uint16_t, uint8_t, ol_idt_t);
+static int get_empty_idt_entry_number();
+
+static void
 installExceptions(ol_idt_t idt)
 {
         ol_idt_install_entry( 0, (uint32_t)divByZero , 0x08, 0x8E, idt);

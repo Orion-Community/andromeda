@@ -70,14 +70,17 @@ typedef struct ioapic
   struct iopin pin[24];
 } *ioapic_t;
 
+/*
 static void add_io_pin(struct ioapic *, struct iopin *, int);
 
 static struct ioapic*
 create_ioapic (ol_madt_ioapic_t madt_io);
+*/
 
 int
 init_ioapic();
 
+/*
 static uint32_t ioapic_read_dword(ioapic_t io, const uint8_t offset);
 
 static void add_ioapic();
@@ -87,7 +90,7 @@ ioapic_write_dword(ioapic_t io, const uint8_t offset, const uint32_t value);
 
 static int program_ioapic_pin(struct ioapic *io, int pin, int irq);
 static int write_ioapic_pin(struct iopin *pin);
-
+*/
 #ifdef __IOAPIC_DBG
 void ioapic_debug();
 #endif
