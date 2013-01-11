@@ -29,6 +29,16 @@
  * \brief RealTek 8168 NIC driver.
  */
 
+static size_t rtl_rx_vfio(struct vfile *file, char *buf, size_t size);
+static size_t rtl_tx_vfio(struct vfile *file, char *buf, size_t size);
+static void sent_command_registers(struct rtlcommand *cmd, uint16_t port);
+static int read_command_registers(struct rtlcommand *cmd, uint16_t port);
+static void add_rtl_device(struct rtl_cfg *cfg);
+static int reset_rtl_device(struct rtl_cfg *cfg);
+static int rtl_generic_cfg_out(uint16_t port, void* data, uint8_t size);
+static int rtl_generic_cfg_in(uint16_t port, void* store, uint8_t size);
+static int rtl_conf_rx(struct rtl_cfg *cfg);
+
 static struct rtl_cfg *rtl_devs = NULL;
 
 void
@@ -141,7 +151,7 @@ rtl_rx_pull_dev(struct net_buff *buff)
         return P_DONE;
 }
 
-static int
+int
 init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
 {
         struct device *dev = kalloc(sizeof (*dev));
@@ -167,7 +177,7 @@ rtl_poll_data(struct net_buff *nb)
 {
         struct rtl_cfg *cfg = nb->dev->device_data;
         uint16_t irq_state;
-        
+
         rtl_generic_cfg_in(cfg->portbase+RTL_IRQ_STATUS_PORT_OFFSET, &irq_state,
                            sizeof(irq_state));
         if(irq_state & 1)
@@ -366,7 +376,7 @@ uint8_t size;
                 default:
                         retval = -E_GENERIC;
                         break;
-                        
+
         }
         return retval;
 }

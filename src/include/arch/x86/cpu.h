@@ -58,11 +58,11 @@ extern "C"
     void (*unlock)(mutex_t*);
 
   } *ol_cpu_t;
-
+#if 0
   /* CPU feature functions */
   static int
   ol_cpuid_available(ol_cpu_t);
-
+#endif
   void
   ol_cpu_init(ol_cpu_t);
 
@@ -74,7 +74,7 @@ extern "C"
 
   void
   ol_set_eflags(uint32_t);
-
+#if 0
   /* LOCKS */
   static void /* lock spin lock */
   ol_mutex_lock(mutex_t*);
@@ -97,7 +97,7 @@ extern "C"
    */
   static void
   __write_msr(uint32_t, uint64_t);
-
+#endif
   /*
    * Read a model specific register.
    */

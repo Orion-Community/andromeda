@@ -107,7 +107,7 @@ typedef struct timer
  * TRUE means full functionality of the scheduler.
  */
 extern volatile boolean scheduling;
-
+#if 0
 /**
  * \fn dev_timer_setup_io(struct device *dev)
  * \brief Setup the device I/O.
@@ -145,7 +145,7 @@ static TIMER *create_timer_obj(char *name, timer_tick_t tick_handle, void *data)
 static int dev_timer_init(struct device* dev, struct device* parent);
 
 static int setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector);
-
+#endif
 TIMER *init_timer_obj(char *name, timer_tick_t tick_handle, void *data,
                                         bool forse_vec, unsigned char vec);
 

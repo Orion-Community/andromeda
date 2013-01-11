@@ -70,7 +70,7 @@ static uint8_t
 ol_validate_table(uint8_t* table)
 {
   int i;
-  uint8_t checksum, length;
+  uint8_t checksum = 0, length = 0;
   if (!memcmp(table, "_MP_", 4))
   {
     checksum = 0;

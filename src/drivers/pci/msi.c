@@ -26,6 +26,12 @@
 #include <io.h>
 
 #ifdef MSI
+
+static uint32_t msi_convert_message(struct msi_msg *msg);
+static int msi_build_message(struct msi *msi, uint32_t msg);
+static int __msi_create_msix_entry(struct pci_dev*, uint8_t, struct irq_data*);
+static volatile void* msi_calc_msix_base(struct pci_dev *dev, uint8_t cp);
+
 static int
 __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
 {
@@ -57,7 +63,10 @@ __msi_write_message(struct msi_cfg *cfg, struct msi *msi)
 static int
 __msi_read_message(struct msi_cfg *cfg, struct msi *msg)
 {
-  uint32_t msi_data;
+  /**
+   * \note I had to add initialiser to msi_data, verify value please.
+   */
+  uint32_t msi_data = 0;
   if(cfg->attrib.is_msix)
   {
     msg->addr = cfg->msix_read(cfg->attrib.base + MSIX_LOW_ADDR);
@@ -83,6 +92,27 @@ __msi_read_message(struct msi_cfg *cfg, struct msi *msg)
 
   return 0;
 }
+
+#ifdef MSIX_DEBUG
+static void
+debug_msix_entry(struct msi_cfg *cfg)
+{
+  struct msi *msi = kalloc(sizeof(*msi));
+  __msi_read_message(cfg, msi);
+  /**
+   * \note Again are these things really necessary?
+  struct pci_dev *dev = cfg->dev;
+  uint8_t irq = ol_pci_read_dword(dev, OL_PCI_INTERRUPT_LINE) & 0xff;
+  volatile void *base = cfg->attrib.base;
+  */
+
+  uint16_t msi_ctl = (ol_pci_read_dword(cfg->dev, (uint16_t)cfg->attrib.cpos) >> 16) & 0x3ff;
+
+  printf("msi-x: enabled: %x; base: 0x%x; msg_data: %x; cfg_space_size: %i\n",
+      ol_pci_read_dword(cfg->dev, cfg->attrib.cpos)>>31, msi->addr, msi_convert_message(&msi->msg), (msi_ctl+1)/4);
+  free(msi);
+}
+#endif
 
 void
 setup_msi_entry(struct pci_dev *dev, uint8_t cp)
@@ -123,7 +153,10 @@ __msi_create_msix_entry(struct pci_dev *dev, uint8_t cp, struct irq_data *irq)
 {
   struct msi_cfg *cfg = kalloc(sizeof(*cfg));
   struct msi *msi = kalloc(sizeof(*msi));
-  uint16_t ctrl = ol_pci_read_dword(dev, cp) >> 16;
+  /**
+   * \note Is this variable here really necessary?
+   uint16_t ctrl = ol_pci_read_dword(dev, cp) >> 16;
+   */
   cfg->attrib.cpos = cp;
   cfg->dev = dev;
   cfg->attrib.is_msix = 1;
@@ -198,22 +231,5 @@ msi_build_message(struct msi *msi, uint32_t msg)
   return 0;
 }
 
-#ifdef MSIX_DEBUG
-static void
-debug_msix_entry(struct msi_cfg *cfg)
-{
-  struct msi *msi = kalloc(sizeof(*msi));
-  __msi_read_message(cfg, msi);
-  struct pci_dev *dev = cfg->dev;
-  uint8_t irq = ol_pci_read_dword(dev, OL_PCI_INTERRUPT_LINE) & 0xff;
-  volatile void *base = cfg->attrib.base;
-
-  uint16_t msi_ctl = (ol_pci_read_dword(cfg->dev, (uint16_t)cfg->attrib.cpos) >> 16) & 0x3ff;
-
-  printf("msi-x: enabled: %x; base: 0x%x; msg_data: %x; cfg_space_size: %i\n",
-      ol_pci_read_dword(cfg->dev, cfg->attrib.cpos)>>31, msi->addr, msi_convert_message(&msi->msg), (msi_ctl+1)/4);
-  free(msi);
-}
-#endif
 #endif
 #endif

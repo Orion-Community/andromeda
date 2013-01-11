@@ -243,18 +243,19 @@ int unregister_net_dev(uint64_t id);
  * \return State of handled packet
  * \see netif_process_queue(struct net_queue *head, unsigned int load)
  * \see struct net_buff, struct netdev
- * 
+ *
  * This function handles all packets which are fresh from the device driver or
  * the netif queue (see <i>netif_process_queue(head, load)</i>). After handling
  * a packet it will poll from the device driver for more incoming packets.
  */
+/*
 static enum packet_state netif_rx_process(struct net_buff *nb);
-
+*/
 struct device *get_net_driver(uint64_t id);
 
 struct net_buff *alloc_buff_frame(unsigned int frame_len);
+#if 0
 static int free_net_buff_list(struct net_buff* nb);
-
 /**
   * \fn net_buff_append_list(head, x)
   * \brief The net_buff item x will be appended to the net_buff head <i>head</i>.
@@ -282,13 +283,6 @@ static struct net_queue *remove_queue_entry(struct net_queue *head,
 static int net_queue_append_list(struct net_queue *queue, struct net_queue* item);
 
 /**
- * \fn netif_drop_net_buff(buff)
- * \brief Packet is not valid/usable, drop it.
- * \param buff The packet to drop.
- */
-void netif_drop_net_buff(struct net_buff *buff);
-
-/**
  * \fn vlan_untag(buff)
  * \brief Converts raw vlan tags to a better readable the better readable struct
  * vlan_tag.
@@ -297,9 +291,17 @@ void netif_drop_net_buff(struct net_buff *buff);
 static int vlan_untag(struct net_buff *buff);
 
 static int check_net_buff_tstamp(struct net_buff *buff);
-
+#endif
 void print_mac(struct netdev *netdev);
 
+/**
+ * \fn netif_drop_net_buff(buff)
+ * \brief Packet is not valid/usable, drop it.
+ * \param buff The packet to drop.
+ */
+void netif_drop_net_buff(struct net_buff *buff);
+
+#if 0
 /**
   * \fn net_rx_vfio(vfile, buf, size)
   *
@@ -315,7 +317,7 @@ static size_t net_rx_vfio(struct vfile *, char*, size_t);
 static size_t net_tx_vfio(struct vfile*, char*, size_t);
 
 static void init_ptype_tree();
-
+#endif
 /**
   * \fn add_ptye(parent, item)
   * \brief Adds a packet type to to tree.
@@ -324,17 +326,19 @@ static void init_ptype_tree();
   */
 void add_ptype(struct protocol *parent, struct protocol *item);
 
+#if 0
 /**
  * \fn netif_process_queue(struct net_queue *head, unsigned int load)
  * \brief Processes <i>load</i> amount of packets from the queue.
  * \param head The head of the receive queue.
  * \param load The amount of packets to process
  * \return The error code. Returns 0 on success.
- * 
- * The packets taken from the queue are passed to 
+ *
+ * The packets taken from the queue are passed to
  * <i>netif_process_net_buff(buff)</i>.
  */
 static int netif_process_queue(struct net_queue *head, unsigned int load);
+#endif
 
 struct protocol *get_ptype(struct protocol *head, enum ptype type);
 

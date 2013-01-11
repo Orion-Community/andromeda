@@ -75,7 +75,7 @@ struct rtl_irq_status
         uint si : 1;
         uint ff_emp : 1;
         uint timeout : 1;
-        
+
 };
 
 struct txconfig
@@ -192,6 +192,7 @@ struct rxcommand
   uint32_t rxbuffh; /* higher buffer address */
 };
 
+#if 0
 /**
  * \fn rtl_conf_b(data,portbase,offset)
  * \brief Generic function to sent data to the rtl device.
@@ -239,13 +240,18 @@ rtl_conf_l(uint32_t data, uint16_t portbase, uint16_t offset)
 {
   outl(portbase+offset, data);
 }
-
+#endif
 void init_rtl_device(struct pci_dev *);
 void init_network();
+
+#if 0
 static int rtl_setup_irq_handle(irq_handler_t handle, struct netdev *irq_data);
 static int init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg);
+#endif
 
 void rtl8168_irq_handler(unsigned int irq, irq_stack_t stack);
+
+#if 0
 static int reset_rtl_device(struct rtl_cfg *cfg);
 
 static void add_rtl_device(struct rtl_cfg *cfg);
@@ -258,7 +264,6 @@ static void get_mac(struct pci_dev *dev, struct netdev *netdev);
 static int rtl_conf_rx(struct rtl_cfg *cfg);
 static void sent_command_registers(struct rtlcommand *, uint16_t);
 static int read_command_registers(struct rtlcommand *, uint16_t);
-
 /**
  * \fn rtl_generic_cfg_out(port, data, size)
  * \brief Send the data specified in <i>data</i> to the output port <i>port</i>.
@@ -304,6 +309,7 @@ static size_t rtl_tx_vfio(struct vfile *file, char *buf, size_t size);
  * @return The packet error code.
  */
 static enum packet_state rtl_poll_data(struct net_buff *nb);
+#endif
 
 static inline uint16_t
 get_rtl_port_base(struct pci_dev *dev, uint8_t offset)

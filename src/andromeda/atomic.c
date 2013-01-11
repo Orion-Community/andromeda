@@ -79,39 +79,36 @@ atomic_get(atomic_t* d)
 int64_t
 semaphore_inc(semaphore_t* s)
 {
-        boolean condition = FALSE;
         int64_t ret = 0;
-        while (condition == FALSE)
+        while (1)
         {
                 mutex_lock(&s->lock);
-
                 if (s->cnt < s->limit)
                 {
-                        s->cnt ++;
-                        ret = s->cnt;
-                        condition = TRUE;
+                        ret = s->cnt ++;
+                        break;
                 }
                 mutex_unlock(&s->lock);
         }
+        mutex_unlock(&s->lock);
         return ret;
 }
 
 int64_t
 semaphore_dec(semaphore_t* s)
 {
-        boolean condition = FALSE;
         int64_t ret = 0;
-        while (condition == FALSE)
+        while (1)
         {
                 mutex_lock(&s->lock);
 
                 if (s->cnt > 0)
                 {
-                        s->cnt --;
-                        ret = s->cnt;
-                        condition = TRUE;
+                        ret = s->cnt --;
+                        break;
                 }
                 mutex_unlock(&s->lock);
         }
+        mutex_unlock(&s->lock);
         return ret;
 }

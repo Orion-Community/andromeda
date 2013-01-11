@@ -25,6 +25,11 @@
 #include <arch/x86/irq.h>
 #include <arch/x86/apic/ioapic.h>
 
+static uint32_t ioapic_read_dword(ioapic_t io, const uint8_t offset);
+static void ioapic_write_dword(ioapic_t, const uint8_t, const uint32_t);
+static void add_ioapic();
+static int program_ioapic_pin(struct ioapic *io, int pin, int irq);
+
 static volatile ioapic_t ioapic;
 
 static struct ioapic*
