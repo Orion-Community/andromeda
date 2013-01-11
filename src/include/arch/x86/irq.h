@@ -81,6 +81,8 @@ extern void trigger_soft_irq30();
 extern void trigger_soft_irq31();
 #endif
 
+void setup_irq_data(void);
+
 static inline struct irq_data*
 get_irq_data(uint32_t irq)
 {
@@ -102,7 +104,9 @@ get_isa_irq_vector(uint32_t x)
 static inline uint32_t
 get_irq_base(uint8_t i)
 {
-  return irqs[i];
+  if (i < IRQ_BASE)
+    return irqs[i];
+  return -E_INVALID_ARG;
 }
 
 static inline uint32_t
@@ -119,10 +123,12 @@ get_general_irqstub_end()
 
 uint32_t debug_dynamic_irq(void);
 int native_setup_irq_handler(unsigned int irq);
+/*
 static void __list_all_irqs();
 static int free_irq_entry(struct irq_data*);
 static struct irq_cfg *setup_irq_cfg(int irq);
 static void setup_irq_handler(unsigned int irq);
+*/
 
 struct irq_data *alloc_irq();
 unsigned int search_irq_num(irq_base_handler_t handle);
@@ -164,7 +170,7 @@ extern void irq15();
 /**
  * \fn enable_irqs()
  * \brief Enable the IRQs
- * 
+ *
  * This function sets the Interrupt Enable flag in the (E)FLAGS register.
  */
 void enable_irqs();
@@ -172,7 +178,7 @@ void enable_irqs();
 /**
  * \fn disable_irqs()
  * \brief Disable the IRQs
- * 
+ *
  * This function will clear the Interrupt Enable flag in de (E)FLAGS register.
  */
 void disable_irqs();

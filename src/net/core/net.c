@@ -38,6 +38,13 @@ static struct net_queue *net_tx_core_queue;
 struct protocol ptype_tree;
 static bool initialized = FALSE;
 
+static size_t net_rx_vfio(struct vfile *file, char *buf, size_t size);
+static size_t net_tx_vfio(struct vfile *file, char *buf, size_t size);
+static struct net_queue* remove_queue_entry(struct net_queue*, struct net_queue*);
+static void init_ptype_tree();
+static int check_net_buff_tstamp(struct net_buff *buff);
+static int vlan_untag(struct net_buff *buff);
+
 /**
  * \fn net_get_queue
  * \brief Returns the current net_queue head.

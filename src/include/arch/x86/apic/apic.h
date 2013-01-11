@@ -56,6 +56,7 @@ typedef struct apic
 
 extern struct apic * apic;
 
+/*
 static int
 ol_detect_apic(ol_cpu_t cpu);
 
@@ -67,10 +68,10 @@ ol_apic_enable(ol_apic_t);
 
 static void
 ol_apic_disable(ol_apic_t);
-
+*/
 int
 ol_apic_init(ol_cpu_t cpu);
-
+/*
 static uint64_t
 correct_apic_address();
 
@@ -86,7 +87,7 @@ static void __apic_write_register(ol_apic_reg_t, uint16_t);
 static void route_pic_to_apic();
 
 static void route_apic_to_pic();
-
+*/
 extern ol_apic_t apic;
 
 #ifdef	__cplusplus

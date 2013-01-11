@@ -97,7 +97,7 @@ extern "C"
     struct ol_pci_node* previous;
     struct pci_dev* dev;
   } *ol_pci_node_t;
-
+#if 0
   static int
   ol_pci_iterate();
 
@@ -112,18 +112,15 @@ extern "C"
 
   static int
   ol_pci_dev_exist(ol_pci_iterate_dev_t);
+#endif
 
   void
   ol_pci_init();
-
+#if 0
   static int
   pci_add_list(ol_pci_iterate_dev_t);
-
-#ifdef __PCI_DEBUG
-  static int
-  show_pci_dev(ol_pci_iterate_dev_t);
 #endif
-
+#if 0
   static void
   print_pci_dev(uint16_t class, uint16_t subclass);
 
@@ -133,10 +130,10 @@ extern "C"
 
   static uint8_t
   __ol_pci_read_byte(ol_pci_addr_t, uint16_t);
-
+#endif
   inline uint32_t
   ol_pci_read_dword(struct pci_dev* dev, uint16_t reg);
-
+#if 0
   /**
    * Inner dword write function.
    *
@@ -145,7 +142,7 @@ extern "C"
    * @param data Data to write.
    */
   static void __ol_pci_write_dword(ol_pci_addr_t, uint32_t);
-
+#endif
   /**
    * Writes a 32-bit value to the specified register in the specified pci
    * device.
@@ -155,11 +152,11 @@ extern "C"
    * @param data Data to write.
    */
   inline void ol_pci_write_dword(struct pci_dev*, uint16_t, uint32_t);
-
+#if 0
   static void config_msix(struct pci_dev *, uint32_t, uint8_t);
 
   static void debug_pci_list();
-
+#endif
   extern struct ol_pci_node* pcidevs;
 
 #ifdef	__cplusplus

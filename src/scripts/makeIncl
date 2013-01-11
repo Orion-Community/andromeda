@@ -6,10 +6,7 @@ MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 test=$(foreach T,$($(1)),$(if $($(firstword $(subst :, ,$T))),$(lastword $(subst :, ,$T)),))
 
 VERSION:=$(shell git describe)
-
-WARNINGS=-Wunused-variable \
-         -Wimplicit-function-declaration \
-         -Wreturn-type
+WARNINGS:=-Wall
 
 CFLAGS= -nostdlib \
         -fno-builtin \

@@ -23,6 +23,8 @@
 
 #include <text.h>
 
+static void ol_ps2_sent_controller_command(ol_ps2_dev_t ctrl, uint8_t cmd);
+
 static ol_ps2_dev_t ol_ps2_controller = NULL;
 static ol_ps2_dev_t ol_ps2_keyboard = NULL;
 static ol_ps2_dev_t ol_ps2_mouse = NULL;

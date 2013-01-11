@@ -172,7 +172,7 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
                 switch(fmt[i])
                 {
                 case '%':
-                        escaped != escaped;
+                        escaped = !escaped;
                         break;
                 case 'x':
                 case 'X':

@@ -131,15 +131,15 @@ extern "C"
     typedef struct ol_acpi_rsdp *ol_acpi_rsdp_t;
 
     typedef void (*acpi_enum_hook_t)(void* structure);
-
+/*
     static ol_acpi_madt_t
     ol_acpi_get_madt();
-
+*/
     extern struct acpi_apic_lists *acpi_apics;
 
     int
     acpi_init();
-
+/*
     static void
     ol_acpi_enumerate(uint8_t type, acpi_enum_hook_t hook);
 
@@ -148,7 +148,7 @@ extern "C"
 
     static void
     acpi_ioapic_add_list(void*);
-
+*/
     void*
     ol_acpi_get_ioapic();
 #ifdef __cplusplus

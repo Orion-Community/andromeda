@@ -22,6 +22,8 @@
 #include <andromeda/timer/virtual.h>
 #include <andromeda/timer.h>
 
+#pragma GCC diagnostic ignored "-Wunused-function"
+
 static struct virtual_timer head;
 
 static inline struct virtual_timer *

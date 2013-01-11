@@ -26,6 +26,9 @@
 #include <arch/x86/acpi/acpi.h>
 
 struct acpi_apic_lists *acpi_apics = NULL;
+static void ol_acpi_enumerate(uint8_t type, acpi_enum_hook_t hook);
+static void acpi_apic_add_list(void *apic);
+static void acpi_ioapic_add_list(void *io);
 
 int
 acpi_init()
@@ -59,10 +62,12 @@ static ol_acpi_madt_t
 ol_acpi_get_madt()
 {
   if(systables->magic != SYS_TABLE_MAGIC)
+  {
     if(ol_get_system_tables())
       return NULL;
     else if(systables->magic != SYS_TABLE_MAGIC)
       return NULL;
+  }
 
   ol_acpi_rsdt_t rsdt = (void*) systables->rsdp->rsdt;
 
@@ -126,7 +131,7 @@ acpi_apic_add_list(void *apic)
   else
   {
     struct ol_madt_apic_node *carriage;
-    for(carriage = acpi_apics->apic; carriage != NULL, carriage != carriage->next;
+    for(carriage = acpi_apics->apic; carriage != NULL && carriage != carriage->next;
       carriage = carriage->next)
     {
       if(carriage->next == NULL)
@@ -157,7 +162,7 @@ acpi_ioapic_add_list(void *io)
   else
   {
     struct ol_madt_ioapic_node *carriage;
-    for(carriage = acpi_apics->ioapic; carriage != NULL, carriage != carriage->next;
+    for(carriage = acpi_apics->ioapic; carriage != NULL && carriage != carriage->next;
       carriage = carriage->next)
     {
       if(carriage->next == NULL)

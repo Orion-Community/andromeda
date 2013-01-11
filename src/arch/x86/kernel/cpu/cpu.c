@@ -23,6 +23,10 @@
 #include <mm/memory.h>
 #include <text.h>
 
+static ol_gen_registers_t __ol_cpuid(volatile ol_gen_registers_t regs);
+static uint64_t __read_msr(uint32_t msr);
+static void __write_msr(uint32_t msr, uint64_t value);
+
 mutex_t cpu_lock = 0;
 volatile ol_cpu_t cpus;
 uint8_t cpu_num = 0;
@@ -60,7 +64,7 @@ ol_cpuid(uint32_t func)
   regs->ecx = 0;
   regs->edx = 0;
   regs->ebx = 0;
-  ol_gen_registers_t ret = __ol_cpuid(regs);
+  ol_gen_registers_t ret = (ol_gen_registers_t)__ol_cpuid(regs);
   free(regs);
   return ret;
 }
