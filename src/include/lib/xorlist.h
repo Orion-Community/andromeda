@@ -15,9 +15,14 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * \defgroup xor_linked_list
+ * The linked list library
+ * @{
+ */
 
-#ifndef __LIST_H
-#define __LIST_H
+#ifndef __LIB_XORLIST_H
+#define __LIB_XORLIST_H
 struct xor_llist_head;
 
 typedef hook_result_t (*xor_list_iterator_t)(struct xor_llist_head*);
@@ -113,3 +118,5 @@ get_prev_node(XOR_HEAD *this, XOR_HEAD *next)
 }
 
 #endif
+
+/** @} \file */

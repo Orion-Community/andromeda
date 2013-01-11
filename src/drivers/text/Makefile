@@ -3,16 +3,16 @@ CFLAGS+=-I../../include/
 
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-TARGETS=out.c
+TARGETS=out.o vga_text.o
 DEPS=include/out.h
 
 .PHONY: all
-all: text.o vga_text.o
-	$(LD) $(LDFLAGS) -o txt.o *o
-	mv -vf txt.o ../text.o
+all: $(TARGETS)
+	$(LD) $(LDFLAGS) -o ../text.o *.o
 
-text.o: $(TARGETS) $(DEPS)
-	$(CC) $(CFLAGS) $(FLAGS) $(TARGETS) -o text.o
+%o: %c
+	$(CC) $(CFLAGS) $(FLAGS) $< -o $@
 
-vga_text.o: vga_text.c
-	$(CC) $(CFLAGS) $(FLAGS) vga_text.c -o vga_text.o
+.PHONY: clean
+clean:
+	rm -vf *.o

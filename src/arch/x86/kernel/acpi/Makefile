@@ -7,14 +7,18 @@
 ## This file is generated automatically.
 ##
 
+include ../../../../scripts/makeIncl
+
 # compliler shizle
 AS=nasm
 ASFLAGS=-felf32 -I"../../../../include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
- -fno-builtin -nostdinc -finline-functions-called-once $(FLAGS)
+#CC=gcc
+#CCFLAGS=-I"../../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
+# -fno-builtin -nostdinc -finline-functions-called-once $(FLAGS)
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
+
+CCFLAGS:=$(CFLAGS) -I"../../../../include" $(FLAGS)
 
 all: acpi.o acpi_.o
 

@@ -34,8 +34,6 @@ get_virtual_timer_head()
 
 THREAD(virtual_ktimer, timer_data)
 {
-//         VIRT_TIMER *timers = (VIRT_TIMER*)timer_data;
-
         VIRT_TIMER *carriage, *tmp, *head = get_virtual_timer_head();
         for_each_ll_entry_safe(head, carriage, tmp)
         {

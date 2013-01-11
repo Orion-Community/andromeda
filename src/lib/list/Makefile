@@ -24,7 +24,7 @@ $(TARGET): $(OBJS)
 	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET)
 
 %o: %c
-	$(CC) $(CFLAGS) -o xorlist.o xorlist.c
+	$(CC) $(CFLAGS) $< -o $@
 
 .PHONY: clean
 clean:

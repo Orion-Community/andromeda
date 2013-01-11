@@ -25,6 +25,9 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/buffer.h>
+#include <mm/vmem.h>
+#include <mm/cache.h>
+#include <stdio.h>
 
 #define RL_SHUTDOWN     0x0
 #define RL_RUN0         0x1
@@ -89,34 +92,54 @@ void init_set(uint32_t i)
         rl = i;
 }
 
+void test_sprintf()
+{
+        char *test = kalloc(255);
+        if (test == NULL)
+                panic("OUT OF MEMORY!");
+        memset(test, 0, 255);
+        int ret = sprintf(test, "hello: %8X\n", 0xC0DE);
+        printf("%X\t%s", ret, test);
+
+        free(test);
+}
+
 void core_loop()
 {
 //         init_netif();
 //         init_network();
 
-#ifdef SCHED_DBG
-        /**
-         * Will have to be improved to actually do a context
-         * switch here
-         */
-        pid = syscall(SYS_FORK, 0, 0, 0);
-        print_task_stack();
-        demand_key();
-        syscall(SYS_KILL, pid, 0, 0);
-        print_task_stack();
-        demand_key();
-
-        struct __THREAD_STATE* t = kalloc(sizeof(struct __THREAD_STATE));
-#endif
+#ifdef DBG
 #ifdef MATH_DBG
         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN" : "A number");
 #endif
 #ifdef BUF_DBG
         buf_dbg();
 #endif
+#ifdef BUDDY_DBG
+        if (vmem_buddy_test() != -E_SUCCESS)
+                panic("The buddy system failed!!!");
+#endif
+#ifdef VMEM_DBG
+        debug("Address of higher half: %X\n", (int)&higherhalf);
+        debug("Address of end ptr:     %X\n", (int)&end);
+#endif
+#ifdef SPRINTF_DBG
+        test_sprintf();
+        test_calculation_functions();
+#endif
+#ifdef SLAB_DBG
+        mm_cache_test();
+#endif
+#endif
+#ifdef RR_EXP
+        extern void task_testA();
+        extern void task_testB();
+        rr_thread_init(task_testA);
+        rr_thread_init(task_testB);
+#endif
 
 //         uint32_t pid = 0;
-
         debug("Entering core loop\n");
         while (TRUE) // Infinite loop, to make the kernel wait when there is nothing to do
         {
@@ -128,15 +151,15 @@ void core_loop()
                 case RL_RUN3:
                 case RL_RUN4:
                      halt();
-//                      sched_next_task();
+#ifdef RR_EXP
+                     rr_sched();
+#endif
                         break;
 
                 case RL_REBOOT:
-                        syscall(SYS_REBOOT, 0, 0, 0);
                         break;
 
                 case RL_SHUTDOWN:
-                        syscall(SYS_SHUTDOWN, 0, 0, 0);
                         break;
                 }
                 halt(); // Puts the CPU in idle state untill next interrupt

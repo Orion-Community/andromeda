@@ -1,6 +1,6 @@
 /*
  * Andromeda
- * Copyright (C) 2011  Bart Kuivenhoven
+ * Copyright (C) 2012  Bart Kuivenhoven
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+/**
+ * \AddToGroup paging
+ * @{
+ * \todo Figure out a more optimized way to keep track of physical pages
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,8 +29,8 @@
 #include <types.h>
 #include <mm/memory.h>
 
-static struct mm_page_list free_pages;
-static struct mm_page_list allocated_pages;
+struct mm_page_list free_pages;
+struct mm_page_list allocated_pages;
 
 boolean freeable_allocator = FALSE;
 static mutex_t page_lock = mutex_unlocked;
@@ -38,7 +43,6 @@ static mutex_t page_lock = mutex_unlocked;
  * \param node
  * \brief The node to append
  * \return NULL for error, node for success
- * \TODO Rewrite mm_page_append function
  */
 struct mm_page_descriptor*
 mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
@@ -53,15 +57,12 @@ mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
                 list->tail = node;
                 node->next = NULL;
                 node->prev = NULL;
-                debug("Alternate append\n");
                 return node;
         }
-        debug("list tail: %X\n", (int)list->tail);
         list->tail->next = node;
         node->prev = list->tail;
         node->next = NULL;
         list->tail = node;
-        debug("Prefered append\n");
         return node;
 }
 
@@ -71,7 +72,6 @@ mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node)
  * \param node
  * \brief The node to be removed from the list
  * \return The released node
- * \TODO Rewrite the mm_page_rm function
  */
 struct mm_page_descriptor*
 mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node)
@@ -96,8 +96,6 @@ mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node)
         node->next = NULL;
         node->prev = NULL;
 
-        debug("rm succeeded\n");
-        debug("list head: %X\tlist tail: %X\n", (int)list->head, (int)list->tail);
         return node;
 }
 
@@ -149,10 +147,11 @@ mm_get_page(addr_t addr, bool physical, bool free)
  * \param base_size
  * \brief The size of the lower page after the split
  * \return The pointer to the lower page
- * \warning Use the returned pointer to reset the carriage if itterating
+ * \warning The resulting page descriptor can no longer be used when itterating
  */
-static struct mm_page_descriptor*
-mm_page_split(page, base_size)
+struct mm_page_descriptor*
+mm_page_split(list, page, base_size)
+struct mm_page_list* list;
 struct mm_page_descriptor* page;
 size_t base_size;
 {
@@ -167,8 +166,6 @@ size_t base_size;
         struct mm_page_descriptor* tmp;
         if (freeable_allocator)
                 tmp = kalloc(sizeof(*tmp));
-        else
-                tmp = boot_alloc(sizeof(*tmp));
 
         if (tmp == NULL)
         {
@@ -185,7 +182,8 @@ size_t base_size;
         tmp->prev = page;
         page->next = tmp;
         page->size = base_size;
-        tmp->freeable = freeable_allocator;
+        if (tmp->next == NULL)
+                list->tail = tmp;
         mutex_unlock(&page->lock);
         mutex_unlock(&tmp->lock);
         return page;
@@ -199,10 +197,11 @@ size_t base_size;
  * \param page2
  * \brief The other page to merge
  * \return The resulting page descriptor
- * \warning Use returned value to continue if in a loop
+ * \warning The resulting page descriptors can no longer be used when itterating
  */
-static struct mm_page_descriptor*
-mm_page_merge(page1, page2)
+struct mm_page_descriptor*
+mm_page_merge(lst, page1, page2)
+struct mm_page_list* lst;
 struct mm_page_descriptor* page1;
 struct mm_page_descriptor* page2;
 {
@@ -230,12 +229,14 @@ struct mm_page_descriptor* page2;
 
         page1->size += page2->size;
         page2->prev->next = page2->next;
-        if (page2->freeable)
-                kfree(page2);
+
+        if (lst->head == page2)
+                lst->head = page1;
+        if (lst->tail == page2)
+                lst->tail = page1;
 
         return page1;
 }
-
 
 /**
  * \fn mm_page_alloc
@@ -259,7 +260,8 @@ mm_page_alloc(size_t size)
                 if (carriage->free && carriage->size >= size)
                 {
                         if (carriage->size > size)
-                                carriage = mm_page_split(carriage, size);
+                                carriage = mm_page_split(&free_pages, carriage,
+                                                                          size);
                         if (carriage == NULL)
                                 goto err;
 
@@ -308,62 +310,32 @@ mm_page_free(void* page)
                 debug("page_rm failed\n");
         if(mm_page_append(&free_pages, to_free) == NULL)
                 debug("append failed\n");
-/*
+
         struct mm_page_descriptor* carriage = free_pages.head;
         for (; carriage->next != NULL && carriage != NULL;
                                                       carriage = carriage->next)
         {
-                addr_t next = (addr_t)carriage->next;
-                addr_t phys = (addr_t)carriage->page_ptr;
-                if (phys+carriage->size == next && carriage->free == TRUE &&
-                                                   carriage->next->free == TRUE)
+                addr_t phys = (addr_t)to_free->page_ptr;
+                addr_t it_phys = (addr_t)carriage->page_ptr;
+                if (carriage->free == FALSE)
+                        panic("Page administration failure!");
+                if (it_phys + carriage->size == phys)
                 {
-                        carriage = mm_page_merge(carriage, carriage->next);
-                        if (carriage == NULL)
-                        {
-                                warning("Page stack corruption!\n");
-                                mutex_unlock(&page_lock);
-                                return -E_NULL_PTR;
-                        }
+                        // Merge the page descriptors
+                        to_free = mm_page_merge(&free_pages, to_free, carriage);
+                        carriage = free_pages.head;
+                }
+                else if (phys + to_free->size == it_phys)
+                {
+                        // Also merge the page descriptors
+                        to_free = mm_page_merge(&free_pages, to_free, carriage);
+                        carriage = free_pages.head;
                 }
         }
-*/
 
         mutex_unlock(&page_lock);
 
         return -E_SUCCESS;
-}
-
-/**
- * \fn x86_page_generate_pd
- * \brief Generate a page directory for virtual memory
- * \return The newly generated page directory (the physical address)
- */
-struct page_dir*
-x86_page_generate_pd(uint32_t proc_id)
-{
-        return NULL;
-}
-
-/**
- * extern int mboot = start of kernel image
- * extern int end = end of kernel image + stdata
- * The memory map shows which regions of memory space are used for hardware
- *      access.
- * The rest is either free or in use by the initrd or modules (which we don't
- *      support yet).
- */
-
-int
-x86_page_destroy_pd(struct page_dir* pd)
-{
-        return -E_NOFUNCTION;
-}
-
-int
-x86_page_update_pd(uint32_t proc_id)
-{
-        return -E_NOFUNCTION;
 }
 
 void
@@ -399,224 +371,7 @@ mm_show_pages()
         }
 }
 
-int
-mm_map_kernel_element(struct mm_page_descriptor* carriage)
-{
-        addr_t phys = (addr_t)carriage->page_ptr;
-        addr_t end_ptr = (addr_t)&end - THREE_GIB;
-        if (phys + carriage->size > end_ptr)
-        {
-                // Some splitting needs to be done!
-                if (carriage->free == FALSE)
-                        return -E_SUCCESS;
-
-                size_t block_size = end_ptr-phys;
-                if (block_size % PAGESIZE)
-                        block_size += PAGESIZE-(block_size%PAGESIZE);
-
-                if (mm_page_split(carriage, block_size) == NULL)
-                        return -E_GENERIC;
-        }
-        // Mark the current page descriptor as allocated
-        debug("\nBefore\n");
-        mm_show_pages();
-        mm_page_rm(&free_pages, carriage);
-        debug("\nAfter\n");
-        mm_show_pages();
-        mm_page_append(&allocated_pages, carriage);
-        carriage->free = FALSE;
-        return -E_SUCCESS;
-}
-
-int
-mm_map_kernel()
-{
-        addr_t end_ptr = (addr_t)&end - THREE_GIB;
-        struct mm_page_descriptor* carriage = free_pages.head;
-        struct mm_page_descriptor* tmp;
-        for (; carriage != NULL; carriage = tmp)
-        {
-                tmp = carriage->next;
-                addr_t phys = (addr_t)carriage->page_ptr;
-                if (phys < end_ptr)
-                {
-                        if (mm_map_kernel_element(carriage) != -E_SUCCESS)
-                                panic("Couldn't map kernel image!");
-                }
-        }
-        return -E_SUCCESS;
-}
-
-int
-mm_page_map_higher_half()
-{
-        struct mm_page_descriptor* carriage = free_pages.head;
-
-        addr_t phys;
-        for (; carriage != NULL; carriage = carriage->next)
-        {
-                phys = (addr_t)carriage->page_ptr;
-                if (phys < GIB)
-                {
-                        if (phys + carriage->size > GIB)
-                                mm_page_split(carriage, GIB - phys);
-                        carriage->virt_ptr = (void*)(phys+THREE_GIB);
-                }
-        }
-
-        carriage = allocated_pages.head;
-        for (; carriage != NULL; carriage = carriage->next)
-        {
-                phys = (addr_t)carriage->page_ptr;
-                if (phys < GIB)
-                {
-                        if (phys + carriage->size > GIB)
-                                mm_page_split(carriage, GIB - phys);
-                        carriage->virt_ptr = (void*)(phys+THREE_GIB);
-                }
-        }
-        return 0;
-}
-
-int
-mboot_map_special_entry(addr_t ptr,addr_t virt,size_t size,bool free,bool dma)
-{
-        struct mm_page_descriptor* tmp;
-        if (freeable_allocator)
-                tmp = kalloc(sizeof(*tmp));
-        else
-                tmp = boot_alloc(sizeof(*tmp));
-
-        if (tmp == NULL)
-                panic("OUT OF MEMORY!");
-
-        memset(tmp, 0, sizeof(*tmp));
-        tmp->page_ptr = (void*)ptr;
-        tmp->virt_ptr = (void*)virt;
-        tmp->size = size;
-        tmp->free = free;
-        tmp->dma = dma;
-        if (free)
-                mm_page_append(&free_pages, tmp);
-        else
-                mm_page_append(&allocated_pages, tmp);
-
-        return -E_SUCCESS;
-}
-
-int
-mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
-{
-        printf("Pages: %X\n", (uint32_t)free_pages.head);
-
-        multiboot_memory_map_t* mmap = map;
-
-        printf("Setting up!\n");
-
-        while ((addr_t)mmap < (addr_t)map + mboot_map_size)
-        {
-                debug("Size: %X\tbase: %X\tlength: %X\ttype: %X\n",
-                        mmap->size,
-                        (uint32_t)mmap->addr,
-                        (uint32_t)mmap->len,
-                        mmap->type
-                );
-
-                struct mm_page_descriptor* tmp;
-                if (mmap->addr < SIZE_MEG)
-                {
-                        if (mmap->addr+mmap->size > SIZE_MEG)
-                        {
-                                mboot_map_special_entry(SIZE_MEG, SIZE_MEG,
-                                                mmap->addr+mmap->size-SIZE_MEG,
-                                       (mmap->type == 1) ? TRUE : FALSE, FALSE);
-                        }
-                        goto itteration_skip;
-                }
-                if (freeable_allocator)
-                        tmp = kalloc(sizeof(*tmp));
-                else
-                        tmp = boot_alloc(sizeof(*tmp));
-                if (tmp == NULL)
-                        panic("Out of memory!");
-                memset(tmp, 0, sizeof(*tmp));
-                tmp->freeable = freeable_allocator;
-
-                tmp->page_ptr = (void*)((addr_t)mmap->addr);
-                tmp->virt_ptr = tmp->page_ptr;
-                tmp->size = (size_t)mmap->len;
-
-                if (mmap->type != 1)
-                {
-                        if (mm_page_append(&allocated_pages, tmp) == NULL)
-                                panic("Couldn't add page!");
-                        tmp->free = FALSE;
-                }
-                else
-                {
-                        if (mm_page_append(&free_pages, tmp) == NULL)
-                                panic("Couldn't add page!");
-                        tmp->free = TRUE;
-                }
-itteration_skip:
-                mmap = (void*)((addr_t)mmap + mmap->size+sizeof(mmap->size));
-        }
-        debug("\nFirst run\n");
-        mm_show_pages();
-
-        mm_page_map_higher_half();
-        debug("\nSecond run\n");
-        mm_show_pages();
-
-        mm_map_kernel();
-        debug("\nThird run (maps the kernel)\n");
-        mm_show_pages();
-
-        /** mm_page_alloc doesn't move the page to the allocated list */
-        void* addr = mm_page_alloc(0x1000);
-        debug("\nFourth run\n");
-        mm_show_pages();
-
-        mm_page_free(addr);
-        debug("\nFifth run\n");
-        mm_show_pages();
-
-        return -E_SUCCESS;
-}
-
-int
-x86_page_init(size_t mem_size)
-{
-        debug("Machine mem size: %X, required: %X\n",
-              mem_size*0x400,
-              MINIMUM_PAGES*BYTES_IN_PAGE
-        );
-
-        if (mem_size*0x400 < MINIMUM_PAGES*BYTES_IN_PAGE)
-                panic("Machine has not enough memory!");
-
-        memset(&free_pages, 0, sizeof(free_pages));
-        memset(&allocated_pages, 0, sizeof(allocated_pages));
-
-        struct mm_page_descriptor* meg;
-        if (freeable_allocator)
-                meg = kalloc(sizeof(*meg));
-        else
-                meg = boot_alloc(sizeof(*meg));
-
-        if (meg == NULL)
-                panic("OUT OF MEMORY!");
-
-        memset(meg, 0, sizeof(*meg));
-        meg->freeable = freeable_allocator;
-        meg->page_ptr = NULL;
-        meg->size = SIZE_MEG; /** meg->size = one megabyte */
-
-        allocated_pages.head = meg;
-        allocated_pages.tail = meg;
-
-
-        return -E_SUCCESS;
-}
-
-/** \file */
+/**
+ * @}
+ * \file
+ */

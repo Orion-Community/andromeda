@@ -1,6 +1,6 @@
 /*
     Andromeda
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2011, 2012  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,10 +23,17 @@
 #include <andromeda/cpu.h>
 #include <boot/mboot.h>
 #include <thread.h>
+#include <andromeda/sched.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+/**
+ * \defgroup paging
+ * This module handles paging
+ * @{
+ */
 
 #ifdef X86
 #define PAGES           0x100000
@@ -34,11 +41,15 @@ extern "C" {
 #define PAGETABLES      0x400
 #define PAGEDIRS        0x400
 #define PAGEENTRIES     0x400
-#define MINIMUM_PAGES   0x800
+#define MINIMUM_PAGES   0x1000
 #define PAGE_BITS       0xFFF
 #define BYTES_IN_PAGE   0x1000
 #define GIB             0x40000000
 #define THREE_GIB       0xC0000000
+#define KERNEL_CPL      0
+#define USER_CPL        3
+
+#define PGIDX(a) ((a >> 12) & 0xFFFFF)
 
 #endif /* X86 */
 
@@ -81,6 +92,8 @@ struct mm_page_list {
         struct mm_page_descriptor* tail;
 };
 
+void page_init();
+
 /**
  * \struct mm_page_descriptor
  * \brief Used for page allocation and administration
@@ -106,17 +119,18 @@ struct mm_page_descriptor {
          */
         struct mm_page_descriptor* next;
         struct mm_page_descriptor* prev;
+
         void* page_ptr;
         void* virt_ptr;
 
         size_t size;
         time_t last_referenced;
 
+        struct task_list_head* tasks;
+
         bool swapable;
         bool free;
         bool dma;
-
-        bool freeable;
 
         mutex_t lock;
 
@@ -154,11 +168,61 @@ addr_t page_phys_addr(addr_t, struct page_dir*);
  * \fn x86_page_init
  * \brief Initialise the first pages
  * \return Standard error code
+ *
+ * \fn mm_page_append
+ * \brief Append a page descriptor to the end of the list
+ * \param list
+ * \brief The list to append to
+ * \param node
+ * \brief The node to append
+ * \return NULL for error, node for success
+ *
+ * \fn mm_page_split
+ * \brief Split the page into two leaving the lowe page in the requested size
+ * \param page
+ * \brief The physical page to split
+ * \param base_size
+ * \brief The size of the lower page after the split
+ * \return The pointer to the lower page
+ * \warning The resulting page descriptor can no longer be used when itterating
+ *
+ * \fn mm_page_rm
+ * \brief Remove an item from a page list
+ * \param node
+ * \brief The node to be removed from the list
+ * \return The released node
+ *
+ * \fn x86_page_map_higher_half
+ * \brief Map the higher half part of the kernel
+ * \return A satndard error code
+ *
+ * \fn x86_map_kernel
+ * \brief Map the kernel to physical memory
+ * \return A standardised error code
  */
 int mboot_page_setup(multiboot_memory_map_t*, int mboot_map_size);
 int mm_page_free(void* page);
 void* mm_page_alloc(size_t size);
 int x86_page_init(size_t mem_size);
+int x86_page_set_list(struct task*);
+struct mm_page_descriptor*
+mm_page_append(struct mm_page_list* list, struct mm_page_descriptor* node);
+struct mm_page_descriptor*
+mm_page_split(struct mm_page_list* list, struct mm_page_descriptor* page1,
+                                                              size_t base_size);
+struct mm_page_descriptor*
+mm_page_rm(struct mm_page_list* list, struct mm_page_descriptor* node);
+int x86_page_map_higher_half();
+int x86_map_kernel();
+int mboot_map_modules(struct multiboot_mod_list *modules, idx_t no_mods);
+
+
+extern struct mm_page_list free_pages;
+extern struct mm_page_list allocated_pages;
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

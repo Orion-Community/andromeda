@@ -17,20 +17,29 @@
  */
 
 #include <stdlib.h>
+#include <text.h>
 
 #include <arch/x86/cpu.h>
 #include <arch/x86/irq.h>
 #include <arch/x86/acpi/acpi.h>
-#include <sys/sys.h>
 #include <arch/x86/apic/apic.h>
 
-#include <text.h>
+#include <sys/sys.h>
 
 static void __apic_write_register(ol_apic_reg_t reg, uint16_t value);
 static uint16_t __apic_read_register(ol_apic_reg_t reg);
 static uint64_t correct_apic_address(uint64_t addr, ol_cpu_t cpu);
 
 struct apic *apic;
+
+uint8_t
+cpu_get_num()
+{
+        struct ol_madt_apic_node *head, *carriage, *tmp;
+        uint8_t ret = 0;
+        for_each_ll_entry_safe_count(acpi_apics->apic, carriage, tmp, ret);
+        return ret;
+}
 
 static void
 route_pic_to_apic()
@@ -109,7 +118,7 @@ ol_apic_init(ol_cpu_t cpu)
     if(node->next == NULL)
       break;
   }
-#ifndef __APIC_DBG
+#ifdef __APIC_DBG
   debug("Found %i APIC(s)\n", i);
 #endif
 

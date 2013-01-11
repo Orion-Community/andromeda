@@ -26,10 +26,13 @@ amd64:
 	@echo "Not yet implemented"
 
 .PHONY: x86
-x86: $(OUT)
+x86: $(DEPS)
+	$(MAKE) -C arch x86 $(MAKEEND)
+	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) *.o
 
-$(OUT): $(DEPS)
-	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) $(DEPS)
+avr: $(DEPS)
+	$(MAGE) -C arch avr $(MAKEEND)
+	$(LD) $(LDFLAGS) $(LDSCRIPT) -o $(OUT) *.o
 
 # start.o:
 # 	$(MAKE) -C boot $(MAKEEND)
@@ -115,6 +118,10 @@ usage:
 	@echo "	-D\ FAST"
 	@echo "		Use some functions which introduce slightly less overhead"
 	@echo "		over the more readable functions"
+
+.PHONY: sandwich
+sandwich:
+	@scripts/sandwich.sh
 
 .PHONY: love
 love:

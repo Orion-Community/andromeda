@@ -1,14 +1,11 @@
-CC=gcc
+CC=cc
 LD=ld
 MAKE=make
 OUT=andromeda.img
 MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
 test=$(foreach T,$($(1)),$(if $($(firstword $(subst :, ,$T))),$(lastword $(subst :, ,$T)),))
 
-#WARNINGS=-Wunused-variable \
-#         -Wimplicit-function-declaration \
-#         -Wreturn-type
-
+VERSION:=$(shell git describe)
 WARNINGS:=-Wall
 
 CFLAGS= -nostdlib \
@@ -23,7 +20,10 @@ CFLAGS= -nostdlib \
         -march=i386 \
         -pipe \
         $(WARNINGS) \
-        -Os
+        -Os \
+        -D VERSION=\"$(VERSION)\"
+
+
 
 DBG_FLAGS=-Waddress \
           -Warray-bounds \

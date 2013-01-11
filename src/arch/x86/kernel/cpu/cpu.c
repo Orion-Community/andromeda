@@ -29,6 +29,7 @@ static void __write_msr(uint32_t msr, uint64_t value);
 
 mutex_t cpu_lock = 0;
 volatile ol_cpu_t cpus;
+uint8_t cpu_num = 0;
 
 int
 ol_cpuid_available(ol_cpu_t cpu)
@@ -146,7 +147,9 @@ ol_cpu_init(ol_cpu_t cpu)
 #endif
   }
   cpus = cpu;
+  cpu_num = cpu_get_num();
   cpu->unlock(&cpu_lock);
+  return;
 }
 
 static ol_gen_registers_t

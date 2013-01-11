@@ -15,6 +15,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/**
+ * \defgroup math
+ * The virtual memory sub system
+ * @{
+ */
 #ifndef __MATH_MATH_H
 #define __MATH_MATH_H
 
@@ -99,9 +104,15 @@ long double sqrtl(long double x);
 double pow(double x, double exp);
 float powf(float x, float exp);
 long double powl(long double x, long double exp);
-
+int log2i(int x);
+unsigned int log2ui(unsigned int x);
 #ifdef __cplusplus
 }
 #endif
 
 #endif
+
+/**
+ * @}
+ * \file
+ */

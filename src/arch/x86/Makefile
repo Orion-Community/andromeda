@@ -5,10 +5,12 @@ CFLAGS+=-I../../include/
 # compliler shizle
 AS=nasm
 ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
-CC=gcc
-CCFLAGS=-I"../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
--finline-functions-called-once -fno-builtin -nostdinc -O0 $(FLAGS)
-MAKE=make
+#CC=gcc
+#CCFLAGS=-I"../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
+#-finline-functions-called-once -fno-builtin -nostdinc -O0 $(FLAGS)
+
+CCFLAGS:=$(CFLAGS) -I"../../include" $(FLAGS)
+#MAKE=make
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 

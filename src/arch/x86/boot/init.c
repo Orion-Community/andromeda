@@ -30,15 +30,16 @@
 #include <version.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <andromeda/cpu.h>
-#include <andromeda/elf.h>
+
 #include <mm/paging.h>
 #include <mm/map.h>
+#include <mm/pte.h>
+#include <mm/memory.h>
+#include <mm/cache.h>
 #include <interrupts/int.h>
 #include <arch/x86/idt.h>
+
 #include <boot/mboot.h>
-#include <mm/map.h>
-#include <arch/x86/pic.h>
 
 #include <sys/dev/ps2.h>
 #include <sys/dev/pci.h>
@@ -47,12 +48,20 @@
 #include <arch/x86/cpu.h>
 #include <arch/x86/apic/apic.h>
 #include <arch/x86/acpi/acpi.h>
+#include <arch/x86/mp.h>
+#include <arch/x86/apic/ioapic.h>
+#include <arch/x86/idt.h>
+#include <arch/x86/pic.h>
+
+#include <interrupts/int.h>
 
 #include <andromeda/cpu.h>
 #include <andromeda/core.h>
 #include <andromeda/clock.h>
-#include <networking/eth/eth.h>
-#include <arch/x86/apic/ioapic.h>
+#include <andromeda/cpu.h>
+#include <andromeda/elf.h>
+#include <andromeda/drivers.h>
+#include <mm/vmem.h>
 
 #include <lib/byteorder.h>
 
@@ -61,17 +70,14 @@
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
 
-char *welcome = "Andromeda " VERSION " - " NAME
-"\nCopyright (C) 2010, 2011 - Michel Megens,"
-"Bart Kuivenhoven\nThis program comes with ABSOLUTELY NO WARRANTY;\n"
-"This is free software, and you are welcome to redistribute it.\n"
-"For more info refer to the COPYING file in the source repository or look at\n"
-"http://www.gnu.org/licenses/gpl-3.0.html\n";
-
 int page_dir_boot [0x400];
 int page_table_boot [0x40000];
 
 int vendor = 0;
+
+void elfJmp(void*);
+void coreAugment(void*);
+void setIDT();
 
 boolean setupCore(module_t mod)
 {
@@ -94,21 +100,24 @@ boolean setupCore(module_t mod)
 		printf("Unknown return value");
 		return TRUE;
 	}
-	coreAugment(mod.addr);
+	coreAugment((void*)mod.addr);
 
 	// Jump into the high memory image
-	elfJmp(mod.addr);
+	elfJmp((void*)mod.addr);
 
 	return FALSE; //Doesn't get reached, ever, if all goes well
 }
 
-	// The main function
-
+// The main function
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
         init_heap();
+#ifdef SLAB
+        slab_alloc_init();
+#endif
         textInit();
         complement_heap(&end, HEAPSIZE);
+        pte_init((void*)KERN_ADDR, (size_t)((addr_t)&end - (addr_t)KERN_ADDR));
         addr_t tmp = (addr_t)hdr + offset;
         hdr = (multiboot_info_t*)tmp;
 
@@ -132,14 +141,19 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         /** Set up paging administration */
         x86_page_init(memsize);
         mboot_page_setup(mmap, (uint32_t)hdr->mmap_length);
+        mboot_map_modules((void*)hdr->mods_addr, hdr->mods_count);
 
         /** For now this is the temporary page table map */
         build_map(mmap, (unsigned int) hdr->mmap_length);
 
+        vmem_init(); /// Start physical page allocation
+#ifdef VMEM_TEST
+        vmem_test_tree();
+#endif
         task_init();
 
         page_init();
-        printf("%s\n", welcome);
+        printf(WELCOME); // The only screen output that should be maintained
         setGDT();
         page_unmap_low_mem();
         pic_init();
@@ -151,17 +165,20 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         ol_pit_init(1024); // program pic to 1024 hertz
 
-        debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, &end);
+        debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, heap);
 
-        ol_cpu_t cpu = kalloc(sizeof (*cpu));
-        ol_cpu_init(cpu);
         acpi_init();
+        ol_cpu_t cpu = kalloc(sizeof (*cpu));
+        if (cpu == NULL)
+                panic("OUT OF MEMORY!");
+        ol_cpu_init(cpu);
 
         ol_ps2_init_keyboard();
         ol_apic_init(cpu);
         init_ioapic();
         ol_pci_init();
         debug("Little endian 0xf in net endian %x\n", htons(0xf));
+#ifdef DBG
 #ifdef __IOAPIC_DBG
         ioapic_debug();
 #endif
@@ -172,7 +189,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         printf("Heap list:\n");
         ol_dbg_heap();
 #endif
-#ifdef DBG
         printf("\nSome (temp) debug info:\n");
         printf("CPU vendor: %s\n", cpus->vendor);
 
@@ -183,6 +199,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 *(((uint32_t*) systables->rsdp->signature)));
                 printf("MP specification signature: 0x%x\n", systables->mp->signature);
         }
+#ifdef PTE_DBG
+        pte_test();
+#endif
 #endif
         core_loop();
         return 0; // To keep the compiler happy.

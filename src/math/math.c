@@ -1,6 +1,6 @@
 /*
-    Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+    Andromeda
+    Copyright (C) 2011  Steven van der Schoot
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,6 +15,10 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+/**
+ * \AddToGroup paging
+ * @{
+ */
 
 #include <math/math.h>
 #include <mm/memory.h>
@@ -96,7 +100,7 @@ random()
 	return ret;
 }
 
-#define PI (3,141592653589793) //238462643383279502884197169399375105820974944592307816406286209 Yes, I know the compiler will skip most of the decimals...
+#define PI (3.141592653589793) //238462643383279502884197169399375105820974944592307816406286209 Yes, I know the compiler will skip most of the decimals...
 
 double
 NAN()
@@ -661,3 +665,31 @@ powl(long double x, long double exponent)
 		ret *= exp(ln(x)*exponent);
 	return ret;
 }
+
+int log2i(int x)
+{
+        int ret = 0;
+        while((x&( ((unsigned int)-1)<<ret )))
+        {
+                if(ret==sizeof(int)*8-1)
+                        return sizeof(int)*8-1;
+                ret++;
+        }
+        return ret-1;
+}
+
+unsigned int log2ui(unsigned int x)
+{
+        unsigned int ret = 0;
+        while((x&( ((unsigned int)-1)<<ret )))
+        {
+                if(ret==sizeof(int)*8-1)
+                        return sizeof(int)*8-1;
+                ret++;
+        }
+        return ret-1;
+}
+
+/**
+ * @} \file
+ */

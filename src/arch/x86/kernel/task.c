@@ -16,51 +16,60 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
+
+#include <andromeda/task.h>
 #include <andromeda/sched.h>
 #include <andromeda/error.h>
+#include <mm/paging.h>
 
 /**
- * If regs is a pointer to the argument provided to the ISR, this will store the
- * registers as they existed at the time of interrupting for later rescheduling.
+ * \fn load_task(TASK_STATE *task)
+ * \brief Switch to another <i>task</i>.
+ * \param task New task to which has to be loaded.
+ * \return Error code. See <i>error.h</i> for more information.
+ *
+ * This function loads a new task and starts the execution.
  */
-int save_task(old_thread, new_thread)
-struct __THREAD_STATE *old_thread;
-struct __THREAD_STATE *new_thread;
+int context_switch(task)
+struct task *task;
 {
-        if (thread == NULL)
+        if (task == NULL)
                 return -E_NULL_PTR;
 
-        /** Move the register to threads stack pointer */
-        __asm__ ("mov %%esp, %0"
-                : "=r" (old_thread->stack)
-        );
+        /* Get the old task */
+        struct task *old = get_current_task();
+        /* Mark the new task as running */
+        set_current_task(task);
+        /* retrieve thread data for easier inline assembly */
+        struct thread_state* old_t = old->threads->thread[old->current_thread];
+        struct thread_state* thrd = task->threads->thread[task->current_thread];
 
-        /** Save floats here */
+        /*
+         * Swap the virtual memory.
+         * If al goes wel the kernel space won't change.
+         */
+        x86_page_set_list(task);
 
-        /** Switch memory segments here!!! */
+        /** \todo push floating point registers and push pointer */
 
-        return -E_SUCCESS;
-}
-
-/**
- * If regs is a pointer to the argument offered to the ISR, it will actually
- * perform a context switch (lacking only floating point registers and memory
- * protection
- */
-int load_task(thread)
-struct __THREAD_STATE *thread;
-{
-        if (thread == NULL)
-                return -E_NULL_PTR;
-
-        /** Restore floats here */
-
-        /** Move the threads stack pointer to register */
-        __asm__ ("mov %0, %%esp"
+        /*
+         * pusha        Push all registers to stack
+         * mov esp, %0  Move the old stack pointer to data structure
+         * mov %1, esp  Move the new stack pointer from data structure
+         * popa         Pop all (the new) registers from stack
+         */
+        __asm__ ("pusha\n\t"
+                "mov %%esp, %0\n\t"
+                "mov %1, %%esp\n\t"
+                "popa\n\t"
+                : "=r" (old_t->stack)
+                : "r" (thrd->stack)
                 :
-                : "r" (thread->stack)
-                : "esp"
         );
 
+        /** \todo pop pointer and pop floating point registers */
+
+        /* We should now have switched tasks */
         return -E_SUCCESS;
 }

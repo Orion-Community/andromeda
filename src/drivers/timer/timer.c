@@ -20,6 +20,7 @@
 #include <andromeda/irq.h>
 #include <andromeda/timer.h>
 #include <arch/x86/idt.h>
+#include <andromeda/idt.h>
 
 #include <fs/vfs.h>
 
@@ -37,6 +38,7 @@ IRQ(timer_irq, irq, stack)
         TIMER *timer = dev->device_data;
         timer->tick++;
         timer->tick_handle(timer);
+
         return;
 }
 
@@ -156,7 +158,6 @@ vfs_write_hook_t write;
         io->read = read;
         io->write = write;
         return -E_SUCCESS;
-
 }
 
 static int

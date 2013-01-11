@@ -31,6 +31,7 @@ extern "C" {
 
 #define E_GENERIC               0x4
 #define E_NORIGHTS              0x5
+#define E_UNAUTHORISED          E_NORIGHTS
 #define E_NOTFOUND              0x6
 #define E_CORRUPT               0x7
 
@@ -57,6 +58,7 @@ extern "C" {
 #define E_HEAP_GENERIC          0x40
 #define E_NULL_PTR              0x41
 #define E_ALREADY_INITIALISED   0x42
+#define E_NOT_YET_INITIALISED   0x43
 
 #define E_TASK_NOSPACE          0x50
 

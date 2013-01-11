@@ -1,6 +1,6 @@
 /*
     Andromeda
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2011, 2012  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ void memset(void*, int, size_t);
 void memcpy(void*, void*, size_t);
 int memcmp(void*, void*, size_t);
 int init_heap();
-int comlement_heap(void*, size_t);
+int complement_heap(void*, size_t);
 
 size_t strlen(char* string);
 

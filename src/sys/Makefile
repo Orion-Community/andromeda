@@ -11,9 +11,6 @@ SYS=sys.o
 #subtargets
 SYS_DEPS=sys_.o
 
-# source files
-# STDLIB_SRC=stdlib.asm
-# KB_SRC=keyboard.c
 PS2_SRC=ps2controller.asm
 SYS_SRC=sys.c
 
@@ -22,14 +19,9 @@ SYS_SRC=sys.c
 all: $(SYS_DEPS)
 	$(LD) $(LDFLAGS) $(SYS_DEPS) -o $(SYS)
 
-# keyboard.o:
-# 	$(CC) $(CFLAGS) $(FLAGS) $(KB_SRC) -o keyboard.o
-
 sys_.o:
 	$(CC) $(CFLAGS) $(FLAGS) $(SYS_SRC) -o sys_.o
 
 .PHONY: clean
 clean:
-	$(MAKE) $(MAKEEND) -C dev/ clean
-	$(MAKE) $(MAKEEND) -C disk/ clean
 	rm -fv *.o

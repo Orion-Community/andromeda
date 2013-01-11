@@ -22,6 +22,8 @@
 #include "include/out.h"
 
 int reloc(int loc_x, int loc_y);
+void printDecimalNum(double index, unsigned int base);
+void printNum(int index, unsigned int base, boolean sInt, boolean capital);
 struct curPos cursor;
 const uint8_t col = 0x07;
 
@@ -69,55 +71,55 @@ void println(char *line)
 
 void printf(char *line, ...)
 {
-	int i;
-	va_list list;
-	va_start(list, line);
-	for (i = 0; line[i] != '\0'; i++)
-	{
-		if (line[i] != '%')
-		{
-			putc(line[i]);
-		}
-		else
-		{
-			i++;
-			if (line[i] == '\0')
-			{
-				putc('%');
-				break;
-			}
-			switch (line[i])
-			{
-			case 'd':
-				printDecimalNum(va_arg(list, double), 10);
-				break;
-			case 'i':
-				printNum(va_arg(list, unsigned int), 10, TRUE, FALSE);
-				break;
-			case 'u':
-				printNum(va_arg(list, unsigned int), 10, FALSE, FALSE);
-				break;
-			case 'x':
-				printNum(va_arg(list, unsigned int), 16, FALSE, FALSE);
-				break;
-			case 'X':
-				printNum(va_arg(list, unsigned int), 16, FALSE, TRUE);
-				break;
-			case 'c':
-				putc((char) va_arg(list, unsigned int));
-				break;
-			case 's':
-				printf(va_arg(list, char*));
-				break;
-			case '%':
-				putc('%');
-				break;
-			default:
-				break;
-			}
-		}
-	va_end(list);
-	}
+        int i;
+        va_list list;
+        va_start(list, line);
+        for (i = 0; line[i] != '\0'; i++)
+        {
+                if (line[i] != '%')
+                {
+                        putc(line[i]);
+                }
+                else
+                {
+                        i++;
+                        if (line[i] == '\0')
+                        {
+                                putc('%');
+                                break;
+                        }
+                        switch (line[i])
+                        {
+                        case 'd':
+                                printDecimalNum(va_arg(list, double), 10);
+                                break;
+                        case 'i':
+                                printNum(va_arg(list, unsigned int), 10, TRUE, FALSE);
+                                break;
+                        case 'u':
+                                printNum(va_arg(list, unsigned int), 10, FALSE, FALSE);
+                                break;
+                        case 'x':
+                                printNum(va_arg(list, unsigned int), 16, FALSE, FALSE);
+                                break;
+                        case 'X':
+                                printNum(va_arg(list, unsigned int), 16, FALSE, TRUE);
+                                break;
+                        case 'c':
+                                putc((char) va_arg(list, unsigned int));
+                                break;
+                        case 's':
+                                printf(va_arg(list, char*));
+                                break;
+                        case '%':
+                                putc('%');
+                                break;
+                        default:
+                                break;
+                        }
+                }
+        va_end(list);
+        }
 }
 
 char hex[36] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c',
