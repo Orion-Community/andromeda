@@ -52,6 +52,8 @@
 #include <arch/x86/apic/ioapic.h>
 #include <arch/x86/idt.h>
 #include <arch/x86/pic.h>
+#include <arch/x86/irq.h>
+#include <arch/x86/pit.h>
 
 #include <interrupts/int.h>
 

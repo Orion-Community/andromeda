@@ -51,7 +51,7 @@ typedef struct ol_pit
 
 int
 ol_pit_init(uint32_t);
-
+/*
 static void
 ol_pit_calculate_freq(ol_pit_system_timer_t);
 
@@ -60,7 +60,7 @@ ol_pit_program_pit(ol_pit_system_timer_t);
 
 static ol_pit_reload_val_t
 ol_pit_calculate_reload(uint16_t);
-
+*/
 static inline void
 ol_pit_calc_mask(ol_pit_system_timer_t pit)
 {

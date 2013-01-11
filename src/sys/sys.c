@@ -23,6 +23,8 @@
 #include <arch/x86/cpu.h>
 #include <arch/x86/acpi/acpi.h>
 
+static uint8_t ol_validate_table(uint8_t* table);
+
 struct system_tables * systables;
 
 static void

@@ -81,6 +81,8 @@ extern void trigger_soft_irq30();
 extern void trigger_soft_irq31();
 #endif
 
+void setup_irq_data(void);
+
 static inline struct irq_data*
 get_irq_data(uint32_t irq)
 {

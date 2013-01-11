@@ -172,7 +172,7 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
                 switch(fmt[i])
                 {
                 case '%':
-                        escaped != escaped;
+                        escaped = !escaped;
                         break;
                 case 'x':
                 case 'X':
@@ -273,7 +273,7 @@ int vsprintf(char* str, char* fmt, va_list list)
                         int pre  = 0;
                         int post = 0;
                         bool dotted = false;
-                        for (; *(fmt + 1) >= '0' && *(fmt + 1) <= '9' ||
+                        for (; (*(fmt + 1) >= '0' && *(fmt + 1) <= '9') ||
                                                        *(fmt + 1) == '.'; fmt++)
                         {
                                 if (*(fmt + 1) == '.')

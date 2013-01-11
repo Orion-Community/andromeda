@@ -28,6 +28,10 @@
 #include <arch/x86/pit.h>
 #include <arch/x86/pic.h>
 
+static ol_pit_reload_val_t ol_pit_calculate_reload(uint16_t hz);
+static void ol_pit_calculate_freq(ol_pit_system_timer_t pit);
+static void ol_pit_program_pit(ol_pit_system_timer_t pit);
+
 static ol_pit_system_timer_t pit_chan0 = NULL;
 
 static void
@@ -82,7 +86,7 @@ static void pit_irq(TIMER *timer)
 #endif
         if(scheduling && ((tick % 256) == 0))
         {
-                
+
         }
         pic_eoi(0);
 }
@@ -103,7 +107,7 @@ ol_pit_init(uint32_t hz)
         pit_chan0->access = 3;
         pit_chan0->cport = OL_PIT_COMMAND;
         pit_chan0->dport = OL_PIT_CHAN0_DATA;
-        
+
         TIMER *timer = init_timer_obj("pit0", &pit_irq, (void*)pit_chan0, TRUE,
                 0+IDT_VECTOR_OFFSET);
         if(NULL == timer)

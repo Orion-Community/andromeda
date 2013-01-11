@@ -21,16 +21,27 @@
 #include <andromeda/error.h>
 #include <stdlib.h>
 
+/* Gnu compiler bug seems to find all sorts of bogus out of bounds ... */
+#pragma GCC diagnostic ignored "-Warray-bounds"
+
 #define SC_LIST_SIZE 0x100
 
-struct syscall sc_list[SC_LIST_SIZE] = {
-        {0, NULL},
-        {0, NULL},
-        {0, NULL}
-};
+struct syscall sc_list[SC_LIST_SIZE];
+int initialised = 0;
+
+int sc_init()
+{
+        memset(&sc_list, 0, SC_LIST_SIZE*sizeof(sc_list[0]));
+        return 0;
+}
 
 int sc_install (uint16_t idx, sc call, uint8_t cpl)
 {
+        if (initialised == 0)
+        {
+                sc_init();
+                initialised = 1;
+        }
         if (idx < SC_LIST_SIZE)
                 return -E_INVALID_ARG;
         if (call == NULL)
