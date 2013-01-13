@@ -1,4 +1,4 @@
-/* * Andromeda
+/* Andromeda
  * Copyright (C) 2013  Bart Kuivenhoven
  *
  * This program is free software: you can redistribute it and/or modify
@@ -20,38 +20,28 @@
 #include <mm/vm.h>
 #include <types.h>
 #include <andromeda/error.h>
+#include "paging.h"
 
 /**
  * \AddToGroup paging
  * @{
  */
 
-extern struct x86_page_table page_table_boot;
-struct x86_page_table *kerneltables = &page_table_boot;
 /**
  * \fn x86_pte_set_page
  * \brief Set the page table entry to the correct value
  * \param virt
  * \param phys
  * \param cpl
- * \param pt
+ * \param pte
  */
-int x86_pte_set_page(void* virt, void* phys, int cpl, struct page_table* pte)
+int x86_pte_set(void* phys, int cpl, struct page_table* pte)
 {
-        if ((cpl == 0 && pte != NULL) || (cpl != 0 && pte == NULL))
+        if (pte == NULL)
                 panic("Incorrect conditions for setting pte");
 
-        addr_t v = (addr_t) virt;
-
-        if (cpl == 0)
-        {
-                v -= THREE_GIB;
-                pte = &kerneltables[v >> 10].entry[v & 0xFFF];
-                pte->userMode = 0;
-                goto jmp; /* Reduce the no conditional branches ... */
-        }
-        pte->userMode = 1;
-jmp:    pte->pageIdx = (int)phys >> 12;
+        pte->userMode = (cpl == 0) ? 0 : 1;
+        pte->pageIdx = (int)phys >> 12;
         pte->present = 1;
 
         return -E_SUCCESS;
@@ -61,18 +51,11 @@ jmp:    pte->pageIdx = (int)phys >> 12;
  * \fn x86_pte_unset_page
  * \brief Set the page table entry as being cleared
  */
-int x86_pte_unset_page(void* virt, int cpl, struct page_table* pte)
+int x86_pte_unset(struct page_table* pte)
 {
-        if ((cpl == 0 && pte != NULL) || (cpl != 0 && pte == NULL))
+        if (pte == 0)
                 panic("Incorrect conditions for unsetting pte");
 
-        addr_t v = (addr_t)virt;
-
-        if (cpl == 0)
-        {
-                v -= THREE_GIB;
-                pte = &kerneltables[v >> 10].entry[v & 0xFFF];
-        }
         pte->present = 0;
         return -E_SUCCESS;
 }

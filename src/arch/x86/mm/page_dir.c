@@ -21,21 +21,12 @@
 #include <mm/vm.h>
 #include <types.h>
 #include <andromeda/error.h>
+#include "paging.h"
 
 /**
  * \AddToGroup paging
  * @{
  */
-
-extern struct x86_page_dir page_dir_boot;
-struct x86_page_dir *pagedir = &page_dir_boot;
-static addr_t shadowdir[1024];
-
-int x86_pte_start()
-{
-        memset(shadowdir, 0, 1024*sizeof(addr_t));
-        return -E_NOFUNCTION;
-}
 
 /**
  * \fn x86_pte_set_pt
@@ -45,18 +36,54 @@ int x86_pte_start()
  * \param idx
  * \brief The index to put the entry.
  */
-int x86_pte_set_pt(struct x86_page_table* pt, int idx)
+int x86_pte_set_pt(struct page_table** pt, int idx)
 {
-        pagedir->entry[idx].pageIdx = (int)pt >> 12;
-        pagedir->entry[idx].present = 1;
-        pagedir->entry[idx].userMode = 1;
+        spd[idx].pageIdx = (int)pt >> 12;
+        spd[idx].present = 1;
+        spd[idx].userMode = 1;
         return -E_SUCCESS;
 }
 
+/**
+ * \fn x86_pte_unset_pt
+ * \brief Disable a page table
+ * \param idx
+ * \brief The page table to disable
+ */
 int x86_pte_unset_pt(int idx)
 {
-        pagedir->entry[idx].present = 0;
+        spd[idx].present = 0;
         return -E_SUCCESS;
+}
+
+int x86_pte_set_page(void* virt, void* phys, int cpl)
+{
+        if (virt == NULL || phys == NULL ||(((int)virt|(int)phys) & 0xFFF) != 0)
+                return -E_INVALID_ARG;
+
+        addr_t v = (addr_t)virt >> 12;
+
+        int pte = v & 0x3FF;
+        int pde = (v >> 10) & 0x3FF;
+
+        struct page_table** pt;
+        if ((pt = vpd[pde]) == NULL)
+        {
+                /**
+                 * \todo Allocate and install new pagetable here
+                 * pt = new pt;
+                 */
+                panic("Page table allocaton not yet written");
+                x86_pte_set_pt(pt, pde);
+        }
+        x86_pte_set(phys, cpl, pt[pte]);
+
+        return -E_NOFUNCTION;
+}
+
+int x86_pte_unset_page(void* virt)
+{
+        return -E_NOFUNCTION;
 }
 
 /**

@@ -20,6 +20,7 @@
 #include <mm/vm.h>
 #include <types.h>
 #include <andromeda/error.h>
+#include "paging.h"
 
 /**
  * \AddToGroup paging
@@ -56,12 +57,12 @@ void* pte_get_phys(void* virt, struct vm_segment* s)
         return NULL;
 }
 
-int x86_pte_set(struct vm_segment* s)
+int x86_pte_set_segment(struct vm_segment* s)
 {
         return -E_NOFUNCTION;
 }
 
-int x86_pte_unset(struct vm_segment* s)
+int x86_pte_unset_segment(struct vm_segment* s)
 {
         return -E_NOFUNCTION;
 }
