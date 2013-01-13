@@ -175,6 +175,18 @@ vm_get_phys(struct vm_descriptor* vm, void* virt)
         return NULL;
 }
 
+int
+vm_load_task()
+{
+        return -E_NOFUNCTION;
+}
+
+int
+vm_unload_task()
+{
+        return -E_NOFUNCTION;
+}
+
 /**
  * @}
  * \file

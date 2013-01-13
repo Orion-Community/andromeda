@@ -163,7 +163,7 @@ size_t base_size;
 
         mutex_lock(&page->lock);
 
-        struct mm_page_descriptor* tmp;
+        struct mm_page_descriptor* tmp = 0;
         if (freeable_allocator)
                 tmp = kalloc(sizeof(*tmp));
 

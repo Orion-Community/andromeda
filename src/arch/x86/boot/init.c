@@ -54,6 +54,7 @@
 #include <arch/x86/pic.h>
 #include <arch/x86/irq.h>
 #include <arch/x86/pit.h>
+#include <arch/x86/paging.h>
 
 #include <interrupts/int.h>
 
@@ -143,6 +144,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
 
         /** Build the memory map and allow for allocation */
+        x86_pte_init();
         page_alloc_init(mmap, (unsigned int)hdr->mmap_length);
         vm_init();
 #ifdef PA_DBG

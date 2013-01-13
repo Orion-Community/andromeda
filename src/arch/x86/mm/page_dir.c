@@ -1,6 +1,6 @@
 /*
  * Andromeda
- * Copyright (C) 2012  Bart Kuivenhoven
+ * Copyright (C) 2013  Bart Kuivenhoven
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,13 @@
 
 extern struct x86_page_dir page_dir_boot;
 struct x86_page_dir *pagedir = &page_dir_boot;
+static addr_t shadowdir[1024];
+
+int x86_pte_start()
+{
+        memset(shadowdir, 0, 1024*sizeof(addr_t));
+        return -E_NOFUNCTION;
+}
 
 /**
  * \fn x86_pte_set_pt
