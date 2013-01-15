@@ -121,7 +121,7 @@ struct vm_descriptor {
 int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
 int vm_free(struct vm_descriptor* p);
 
-void* pte_get_phys(void* virt, struct vm_segment* s);
+void* pte_get_phys(void* virt);
 
 #ifdef __cplusplus
 };

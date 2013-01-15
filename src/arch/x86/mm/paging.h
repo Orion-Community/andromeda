@@ -34,7 +34,8 @@ extern void* vpd[1024];
 extern struct page_table page_table_boot;
 extern struct page_dir page_dir_boot;
 
-int x86_pte_set(void* phys, int cpl, struct page_table* pte);
+// int x86_pte_set(void* phys, int cpl, struct page_table* pte);
+// int x86_pte_unset(struct page_table* pte);
 
 #ifdef __cplusplus
 }

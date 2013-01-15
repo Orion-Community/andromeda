@@ -52,18 +52,34 @@ int x86_pte_init()
         return -E_SUCCESS;
 }
 
-void* pte_get_phys(void* virt, struct vm_segment* s)
+void* pte_get_phys(void* virt)
 {
-        return NULL;
+        addr_t v = (addr_t)virt >> 12;
+        int pte = v & 0x3FF;
+        int pde = (v >> 10) & 0x3FF;
+
+        struct page_table* pt = vpd[pde];
+        addr_t ret = pt[pte].pageIdx;
+        ret <<= 12;
+
+        ret += (addr_t)virt & 0xFFF;
+
+        return (void*)ret;
+
 }
 
 int x86_pte_set_segment(struct vm_segment* s)
 {
+        if (s == NULL)
+                return -E_NULL_PTR;
+
         return -E_NOFUNCTION;
 }
 
 int x86_pte_unset_segment(struct vm_segment* s)
 {
+        if (s == NULL)
+                return -E_NULL_PTR;
         return -E_NOFUNCTION;
 }
 

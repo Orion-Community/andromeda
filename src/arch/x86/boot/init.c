@@ -209,9 +209,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 *(((uint32_t*) systables->rsdp->signature)));
                 printf("MP specification signature: 0x%x\n", systables->mp->signature);
         }
-#ifdef PTE_DBG
-        pte_test();
-#endif
 #endif
 #ifdef PA_DBG
         addr_t p = (addr_t)page_alloc();

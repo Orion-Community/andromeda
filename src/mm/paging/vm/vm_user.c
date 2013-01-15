@@ -157,6 +157,7 @@ vm_get_phys(struct vm_descriptor* vm, void* virt)
         if (vm == NULL || virt == NULL || !PAGE_ALIGNED((int)vm))
                 return NULL;
 
+#if 0
         addr_t v = (addr_t)virt;
 
         struct vm_segment* carriage = vm->segments;
@@ -172,6 +173,8 @@ vm_get_phys(struct vm_descriptor* vm, void* virt)
                         return (void*)pte_get_phys(virt, carriage);
                 }
         }
+#endif
+        return pte_get_phys(virt);
         return NULL;
 }
 

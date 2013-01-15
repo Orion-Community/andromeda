@@ -103,6 +103,8 @@ void test_sprintf()
         free(test);
 }
 
+extern int page_table_boot;
+
 void core_loop()
 {
 //         init_netif();
@@ -132,6 +134,16 @@ void core_loop()
         extern void task_testB();
         rr_thread_init(task_testA);
         rr_thread_init(task_testB);
+#endif
+#ifdef PT_DBG
+        addr_t ptb = (addr_t)(&page_table_boot) + 0xC0000000;
+        printf( "page table boot: %X\n"
+                "phys: %X\n"
+                "virt: %X\n",
+                &core_loop,
+                pte_get_phys(core_loop),
+                core_loop
+        );
 #endif
 
 //         uint32_t pid = 0;
