@@ -1,6 +1,6 @@
 /*
  *  Andromeda - AVL tree
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2013  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -44,5 +44,11 @@ struct tree_root {
         struct tree* tree;
         unsigned int nodes;
 };
+
+int tree_add(struct tree_root* root, struct tree* tree);
+struct tree* tree_new_node(int key, void* data, struct tree_root* root);
+struct tree_root* tree_new();
+struct tree* tree_find(int key, struct tree_root* t);
+int tree_delete(int idx, struct tree_root* root);
 
 #endif

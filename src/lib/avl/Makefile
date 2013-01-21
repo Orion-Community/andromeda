@@ -1,7 +1,7 @@
 CC=gcc
-CFLAGS=-Iinclude -c
+CFLAGS=-I../../include -c
 
-DEPS=include/tree.h
+DEPS=../../include/lib/tree.h
 TARGETS=tree.c
 
 tree: tree.o

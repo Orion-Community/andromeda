@@ -1,6 +1,6 @@
 /*
  *  Andromeda - AVL tree
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2013  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tree.h>
+#include <lib/tree.h>
 
 static int tree_depth(struct tree* tree)
 {
@@ -325,32 +325,6 @@ static int tree_delete_node(int key, struct tree* tree)
         return EXIT_SUCCESS;
 }
 
-static int tree_dump_node(struct tree* tree)
-{
-        if (tree == NULL)
-        {
-                printf("null");
-                return NULL_PTR;
-        }
-
-        printf("d:[");
-        printf("%X,%X,%X", tree->ldepth, tree->key, tree->rdepth);
-        printf("]");
-        if (tree->left != NULL)
-        {
-                printf("l:[");
-                tree_dump_node(tree->left);
-                printf("]");
-        }
-        if (tree->right != NULL)
-        {
-                printf("r:[");
-                tree_dump_node(tree->right);
-                printf("]");
-        }
-        return EXIT_SUCCESS;
-}
-
 int tree_add(struct tree_root* root, struct tree* tree)
 {
         if (root == NULL || tree == NULL)
@@ -404,56 +378,8 @@ int tree_delete(int idx, struct tree_root* root)
         return tree_delete_node(idx, root->tree);
 }
 
-int tree_dump(struct tree_root* root)
-{
-        if (root == NULL)
-                return NULL_PTR;
-
-        printf("Dumping tree!\n");
-        tree_dump_node(root->tree);
-        printf("\nDone dumping tree!\n");
-
-        return EXIT_SUCCESS;
-}
-
 int main()
 {
-        struct tree_root* t = tree_new();
-        if (t == NULL)
-        {
-                fprintf(stderr, "An error occured, no memory!\n");
-                return -1;
-        }
-        int i = 0;
-
-        for (; i <= 16; i++)
-        {
-                tree_new_node(i, NULL, t);
-                tree_dump(t);
-        }
-        tree_delete(8, t);
-        tree_delete(9, t);
-        tree_dump(t);
-        for (; i <= 32; i++)
-        {
-                tree_new_node(i, NULL, t);
-                tree_dump(t);
-        }
-        tree_new_node(8, NULL, t);
-        tree_new_node(9, NULL, t);
-        tree_dump(t);
-
-        /*
-        tree_new_node (3, NULL, t);
-        tree_new_node (2, NULL, t);
-        tree_dump(t);
-        tree_new_node (1, NULL, t);
-        tree_dump(t);
-        tree_new_node (0, NULL, t);
-        tree_new_node (10, NULL, t);
-        tree_dump(t);
-        tree_new_node (8, NULL, t);
-        tree_dump(t);
-        */
         return EXIT_SUCCESS;
 }
+
