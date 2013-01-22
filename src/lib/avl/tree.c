@@ -195,6 +195,7 @@ static int tree_add_node(struct tree* parent, struct tree* t)
                         /* Couldn't delegate, need to insert here it seems*/
                         parent->left = t;
                         t->parent = parent;
+                        t->root->nodes++;
                         printf("Adding node left!\n");
                 case EXIT_SUCCESS:
                         /* Yep, we have a success */
@@ -215,6 +216,7 @@ static int tree_add_node(struct tree* parent, struct tree* t)
                         /* Couldn't delegate, so insert here */
                         parent->right = t;
                         t->parent = parent;
+                        t->root->nodes++;
                         printf("Adding node right!\n");
                 case EXIT_SUCCESS:
                         /* Seems like we have a succcess on our hands */
@@ -384,6 +386,7 @@ static int tree_delete_node(int key, struct tree* tree)
         /* Free the deleted node */
         tree_depth(t->parent);
         tree_balance(t->parent);
+        t->root->nodes--;
 
         /* Free the detached node */
         memset(t, 0, sizeof(*t));
