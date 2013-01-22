@@ -28,9 +28,20 @@
  * @{
  */
 
+/**
+ * \var pte_cnt
+ * \brief reference count of the pages referended by a page table
+ */
 static volatile int pte_cnt[1024];
 
+/**
+ * \struct x86_pte_range
+ */
 struct x86_pte_range {
+        /**
+         * \var vtable
+         * \brief Copy of the page directory (virtual table addresses)
+         */
         struct page_table* vtable[1024];
 
         int from;
@@ -81,6 +92,9 @@ static int x86_pte_unset(struct page_table* pte)
  */
 static int x86_pte_set_pt(struct page_table** pt, int idx)
 {
+        if (idx >= 1024 || pt == NULL)
+                return -E_INVALID_ARG;
+
         spd[idx].pageIdx = (int)pt >> 12;
         spd[idx].present = 1;
         spd[idx].userMode = 1;
@@ -95,6 +109,9 @@ static int x86_pte_set_pt(struct page_table** pt, int idx)
  */
 static int x86_pte_unset_pt(int idx)
 {
+        if (idx >= 1024)
+                return -E_INVALID_ARG;
+
         spd[idx].present = 0;
         return -E_SUCCESS;
 }
