@@ -47,12 +47,8 @@ struct tree_root {
         struct tree* (*add)(int key, void* data, struct tree_root* root);
         struct tree* (*find)(int key, struct tree_root* root);
         int (*delete)(int key, struct tree_root* root);
-
 };
 
-// struct tree* tree_new_node(int key, void* data, struct tree_root* root);
 struct tree_root* tree_new();
-// struct tree* tree_find(int key, struct tree_root* t);
-// int tree_delete(int key, struct tree_root* root);
 
 #endif
