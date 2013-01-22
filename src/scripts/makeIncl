@@ -8,7 +8,7 @@ test=$(foreach T,$($(1)),$(if $($(firstword $(subst :, ,$T))),$(lastword $(subst
 VERSION:=$(shell git describe)
 WARNINGS:=-Wall
 
-CFLAGS= -nostdlib \
+CFLAGS:=-nostdlib \
         -fno-builtin \
         -nostdinc \
         -fno-stack-protector \
@@ -22,6 +22,8 @@ CFLAGS= -nostdlib \
         $(WARNINGS) \
         -Os \
         -D VERSION=\"$(VERSION)\"
+
+CFLAGS+=$(FLAGS)
 
 
 
