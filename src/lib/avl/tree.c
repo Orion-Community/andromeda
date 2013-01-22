@@ -42,6 +42,7 @@ static int tree_depth(struct tree* tree)
         }
         else
                 tree->rdepth = 0;
+        return EXIT_SUCCESS;
 }
 
 static int tree_rotate_right(struct tree* tree)
@@ -50,7 +51,6 @@ static int tree_rotate_right(struct tree* tree)
                 return NULL_PTR;
 
         struct tree* parent = tree->parent;
-        struct tree* right = tree->right;
         struct tree* left = tree->left;
 
         left->parent = parent;
@@ -82,7 +82,6 @@ static int tree_rotate_left(struct tree* tree)
 
         struct tree* parent = tree->parent;
         struct tree* right = tree->right;
-        struct tree* left = tree->left;
 
         right->parent = parent;
         tree->right = right->left;
@@ -325,7 +324,7 @@ static int tree_delete_node(int key, struct tree* tree)
         return EXIT_SUCCESS;
 }
 
-int tree_add(struct tree_root* root, struct tree* tree)
+static int tree_add(struct tree_root* root, struct tree* tree)
 {
         if (root == NULL || tree == NULL)
                 return NULL_PTR;
@@ -337,7 +336,7 @@ int tree_add(struct tree_root* root, struct tree* tree)
         return EXIT_SUCCESS;
 }
 
-struct tree* tree_new_node(int key, void* data, struct tree_root* root)
+static struct tree* tree_new_node(int key, void* data, struct tree_root* root)
 {
         struct tree* t = malloc(sizeof(*t));
         if (t == NULL)
@@ -353,16 +352,7 @@ struct tree* tree_new_node(int key, void* data, struct tree_root* root)
         return (tree_add(root, t) == EXIT_SUCCESS) ? root->tree : t;
 }
 
-struct tree_root* tree_new()
-{
-        struct tree_root* t = malloc(sizeof(*t));
-        if (t != NULL)
-                memset(t, 0, sizeof(*t));
-        return t;
-}
-
-
-struct tree* tree_find(int key, struct tree_root* t)
+static struct tree* tree_find(int key, struct tree_root* t)
 {
         if (t == NULL)
                 return NULL;
@@ -371,11 +361,24 @@ struct tree* tree_find(int key, struct tree_root* t)
 }
 
 
-int tree_delete(int idx, struct tree_root* root)
+static int tree_delete(int key, struct tree_root* root)
 {
         if (root == NULL)
                 return NULL_PTR;
-        return tree_delete_node(idx, root->tree);
+        return tree_delete_node(key, root->tree);
+}
+
+struct tree_root* tree_new_avl()
+{
+        struct tree_root* t = malloc(sizeof(*t));
+        if (t != NULL)
+                memset(t, 0, sizeof(*t));
+
+        t->add = tree_new_node;
+        t->find = tree_find;
+        t->delete = tree_delete;
+
+        return t;
 }
 
 int main()

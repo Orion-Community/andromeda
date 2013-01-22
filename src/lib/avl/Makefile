@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-I../../include -c
+CFLAGS=-I../../include -c -Wall
 
 DEPS=../../include/lib/tree.h
 TARGETS=tree.c
