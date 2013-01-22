@@ -19,8 +19,8 @@
 #include <andromeda/drivers.h>
 #include <andromeda/irq.h>
 #include <andromeda/timer.h>
-#include <arch/x86/idt.h>
 #include <andromeda/idt.h>
+#include <arch/x86/idt.h>
 
 #include <fs/vfs.h>
 
