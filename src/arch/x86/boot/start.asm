@@ -50,6 +50,21 @@ mboot:
     dd  end                     ; End of kernel.
     dd  start                   ; Kernel entry point (initial EIP).
 
+gdt:
+    times 8 db 0
+    UNREAL_SEG equ $ - gdt      ; Data segment, read/write, expand down
+        dw 0FFFFh
+        dw 0
+        db 0
+        db 0x92
+        db 0xCF
+        db 0
+gdt_end equ $ - gdt
+
+gdtr:
+        dw gdt_end - 1; gdt limit = size
+        dd gdt ; gdt base address
+
 [GLOBAL start]
 start:
   cli                   ; Interrupts not allowed
@@ -67,6 +82,8 @@ start:
   pop ecx
   pop ebx
   pop eax
+
+;   lgdt[gdtr]
 
   ; jump to the higher half kernel
   jmp high_start
@@ -160,8 +177,6 @@ higherhalf:
 
 high_start:
     ; Load multiboot information:
-    mov ecx, 0x10
-    mov ss, cx
     mov ecx, stack		; Set the new stack frame
     add ecx, 0x8000		; Add the size of the stack to the pointer
     mov ebp, ecx
