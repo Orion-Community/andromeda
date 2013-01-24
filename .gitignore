@@ -1,7 +1,7 @@
 *.o*
 *.bin
 config
-src/andromeda.img
+*.img
 *.*project
 *~
 src/scripts/floppy.img
@@ -10,3 +10,4 @@ src/scripts/floppy.img
 *.swp
 *.patch
 doc/doxygen/*
+*.iso

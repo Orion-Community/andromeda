@@ -111,6 +111,7 @@ boolean setupCore(module_t mod)
 // The main function
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
+        setGDT();
         init_heap();
 #ifdef SLAB
         slab_alloc_init();
@@ -154,7 +155,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         page_init();
         printf(WELCOME); // The only screen output that should be maintained
-        setGDT();
         page_unmap_low_mem();
         pic_init();
         setIDT();
@@ -203,6 +203,13 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         pte_test();
 #endif
 #endif
+#ifdef PA_DBG
+        addr_t p = (addr_t)page_alloc();
+        page_free((void*)p);
+        printf("Allocated: %X\n", p);
+        page_dump();
+#endif
+
         core_loop();
         return 0; // To keep the compiler happy.
 }

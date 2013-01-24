@@ -71,6 +71,7 @@ lib.o:
 clean:
 	rm -fv $(OUT)
 	rm -fv `find -name "*.o"`
+	rm -fv `find -name *.iso`
 
 .PHONY: test
 test: all
@@ -80,6 +81,13 @@ test: all
 .PHONY: ctest
 ctest: clean all
 	$(QEMU) -kernel $(OUT) -net nic,model=rtl8139,vlan=1,macaddr=c0:de:00:ba:be:00 -m 64M -monitor stdio
+
+andromeda.iso: all
+	scripts/create_iso.sh
+
+.PHONY: iso
+iso: andromeda.iso
+	$(QEMU) -cdrom andromeda.iso -m 64M -monitor stdio
 
 .PHONY: install
 install: all
