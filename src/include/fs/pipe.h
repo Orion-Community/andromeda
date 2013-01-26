@@ -20,32 +20,51 @@
  * \defgroup Stream
  * @{
  */
+#include <lib/tree.h>
+
+#ifndef __FS_STREAM_H
+#define __FS_STREAM_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * \struct pipe_data_block
+ * \var offset
+ * \var next
+ * \var prev
+ * \var data
+ */
 
 struct pipe_data_block {
-        unsigned int tail;
-        unsigned int head;
+        unsigned int offset;
+
         struct pipe_data_block* next;
         struct pipe_data_block* prev;
         char data[1000];
 };
 
-struct pipe_data_list {
-        struct pipe_data_block* head;
-        struct pipe_data_block* tail;
-};
+struct pipe {
+        int reading_idx;
+        int writing_idx;
 
-struct stream {
-        int reading;
-        int writing;
+        int ref_cnt;
 
         void* data;
 
-        void (*open)();
-        void (*close)();
+        int (*close)();
+        int (*open)();
 
-        void (*input)();
-        void (*output)();
+        int (*write)();
+        int (*read)();
 };
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
 
 /**
  * @} \file

@@ -16,6 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <fs/pipe.h>
 
 /**
  * \AddToGroup Stream
@@ -23,7 +26,41 @@
  */
 
 
+static int pipe_read()
+{
+        return -E_NOFUNCTION;
+}
 
+static int pipe_write()
+{
+        return -E_NOFUNCTION;
+}
+
+static int pipe_close()
+{
+        return -E_NOFUNCTION;
+}
+
+static int pipe_open()
+{
+        return -E_NOFUNCTION;
+}
+
+struct pipe* stream_new()
+{
+        struct pipe* p = kalloc(sizeof(*p));
+        if (p == NULL)
+                return NULL;
+
+        memset(p, 0, sizeof(*p));
+
+        p->read = pipe_read;
+        p->write = pipe_write;
+        p->close = pipe_close;
+        p->open = pipe_open;
+
+        return NULL;
+}
 
 /**
  * @} \file

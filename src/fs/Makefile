@@ -5,7 +5,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 INCLUDES=../include/fs/stream.h ../include/fs/file.h ../include/fs/vfs.h\
 ../include/fs/path.h
 
-TARGETS=path.o vfs.o ramfs.o procfs.o stream.o
+TARGETS=path.o vfs.o ramfs.o procfs.o pipe.o
 
 .PHONY: all procfs.o ramfs.o
 all: $(TARGETS)
@@ -19,8 +19,8 @@ ramfs.o:
 	$(MAKE) -C ramfs/
 	mv rfs.o ramfs.o
 
-stream.o:
-	$(MAKE) -C stream/
+pipe.o:
+	$(MAKE) -C pipe/
 
 procfs.o:
 	$(MAKE) -C procfs/
