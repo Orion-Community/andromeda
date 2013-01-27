@@ -440,6 +440,44 @@ static struct tree* tree_new_node(int key, void* data, struct tree_root* root)
 }
 
 /**
+ * \fn tree_flush_node
+ * \brief Flush everything below this node and the node itself
+ */
+static int tree_flush_node(struct tree* tree, int flags)
+{
+        if (tree == NULL)
+                return NULL_PTR;
+
+        tree_flush_node(tree->left, flags);
+        tree_flush_node(tree->right, flags);
+
+        if (flags == FLUSH_DEALLOC && tree->data != NULL)
+                free(tree->data);
+
+        printf("Flushing %X\n", tree->key);
+        memset(tree, 0, sizeof(*tree));
+
+        free(tree);
+        return EXIT_SUCCESS;
+}
+
+/**
+ * \fn tree_flush
+ * \brief Delete the tree and its content
+ */
+int tree_flush(struct tree_root* root, int flags)
+{
+        if (root == NULL)
+                return NULL_PTR;
+
+        tree_flush_node(root->tree, flags);
+
+        memset(root, 0, sizeof(*root));
+        free(root);
+        return EXIT_SUCCESS;
+}
+
+/**
  * \fn tree_find
  * \brief Find a node in the tree
  */
@@ -477,12 +515,74 @@ struct tree_root* tree_new_avl()
         t->add = tree_new_node;
         t->find = tree_find;
         t->delete = tree_delete;
+        t->flush = tree_flush;
 
         /* And we're done! */
         return t;
 }
 
+static int tree_dump_node(struct tree* tree)
+{
+        if (tree == NULL)
+        {
+                printf("null");
+                return NULL_PTR;
+        }
+
+        printf("d:[");
+        printf("%X,%X,%X", tree->ldepth, tree->key, tree->rdepth);
+        printf("]");
+        if (tree->left != NULL)
+        {
+                printf("l:[");
+                tree_dump_node(tree->left);
+                printf("]");
+        }
+        if (tree->right != NULL)
+        {
+                printf("r:[");
+                tree_dump_node(tree->right);
+                printf("]");
+        }
+        return EXIT_SUCCESS;
+}
+
+int tree_dump(struct tree_root* root)
+{
+        if (root == NULL)
+                return NULL_PTR;
+
+        printf("Dumping tree!\n");
+        tree_dump_node(root->tree);
+        printf("\nDone dumping tree!\n");
+
+        return EXIT_SUCCESS;
+}
+
 int main()
 {
+        struct tree_root* t = tree_new_avl();
+        if (t == NULL)
+        {
+                fprintf(stderr, "An error occured, no memory!\n");
+                return -1;
+        }
+        int i = 0;
+
+        for (; i <= 16; i++)
+        {
+                tree_new_node(i, NULL, t);
+                tree_dump(t);
+        }
+        tree_delete(8, t);
+        tree_delete(9, t);
+        tree_dump(t);
+        for (; i <= 32; i++)
+        {
+                tree_new_node(i, NULL, t);
+                tree_dump(t);
+        }
+        tree_flush(t, FLUSH_DEALLOC);
+        t = NULL;
         return EXIT_SUCCESS;
 }
