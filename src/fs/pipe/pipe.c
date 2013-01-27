@@ -26,24 +26,34 @@
  */
 
 
-static int pipe_read()
+static int pipe_read(struct pipe* pipe, char* data, int len)
 {
         return -E_NOFUNCTION;
 }
 
-static int pipe_write()
+static int pipe_write(struct pipe* pipe, char* data)
 {
         return -E_NOFUNCTION;
 }
 
-static int pipe_close()
+static int pipe_close(struct pipe* pipe)
 {
-        return -E_NOFUNCTION;
+        if (pipe == NULL)
+                return -E_NULL_PTR;
+
+        if (atomic_dec(&pipe->ref_cnt) == 0)
+                kfree(pipe);
+
+        return -E_SUCCESS;
 }
 
-static int pipe_open()
+static int pipe_open(struct pipe* pipe)
 {
-        return -E_NOFUNCTION;
+        if (pipe == NULL)
+                return -E_NULL_PTR;
+
+        atomic_inc(&pipe->ref_cnt);
+        return -E_SUCCESS;
 }
 
 struct pipe* stream_new()

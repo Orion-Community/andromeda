@@ -16,11 +16,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <lib/tree.h>
+#include <thread.h>
+
 /**
  * \defgroup Stream
  * @{
  */
-#include <lib/tree.h>
 
 #ifndef __FS_STREAM_H
 #define __FS_STREAM_H
@@ -49,15 +51,15 @@ struct pipe {
         int reading_idx;
         int writing_idx;
 
-        int ref_cnt;
+        atomic_t ref_cnt;
 
         void* data;
 
-        int (*close)();
-        int (*open)();
+        int (*close)(struct pipe*);
+        int (*open)(struct pipe*);
 
-        int (*write)();
-        int (*read)();
+        int (*write)(struct pipe*, char*);
+        int (*read)(struct pipe*, char*, int);
 };
 
 #ifdef __cplusplus
