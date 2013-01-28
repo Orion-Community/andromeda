@@ -73,6 +73,8 @@ static int tree_rotate_right(struct tree* tree)
         tree->left = left->right;
         left->right = tree;
         tree->parent = left;
+        if (tree->left != NULL)
+                tree->left->parent = tree;
 
         /* Update the parents on the new status */
         if (parent == NULL)
@@ -111,6 +113,8 @@ static int tree_rotate_left(struct tree* tree)
         tree->right = right->left;
         right->left = tree;
         tree->parent = right;
+        if (tree->right != NULL)
+                tree->right->parent = tree;
 
         /* Update the parents on the new situation */
         if (parent == NULL)
@@ -172,6 +176,79 @@ static int tree_balance(struct tree* tree)
         }
         /* And return! */
         return EXIT_SUCCESS;
+}
+
+static struct tree* tree_find_leftmost(struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL;
+
+        struct tree* tmp = tree_find_leftmost(tree->left);
+        if (tmp == NULL)
+                return tree;
+        return tmp;
+}
+
+static struct tree* tree_find_rightmost(struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL;
+
+        struct tree* tmp = tree_find_rightmost(tree->right);
+        if (tmp == NULL)
+                return tree;
+        return tmp;
+}
+
+static struct tree* tree_find_next(struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL;
+
+        printf("Finding next!\n");
+        if (tree->right == NULL)
+        {
+                printf("Right branch == NULL\n");
+                struct tree* runner = tree->parent;
+                struct tree* tmp = tree;
+                while (runner != NULL && runner->left != tmp)
+                {
+                        printf("Runner: %X\n", runner->key);
+                        tmp = runner;
+                        runner = runner->parent;
+                }
+                printf("Returning: %X\n", (runner == NULL) ? 0 : runner->key);
+                return runner;
+        }
+
+        printf("Just find the leftmost node\n");
+        return tree_find_leftmost(tree->right);
+}
+
+static struct tree* tree_find_prev(struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL;
+
+        printf("Finding previous\n");
+        if (tree->left == NULL)
+        {
+                printf("Left branch == NULL\n");
+                struct tree* runner = tree->parent;
+                struct tree* tmp = tree;
+
+                while (runner != NULL && runner->right != tmp)
+                {
+                        printf("Runner: %X\n", runner->key);
+                        tmp = runner;
+                        runner = runner->parent;
+                }
+                printf("Returning: %X\n", (runner == NULL) ? 0 : runner->key);
+                return runner;
+        }
+
+        printf("Just find the rightmost node\n");
+        return tree_find_rightmost(tree->left);
 }
 
 /**
@@ -325,6 +402,7 @@ static int tree_delete_node(int key, struct tree* tree)
                         t->parent->left = t->left;
                 else
                         t->parent->right = t->left;
+                t->left->parent = t->parent;
         }
         else if (t->right != NULL && t->left == NULL)
         {
@@ -333,6 +411,7 @@ static int tree_delete_node(int key, struct tree* tree)
                         t->parent->left = t->right;
                 else
                         t->parent->right = t->right;
+                t->right->parent = t->parent;
         }
         else
         {
@@ -345,6 +424,8 @@ static int tree_delete_node(int key, struct tree* tree)
 
                 /* Detach successor */
                 successor->parent->left = successor->right;
+                if (successor->right != NULL)
+                        successor->right->parent = successor->parent;
                 tree_depth(successor->parent);
 
 
@@ -366,8 +447,7 @@ static int tree_delete_node(int key, struct tree* tree)
 
                 if (successor->right != NULL)
                         successor->right->parent = successor;
-                if (successor->left != NULL)
-                        successor->left->parent = successor;
+                successor->left->parent = successor;
 
                 /* Update meta data and balance */
 
@@ -530,7 +610,9 @@ static int tree_dump_node(struct tree* tree)
         }
 
         printf("d:[");
-        printf("%X,%X,%X", tree->ldepth, tree->key, tree->rdepth);
+        printf("%X,%X,%X,%X", tree->ldepth, tree->key, tree->rdepth,
+                (tree->parent != NULL) ? tree->parent->key : -1
+        );
         printf("]");
         if (tree->left != NULL)
         {
@@ -582,7 +664,16 @@ int main()
                 tree_new_node(i, NULL, t);
                 tree_dump(t);
         }
+
+        struct tree* a = tree_find(4, t);
+        struct tree* b = tree_find_prev(a);
+        struct tree* c = tree_find_next(a);
+
+        printf("%X - %X - %X\n", b->key, a->key, c->key);
+
+        /*
         tree_flush(t, FLUSH_DEALLOC);
         t = NULL;
+        */
         return EXIT_SUCCESS;
 }
