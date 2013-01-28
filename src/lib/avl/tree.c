@@ -178,77 +178,105 @@ static int tree_balance(struct tree* tree)
         return EXIT_SUCCESS;
 }
 
+/**
+ * \fn tree_find_leftmost
+ * \brief Find the left most node from tree
+ */
 static struct tree* tree_find_leftmost(struct tree* tree)
 {
         if (tree == NULL)
                 return NULL;
 
+        /* Recurse through the tree to find the node */
         struct tree* tmp = tree_find_leftmost(tree->left);
+        /* If the recursion didn't work, return this node */
         if (tmp == NULL)
                 return tree;
+
+        /* Return the result of the recursion */
         return tmp;
 }
 
+/**
+ * \fn tree_find_rightmost
+ * \brief Find the rightmost node from tree
+ */
 static struct tree* tree_find_rightmost(struct tree* tree)
 {
         if (tree == NULL)
                 return NULL;
 
+        /* Recurse through the tree to find the node */
         struct tree* tmp = tree_find_rightmost(tree->right);
+        /* If the recursion didn't work, return this node */
         if (tmp == NULL)
                 return tree;
+
+        /* Return the result of the recursion */
         return tmp;
 }
 
+/**
+ * \fn tree_find_next
+ * \brief Find the successor to tree
+ */
 static struct tree* tree_find_next(struct tree* tree)
 {
         if (tree == NULL)
                 return NULL;
 
-        printf("Finding next!\n");
         if (tree->right == NULL)
         {
-                printf("Right branch == NULL\n");
                 struct tree* runner = tree->parent;
                 struct tree* tmp = tree;
                 while (runner != NULL && runner->left != tmp)
                 {
-                        printf("Runner: %X\n", runner->key);
                         tmp = runner;
                         runner = runner->parent;
                 }
-                printf("Returning: %X\n", (runner == NULL) ? 0 : runner->key);
                 return runner;
         }
 
-        printf("Just find the leftmost node\n");
         return tree_find_leftmost(tree->right);
 }
 
+/**
+ * \fn tree_find_prev
+ * \brief Find the predecessor to tree
+ */
 static struct tree* tree_find_prev(struct tree* tree)
 {
         if (tree == NULL)
                 return NULL;
 
-        printf("Finding previous\n");
         if (tree->left == NULL)
         {
-                printf("Left branch == NULL\n");
                 struct tree* runner = tree->parent;
                 struct tree* tmp = tree;
 
                 while (runner != NULL && runner->right != tmp)
                 {
-                        printf("Runner: %X\n", runner->key);
                         tmp = runner;
                         runner = runner->parent;
                 }
-                printf("Returning: %X\n", (runner == NULL) ? 0 : runner->key);
                 return runner;
         }
 
-        printf("Just find the rightmost node\n");
         return tree_find_rightmost(tree->left);
+}
+
+/**
+ * \fn tree_update_list
+ * \brief Update the next and previous pointers within the tree
+ */
+static int tree_update_list(struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL_PTR;
+
+        tree->prev = tree_find_prev(tree);
+        tree->next = tree_find_next(tree);
+        return EXIT_SUCCESS;
 }
 
 /**
@@ -273,7 +301,11 @@ static int tree_add_node(struct tree* parent, struct tree* t)
                         parent->left = t;
                         t->parent = parent;
                         t->root->nodes++;
-                        printf("Adding node left!\n");
+
+                        /* Update list like pointers */
+                        tree_update_list(t);
+                        tree_update_list(t->prev);
+                        tree_update_list(t->next);
                 case EXIT_SUCCESS:
                         /* Yep, we have a success */
                         break;
@@ -294,7 +326,11 @@ static int tree_add_node(struct tree* parent, struct tree* t)
                         parent->right = t;
                         t->parent = parent;
                         t->root->nodes++;
-                        printf("Adding node right!\n");
+
+                        /* Update list like pointers */
+                        tree_update_list(t);
+                        tree_update_list(t->prev);
+                        tree_update_list(t->next);
                 case EXIT_SUCCESS:
                         /* Seems like we have a succcess on our hands */
                         break;
@@ -336,26 +372,6 @@ static struct tree* tree_find_node(int key, struct tree* tree)
         else
                 /* else try to find it on the right */
                 return tree_find_node(key, tree->right);
-}
-
-/**
- * \fn tree_inorder_successor
- * \brief Find the left most node of the right branch
- */
-static struct tree* tree_inorder_successor(struct tree* tree)
-{
-        if (tree == NULL)
-                return NULL;
-
-
-        /* Try the left branch */
-        struct tree* tmp = tree_inorder_successor(tree->left);
-        /* If that isn't it, we're it! */
-        if (tmp == NULL)
-                return tree;
-
-        /* Return what we found */
-        return tmp;
 }
 
 /**
@@ -416,7 +432,7 @@ static int tree_delete_node(int key, struct tree* tree)
         else
         {
                 /* If both subtrees are present */
-                struct tree* successor = tree_inorder_successor(t->right);
+                struct tree* successor = tree_find_leftmost(t->right);
                 if (successor == NULL)
                         return NULL_PTR;
 
@@ -463,6 +479,9 @@ static int tree_delete_node(int key, struct tree* tree)
                         }
                 }
         }
+        tree_update_list(t->prev);
+        tree_update_list(t->next);
+
         /* Free the deleted node */
         tree_depth(t->parent);
         tree_balance(t->parent);
@@ -670,6 +689,42 @@ int main()
         struct tree* c = tree_find_next(a);
 
         printf("%X - %X - %X\n", b->key, a->key, c->key);
+
+        a = tree_find(0, t);
+        while (a != NULL)
+        {
+                printf("%X ", a->key);
+                b = a;
+                a = tree_find_next(a);
+        }
+        printf("\n");
+        a = b;
+        while (a != NULL)
+        {
+                printf("%X ", a->key);
+                b = a;
+                a = tree_find_prev(a);
+        }
+        printf("\n");
+
+        a = b;
+
+        while (a != NULL)
+        {
+                printf("%X ", a->key);
+                b = a;
+                a = a->next;
+        }
+        printf("\n");
+
+        a = b;
+        while (a != NULL)
+        {
+                printf("%X ", a->key);
+                b = a;
+                a = a->prev;
+        }
+        printf("\n");
 
         /*
         tree_flush(t, FLUSH_DEALLOC);

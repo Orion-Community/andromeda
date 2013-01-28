@@ -38,6 +38,9 @@ struct tree {
         struct tree* right;
         struct tree_root* root;
 
+        struct tree* next;
+        struct tree* prev;
+
         int rdepth;
         int ldepth;
 
