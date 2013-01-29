@@ -53,13 +53,15 @@ struct pipe {
 
         atomic_t ref_cnt;
 
-        void* data;
+        struct tree_root* data;
 
         int (*close)(struct pipe*);
         int (*open)(struct pipe*);
 
         int (*write)(struct pipe*, char*);
         int (*read)(struct pipe*, char*, int);
+
+        void (*flush)(struct pipe*);
 };
 
 #ifdef __cplusplus

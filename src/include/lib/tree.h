@@ -45,6 +45,6 @@ struct tree_root {
         int (*delete)(int key, struct tree_root* root);
 };
 
-struct tree_root* tree_new();
+struct tree_root* tree_new_avl();
 
 #endif

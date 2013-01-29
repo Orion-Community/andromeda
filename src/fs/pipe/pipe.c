@@ -25,17 +25,38 @@
  * @{
  */
 
+/**
+ * \fn pipe_flush
+ * \brief Clean the pipe buffer
+ */
+static int pipe_flush(struct pipe* pipe)
+{
+        return -E_NOFUNCTION;
+}
 
+
+/**
+ * \fn pipe_read
+ * \brief Read from pipe
+ */
 static int pipe_read(struct pipe* pipe, char* data, int len)
 {
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn pipe_write
+ * \brief Write to pipe
+ */
 static int pipe_write(struct pipe* pipe, char* data)
 {
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn pipe_close
+ * \brief Update reference count and if necessary clean up
+ */
 static int pipe_close(struct pipe* pipe)
 {
         if (pipe == NULL)
@@ -47,6 +68,10 @@ static int pipe_close(struct pipe* pipe)
         return -E_SUCCESS;
 }
 
+/**
+ * \fn pipe_open
+ * \brief Update reference count
+ */
 static int pipe_open(struct pipe* pipe)
 {
         if (pipe == NULL)
@@ -56,7 +81,11 @@ static int pipe_open(struct pipe* pipe)
         return -E_SUCCESS;
 }
 
-struct pipe* stream_new()
+/**
+ * \fn pipe_new
+ * \brief Construct a new pipe
+ */
+struct pipe* pipe_new()
 {
         struct pipe* p = kalloc(sizeof(*p));
         if (p == NULL)
@@ -68,6 +97,8 @@ struct pipe* stream_new()
         p->write = pipe_write;
         p->close = pipe_close;
         p->open = pipe_open;
+
+        p->data = tree_new_avl();
 
         return NULL;
 }

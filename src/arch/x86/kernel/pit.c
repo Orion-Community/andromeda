@@ -82,7 +82,7 @@ static void pit_irq(TIMER *timer)
 #endif
         if(scheduling && ((tick % 256) == 0))
         {
-                
+
         }
         pic_eoi(0);
 }
@@ -103,7 +103,7 @@ ol_pit_init(uint32_t hz)
         pit_chan0->access = 3;
         pit_chan0->cport = OL_PIT_COMMAND;
         pit_chan0->dport = OL_PIT_CHAN0_DATA;
-        
+
         TIMER *timer = init_timer_obj("pit0", &pit_irq, (void*)pit_chan0, TRUE,
                 0+IDT_VECTOR_OFFSET);
         if(NULL == timer)
