@@ -16,6 +16,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <pthread.h>
+#include <x86_64-linux-gnu/bits/pthreadtypes.h>
+
 #ifndef __TREE_H
 #define __TREE_H
 
@@ -56,6 +59,8 @@ struct tree_root {
         struct tree* (*find)(int key, struct tree_root* root);
         int (*delete)(int key, struct tree_root* root);
         int (*flush)(struct tree_root* root, int flags);
+
+        pthread_mutex_t mutex;
 };
 
 struct tree_root* tree_new();

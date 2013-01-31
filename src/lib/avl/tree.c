@@ -504,12 +504,18 @@ static int tree_add(struct tree_root* root, struct tree* tree)
         if (root == NULL || tree == NULL)
                 return NULL_PTR;
 
+        pthread_mutex_lock(&root->mutex);
         /* Add the node into the tree if there already is one */
         if (root->tree != NULL)
-                return tree_add_node(root->tree, tree);
+        {
+                int ret = tree_add_node(root->tree, tree);
+                goto success;
+        }
 
         /* There is no subtree, so create the first one */
         root->tree = tree;
+success:
+        pthread_mutex_unlock(&root->mutex);
         return EXIT_SUCCESS;
 }
 
@@ -569,7 +575,11 @@ int tree_flush(struct tree_root* root, int flags)
         if (root == NULL)
                 return NULL_PTR;
 
+        pthread_mutex_lock(&root->mutex);
         tree_flush_node(root->tree, flags);
+        pthread_mutex_unlock(&root->mutex);
+
+        pthread_mutex_destroy(&root->mutex);
 
         memset(root, 0, sizeof(*root));
         free(root);
@@ -585,7 +595,10 @@ static struct tree* tree_find(int key, struct tree_root* t)
         if (t == NULL)
                 return NULL;
 
-        return tree_find_node(key, t->tree);
+        pthread_mutex_lock(&t->mutex);
+        struct tree* ret = tree_find_node(key, t->tree);
+        pthread_mutex_unlock(&t->mutex);
+        return ret;
 }
 
 /**
@@ -596,7 +609,10 @@ static int tree_delete(int key, struct tree_root* root)
 {
         if (root == NULL)
                 return NULL_PTR;
-        return tree_delete_node(key, root->tree);
+        pthread_mutex_lock(&root->mutex);
+        int ret = tree_delete_node(key, root->tree);
+        pthread_mutex_unlock(&root->mutex);
+        return ret;
 }
 
 /**
@@ -615,6 +631,8 @@ struct tree_root* tree_new_avl()
         t->find = tree_find;
         t->delete = tree_delete;
         t->flush = tree_flush;
+
+        pthread_mutex_init(&t->mutex, NULL);
 
         /* And we're done! */
         return t;
@@ -653,9 +671,13 @@ int tree_dump(struct tree_root* root)
         if (root == NULL)
                 return NULL_PTR;
 
+
         printf("Dumping tree!\n");
+        pthread_mutex_lock(&root->mutex);
         tree_dump_node(root->tree);
+        pthread_mutex_unlock(&root->mutex);
         printf("\nDone dumping tree!\n");
+
 
         return EXIT_SUCCESS;
 }
@@ -689,6 +711,10 @@ int main()
         struct tree* c = tree_find_next(a);
 
         printf("%X - %X - %X\n", b->key, a->key, c->key);
+
+        i = pthread_mutex_trylock(&t->mutex);
+        printf("%X\n", i);
+        pthread_mutex_unlock(&t->mutex);
 
         a = tree_find(0, t);
         while (a != NULL)
@@ -726,9 +752,7 @@ int main()
         }
         printf("\n");
 
-        /*
         tree_flush(t, FLUSH_DEALLOC);
         t = NULL;
-        */
         return EXIT_SUCCESS;
 }
