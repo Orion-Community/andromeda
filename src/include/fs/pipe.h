@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2012  Bart Kuivenhoven
+ *  Copyright (C) 2013  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -47,9 +47,14 @@ struct pipe_data_block {
         char data[1000];
 };
 
+/**
+ * \struct pipe
+ * \brief The pipe descriptor
+ */
 struct pipe {
         int reading_idx;
         int writing_idx;
+        size_t block_size;
 
         atomic_t ref_cnt;
 
@@ -60,8 +65,7 @@ struct pipe {
 
         int (*write)(struct pipe*, char*);
         int (*read)(struct pipe*, char*, int);
-
-        void (*flush)(struct pipe*);
+        int (*flush)(struct pipe*);
 };
 
 #ifdef __cplusplus

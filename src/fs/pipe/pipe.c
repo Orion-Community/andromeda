@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2012  Bart Kuivenhoven
+ *  Copyright (C) 2013  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,9 +31,17 @@
  */
 static int pipe_flush(struct pipe* pipe)
 {
-        return -E_NOFUNCTION;
-}
+        if (pipe == NULL)
+                return -E_NULL_PTR;
 
+        if (pipe->data == NULL)
+                return -E_SUCCESS;
+
+        int tmp = pipe->data->flush(pipe->data, FLUSH_DEALLOC);
+        if (tmp == -E_SUCCESS)
+                pipe->data = NULL;
+        return tmp;
+}
 
 /**
  * \fn pipe_read
@@ -41,6 +49,11 @@ static int pipe_flush(struct pipe* pipe)
  */
 static int pipe_read(struct pipe* pipe, char* data, int len)
 {
+        if (pipe == NULL || data == NULL || len == 0)
+                return -E_INVALID_ARG;
+
+        /* Maybe do some reading bits here? */
+
         return -E_NOFUNCTION;
 }
 
@@ -50,6 +63,16 @@ static int pipe_read(struct pipe* pipe, char* data, int len)
  */
 static int pipe_write(struct pipe* pipe, char* data)
 {
+        if (pipe == NULL || data == NULL)
+                return -E_NULL_PTR;
+
+        int key = pipe->writing_idx / pipe->block_size;
+        int offset = pipe->writing_idx % pipe->block_size;
+
+        struct tree* block = pipe->data->find(key, pipe->data);
+
+        /* Now do some writing bits ... */
+
         return -E_NOFUNCTION;
 }
 
@@ -97,6 +120,7 @@ struct pipe* pipe_new()
         p->write = pipe_write;
         p->close = pipe_close;
         p->open = pipe_open;
+        p->flush = pipe_flush;
 
         p->data = tree_new_avl();
 
