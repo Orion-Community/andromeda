@@ -503,13 +503,21 @@ static int tree_add(struct tree_root* root, struct tree* tree)
         if (root == NULL || tree == NULL)
                 return -E_NULL_PTR;
 
+        int ret = 0;
+        mutex_lock(&root->mutex);
         /* Add the node into the tree if there already is one */
         if (root->tree != NULL)
-                return tree_add_node(root->tree, tree);
+        {
+                ret = tree_add_node(root->tree, tree);
+                goto success;
+        }
 
         /* There is no subtree, so create the first one */
         root->tree = tree;
-        return -E_SUCCESS;
+        ret = -E_SUCCESS;
+success:
+        mutex_unlock(&root->mutex);
+        return ret;
 }
 
 /**
@@ -568,7 +576,9 @@ int tree_flush(struct tree_root* root, int flags)
         if (root == NULL)
                 return -E_NULL_PTR;
 
+        mutex_lock(&root->mutex);
         tree_flush_node(root->tree, flags);
+        mutex_unlock(&root->mutex);
 
         memset(root, 0, sizeof(*root));
         free(root);
@@ -584,7 +594,10 @@ static struct tree* tree_find(int key, struct tree_root* t)
         if (t == NULL)
                 return NULL;
 
-        return tree_find_node(key, t->tree);
+        mutex_lock(&t->mutex);
+        struct tree* ret = tree_find_node(key, t->tree);
+        mutex_unlock(&t->mutex);
+        return ret;
 }
 
 /**
@@ -595,7 +608,12 @@ static int tree_delete(int key, struct tree_root* root)
 {
         if (root == NULL)
                 return -E_NULL_PTR;
-        return tree_delete_node(key, root->tree);
+
+        mutex_lock(&root->mutex);
+        int ret = tree_delete_node(key, root->tree);
+        mutex_unlock(&root->mutex);
+
+        return ret;
 }
 
 /**
@@ -614,6 +632,8 @@ struct tree_root* tree_new_avl()
         t->find = tree_find;
         t->delete = tree_delete;
         t->flush = tree_flush;
+
+        t->mutex = mutex_unlocked;
 
         /* And we're done! */
         return t;
