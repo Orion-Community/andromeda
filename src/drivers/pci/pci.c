@@ -266,7 +266,7 @@ __ol_pci_read_byte(ol_pci_addr_t addr, uint16_t reg)
   return ret;
 }
 
-inline uint32_t
+uint32_t
 ol_pci_read_dword(struct pci_dev* dev, uint16_t reg)
 {
   return __ol_pci_read_dword(ol_pci_calculate_address((ol_pci_iterate_dev_t)dev,
