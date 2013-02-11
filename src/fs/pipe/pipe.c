@@ -19,11 +19,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fs/pipe.h>
+#include <mm/cache.h>
 
 /**
  * \AddToGroup Stream
  * @{
  */
+
+static struct mm_cache* pipe_cache = NULL;
 
 /**
  * \fn pipe_flush
@@ -38,9 +41,57 @@ static int pipe_flush(struct pipe* pipe)
                 return -E_SUCCESS;
 
         int tmp = pipe->data->flush(pipe->data, FLUSH_DEALLOC);
+
         if (tmp == -E_SUCCESS)
                 pipe->data = NULL;
         return tmp;
+}
+
+static void* pipe_get_new_block(struct pipe* pipe)
+{
+        if (pipe_cache == NULL)
+                pipe_cache = mm_cache_init("pipe blocks", BLOCK_SIZE, BLOCK_SIZE,NULL, NULL);
+        if (pipe_cache == NULL)
+                return NULL;
+
+        if (pipe == NULL)
+                return NULL;
+
+        if (pipe->block_size == BLOCK_SIZE)
+                return mm_cache_alloc(pipe_cache, 0);
+        else
+                return kalloc(pipe->block_size);
+}
+
+static int pipe_cleanup_block(struct pipe* pipe, void* block)
+{
+        if (pipe == NULL || block == NULL)
+                return -E_NULL_PTR;
+
+        int ret = -E_SUCCESS;
+        if (pipe->block_size != BLOCK_SIZE)
+                ret =  kfree(block);
+        else
+                ret = mm_cache_free(pipe_cache, block);
+
+        return ret;
+}
+
+static void* pipe_get_block(struct pipe* pipe, int key)
+{
+        if (pipe == NULL || pipe->data == NULL || pipe->data->find == NULL)
+                return NULL;
+
+        struct tree* t = pipe->data->find(key, pipe->data);
+        if (t == NULL)
+        {
+                void* block = pipe_get_new_block(pipe);
+                if (block == NULL)
+                        return NULL;
+                pipe->data->add(key, block, pipe->data);
+                return block;
+        }
+        return t->data;
 }
 
 /**
@@ -66,14 +117,28 @@ static int pipe_write(struct pipe* pipe, char* data)
         if (pipe == NULL || data == NULL)
                 return -E_NULL_PTR;
 
+        mutex_lock(&pipe->lock);
         int key = pipe->writing_idx / pipe->block_size;
         int offset = pipe->writing_idx % pipe->block_size;
 
-        struct tree* block = pipe->data->find(key, pipe->data);
+        void* block = pipe_get_block(pipe, key);
 
+        int i = 0;
+        for (;!(data[i] == '\0' && data[i+1] != '\0'); i++, pipe->writing_idx++)
+        {
+                if (offset+i >= pipe->block_size)
+                {
+                        key++;
+                        offset = 0;
+                        block = pipe_get_block(pipe, key);
+                }
+                ((char*)block)[offset+i] = ((char*)data)[i];
+        }
+
+        mutex_unlock(&pipe->lock);
         /* Now do some writing bits ... */
 
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
 }
 
 /**

@@ -31,6 +31,8 @@
 extern "C" {
 #endif
 
+#define BLOCK_SIZE 0x1000
+
 /**
  * \struct pipe_data_block
  * \var offset
@@ -57,6 +59,7 @@ struct pipe {
         size_t block_size;
 
         atomic_t ref_cnt;
+        mutex_t lock;
 
         struct tree_root* data;
 
