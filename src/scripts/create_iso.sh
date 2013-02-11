@@ -3,4 +3,6 @@ cp andromeda.img scripts/iso/boot/
 
 echo $(pwd)
 
-grub-mkrescue -o andromeda.iso scripts/iso
+if ! command -v grub-mkrescue -o andromeda.iso scripts/iso &>/dev/null; then
+	grub2-mkrescue -o andromeda.iso scripts/iso
+fi
