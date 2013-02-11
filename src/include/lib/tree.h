@@ -23,9 +23,6 @@
 
 #define TREE_BALANCE(a) (a->ldepth - a->rdepth)
 
-#define FLUSH_DEALLOC   1
-#define FLUSH_NODEALLOC 0
-
 struct tree_root;
 
 struct tree {
@@ -51,7 +48,7 @@ struct tree_root {
         struct tree* (*add)(int key, void* data, struct tree_root* root);
         struct tree* (*find)(int key, struct tree_root* root);
         int (*delete)(int key, struct tree_root* root);
-        int (*flush)(struct tree_root* root, int flags);
+        int (*flush)(struct tree_root*, int (dtor)(void*,void*), void*);
 
         mutex_t mutex;
 };

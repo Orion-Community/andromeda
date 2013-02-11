@@ -28,25 +28,6 @@
 
 static struct mm_cache* pipe_cache = NULL;
 
-/**
- * \fn pipe_flush
- * \brief Clean the pipe buffer
- */
-static int pipe_flush(struct pipe* pipe)
-{
-        if (pipe == NULL)
-                return -E_NULL_PTR;
-
-        if (pipe->data == NULL)
-                return -E_SUCCESS;
-
-        int tmp = pipe->data->flush(pipe->data, FLUSH_DEALLOC);
-
-        if (tmp == -E_SUCCESS)
-                pipe->data = NULL;
-        return tmp;
-}
-
 static void* pipe_get_new_block(struct pipe* pipe)
 {
         if (pipe_cache == NULL)
@@ -75,6 +56,25 @@ static int pipe_cleanup_block(struct pipe* pipe, void* block)
                 ret = mm_cache_free(pipe_cache, block);
 
         return ret;
+}
+
+/**
+ * \fn pipe_flush
+ * \brief Clean the pipe buffer
+ */
+static int pipe_flush(struct pipe* pipe)
+{
+        if (pipe == NULL)
+                return -E_NULL_PTR;
+
+        if (pipe->data == NULL)
+                return -E_SUCCESS;
+
+        int tmp = pipe->data->flush(pipe->data, pipe_cleanup_block, pipe);
+
+        if (tmp == -E_SUCCESS)
+                pipe->data = NULL;
+        return tmp;
 }
 
 static void* pipe_get_block(struct pipe* pipe, int key)
@@ -151,7 +151,10 @@ static int pipe_close(struct pipe* pipe)
                 return -E_NULL_PTR;
 
         if (atomic_dec(&pipe->ref_cnt) == 0)
+        {
+                pipe_flush(pipe);
                 kfree(pipe);
+        }
 
         return -E_SUCCESS;
 }

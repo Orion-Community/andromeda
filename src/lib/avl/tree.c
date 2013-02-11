@@ -549,16 +549,19 @@ static struct tree* tree_new_node(int key, void* data, struct tree_root* root)
  * \fn tree_flush_node
  * \brief Flush everything below this node and the node itself
  */
-static int tree_flush_node(struct tree* tree, int flags)
+static int
+tree_flush_node(struct tree* tree, int (*dtor)(void*, void*), void* dtor_arg)
 {
         if (tree == NULL)
                 return -E_NULL_PTR;
 
-        tree_flush_node(tree->left, flags);
-        tree_flush_node(tree->right, flags);
+        tree_flush_node(tree->left, dtor, dtor_arg);
+        tree_flush_node(tree->right, dtor, dtor_arg);
 
-        if (flags == FLUSH_DEALLOC && tree->data != NULL)
-                free(tree->data);
+        if (dtor != NULL)
+        {
+                dtor(tree->data, dtor_arg);
+        }
 
         printf("Flushing %X\n", tree->key);
         memset(tree, 0, sizeof(*tree));
@@ -571,13 +574,13 @@ static int tree_flush_node(struct tree* tree, int flags)
  * \fn tree_flush
  * \brief Delete the tree and its content
  */
-int tree_flush(struct tree_root* root, int flags)
+int tree_flush(struct tree_root* root, int (dtor)(void*,void*), void* dtor_arg)
 {
         if (root == NULL)
                 return -E_NULL_PTR;
 
         mutex_lock(&root->mutex);
-        tree_flush_node(root->tree, flags);
+        tree_flush_node(root->tree, dtor, dtor_arg);
         mutex_unlock(&root->mutex);
 
         memset(root, 0, sizeof(*root));
