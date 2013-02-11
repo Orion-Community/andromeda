@@ -103,9 +103,33 @@ static int pipe_read(struct pipe* pipe, char* data, int len)
         if (pipe == NULL || data == NULL || len == 0)
                 return -E_INVALID_ARG;
 
+        mutex_lock(&pipe->lock);
+        int key = pipe->reading_idx/pipe->block_size;
+        void* block = pipe_get_block(pipe, key);
+        if (block == NULL)
+                return -E_NULL_PTR;
+
+        int offset = pipe->reading_idx % pipe->block_size;
+        int i = 0;
+        for (; i < len; i++, pipe->reading_idx++)
+        {
+                if (++offset >= pipe->block_size)
+                {
+                        block = pipe_get_block(pipe, ++key);
+                        if (block == NULL)
+                                goto err;
+                        offset = 0;
+                }
+                data[i] = ((char*)block)[offset];
+        }
+
         /* Maybe do some reading bits here? */
 
+        mutex_unlock(&pipe->lock);
         return -E_NOFUNCTION;
+err:
+        mutex_unlock(&pipe->lock);
+        return -E_NULL_PTR;
 }
 
 /**
@@ -131,6 +155,8 @@ static int pipe_write(struct pipe* pipe, char* data)
                         key++;
                         offset = 0;
                         block = pipe_get_block(pipe, key);
+                        if (block == NULL)
+                                goto err;
                 }
                 ((char*)block)[offset+i] = ((char*)data)[i];
         }
@@ -139,6 +165,9 @@ static int pipe_write(struct pipe* pipe, char* data)
         /* Now do some writing bits ... */
 
         return -E_SUCCESS;
+err:
+        mutex_unlock(&pipe->lock);
+        return -E_NULL_PTR;
 }
 
 /**
