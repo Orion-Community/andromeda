@@ -28,6 +28,10 @@
 #include <arch/x86/pit.h>
 #include <arch/x86/pic.h>
 
+static ol_pit_reload_val_t ol_pit_calculate_reload(uint16_t hz);
+static void ol_pit_calculate_freq(ol_pit_system_timer_t pit);
+static void ol_pit_program_pit(ol_pit_system_timer_t pit);
+
 static ol_pit_system_timer_t pit_chan0 = NULL;
 
 static void

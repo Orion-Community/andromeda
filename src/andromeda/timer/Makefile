@@ -29,9 +29,6 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJS)
 
-%o: %c
-	$(CC) $(CFLAGS) $(INCDIR) $< -o $@
-
 .PHONY: clean
 clean:
 	-rm -fv $(OBJS)

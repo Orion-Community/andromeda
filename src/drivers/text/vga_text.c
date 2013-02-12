@@ -21,8 +21,6 @@
 #include <andromeda/drivers.h>
 #include <drivers/vga_text.h>
 
-#pragma GCC diagnostic ignored "-Wunused-function"
-
 atomic_t vga_text_count;
 static mutex_t vga_text_lock = mutex_unlocked;
 static struct device* vga_dev = NULL;

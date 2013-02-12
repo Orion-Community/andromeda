@@ -23,8 +23,6 @@
 #include <sys/io.h>
 #include <sys/dev/ps2.h>
 
-#pragma GCC diagnostic ignored "-Wunused-function"
-
 static ol_kb_scancode_t keycodes[] = {
 
 	{0x00, 0xff, 0x00, 0xff, 0x00, 0xff,   0, '\0'},

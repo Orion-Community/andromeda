@@ -25,7 +25,6 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/buffer.h>
-#include <mm/vmem.h>
 #include <mm/cache.h>
 #include <stdio.h>
 
@@ -104,6 +103,8 @@ void test_sprintf()
         free(test);
 }
 
+extern int page_table_boot;
+
 void core_loop()
 {
 //         init_netif();
@@ -116,10 +117,6 @@ void core_loop()
 #ifdef BUF_DBG
         buf_dbg();
 #endif
-#ifdef BUDDY_DBG
-        if (vmem_buddy_test() != -E_SUCCESS)
-                panic("The buddy system failed!!!");
-#endif
 #ifdef VMEM_DBG
         debug("Address of higher half: %X\n", (int)&higherhalf);
         debug("Address of end ptr:     %X\n", (int)&end);
@@ -131,6 +128,22 @@ void core_loop()
 #ifdef SLAB_DBG
         mm_cache_test();
 #endif
+#endif
+#ifdef RR_EXP
+        extern void task_testA();
+        extern void task_testB();
+        rr_thread_init(task_testA);
+        rr_thread_init(task_testB);
+#endif
+#ifdef PT_DBG
+        addr_t ptb = (addr_t)(&page_table_boot) + 0xC0000000;
+        printf( "page table boot: %X\n"
+                "phys: %X\n"
+                "virt: %X\n",
+                &core_loop,
+                pte_get_phys(core_loop),
+                core_loop
+        );
 #endif
 
 //         uint32_t pid = 0;
@@ -145,7 +158,9 @@ void core_loop()
                 case RL_RUN3:
                 case RL_RUN4:
                      halt();
-//                      sched_next_task();
+#ifdef RR_EXP
+                     rr_sched();
+#endif
                         break;
 
                 case RL_REBOOT:

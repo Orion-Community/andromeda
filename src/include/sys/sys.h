@@ -36,15 +36,16 @@ extern "C"
 
 #define SYS_TABLE_MAGIC ANDROMEDA_MAGIC
 
+/*
 static void
 ol_cpu_search_signature(void*, uint32_t);
-
+*/
 int
 ol_get_system_tables();
-
+/*
 static uint8_t
 ol_validate_table(uint8_t*);
-
+*/
 struct system_tables
 {
   uint32_t magic;

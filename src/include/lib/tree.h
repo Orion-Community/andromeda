@@ -21,6 +21,15 @@
 #ifndef __TREE_H
 #define __TREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * \defgroup tree
+ * @{
+ */
+
 #define TREE_BALANCE(a) (a->ldepth - a->rdepth)
 
 struct tree_root;
@@ -54,5 +63,13 @@ struct tree_root {
 };
 
 struct tree_root* tree_new_avl();
+
+/**
+ * @} \file
+ */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

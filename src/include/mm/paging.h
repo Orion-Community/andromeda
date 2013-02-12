@@ -55,6 +55,7 @@ extern "C" {
 
 #define CHECKALLIGN(a) ((a%PAGESIZE) ? FALSE : TRUE)
 
+#ifdef X86
 struct page_dir
 {
   unsigned int present	: 1; // Must be 1 to be able to access
@@ -87,12 +88,21 @@ struct page_table
 } __attribute__((packed));
 typedef struct page_table page_table_t;
 
+struct x86_page_table {
+        struct page_table entry[1024];
+};
+
+struct x86_page_dir {
+        struct page_dir entry[1024];
+};
+
+#endif /* X86 */
+
 struct mm_page_list {
         struct mm_page_descriptor* head;
         struct mm_page_descriptor* tail;
 };
 
-void page_init();
 
 /**
  * \struct mm_page_descriptor
@@ -100,6 +110,7 @@ void page_init();
  */
 struct mm_page_descriptor {
         /**
+         * \todo Phase out the mm_page_descriptor
          * \var next
          * \var page_ptr
          * \brief pointer to physical page
@@ -112,7 +123,7 @@ struct mm_page_descriptor {
          * \var swapable
          * \var free
          * \var dma
-         * \brief Is this page direct memor access?
+         * \brief Is this page direct memory access?
          * \var allocator
          * \brief Which allocator is used, true for slab/slob
          * \var lock
@@ -122,6 +133,8 @@ struct mm_page_descriptor {
 
         void* page_ptr;
         void* virt_ptr;
+        void* pte;
+        struct mm_page_list children;
 
         size_t size;
         time_t last_referenced;
@@ -131,6 +144,7 @@ struct mm_page_descriptor {
         bool swapable;
         bool free;
         bool dma;
+        bool executable;
 
         mutex_t lock;
 
@@ -141,11 +155,14 @@ struct mm_page_descriptor {
 
 extern volatile addr_t offset;
 
+void page_init();
 void init_paging();
+
 int page_unmap_low_mem();
 addr_t page_phys_addr(addr_t, struct page_dir*);
 
 /**
+ * \todo Work around the mboot initialiser code to the new page allocator
  * \fn mboot_page_setup
  * \brief Build a list of available pages based on multiboot info
  * \param map
@@ -194,7 +211,7 @@ addr_t page_phys_addr(addr_t, struct page_dir*);
  *
  * \fn x86_page_map_higher_half
  * \brief Map the higher half part of the kernel
- * \return A satndard error code
+ * \return A standard error code
  *
  * \fn x86_map_kernel
  * \brief Map the kernel to physical memory

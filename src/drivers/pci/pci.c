@@ -26,7 +26,6 @@
 
 struct ol_pci_node* pcidevs;
 
-#pragma GCC diagnostic ignored "-Wunused-function"
 /*
 #ifdef __PCI_DEBUG
 static int show_pci_dev(ol_pci_iterate_dev_t);

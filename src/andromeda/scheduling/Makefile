@@ -11,7 +11,7 @@ PANIC=panic.c
 MK_FLAGS=FLAGS="$(FLAGS)"
 
 TARGET=scheduling.o
-SRCS=sched.c
+SRCS=sched.c roundrobin.c rr_test.c
 OBJS=$(SRCS:.c=.o)
 
 .PHONY: all
@@ -21,6 +21,3 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(LD) $(LDFLAGS) -o$(TARGET) $(OBJS)
 	-mv $(TARGET) ../$(TARGET)
-
-%o: %c
-	$(CC) $(CFLAGS) -o $@ $<

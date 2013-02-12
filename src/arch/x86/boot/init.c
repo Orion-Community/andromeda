@@ -33,7 +33,7 @@
 
 #include <mm/paging.h>
 #include <mm/map.h>
-#include <mm/pte.h>
+#include <mm/vm.h>
 #include <mm/memory.h>
 #include <mm/cache.h>
 #include <interrupts/int.h>
@@ -52,6 +52,9 @@
 #include <arch/x86/apic/ioapic.h>
 #include <arch/x86/idt.h>
 #include <arch/x86/pic.h>
+#include <arch/x86/irq.h>
+#include <arch/x86/pit.h>
+#include <arch/x86/paging.h>
 
 #include <interrupts/int.h>
 
@@ -61,7 +64,7 @@
 #include <andromeda/cpu.h>
 #include <andromeda/elf.h>
 #include <andromeda/drivers.h>
-#include <mm/vmem.h>
+#include <mm/page_alloc.h>
 
 #include <lib/byteorder.h>
 
@@ -117,8 +120,10 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         slab_alloc_init();
 #endif
         textInit();
+        /**
+         * \todo Make complement_heap so that it allocates memory from pte
+         */
         complement_heap(&end, HEAPSIZE);
-        pte_init((void*)KERN_ADDR, (size_t)((addr_t)&end - (addr_t)KERN_ADDR));
         addr_t tmp = (addr_t)hdr + offset;
         hdr = (multiboot_info_t*)tmp;
 
@@ -139,6 +144,14 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
 
+        /** Build the memory map and allow for allocation */
+        x86_pte_init();
+        page_alloc_init(mmap, (unsigned int)hdr->mmap_length);
+        vm_init();
+#ifdef PA_DBG
+//         endProg();
+#endif
+        /** In the progress of phasing out */
         /** Set up paging administration */
         x86_page_init(memsize);
         mboot_page_setup(mmap, (uint32_t)hdr->mmap_length);
@@ -147,10 +160,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         /** For now this is the temporary page table map */
         build_map(mmap, (unsigned int) hdr->mmap_length);
 
-        vmem_init(); /// Start physical page allocation
-#ifdef VMEM_TEST
-        vmem_test_tree();
-#endif
+        /** end of deprication */
         task_init();
 
         page_init();
@@ -199,9 +209,12 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 *(((uint32_t*) systables->rsdp->signature)));
                 printf("MP specification signature: 0x%x\n", systables->mp->signature);
         }
-#ifdef PTE_DBG
-        pte_test();
 #endif
+#ifdef PA_DBG
+        addr_t p = (addr_t)page_alloc();
+        page_free((void*)p);
+        printf("Allocated: %X\n", p);
+        page_dump();
 #endif
 #ifdef PA_DBG
         addr_t p = (addr_t)page_alloc();

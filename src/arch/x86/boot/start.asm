@@ -26,9 +26,10 @@ MBOOT_HEADER_MAGIC  equ 0x1BADB002 ; Multiboot Magic value
 MBOOT_HEADER_FLAGS  equ MBOOT_PAGE_ALIGN | MBOOT_MEM_INFO
 MBOOT_CHECKSUM      equ -(MBOOT_HEADER_MAGIC + MBOOT_HEADER_FLAGS)
 
-GIB_PAGE_TABLES         equ 0x1000
-GIB_PAGE_DIRS           equ 0x4
-PAGE_TABLE_SIZE         equ 0x1000
+GIB_PAGE_TABLES         equ 0x40000 ; Number of page table entries
+GIB_PAGE_DIRS           equ 0x100  ; Number of page dir entries
+LOW_PAGE_DIRS           equ 0x10
+PAGE_TABLE_SIZE         equ 0x1000 ; Size of page table in bytes
 
 [BITS 32]                       ; All instructions should be 32-bit.
 
@@ -113,17 +114,19 @@ boot_setup_paging:
   mov eax, page_table_boot
   or eax, 3
 
-; The first 16 MiB
+; The first set of page directory entries
 ; Registers should be correct already, so lets loop
 .2:
   mov [ebx], eax
   add ebx, 4
   add eax, PAGE_TABLE_SIZE
   inc ecx
-  cmp ecx, GIB_PAGE_DIRS
+  cmp ecx, LOW_PAGE_DIRS
   jne .2
 
-; The 3 GiB part
+; The 3 GiB part, map the entire first GIB to 3 GIB
+; The C code that is to execute next, will nuance this, but for now it is safest
+; to just map the entire potential space.
 ; Set up the registers
   mov ebx, page_dir_boot
   add ebx, 0xC00

@@ -48,7 +48,7 @@ extern "C"
   {
     /* model info*/
     ol_cpu_model_t cpu_models[4];
-    const uint8_t *vendor;
+    char* vendor;
 
     /* CPU device info */
     uint8_t flags;

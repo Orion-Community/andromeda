@@ -21,6 +21,8 @@
 #include <lib/tree.h>
 
 /**
+ * \addtogroup tree
+ * @{
  * \fn tree_depth
  * \brief Recalculate the depth counters of this tree
  * \param tree
@@ -398,7 +400,6 @@ static int tree_delete_node(int key, struct tree* tree)
                         return key;
                 }
         }
-        printf("Found the damn basterd!\n");
         if (t == NULL)
                 return -E_NOTFOUND;
 
@@ -641,3 +642,7 @@ struct tree_root* tree_new_avl()
         /* And we're done! */
         return t;
 }
+
+/**
+ * @} \file
+ */

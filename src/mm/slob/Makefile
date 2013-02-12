@@ -10,12 +10,6 @@ all: slob.o
 slob.o: alloc.o heap.o
 	$(LD) -o slob.o *.o $(LDFLAGS)
 
-alloc.o: alloc.c $(INCLUDES)
-	$(CC) $(FLAGS) $(CFLAGS) alloc.c
-
-heap.o: heap.c $(INCLUDES)
-	$(CC) $(FLAGS) $(CFLAGS) heap.c
-
 .PHONY: clean
 clean:
 	rm -fv *.o

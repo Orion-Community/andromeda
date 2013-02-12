@@ -65,7 +65,6 @@ struct task *task;
                 "popa\n\t"
                 : "=r" (old_t->stack)
                 : "r" (thrd->stack)
-                :
         );
 
         /** \todo pop pointer and pop floating point registers */

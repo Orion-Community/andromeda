@@ -12,11 +12,7 @@ MM=mm.o
 IRQ30=irq30.o
 
 ## deps
-MM_=gdt.o irq30.o paging.o
-
-## sources
-GDT_SRC=gdt.c
-
+MM_=gdt.o irq30.o paging.o page_table.o page_api.o
 IRQ30_SRC=cIRQ30.asm
 MM_DEPS=irq30.o
 
@@ -27,14 +23,10 @@ all: $(MM)
 $(MM): $(MM_)
 	$(LD) $(LDFLAGS) $(MM_) -o $(MM)
 
-gdt.o: $(GDT_SRC)
-	$(CC) $(CFLAGS) $(GDT_SRC) -o gdt.o
 
 $(IRQ30): $(IRQ30_SRC)
 	$(AS) $(ASFLAGS) -o $(IRQ30) $(IRQ30_SRC)
 
-paging.o: paging.c
-	$(CC) $(CFLAGS) paging.c -o paging.o
 
 .PHONY: clean
 clean:

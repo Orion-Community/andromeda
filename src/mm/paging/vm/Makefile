@@ -4,14 +4,11 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 
 .PHONY: all
-all: pte.o
-	mv -fv pte.o ../
+all: vm.o
+	mv -fv vm.o ../
 
-pte.o: pte_init.o
-	$(LD) -o pte.o *.o $(LDFLAGS)
-
-pte_init.o: pte_init.c
-	$(CC) $(FLAGS) $(CFLAGS) pte_init.c
+vm.o: vm_init.o vm_user.o
+	$(LD) -o vm.o *.o $(LDFLAGS)
 
 .PHONY: clean
 clean:

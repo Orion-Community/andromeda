@@ -1,0 +1,23 @@
+Lead developer:
+Bart Kuivenhoven	bemkuivenhoven@gmail.com
+
+mm:
+Bart Kuivenhoven	bemkuivenhoven@gmail.com
+
+andromeda:
+Bart Kuivenhoven	bemkuivenhoven@gmail.com
+
+fs:
+Bart Kuivenhoven	bemkuivenhoven@gmail.com
+
+arch/x86/mm:
+Bart Kuivenhoven	bemkuivenhoven@gmail.com
+
+arch/x86:
+Michel Megens		info@michelmegens.net
+
+Math:
+Steven van der Schoot	stevenvdschoot@gmail.com
+
+Makefiles:
+Toon Schoenmakers	nighteyes1993@gmail.com

@@ -94,6 +94,7 @@ void cInvalOp(isrVal_t regs)
 {
   printf("IV\n");
   checkFrame(&regs);
+  cBreakp(regs);
   panic("Invalid Opcode!");
 }
 
