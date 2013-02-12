@@ -11,3 +11,4 @@ src/scripts/floppy.img
 *.patch
 doc/doxygen/*
 *.iso
+.settings

@@ -34,7 +34,7 @@
  * \todo Create userspace pte initialiser.
  * \todo Create kernelspace pte initialiser.
  * \todo Create vmem context switcher.
- * \todo Rebuild practically the entire memory subsystem.
+ * \todo Create a means of allocating a page within the vm system.
  */
 
 #define STATIC_SEGMENTS 5
@@ -68,78 +68,7 @@
 struct vm_segment vm_core_segments[STATIC_SEGMENTS];
 struct vm_descriptor vm_core;
 
-/**
- * \fn pte_init
- * \brief Initialise the pte subsystem
- * \return standard error code
- *
- * This system should keep track of physical pages coupled to virtual ones
- * through memory segmentation. Every segment is 16 pages in size, and can not
- * overlap in physical memory.
- * These segments are allocated from the page allocator, in the case of the
- * physical pages. The pte system figures out where to put the data in virtual
- * memory itself.
- *
- * \todo Add kernel pages to segments
- * \todo Create virt page allocation
- * \todo Start work on userspace pte system
- */
-
-/* boot resides at address of first code segment */
-extern int boot;
-/* page_table_boot is at address of statically allocated pagetables */
-extern int page_table_boot;
-#if 0
-/**
- * \fn pte_map_kernel
- * \brief The function that maps the kernel into the segments
- */
-void
-vm_map_kernel()
-{
-        /* Get the initial pointers going */
-        addr_t start_ptr = (addr_t)&boot + THREE_GIB;
-        addr_t end_ptr = (addr_t)&end;
-        /* The start pointer isn't necessarily 4 Meg aligned */
-        start_ptr -= (start_ptr % VM_MEM_SIZE);
-
-        int i = 0;
-        for (; i < STATIC_SEGMENTS; i++)
-        {
-
-        }
-
-
-
-
-
-        /*
-         * Map the segments here
-         * Because we assume 4 MB alignment, the 1 MG region at the start of
-         * memor is also mapped. This region is marked as unallocatable in the
-         * page allocator, and there is no desire to get as much memory out of
-         * it as possible. Just don't use it.
-         * It is mapped, and if we have to interface it, use this.
-         */
-        int j = 0;
-        for (; start_ptr < end_ptr; start_ptr += VM_MEM_SIZE, j++)
-        {
-                /* Point the segment to the right pagetable */
-                struct vm_segment* s = &vm_core_segments[j];
-                s->pte = (void*)((addr_t)&page_table_boot + start_ptr);
-                s->mapped = true;
-
-#ifdef PA_DBG
-                printf("Mapping: %X\tidx: %X\n", (int)start_ptr, j);
-#endif
-        }
-#ifdef PA_DBG
-        panic("Testing!");
-#endif
-}
-#endif
-
-int
+static int
 vm_map_kernel_code(struct vm_segment* s)
 {
         if (s == NULL)
@@ -163,7 +92,7 @@ vm_map_kernel_code(struct vm_segment* s)
         return -E_SUCCESS;
 }
 
-int vm_map_kernel_data(s, start, end)
+static int vm_map_kernel_data(s, start, end)
 struct vm_segment *s;
 void* start;
 void* end;
@@ -196,7 +125,16 @@ void* end;
         return -E_SUCCESS;
 }
 
-int
+/**
+ * \fn vm_map_kernel_stack
+ * \brief Create a new region for the stack and move it over there
+ * The stack has been created at boot time, in a very strange, but easy to
+ * implement, location. Because the stack is at such an odd location it has to
+ * be moved. This move is to be made by this function.
+ * \param s
+ * \return A standard error code
+ */
+static int
 vm_map_kernel_stack(struct vm_segment* s)
 {
         return -E_NOFUNCTION;

@@ -19,6 +19,7 @@
 #include <defines.h>
 #include <mm/vm.h>
 #include <mm/page_alloc.h>
+#include <types.h>
 
 /**
  * \AddToGroup VM
@@ -35,7 +36,7 @@
  */
 
 struct vm_descriptor*
-vm_alloc(int pid)
+vm_new(int pid)
 {
         struct vm_descriptor* p = kalloc(sizeof(*p));
         if (p == NULL)
@@ -89,6 +90,29 @@ int vm_segment_free(struct vm_segment* s)
          */
 
         return -E_NOFUNCTION;
+}
+
+/**
+ * \fn vm_segment_grow
+ * \brief Grow the size of the segment
+ * \param s
+ * \return A standard error code
+ */
+int vm_segment_grow(struct vm_segment* s)
+{
+        return -E_NOFUNCTION;
+}
+
+/**
+ * \fn vm_segment_alloc
+ * \brief Allocate a number of pages from the segment.
+ *
+ * \param s
+ * \param size
+ */
+void* vm_segment_alloc(struct vm_segment *s, size_t size)
+{
+        return NULL;
 }
 
 /**
@@ -178,12 +202,28 @@ vm_get_phys(struct vm_descriptor* vm, void* virt)
         return NULL;
 }
 
+void*
+vm_alloc_pages(struct vm_segment* s, size_t size)
+{
+        return NULL;
+}
+
+/**
+ * \fn vm_load_task
+ * \brief Load in the virtual memory context of the given task
+ * \return A standard error code
+ */
 int
 vm_load_task()
 {
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn vm_unload_task
+ * \brief Disable access to the pages owned by this task
+ * \return
+ */
 int
 vm_unload_task()
 {

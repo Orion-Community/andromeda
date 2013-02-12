@@ -25,6 +25,13 @@
 /**
  * \AddToGroup paging
  * @{
+ *
+ * \todo Write segment setting.
+ * \todo Write segment disabling.
+ * \todo Write page table allocation code.
+ * This will probably just be a slab, mapped to physical addresses. Still it
+ * needs to be done.
+ * \todo Write a high level interface to call all this.
  */
 
 struct page_dir* pd = NULL;
@@ -80,6 +87,7 @@ int x86_pte_unset_segment(struct vm_segment* s)
 {
         if (s == NULL)
                 return -E_NULL_PTR;
+
         return -E_NOFUNCTION;
 }
 

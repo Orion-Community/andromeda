@@ -216,12 +216,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         printf("Allocated: %X\n", p);
         page_dump();
 #endif
-#ifdef PA_DBG
-        addr_t p = (addr_t)page_alloc();
-        page_free((void*)p);
-        printf("Allocated: %X\n", p);
-        page_dump();
-#endif
 
         core_loop();
         return 0; // To keep the compiler happy.

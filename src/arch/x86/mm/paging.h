@@ -27,7 +27,18 @@
 extern "C" {
 #endif
 
-
+/**
+ * \var pd
+ * \brief The physical page directory pointer
+ * \var spd
+ * \brief Use this to access the data of the actual page directory
+ * \var vpd
+ * \brief The virtual pointers of the page tables referenced by the page directory
+ * \var page_table_boot
+ * \brief The page tables described in the linker script
+ * \var page_dir_boot
+ * \brief The page directory described in the linker script
+ */
 extern struct page_dir* pd;
 extern struct page_dir *spd;
 extern void* vpd[1024];

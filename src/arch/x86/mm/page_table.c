@@ -30,23 +30,9 @@
 
 /**
  * \var pte_cnt
- * \brief reference count of the pages referended by a page table
+ * \brief reference count of the pages referenced by a page table
  */
 static volatile int pte_cnt[1024];
-
-/**
- * \struct x86_pte_range
- */
-struct x86_pte_range {
-        /**
-         * \var vtable
-         * \brief Copy of the page directory (virtual table addresses)
-         */
-        struct page_table* vtable[1024];
-
-        int from;
-        int to;
-};
 
 /**
  * \fn x86_pte_set_page
@@ -112,25 +98,42 @@ static int x86_pte_unset_pt(int idx)
         if (idx >= 1024)
                 return -E_INVALID_ARG;
 
+        /* find the entry and mark in not present */
         spd[idx].present = 0;
         return -E_SUCCESS;
 }
 
-int x86_pte_copy_range(struct x86_pte_range* range, int from, int to)
+/**
+ * \fn x86_pte_copy_range
+ * \brief Copy a set of page table pointers into a range descriptor
+ * \param range
+ * \param from
+ * \param to
+ * \return standard error code
+ */
+int x86_pte_copy_range(struct pte_range* range, int from, int to)
 {
         if (range == NULL)
                 return -E_NULL_PTR;
 
+        /* Configure the pointers */
         range->to = to;
         range->from = from;
 
+        /* Copy the tables over from the vpd to the range descriptor */
         for (; from < to; from ++)
                 range->vtable[from] = vpd[from];
 
         return -E_SUCCESS;
 }
 
-int x86_pte_set_range(struct x86_pte_range* range)
+/**
+ * \fn x86_pte_set_range
+ * \brief Copy the page tables in the range to the page directory
+ * \param range
+ * \return Standard error code
+ */
+int x86_pte_set_range(struct pte_range* range)
 {
         if (range == NULL)
                 return -E_NULL_PTR;
@@ -144,7 +147,13 @@ int x86_pte_set_range(struct x86_pte_range* range)
         return -E_SUCCESS;
 }
 
-int x86_pte_reset_range(struct x86_pte_range* range)
+/**
+ * \fn x86_pte_reset_range
+ * \brief Set all pages within this range to unavailable
+ * \param range
+ * \return
+ */
+int x86_pte_reset_range(struct pte_range* range)
 {
         if (range == NULL)
                 return -E_NULL_PTR;
@@ -156,6 +165,14 @@ int x86_pte_reset_range(struct x86_pte_range* range)
         return -E_SUCCESS;
 }
 
+/**
+ * \fn x86_pte_set_page
+ * \brief Map a virtual address to a physical one
+ * \param virt
+ * \param phys
+ * \param cpl
+ * \return A standard error code
+ */
 int x86_pte_set_page(void* virt, void* phys, int cpl)
 {
         if (virt == NULL || phys == NULL ||(((int)virt|(int)phys) & 0xFFF) != 0)
@@ -185,6 +202,12 @@ int x86_pte_set_page(void* virt, void* phys, int cpl)
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn x86_pte_unset_page
+ * \brief Disable access to this one virtual address
+ * \param virt
+ * \return A standard error code
+ */
 int x86_pte_unset_page(void* virt)
 {
         if (virt == NULL && ((addr_t)virt & 0xFFF) != 0)

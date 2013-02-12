@@ -98,7 +98,7 @@ struct vm_segment {
         void* virt_base;
         size_t size;
 
-        struct mm_page_list* pages;
+        struct pte_range* pages;
         bool mapped;
         bool swappable;
         bool code;
