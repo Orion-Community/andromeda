@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include <mm/page_alloc.h>
 #include <mm/paging.h>
 #include <mm/vm.h>
 #include <types.h>
 #include <andromeda/error.h>
-#include "paging.h"
+#include "page_table.h"
 
 /**
  * \AddToGroup paging
@@ -32,7 +31,7 @@
  * \var pte_cnt
  * \brief reference count of the pages referenced by a page table
  */
-static volatile int pte_cnt[1024];
+atomic_t pte_cnt[1024];
 
 /**
  * \fn x86_pte_set_page
@@ -194,10 +193,12 @@ int x86_pte_set_page(void* virt, void* phys, int cpl)
                 x86_pte_set_pt(pt, pde);
         }
         x86_pte_set(phys, cpl, pt[pte]);
-        asm ("cli"); // Why do I have a feeling this breaks on a multi cpu system
-        if (++pte_cnt[pde] >= 1024)
+        /**
+         * What I need here is something that increments atomicly, without
+         * creating the potential for a deadlock with itself ...
+         */
+        if (atomic_inc(&pte_cnt[pde]) >= 1024)
                 panic("Page tables initialised too often!");
-        asm ("sti");
 
         return -E_NOFUNCTION;
 }
@@ -221,10 +222,8 @@ int x86_pte_unset_page(void* virt)
         if ((pt = vpd[pde]) == NULL)
                 return -E_SUCCESS;
 
-        asm ("cli"); // This breaks too ...
-        if (--pte_cnt[pde] == 0)
+        if (atomic_dec(&pte_cnt[pde]) == 0)
                 x86_pte_unset_pt(pde);
-        asm ("sti");
 
         return x86_pte_unset(pt[pte]);
 }

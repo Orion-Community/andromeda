@@ -194,12 +194,11 @@ vm_get_phys(struct vm_descriptor* vm, void* virt)
                         /* Call the architecture api to get the address */
                         addr_t tmp = (addr_t)virt - vm_base;
                         tmp /= PAGESIZE;
-                        return (void*)pte_get_phys(virt, carriage);
+                        return (void*)x86_pte_get_phys(virt, carriage);
                 }
         }
 #endif
-        return pte_get_phys(virt);
-        return NULL;
+        return x86_pte_get_phys(virt);
 }
 
 void*

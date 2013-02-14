@@ -38,12 +38,14 @@ extern "C" {
  * \brief The page tables described in the linker script
  * \var page_dir_boot
  * \brief The page directory described in the linker script
+ * \var pte_cnt
  */
 extern struct page_dir* pd;
 extern struct page_dir *spd;
 extern void* vpd[1024];
 extern struct page_table page_table_boot;
 extern struct page_dir page_dir_boot;
+atomic_t pte_cnt[1024];
 
 // int x86_pte_set(void* phys, int cpl, struct page_table* pte);
 // int x86_pte_unset(struct page_table* pte);
