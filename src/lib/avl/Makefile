@@ -13,7 +13,7 @@ avl.o: tree.o
 	mv avl.o ../avl.o
 
 tree.o: $(TARGETS) $(DEPS)
-	$(CC) $(CFLAGS) $(TARGETS)
+	$(CC) $(CFLAGS) -c $(TARGETS)
 
 
 .PHONY: clean

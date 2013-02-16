@@ -16,6 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <thread.h>
+
 #ifndef __TREE_H
 #define __TREE_H
 
@@ -38,6 +40,9 @@ struct tree {
         struct tree* right;
         struct tree_root* root;
 
+        struct tree* next;
+        struct tree* prev;
+
         int rdepth;
         int ldepth;
 
@@ -52,9 +57,12 @@ struct tree_root {
         struct tree* (*add)(int key, void* data, struct tree_root* root);
         struct tree* (*find)(int key, struct tree_root* root);
         int (*delete)(int key, struct tree_root* root);
+        int (*flush)(struct tree_root*, int (dtor)(void*,void*), void*);
+
+        mutex_t mutex;
 };
 
-struct tree_root* tree_new();
+struct tree_root* tree_new_avl();
 
 /**
  * @} \file

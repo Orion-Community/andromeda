@@ -74,6 +74,8 @@ static int tree_rotate_right(struct tree* tree)
         tree->left = left->right;
         left->right = tree;
         tree->parent = left;
+        if (tree->left != NULL)
+                tree->left->parent = tree;
 
         /* Update the parents on the new status */
         if (parent == NULL)
@@ -112,6 +114,8 @@ static int tree_rotate_left(struct tree* tree)
         tree->right = right->left;
         right->left = tree;
         tree->parent = right;
+        if (tree->right != NULL)
+                tree->right->parent = tree;
 
         /* Update the parents on the new situation */
         if (parent == NULL)
@@ -176,6 +180,107 @@ static int tree_balance(struct tree* tree)
 }
 
 /**
+ * \fn tree_find_leftmost
+ * \brief Find the left most node from tree
+ */
+static struct tree* tree_find_leftmost(struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL;
+
+        /* Recurse through the tree to find the node */
+        struct tree* tmp = tree_find_leftmost(tree->left);
+        /* If the recursion didn't work, return this node */
+        if (tmp == NULL)
+                return tree;
+
+        /* Return the result of the recursion */
+        return tmp;
+}
+
+/**
+ * \fn tree_find_rightmost
+ * \brief Find the rightmost node from tree
+ */
+static struct tree* tree_find_rightmost(struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL;
+
+        /* Recurse through the tree to find the node */
+        struct tree* tmp = tree_find_rightmost(tree->right);
+        /* If the recursion didn't work, return this node */
+        if (tmp == NULL)
+                return tree;
+
+        /* Return the result of the recursion */
+        return tmp;
+}
+
+/**
+ * \fn tree_find_next
+ * \brief Find the successor to tree
+ */
+static struct tree* tree_find_next(struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL;
+
+        if (tree->right == NULL)
+        {
+                struct tree* runner = tree->parent;
+                struct tree* tmp = tree;
+                while (runner != NULL && runner->left != tmp)
+                {
+                        tmp = runner;
+                        runner = runner->parent;
+                }
+                return runner;
+        }
+
+        return tree_find_leftmost(tree->right);
+}
+
+/**
+ * \fn tree_find_prev
+ * \brief Find the predecessor to tree
+ */
+static struct tree* tree_find_prev(struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL;
+
+        if (tree->left == NULL)
+        {
+                struct tree* runner = tree->parent;
+                struct tree* tmp = tree;
+
+                while (runner != NULL && runner->right != tmp)
+                {
+                        tmp = runner;
+                        runner = runner->parent;
+                }
+                return runner;
+        }
+
+        return tree_find_rightmost(tree->left);
+}
+
+/**
+ * \fn tree_update_list
+ * \brief Update the next and previous pointers within the tree
+ */
+static int tree_update_list(struct tree* tree)
+{
+        if (tree == NULL)
+                return -E_NULL_PTR;
+
+        tree->prev = tree_find_prev(tree);
+        tree->next = tree_find_next(tree);
+        return -E_SUCCESS;
+}
+
+/**
  * \fn tree_add_node
  * \brief Add node t to tree at parent
  * \param parent
@@ -197,6 +302,11 @@ static int tree_add_node(struct tree* parent, struct tree* t)
                         parent->left = t;
                         t->parent = parent;
                         t->root->nodes++;
+
+                        /* Update list like pointers */
+                        tree_update_list(t);
+                        tree_update_list(t->prev);
+                        tree_update_list(t->next);
                 case -E_SUCCESS:
                         /* Yep, we have a success */
                         break;
@@ -217,6 +327,11 @@ static int tree_add_node(struct tree* parent, struct tree* t)
                         parent->right = t;
                         t->parent = parent;
                         t->root->nodes++;
+
+                        /* Update list like pointers */
+                        tree_update_list(t);
+                        tree_update_list(t->prev);
+                        tree_update_list(t->next);
                 case -E_SUCCESS:
                         /* Seems like we have a succcess on our hands */
                         break;
@@ -258,26 +373,6 @@ static struct tree* tree_find_node(int key, struct tree* tree)
         else
                 /* else try to find it on the right */
                 return tree_find_node(key, tree->right);
-}
-
-/**
- * \fn tree_inorder_successor
- * \brief Find the left most node of the right branch
- */
-static struct tree* tree_inorder_successor(struct tree* tree)
-{
-        if (tree == NULL)
-                return NULL;
-
-
-        /* Try the left branch */
-        struct tree* tmp = tree_inorder_successor(tree->left);
-        /* If that isn't it, we're it! */
-        if (tmp == NULL)
-                return tree;
-
-        /* Return what we found */
-        return tmp;
 }
 
 /**
@@ -323,6 +418,7 @@ static int tree_delete_node(int key, struct tree* tree)
                         t->parent->left = t->left;
                 else
                         t->parent->right = t->left;
+                t->left->parent = t->parent;
         }
         else if (t->right != NULL && t->left == NULL)
         {
@@ -331,11 +427,12 @@ static int tree_delete_node(int key, struct tree* tree)
                         t->parent->left = t->right;
                 else
                         t->parent->right = t->right;
+                t->right->parent = t->parent;
         }
         else
         {
                 /* If both subtrees are present */
-                struct tree* successor = tree_inorder_successor(t->right);
+                struct tree* successor = tree_find_leftmost(t->right);
                 if (successor == NULL)
                         return -E_NULL_PTR;
 
@@ -343,6 +440,8 @@ static int tree_delete_node(int key, struct tree* tree)
 
                 /* Detach successor */
                 successor->parent->left = successor->right;
+                if (successor->right != NULL)
+                        successor->right->parent = successor->parent;
                 tree_depth(successor->parent);
 
 
@@ -364,8 +463,7 @@ static int tree_delete_node(int key, struct tree* tree)
 
                 if (successor->right != NULL)
                         successor->right->parent = successor;
-                if (successor->left != NULL)
-                        successor->left->parent = successor;
+                successor->left->parent = successor;
 
                 /* Update meta data and balance */
 
@@ -381,6 +479,9 @@ static int tree_delete_node(int key, struct tree* tree)
                         }
                 }
         }
+        tree_update_list(t->prev);
+        tree_update_list(t->next);
+
         /* Free the deleted node */
         tree_depth(t->parent);
         tree_balance(t->parent);
@@ -403,13 +504,21 @@ static int tree_add(struct tree_root* root, struct tree* tree)
         if (root == NULL || tree == NULL)
                 return -E_NULL_PTR;
 
+        int ret = 0;
+        mutex_lock(&root->mutex);
         /* Add the node into the tree if there already is one */
         if (root->tree != NULL)
-                return tree_add_node(root->tree, tree);
+        {
+                ret = tree_add_node(root->tree, tree);
+                goto success;
+        }
 
         /* There is no subtree, so create the first one */
         root->tree = tree;
-        return -E_SUCCESS;
+        ret = -E_SUCCESS;
+success:
+        mutex_unlock(&root->mutex);
+        return ret;
 }
 
 /**
@@ -438,6 +547,49 @@ static struct tree* tree_new_node(int key, void* data, struct tree_root* root)
 }
 
 /**
+ * \fn tree_flush_node
+ * \brief Flush everything below this node and the node itself
+ */
+static int
+tree_flush_node(struct tree* tree, int (*dtor)(void*, void*), void* dtor_arg)
+{
+        if (tree == NULL)
+                return -E_NULL_PTR;
+
+        tree_flush_node(tree->left, dtor, dtor_arg);
+        tree_flush_node(tree->right, dtor, dtor_arg);
+
+        if (dtor != NULL)
+        {
+                dtor(tree->data, dtor_arg);
+        }
+
+        printf("Flushing %X\n", tree->key);
+        memset(tree, 0, sizeof(*tree));
+
+        free(tree);
+        return -E_SUCCESS;
+}
+
+/**
+ * \fn tree_flush
+ * \brief Delete the tree and its content
+ */
+int tree_flush(struct tree_root* root, int (dtor)(void*,void*), void* dtor_arg)
+{
+        if (root == NULL)
+                return -E_NULL_PTR;
+
+        mutex_lock(&root->mutex);
+        tree_flush_node(root->tree, dtor, dtor_arg);
+        mutex_unlock(&root->mutex);
+
+        memset(root, 0, sizeof(*root));
+        free(root);
+        return -E_SUCCESS;
+}
+
+/**
  * \fn tree_find
  * \brief Find a node in the tree
  */
@@ -446,7 +598,10 @@ static struct tree* tree_find(int key, struct tree_root* t)
         if (t == NULL)
                 return NULL;
 
-        return tree_find_node(key, t->tree);
+        mutex_lock(&t->mutex);
+        struct tree* ret = tree_find_node(key, t->tree);
+        mutex_unlock(&t->mutex);
+        return ret;
 }
 
 /**
@@ -457,7 +612,12 @@ static int tree_delete(int key, struct tree_root* root)
 {
         if (root == NULL)
                 return -E_NULL_PTR;
-        return tree_delete_node(key, root->tree);
+
+        mutex_lock(&root->mutex);
+        int ret = tree_delete_node(key, root->tree);
+        mutex_unlock(&root->mutex);
+
+        return ret;
 }
 
 /**
@@ -475,6 +635,9 @@ struct tree_root* tree_new_avl()
         t->add = tree_new_node;
         t->find = tree_find;
         t->delete = tree_delete;
+        t->flush = tree_flush;
+
+        t->mutex = mutex_unlocked;
 
         /* And we're done! */
         return t;

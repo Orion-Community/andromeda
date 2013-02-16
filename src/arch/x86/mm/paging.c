@@ -374,11 +374,6 @@ addr_t setup_page_dir()
 			panic("Paging fails epicly!!!");
 		}
 	}
-  #ifdef PAGEDBG
-  printf("Base addr: %X\tStart addr: %X\tlist_start: %X\n",
-                                        (addr_t)&begin, (addr_t)&begin - offset,
-                                                              idx_kernel_space);
-  #endif
   return (addr_t)pd;
 }
 
@@ -440,7 +435,6 @@ void page_init()
 	memset(virt_page_dir, 0, PAGETABLES*sizeof(addr_t));
 	addr_t tmp = setup_page_dir();
 #ifdef PAGEDBG
-	printf("Image start: %X\tStart ptr: %X\n", &begin, &init);
 	printf("CR3: %X\tphys start ptr: %X\tActual start: %X\n",
 				       tmp-offset, page_phys_addr((addr_t)&init,
 					     (void*)tmp), (addr_t)&init-offset);

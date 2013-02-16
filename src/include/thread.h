@@ -56,15 +56,15 @@ typedef void (*thread_t)(void *argv);
 typedef volatile unsigned int spinlock_t;
 #define mutex_t spinlock_t
 
-typedef struct {
+typedef volatile struct {
         int64_t cnt;
         spinlock_t lock;
 } atomic_t;
 
-typedef struct {
-        int64_t cnt;
+typedef volatile struct {
+        uint64_t cnt;
         spinlock_t lock;
-        int64_t limit;
+        uint64_t limit;
 }semaphore_t;
 
 extern void mutex_lock(spinlock_t*);
