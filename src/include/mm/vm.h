@@ -65,6 +65,15 @@ struct vm_subs {
         struct vm_segment* segment[PTE_SIZE];
 };
 
+struct vm_range_descriptor{
+        /*  */
+        void* base;
+        /* Size descriptor in number of bytes */
+        size_t size;
+        struct vm_range_descriptor* next;
+        struct vm_range_descriptor* prev;
+};
+
 /**
  * \struct pte_segment
  * \brief The description of a segment
@@ -94,11 +103,17 @@ struct vm_segment {
          * \brief Indicator for page swapping to be allowed or not
          */
         struct vm_segment* next;
+        struct vm_segment* prev;
 
         void* virt_base;
         size_t size;
 
+        struct vm_range_descriptor* allocated;
+        struct vm_range_descriptor* free;
         struct pte_range* pages;
+
+        mutex_t lock;
+
         bool mapped;
         bool swappable;
         bool code;
