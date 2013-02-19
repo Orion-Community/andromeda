@@ -32,9 +32,9 @@ extern "C"  {
 #define PAGE_SIZE               0x1000
 #define PAGE_ALLOC_FACTOR       (PAGE_ALLOC_UNIT*PAGE_SIZE)
 #define PAGE_LIST_SIZE          0x10000
-#define PAGE_LIST_ALLOCATED     (unsigned long)(-1)
-#define PAGE_LIST_MARKED        (unsigned long)(-2)
-#define PAGE_LIST_END           (unsigned long)(-3)
+/** \warning Signed integer hack down here */
+#define PAGE_LIST_MARKED        (unsigned long)(1 << ((sizeof(long)*8)-1))
+#define PAGE_LIST_END           (unsigned long)(0)
 
 int   page_alloc_init           (multiboot_memory_map_t* map, int map_size);
 void* page_alloc                ();

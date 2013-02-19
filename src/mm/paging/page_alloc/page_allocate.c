@@ -37,26 +37,59 @@ spinlock_t page_alloc_lock = mutex_unlocked;
 void* page_alloc()
 {
         /* Is there still memory left? */
-        if (first_free == PAGE_LIST_ALLOCATED || first_free == PAGE_LIST_MARKED
-                || first_free == PAGE_LIST_END)
-        {
+        if (first_free <= 0)
                 return NULL;
-        }
 
         /* Enter critical */
         mutex_lock(&page_alloc_lock);
 
         /* Fetch the pages to allocate */
-        int allocated  = first_free;
+        int allocated = first_free;
+        if (pagemap[first_free] < 0)
+        {
+                mutex_unlock(&page_alloc_lock);
+                return NULL;
+        }
         /* Move the free pointer to the next free */
         first_free = pagemap[first_free];
-        /* Mark the allocated pages as allocated */
-        pagemap[allocated] = PAGE_LIST_ALLOCATED;
+        /* Mark the allocated pages as allocated by one source */
+        pagemap[allocated] = -1;
 
         /* Leave critical */
         mutex_unlock(&page_alloc_lock);
         /* Convert to address and return pointer */
         return (void*)(allocated*PAGE_ALLOC_FACTOR);
+}
+
+/**
+ * \fn page_realloc
+ * \brief Update the reference count to this piece of memory
+ * \param ptr
+ * \return The pointer to the reallocated page
+ */
+void* page_realloc(void* ptr)
+{
+        if (ptr == NULL)
+                return NULL;
+
+        void* ret = NULL;
+
+        addr_t key = (addr_t)ptr;
+        if (key % PAGE_ALLOC_FACTOR != 0)
+                return NULL;
+        int idx = key/PAGE_ALLOC_FACTOR;
+
+        mutex_lock(&page_alloc_lock);
+
+        if (pagemap[idx] >= 0 || pagemap[idx] == PAGE_LIST_MARKED)
+                goto err;
+
+        pagemap[idx]--;
+
+        ret = ptr;
+err:
+        mutex_unlock(&page_alloc_lock);
+        return ret;
 }
 
 /**
@@ -101,8 +134,16 @@ int page_mark(void* page)
         mutex_lock(&page_alloc_lock);
 
         /* Do you know any better time to panic than memory corruption? */
-        if (pagemap[p] == PAGE_LIST_ALLOCATED)
+        if (pagemap[p] < 0 && pagemap[p] != PAGE_LIST_MARKED)
+        {
+                printf("page ptr: %X\n"
+                       "page key: %X\n"
+                       "page idx: %X\n",
+                       (int)page,
+                       p,
+                       pagemap[p]);
                 panic("An unallocatable page was allocated!");
+        }
 
         /* If first free equals p, move it up */
         if (first_free == p)
@@ -145,15 +186,11 @@ int page_unmark(void* page)
                 goto err;
 
         /* Mark the page as usable */
-        if (first_free == PAGE_LIST_ALLOCATED || first_free == PAGE_LIST_END ||
-                first_free == PAGE_LIST_MARKED)
-        {
+        if (first_free < 0)
                 pagemap[p] = PAGE_LIST_END;
-        }
         else
-        {
                 pagemap[p] = first_free;
-        }
+
         /* Nah, allocate this page as soon as possible! */
         first_free = p;
 
@@ -178,11 +215,17 @@ int page_free(void* page)
         /* Enter critical */
         mutex_lock(&page_alloc_lock);
 
-        /* Mark pages as free */
-        pagemap[p] = first_free;
-        /* Make pages first free (caching reasons) */
-        first_free = p;
+        if (pagemap[p] >= 0)
+                goto err;
+        if (--pagemap[p] == 0)
+        {
+                /* Mark pages as free */
+                pagemap[p] = first_free;
+                /* Make pages first free (caching reasons) */
+                first_free = p;
+        }
 
+err:
         /* Leave critical */
         mutex_unlock(&page_alloc_lock);
         return -E_SUCCESS;
@@ -193,7 +236,7 @@ void page_dump()
 {
         int i = first_free;
         int j = 0;
-        for (; !(i == PAGE_LIST_END || i == PAGE_LIST_MARKED || i == PAGE_LIST_ALLOCATED); i = pagemap[i], j++)
+        for (; i > 0 && i != PAGE_LIST_MARKED; i = pagemap[i], j++)
         {
                 if (!(j % 8))
                         demand_key();
@@ -207,7 +250,7 @@ void page_dump2()
         {
                 if (!(i % 8))
                         demand_key();
-                printf("This: %X -> %X\n", i, pagemap[i]);
+                printf("This2: %X -> %X\n", i, pagemap[i]);
         }
 }
 #endif
