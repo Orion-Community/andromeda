@@ -198,7 +198,7 @@ vm_init()
 //                 panic("Memory could not correctly be mapped!");
                 printf("Virtual memory system was not initialised correctly!\n");
 #ifdef PA_DBG
-        endProg();
+        //endProg();
 #endif
 
         /**

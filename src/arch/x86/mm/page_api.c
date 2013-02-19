@@ -57,7 +57,7 @@ int x86_pte_init()
         {
                 vpd[i] = (void*)vpt;
         }
-        memset(pte_cnt, 0, sizeof(pte_cnt));
+        memset(&pte_cnt, 0, sizeof(pte_cnt));
         return -E_SUCCESS;
 }
 

@@ -92,6 +92,111 @@ err:
 }
 
 /**
+ * \fn vm_segment_mark_allocated
+ * \param segment
+ * \param range
+ * \return A standard error code
+ */
+static int
+vm_segment_mark_allocated(segment, range)
+struct vm_segment* segment;
+struct vm_range_descriptor* range;
+{
+        if (segment == NULL || range == NULL)
+                return -E_NULL_PTR;
+
+        /* Disconnect the node from the free list, maybe is a bit messy */
+        if (range->prev == NULL)
+                segment->free = range->next;
+        else
+                range->prev->next = range->next;
+        if (range->next != NULL)
+                range->next->prev = range->prev;
+
+        /* And add the range into the allocated list. */
+        range->prev = NULL;
+        range->next = segment->allocated;
+        if (range->next != NULL)
+                range->next->prev = range;
+        segment->allocated = range;
+
+        return -E_SUCCESS;
+}
+
+static int
+vm_segment_mark_free(segment, range)
+struct vm_segment* segment;
+struct vm_range_descriptor* range;
+{
+        if (segment == NULL || range == NULL)
+                return -E_NULL_PTR;
+
+        /* Dislodge the range and restore the order of the list */
+        if (range->prev == NULL)
+                segment->allocated = range->next;
+        else
+                range->prev->next = range->next;
+        if (range->next != NULL)
+                range->next->prev = range->prev;
+
+        /* Put this range at the start of the free list */
+        range->prev = NULL;
+        range->next = segment->free;
+        if (segment->free != NULL)
+                segment->free->prev = range;
+        segment->free = range;
+
+        return -E_SUCCESS;
+}
+
+static inline int
+vm_range_remove_node(range)
+struct vm_range_descriptor* range;
+{
+        if (range == NULL)
+                return -E_NULL_PTR;
+        if (range->next != NULL)
+                range->next->prev = range->prev;
+        if (range->prev != NULL)
+                range->prev->next = range->next;
+
+        return kfree(range);
+}
+
+static int
+vm_segment_compress(segment, range)
+struct vm_segment* segment;
+struct vm_range_descriptor* range;
+{
+        if (segment == NULL || range == NULL)
+                return -E_NULL_PTR;
+
+        struct vm_range_descriptor* x = segment->free;
+        while (x != NULL)
+        {
+                if (x->base + x->size == range->base)
+                {
+                        /* Consume information in the carriage */
+                        range->base = x->base;
+                        range->size = x->size;
+
+                        /* And take the node out of the collection */
+                        vm_range_remove_node(x);
+                }
+                else if (range->base + range->size == x->base)
+                {
+                        /* Consume information in the carriage */
+                        range->size += x->size;
+
+                        /* And take the node out of the collection */
+                        vm_range_remove_node(x);
+                }
+                x = x->next;
+        }
+        return -E_SUCCESS;
+}
+
+/**
  * \fn vm_free_page
  * \brief Clear the page up for allocation.
  * \param s
@@ -100,11 +205,45 @@ err:
  */
 int vm_segment_free(struct vm_segment* s, void* ptr)
 {
-        /**
-         * \todo Iterate through page tables to find allocated pages
-         * \todo Free up those allocated pages
-         */
+        if (s == NULL || ptr == NULL)
+                return -E_NULL_PTR;
 
+        mutex_lock(&s->lock);
+
+        /* Find the range associated with this pointer */
+        struct vm_range_descriptor* x = s->allocated;
+        while (x != NULL && x->base != ptr)
+                x = x->next;
+
+        /* If nothing was found, the argument was wrong */
+        if (x == NULL)
+        {
+                mutex_unlock(&s->lock);
+                return -E_INVALID_ARG;
+        }
+
+        /* Take the descriptor out and put it back into the free list */
+        vm_segment_mark_free(s, x);
+
+        /* Now get the physical page, if mapped and free that up if possible */
+        void* phys = vm_get_phys(x);
+        if (phys != NULL)
+        {
+                /**
+                 * \todo Free up the physical page over here
+                 *
+                 * \warning Assuming identity paging conditions are caught by the allocator
+                 */
+        }
+
+        /*
+         * Now use this descriptor to find a predecessor and successor. If there
+         * is one, merge with it, leaving the pointer to x intact. Otherwise,
+         * just return.
+         */
+        vm_segment_compress(s, x);
+
+        mutex_unlock(&s->lock);
         return -E_NOFUNCTION;
 }
 
@@ -150,32 +289,6 @@ vm_range_split(struct vm_range_descriptor* src, size_t size)
         tmp->next->prev = tmp;
         tmp->prev = src;
         src->next = tmp;
-
-        return -E_SUCCESS;
-}
-
-static int
-vm_segment_mark_allocated(segment, range)
-struct vm_segment* segment;
-struct vm_range_descriptor* range;
-{
-        if (segment == NULL || range == NULL)
-                return -E_NULL_PTR;
-
-        /* Disconnect the node from the free list, maybe is a bit messy */
-        if (range->prev == NULL)
-                segment->free = range->next;
-        else
-                range->prev->next = range->next;
-        if (range->next != NULL)
-                range->next->prev = range->prev;
-
-        /* And add the range into the allocated list. */
-        range->prev = NULL;
-        range->next = segment->allocated;
-        if (range->next != NULL)
-                range->next->prev = range;
-        segment->allocated = range;
 
         return -E_SUCCESS;
 }
@@ -338,28 +451,8 @@ vm_free(struct vm_descriptor* p)
  * \todo Implement the arch api call to look inside the tables
  */
 void*
-vm_get_phys(struct vm_descriptor* vm, void* virt)
+vm_get_phys(void* virt)
 {
-        if (vm == NULL || virt == NULL || !PAGE_ALIGNED((int)vm))
-                return NULL;
-
-#if 0
-        addr_t v = (addr_t)virt;
-
-        struct vm_segment* carriage = vm->segments;
-        for (; carriage != NULL; carriage = carriage->next)
-        {
-                addr_t vm_base = (addr_t)carriage->virt_base;
-                addr_t vm_end = (addr_t)carriage->virt_base + carriage->size;
-                if ((addr_t)virt >= vm_base && (addr_t)virt < vm_end)
-                {
-                        /* Call the architecture api to get the address */
-                        addr_t tmp = (addr_t)virt - vm_base;
-                        tmp /= PAGESIZE;
-                        return (void*)x86_pte_get_phys(virt, carriage);
-                }
-        }
-#endif
         return x86_pte_get_phys(virt);
 }
 
