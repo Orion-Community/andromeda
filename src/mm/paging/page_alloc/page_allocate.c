@@ -217,7 +217,7 @@ int page_free(void* page)
 
         if (pagemap[p] >= 0)
                 goto err;
-        if (--pagemap[p] == 0)
+        if (++pagemap[p] == 0)
         {
                 /* Mark pages as free */
                 pagemap[p] = first_free;
@@ -240,17 +240,26 @@ void page_dump()
         {
                 if (!(j % 8))
                         demand_key();
-                printf("This: %X -> %X\n", i, pagemap[i]);
+                int val = pagemap[i];
+                if (val < 0)
+                        printf("This: %X -> -%X\n", i, -val);
+                else
+                        printf("This: %X -> %X\n", i, val);
         }
 }
 void page_dump2()
 {
         int i = 0;
+        printf("PAGE_LIST_SIZE: %X\n", PAGE_LIST_SIZE);
         for (; i < PAGE_LIST_SIZE; i++)
         {
                 if (!(i % 8))
                         demand_key();
-                printf("This2: %X -> %X\n", i, pagemap[i]);
+                int val = pagemap[i];
+                if (val < 0)
+                        printf("This2: %X -> -%X\n", i, -val);
+                else
+                        printf("This2: %X -> %X\n", i, val);
         }
 }
 #endif
