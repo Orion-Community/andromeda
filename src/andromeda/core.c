@@ -130,7 +130,7 @@ void core_loop()
         mm_cache_test();
 #endif
 #endif
-#ifdef PA_DBG
+#ifdef VM_DBG
         extern struct vm_descriptor vm_core;
         printf("vm_core: %X\n", &vm_core);
         vm_dump(&vm_core);

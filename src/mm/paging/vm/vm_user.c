@@ -495,7 +495,7 @@ vm_unload_task()
         return -E_NOFUNCTION;
 }
 
-#ifdef PA_DBG
+#ifdef VM_DBG
 int vm_dump_ranges(struct vm_range_descriptor* r)
 {
         if (r == NULL)
@@ -522,7 +522,7 @@ int vm_dump_segments(struct vm_segment* s)
         demand_key();
         vm_dump_ranges(s->allocated);
 
-        printf("next segment\n");
+        printf("next segment: %X\n", s->next);
         demand_key();
 
         vm_dump_segments(s->next);

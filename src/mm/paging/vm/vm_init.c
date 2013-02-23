@@ -141,6 +141,15 @@ char* name;
 static int
 vm_map_kernel_stack(struct vm_segment* s)
 {
+        if (s == NULL)
+                return -E_NULL_PTR;
+
+        s->name = ".stack";
+        s->virt_base = NULL;
+        s->size = 0;
+
+        s->free = NULL;
+        s->allocated = NULL;
         return -E_NOFUNCTION;
 }
 
@@ -159,13 +168,15 @@ vm_init()
 
         /* Initialise all the segments! */
         int i = 0;
+        struct vm_segment* s = NULL;
         while (i < STATIC_SEGMENTS)
         {
                 /* nullify the segment and point to next element */
-                struct vm_segment* s = &vm_core_segments[i];
+                s = &vm_core_segments[i];
                 memset(s, 0, sizeof(*s));
-                s->next = &vm_core_segments[i++];
+                s->next = &vm_core_segments[++i];
         }
+        s->next = NULL;
         /* Map the segment into pte_core */
         vm_core.segments = vm_core_segments;
         /* Set the privilege level */
