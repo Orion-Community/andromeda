@@ -133,6 +133,7 @@ struct vm_descriptor {
         struct vm_segment* segments;
         unsigned int cpl;
         unsigned int pid;
+        char* name;
 };
 
 int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
@@ -145,6 +146,10 @@ void* x86_pte_get_phys(void* virt);
 #endif
 
 int vm_init();
+
+#ifdef PA_DBG
+int vm_dump(struct vm_descriptor*);
+#endif
 
 #endif
 

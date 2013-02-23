@@ -34,7 +34,6 @@
  * \todo Create userspace pte initialiser.
  * \todo Create kernelspace pte initialiser.
  * \todo Create vmem context switcher.
- * \todo Create a means of allocating a page within the vm system.
  */
 
 #define STATIC_SEGMENTS 5
@@ -169,13 +168,14 @@ vm_init()
         }
         /* Map the segment into pte_core */
         vm_core.segments = vm_core_segments;
-        /* Set the privilage level */
+        /* Set the privilege level */
         vm_core.cpl = VM_CPL_CORE;
+        vm_core.name = "Andromeda";
 
         int ret = 0;
 
         /* For the physical page allocator, let's keep everything aligned */
-        addr_t data_end = &end;
+        addr_t data_end = (addr_t)&end;
         if (data_end % PAGE_ALLOC_FACTOR != 0)
                 data_end += PAGE_ALLOC_FACTOR - data_end % PAGE_ALLOC_FACTOR;
 

@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <andromeda/error.h>
 #include <defines.h>
 #include <mm/vm.h>
 #include <mm/page_alloc.h>
@@ -493,6 +494,55 @@ vm_unload_task()
 {
         return -E_NOFUNCTION;
 }
+
+#ifdef PA_DBG
+int vm_dump_ranges(struct vm_range_descriptor* r)
+{
+        if (r == NULL)
+                return -E_NULL_PTR;
+
+        demand_key();
+
+        vm_dump_ranges(r->next);
+        return -E_SUCCESS;
+}
+
+int vm_dump_segments(struct vm_segment* s)
+{
+        if (s == NULL)
+                return -E_NULL_PTR;
+
+        printf("Segment: %s\n", s->name);
+        printf("virt: %X\n", s->virt_base);
+        printf("size: %X\n", s->size);
+
+        printf("\nFree:\n");
+        vm_dump_ranges(s->free);
+        printf("Allocated:\n");
+        demand_key();
+        vm_dump_ranges(s->allocated);
+
+        printf("next segment\n");
+        demand_key();
+
+        vm_dump_segments(s->next);
+        return -E_SUCCESS;
+}
+
+int vm_dump(struct vm_descriptor* v)
+{
+        if (v == NULL)
+                return -E_NULL_PTR;
+
+        if (v->name != NULL)
+                printf("vm_descriptor name: %s\n", v->name);
+        printf("cpl: %X\npid: %X\n", v->cpl, v->pid);
+        printf("Segments: \n");
+        vm_dump_segments(v->segments);
+
+        return -E_SUCCESS;
+}
+#endif
 
 /**
  * @}
