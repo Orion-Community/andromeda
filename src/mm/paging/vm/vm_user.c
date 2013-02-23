@@ -66,6 +66,13 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         if (s == NULL)
                 return NULL;
 
+        /*
+         * Segment size can only be PAGE_ALLOC_FACTOR aligned. If it isn't it
+         * will mess up once physical pages get allocated to it.
+         */
+        if (size % PAGE_ALLOC_FACTOR != 0)
+                size += PAGE_ALLOC_FACTOR - size % PAGE_ALLOC_FACTOR;
+
         memset(s, 0, sizeof(*s));
         s->virt_base = virt;
         s->size = size;
@@ -197,8 +204,8 @@ struct vm_range_descriptor* range;
 }
 
 /**
- * \fn vm_free_page
- * \brief Clear the page up for allocation.
+ * \fn vm_segment_free
+ * \brief Clear the page range up for allocation.
  * \param s
  * \brief The segment to work with
  * \return A standard error code
@@ -231,9 +238,8 @@ int vm_segment_free(struct vm_segment* s, void* ptr)
         {
                 /**
                  * \todo Free up the physical page over here
-                 *
-                 * \warning Assuming identity paging conditions are caught by the allocator
                  */
+                page_free(phys);
         }
 
         /*
@@ -305,9 +311,15 @@ void* vm_segment_alloc(struct vm_segment *s, size_t size)
         if (s == NULL || size == 0 || s->free == NULL)
                 return NULL;
 
-        /* Size has to be page aligned, in good integer style, round up */
-        if (size % PAGE_SIZE != 0)
-                size += PAGE_SIZE - size % PAGE_SIZE;
+        /*
+         * If the size is not page allocation aligned, align it by rounding up.
+         * It is much easier to just give out ranges of physical page allocation
+         * size. This is because if we don't do this, more effort has to be made
+         * keeping track of the number of references to the physically allocated
+         * range.
+         */
+        if (size % PAGE_ALLOC_FACTOR != 0)
+                size += PAGE_ALLOC_FACTOR - size % PAGE_ALLOC_FACTOR;
 
         /* There's a mutex here, don't forget to unlock */
         mutex_lock(&s->lock);
@@ -384,15 +396,19 @@ vm_segment_clean(struct vm_segment* s)
 
         struct vm_range_descriptor* x = s->free->next;
         struct vm_range_descriptor* xx = s->free;
+        s->free = NULL;
 itterate:
         for (; xx != NULL; xx = x, x = x->next)
         {
+                /* If these ranges are allocated physically, free them up */
                 kfree(xx);
         }
+
         if (s->allocated != NULL)
         {
                 x = s->allocated->next;
                 xx = s->allocated;
+                s->allocated = NULL;
                 goto itterate;
         }
         if (s->prev != NULL)

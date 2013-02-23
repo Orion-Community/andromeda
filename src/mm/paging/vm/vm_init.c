@@ -79,6 +79,7 @@ vm_map_kernel_code(struct vm_segment* s)
         s->virt_base = (void*)code_addr;
         s->size = code_end - code_addr;
         s->code = TRUE;
+        s->name = ".code";
 
 #ifdef PA_DBG
         printf( "Mapping kernel code\n\n"
@@ -92,10 +93,11 @@ vm_map_kernel_code(struct vm_segment* s)
         return -E_SUCCESS;
 }
 
-static int vm_map_kernel_data(s, start, end)
+static int vm_map_kernel_data(s, start, end, name)
 struct vm_segment *s;
 void* start;
 void* end;
+char* name;
 {
         if (s == NULL || start == NULL || end == NULL)
                 return -E_NULL_PTR;
@@ -108,13 +110,16 @@ void* end;
         s->virt_base = start;
         s->size = (addr_t)end - (addr_t)start;
         s->code = FALSE;
+        s->name = name;
 
 #ifdef PA_DBG
         printf(
+                "name:     %s\n"
                 "segment:  %X\n"
                 "start:    %X\n"
                 "end:      %X\n"
                 "size:     %X\n",
+               s->name,
                (int)s,
                (int)start,
                (int)end,
@@ -169,6 +174,11 @@ vm_init()
 
         int ret = 0;
 
+        /* For the physical page allocator, let's keep everything aligned */
+        addr_t data_end = &end;
+        if (data_end % PAGE_ALLOC_FACTOR != 0)
+                data_end += PAGE_ALLOC_FACTOR - data_end % PAGE_ALLOC_FACTOR;
+
         /* Map the relevant pages starting with code*/
         ret |= vm_map_kernel_code(&vm_core_segments[0]);
 
@@ -179,15 +189,15 @@ vm_init()
         /* Map the page tables */
         ret |= vm_map_kernel_data(&vm_core_segments[1],
                         (void*)((int)(&page_dir_boot) + THREE_GIB),
-                        &initial_slab_space);
+                        &initial_slab_space, ".PD");
 
         /* Map the static data */
-        ret |= vm_map_kernel_data(&vm_core_segments[2], &rodata, &end);
+        ret |= vm_map_kernel_data(&vm_core_segments[2], &rodata, data_end, ".data");
 
         /* Map the heap */
         /** \todo Designate an area for the heap */
-        ret |= vm_map_kernel_data(&vm_core_segments[3], &end,
-                        ((addr_t)(&end)) + 0x1000000);
+        ret |= vm_map_kernel_data(&vm_core_segments[3], data_end,
+                        data_end + 0x1000000, ".heap");
 
         /*
          * Kernel modules and init file systems will have to be mapped once the

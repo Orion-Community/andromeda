@@ -112,6 +112,8 @@ struct vm_segment {
         struct vm_range_descriptor* free;
         struct pte_range* pages;
 
+        char* name;
+
         mutex_t lock;
 
         bool mapped;
