@@ -25,14 +25,14 @@ SECTIONS
     {
         higherhalf = .; _higherhalf = .; __higherhalf = .;
         *(.higherhalf);
-        . = ALIGN(0x1000);
+        . = ALIGN(0x10000);
     }
     .text : AT (ADDR(.text) - 0xC0000000)
     {
         code = .; _code = .; __code = .;
         *(.text)
 	*(.gnu_linkonce.t*)
-        . = ALIGN(0x1000);
+        . = ALIGN(0x10000);
     }
     .rodata : AT (ADDR(.rodata) - 0xC0000000)
     {
@@ -43,14 +43,15 @@ SECTIONS
 	  *(.dtor*)
 	  *(.gnu_linkonce.r*)
 	  *(.rodata*)
+	  . = ALIGN(0x10000);
     }
     .data : AT (ADDR(.data) - 0xC0000000)
     {
         data = .; _data = .; __data = .;
         *(.data)
 	*(.gnu.linkonce.d*)
-        . = ALIGN(0x1000);
-	stack = ALIGN(0x1000);
+        . = ALIGN(0x10000);
+	stack = ALIGN(0x10000);
     }
     .bss : AT (ADDR(.bss) - 0xC0000000)
     {
@@ -58,7 +59,7 @@ SECTIONS
 	*(.gnu.linkonce.b*)
         *(.bss)
 	*(COMMON)
-        . = ALIGN(0x1000);
+        . = ALIGN(0x10000);
     }
     end = .; _end = .; __end = .;
 }
