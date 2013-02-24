@@ -55,6 +55,7 @@ struct pte {
         struct page_table entry[PTE_SIZE];
 };
 
+struct vm_descriptor;
 struct vm_segment;
 
 /**
@@ -102,6 +103,8 @@ struct vm_segment {
          * \var swappable
          * \brief Indicator for page swapping to be allowed or not
          */
+        struct vm_descriptor* parent;
+
         struct vm_segment* next;
         struct vm_segment* prev;
 
@@ -134,6 +137,8 @@ struct vm_descriptor {
         unsigned int cpl;
         unsigned int pid;
         char* name;
+
+        mutex_t lock;
 };
 
 int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);

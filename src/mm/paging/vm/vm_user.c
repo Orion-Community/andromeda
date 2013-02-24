@@ -78,6 +78,7 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         s->virt_base = virt;
         s->size = size;
 
+
         /* Add allocation data in here */
         s->allocated = NULL;
         s->free = kalloc(sizeof(*s->free));
@@ -87,11 +88,19 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         s->free->base = s->virt_base;
         s->free->size = s->size;
 
+        s->parent = p;
+
         /* Add the segment into the list, but only if all is well */
-        s->next = p->segments;
-        if (s->next != NULL)
-                s->next->prev = s;
+        mutex_lock(&p->lock);
+        if (p->segments != NULL)
+        {
+                mutex_lock(&p->segments->lock);
+                s->next = p->segments;
+                p->segments->prev = s;
+                mutex_unlock(&s->next->lock);
+        }
         p->segments = s;
+        mutex_unlock(&p->lock);
 
         return s;
 err:
@@ -172,7 +181,7 @@ struct vm_range_descriptor* range;
 }
 
 static int
-vm_segment_compress(segment, range)
+vm_segment_compress_ranges(segment, range)
 struct vm_segment* segment;
 struct vm_range_descriptor* range;
 {
@@ -248,7 +257,7 @@ int vm_segment_free(struct vm_segment* s, void* ptr)
          * is one, merge with it, leaving the pointer to x intact. Otherwise,
          * just return.
          */
-        vm_segment_compress(s, x);
+        vm_segment_compress_ranges(s, x);
 
         mutex_unlock(&s->lock);
         return -E_NOFUNCTION;
@@ -268,18 +277,20 @@ int vm_segment_free(struct vm_segment* s, void* ptr)
  *
  * \todo implement swapping and destroying of pages that have gone out of use.
  */
-int vm_segment_grow(struct vm_segment* s, size_t size, struct vm_descriptor* d)
+int vm_segment_grow(struct vm_segment* s, size_t size)
 {
-        if (s == NULL || size <= 0 || d == NULL)
+        if (s == NULL || size <= 0 || s->parent == NULL)
                 return -E_INVALID_ARG;
 
         /* Round size up if necessary */
         if (size % PAGE_ALLOC_FACTOR != 0)
                 size += PAGE_ALLOC_FACTOR - size % PAGE_ALLOC_FACTOR;
 
+        struct vm_descriptor* d = s->parent;
+
 retry:
         /* This stuff is all critical ... */
-        mutex_lock(&s->lock);
+        mutex_lock(&d->lock);
 
         int ns = s->size + size;
         addr_t nend = s->virt_base + ns;
@@ -294,36 +305,18 @@ retry:
                 if (i == s)
                         continue;
 
-                int c = 0;
-                int success = 0;
-                /*
-                 * I'm trying to get some randomness into this number of tests.
-                 * This is because if we don't do this, we'll get a dining
-                 * philosophers problem, if both segments need to be resized.
-                 */
-                int tests = ((addr_t)c >> 4) % 61;
-
-                /* Try to do some deadlock prevention here. */
-                while (c < tests && success == 0)
+                addr_t start;
+                addr_t end;
+                if (mutex_test(&i->lock) == 0)
                 {
-                        if (mutex_test(&i->lock) == 0)
-                                success = 1;
+                        start = (addr_t)i->virt_base;
+                        end = (addr_t)(i->virt_base + i->size);
                 }
-                if (success == 0)
+                else
                 {
-                        /*
-                         * This segment seems busy. I think it is best, in order
-                         * to prevent deadlocks, to release our lock and retry.
-                         */
-                        mutex_unlock(&s->lock);
+                        mutex_unlock(&d->lock);
                         goto retry;
                 }
-                /* We can now check */
-                addr_t start = (addr_t)i->virt_base;
-                addr_t end = (addr_t)(i->virt_base + i->size);
-
-                /* Unlock the segment again */
-                mutex_unlock(&i->lock);
 
                 /*
                  * Do some overlapping checks
@@ -339,10 +332,12 @@ retry:
          * Since we're not going to overlap, we can now complete the
          * transaction. Also set the return value to success.
          */
+        mutex_lock(&s->lock);
         s->size += size;
+        mutex_unlock(&s->lock);
         ret = -E_SUCCESS;
 err:
-        mutex_unlock(&s->lock);
+        mutex_unlock(&d->lock);
 
         return ret;
 }
@@ -475,22 +470,22 @@ vm_segment_clean(struct vm_segment* s)
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        /** \warning This might deadlock against a segment resize */
-        mutex_lock(&s->next->lock);
+        mutex_lock(&s->next);
         mutex_lock(&s->lock);
-        mutex_lock(&s->prev->lock);
+        mutex_lock(&s->prev);
 
         /* Take this segment out of the list */
         if (s->prev != NULL)
                 s->prev->next = s->next;
         if (s->next != NULL)
                 s->next->prev = s->prev;
+
+        mutex_unlock(&s->next);
+        mutex_unlock(&s->prev);
         /*
          *  We're leaving this segment in a locked state, as it is going to be
          *  thrown away anyway.
          */
-        mutex_unlock(&s->prev->lock);
-        mutex_unlock(&s->next->lock);
 
         /* Free up the free memory descriptors */
         struct vm_range_descriptor* x = s->free->next;
@@ -532,6 +527,8 @@ itterate:
 int
 vm_free(struct vm_descriptor* p)
 {
+        /* Lock it, even though it won't get unlocked */
+        mutex_lock(&p->lock);
         struct vm_segment* this = p->segments;
         struct vm_segment* next = this->next;
 

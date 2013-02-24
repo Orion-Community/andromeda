@@ -193,6 +193,7 @@ vm_init()
                 s = &vm_core_segments[i];
                 memset(s, 0, sizeof(*s));
                 s->next = &vm_core_segments[++i];
+                s->parent = &vm_core;
         }
         s->next = NULL;
         /* Map the segment into pte_core */
