@@ -501,6 +501,8 @@ int vm_dump_ranges(struct vm_range_descriptor* r)
         if (r == NULL)
                 return -E_NULL_PTR;
 
+        printf("base: %X\n", r->base);
+        printf("size: %X\n", r->size);
         demand_key();
 
         vm_dump_ranges(r->next);
@@ -517,6 +519,7 @@ int vm_dump_segments(struct vm_segment* s)
         printf("size: %X\n", s->size);
 
         printf("\nFree:\n");
+        demand_key();
         vm_dump_ranges(s->free);
         printf("Allocated:\n");
         demand_key();
