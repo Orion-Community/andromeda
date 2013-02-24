@@ -30,6 +30,7 @@
  */
 
 /**
+ * \todo Create a segment(s) for kernel modules
  * \todo Use existing page tables to attach to these segments.
  * \todo Create userspace pte initialiser.
  * \todo Create kernelspace pte initialiser.
