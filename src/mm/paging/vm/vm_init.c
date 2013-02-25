@@ -155,7 +155,7 @@ vm_map_kernel_stack(struct vm_segment* s)
 }
 
 static int
-vm_kernel_add_segment(struct vm_segment* s)
+vm_kernel_add_range(struct vm_segment* s)
 {
         if (s == NULL)
                 return -E_NULL_PTR;
@@ -167,6 +167,7 @@ vm_kernel_add_segment(struct vm_segment* s)
         memset(s->free, 0, sizeof(*(s->free)));
         s->free->base = s->virt_base;
         s->free->size = s->size;
+        s->free->parent = s;
 
         return -E_SUCCESS;
 }
@@ -228,7 +229,7 @@ vm_init()
         /** \todo Designate an area for the heap */
         ret |= vm_map_kernel_data(&vm_core_segments[3], data_end,
                         data_end + 0x1000000, ".heap");
-        ret |= vm_kernel_add_segment(&vm_core_segments[3]);
+        ret |= vm_kernel_add_range(&vm_core_segments[3]);
 
         /*
          * Kernel modules and init file systems will have to be mapped once the

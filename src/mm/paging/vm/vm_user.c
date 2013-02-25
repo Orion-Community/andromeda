@@ -86,6 +86,7 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         memset(s->free, 0, sizeof(*s->free));
         s->free->base = s->virt_base;
         s->free->size = s->size;
+        s->free->parent = s;
 
         s->parent = p;
 
@@ -171,10 +172,18 @@ struct vm_range_descriptor* range;
 {
         if (range == NULL)
                 return -E_NULL_PTR;
+
         if (range->next != NULL)
                 range->next->prev = range->prev;
+
         if (range->prev != NULL)
                 range->prev->next = range->next;
+
+        else if (range->parent->free == range)
+                range->parent->free = range->next;
+
+        else
+                range->parent->allocated = range->next;
 
         return kfree(range);
 }
@@ -187,6 +196,7 @@ struct vm_range_descriptor* range;
         if (segment == NULL || range == NULL)
                 return -E_NULL_PTR;
 
+        /* Loop through the list to find connecting ranges */
         struct vm_range_descriptor* x = segment->free;
         while (x != NULL)
         {
@@ -245,9 +255,6 @@ int vm_segment_free(struct vm_segment* s, void* ptr)
         void* phys = vm_get_phys(x);
         if (phys != NULL)
         {
-                /**
-                 * \todo Free up the physical page over here
-                 */
                 page_free(phys);
         }
 
@@ -292,7 +299,7 @@ retry:
         mutex_lock(&d->lock);
 
         int ns = s->size + size;
-        addr_t nend = s->virt_base + ns;
+        addr_t nend = (addr_t)s->virt_base + ns;
 
         int ret = -E_OUTOFBOUNDS;
         struct vm_segment* i;
@@ -314,6 +321,7 @@ retry:
                 else
                 {
                         mutex_unlock(&d->lock);
+                        /** \todo Find a way to yield CPU time here */
                         goto retry;
                 }
 
@@ -361,6 +369,7 @@ vm_range_split(struct vm_range_descriptor* src, size_t size)
         /* Configure new descriptor */
         tmp->size = src->size-size;
         tmp->base = src->base+size;
+        tmp->parent = src->parent;
         /* And resize the original descriptor */
         src->size = size;
 

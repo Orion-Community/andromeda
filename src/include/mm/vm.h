@@ -67,12 +67,14 @@ struct vm_subs {
 };
 
 struct vm_range_descriptor{
-        /*  */
+        /* Base pointer */
         void* base;
         /* Size descriptor in number of bytes */
         size_t size;
+
         struct vm_range_descriptor* next;
         struct vm_range_descriptor* prev;
+        struct vm_segment* parent;
 };
 
 /**
