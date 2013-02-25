@@ -37,7 +37,7 @@
  */
 
 struct vm_descriptor*
-vm_new(int pid)
+vm_new(unsigned int pid)
 {
         struct vm_descriptor* p = kalloc(sizeof(*p));
         if (p == NULL)
@@ -77,7 +77,6 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         memset(s, 0, sizeof(*s));
         s->virt_base = virt;
         s->size = size;
-
 
         /* Add allocation data in here */
         s->allocated = NULL;
@@ -470,18 +469,21 @@ vm_segment_clean(struct vm_segment* s)
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        mutex_lock(&s->next);
+        mutex_lock(&s->next->lock);
         mutex_lock(&s->lock);
-        mutex_lock(&s->prev);
+        mutex_lock(&s->prev->lock);
 
         /* Take this segment out of the list */
         if (s->prev != NULL)
                 s->prev->next = s->next;
+        else
+                s->parent->segments = s->next;
+
         if (s->next != NULL)
                 s->next->prev = s->prev;
 
-        mutex_unlock(&s->next);
-        mutex_unlock(&s->prev);
+        mutex_unlock(&s->next->lock);
+        mutex_unlock(&s->prev->lock);
         /*
          *  We're leaving this segment in a locked state, as it is going to be
          *  thrown away anyway.
@@ -596,7 +598,6 @@ int vm_dump_ranges(struct vm_range_descriptor* r)
 
         printf("base: %X\n", r->base);
         printf("size: %X\n", r->size);
-        demand_key();
 
         vm_dump_ranges(r->next);
         return -E_SUCCESS;
@@ -613,15 +614,26 @@ int vm_dump_segments(struct vm_segment* s)
 
         printf("\nFree:\n");
         demand_key();
-        vm_dump_ranges(s->free);
+
+        mutex_lock(&s->lock);
+        struct vm_range_descriptor* free = s->free;
+
+        vm_dump_ranges(free);
         printf("Allocated:\n");
-        demand_key();
-        vm_dump_ranges(s->allocated);
+        mutex_unlock(&s->lock);
 
-        printf("next segment: %X\n", s->next);
+        demand_key();
+        mutex_lock(&s->lock);
+        struct vm_range_descriptor* allocated = s->allocated;
+        vm_dump_ranges(allocated);
+
+        struct vm_segment* sn = s->next;
+        mutex_unlock(&s->lock);
+
+        printf("next segment: %X\n", sn);
         demand_key();
 
-        vm_dump_segments(s->next);
+        vm_dump_segments(sn);
         return -E_SUCCESS;
 }
 
@@ -634,7 +646,9 @@ int vm_dump(struct vm_descriptor* v)
                 printf("vm_descriptor name: %s\n", v->name);
         printf("cpl: %X\npid: %X\n", v->cpl, v->pid);
         printf("Segments: \n");
+        mutex_lock(&v->lock);
         vm_dump_segments(v->segments);
+        mutex_unlock(&v->lock);
 
         return -E_SUCCESS;
 }
