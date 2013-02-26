@@ -52,8 +52,8 @@
  * descriptors.
  *
  * 5 Segments are chosen as they cover the following fields: Code, Data, Stack,
- * Heap and Static pagetables. More segments may be allocated for kernel modules later on, however
- * these can be allocated dynamically.
+ * Heap and Static pagetables. More segments may be allocated for kernel modules
+ * later on, however these can be allocated dynamically.
  *
  * The reason these segments are not allocated dynamically, is because at the
  * moment of referencing, the dynamic allocators have not been initialised yet.
@@ -223,7 +223,8 @@ vm_init()
                         &initial_slab_space, ".PD");
 
         /* Map the static data */
-        ret |= vm_map_kernel_data(&vm_core_segments[2], &rodata, data_end, ".data");
+        ret |= vm_map_kernel_data(&vm_core_segments[2], &rodata,
+                        data_end, ".data");
 
         /* Map the heap */
         /** \todo Designate an area for the heap */

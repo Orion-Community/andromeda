@@ -577,6 +577,59 @@ vm_get_phys(void* virt)
         return x86_pte_get_phys(virt);
 }
 
+static struct vm_segment*
+vm_find_segment(char* name)
+{
+        if (name == NULL)
+                return NULL;
+
+        int len = strlen(name);
+        struct vm_segment* i = (&vm_core)->segments;
+        while (i != NULL)
+        {
+                if (i->name == NULL)
+                        goto next;
+                int ilen = strlen(i->name);
+                if (ilen == len)
+                {
+                        if (memcmp(i->name, name, len) == 0)
+                                return i;
+                }
+
+next:
+                i = i->next;
+        }
+        return NULL;
+}
+
+void*
+vm_get_kernel_heap_pages(size_t size)
+{
+        if (size == 0)
+                return NULL;
+
+        if (size % PAGE_ALLOC_FACTOR != 0)
+                size += PAGE_ALLOC_FACTOR - size % PAGE_ALLOC_FACTOR;
+
+        struct vm_segment* heap = vm_find_segment(".heap");
+        if (heap == NULL)
+                return NULL;
+
+        return vm_segment_alloc(heap, size);
+}
+
+int vm_free_kernel_heap_pages(void* ptr)
+{
+        if (ptr == NULL)
+                return -E_NULL_PTR;
+
+        struct vm_segment* heap = vm_find_segment(".heap");
+        if (heap == NULL)
+                return -E_HEAP_GENERIC;
+
+        return vm_segment_free(heap, ptr);
+}
+
 /**
  * \fn vm_load_task
  * \brief Load in the virtual memory context of the given task
@@ -660,6 +713,40 @@ int vm_dump(struct vm_descriptor* v)
         mutex_unlock(&v->lock);
 
         return -E_SUCCESS;
+}
+
+int vm_test()
+{
+        vm_dump(&vm_core);
+
+        struct vm_segment* heap = vm_find_segment(".heap");
+        printf("Heap segment: %X\n", (int)heap);
+        if (heap == NULL)
+                return -E_NULL_PTR;
+
+        printf("Free ranges:\n");
+        vm_dump_ranges(heap->free);
+        printf("Allocated ranges:\n");
+        vm_dump_ranges(heap->allocated);
+
+        void* tst = vm_get_kernel_heap_pages(0x10000);
+
+        demand_key();
+        printf("\nAfter allocation:\n");
+        printf("Allocated: %X\n", (int)tst);
+        printf("Free ranges:\n");
+        vm_dump_ranges(heap->free);
+        printf("Allocated ranges:\n");
+        vm_dump_ranges(heap->allocated);
+
+        vm_free_kernel_heap_pages(tst);
+
+        demand_key();
+        printf("\nAfter freeing:\n");
+        printf("Allocated: %X\n", (int)tst);
+        printf("Free ranges:\n");
+        vm_dump_ranges(heap->free);
+        printf("Allocated ranges:\n");
 }
 #endif
 

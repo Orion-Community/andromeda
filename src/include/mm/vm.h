@@ -143,6 +143,8 @@ struct vm_descriptor {
         mutex_t lock;
 };
 
+extern struct vm_descriptor vm_core;
+
 int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
 int vm_free(struct vm_descriptor* p);
 void* vm_get_phys(void* virt);
