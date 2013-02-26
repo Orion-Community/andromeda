@@ -150,9 +150,14 @@ struct vm_range_descriptor* range;
 
         /* Dislodge the range and restore the order of the list */
         if (range->prev == NULL)
+        {
                 segment->allocated = range->next;
+        }
         else
+        {
                 range->prev->next = range->next;
+        }
+
         if (range->next != NULL)
                 range->next->prev = range->prev;
 
@@ -204,7 +209,7 @@ struct vm_range_descriptor* range;
                 {
                         /* Consume information in the carriage */
                         range->base = x->base;
-                        range->size = x->size;
+                        range->size += x->size;
 
                         /* And take the node out of the collection */
                         vm_range_remove_node(x);
@@ -658,6 +663,7 @@ int vm_dump_ranges(struct vm_range_descriptor* r)
         if (r == NULL)
                 return -E_NULL_PTR;
 
+        printf("this: %X\tnext: %X\tprev: %X\n", r, r->next, r->prev);
         printf("base: %X\n", r->base);
         printf("size: %X\n", r->size);
 
@@ -717,7 +723,7 @@ int vm_dump(struct vm_descriptor* v)
 
 int vm_test()
 {
-        vm_dump(&vm_core);
+        //vm_dump(&vm_core);
 
         struct vm_segment* heap = vm_find_segment(".heap");
         printf("Heap segment: %X\n", (int)heap);
@@ -729,20 +735,29 @@ int vm_test()
         printf("Allocated ranges:\n");
         vm_dump_ranges(heap->allocated);
 
-        void* tst = vm_get_kernel_heap_pages(0x10000);
-
         demand_key();
+        void* tst = vm_get_kernel_heap_pages(0x1000);
+        void* tst2 = vm_get_kernel_heap_pages(0xb1aa7);
+
         printf("\nAfter allocation:\n");
         printf("Allocated: %X\n", (int)tst);
-        printf("Free ranges:\n");
+        printf("Free ranges: %X\n", heap->free);
         vm_dump_ranges(heap->free);
-        printf("Allocated ranges:\n");
+        printf("Allocated ranges: %X\n", heap->allocated);
         vm_dump_ranges(heap->allocated);
 
-        vm_free_kernel_heap_pages(tst);
+        demand_key();
+        vm_free_kernel_heap_pages(tst2);
+        printf("\nAfter freeing the first:\n");
+        printf("Allocated: %X\n", (int)tst);
+        printf("Free ranges: %X\n", heap->free);
+        vm_dump_ranges(heap->free);
+        printf("Allocated ranges: %X\n", heap->allocated);
+        vm_dump_ranges(heap->allocated);
 
         demand_key();
-        printf("\nAfter freeing:\n");
+        vm_free_kernel_heap_pages(tst);
+        printf("\nAfter freeing all:\n");
         printf("Allocated: %X\n", (int)tst);
         printf("Free ranges:\n");
         vm_dump_ranges(heap->free);
