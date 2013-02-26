@@ -63,6 +63,10 @@ void scroll(unsigned char lines)
 	cursor.y -= lines;
 }
 
+/**
+ * \fn println
+ * \deprecated
+ */
 void println(char *line)
 {
 	printf(line);
