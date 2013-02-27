@@ -63,6 +63,18 @@ This kernel is free software and we welcome contributions of any form. Below is
 a list of possible things you could help with, or you could just scratch your
 own itch, that's just fine.
 
+There's a number of ways to get your changes into the kernel code. One of those
+is to send us a pull-request, and then send this to us in the google group/
+mailing list. Of course you can also format patches and send those in to the
+same group.
+
+Github pull requests might work for some projects, but in order to keep the
+development in a central place, the preference goes out to patches and pull
+requests in the google group mailing list.
+
+orion-os@googlegroups.com
+
+
 TODO
 ----
 
