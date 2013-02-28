@@ -58,14 +58,6 @@ struct pte {
 struct vm_descriptor;
 struct vm_segment;
 
-/**
- * \struct pte_subs
- * \brief A list of sub segments, so the pte_segment doesn't grow to big
- */
-struct vm_subs {
-        struct vm_segment* segment[PTE_SIZE];
-};
-
 struct vm_range_descriptor{
         /* Base pointer */
         void* base;
@@ -115,13 +107,14 @@ struct vm_segment {
 
         struct vm_range_descriptor* allocated;
         struct vm_range_descriptor* free;
+        struct vm_range_descriptor* mapped;
+
         struct pte_range* pages;
 
         char* name;
 
         mutex_t lock;
 
-        bool mapped;
         bool swappable;
         bool code;
 };
@@ -149,15 +142,15 @@ int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
 int vm_free(struct vm_descriptor* p);
 void* vm_get_phys(void* virt);
 void* x86_pte_get_phys(void* virt);
+int vm_init();
+
+#ifdef VM_DBG
+int vm_dump(struct vm_descriptor*);
+struct vm_segment* vm_find_segment(char*);
+#endif
 
 #ifdef __cplusplus
 };
-#endif
-
-int vm_init();
-
-#ifdef PA_DBG
-int vm_dump(struct vm_descriptor*);
 #endif
 
 #endif

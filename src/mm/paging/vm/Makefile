@@ -7,7 +7,7 @@ LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 all: vm.o
 	mv -fv vm.o ../
 
-vm.o: vm_init.o vm_user.o
+vm.o: vm_init.o vm_user.o vm_alloc.o
 	$(LD) -o vm.o *.o $(LDFLAGS)
 
 .PHONY: clean
