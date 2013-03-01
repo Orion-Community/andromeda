@@ -74,7 +74,11 @@ void* x86_pte_get_phys(void* virt)
         ret += (addr_t)virt & 0xFFF;
 
         return (void*)ret;
+}
 
+int x86_pte_map(void* virt, void* phys, int cpl)
+{
+        return x86_pte_set_page(virt, phys, cpl);
 }
 
 int x86_pte_set_segment(struct vm_segment* s)

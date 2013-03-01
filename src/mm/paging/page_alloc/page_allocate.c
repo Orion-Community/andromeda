@@ -117,6 +117,31 @@ addr_t pagemap_find_reference(addr_t p)
         return -E_INVALID_ARG;
 }
 
+void* page_claim(void* page)
+{
+        if (page == NULL)
+                return NULL;
+
+        addr_t idx = (addr_t)page;
+        if (idx % PAGE_ALLOC_FACTOR != 0)
+                return NULL;
+
+        idx /= PAGE_ALLOC_FACTOR;
+
+        mutex_lock(&page_alloc_lock);
+        int ref = pagemap_find_reference(idx);
+        if (ref != -E_INVALID_ARG)
+                pagemap[ref] = pagemap[idx];
+
+        if (first_free == idx)
+                first_free = pagemap[idx];
+
+        pagemap[idx] = -1;
+
+        mutex_unlock(&page_alloc_lock);
+        return page;
+}
+
 /**
  * \fn page_mark
  * \brief Mark an allocatable physical page as unallocatable

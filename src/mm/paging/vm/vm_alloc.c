@@ -265,6 +265,12 @@ int vm_segment_free(struct vm_segment* s, void* ptr)
         return -E_NOFUNCTION;
 }
 
+/**
+ * \fn vm_range_split
+ * \param src
+ * \param size
+ * \return Standard error code
+ */
 static int
 vm_range_split(struct vm_range_descriptor* src, size_t size)
 {
@@ -364,6 +370,13 @@ err:    /*
         return ret;
 }
 
+/**
+ * \fn vm_map
+ * \param virt
+ * \param phys
+ * \param s
+ * \return virtual address of mapped range
+ */
 void* vm_map(void* virt, void* phys, struct vm_segment* s)
 {
         if (virt == NULL || phys == NULL || s == NULL)
@@ -382,10 +395,30 @@ void* vm_map(void* virt, void* phys, struct vm_segment* s)
 
         vm_range_mark_mapped(s, r);
 
+        size_t cnt = r->size;
+        addr_t v = (addr_t)virt;
+        addr_t p = (addr_t)phys;
+        int i = 0;
+        for(; i < cnt; i += PAGE_ALLOC_FACTOR)
+        {
+                if (page_claim(p + i) == NULL)
+                        goto gofixit;
+                x86_pte_map(v + i, p + i, 0);
+        }
+
 err:
         mutex_unlock(&s->lock);
 
         return (r == NULL) ? NULL : r->base;
+
+gofixit:
+        for (; i >= 0; i-= PAGE_ALLOC_FACTOR)
+        {
+                x86_pte_unset_page(v + i);
+                page_free((void*)p + i);
+        }
+        mutex_unlock(&s->lock);
+        return NULL;
 }
 
 int vm_unmap(void* virt, struct vm_segment* s)
@@ -402,6 +435,17 @@ int vm_unmap(void* virt, struct vm_segment* s)
         }
         if (r == NULL)
                 goto err;
+
+        void* p = vm_get_phys(virt);
+        if (p == NULL)
+                goto err;
+
+        int i = 0;
+        for (;i < r->size; i += PAGE_ALLOC_FACTOR)
+        {
+                x86_pte_unset_page(virt + i);
+                page_free(p + i);
+        }
 
         vm_range_mark_unmapped(s, r);
 err:

@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mm/cache.h>
+#include <mm/page_alloc.h>
 
 #ifdef SLAB
 
@@ -72,8 +73,8 @@ calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
         size_t req = allocation_frame + element_size * no_elements;
 
         /* Pad the requirement to page size */
-        if (req % PAGESIZE != 0)
-                req += PAGESIZE - req % PAGESIZE;
+        if (req % PAGE_ALLOC_FACTOR != 0)
+                req += PAGE_ALLOC_FACTOR - req % PAGE_ALLOC_FACTOR;
 
         return req;
 }
@@ -373,7 +374,7 @@ size_t alignment;
         /**
          * \todo Actually allocate a page in mm_slab_init
          */
-        void* page = NULL; // Should alloc pages here!
+        void* page = vm_get_kernel_heap_pages(no_pages);
         if (page == NULL)
                 goto err_alloced;
 

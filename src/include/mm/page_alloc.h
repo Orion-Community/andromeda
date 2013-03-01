@@ -28,10 +28,10 @@
 extern "C"  {
 #endif
 
-#define PAGE_ALLOC_UNIT         0x10
+#define PAGE_ALLOC_UNIT         0x4
 #define PAGE_SIZE               0x1000
 #define PAGE_ALLOC_FACTOR       (PAGE_ALLOC_UNIT*PAGE_SIZE)
-#define PAGE_LIST_SIZE          0x10000
+#define PAGE_LIST_SIZE          0x40000
 /** \warning Signed integer hack down here */
 #define PAGE_LIST_MARKED        (unsigned long)(1 << ((sizeof(long)*8)-1))
 #define PAGE_LIST_END           (unsigned long)(0)
@@ -42,6 +42,7 @@ int   page_free                 (void* page);
 int   page_mark                 (void* page);
 int   page_unmark               (void* page);
 int   page_alloc_init           ();
+void* page_claim                (void* page);
 
 #ifdef __cplusplus
 }
