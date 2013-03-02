@@ -165,7 +165,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         page_init();
         printf(WELCOME); // The only screen output that should be maintained
-        page_unmap_low_mem();
         pic_init();
         setIDT();
         setup_irq_data();

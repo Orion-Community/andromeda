@@ -244,6 +244,11 @@ vm_init()
         //endProg();
 #endif
 
+        int idx = 0;
+        for (;idx < 0x40000000; idx += PAGESIZE)
+        {
+                x86_pte_unset_page(idx);
+        }
         /**
          * \todo Map in the kernel modules loaded in by GRUB.
          */

@@ -222,8 +222,11 @@ int x86_pte_unset_page(void* virt)
         if ((pt = vpd[pde]) == NULL)
                 return -E_SUCCESS;
 
-        if (atomic_dec(&pte_cnt[pde]) == 0)
+        if (atomic_dec(&pte_cnt[pde]) <= 0)
+        {
+                atomic_reset(&pte_cnt[pde]);
                 x86_pte_unset_pt(pde);
+        }
 
         return x86_pte_unset(pt[pte]);
 }

@@ -114,7 +114,7 @@ boot_setup_paging:
   mov eax, page_table_boot
   or eax, 3
 
-; The first set of page directory entries
+; The first set of page directory entries (Maps the 1GiB range linearly)
 ; Registers should be correct already, so lets loop
 .2:
   mov [ebx], eax
