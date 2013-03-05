@@ -421,6 +421,12 @@ gofixit:
         return NULL;
 }
 
+/**
+ * \fn vm_unmap
+ * \param virt
+ * \param s
+ * \return Standard error code
+ */
 int vm_unmap(void* virt, struct vm_segment* s)
 {
         if (virt == NULL || s == NULL)
@@ -454,6 +460,11 @@ err:
         return (r == NULL) ? -E_NULL_PTR : -E_SUCCESS;
 }
 
+/**
+ * \fn vm_find_segment
+ * \param name
+ * \return The requested segment or 0
+ */
 #ifndef VM_DBG
 static struct vm_segment*
 #else
@@ -483,6 +494,11 @@ next:
         return NULL;
 }
 
+/**
+ * \fn vm_free_kernel_heap_pages
+ * \param ptr
+ * \return
+ */
 int vm_free_kernel_heap_pages(void* ptr)
 {
         if (ptr == NULL)
@@ -495,6 +511,10 @@ int vm_free_kernel_heap_pages(void* ptr)
         return vm_segment_free(heap, ptr);
 }
 
+/**
+ * \fn vm_get_kernel_heap_pages
+ * \param size
+ */
 void*
 vm_get_kernel_heap_pages(size_t size)
 {
@@ -509,6 +529,52 @@ vm_get_kernel_heap_pages(size_t size)
                 return NULL;
 
         return vm_segment_alloc(heap, size);
+}
+
+/**
+ * \fn vm_map_heap
+ * \param phys
+ * \param size
+ * \return allocated and mapped virtual pointer
+ */
+void*
+vm_map_heap(void* phys, size_t size)
+{
+        if (phys == NULL || size == 0)
+                return NULL;
+
+        struct vm_segment* heap = vm_find_segment(".heap");
+        if (heap == NULL)
+                return NULL;
+
+        void* virt = vm_segment_alloc(heap, size);
+        if (vm_map(virt, phys, heap) != virt)
+        {
+                vm_segment_free(heap, virt);
+                return NULL;
+        }
+
+        return virt;
+}
+
+/**
+ * \fn vm_unmap_heap
+ * \param virt
+ * \return Generic error code
+ */
+int
+vm_unmap_heap(void* virt)
+{
+        if (virt == NULL)
+                return -E_NULL_PTR;
+
+        struct vm_segment* heap = vm_find_segment(".heap");
+        if (heap == NULL)
+                return -E_HEAP_GENERIC;
+
+        int ret = vm_unmap(virt, heap);
+        ret |= vm_segment_free(heap, virt);
+        return ret;
 }
 
 /**
