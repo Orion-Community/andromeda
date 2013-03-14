@@ -49,7 +49,7 @@ atomic_t pte_cnt[1024];
 
 int x86_pte_set_range(struct pte_range* range);
 int x86_pte_reset_range(struct pte_range* range);
-
+int x86_pte_set_page(void* virt, void* phys, int cpl);
 
 #ifdef __cplusplus
 }

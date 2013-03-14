@@ -27,11 +27,25 @@
  * @{
  */
 
+static volatile mutex_t pte_lock = mutex_unlocked;
+
 /**
- * \var pte_cnt
- * \brief reference count of the pages referenced by a page table
+ * \fn x86_cnt_pt_entries
+ * \param pte
+ * \return
  */
-atomic_t pte_cnt[1024];
+static int
+x86_cnt_pt_entries(struct page_table* pte)
+{
+        mutex_lock(&pte_lock);
+        int cnt, i;
+        for (cnt = 0, i = 0; i < 0x400; i++)
+                cnt += pte[i].present;
+
+        mutex_unlock(&pte_lock);
+
+        return cnt;
+}
 
 /**
  * \fn x86_pte_set_page
@@ -75,7 +89,7 @@ static int x86_pte_unset(struct page_table* pte)
  * \param idx
  * \brief The index to put the entry.
  */
-static int x86_pte_set_pt(struct page_table** pt, int idx)
+static int x86_pte_set_pt(struct page_table* pt, int idx)
 {
         if (idx >= 1024 || pt == NULL)
                 return -E_INVALID_ARG;
@@ -182,7 +196,8 @@ int x86_pte_set_page(void* virt, void* phys, int cpl)
         int pte = v & 0x3FF;
         int pde = (v >> 10) & 0x3FF;
 
-        struct page_table** pt;
+        struct page_table* pt;
+        mutex_lock(&pte_lock);
         if ((pt = vpd[pde]) == NULL)
         {
                 /**
@@ -192,13 +207,9 @@ int x86_pte_set_page(void* virt, void* phys, int cpl)
                 panic("Page table allocaton not yet written");
                 x86_pte_set_pt(pt, pde);
         }
-        x86_pte_set(phys, cpl, pt[pte]);
-        /**
-         * What I need here is something that increments atomicly, without
-         * creating the potential for a deadlock with itself ...
-         */
-        if (atomic_inc(&pte_cnt[pde]) >= 1024)
-                panic("Page tables initialised too often!");
+        x86_pte_set(phys, cpl, &pt[pte]);
+
+        mutex_unlock(&pte_lock);
 
         return -E_NOFUNCTION;
 }
@@ -218,17 +229,21 @@ int x86_pte_unset_page(void* virt)
         int pte = v & 0x3FF;
         int pde = (v >> 10) & 0x3FF;
 
-        struct page_table** pt;
+        mutex_lock(&pte_lock);
+        struct page_table* pt;
         if ((pt = vpd[pde]) == NULL)
-                return -E_SUCCESS;
-
-        if (atomic_dec(&pte_cnt[pde]) <= 0)
         {
-                atomic_reset(&pte_cnt[pde]);
-                x86_pte_unset_pt(pde);
+                mutex_unlock(&pte_lock);
+                return -E_SUCCESS;
         }
 
-        return x86_pte_unset(pt[pte]);
+        int ret = x86_pte_unset(&pt[pte]);
+        if (x86_cnt_pt_entries(pt) <= 0)
+                x86_pte_unset_pt(pde);
+
+        mutex_unlock(&pte_lock);
+
+        return ret;
 }
 
 /**
