@@ -253,7 +253,7 @@ vm_init()
          * \todo Map in the kernel modules loaded in by GRUB.
          */
 
-        return -E_NOFUNCTION;
+        return ret;
 }
 
 /**

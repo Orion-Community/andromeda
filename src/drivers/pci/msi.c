@@ -17,8 +17,8 @@
  */
 
 #include <stdlib.h>
-#include <arch/x86/apic/msi.h>
-#include <arch/x86/apic/apic.h>
+#include <drivers/pci/msi.h>
+//#include <arch/x86/apic/apic.h>
 #include <arch/x86/irq.h>
 #include <arch/x86/idt.h>
 #include <sys/dev/pci.h>
@@ -27,10 +27,15 @@
 
 #ifdef MSI
 
+#ifdef MSIX
 static uint32_t msi_convert_message(struct msi_msg *msg);
 static int msi_build_message(struct msi *msi, uint32_t msg);
 static int __msi_create_msix_entry(struct pci_dev*, uint8_t, struct irq_data*);
 static volatile void* msi_calc_msix_base(struct pci_dev *dev, uint8_t cp);
+#endif
+
+static uint32_t msi_convert_message(struct msi_msg *msg);
+static int msi_build_message(struct msi *msi, uint32_t msg);
 
 static int
 __msi_write_message(struct msi_cfg *cfg, struct msi *msi)

@@ -147,7 +147,7 @@ ol_cpu_init(ol_cpu_t cpu)
 #endif
   }
   cpus = cpu;
-  cpu_num = cpu_get_num();
+ // cpu_num = cpu_get_num();
   cpu->unlock(&cpu_lock);
   return;
 }

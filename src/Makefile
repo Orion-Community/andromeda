@@ -3,11 +3,10 @@ include scripts/x86
 
 MAKEEND=FLAGS="$(FLAGS) "
 
-MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __PCI_DEBUG -D MSI -D \
-MSIX -D MSIX_DEBUG -D WARN -D MSG_DBG"
+MAKEEND+=FLAGS+="-D X86 -D __INTEL -D __PCI_DEBUG -D MSI -D WARN -D MSG_DBG"
 # MAKEEND+=FLAGS+="-D X86 -D __INTEL"
 
-DEPS=arch.o net.o andromeda.o mm.o maths.o sys.o fs.o drivers.o lib.o
+DEPS=arch.o net.o andromeda.o mm.o maths.o fs.o drivers.o lib.o
 ifeq ($(wildcard /etc/fedora-release),)
 	QEMU=qemu
 else

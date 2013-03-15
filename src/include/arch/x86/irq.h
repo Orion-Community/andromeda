@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 #include <sys/dev/pci.h>
-#include <arch/x86/apic/msi.h>
+#include <drivers/pci/msi.h>
 
 #include "interrupts.h"
 

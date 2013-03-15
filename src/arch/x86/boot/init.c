@@ -46,10 +46,10 @@
 #include <sys/sys.h>
 
 #include <arch/x86/cpu.h>
-#include <arch/x86/apic/apic.h>
-#include <arch/x86/acpi/acpi.h>
+//#include <arch/x86/apic/apic.h>
+//#include <arch/x86/acpi/acpi.h>
 #include <arch/x86/mp.h>
-#include <arch/x86/apic/ioapic.h>
+//#include <arch/x86/apic/ioapic.h>
 #include <arch/x86/idt.h>
 #include <arch/x86/pic.h>
 #include <arch/x86/irq.h>
@@ -153,17 +153,17 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #endif
         /** In the progress of phasing out */
         /** Set up paging administration */
-        x86_page_init(memsize);
+        /*x86_page_init(memsize);
         mboot_page_setup(mmap, (uint32_t)hdr->mmap_length);
         mboot_map_modules((void*)hdr->mods_addr, hdr->mods_count);
 
-        /** For now this is the temporary page table map */
+        /** For now this is the temporary page table map *//*
         build_map(mmap, (unsigned int) hdr->mmap_length);
-
+        page_init();
+        */
         /** end of deprication */
         task_init();
 
-        page_init();
         printf(WELCOME); // The only screen output that should be maintained
         pic_init();
         setIDT();
@@ -176,15 +176,15 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, heap);
 
-        acpi_init();
+        //acpi_init();
         ol_cpu_t cpu = kalloc(sizeof (*cpu));
         if (cpu == NULL)
                 panic("OUT OF MEMORY!");
         ol_cpu_init(cpu);
 
         ol_ps2_init_keyboard();
-        ol_apic_init(cpu);
-        init_ioapic();
+        //ol_apic_init(cpu);
+        //init_ioapic();
         ol_pci_init();
         debug("Little endian 0xf in net endian %x\n", htons(0xf));
 #ifdef DBG

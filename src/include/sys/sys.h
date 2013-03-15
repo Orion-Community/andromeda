@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 
-#include <arch/x86/acpi/acpi.h>
+//#include <arch/x86/acpi/acpi.h>
 #include <arch/x86/cpu.h>
 #include <arch/x86/mp.h>
 
