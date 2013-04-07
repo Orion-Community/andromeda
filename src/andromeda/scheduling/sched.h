@@ -15,25 +15,3 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-/**
- * \fn sched_switch_epoch()
- * \brief Switch to the next epoch.
- * \return Returns the next epoch head.
- * \warning UNTESTED!
- *
- * This function will reset and resort the current epoch and create a new one.
- */
-static struct task_head *sched_switch_epoch();
-
-/**
- * \fn starvation_watchdog()
- * \brief Checks if there is no starvation.
- * \TODO: Write the actual function.
- *
- * This function will set tasks temporarily to a lower priority if there is
- * starvation.
- */
-static int sched_starvation_watchdog();
-

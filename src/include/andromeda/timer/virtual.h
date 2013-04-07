@@ -46,6 +46,6 @@ typedef struct virtual_timer
         TIMER *hwtimer;
 } VIRT_TIMER;
 
-static int destroy_virt_timer(struct virtual_timer*);
+extern int destroy_virt_timer(struct virtual_timer*);
 
 #endif
