@@ -1,10 +1,10 @@
 include ../../scripts/makeIncl
 include ../../scripts/x86
 
-CFLAGS+=-I../../include/
+CFLAGS+=-I../../../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-DEPS=../../include/lib/tree.h
+DEPS=../../../include/lib/tree.h
 TARGETS=tree.c
 
 .PHONY: avl.0

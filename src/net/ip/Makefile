@@ -1,8 +1,8 @@
 # compliler shizle
 AS=nasm
-ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
+ASFLAGS=-felf32 -I"../../../include/" $(FLAGS)
 CC=gcc
-CFLAGS=-I"../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
+CFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
 -finline-functions-called-once -fno-builtin -nostdinc $(FLAGS)
 MAKE=make
 LD=ld

@@ -1,6 +1,6 @@
 include ../../scripts/makeIncl
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
-CFLAGS+=-I../../include/
+CFLAGS+=-I../../../include/
 
 DEPS=VGA.c graphics.c text.c
 TARGETS=vga.o
