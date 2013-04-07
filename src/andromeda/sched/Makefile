@@ -14,4 +14,4 @@ SCHED_TARGET=sched.o
 
 all: $(SCHED_OBJS)
 	$(LD) $(LDFLAGS) -o_$(SCHED_TARGET) $(SCHED_OBJS)
-	-mv _$(TARGET) ../$(TARGET)
+	-mv _$(SCHED_TARGET) ../$(SCHED_TARGET)
