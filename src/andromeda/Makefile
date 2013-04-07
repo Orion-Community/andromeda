@@ -1,5 +1,5 @@
 include ../scripts/makeIncl
-CFLAGS+=-I../include
+CFLAGS+=-I../../include
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 TARGETS=sched.o core.o syscall.o panic.o drivers.o buffer.o atomic.o lib.o \

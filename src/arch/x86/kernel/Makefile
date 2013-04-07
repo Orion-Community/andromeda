@@ -1,9 +1,9 @@
 #include ../../../scripts/makeIncl
 # compliler shizle
 AS=nasm
-ASFLAGS=-felf32 -I"../../../include/" $(FLAGS)
+ASFLAGS=-felf32 -I"../../../../include/" $(FLAGS)
 CC=gcc
-CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
+CCFLAGS=-I"../../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
  -fno-builtin -nostdinc -finline-functions-called-once $(FLAGS)
 #CCFLAGS:=$(CFLAGS) -I"../../../include"
 LD=ld

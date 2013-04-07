@@ -8,12 +8,12 @@
 ##
 
 include ../../scripts/makeIncl
-CFLAGS+=-I../../include/
+CFLAGS+=-I../../../include/
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
 # compliler shizle
 AS=nasm
-ASFLAGS=-felf32 -I"../../include/" $(FLAGS)
+ASFLAGS=-felf32 -I"../../../include/" $(FLAGS)
 
 ## Sources
 ATA=ata.c
