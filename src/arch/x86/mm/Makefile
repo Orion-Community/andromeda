@@ -1,8 +1,8 @@
 include ../../../scripts/makeIncl
 MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
-CFLAGS+=-I../../../include/
+CFLAGS+=-I../../../../include/
 AS=nasm
-ASFLAGS=-felf32 -I"../../../include/" $(FLAGS)
+ASFLAGS=-felf32 -I"../../../../include/" $(FLAGS)
 
 LD=ld
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386

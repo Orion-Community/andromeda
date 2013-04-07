@@ -6,7 +6,7 @@ LD=ld
 #-D VERSION=\"$(shell git describe)\"
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-CFLAGS+=-I"../../../include"
+CFLAGS+=-I"../../../../include"
 
 AS=nasm
 

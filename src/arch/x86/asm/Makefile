@@ -1,13 +1,13 @@
 include ../../../scripts/makeIncl
 AS=nasm
 
-ASFLAGS=-felf32 -D X86 -I../../../include/ $(FLAGS)
+ASFLAGS=-felf32 -D X86 -I../../../../include/ $(FLAGS)
 
 #CC=gcc
 #CCFLAGS=-I"../../../include/" -c -m32 -nostdlib -nodefaultlibs -fno-stack-protector \
 # -fno-builtin -nostdinc -finline-functions-called-once $(FLAGS)
 
-CCFLAGS:=$(CFLAGS) $(FLAGS) -I"../../../include"
+CCFLAGS:=$(CFLAGS) $(FLAGS) -I"../../../../include"
 
 IO=io.asm
 IO_INLINE=io.c
