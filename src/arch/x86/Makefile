@@ -1,6 +1,6 @@
 include ../../scripts/makeIncl
 MAKEEND=FLAGS="$(FLAGS) " DEFS="$(DEFS)" $(DEFS)
-CFLAGS+=-I../../include/
+CFLAGS+=-I../../../include/
 
 # compliler shizle
 AS=nasm
