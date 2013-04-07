@@ -162,7 +162,7 @@ char padding;
         int maxlen = 2;
 
         unsigned long long tmp = base;
-        while( tmp < 4294967295L )
+        while( tmp < 4294967295UL )
         {
                 tmp *= base;
                 maxlen++;

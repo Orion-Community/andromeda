@@ -25,6 +25,8 @@ atomic_t vga_text_count;
 static mutex_t vga_text_lock = mutex_unlocked;
 static struct device* vga_dev = NULL;
 
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic push
 static int vga_text_read(struct vfile*  this, char* buf, size_t num)
 {
         warning("vga_text_read not implemented!\n");
@@ -54,6 +56,7 @@ static int vga_text_write(struct vfile* this, char* buf, size_t num)
         warning("vga_text_write not implemented!");
         return -E_NOFUNCTION;
 }
+#pragma GCC diagnostic pop
 
 static struct vfile* vga_text_open(struct device *this)
 {

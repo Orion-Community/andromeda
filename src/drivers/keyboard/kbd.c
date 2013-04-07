@@ -242,17 +242,3 @@ static void toggle_kb_leds(uint8_t status)
                 ol_ps2_config_keyboard(status);
         }
 }
-
-static bool await_kb_ack(uint8_t value)
-{
-        uint8_t val;
-top:
-        while((inb(OL_KBC_STATUS_REGISTER) & 0x2) != 0);
-        outb(OL_KBC_DATA_PORT, value);
-        while((inb(OL_KBC_STATUS_REGISTER) & 0x1) == 0);
-        val = inb(OL_KBC_DATA_PORT);
-        if(val == 0xfe) goto top;
-
-        printf("%x", (uint32_t)val);
-        return TRUE;
-}

@@ -30,6 +30,7 @@ get_virtual_timer_head()
         return &head;
 }
 
+#if 0
 THREAD(virtual_ktimer, timer_data)
 {
         VIRT_TIMER *carriage, *tmp, *head = get_virtual_timer_head();
@@ -44,9 +45,9 @@ THREAD(virtual_ktimer, timer_data)
                 }
         }
 }
+#endif
 
-static int
-destroy_virt_timer(struct virtual_timer* timer)
+int destroy_virt_timer(struct virtual_timer* timer)
 {
         if(timer->previous)
         {
@@ -63,8 +64,7 @@ destroy_virt_timer(struct virtual_timer* timer)
         return -E_SUCCESS;
 }
 
-static int
-virt_register_timer(VIRT_TIMER *timer)
+static int virt_register_timer(VIRT_TIMER *timer)
 {
         VIRT_TIMER *head = get_virtual_timer_head(), *tmp, *carriage;
         for_each_ll_entry_safe(head, carriage, tmp)

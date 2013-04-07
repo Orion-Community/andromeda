@@ -102,11 +102,15 @@ random()
 
 #define PI (3.141592653589793) //238462643383279502884197169399375105820974944592307816406286209 Yes, I know the compiler will skip most of the decimals...
 
+#if 0
+/*
+ * These functions are bad, real bad.
+ */
 double
 NAN()
 {
 	double nan;
-	*((int*)&nan) = 0x7f800000;
+	*((float*)&nan) = 0x7f800000;
 	return nan;
 }
 
@@ -125,6 +129,7 @@ NANl()
 	*((int*)&nan) = 0x7f800000;
 	return nan;
 }
+#endif
 
 inline char
 isNaN(double num)
@@ -480,6 +485,10 @@ tanhl(long double x)
 	return sinhl(x)/coshl(x);
 }
 
+#if 0
+/*
+ * Uses some realy bad functions.
+ */
 double
 atanh(double x)
 {
@@ -503,6 +512,7 @@ atanhl(long double x)
 		return NANl();
 	return lnl( (1+x) / (1-x) )/2;
 }
+#endif
 
 double
 exp(double n) //An other beatyfull taylor polynominal
@@ -513,7 +523,7 @@ exp(double n) //An other beatyfull taylor polynominal
 	for (; (fac<0xffffffff) ;i++) // stop if i is insane high
 	{
 		ret += x/i;  // ret += (x^i)/(i!)
-		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
+		if ( (x>(0xffffffff/n)) || ( x==(x*n) ) ) // stop if x != relyable anymore
 			break;
 		fac *= i;  // making it (i+1)!
 	}
@@ -529,7 +539,7 @@ expf(float n) //An other beatyfull taylor polynominal
 	for (; (fac<0xffffffff) ;i++) // stop if i is insane high
 	{
 		ret += x/i;  // ret += (x^i)/(i!)
-		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
+		if ( (x>(0xffffffff/n)) || ( x==(x*n) ) ) // stop if x != relyable anymore
 			break;
 		fac *= i;  // making it (i+1)!
 	}
@@ -545,7 +555,7 @@ expl(long double n) //An other beatyfull taylor polynominal
 	for (; (fac<0xffffffff) ;i++) // stop if i is insane high
 	{
 		ret += x/i;  // ret += (x^i)/(i!)
-		if ( (x>(0xffffffff/n)) || ( x==(x*=n) ) ) // stop if x != relyable anymore
+		if ( (x>(0xffffffff/n)) || ( x==(x*n) ) ) // stop if x != relyable anymore
 			break;
 		fac *= i;  // making it (i+1)!
 	}

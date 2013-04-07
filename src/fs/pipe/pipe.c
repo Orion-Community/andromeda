@@ -44,8 +44,9 @@ static void* pipe_get_new_block(struct pipe* pipe)
                 return kalloc(pipe->block_size);
 }
 
-static int pipe_cleanup_block(struct pipe* pipe, void* block)
+static int pipe_cleanup_block(void *data, void* block)
 {
+		struct pipe *pipe = (struct pipe*)data;
         if (pipe == NULL || block == NULL)
                 return -E_NULL_PTR;
 
