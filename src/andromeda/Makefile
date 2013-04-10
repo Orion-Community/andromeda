@@ -2,7 +2,7 @@ include ../scripts/makeIncl
 CFLAGS+=-I../../include
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
 
-TARGETS=sched.o scheduling.o core.o syscall.o panic.o drivers.o buffer.o atomic.o lib.o \
+TARGETS=scheduling.o sched.o core.o syscall.o panic.o drivers.o buffer.o atomic.o lib.o \
 load.o ktimer.o
 
 ELF=elf.c exec.c
