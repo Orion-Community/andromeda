@@ -12,6 +12,8 @@ SCHED_OBJS=$(SCHED_SRCS:.c=.o)
 # TARGET
 SCHED_TARGET=sched.o
 
+.PHONY: all clean
 all: $(SCHED_OBJS)
 	$(LD) $(LDFLAGS) -o_$(SCHED_TARGET) $(SCHED_OBJS)
 	-mv _$(SCHED_TARGET) ../$(SCHED_TARGET)
+
