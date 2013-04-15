@@ -108,9 +108,9 @@ snp:
 	jmp isrStub
 
 [GLOBAL pageFault]
-[EXTERN cPageFault]
+[EXTERN x86_pagefault]
 pageFault:
-	isrError cPageFault
+	isrError x86_pagefault
 	jmp isrStub
 
 [GLOBAL fpu]

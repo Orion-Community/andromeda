@@ -64,6 +64,7 @@
 #include <andromeda/cpu.h>
 #include <andromeda/elf.h>
 #include <andromeda/drivers.h>
+#include <andromeda/error.h>
 #include <mm/page_alloc.h>
 
 #include <lib/byteorder.h>
@@ -124,7 +125,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
          * \todo Make complement_heap so that it allocates memory from pte
          */
         complement_heap(&end, HEAPSIZE);
-        addr_t tmp = (addr_t)hdr + offset;
+        addr_t tmp = (addr_t)hdr + THREE_GIB;
         hdr = (multiboot_info_t*)tmp;
 
         if (magic != MULTIBOOT_BOOTLOADER_MAGIC)

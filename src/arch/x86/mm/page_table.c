@@ -246,6 +246,13 @@ int x86_pte_unset_page(void* virt)
         return ret;
 }
 
+void
+x86_pagefault(isrVal_t registers)
+{
+        panic("The new pagefaults haven't yet been implemented!");
+        return;
+}
+
 /**
  * @} \file
  */

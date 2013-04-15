@@ -60,7 +60,7 @@ void examine_heap();
 #define kzalloc(size) knalloc(size)
 
 // Alloc_max = 1 MB
-#define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end) - offset)
+#define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end) - THREE_GIB)
 #define ALLOC_MAX HEAPSIZE
 
 #ifdef MMTEST
