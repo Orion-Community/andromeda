@@ -145,7 +145,7 @@ void core_loop()
                 "phys: %X\n"
                 "virt: %X\n",
                 &core_loop,
-                pte_get_phys(core_loop),
+                x86_pte_get_phys(core_loop),
                 core_loop
         );
 #endif
