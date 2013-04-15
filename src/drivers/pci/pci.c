@@ -256,6 +256,7 @@ __ol_pci_read_dword(ol_pci_addr_t addr)
   return ret;
 }
 
+#pragma GCC diagnostic ignored "-Wunused-function"
 static uint8_t
 __ol_pci_read_byte(ol_pci_addr_t addr, uint16_t reg)
 {
@@ -313,7 +314,7 @@ debug_pci_list()
   struct ol_pci_node *node;
   for(node = pcidevs; node != NULL && node != node->next; node = node->next)
   {
-    //print_pci_dev(node->dev->class, node->dev->subclass);
+    print_pci_dev(node->dev->class, node->dev->subclass);
     if(node->dev->class == 0x2)
     {
       debug_pci_print_cp_list(node->dev);

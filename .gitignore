@@ -12,3 +12,6 @@ src/scripts/floppy.img
 doc/doxygen/*
 *.iso
 .settings
+andromeda.project
+andromeda.tags
+andromeda.workspace*

@@ -25,6 +25,27 @@
 extern char HEX[];
 extern char hex[];
 
+int fputc(struct vfile* stream, int chr)
+{
+	return stream->write(stream, (char*)&chr, 1);
+}
+
+int fputs(struct vfile* stream, char* src)
+{
+	return stream->write(stream, src, strlen(src));
+}
+
+int sputs(char* dest, char* src)
+{
+        int i = 0;
+        while(*src != '\0')
+        {
+                *dest++ = *src++;
+                i++;
+        }
+        return i;
+}
+
 #define PRINTNUM_PADDING ' '
 /**
  * \fn sprintnum
@@ -110,6 +131,48 @@ char padding;
                 *(str++) = tmp_str[sizeof(tmp_str) - idx];
         return ret;
 }
+/**
+ * \fn fprintnum
+ * \brief Write integer numbers according to a format and base number.
+ * \param stream
+ * \brief The stream to write to
+ * \param min_size
+ * \brief How many chars must this fill?
+ * \param num
+ * \brief What number do we print?
+ * \param base
+ * \brief The base number for the printed number
+ * \param capital
+ * \brief Can we use capitals in the text?
+ * \param sign
+ * \brief Is the integer signed or not?
+ * \return The number of chars printed.
+ */
+int
+fprintnum(stream, min_size, num, base, capital, sign, padding)
+struct vfile* stream;
+size_t min_size;
+int num;
+int base;
+bool capital;
+bool sign;
+char padding;
+{
+        int ret;
+        int maxlen = 2;
+
+        unsigned long long tmp = base;
+        while( tmp < 4294967295UL )
+        {
+                tmp *= base;
+                maxlen++;
+        }
+
+        char str[maxlen];
+        ret = sprintnum(str, min_size, num, base, capital, sign, padding);
+        fputs(stream,str);
+        return ret;
+}
 
 /**
  * \fn fprintf
@@ -120,8 +183,7 @@ char padding;
  */
 int fprintf(struct vfile* stream, char* fmt, ...)
 {
-        if (stream == NULL || fmt == NULL)
-                return 0;
+        // No need to check (stream == NULL || fmt == NULL) since we dont rely on these variable being non zero in THIS function. vfprintf may do so, but that why vfprintf has its own check.
 
         va_list list;
         va_start(list, fmt);
@@ -146,81 +208,126 @@ int fprintf(struct vfile* stream, char* fmt, ...)
  */
 int vfprintf(struct vfile* stream, char* fmt, va_list list)
 {
+        /* Check the preconditions first. */
         if (stream == NULL || fmt == NULL)
                 return 0;
         if (stream->write == NULL)
                 return 0;
 
-        /*
-         * ret = the return number
-         * str_len = the number of bytes to reserve for the output string
-         * i the counter for looping through the fmt
-         * escaped is to mark an %
-         * LENGTH_HEX denotes the max length a hexadecimal will generally use
-         * LENGTH_DEC does the same as LENGTH_HEX for decimals
-         */
-        int ret = 0;
-        size_t str_len = 0;
-        int i = 0;
-        bool escaped = false;
-#define LENGTH_HEX 8
-#define LENGTH_DEC 11
+        int num = 0;
+        char padding = PRINTNUM_PADDING;
+        char* lastWritePosition = fmt;
 
-        /* Figure out the length of the string we'll need */
-        for (; fmt[i] != '\0'; str_len++, i++)
+        /* Itterate through the string to put every character in place. */
+        for (; *fmt != '\0'; fmt++, num++)
         {
-                switch(fmt[i])
+                /* If formatted? */
+                if (*fmt == '%')
                 {
-                case '%':
-                        escaped = !escaped;
-                        break;
-                case 'x':
-                case 'X':
-                        if (escaped)
+                        /* Interpret the format numbering. */
+                        int pre  = 0;
+                        int post = 0;
+                        bool dotted = false;
+                        for (; (*(fmt + 1) >= '0' &&
+                                *(fmt + 1) <= '9') ||
+                                *(fmt + 1) == '.';
+                                fmt++)
                         {
-                                str_len += LENGTH_HEX - 1;
-                                escaped = false;
-                        }
-                        break;
-                case 'i':
-                case 'd':
-                        if (escaped)
-                        {
-                                str_len += LENGTH_DEC - 1;
-                                escaped = false;
-                        }
-                        break;
-                default:
-                        if (escaped)
-                        {
-                                if (fmt[i] > '0' && fmt[i] < '9')
+                                if (*(fmt + 1) == '.')
+                                {
+                                        dotted = true;
                                         continue;
-                                if (fmt[i] == '.')
-                                        continue;
-                                escaped = false;
+                                }
+                                if (dotted)
+                                {
+                                        post *= 10;
+                                        post += (*(fmt+1) - '0');
+                                }
+                                else
+                                {
+                                        if (pre == 0 && *(fmt+1) == '0')
+                                        {
+                                                padding = '0';
+                                                continue;
+                                        }
+                                        pre *= 10;
+                                        pre += (*(fmt+1) - '0');
+                                }
                         }
-                        break;
+                        if (pre == 0)
+                                pre = 1;
+                        if (post == 0)
+                                post = 1;
+                        int inc = 0;
+                        /* Print the part of the format in between the last % and this one. */
+                        num += stream->write(stream, lastWritePosition, (unsigned long)fmt - (unsigned long)lastWritePosition - 1);
+                        /* Now finally choose the type of format. */
+                        switch(*(++fmt))
+                        {
+                        case 'x': /* Print lower case hex numbers */
+                                lastWritePosition = fmt + 1;
+                                inc = fprintnum(stream, pre,
+                                                         (int)va_arg(list, int),
+                                                                             16,
+                                                                          false,
+                                                                          false,
+                                                                       padding);
+                                break;
+                        case 'X': /* Print upper case hex numbers */
+                                lastWritePosition = fmt + 1;
+                                inc = fprintnum(stream, pre,
+                                                         (int)va_arg(list, int),
+                                                                             16,
+                                                                           true,
+                                                                          false,
+                                                                       padding);
+                                break;
+                        case 'f': /* Print floats (not yet supported) */
+                                lastWritePosition = fmt + 1;
+                                break;
+                        case 'i': /* Print unsigned decimals */
+                                lastWritePosition = fmt + 1;
+                                inc = fprintnum(stream, pre,
+                                                         (int)va_arg(list, int),
+                                                                             10,
+                                                                          false,
+                                                                          false,
+                                                                       padding);
+                                break;
+                        case 'd': /* Print signed decimals */
+                                lastWritePosition = fmt + 1;
+                                inc = fprintnum(stream, pre,
+                                                         (int)va_arg(list, int),
+                                                                             10,
+                                                                          false,
+                                                                           true,
+                                                                       padding);
+                                break;
+                        case 'c': /* Print character */
+                                lastWritePosition = fmt + 1;
+                                inc = fputc(stream, va_arg(list, int));
+                                break;
+                        case 's': /* Print string of characters */
+                                lastWritePosition = fmt + 1;
+                                inc = fputs(stream, va_arg(list, char*));
+                                break;
+                        default: /* Undefined, just print fmt */
+                                lastWritePosition = fmt;
+                                continue;
+                        }
+                        /*
+                         * Update the looping info.
+                         * The -1 below compensates for the increment by the for
+                         * loop.
+                         */
+                        num += inc - 1;
+                        padding = PRINTNUM_PADDING;
                 }
         }
-        /* Initialise the output string */
-        if (str_len == 0)
-                goto err;
-        char* tmp_str = kalloc(str_len + 1);
-        if (tmp_str == NULL)
-                goto err;
-        memset(tmp_str, 0, str_len + 1);
 
-        /* Make vsprintf do all the hard work */
-        if (vsprintf(tmp_str, fmt, list) == 0)
-                goto err1;
+        num += stream->write(stream, lastWritePosition, (unsigned long)fmt - (unsigned long)lastWritePosition );
 
-        /* Now make the file pointer do all the hard work of placing the data */
-        ret = stream->write(stream, fmt, strlen(fmt));
-
-err1:
-        free(tmp_str);
-err:
-        return ret;
+        return num;
 }
 
 /**
@@ -232,8 +339,8 @@ err:
  */
 int sprintf(char* str, char* fmt, ...)
 {
-        if (str == NULL || fmt == NULL)
-                return 0;
+        // No need to check (str == NULL || fmt == NULL) since we dont rely on these variable being non zero in THIS function. vfprintf may do so, but that why vfprintf has its own check.
+
         /* Set up the variable argument list for vsprintf */
         va_list list;
         va_start(list, fmt);
@@ -346,7 +453,7 @@ int vsprintf(char* str, char* fmt, va_list list)
                                 *str = (char)va_arg(list, int);
                                 break;
                         case 's': /* Print string of characters */
-                                inc = sprintf(str, va_arg(list, char*));
+                                inc = sputs(str, va_arg(list, char*));
                                 break;
                         default: /* Undefined, just print fmt */
                                 *str = *fmt;
@@ -370,3 +477,4 @@ int vsprintf(char* str, char* fmt, va_list list)
 }
 
 /** @} \file */
+

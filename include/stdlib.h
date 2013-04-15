@@ -115,4 +115,16 @@ void shutdown();
 }
 #endif
 
+#ifdef __cplusplus
+#define DECL_START extern "C" {
+#else
+#define DECL_START
+#endif
+
+#ifdef __cplusplus
+#define DECL_END }
+#else
+#define DECL_END
+#endif
+
 #endif

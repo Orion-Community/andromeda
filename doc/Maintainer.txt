@@ -1,4 +1,5 @@
-Lead developer:
+Lead developers:
+Michel Megens		dev@michelmegens.net
 Bart Kuivenhoven	bemkuivenhoven@gmail.com
 
 mm:
@@ -16,7 +17,12 @@ Bart Kuivenhoven	bemkuivenhoven@gmail.com
 arch/x86:
 Michel Megens		info@michelmegens.net
 
-Math:
+andromeda/sched:
+Michel Megens		dev@michelmegens.net
+
+andromeda/scheduling	dev@michelmegens.net
+
+math:
 Steven van der Schoot	stevenvdschoot@gmail.com
 
 Makefiles:

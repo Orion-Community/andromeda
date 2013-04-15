@@ -38,7 +38,6 @@ extern "C" {
 
 void kb_handle(uint8_t c);
 static void toggle_kb_leds(uint8_t);
-static bool await_kb_ack(uint8_t value);
 
 typedef struct ol_kb_scancode {
 	uint8_t xt;

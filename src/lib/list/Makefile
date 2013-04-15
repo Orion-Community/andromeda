@@ -10,7 +10,7 @@ include ../../scripts/makeIncl
 
 # compliler shizle
 LDFLAGS=-r -nostdlib --oformat=elf32-i386 -melf_i386
-CFLAGS+=-I../../include/ $(FLAGS)
+CFLAGS+=-I../../../include/ $(FLAGS)
 
 TARGET=list.o
 SRC=xorlist.c
