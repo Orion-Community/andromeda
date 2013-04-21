@@ -1,0 +1,15 @@
+{
+"name" : "andromeda.img",
+"link" : true,
+"archive" : false,
+"linked-file" : "andromeda.img",
+"source-files" : [],
+"compiler" : "gcc",
+"linker" : "ld",
+"archiver" : "ar",
+"compiler-flags" : "-nostdlib -fno-builtin -nostdinc -fno-stack-protector -pipe -Os -Wall -Iinclude/",
+"dcompiler-flags" : [{"key" : "X86", "flags" : "-D X86 -D __INTEL -m32 -mtune=native -march=i386"}],
+"linker-flags" : "-oformat=elf32-i386 -melf_i386 -Tscripts/x86.ld",
+"archiver-flags" : "rs",
+"depend" : [{"path" : "src/andromeda/andromeda.build"}]
+}

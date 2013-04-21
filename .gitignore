@@ -1,5 +1,6 @@
 *.o*
 *.bin
+*.jar
 config
 *.img
 *.*project
