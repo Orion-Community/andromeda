@@ -1,0 +1,9 @@
+{
+"name" : "drivers-graphics",
+"link" : false,
+"archive" : false,
+"source-files" : ["graphics.c", "text.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

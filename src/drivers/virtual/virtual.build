@@ -1,0 +1,9 @@
+{
+"name" : "drivers-virtual",
+"link" : false,
+"archive" : false,
+"source-files" : ["bus.c", "drive.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

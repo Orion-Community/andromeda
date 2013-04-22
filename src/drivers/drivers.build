@@ -1,0 +1,10 @@
+{
+"name" : "drivers",
+"link" : false,
+"archive" : false,
+"source-files" : ["root.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : "",
+"depend" : [{"path" : "disk/disk.build"}, {"path" : "keyboard/keyboard.build"}, {"path" : "legacy/legacy.build"}, {"path" : "net/net.build"}, {"path" : "pci/pci.build"}, {"path" : "text/text.build"}, {"path" : "timer/timer.build"}, {"path" : "virtual/virtual.build"}]
+}

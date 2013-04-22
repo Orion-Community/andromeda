@@ -1,0 +1,10 @@
+{
+"name" : "lib",
+"link" : false,
+"archive" : false,
+"source-files" : [],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : "",
+"depend" : [{"path" : "avl/avl.build"}, {"path" : "list/list.build"}, {"path" : "stdio/stdio.build"}]
+}

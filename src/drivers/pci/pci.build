@@ -1,0 +1,9 @@
+{
+"name" : "drivers-pci",
+"link" : false,
+"archive" : false,
+"source-files" : ["msi.c", "pci.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

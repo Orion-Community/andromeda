@@ -1,0 +1,11 @@
+{
+"name" : "paging",
+"link" : false,
+"archive" : false,
+"archived-file" : "paging.a",
+"source-files" : ["mboot.c", "page_alloc.c", "x86.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : "",
+"depend" : [{"path" : "page_alloc/page_alloc.build"}, {"path" : "vm/vm.build"}]
+}

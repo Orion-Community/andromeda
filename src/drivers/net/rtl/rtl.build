@@ -1,0 +1,9 @@
+{
+"name" : "drivers-net-rtl",
+"link" : false,
+"archive" : false,
+"source-files" : ["rtl8168.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

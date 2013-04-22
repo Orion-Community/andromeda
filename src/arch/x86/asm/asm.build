@@ -1,0 +1,9 @@
+{
+"name" : "arch-x86-asmc",
+"link" : false,
+"archive" : false,
+"source-files" : ["io.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

@@ -1,0 +1,9 @@
+{
+"name" : "lib-avl",
+"link" : false,
+"archive" : false,
+"source-files" : ["tree.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

@@ -1,0 +1,10 @@
+{
+"name" : "page_alloc",
+"link" : false,
+"archive" : false,
+"archived-file" : "page_alloc.a",
+"source-files" : ["page_allocate.c", "page_alloc_init.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

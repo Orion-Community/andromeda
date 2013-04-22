@@ -1,0 +1,9 @@
+{
+"name" : "drivers-keyboard",
+"link" : false,
+"archive" : false,
+"source-files" : ["kbd.c", "ps2.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

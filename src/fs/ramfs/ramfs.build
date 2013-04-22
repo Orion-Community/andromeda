@@ -1,0 +1,9 @@
+{
+"name" : "fs-ramfs",
+"link" : false,
+"archive" : false,
+"source-files" : ["ramfs.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

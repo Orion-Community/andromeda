@@ -1,0 +1,10 @@
+{
+"name" : "sched",
+"link" : false,
+"archive" : false,
+"archived-file" : "sched.a",
+"source-files" : ["cfs.c", "sched.c", "task.c", "thread.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

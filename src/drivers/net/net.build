@@ -1,0 +1,10 @@
+{
+"name" : "drivers-net",
+"link" : false,
+"archive" : false,
+"source-files" : [],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : "",
+"depend" : [{"path" : "rtl/rtl.build"}]
+}

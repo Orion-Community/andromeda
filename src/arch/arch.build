@@ -1,0 +1,10 @@
+{
+"name" : "arch",
+"link" : false,
+"archive" : false,
+"source-files" : [],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : "",
+"ddepend" : [{"key" : "X86", "path" : "x86/x86.build"}]
+}

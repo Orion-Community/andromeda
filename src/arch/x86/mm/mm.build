@@ -1,0 +1,9 @@
+{
+"name" : "arch-x86-mm",
+"link" : false,
+"archive" : false,
+"source-files" : ["gdt.c", "page_api.c", "page_table.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

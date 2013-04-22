@@ -1,0 +1,10 @@
+{
+"name" : "fs",
+"link" : false,
+"archive" : false,
+"source-files" : ["path.c", "vfs.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : "",
+"depend" : [{"path" : "pipe/pipe.build"}, {"path" : "procfs/procfs.build"}, {"path" : "ramfs/ramfs.build"}]
+}

@@ -1,0 +1,9 @@
+{
+"name" : "net-core",
+"link" : false,
+"archive" : false,
+"source-files" : ["net.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

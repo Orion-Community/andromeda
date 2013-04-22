@@ -1,0 +1,10 @@
+{
+"name" : "vm",
+"link" : false,
+"archive" : false,
+"archived-file" : "vm.a",
+"source-files" : ["vm_alloc.c", "vm_init.c", "vm_user.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

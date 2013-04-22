@@ -1,0 +1,9 @@
+{
+"name" : "fs-pipe",
+"link" : false,
+"archive" : false,
+"source-files" : ["pipe.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

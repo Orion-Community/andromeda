@@ -1,0 +1,10 @@
+{
+"name" : "arch-x86-asm",
+"link" : false,
+"archive" : false,
+"source-files" : ["kernel/task.asm", "kernel/isr.asm", "kernel/irq.asm", "kernel/idt.asm", "asm/stdlib.asm", "asm/asm.asm", "asm/lgdt.asm", "asm/io.asm", "mm/cIRQ30.asm", "boot/start.asm"],
+"compiler" : "nasm",
+"compiler-override-flags" : "-iinclude/ -felf32 -D X86",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

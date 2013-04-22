@@ -1,0 +1,9 @@
+{
+"name" : "fs-procfs",
+"link" : false,
+"archive" : false,
+"source-files" : ["procfs.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

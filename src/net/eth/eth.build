@@ -1,0 +1,9 @@
+{
+"name" : "net-eth",
+"link" : false,
+"archive" : false,
+"source-files" : ["eth.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

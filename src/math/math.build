@@ -1,0 +1,9 @@
+{
+"name" : "math",
+"link" : false,
+"archive" : false,
+"source-files" : ["math.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

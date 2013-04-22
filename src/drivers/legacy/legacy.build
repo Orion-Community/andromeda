@@ -1,0 +1,9 @@
+{
+"name" : "drivers-legacy",
+"link" : false,
+"archive" : false,
+"source-files" : ["bus.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

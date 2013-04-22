@@ -1,0 +1,12 @@
+{
+"name" : "mm",
+"link" : false,
+"archive" : false,
+"archived-file" : "mm.a",
+"source-files" : ["map.c", "memory.c", "test.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : "",
+"depend" : [{"path" : "paging/paging.build"}],
+"ddepend" : [{"key" : "slab", "path" : "slab/slab.build"}, {"key" : "slob", "path" : "slob/slob.build"}]
+}

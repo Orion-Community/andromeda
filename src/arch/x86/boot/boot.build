@@ -1,0 +1,9 @@
+{
+"name" : "arch-x86-boot",
+"link" : false,
+"archive" : false,
+"source-files" : ["init.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

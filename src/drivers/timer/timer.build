@@ -1,0 +1,9 @@
+{
+"name" : "drivers-timer",
+"link" : false,
+"archive" : false,
+"source-files" : ["timer.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

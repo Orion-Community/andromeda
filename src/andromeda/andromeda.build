@@ -2,8 +2,10 @@
 "name" : "andromeda",
 "link" : false,
 "archive" : false,
+"archived-file" : "andromeda.a",
 "source-files" : ["atomic.c", "buffer.c", "core.c", "drivers.c", "elf.c", "exec.c", "lib.c", "panic.c", "syscall.c"],
 "compiler-flags" : "",
 "linker-flags" : "",
-"archiver-flags" : ""
+"archiver-flags" : "",
+"depend" : [{"path" : "sched/sched.build"}, {"path" : "scheduling/scheduling.build"}, {"path" : "timer/timer.build"}]
 }

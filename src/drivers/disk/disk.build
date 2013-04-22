@@ -1,0 +1,9 @@
+{
+"name" : "drivers-disk",
+"link" : false,
+"archive" : false,
+"source-files" : ["ata.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

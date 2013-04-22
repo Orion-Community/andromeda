@@ -1,0 +1,10 @@
+{
+"name" : "slab",
+"link" : false,
+"archive" : false,
+"rchived-file" : "slab.a",
+"source-files" : ["slab_alloc.c", "slab_init.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

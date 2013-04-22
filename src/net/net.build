@@ -1,0 +1,10 @@
+{
+"name" : "net",
+"link" : false,
+"archive" : false,
+"source-files" : ["netlayer.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : "",
+"depend" : [{"path" : "core/core.build"}, {"path" : "eth/eth.build"}, {"path" : "ip/ip.build"}]
+}

@@ -1,0 +1,9 @@
+{
+"name" : "drivers-text",
+"link" : false,
+"archive" : false,
+"source-files" : ["out.c", "vga_text.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

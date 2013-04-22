@@ -1,0 +1,9 @@
+{
+"name" : "arch-x86-kernel-cpu",
+"link" : false,
+"archive" : false,
+"source-files" : ["cpu.c", "mp.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

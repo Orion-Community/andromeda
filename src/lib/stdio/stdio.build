@@ -1,0 +1,9 @@
+{
+"name" : "lib-stdio",
+"link" : false,
+"archive" : false,
+"source-files" : ["printf.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

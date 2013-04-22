@@ -1,0 +1,9 @@
+{
+"name" : "lib-list",
+"link" : false,
+"archive" : false,
+"source-files" : ["xorlist.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

@@ -1,0 +1,9 @@
+{
+"name" : "net-ip",
+"link" : false,
+"archive" : false,
+"source-files" : ["arp.c", "ip.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}
