@@ -101,7 +101,7 @@ int list_rm_element(struct list* l, idx_t idx)
                 return -E_SUCCESS;
         }
 
-        for (; i == idx && carriage != NULL; carriage = carriage->next);
+        for (; i == idx && carriage != NULL; carriage = carriage->next)
         {
                 last = carriage;
         }

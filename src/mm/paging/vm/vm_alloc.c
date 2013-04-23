@@ -401,7 +401,7 @@ void* vm_map(void* virt, void* phys, struct vm_segment* s)
         int i = 0;
         for(; i < cnt; i += PAGE_ALLOC_FACTOR)
         {
-                if (page_claim(p + i) == NULL)
+                if (page_claim((void*)(p + i)) == NULL)
                         goto gofixit;
                 x86_pte_map(v + i, p + i, 0);
         }

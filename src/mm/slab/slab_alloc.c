@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <andromeda/core.h>
 
-#ifdef SLAB
 #ifdef SLAB_DBG
 struct mm_cache* last_cache = NULL;
 #endif
@@ -742,5 +741,3 @@ mm_cache_test()
  * @}
  *\file
  */
-
-#endif

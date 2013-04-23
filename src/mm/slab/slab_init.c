@@ -20,8 +20,8 @@
 #include <stdlib.h>
 #include <mm/cache.h>
 #include <mm/page_alloc.h>
+#include <mm/vm.h>
 
-#ifdef SLAB
 
 /**
  * \AddToGroup slab
@@ -398,5 +398,3 @@ err:
  * @}
  *\file
  */
-
-#endif

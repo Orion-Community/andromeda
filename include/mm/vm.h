@@ -144,6 +144,7 @@ void* vm_get_phys(void* virt);
 void* x86_pte_get_phys(void* virt);
 int vm_init();
 void* vm_map_heap(void* phys, size_t size);
+void* vm_get_kernel_heap_pages(size_t size);
 
 #ifdef VM_DBG
 int vm_dump(struct vm_descriptor*);

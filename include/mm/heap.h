@@ -49,7 +49,6 @@ int free(void*);
 int initHdr(volatile memory_node_t*, size_t);
 void heapStub();
 void heap_add_blocks(void* base, uint32_t size);
-void* boot_alloc(size_t size);
 #define examineHeap examine_heap
 #define ol_dbg_heap examine_heap
 void examine_heap();
