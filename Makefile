@@ -4,7 +4,7 @@
 
 MAKE=make
 
-.PHONY: all clean configure distclean test
+.PHONY: all clean configure distclean test doxygen
 	@$(MAKE) -C src/ clean
 
 all: scripts/build.jar
@@ -24,3 +24,6 @@ distclean: clean
 
 test: all
 	qemu-system-i386 -kernel bin/andromeda.img -m 64M
+
+doxygen:
+	doxygen scripts/doxyfile
