@@ -109,7 +109,7 @@ struct sys_net {
 };
 
 struct sys_fs {
-        int (*mount)(struct file*, char* path);
+        int (*mount)(struct vfile*, char* path);
         int (*umount)();
         int (*open)();
         int (*close)();
@@ -119,7 +119,7 @@ struct sys_fs {
 };
 
 struct system {
-        struct arch_abstraction_layer* arch;
+        struct sys_arch_abstraction* arch;
         struct sys_memory_manager* mm;
         struct sys_device_tree* devices;
         struct sys_module_tree* kernel_modules;
