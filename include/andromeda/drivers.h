@@ -112,7 +112,7 @@ struct device
         uint64_t dev_id;
 
         /** \var name */
-        char   name[DEVICE_NAME_SIZE];
+        char name[DEVICE_NAME_SIZE];
 
         /** \var type */
         device_type_t type;
