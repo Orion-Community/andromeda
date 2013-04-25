@@ -115,7 +115,7 @@ int vga_text_init(struct device* parent)
         this->driver = kalloc(sizeof(struct driver));
         if (this->driver == NULL)
         {
-                free(this);
+                kfree(this);
                 return -E_NOMEM;
         }
         memset (this->driver, 0, sizeof(struct driver));

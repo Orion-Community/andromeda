@@ -567,7 +567,7 @@ tree_flush_node(struct tree* tree, int (*dtor)(void*, void*), void* dtor_arg)
         printf("Flushing %X\n", tree->key);
         memset(tree, 0, sizeof(*tree));
 
-        free(tree);
+        kfree(tree);
         return -E_SUCCESS;
 }
 
@@ -585,7 +585,7 @@ int tree_flush(struct tree_root* root, int (dtor)(void*,void*), void* dtor_arg)
         mutex_unlock(&root->mutex);
 
         memset(root, 0, sizeof(*root));
-        free(root);
+        kfree(root);
         return -E_SUCCESS;
 }
 

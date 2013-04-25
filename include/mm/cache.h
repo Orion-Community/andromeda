@@ -22,6 +22,7 @@
 #include <defines.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -104,6 +105,10 @@ int test_calculation_functions();
 struct mm_cache* mm_cache_init(char*, size_t, size_t, cinit, cinit);
 void* mm_cache_alloc(struct mm_cache* cache, uint16_t flags);
 int mm_cache_free(struct mm_cache* cache, void* ptr);
+void* kmem_alloc(size_t, uint16_t);
+void kmem_free(void*, size_t);
+
+int slab_sys_register();
 
 #ifdef SLAB_DBG
 int mm_cache_test();

@@ -40,7 +40,7 @@ virt_drive_init(size_t size, void* data, rd_t type)
         drive->driver = kalloc(sizeof(struct driver));
         if (drive->driver == NULL)
         {
-                free (drive);
+                kfree (drive);
                 return NULL;
         }
 

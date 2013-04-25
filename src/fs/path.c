@@ -24,7 +24,7 @@ void clean_path(struct __PATH_ELEMENT* elements)
 	struct __PATH_ELEMENT *carriage = elements;
 	for (; carriage != NULL; carriage = carriage->next)
 	{
-		free(carriage);
+		kfree(carriage);
 	}
 }
 

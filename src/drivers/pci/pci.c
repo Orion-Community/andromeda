@@ -110,7 +110,7 @@ ol_pci_init()
   dev->hook = &pci_add_list;
 #endif
   ol_pci_iterate(dev);
-  free(dev);
+  kfree(dev);
 
 #ifdef __PCI_DEBUG
   debug_pci_list();

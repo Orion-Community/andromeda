@@ -52,7 +52,7 @@ static int pipe_cleanup_block(void *data, void* block)
 
         int ret = -E_SUCCESS;
         if (pipe->block_size != BLOCK_SIZE)
-                ret =  kfree(block);
+                kfree(block);
         else
                 ret = mm_cache_free(pipe_cache, block);
 

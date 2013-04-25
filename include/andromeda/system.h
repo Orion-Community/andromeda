@@ -21,6 +21,7 @@
 
 #include <lib/tree.h>
 #include <fs/vfs.h>
+#include <types.h>
 
 #define CPU_LIMIT 0x10
 
@@ -80,10 +81,11 @@ struct sys_arch_abstraction{
 };
 
 struct sys_memory_manager {
-        int (*page_alloc)();
-        int (*page_free)();
-        int (*alloc)();
-        int (*free)();
+        void* (*page_alloc)();
+        void* (*page_share)(void*);
+        int (*page_free)(void*);
+        void* (*alloc)(size_t, uint16_t);
+        void  (*free)(void*, size_t);
 };
 
 struct sys_device_tree {
@@ -92,10 +94,6 @@ struct sys_device_tree {
         int (*get_dev)();
         int (*set_dev)();
         struct device* root_dev;
-};
-
-struct sys_module {
-        struct vfile* module;
 };
 
 struct sys_module_tree {
@@ -110,12 +108,11 @@ struct sys_net {
 
 struct sys_fs {
         int (*mount)(struct vfile*, char* path);
-        int (*umount)();
-        int (*open)();
-        int (*close)();
-        int (*read)();
-        int (*write)();
-        struct tree_root* files;
+        int (*umount)(char* path);
+        int (*open)(char* path, char* rights);
+        int (*close)(int file);
+        int (*read)(int file, char* data, int len);
+        int (*write)(int file, char* data, int len);
 };
 
 struct system {
@@ -126,5 +123,18 @@ struct system {
         struct sys_fs* fs;
         struct sys_net* net;
 };
+
+extern struct system core;
+
+#define hasmm (core.mm != NULL)
+
+#define kmalloc(a) ((hasmm && core.mm->alloc != NULL) ? core.mm->alloc(a, 0) : (void*)0)
+#ifndef kfree
+#define kfree(a) ((hasmm && core.mm->free != NULL) ? core.mm->alloc(a, sizeof(*a)) : 0)
+#endif
+
+#define phys_page_alloc ((hasmm && core.mm->page_alloc != NULL) ? core.mm->page_alloc() : 0)
+#define phys_page_share(a) ((hasmm && core.mm->page_share != NULL) ? core.mm->page_share(a) : 0)
+#define phys_page_free(a) ((hasmm && core.mm->page_free != NULL) ? core.mm->page_free(a) : 0)
 
 #endif

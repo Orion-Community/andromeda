@@ -54,7 +54,7 @@ int destroy_virt_timer(struct virtual_timer* timer)
                 timer->previous->next = timer->next;
                 if(timer->next)
                         timer->next->previous = timer->previous;
-                free(timer);
+                kfree(timer);
         }
         else if(timer == get_virtual_timer_head())
         {

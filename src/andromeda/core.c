@@ -101,7 +101,7 @@ void test_sprintf()
         int ret = sprintf(test, "hello: %8X\n", 0xC0DE);
         printf("%X\t%s", ret, test);
 
-        free(test);
+        kfree(test);
 }
 
 extern int page_table_boot;

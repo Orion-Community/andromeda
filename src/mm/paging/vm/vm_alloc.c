@@ -181,7 +181,8 @@ struct vm_range_descriptor* range;
         else
                 range->parent->allocated = range->next;
 
-        return kfree(range);
+        kfree(range);
+        return -E_SUCCESS;
 }
 
 static int

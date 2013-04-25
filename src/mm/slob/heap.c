@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <thread.h>
 #include <mm/heap.h>
+#include <andromeda/system.h>
 #define SIZE ((size <= ALLOC_MAX) ? size : ALLOC_MAX)
 
 //Makes use of the memory bitmap to select the pages that are usable.
@@ -110,4 +111,14 @@ heap_add_blocks(void* base, uint32_t size)
 			panic("Could not add blocks to map");
 		mutex_unlock(&prot);
 	}
+}
+
+int slob_sys_register()
+{
+        if (core.mm == NULL)
+                return -E_NOT_YET_INITIALISED;
+        core.mm->alloc = alloc;
+        core.mm->free = free;
+
+        return -E_SUCCESS;
 }

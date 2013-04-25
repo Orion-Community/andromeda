@@ -73,7 +73,7 @@ int init_buses(struct device* root)
         struct device* legacy  = kalloc(sizeof(struct device));
         if (legacy == NULL)
         {
-                free(virtual);
+                kfree(virtual);
                 return -E_NOMEM;
         }
 

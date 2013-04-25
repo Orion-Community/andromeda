@@ -56,7 +56,7 @@ ram_fs_init(struct device* drive)
         return super;
 
 dev_alloc:
-        free(super);
+        kfree(super);
         return NULL;
 }
 

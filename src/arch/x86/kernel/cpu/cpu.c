@@ -65,7 +65,7 @@ ol_cpuid(uint32_t func)
   regs->edx = 0;
   regs->ebx = 0;
   ol_gen_registers_t ret = (ol_gen_registers_t)__ol_cpuid(regs);
-  free(regs);
+  kfree(regs);
   return ret;
 }
 

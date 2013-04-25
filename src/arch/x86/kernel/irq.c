@@ -254,16 +254,11 @@ free_irq_entry(struct irq_data* irq)
     return -1;
   else
   {
-    int ret = free(irq->irq_config);
-    if(ret != 0)
-      return ret;
-    else
-    {
-      uint32_t irqnum = irq->irq;
-      memset((void*)irq, 0, sizeof(*irq));
-      irq->irq = irqnum;
-    }
-    return ret;
+    kfree(irq->irq_config);
+    uint32_t irqnum = irq->irq;
+    memset((void*)irq, 0, sizeof(*irq));
+    irq->irq = irqnum;
+    return -E_SUCCESS;
   }
   return -1;
 }

@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <andromeda/error.h>
+#include <andromeda/system.h>
 #include <mm/page_alloc.h>
 #include <boot/mboot.h>
 #include <mm/paging.h>
@@ -137,6 +138,18 @@ int page_alloc_init(multiboot_memory_map_t* map, int map_size)
          */
 
         return -E_NOFUNCTION;
+}
+
+int page_alloc_register()
+{
+        if (core.mm == NULL)
+                return -E_ALREADY_INITIALISED;
+
+        core.mm->page_alloc = page_alloc;
+        core.mm->page_share = page_realloc;
+        core.mm->page_free = page_free;
+
+        return -E_SUCCESS;
 }
 
 /**

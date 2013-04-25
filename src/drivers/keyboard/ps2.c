@@ -134,16 +134,16 @@ ol_detach_all_devices()
   if ((ol_ps2_keyboard->flags & OL_PS2_ACTIVE_FLAG) != 0
       && (ol_ps2_keyboard != NULL))
   {
-    free(ol_ps2_keyboard);
+    kfree(ol_ps2_keyboard);
   }
   if ((ol_ps2_mouse->flags & OL_PS2_ACTIVE_FLAG) != 0 && (ol_ps2_mouse != NULL))
   {
-    free(ol_ps2_mouse);
+    kfree(ol_ps2_mouse);
   }
   if ((ol_ps2_controller->flags & OL_PS2_ACTIVE_FLAG) != 0
       && (ol_ps2_controller != NULL))
   {
-    free(ol_ps2_controller);
+    kfree(ol_ps2_controller);
   }
 }
 

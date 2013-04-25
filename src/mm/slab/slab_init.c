@@ -21,6 +21,7 @@
 #include <mm/cache.h>
 #include <mm/page_alloc.h>
 #include <mm/vm.h>
+#include <andromeda/system.h>
 
 
 /**
@@ -297,7 +298,18 @@ int slab_alloc_init()
         debug("Address of higherhalf: %X\n", &higherhalf);
 //         for (;;);
 #endif
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
+}
+
+int slab_sys_register()
+{
+        if (core.mm == NULL)
+                return -E_NOT_YET_INITIALISED;
+
+        core.mm->alloc = kmem_alloc;
+        core.mm->free = kmem_free;
+
+        return -E_SUCCESS;
 }
 
 static mutex_t cache_lock = mutex_unlocked;

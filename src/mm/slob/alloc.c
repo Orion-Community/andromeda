@@ -34,6 +34,7 @@
 
 #include <stdlib.h>
 #include <thread.h>
+#include <mm/heap.h>
 
 static boolean
 use_memnode_block(volatile memory_node_t* block);
@@ -104,10 +105,10 @@ nalloc(size_t size)
 
 // Finds a block on the heap, which is free and which is large enough.
 // In the case that pageAlligned is enabled the block also has to hold
-// page alligned data (usefull for the page directory).
+// page aligned data (useful for the page directory).
 
 void*
-alloc(size_t size, boolean pageAlligned)
+alloc(size_t size, uint16_t pageAlligned)
 {
 	if (size > ALLOC_MAX)
 	{
@@ -219,21 +220,21 @@ alloc(size_t size, boolean pageAlligned)
 	return NULL;
 }
 
-int
-free(void* ptr)
+void
+free(void* ptr, size_t size)
 {
 #ifdef MMTEST
 	printf("Free!!!\n");
 #endif
 	if (ptr == NULL)
-		return -1;
+		return;
 	mutex_lock(&prot);
 	volatile memory_node_t* block = (void*) ptr - sizeof (memory_node_t);
 	volatile memory_node_t* carriage;
 	if (block->hdrMagic != MM_NODE_MAGIC)
 	{
 		mutex_unlock(&prot);
-		return -1;
+		return;
 	}
 
 	/**
@@ -300,7 +301,7 @@ free(void* ptr)
 	printf("\n");
 #endif
 	mutex_unlock(&prot);
-	return 0; // Return success
+	return; // Return success
 }
 
 static boolean

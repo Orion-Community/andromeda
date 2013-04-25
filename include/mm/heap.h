@@ -42,9 +42,9 @@ typedef struct memNode memory_node_t;
 
 // void heapAddBlocks(void*, int);
 
-void* alloc(size_t, boolean);
+void* alloc(size_t, uint16_t);
 void* nalloc(size_t);
-int free(void*);
+void free(void*, size_t);
 
 int initHdr(volatile memory_node_t*, size_t);
 void heapStub();
@@ -54,7 +54,7 @@ void heap_add_blocks(void* base, uint32_t size);
 void examine_heap();
 
 #define kalloc(size) alloc(size, FALSE)
-#define kfree(ptr)   free(ptr)
+#define kfree(ptr)   free(ptr, 0)
 #define knalloc(size) nalloc(size)
 #define kzalloc(size) knalloc(size)
 

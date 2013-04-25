@@ -38,10 +38,11 @@ extern "C"  {
 
 int   page_alloc_init           (multiboot_memory_map_t* map, int map_size);
 void* page_alloc                ();
+void* page_realloc              (void* page);
 int   page_free                 (void* page);
 int   page_mark                 (void* page);
 int   page_unmark               (void* page);
-int   page_alloc_init           ();
+int   page_alloc_register       ();
 void* page_claim                (void* page);
 
 #ifdef __cplusplus

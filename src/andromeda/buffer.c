@@ -442,14 +442,14 @@ buffer_close(struct vfile* this)
                 /** clean up the entire buffer */
                 buf->base_idx = buf->size;
                 int ret = buffer_clean_up(this->fs_data);
-                free(buf->blocks);
-                free(buf);
-                free(this);
+                kfree(buf->blocks);
+                kfree(buf);
+                kfree(this);
                 if (ret == -E_CLEAN_PARENT)
                         return -E_SUCCESS;
                 return -E_GENERIC;
         };
-        free(this);
+        kfree(this);
         /** we have removed this instance by running atomic_dec  */
         return -E_SUCCESS;
 }

@@ -181,11 +181,11 @@ alloc_buff_frame(unsigned int frame_len)
 static int
 free_net_buff_list(struct net_buff* nb)
 {
-        free(nb->transport_hdr);
-        free(nb->network_hdr);
-        free(nb->datalink_hdr);
+        kfree(nb->transport_hdr);
+        kfree(nb->network_hdr);
+        kfree(nb->datalink_hdr);
         struct net_buff *nxt = nb->next;
-        free(nb);
+        kfree(nb);
 
         if (nxt)
                 free_net_buff_list(nxt);

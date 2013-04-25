@@ -42,7 +42,7 @@ int vfs_close (struct vfile* stream)
         int ret = stream->close(stream);
         if (ret == -E_SUCCESS)
         {
-                free(stream);
+                kfree(stream);
                 return -E_SUCCESS;
         }
         else

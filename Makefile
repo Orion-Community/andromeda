@@ -23,7 +23,7 @@ distclean: clean
 	rm -fv scripts/build.jar
 
 test: all
-	qemu-system-i386 -kernel bin/andromeda.img -m 64M
+	qemu-system-i386 -kernel bin/andromeda.img -m 64M -monitor stdio
 
 doxygen:
 	doxygen scripts/doxyfile
