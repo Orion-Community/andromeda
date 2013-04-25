@@ -42,7 +42,7 @@ ol_get_system_tables()
 { /* get the ebda pointer */
   if((systables->magic ^ ANDROMEDA_MAGIC) != 0)
   {
-    systables = kalloc(sizeof(*systables));
+    systables = kmalloc(sizeof(*systables));
   }
   else
   {

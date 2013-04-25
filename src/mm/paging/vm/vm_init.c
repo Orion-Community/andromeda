@@ -20,6 +20,7 @@
 #include <mm/page_alloc.h>
 #include <mm/paging.h>
 #include <andromeda/error.h>
+#include <andromeda/system.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <defines.h>
@@ -160,7 +161,7 @@ vm_kernel_add_range(struct vm_segment* s)
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        s->free = kalloc(sizeof(*s));
+        s->free = kmalloc(sizeof(*s));
         if (s->free == NULL)
                 return -E_NOMEM;
 

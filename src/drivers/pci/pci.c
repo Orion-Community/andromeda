@@ -23,6 +23,7 @@
 #include <networking/rtl8168.h>
 #include <sys/dev/pci.h>
 #include <drivers/pci/msi.h>
+#include <andromeda/system.h>
 
 struct ol_pci_node* pcidevs;
 
@@ -93,7 +94,7 @@ void
 ol_pci_init()
 {
   /* initialise the list */
-  pcidevs = kalloc(sizeof(*pcidevs));
+  pcidevs = kmalloc(sizeof(*pcidevs));
   if(pcidevs == NULL)
     goto fail;
 
@@ -101,7 +102,7 @@ ol_pci_init()
   pcidevs->previous = NULL;
   pcidevs->dev = NULL;
 
-  ol_pci_iterate_dev_t dev = kalloc(sizeof (*dev));
+  ol_pci_iterate_dev_t dev = kmalloc(sizeof (*dev));
   if(dev == NULL)
     goto fail;
 #if 0
@@ -130,7 +131,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
   ol_pci_id_t id = __ol_pci_read_dword(ol_pci_calculate_address(itdev,
           OL_PCI_REG_ID)); /* id and vendor id */
 
-  struct pci_dev *dev = kalloc(sizeof(*dev));
+  struct pci_dev *dev = kmalloc(sizeof(*dev));
   if (dev == NULL)
     goto fail;
 
@@ -164,7 +165,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
       if(node->next == NULL)
       {
 
-        node->next = kalloc(sizeof(struct ol_pci_node));
+        node->next = kmalloc(sizeof(struct ol_pci_node));
         if(node->next == NULL)
           goto fail;
 

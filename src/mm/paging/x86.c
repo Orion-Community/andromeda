@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mm/paging.h>
+#include <andromeda/system.h>
 /**
  * \fn x86_page_dir_set
  * \brief Set an entry in the pagedirectory
@@ -158,7 +159,7 @@ x86_page_init(size_t mem_size)
         memset(&allocated_pages, 0, sizeof(allocated_pages));
 
         struct mm_page_descriptor* meg;
-        meg = kalloc(sizeof(*meg));
+        meg = kmalloc(sizeof(*meg));
 
         if (meg == NULL)
                 panic("OUT OF MEMORY!");

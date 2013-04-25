@@ -147,7 +147,7 @@ void drawBufferPart(imageBuffer src, int x, int y, int width, int height, int pa
  */
 imageBuffer newImageBuffer(int width, int height)
 {
-  imageBuffer img = (imageBuffer){kalloc(width*height*getScreenDepth()),width,height};
+  imageBuffer img = (imageBuffer){kmalloc(width*height*getScreenDepth()),width,height};
   memset(img.buffer,0,width*height*getScreenDepth());
   return img;
 }

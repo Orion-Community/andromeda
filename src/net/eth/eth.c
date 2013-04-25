@@ -19,12 +19,13 @@
 #include <stdlib.h>
 #include <networking/eth/eth.h>
 #include <networking/net.h>
+#include <andromeda/system.h>
 
 void
 init_eth()
 {
   struct protocol *root = get_ptype_tree();
-  struct protocol *carriage = kalloc(sizeof(*carriage));
+  struct protocol *carriage = kmalloc(sizeof(*carriage));
   carriage->type = ETHERNET;
   carriage->deliver_packet = &receive_ethernet_frame;
   carriage->notify = &eth_queue_notifier;
@@ -72,14 +73,14 @@ eth_queue_notifier()
  */
 void debug_ethernet_stack()
 {
-  struct netdev *dev = kalloc(sizeof(*dev));
+  struct netdev *dev = kmalloc(sizeof(*dev));
 
   int i = 0;
   for(; i < MAC_ADDR_SIZE; i++)
     dev->hwaddr[i] = 0xaa;
   dev->buf.data_len = 60;
   dev->buf.length = 86;
-  dev->buf.framebuf = kalloc(dev->buf.length);
+  dev->buf.framebuf = kmalloc(dev->buf.length);
   writew(dev->buf.framebuf+20, ARP);
 
   i = 0;

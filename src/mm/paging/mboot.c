@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <mm/paging.h>
 #include <boot/mboot.h>
+#include <andromeda/system.h>
 
 /**
  * \fn mboot_map_special_entry
@@ -44,7 +45,7 @@ int
 mboot_map_special_entry(addr_t ptr,addr_t virt,size_t size,bool free,bool dma)
 {
         struct mm_page_descriptor* tmp;
-        tmp = kalloc(sizeof(*tmp));
+        tmp = kmalloc(sizeof(*tmp));
 
         if (tmp == NULL)
                 panic("OUT OF MEMORY!");
@@ -147,7 +148,7 @@ mboot_page_setup(multiboot_memory_map_t* map, int mboot_map_size)
                         }
                         goto itteration_skip;
                 }
-                tmp = kalloc(sizeof(*tmp));
+                tmp = kmalloc(sizeof(*tmp));
                 if (tmp == NULL)
                         panic("Out of memory!");
                 memset(tmp, 0, sizeof(*tmp));

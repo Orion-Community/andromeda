@@ -20,6 +20,7 @@
 #include <andromeda/irq.h>
 #include <andromeda/timer.h>
 #include <andromeda/idt.h>
+#include <andromeda/system.h>
 #include <arch/x86/idt.h>
 
 #include <fs/vfs.h>
@@ -86,16 +87,17 @@ VFIO(timer_read, file, data, size)
 static TIMER *
 create_timer_obj(char *name, timer_tick_t tick_handle, void *data)
 {
-        TIMER *timer = kzalloc(sizeof(*timer));
+        TIMER *timer = kmalloc(sizeof(*timer));
         if(NULL == timer)
                 return timer;
+        memset(timer, 0, sizeof(*timer));
         timer->name = name;
         timer->tick_handle = tick_handle;
         timer->timer_data = data;
         timer->config = 0xff;
 
         struct device *root = get_root_device();
-        struct device *dev = kalloc(sizeof(*dev));
+        struct device *dev = kmalloc(sizeof(*dev));
         dev_timer_init(dev, root);
         dev->device_data = timer;
         timer->id = dev->dev_id;
@@ -123,7 +125,7 @@ dev_timer_init(struct device* dev, struct device* parent)
 
         memset(dev, 0, sizeof(struct device));
 
-        dev->driver = kalloc(sizeof(struct driver));
+        dev->driver = kmalloc(sizeof(struct driver));
 
         if (dev->driver == NULL)
                 panic("Out of memory in intialisiation of timer device\n");
@@ -151,7 +153,8 @@ struct device *dev;
 vfs_read_hook_t read;
 vfs_write_hook_t write;
 {
-        dev->driver->io = kzalloc(sizeof(*(dev->driver->io)));
+        dev->driver->io = kmalloc(sizeof(*(dev->driver->io)));
+        memset(dev->driver->io, 0, sizeof(*(dev->driver->io)));
         struct vfile *io = dev->driver->io;
 
         io->type = file;

@@ -35,7 +35,7 @@ static volatile ioapic_t ioapic;
 static struct ioapic*
 create_ioapic (ol_madt_ioapic_t madt_io)
 {
-  ioapic_t io = kalloc(sizeof(*io));
+  ioapic_t io = kmalloc(sizeof(*io));
   cpus->lock(&cpu_lock);
   if (io == NULL)
     goto nomem;

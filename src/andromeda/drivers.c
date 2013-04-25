@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <andromeda/drivers.h>
+#include <andromeda/system.h>
 #include <drivers/root.h>
 #include <fs/vfs.h>
 
@@ -42,7 +43,7 @@ int dev_root_init()
 {
         struct device* root = &dev_root;
         memset(root, 0, sizeof(struct device));
-        root->driver = kalloc(sizeof(struct driver));
+        root->driver = kmalloc(sizeof(struct driver));
         memset(root->driver, 0, sizeof(struct driver));
 
         drv_root_init(root); /** Call to driver, not device!!! */
@@ -192,8 +193,8 @@ vfs_write_hook_t write;
 int
 dev_setup_driver(struct device *dev, vfs_read_hook_t read, vfs_write_hook_t write)
 {
-        struct driver *drv = kalloc(sizeof(*drv));
-        struct vfile *file = kalloc(sizeof(*file));
+        struct driver *drv = kmalloc(sizeof(*drv));
+        struct vfile *file = kmalloc(sizeof(*file));
         dev->children = NULL;
         dev->parent = NULL;
         drv_setup_io(dev,drv,file,read,write);

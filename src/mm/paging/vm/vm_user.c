@@ -17,6 +17,7 @@
  */
 
 #include <andromeda/error.h>
+#include <andromeda/system.h>
 #include <defines.h>
 #include <mm/vm.h>
 #include <mm/page_alloc.h>
@@ -39,7 +40,7 @@
 struct vm_descriptor*
 vm_new(unsigned int pid)
 {
-        struct vm_descriptor* p = kalloc(sizeof(*p));
+        struct vm_descriptor* p = kmalloc(sizeof(*p));
         if (p == NULL)
                 return NULL;
 
@@ -63,7 +64,7 @@ vm_new(unsigned int pid)
 struct vm_segment*
 vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
 {
-        struct vm_segment* s = kalloc(sizeof(*s));
+        struct vm_segment* s = kmalloc(sizeof(*s));
         if (s == NULL)
                 return NULL;
 
@@ -80,7 +81,7 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
 
         /* Add allocation data in here */
         s->allocated = NULL;
-        s->free = kalloc(sizeof(*s->free));
+        s->free = kmalloc(sizeof(*s->free));
         if (s->free == NULL)
                 goto err;
         memset(s->free, 0, sizeof(*s->free));

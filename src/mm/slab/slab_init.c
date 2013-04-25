@@ -345,7 +345,7 @@ cinit dtor;
 
         for (; cariage->next != NULL; cariage = cariage->next);
 
-        cariage->next = kalloc(sizeof(*cariage->next));
+        cariage->next = kmalloc(sizeof(*cariage->next));
         if (cariage->next == NULL)
                 goto err_nomem;
         cariage = cariage->next;
@@ -375,7 +375,7 @@ size_t alignment;
 {
         if (cache == NULL || obj_size == 0 || no_objects == 0 || alignment == 0)
                 goto err;
-        struct mm_slab* slab = kalloc(sizeof(*slab));
+        struct mm_slab* slab = kmalloc(sizeof(*slab));
         if (slab == NULL)
                 goto err;
 

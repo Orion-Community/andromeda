@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <andromeda/drivers.h>
+#include <andromeda/system.h>
 #include <drivers/virt.h>
 
 static struct device*
@@ -73,7 +74,7 @@ drv_legacy_bus_init(struct device* dev, struct device* parent)
 
         memset(dev, 0, sizeof(struct device));
 
-        dev->driver = kalloc(sizeof(struct driver));
+        dev->driver = kmalloc(sizeof(struct driver));
 
         if (dev->driver == NULL)
                 panic("Out of memory in intialisiation of legacy bus");

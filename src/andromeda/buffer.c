@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <andromeda/buffer.h>
+#include <andromeda/system.h>
 
 static idx_t
 get_idx(idx_t offset, int depth)
@@ -156,7 +157,7 @@ int depth;
         {
                 if (list->lists[list_idx] == NULL)
                 {
-                        list->lists[list_idx] = kalloc(
+                        list->lists[list_idx] = kmalloc(
                                                 sizeof(*list->lists[list_idx]));
                         if (list->lists[list_idx] == NULL)
                         {
@@ -242,7 +243,7 @@ buffer_write(struct vfile* this, char* buf, size_t num)
 
         if (buffer->blocks == NULL)
         {
-                buffer->blocks = kalloc(sizeof(*buffer->blocks));
+                buffer->blocks = kmalloc(sizeof(*buffer->blocks));
                 if (buffer->blocks == NULL)
                         return 0;
                 buffer_init_branch(buffer->blocks ,buffer);
@@ -250,7 +251,7 @@ buffer_write(struct vfile* this, char* buf, size_t num)
         struct buffer_block* b = buffer_find_block(buffer->blocks, offset, 0);
         if (b == NULL)
         {
-                struct buffer_block* block = kalloc(sizeof(*block));
+                struct buffer_block* block = kmalloc(sizeof(*block));
                 buffer_add_block(block, buffer->blocks, offset, 0);
                 b = buffer_find_block(buffer->blocks, offset, 0);
                 if (b == NULL)
@@ -272,7 +273,7 @@ buffer_write(struct vfile* this, char* buf, size_t num)
                         b = buffer_find_block(buffer->blocks, offset, 0);
                         if (b == NULL)
                         {
-                                buffer_add_block(kalloc(
+                                buffer_add_block(kmalloc(
                                                    sizeof(struct buffer_block)),
                                                                  buffer->blocks,
                                                                      offset, 0);
@@ -468,7 +469,7 @@ buffer_duplicate(struct buffer *this)
         if (!(this->rights & (BUFFER_ALLOW_DUPLICATE)))
                 return NULL;
 
-        struct vfile* file = kalloc(sizeof(*file));
+        struct vfile* file = kmalloc(sizeof(*file));
         if (file == NULL)
                 return NULL;
         memset(file, 0, sizeof(*file));
@@ -506,7 +507,7 @@ buffer_init(struct vfile* this, idx_t size, idx_t base_idx)
         if (this == NULL)
                 return -E_NULL_PTR;
 
-        struct buffer* b = kalloc(sizeof(*b));
+        struct buffer* b = kmalloc(sizeof(*b));
         if (b == NULL)
                 return -E_NOMEM;
         memset(b, 0, sizeof(*b));

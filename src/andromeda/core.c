@@ -25,6 +25,7 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/buffer.h>
+#include <andromeda/system.h>
 #include <mm/cache.h>
 #include <mm/vm.h>
 #include <stdio.h>
@@ -41,7 +42,7 @@ void demand_key();
 
 void buf_dbg()
 {
-        struct vfile* f = kalloc(sizeof(struct vfile));
+        struct vfile* f = kmalloc(sizeof(struct vfile));
         if (f == NULL)
                 panic("No mem in buf_dbg");
 
@@ -55,7 +56,7 @@ void buf_dbg()
         }
 
         char *blaat = "Schaap\n";
-        char *ret_msg = kalloc(sizeof("Schaap\n"));
+        char *ret_msg = kmalloc(sizeof("Schaap\n"));
         memset(ret_msg, 0, sizeof(*blaat));
 
         f->write(f, blaat, strlen(blaat));
@@ -94,7 +95,7 @@ void init_set(uint32_t i)
 
 void test_sprintf()
 {
-        char *test = kalloc(255);
+        char *test = kmalloc(255);
         if (test == NULL)
                 panic("OUT OF MEMORY!");
         memset(test, 0, 255);

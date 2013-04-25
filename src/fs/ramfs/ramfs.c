@@ -21,6 +21,7 @@
 #include <fs/vfs.h>
 #include <fs/ramfs.h>
 #include <andromeda/drivers.h>
+#include <andromeda/system.h>
 
 struct ramfs_block*
 ram_fs_get_block(uint64_t idx)
@@ -31,7 +32,7 @@ ram_fs_get_block(uint64_t idx)
 struct vsuper_block*
 ram_fs_init(struct device* drive)
 {
-        struct vsuper_block* super = kalloc(sizeof(struct vsuper_block));
+        struct vsuper_block* super = kmalloc(sizeof(struct vsuper_block));
         if (super == NULL)
                 return NULL;
 
@@ -42,7 +43,7 @@ ram_fs_init(struct device* drive)
                 /**
                 * Build the ram file system here
                 */
-                super->dev = kalloc(sizeof(struct device));
+                super->dev = kmalloc(sizeof(struct device));
                 if (super->dev == NULL)
                         goto dev_alloc;
                 memset(super->dev, 0, sizeof(struct device));

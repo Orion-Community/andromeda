@@ -19,12 +19,13 @@
 #include <stdlib.h>
 #include <networking/net.h>
 #include <networking/eth/ipv4.h>
+#include <andromeda/system.h>
 
 int
 netif_init_ip()
 {
   struct protocol *root = get_ptype(get_ptype_tree(), ETHERNET);
-  struct protocol *item = kalloc(sizeof(*item));
+  struct protocol *item = kmalloc(sizeof(*item));
   item->type = IPv4;
   item->deliver_packet = &netif_rx_ip;
   add_ptype(root, item);

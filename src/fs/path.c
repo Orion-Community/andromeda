@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <fs/path.h>
+#include <andromeda/system.h>
 
 void clean_path(struct __PATH_ELEMENT* elements)
 {
@@ -43,7 +44,7 @@ struct __PATH_ELEMENT *parse_path(char* path)
 	if (strlen(path) == 0)
 		return NULL;
 
-	struct __PATH_ELEMENT *list = kalloc(sizeof(struct __PATH_ELEMENT));
+	struct __PATH_ELEMENT *list = kmalloc(sizeof(struct __PATH_ELEMENT));
 	memset(list, 0, sizeof(struct __PATH_ELEMENT));
 
 	struct __PATH_ELEMENT *carriage = list;
@@ -68,7 +69,7 @@ struct __PATH_ELEMENT *parse_path(char* path)
 			if (!escaped)
 			{
 				carriage->next =
-					  kalloc(sizeof(struct __PATH_ELEMENT));
+					  kmalloc(sizeof(struct __PATH_ELEMENT));
 				if (carriage->next == NULL)
 				{
 					clean_path(list);

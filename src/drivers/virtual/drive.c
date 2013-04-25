@@ -17,6 +17,7 @@
  */
 
 #include <andromeda/drivers.h>
+#include <andromeda/system.h>
 #include <drivers/virt.h>
 #include <fs/vfs.h>
 #include <stdio.h>
@@ -31,13 +32,13 @@ virt_drive_buffered_open(struct device* this)
 struct device*
 virt_drive_init(size_t size, void* data, rd_t type)
 {
-        struct device* drive = kalloc(sizeof(struct device));
+        struct device* drive = kmalloc(sizeof(struct device));
         if (drive == NULL)
                 return NULL;
 
         memset(drive, 0, sizeof(struct device));
 
-        drive->driver = kalloc(sizeof(struct driver));
+        drive->driver = kmalloc(sizeof(struct driver));
         if (drive->driver == NULL)
         {
                 kfree (drive);

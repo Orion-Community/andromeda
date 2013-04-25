@@ -56,7 +56,7 @@ bool vgaInit()
    *   - get videomode from settings file.
    */
   int mode = 0; //should become a user defined videomode,  from a settings file.
-  screenbuf = kalloc(1); // while there's no timer, we cannot buffer the screen...
+  screenbuf = kmalloc(1); // while there's no timer, we cannot buffer the screen...
   if ( setVideoMode( mode ) == -1 )
     if ( setVideoMode(0) == -1 )
       return false;
@@ -85,14 +85,14 @@ int setVideoMode(int mode)
 	int size = videoModes[mode].width * videoModes[mode].height * videoModes[mode].depth;
 	free(screenbuf);
 	if (size != 0)
-		screenbuf = kalloc(size);
+		screenbuf = kmalloc(size);
 	else
 		screenbuf = NULL;
 
 	printf("Check 1\n");
 
 	if(screenbuf==NULL)
-		{screenbuf = 0xA0000;printf("kalloc(%i) returned NULL!\n",size);return -1;}
+		{screenbuf = 0xA0000;printf("kmalloc(%i) returned NULL!\n",size);return -1;}
 // 	if ( 0 == setModeViaPorts(videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0))
 // 		{printf("setModeViaPorts(%i,%i,%i) failed!\n",videoModes[mode].width, videoModes[mode].height, videoModes[mode].chain4?1:0);return -1;}
 	printf("Check 1.1\n");

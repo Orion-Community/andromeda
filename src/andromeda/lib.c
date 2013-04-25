@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <thread.h>
 #include <andromeda/core.h>
+#include <andromeda/system.h>
 
 extern uint32_t key_pressed;
 
@@ -35,7 +36,7 @@ void demand_key()
 struct list*
 list_init()
 {
-        struct list* l = kalloc(sizeof(struct list));
+        struct list* l = kmalloc(sizeof(struct list));
 
         if (l == NULL)
                 return NULL;

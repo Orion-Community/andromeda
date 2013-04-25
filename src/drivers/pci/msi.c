@@ -102,7 +102,7 @@ __msi_read_message(struct msi_cfg *cfg, struct msi *msg)
 static void
 debug_msix_entry(struct msi_cfg *cfg)
 {
-  struct msi *msi = kalloc(sizeof(*msi));
+  struct msi *msi = kmalloc(sizeof(*msi));
   __msi_read_message(cfg, msi);
   /**
    * \note Again are these things really necessary?
@@ -156,8 +156,8 @@ msi_enable_msix_entry(struct msi_cfg *cfg, int entry)
 static int
 __msi_create_msix_entry(struct pci_dev *dev, uint8_t cp, struct irq_data *irq)
 {
-  struct msi_cfg *cfg = kalloc(sizeof(*cfg));
-  struct msi *msi = kalloc(sizeof(*msi));
+  struct msi_cfg *cfg = kmalloc(sizeof(*cfg));
+  struct msi *msi = kmalloc(sizeof(*msi));
   /**
    * \note Is this variable here really necessary?
    uint16_t ctrl = ol_pci_read_dword(dev, cp) >> 16;

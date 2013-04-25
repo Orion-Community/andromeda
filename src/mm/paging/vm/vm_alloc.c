@@ -17,6 +17,7 @@
  */
 
 #include <andromeda/error.h>
+#include <andromeda/system.h>
 #include <defines.h>
 #include <mm/vm.h>
 #include <mm/page_alloc.h>
@@ -282,7 +283,7 @@ vm_range_split(struct vm_range_descriptor* src, size_t size)
                 return -E_SUCCESS;
 
         /* Create a new descritor to keep track of the other bit of memory */
-        struct vm_range_descriptor* tmp = kalloc(sizeof(*tmp));
+        struct vm_range_descriptor* tmp = kmalloc(sizeof(*tmp));
         if (tmp == NULL)
                 return -E_NULL_PTR;
 

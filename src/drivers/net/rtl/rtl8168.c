@@ -21,6 +21,7 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/drivers.h>
+#include <andromeda/system.h>
 #include <fs/vfs.h>
 #include <arch/x86/irq.h>
 
@@ -99,8 +100,8 @@ get_mac(struct pci_dev *dev, struct netdev *netdev)
 void
 init_rtl_device(struct pci_dev *dev)
 {
-        struct rtlcommand *cmd = kalloc(sizeof (*cmd));
-        struct rtl_cfg *cfg = kalloc(sizeof (*cfg));
+        struct rtlcommand *cmd = kmalloc(sizeof (*cmd));
+        struct rtl_cfg *cfg = kmalloc(sizeof (*cfg));
         cfg->next = NULL;
 
         int i = 0;
@@ -114,9 +115,9 @@ init_rtl_device(struct pci_dev *dev)
         debug("RealTek base: %x\n", portbase);
         cfg->portbase = portbase;
 
-        cfg->raw_rx_buff = kalloc(RX_BUFFER_SIZE);
+        cfg->raw_rx_buff = kmalloc(RX_BUFFER_SIZE);
         cfg->rx_buff_length = RX_BUFFER_SIZE;
-        cfg->raw_tx_buff = kalloc(TX_BUFFER_SIZE);
+        cfg->raw_tx_buff = kmalloc(TX_BUFFER_SIZE);
         cfg->tx_buff_length = TX_BUFFER_SIZE;
 
         if (cmd == NULL)
@@ -154,13 +155,13 @@ rtl_rx_pull_dev(struct net_buff *buff)
 int
 init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
 {
-        struct device *dev = kalloc(sizeof (*dev));
+        struct device *dev = kmalloc(sizeof (*dev));
         if (dev == NULL)
                 panic("No memory in init_core_driver!");
         dev->dev_id = device_id_alloc(dev);
         dev_setup_driver(dev, rtl_rx_vfio, rtl_tx_vfio);
         cfg->device_id = dev->dev_id;
-        struct netdev *netdev = kalloc(sizeof (*netdev));
+        struct netdev *netdev = kmalloc(sizeof (*netdev));
         netdev->dev = pci;
         netdev->rx_pull_handle = &rtl_rx_pull_dev;
         netdev->dev_id = dev->dev_id;
@@ -419,7 +420,7 @@ static int
 rtl_conf_rx(struct rtl_cfg *cfg)
 {
         uint32_t raw = 0;
-        struct rxconfig *rxc = kalloc(sizeof(*rxc));
+        struct rxconfig *rxc = kmalloc(sizeof(*rxc));
         if(!rxc)
                 return -E_NOMEM;
         cfg->receive = rxc;

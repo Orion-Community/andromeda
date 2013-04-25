@@ -21,6 +21,7 @@
 #include <boot/mboot.h>
 #include <stdlib.h>
 #include <andromeda/error.h>
+#include <andromeda/system.h>
 
 #define map_size (memsize/0x4)
 
@@ -33,7 +34,7 @@ volatile mutex_t map_lock = mutex_unlocked;
 
 int build_map(multiboot_memory_map_t* map, int mboot_map_size)
 {
-	page_map = kalloc(map_size*sizeof(struct page));
+	page_map = kmalloc(map_size*sizeof(struct page));
 	if(map == NULL)
 		panic("No memory in build_map");
 	int idx = 0;

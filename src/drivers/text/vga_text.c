@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <andromeda/drivers.h>
+#include <andromeda/system.h>
 #include <drivers/vga_text.h>
 
 atomic_t vga_text_count;
@@ -108,11 +109,11 @@ int vga_text_init(struct device* parent)
         if (parent == NULL || parent->driver == NULL)
                 return -E_NULL_PTR;
 
-        struct device* this = kalloc(sizeof(struct device));
+        struct device* this = kmalloc(sizeof(struct device));
         if (this == NULL)
                 return -E_NOMEM;
 
-        this->driver = kalloc(sizeof(struct driver));
+        this->driver = kmalloc(sizeof(struct driver));
         if (this->driver == NULL)
         {
                 kfree(this);

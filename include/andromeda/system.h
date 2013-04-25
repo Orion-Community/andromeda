@@ -128,10 +128,11 @@ extern struct system core;
 
 #define hasmm (core.mm != NULL)
 
-#define kmalloc(a) ((hasmm && core.mm->alloc != NULL) ? core.mm->alloc(a, 0) : (void*)0)
-#ifndef kfree
-#define kfree(a) ((hasmm && core.mm->free != NULL) ? core.mm->alloc(a, sizeof(*a)) : 0)
-#endif
+#define kmalloc(a) ((hasmm && core.mm->alloc != NULL) ? core.mm->alloc(a, 0) :\
+                    NULL)
+#define kfree(a) ((hasmm && core.mm->free != NULL) ?\
+                   core.mm->alloc(a, sizeof(*a)) :\
+                   panic("Memory freeing function not correctly initialised!"))
 
 #define phys_page_alloc ((hasmm && core.mm->page_alloc != NULL) ? core.mm->page_alloc() : 0)
 #define phys_page_share(a) ((hasmm && core.mm->page_share != NULL) ? core.mm->page_share(a) : 0)

@@ -26,6 +26,7 @@
 #include <arch/x86/timer.h>
 
 #include <andromeda/drivers.h>
+#include <andromeda/system.h>
 
 #include <networking/net.h>
 #include <networking/eth/eth.h>
@@ -75,7 +76,7 @@ net_set_queue(struct net_queue *new_head)
 int
 init_netif()
 {
-        struct device *dev = kalloc(sizeof (*dev));
+        struct device *dev = kmalloc(sizeof (*dev));
         device_id_alloc(dev);
         dev_setup_driver(dev, net_rx_vfio, net_tx_vfio);
         dev->type = net_core_dev;
@@ -89,7 +90,7 @@ init_netif()
         /*
          * initialize the queue
          */
-        struct net_queue *head = kalloc(sizeof (*head));
+        struct net_queue *head = kmalloc(sizeof (*head));
         memset(head, 0, sizeof (*head));
         net_set_queue(head);
         init_ptype_tree();
@@ -168,9 +169,9 @@ net_buff_append_list(struct net_buff *head, struct net_buff *x)
 struct net_buff *
 alloc_buff_frame(unsigned int frame_len)
 {
-        struct net_buff *buff = kalloc(sizeof (*buff));
+        struct net_buff *buff = kmalloc(sizeof (*buff));
         buff->length = frame_len;
-        buff->head = kalloc(frame_len);
+        buff->head = kmalloc(frame_len);
         buff->data = buff->head;
         buff->tail = buff->head;
         buff->end = buff->head + frame_len;
@@ -613,7 +614,7 @@ vlan_untag(struct net_buff *buff)
                 return -E_ALREADY_INITIALISED;
 
         unsigned int raw = buff->raw_vlan;
-        buff->vlan = kalloc(sizeof(*(buff->vlan)));
+        buff->vlan = kmalloc(sizeof(*(buff->vlan)));
 
         if(buff->vlan == NULL)
                 return -E_NOMEM;

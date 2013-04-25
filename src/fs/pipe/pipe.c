@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <fs/pipe.h>
 #include <mm/cache.h>
+#include <andromeda/system.h>
 
 /**
  * \AddToGroup Stream
@@ -41,7 +42,7 @@ static void* pipe_get_new_block(struct pipe* pipe)
         if (pipe->block_size == BLOCK_SIZE)
                 return mm_cache_alloc(pipe_cache, 0);
         else
-                return kalloc(pipe->block_size);
+                return kmalloc(pipe->block_size);
 }
 
 static int pipe_cleanup_block(void *data, void* block)
@@ -208,7 +209,7 @@ static int pipe_open(struct pipe* pipe)
  */
 struct pipe* pipe_new()
 {
-        struct pipe* p = kalloc(sizeof(*p));
+        struct pipe* p = kmalloc(sizeof(*p));
         if (p == NULL)
                 return NULL;
 

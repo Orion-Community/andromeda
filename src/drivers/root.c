@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <andromeda/drivers.h>
+#include <andromeda/system.h>
 #include <drivers/root.h>
 #include <drivers/virt.h>
 #include <drivers/vga_text.h>
@@ -67,10 +68,10 @@ int init_buses(struct device* root)
         if (root == NULL)
                 return -E_NULL_PTR;
 
-        struct device* virtual = kalloc(sizeof(struct device));
+        struct device* virtual = kmalloc(sizeof(struct device));
         if (virtual == NULL)
                 return -E_NOMEM;
-        struct device* legacy  = kalloc(sizeof(struct device));
+        struct device* legacy  = kmalloc(sizeof(struct device));
         if (legacy == NULL)
         {
                 kfree(virtual);
@@ -108,7 +109,7 @@ int drv_root_init(struct device* dev)
 
         dev->type = root_bus;
 
-        dev->driver->io = kalloc(sizeof(struct vfile));
+        dev->driver->io = kmalloc(sizeof(struct vfile));
         if (dev->driver->io == NULL)
                 panic("");
 

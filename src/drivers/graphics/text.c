@@ -32,14 +32,14 @@ bool textInitG() // This will be named textInit again after I implemented the te
    * @TODO:
    *   - load atleast 1 font image and place them in font.
    */
-  font = kalloc(256);
+  font = kmalloc(256);
   memset(font,0,256);
   return true;
 }
 
 imageBuffer getCharBuffer(char chr, unsigned int bgcolor, unsigned int color)
 {
-  imageBuffer buffer = {kalloc(64*getScreenDepth()),8,8};
+  imageBuffer buffer = {kmalloc(64*getScreenDepth()),8,8};
   char* buf = buffer.buffer;
   int i = 0;
   for (;i<64;i++)

@@ -34,19 +34,19 @@ int
 acpi_init()
 {
   ol_get_system_tables();
-  acpi_apics = kalloc(sizeof(*acpi_apics));
+  acpi_apics = kmalloc(sizeof(*acpi_apics));
   if (acpi_apics == NULL)
           panic("Out of memory!");
 
   /* reserve memory for at least one apic and i/o apic */
-  acpi_apics->apic = kalloc(sizeof(struct ol_madt_apic_node));
+  acpi_apics->apic = kmalloc(sizeof(struct ol_madt_apic_node));
   if (acpi_apics->apic == NULL)
           panic("Out of memory!");
   acpi_apics->apic->next = NULL;
   acpi_apics->apic->previous = NULL;
   acpi_apics->apic->apic = NULL;
 
-  acpi_apics->ioapic = kalloc(sizeof(*(acpi_apics->ioapic)));
+  acpi_apics->ioapic = kmalloc(sizeof(*(acpi_apics->ioapic)));
   if (acpi_apics->ioapic == NULL)
           panic("Out of memory!");
   acpi_apics->ioapic->next = NULL;
@@ -136,7 +136,7 @@ acpi_apic_add_list(void *apic)
     {
       if(carriage->next == NULL)
       {
-        carriage->next = kalloc(sizeof(struct ol_madt_apic_node));
+        carriage->next = kmalloc(sizeof(struct ol_madt_apic_node));
         carriage->next->previous = carriage;
         carriage->next->next = NULL;
         carriage->next->apic = (struct ol_madt_apic*)apic;
@@ -167,7 +167,7 @@ acpi_ioapic_add_list(void *io)
     {
       if(carriage->next == NULL)
       {
-        carriage->next = kalloc(sizeof(struct ol_madt_ioapic_node));
+        carriage->next = kmalloc(sizeof(struct ol_madt_ioapic_node));
         carriage->next->previous = carriage;
         carriage->next->next = NULL;
         carriage->next->ioapic = (struct ol_madt_ioapic*)io;

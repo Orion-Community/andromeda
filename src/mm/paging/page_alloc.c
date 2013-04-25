@@ -28,6 +28,7 @@
 #include <mm/heap.h>
 #include <types.h>
 #include <mm/memory.h>
+#include <andromeda/system.h>
 
 struct mm_page_list free_pages;
 struct mm_page_list allocated_pages;
@@ -165,7 +166,7 @@ size_t base_size;
 
         struct mm_page_descriptor* tmp = 0;
         if (freeable_allocator)
-                tmp = kalloc(sizeof(*tmp));
+                tmp = kmalloc(sizeof(*tmp));
 
         if (tmp == NULL)
         {

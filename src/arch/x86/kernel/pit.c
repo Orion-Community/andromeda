@@ -23,6 +23,7 @@
 #include <andromeda/timer.h>
 #include <andromeda/irq.h>
 #include <andromeda/sched.h>
+#include <andromeda/system.h>
 
 #include <arch/x86/idt.h>
 #include <arch/x86/pit.h>
@@ -96,7 +97,7 @@ ol_pit_init(uint32_t hz)
 {
         if (pit_chan0 == NULL)
         {
-                pit_chan0 = kalloc(sizeof(struct ol_pit));
+                pit_chan0 = kmalloc(sizeof(struct ol_pit));
 
         }
         else /* the pit is already initialised */

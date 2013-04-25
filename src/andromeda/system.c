@@ -29,10 +29,10 @@
 
 struct system core = {NULL, NULL, NULL, NULL, NULL, NULL};
 
-int sys_setup_mm()
+int sys_setup_alloc()
 {
         if (core.mm != NULL)
-                return -E_ALREADY_INITIALISED;
+                panic("Could not setup stuff!");
 
 #ifdef SLAB
         slab_alloc_init();
@@ -49,11 +49,12 @@ int sys_setup_mm()
         memset(core.mm, 0, sizeof(*core.mm));
         slob_sys_register();
 #endif
-        page_alloc_register();
 
-        kfree(kmalloc(10));
-        phys_page_free(page_alloc());
+        return -E_NOFUNCTION;
+}
 
+int sys_setup_paging()
+{
         return -E_NOFUNCTION;
 }
 

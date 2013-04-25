@@ -25,6 +25,7 @@
 #include <andromeda/error.h>
 #include <andromeda/panic.h>
 #include <andromeda/irq.h>
+#include <andromeda/system.h>
 
 #include <drivers/root.h>
 
@@ -78,13 +79,14 @@ get_rtc_frq(RTC *clock)
 int
 setup_rtc(void)
 {
-        rtc_dev = kalloc(sizeof(*rtc_dev));
+        rtc_dev = kmalloc(sizeof(*rtc_dev));
         if(rtc_dev == NULL)
                 panic("No memory during RTC init!\n");
         rtc_create_driver(rtc_dev);
-        RTC *clock = kzalloc(sizeof(*clock));
+        RTC *clock = kmalloc(sizeof(*clock));
         if(clock == NULL)
                 return -E_NOMEM;
+        memset(clock, 0, sizeof(*clock));
         clock->name = "clock0";
         clock->rate = RTC_RATE_SCHED;
         rtc_dev->device_data = clock;

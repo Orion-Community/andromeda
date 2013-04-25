@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <andromeda/system.h>
 
 #include <thread.h>
 
@@ -39,7 +40,7 @@ struct rr_thread* list_end = NULL;
 
 int rr_thread_init(void (*run)())
 {
-        struct rr_thread* t = kalloc(sizeof(*t));
+        struct rr_thread* t = kmalloc(sizeof(*t));
         memset(t, 0, sizeof(*t));
         t->next = list_end;
         t->run = run;

@@ -17,6 +17,7 @@
  */
 
 #include <fs/vfs.h>
+#include <andromeda/system.h>
 
 void init_vfs()
 {

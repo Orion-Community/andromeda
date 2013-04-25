@@ -20,6 +20,7 @@
 #include <arch/x86/idt.h>
 #include <arch/x86/irq.h>
 #include <arch/x86/interrupts.h>
+#include <andromeda/system.h>
 #include <mm/memory.h>
 
 static void
@@ -94,14 +95,13 @@ installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
 
 void setIDT()
 {
-  ol_idt_t idt = kalloc(sizeof(struct idt));
+  ol_idt_t idt = kmalloc(sizeof(struct idt));
   idt->limit = sizeof(ol_idt_entry_t) * 256;
-  idt->baseptr = kalloc(idt->limit);
+  idt->baseptr = kmalloc(idt->limit);
   memset(idt->baseptr, 0, idt->limit);
 
   installExceptions(idt);
   //installInterrupts(0x20, 0x28, idt);
-
   installIDT(idt);
 
   debug("First empty idt entry: %x\n", get_empty_idt_entry_number());
