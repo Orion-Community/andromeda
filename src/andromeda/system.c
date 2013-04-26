@@ -32,7 +32,7 @@ struct system core = {NULL, NULL, NULL, NULL, NULL, NULL};
 int sys_setup_alloc()
 {
         if (core.mm != NULL)
-                panic("Could not setup stuff!");
+                panic("Memory allocation already initialised!");
 
 #ifdef SLAB
         slab_alloc_init();
@@ -44,13 +44,14 @@ int sys_setup_alloc()
 #else
         init_heap();
         complement_heap(&end, HEAPSIZE);
+        core.mm = alloc(sizeof(*core.mm), 0);
         if (core.mm == NULL)
                 panic("The slob allocator failed!");
         memset(core.mm, 0, sizeof(*core.mm));
         slob_sys_register();
 #endif
 
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
 }
 
 int sys_setup_paging()

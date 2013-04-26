@@ -41,10 +41,9 @@ typedef struct memNode memory_node_t;
 
 // void heapAddBlocks(void*, int);
 
+#ifdef SLOB
 void* alloc(size_t, uint16_t);
-#ifndef SLAB
 void* nalloc(size_t);
-#endif
 void free(void*, size_t);
 
 int initHdr(volatile memory_node_t*, size_t);
@@ -53,6 +52,7 @@ void heap_add_blocks(void* base, uint32_t size);
 #define examineHeap examine_heap
 #define ol_dbg_heap examine_heap
 void examine_heap();
+#endif
 
 #if 0
 #define knalloc(size) nalloc(size)
@@ -60,6 +60,7 @@ void examine_heap();
 #endif
 
 // Alloc_max = 1 MB
+#define THREE_GIB 0xC0000000
 #define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end) - THREE_GIB)
 #define ALLOC_MAX HEAPSIZE
 

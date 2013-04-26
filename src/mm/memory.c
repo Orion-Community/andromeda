@@ -22,6 +22,7 @@
 #include <mm/map.h>
 #include <mm/heap.h>
 
+#ifndef SLAB
 #define BASE_HEAP_SIZE 0x40000
 
 int heap_base[BASE_HEAP_SIZE]; // Heap base = 4 MiB
@@ -40,7 +41,7 @@ init_heap()
         freeable_allocator = TRUE;
         return -E_SUCCESS;
 }
-
+#endif
 void memset(void *dest, int sval, size_t count)
 {
         if (!count)
@@ -192,7 +193,6 @@ int memcmp(void *ptr1, void* ptr2, size_t count)
 {
 #ifndef X86
         //64 bit int is only faster at X86, X64 prefers 2 time 32 int
-        if (diff >= 8)
         while (count >= 8)
         {
                 if (*(unsigned long long*) ptr1 - *(unsigned long long*) ptr2)

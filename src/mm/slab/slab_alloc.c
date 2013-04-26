@@ -503,6 +503,8 @@ found:
 void
 kmem_free(void* ptr, size_t size)
 {
+        if (size == 0 || ptr == NULL)
+                panic("Invalid object in kmem_free!");
         struct mm_cache* candidate = kmem_find_size(caches, size);
 
         if (candidate == NULL)

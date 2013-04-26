@@ -25,8 +25,6 @@
 extern "C" {
 #endif
 
-/** \def SLAB */
-#define SLAB
 
 #ifdef __cplusplus
 }

@@ -119,7 +119,7 @@ ol_pci_init()
   return;
 
   fail:
-  ol_dbg_heap();
+  //ol_dbg_heap();
   endProg();
 }
 
@@ -185,7 +185,7 @@ pci_add_list(ol_pci_iterate_dev_t itdev)
 
   fail:
   printf("Out of memory in pci_add_list!\n");
-  ol_dbg_heap();
+  //ol_dbg_heap();
   endProg();
   return TRUE;
 

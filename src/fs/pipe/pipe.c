@@ -31,31 +31,41 @@ static struct mm_cache* pipe_cache = NULL;
 
 static void* pipe_get_new_block(struct pipe* pipe)
 {
+#ifdef SLAB
         if (pipe_cache == NULL)
                 pipe_cache = mm_cache_init("pipe blocks", BLOCK_SIZE, BLOCK_SIZE,NULL, NULL);
         if (pipe_cache == NULL)
                 return NULL;
+#endif
 
         if (pipe == NULL)
                 return NULL;
 
+#ifdef SLAB
         if (pipe->block_size == BLOCK_SIZE)
                 return mm_cache_alloc(pipe_cache, 0);
         else
                 return kmalloc(pipe->block_size);
+#else
+        return kmalloc(pipe->block_size);
+#endif
 }
 
 static int pipe_cleanup_block(void *data, void* block)
 {
-		struct pipe *pipe = (struct pipe*)data;
+        struct pipe *pipe = (struct pipe*)data;
         if (pipe == NULL || block == NULL)
                 return -E_NULL_PTR;
 
         int ret = -E_SUCCESS;
+#ifdef SLAB
         if (pipe->block_size != BLOCK_SIZE)
                 kfree(block);
         else
                 ret = mm_cache_free(pipe_cache, block);
+#else
+        kfree(block);
+#endif
 
         return ret;
 }
