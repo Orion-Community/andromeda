@@ -1,0 +1,31 @@
+
+The system abstraction layer provides a nice and clean set of function pointers
+to help us allocate memory. Accessing these function pointers by hand every time
+can be somewhat of a pain, therefore macro's have been written to make this a
+little bit easier.
+
+It is advisable to only call the system abstraction layer (sal) functions, as 
+memory allocators can be added and removed. The sal will always provide a clean
+interface to the memory allocator present in the kernel, regardless of what was
+compiled in.
+
+Firstly the sal provides the kmalloc macro. This accepts integers of type size_t 
+and whill call the core.mm->alloc function, if present. If not, it will return 
+the NULL pointer. Otherwise it will return whatever pointer the memory allocator
+has returned.
+
+Next the sal also provides the kfree macro. kfree does not return, calling it
+while no memory allocator has been set up, will cause it to panic the system.
+If the allocator has been initialised however, it will call the free function
+presented to the sal by the memory allocator.
+
+Some memory allocators (such as the slab allocator) require object size info to
+be present at the time of freeing, in order to function correctly. Therefore it
+is best not to use void pointers or type casted versions of the object as those
+might differ in the size, requested to the allocator.
+
+Kfree gets its size information from the type info at compile time, however if
+the size is to be specified at run time it is best to use the kfree_s macro.
+It accepts 2 arguments. The pointer and the size. Appart from asking for and
+using the size to be specified, the behaviour is identical to that of kfree.
+

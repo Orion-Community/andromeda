@@ -1,0 +1,33 @@
+
+One of the first things the kernel does on boot is set up the memory allocation
+scheme. This is done in the function sys_setup_alloc, in the file 
+src/andromeda/system.c
+
+Initialising the memory allocator should be done in the function mentioned above.
+Care must be given to the setup of this memory allocator, as no information is
+present about the layout of the image, the position of the modules given by grub
+or where the system tables reside.
+
+In the function mentioned above, the call to register the allocator should also
+be made. In order to register the allocator a couple of function pointers must
+be set. core.mm->alloc and core.mm->free.
+
+core.mm->alloc takes 2 arguments, namely the size, and a 16 bits integer with
+the flags. The macro's in include/andromeda/system.h assume the flags to be set
+to 0, but the option is there for specialised requests (such as real time or
+interrupt based requests), in which case the macro's won't be used anyway.
+
+core.mm->alloc is supposed to return NULL if no object could be allocated, or
+the pointer to the allocated object if successful.
+
+core.mm->free also takes 2 arguments. The first one is the pointer to the 
+allocated object, and the second is the size of this object. It is best if this
+last flag isn't needed, but some allocators do need it, hence it's present.
+
+core.mm->free returns void.
+
+The entire system will look to these pointers in order to allocate and free
+memory, which it is best to register these functions, unless the allocator was
+written for very special applications that shouldn't be available to most of the
+system.
+
