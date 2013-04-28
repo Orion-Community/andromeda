@@ -22,6 +22,9 @@
 #include <lib/tree.h>
 #include <fs/vfs.h>
 #include <types.h>
+#ifdef X86
+#include <boot/mboot.h>
+#endif
 
 #define CPU_LIMIT 0x10
 
@@ -143,5 +146,8 @@ extern struct system core;
                              core.mm->page_share(a) : NULL)
 #define phys_page_free(a) ((hasmm && core.mm->page_free != NULL) ?\
                             core.mm->page_free(a) : 0)
+
+int sys_setup_alloc();
+int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length);
 
 #endif

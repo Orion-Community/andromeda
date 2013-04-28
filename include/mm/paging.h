@@ -1,6 +1,6 @@
 /*
     Andromeda
-    Copyright (C) 2011, 2012  Bart Kuivenhoven
+    Copyright (C) 2011 - 2013  Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <boot/mboot.h>
 #include <thread.h>
 #include <andromeda/sched.h>
+#include <mm/memory.h>
 
 #ifdef __cplusplus
 extern "C" {

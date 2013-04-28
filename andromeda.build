@@ -7,7 +7,7 @@
 "compiler" : "gcc",
 "linker" : "ld",
 "archiver" : "ar",
-"compiler-flags" : "-c -std=gnu89 -nostdlib -fno-builtin -nostdinc -fno-stack-protector -pipe -Os -Wall -Iinclude/",
+"compiler-flags" : "-c -std=gnu89 -nostdlib -fno-builtin -nostdinc -fno-stack-protector -pipe -Os -Wall -Wextra -Iinclude/",
 "dcompiler-flags" : [{"key" : "X86", "flags" : "-D X86 -D __INTEL -m32 -mtune=native -march=i386"}, {"key" : "slab", "flags" : "-D SLAB"}, {"key" : "slob", "flags" : "-D SLOB"}],
 "linker-flags" : "-oformat=elf32-i386 -melf_i386 -Tscripts/x86.ld",
 "archiver-flags" : "rs",

@@ -22,10 +22,10 @@
 #include <types.h>
 #ifdef SLAB
 #include <mm/cache.h>
-#else
-#endif
+#elif defined SLOB
 #include <mm/heap.h>
 #include <mm/memory.h>
+#endif
 
 struct system core = {NULL, NULL, NULL, NULL, NULL, NULL};
 
@@ -41,7 +41,7 @@ int sys_setup_alloc()
                 panic("The slab allocator was not initialised!");
         memset(core.mm, 0, sizeof(*core.mm));
         slab_sys_register();
-#else
+#elif defined SLOB
         init_heap();
         complement_heap(&end, HEAPSIZE);
         core.mm = alloc(sizeof(*core.mm), 0);
@@ -54,9 +54,17 @@ int sys_setup_alloc()
         return -E_SUCCESS;
 }
 
-int sys_setup_paging()
+int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length)
 {
-        return -E_NOFUNCTION;
+        if (core.mm == NULL)
+                panic("Memory allocation not initialised!");
+
+#ifdef X86
+        x86_pte_init();
+        page_alloc_init(map, length);
+#endif
+        page_alloc_register();
+        return -E_SUCCESS;
 }
 
 int sys_setup_arch()

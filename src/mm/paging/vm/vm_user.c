@@ -1,6 +1,6 @@
 /*
  * Andromeda
- * Copyright (C) 2012  Bart Kuivenhoven
+ * Copyright (C) 2012 - 2013  Bart Kuivenhoven
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -192,7 +192,7 @@ err:
 }
 
 /**
- * \fn vm_segment_map
+ * \fn vm_segment_load
  * \brief Map a physical location into a segment
  * \param s
  * \brief The segment to map into
@@ -201,11 +201,17 @@ err:
  * \return A standard error code
  */
 int
-vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p)
+vm_segment_load(struct vm_segment* s, struct mm_page_descriptor* p)
 {
         /**
          * \TODO: If pte_descriptor == loaded, map segment into page directory
          */
+        return -E_NOFUNCTION;
+}
+
+int
+vm_segment_unload(struct vm_segment* s, struct mm_page_descriptor* p)
+{
         return -E_NOFUNCTION;
 }
 

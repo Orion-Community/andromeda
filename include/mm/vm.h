@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2012  Bart Kuivenhoven
+ *  Copyright (C) 2012 - 2013  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -138,13 +138,25 @@ struct vm_descriptor {
 
 extern struct vm_descriptor vm_core;
 
-int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
+/* Generic functions */
+struct vm_descriptor* vm_new(unsigned int pid);
 int vm_free(struct vm_descriptor* p);
+struct vm_segment* vm_new_segment(void* virt, size_t size, struct vm_descriptor* p);
+int vm_segment_grow(struct vm_segment* s, size_t size);
+int vm_segment_clean(struct vm_segment* s);
+
+/* Allocator functions */
+void* vm_get_kernel_heap_pages(size_t size);
+int vm_free_kernel_heap_pages(void* ptr);
+void* vm_map_heap(void* phys, size_t size);
+int vm_unmap_heap(void* virt);
+
+
+/* Specialised functions */
+int vm_init();
+int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
 void* vm_get_phys(void* virt);
 void* x86_pte_get_phys(void* virt);
-int vm_init();
-void* vm_map_heap(void* phys, size_t size);
-void* vm_get_kernel_heap_pages(size_t size);
 
 #ifdef VM_DBG
 int vm_dump(struct vm_descriptor*);

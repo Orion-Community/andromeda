@@ -1,0 +1,105 @@
+
+The VM manager is the sub system responsible for managing task wide virtual
+memory. It does so through the abstraction of memory in descriptors, segments
+and ranges.
+
+This subsystem is not embedded in the system abstraction layer at this point.
+This is because the system is a bit too experimental still to create a new node
+in the sal especially for this. A new node might be added in the near future, so
+keep your eyes open.
+
+DATA STRUCTURES:
+The vm_descriptor is the pointer given to a task descriptor. It contains the
+pointers to the segments owned by that task. It holds pointers to the segments
+owned by that task.
+
+The vm_segment is the business end of the virtual memory manager. In it is the
+start address, and its size. If memory needs to be allocated from this range
+(in order to grow the heap or allocate space for modules) that information is
+stored in this data structure.
+
+It is possible to grow segments, though care has to be taken. Growing segments
+can be usefull if for example the heap needs expanding, but may only happen if
+there is space left to grow into. Sharing of memory between segments is not
+allowed. If memory needs to be shared, use the page mapping functions to do so.
+
+The vm_range_descriptor is what the segment get divided into, if there is a need
+for an allocator directly on top of the segment. It will mostly be heap segments
+that use this. For example, the slab allocator can come in and request new space
+for its slabs, while modules, that have to be loaded into memory, can also ask
+for a chunk, from the same heap space.
+
+FUNCTIONS:
+When creating a new task, that task has to have memory associated with it. The
+first step to meeting this condition is to give it a new descriptor created with
+the vm_new function.
+
+When creating that new task, we just talked about, we also need to allocate the
+memory for it to live in. This memory can be allocated using the vm_new_segment
+function. There is no checking for overlapping memory here, so be careful. The
+design of the vm manager does not work properly with overlapping segments. If
+memory needs to be shared between segments, it is best to do so, through the
+page mapping system, in accordance with the pte system.
+
+It might happen that a segment proves too small in run time. In stead of
+replacing the segment, it is quicker to grow it. This should only happen to heap
+segments though. Since segments only store the base address it is only possible
+to grow into the bigger addresses. vm_segment_grow will check for space when
+doing called, but will only check against other segments within the same
+descriptor.
+
+If a segment proves redundant (say you allocated a memory range for sharing with
+another task, and that sharing now has to end) the function vm_segment_clean is
+your guy. It cleans up all memory in use by that segment, but does not touch the
+page tables! Memory that needs to be freed that way, is to be freed manually.
+
+Finally, when the task ends it is usefull to clean up any memory which is left
+behind. The vm_free function takes care of that. Note that this function will
+also try to clean up any left behind segments, so don't worry too much if the
+you didn't manually clean up those segments.
+
+ALLOCATOR FUNCTIONS:
+Not every segment needs an allocator (such as the text or stack segment) but
+others (such as the heap do). The heap needs to have a special allocator, in
+order to know what area of memory to grow into. The flexibility of the slab
+allocator is very friendly for this kind of behaviour, but with very little
+reworking, the slob allocator should be able to take this functionality to its
+advantage as well.
+
+If memory of the segment is to be divided, the vm_segment_alloc function is the
+guy for the job. It looks at the page range descriptors, nested in the main
+descriptor and uses those to figure out what range to allocate next within the
+segment. The function can only be used to allocate a number of pages, described
+with the PAGE_ALLOC_FACTOR macro.
+
+vm_segment free, takes the pointer to the allocated memory, and uses it to free
+the memory up for allocation again. If two free ranges of memory are touching,
+those two will be merged into one continuous range. Allocated ranges, however,
+will not be merged together.
+
+The vm_get_kernel_heap_pages function, if set up correctly, will allocate pages
+from the heap segment. A special function has been put in place, because it is
+the heap that will be making use of the allocator services the most.
+
+This function comes with the vm_free_kernel_heap_pages function, which frees the
+memory allocated using the vm_get_kernel_heap_pages function.
+
+The vm_map_heap function is a bit more special. It allocates a number of pages
+and then tries to map those pages into the physical address space as requested
+using the vm_map function described below. The function then returns the pointer
+to the allocated virtual pages.
+
+The vm_unmap_heap functin goes through the trouble of unmapping the pages and
+then freeing them back up to the heap. This function uses the vm_unmap function
+described below.
+
+SPECIALISED FUNCTIONS:
+// todo
+vm_map
+vm_unmap
+vm_segment_load
+vm_segment_unload
+vm_get_phys
+vm_load_task
+vm_unload_task
+

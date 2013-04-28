@@ -117,11 +117,8 @@ boolean setupCore(module_t mod)
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
         setGDT();
-        sys_setup_alloc(); /*
-        init_heap();
-#ifdef SLAB
-        slab_alloc_init();
-#endif */
+        sys_setup_alloc();
+
         textInit();
         /**
          * \todo Make complement_heap so that it allocates memory from pte
@@ -148,8 +145,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
 
         /** Build the memory map and allow for allocation */
-        x86_pte_init();
-        page_alloc_init(mmap, (unsigned int)hdr->mmap_length);
+        sys_setup_paging(mmap, (unsigned int)hdr->mmap_length);
         vm_init();
 #ifdef PA_DBG
 //         endProg();

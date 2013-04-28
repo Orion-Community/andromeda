@@ -31,8 +31,10 @@ void paging();
 void memset(void*, int, size_t);
 void memcpy(void*, void*, size_t);
 int memcmp(void*, void*, size_t);
+#ifdef SLOB
 int init_heap();
 int complement_heap(void*, size_t);
+#endif
 
 size_t strlen(char* string);
 
@@ -42,10 +44,6 @@ void setGDT();
 
 extern unsigned int mboot;
 extern unsigned int end;
-
-#ifdef X86
-#define PAGESIZE 0x1000
-#endif
 
 #ifdef __cplusplus
 }
