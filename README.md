@@ -20,7 +20,7 @@ newer. The COPYING file should contian more information about the licence, or
 if it's not included, look at http://www.gnu.org/licences/.
 
     Andromeda kernel
-    Copyright (C) 2010-2011 - Bart Kuivenhoven, Michel Megens, Steven vd Schoot
+    Copyright (C) 2011-2013 - Bart Kuivenhoven, Michel Megens, Steven vd Schoot
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

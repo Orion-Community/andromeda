@@ -11,26 +11,36 @@ CFLAGS:=--cflags "-D VERSION=$(VERSION) $(COMPILER_FLAGS)"
 endif
 MAKE=make
 
-.PHONY: all clean configure distclean test doxygen
+.PHONY: all clean configure distclean test doxygen bin/andromeda.img 
+.PHONY: bin/andromeda.iso test_iso
 	@$(MAKE) -C src/ clean
 
-all: scripts/build.jar
+all: bin/andromeda.img
+
+bin/andromeda.img: scripts/build.jar
 	$(BUILD) $(CFLAGS) $(FLAGS)
 
 clean: scripts/build.jar
 	$(BUILD) -c $(FLAGS)
 
 configure: scripts/build.jar
-	java -jar scripts/build.jar --configure
+	$(BUILD) --configure
 
 scripts/build.jar:
 	scripts/get_build.sh
 
 distclean: clean
 	rm -fv scripts/build.jar
+	rm -fv bin/andromeda.iso
 
 test: all
-	qemu-system-i386 -kernel bin/andromeda.img -m 64M -monitor stdio
+	scripts/qemu.sh
+
+test_iso: bin/andromeda.iso
+	scripts/qemu_iso.sh
 
 doxygen:
 	doxygen scripts/Doxyfile
+
+bin/andromeda.iso: bin/andromeda.img
+	scripts/create_iso.sh

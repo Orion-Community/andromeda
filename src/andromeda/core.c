@@ -105,7 +105,9 @@ void test_sprintf()
         kfree(test);
 }
 
+#ifdef PT_DBG
 extern int page_table_boot;
+#endif
 
 void core_loop()
 {
