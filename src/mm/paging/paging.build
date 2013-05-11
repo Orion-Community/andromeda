@@ -3,7 +3,7 @@
 "link" : false,
 "archive" : false,
 "archived-file" : "paging.a",
-"source-files" : ["mboot.c", "page_alloc.c", "x86.c"],
+"source-files" : [],
 "compiler-flags" : "",
 "linker-flags" : "",
 "archiver-flags" : "",

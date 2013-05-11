@@ -49,7 +49,8 @@ struct task *task;
          * Swap the virtual memory.
          * If al goes wel the kernel space won't change.
          */
-        x86_page_set_list(task);
+        //x86_page_set_list(task); -> refers to the old system, has been removed
+        vm_load_task(); // -> refers to the new system. Still to be implemented
 
         /** \todo push floating point registers and push pointer */
 
