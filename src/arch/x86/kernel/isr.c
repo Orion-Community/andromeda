@@ -170,3 +170,4 @@ void cSimd(isrVal_t regs)
   checkFrame(&regs);
   panic("SSE exception");
 }
+

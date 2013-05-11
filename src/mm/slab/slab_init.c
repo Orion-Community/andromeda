@@ -261,17 +261,17 @@ cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
  */
 int slab_alloc_init()
 {
-        textInit();
 #ifdef SLAB_DBG
         debug("Initial slab ptr: %X\n", &initial_slab_space);
 #endif
         caches = initial_caches;
         int idx = 0;
         init_slab_ptr = &initial_slab_space;
+        int alignment = 4;
         /** Configure the first caches, one by one */
         for (; idx < NO_STD_CACHES; idx++)
         {
-                int alignment = pow(2, idx+4);
+                alignment += alignment;
                 /** Memset first, then set some pointers */
                 memset(&caches[idx], 0, sizeof(*caches));
                 caches[idx].obj_size = alignment;
@@ -290,7 +290,6 @@ int slab_alloc_init()
                 debug("Object size of cache[%X] = %X\n", idx,
                                                           caches[idx].obj_size);
 #endif
-
                 cache_find_slab_space(&caches[idx], idx);
         }
 #ifdef SLAB_DBG
