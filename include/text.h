@@ -38,9 +38,9 @@ void textInit();
 int atoi(char* str);
 
 #ifdef MSG_DBG
-#define debug(a, ...) printf(a, ...)
+#define debug(...) printf(__VA_ARGS__)
 #else
-#define debug(a, ...)
+#define debug(...)
 #endif
 
 #ifdef WARN
