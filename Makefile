@@ -3,7 +3,7 @@
 #
 
 BUILD=java -jar scripts/build.jar andromeda.build -t cores
-VERSION:=\"$(shell git describe)\"
+VERSION:=\"$(shell git describe --tags)\"
 ifeq ($(COMPILER_FLAGS),)
 CFLAGS:=--cflags "-D VERSION=$(VERSION)"
 else
