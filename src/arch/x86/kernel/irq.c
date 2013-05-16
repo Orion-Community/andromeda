@@ -33,6 +33,10 @@
 
 #include <andromeda/system.h>
 
+#ifndef __PIE__
+#error "The x86 kernel module should be compiled position independently!"
+#endif
+
 uint64_t pit_timer = 0;
 uint64_t sleepTime = 0;
 bool isSleeping = FALSE;
