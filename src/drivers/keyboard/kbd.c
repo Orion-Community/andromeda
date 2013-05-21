@@ -23,6 +23,8 @@
 #include <sys/io.h>
 #include <sys/dev/ps2.h>
 
+static void toggle_kb_leds(uint8_t);
+
 static ol_kb_scancode_t keycodes[] = {
 
 	{0x00, 0xff, 0x00, 0xff, 0x00, 0xff,   0, '\0', '\0'},

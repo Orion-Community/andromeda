@@ -29,6 +29,8 @@
 
 #include <drivers/root.h>
 
+static int rtc_create_driver(struct device *dev);
+static void program_rtc(struct device *dev);
 /**
  * \var rtc_dev
  * \brief Global variable for the real time clock.
@@ -91,6 +93,7 @@ setup_rtc(void)
         clock->rate = RTC_RATE_SCHED;
         rtc_dev->device_data = clock;
         program_rtc(rtc_dev);
+        return -E_SUCCESS;
 }
 
 /**
@@ -108,6 +111,7 @@ rtc_create_driver(struct device *dev)
         dev_setup_driver(dev, NULL, NULL);
         dev->type = rtc;
         device_id_alloc(dev);
+        return -E_SUCCESS;
 }
 
 /**

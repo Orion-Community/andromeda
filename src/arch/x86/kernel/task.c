@@ -21,6 +21,7 @@
 #include <andromeda/task.h>
 #include <andromeda/sched.h>
 #include <andromeda/error.h>
+#include <mm/vm.h>
 #include <mm/paging.h>
 
 /**

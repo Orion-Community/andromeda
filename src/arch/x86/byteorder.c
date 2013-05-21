@@ -42,7 +42,7 @@ __32be
 htonl(unsigned int val)
 {
         unsigned int tmp;
-        int i = 0;
+        unsigned int i = 0;
         for(; i < sizeof(unsigned int)/2; i++)
         {
                tmp = (val & 0xff) << 24;

@@ -48,6 +48,8 @@ pit_set_tick(TIMER *timer, unsigned long long offset)
 static void
 pit_set_mode(TIMER *timer)
 {
+        if (timer == NULL)
+                return;
         return;
 }
 
@@ -119,6 +121,7 @@ ol_pit_init(uint32_t hz)
         timer->frq = hz;
         timer->mode = OL_PIT_RATE_GEN;
         pit_set_frq(timer);
+        return -E_SUCCESS;
 }
 
 static ol_pit_reload_val_t

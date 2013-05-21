@@ -20,7 +20,7 @@
 #include <arch/x86/timer.h>
 #include <andromeda/system.h>
 
-static int
+int
 __get_cpu_tick_inline(struct cpu_time *time)
 {
         unsigned int low, high;
@@ -38,5 +38,7 @@ get_cpu_tick()
         struct cpu_time *time = kmalloc(sizeof(*time));
         unsigned long long ret = time->low;
         ret |= ((unsigned long long)(time->high)) << 32;
+        kfree(time);
+        return ret;
 }
 
