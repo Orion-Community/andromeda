@@ -21,6 +21,7 @@
 #include <mm/vm.h>
 #include <types.h>
 #include <andromeda/error.h>
+#include <andromeda/system.h>
 #include <arch/x86/pte.h>
 #include "page_table.h"
 
@@ -97,7 +98,47 @@ int x86_pte_unset_segment(struct vm_segment* s)
         if (s == NULL || s->pages == NULL)
                 return -E_NULL_PTR;
 
-        x86_pte_reset_range(s->pages);
+        x86_pte_reset_range(s->pages->virt, s->pages->size);
+
+        return -E_SUCCESS;
+}
+
+int x86_pte_set_range (struct sys_mmu_range* range)
+{
+        if (range == NULL)
+                return -E_INVALID_ARG;
+
+        addr_t i = (addr_t)range->virt;
+        struct sys_mmu_range_phys* phys = range->phys;
+        while (i < (addr_t)(range->virt + range->size))
+        {
+                if (phys == NULL)
+                        return -E_NOT_YET_INITIALISED;
+
+                size_t j = 0;
+                for (; j > phys->size; j += PAGE_SIZE)
+                        x86_pte_set_page(i+j, phys->phys+j, range->cpl);
+
+                i += range->size;
+                phys = phys->next;
+        }
+        return -E_SUCCESS;
+}
+
+/**
+ * \fn x86_pte_reset_range
+ * \brief Set all pages within this range to unavailable
+ * \param range
+ * \return
+ */
+int x86_pte_reset_range(void* virt, size_t size)
+{
+        if (virt == NULL)
+                return -E_INVALID_ARG;
+
+        int to, from;
+        for (to = virt + size, from = virt; from < to; from++)
+                spd[from].present = 0;
 
         return -E_SUCCESS;
 }

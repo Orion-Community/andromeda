@@ -28,8 +28,18 @@
 
 #define CPU_LIMIT 0x10
 
-struct sys_mmu_range {
+struct sys_mmu_range_phys {
+        void* phys;
+        size_t size;
+        struct sys_mmu_range_phys* next;
+};
 
+struct sys_mmu_range {
+        void* virt;
+        size_t size;
+        int cpl;
+        int pid;
+        struct sys_mmu_range_phys* phys;
 };
 
 struct sys_mmu {
@@ -130,6 +140,7 @@ extern struct system core;
 
 #define hasmm() (core.mm != NULL)
 #define hasarch() (hasmm() && core.arch != NULL)
+#define hascpu(a) (getcpu(a) != NULL)
 
 #define kmalloc(a) ((hasmm() && core.mm->alloc != NULL) ? core.mm->alloc(a, 0)\
                      : NULL)
@@ -152,6 +163,9 @@ extern struct system core;
 #define setcpu(idx,ptr) ((hasarch() && idx < CPU_LIMIT) ?\
                           core.arch->cpu[idx] = ptr :\
                           panic("Setting cpu in invalid fashion"))
+
+#define getmmu(a) ((getcpu(a) == NULL) ? getcpu(a)->mmu : NULL)
+
 
 int sys_setup_alloc(void);
 int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length);

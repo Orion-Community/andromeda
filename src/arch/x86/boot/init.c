@@ -129,6 +129,8 @@ int system_x86_mmu_init(struct sys_cpu* cpu)
         cpu->mmu->reset_page = x86_pte_unset_page;
         cpu->mmu->set_page = x86_pte_set_page;
         cpu->mmu->set_range = x86_pte_set_range;
+
+        return -E_SUCCESS;
 }
 
 int system_x86_cpu_init(int cpuid)
@@ -157,7 +159,7 @@ int system_x86_cpu_init(int cpuid)
         cpu->throttle = NULL;
         cpu->resume = NULL;
 
-
+        system_x86_mmu_init(cpu);
 
         return -E_SUCCESS;
 }

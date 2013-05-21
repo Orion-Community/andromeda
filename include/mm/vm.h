@@ -109,7 +109,7 @@ struct vm_segment {
         struct vm_range_descriptor* free;
         struct vm_range_descriptor* mapped;
 
-        struct pte_range* pages;
+        struct sys_mmu_range* pages;
 
         char* name;
 

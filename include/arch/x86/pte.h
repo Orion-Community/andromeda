@@ -19,10 +19,12 @@
 #ifndef __ARCH_X86_PTE_H
 #define __ARCH_X86_PTE_H
 
+#include <andromeda/system.h>
+
 int x86_pte_unset_page(void* virt);
 int x86_pte_set_page(void* virt, void* phys, int cpl);
-int x86_pte_reset_range(struct pte_range* range);
-int x86_pte_set_range(struct pte_range* range);
+int x86_pte_reset_range(void* virt, size_t size);
+int x86_pte_set_range (struct sys_mmu_range* range);
 void* x86_pte_get_phys(void* virt);
 
 #endif

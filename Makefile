@@ -32,6 +32,7 @@ scripts/build.jar:
 distclean: clean
 	rm -fv scripts/build.jar
 	rm -rfv bin/
+	rm -rfv doc/doxygen
 
 test: all
 	scripts/qemu.sh

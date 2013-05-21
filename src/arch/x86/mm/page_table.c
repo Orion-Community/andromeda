@@ -118,68 +118,6 @@ static int x86_pte_unset_pt(int idx)
 }
 
 /**
- * \fn x86_pte_copy_range
- * \brief Copy a set of page table pointers into a range descriptor
- * \param range
- * \param from
- * \param to
- * \return standard error code
- */
-int x86_pte_copy_range(struct pte_range* range, int from, int to)
-{
-        if (range == NULL)
-                return -E_NULL_PTR;
-
-        /* Configure the pointers */
-        range->to = to;
-        range->from = from;
-
-        /* Copy the tables over from the vpd to the range descriptor */
-        for (; from < to; from ++)
-                range->vtable[from] = vpd[from];
-
-        return -E_SUCCESS;
-}
-
-/**
- * \fn x86_pte_set_range
- * \brief Copy the page tables in the range to the page directory
- * \param range
- * \return Standard error code
- */
-int x86_pte_set_range(struct pte_range* range)
-{
-        if (range == NULL)
-                return -E_NULL_PTR;
-
-        int to, from;
-        for (to = range->to, from = range->from; from < to; from++)
-        {
-                vpd[from] = range->vtable[from];
-                spd[from].present = (vpd[from] == NULL) ? 0 : 1;
-        }
-        return -E_SUCCESS;
-}
-
-/**
- * \fn x86_pte_reset_range
- * \brief Set all pages within this range to unavailable
- * \param range
- * \return
- */
-int x86_pte_reset_range(struct pte_range* range)
-{
-        if (range == NULL)
-                return -E_NULL_PTR;
-
-        int to, from;
-        for (to = range->to, from = range->from; from < to; from++)
-                spd[from].present = 0;
-
-        return -E_SUCCESS;
-}
-
-/**
  * \fn x86_pte_set_page
  * \brief Map a virtual address to a physical one
  * \param virt
