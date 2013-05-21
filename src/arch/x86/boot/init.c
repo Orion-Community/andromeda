@@ -55,6 +55,7 @@
 #include <arch/x86/irq.h>
 #include <arch/x86/pit.h>
 #include <arch/x86/paging.h>
+#include <arch/x86/system.h>
 
 #include <interrupts/int.h>
 
@@ -113,6 +114,36 @@ boolean setupCore(module_t mod)
 	return FALSE; //Doesn't get reached, ever, if all goes well
 }
 
+int system_x86_cpu_init(int cpuid)
+{
+        /**
+         * \todo Detect presence of CPU
+         * \todo If CPU present, return CPU
+         */
+        if (getcpu(cpuid) != NULL)
+                panic("Something went wrong in CPU initialisation!");
+        struct sys_cpu* cpu = kmalloc(sizeof(*cpu));
+        if (cpu == NULL)
+                panic("Out of memory!");
+        memset(cpu, 0, sizeof(*cpu));
+        setcpu(cpuid, cpu);
+
+        cpu->halt = endProg;
+        cpu->suspend = endProg;
+        /** \todo Add cpu throttling and resuming functions in place */
+        cpu->throttle = NULL;
+        cpu->resume = NULL;
+
+        return -E_NOFUNCTION;
+}
+
+int system_x86_init()
+{
+        /** \todo Write the x86 function pointer library */
+        printf("The code to set up x86 function pointers is still to be written\n");
+        return -E_NOFUNCTION;
+}
+
 // The main function
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
@@ -146,6 +177,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         /** Build the memory map and allow for allocation */
         sys_setup_paging(mmap, (unsigned int)hdr->mmap_length);
+        sys_setup_arch();
         vm_init();
 #ifdef PA_DBG
 //         endProg();

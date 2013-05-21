@@ -26,18 +26,21 @@
 #include <mm/heap.h>
 #include <mm/memory.h>
 #endif
+#ifdef X86
+#include <arch/x86/system.h>
+#endif
 
 struct system core = {NULL, NULL, NULL, NULL, NULL, NULL};
 
 int sys_setup_alloc()
 {
-        if (core.mm != NULL)
+        if (hasmm())
                 panic("Memory allocation already initialised!");
 
 #ifdef SLAB
         slab_alloc_init();
         core.mm = kmem_alloc(sizeof(*core.mm), 0);
-        if (core.mm == NULL)
+        if (!hasmm())
                 panic("The slab allocator was not initialised!");
         memset(core.mm, 0, sizeof(*core.mm));
         slab_sys_register();
@@ -45,7 +48,7 @@ int sys_setup_alloc()
         init_heap();
         complement_heap(&end, HEAPSIZE);
         core.mm = alloc(sizeof(*core.mm), 0);
-        if (core.mm == NULL)
+        if (!hasmm())
                 panic("The slob allocator failed!");
         memset(core.mm, 0, sizeof(*core.mm));
         slob_sys_register();
@@ -56,7 +59,7 @@ int sys_setup_alloc()
 
 int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length)
 {
-        if (core.mm == NULL)
+        if (!hasmm())
                 panic("Memory allocation not initialised!");
 
 #ifdef X86
@@ -69,9 +72,29 @@ int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length)
 
 int sys_setup_arch()
 {
-        if (core.arch != NULL)
+        if (hasarch())
                 return -E_ALREADY_INITIALISED;
-        return -E_NOFUNCTION;
+        if (!hasmm())
+                return -E_NOT_YET_INITIALISED;
+
+        core.arch = kmalloc(sizeof(*core.arch));
+        if (!hasarch())
+                panic("Out of memory! could not initialise arch!");
+        memset(core.arch, 0, sizeof(*core.arch));
+
+#ifdef X86
+        system_x86_init();
+#endif
+
+        int i = 0;
+        for (; i < CPU_LIMIT; i++)
+        {
+#ifdef X86
+                system_x86_cpu_init(i);
+#endif
+        }
+
+        return -E_SUCCESS;
 }
 int sys_setup_devices()
 {

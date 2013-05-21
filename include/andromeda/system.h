@@ -41,22 +41,22 @@ struct sys_mmu {
 };
 
 struct sys_cpu_scheduler {
-        int (*sched)();
-        int (*task_switch)();
-        int (*get_load)();
-        int (*set_task)();
-        int (*unset_task)();
-        int (*fork)();
-        int (*signal)();
-        int (*set_prio)();
+        int (*sched)(void);
+        int (*task_switch)(void);
+        int (*get_load)(void);
+        int (*set_task)(void);
+        int (*unset_task)(void);
+        int (*fork)(void);
+        int (*signal)(void);
+        int (*set_prio)(void);
 };
 
 struct sys_cpu_pic {
-        int (*set_interrupt)();
-        int (*get_interrupt)();
-        int (*disable_interrupt)();
-        int (*suspend)();
-        int (*resume)();
+        int (*set_interrupt)(void);
+        int (*get_interrupt)(void);
+        int (*disable_interrupt)(void);
+        int (*suspend)(void);
+        int (*resume)(void);
 };
 
 struct sys_cpu {
@@ -64,18 +64,18 @@ struct sys_cpu {
         struct sys_cpu_scheduler* scheduler;
         struct sys_cpu_pic* pic;
 
-        int (*suspend)();
-        int (*resume)();
-        int (*halt)();
-        int (*throttle)();
+        void (*suspend)(void);
+        void (*resume)(void);
+        void (*halt)(void);
+        void (*throttle)(void);
 };
 
 struct sys_io_pic {
-        int (*set_interrupt)();
-        int (*get_interrupt)();
-        int (*disable_interrupt)();
-        int (*suspend)();
-        int (*resume)();
+        int (*set_interrupt)(void);
+        int (*get_interrupt)(void);
+        int (*disable_interrupt)(void);
+        int (*suspend)(void);
+        int (*resume)(void);
 };
 
 struct sys_arch_abstraction{
@@ -84,7 +84,7 @@ struct sys_arch_abstraction{
 };
 
 struct sys_memory_manager {
-        void* (*page_alloc)();
+        void* (*page_alloc)(void);
         void* (*page_share)(void*);
         int (*page_free)(void*);
         void* (*alloc)(size_t, uint16_t);
@@ -92,16 +92,16 @@ struct sys_memory_manager {
 };
 
 struct sys_device_tree {
-        int (*suspend)();
-        int (*resume)();
-        int (*get_dev)();
-        int (*set_dev)();
+        int (*suspend)(void);
+        int (*resume)(void);
+        int (*get_dev)(void);
+        int (*set_dev)(void);
         struct device* root_dev;
 };
 
 struct sys_module_tree {
-        void* (*get_mod)();
-        void* (*set_mod)();
+        void* (*get_mod)(void);
+        void* (*set_mod)(void);
 };
 
 struct sys_net {
@@ -129,25 +129,32 @@ struct system {
 
 extern struct system core;
 
-#define hasmm (core.mm != NULL)
+#define hasmm() (core.mm != NULL)
+#define hasarch() (core.mm != NULL)
 
-#define kmalloc(a) ((hasmm && core.mm->alloc != NULL) ? core.mm->alloc(a, 0) :\
-                    NULL)
-#define kfree(a) ((hasmm && core.mm->free != NULL) ?\
+#define kmalloc(a) ((hasmm() && core.mm->alloc != NULL) ? core.mm->alloc(a, 0)\
+                     : NULL)
+#define kfree(a) ((hasmm() && core.mm->free != NULL) ?\
                    core.mm->free(a, sizeof(*a)) :\
                    panic("Memory freeing function not correctly initialised!"))
-#define kfree_s(a,b) ((hasmm && core.mm->free != NULL) ?\
-                    core.mm->free(a, b) :\
+#define kfree_s(a,b) ((hasmm() && core.mm->free != NULL) ?\
+                       core.mm->free(a, b) :\
                     panic("Memory freeing function not correctly initialised!"))
 
-#define phys_page_alloc ((hasmm && core.mm->page_alloc != NULL) ?\
+#define phys_page_alloc ((hasmm() && core.mm->page_alloc != NULL) ?\
                           core.mm->page_alloc() : NULL)
-#define phys_page_share(a) ((hasmm && core.mm->page_share != NULL) ?\
+#define phys_page_share(a) ((hasmm() && core.mm->page_share != NULL) ?\
                              core.mm->page_share(a) : NULL)
-#define phys_page_free(a) ((hasmm && core.mm->page_free != NULL) ?\
+#define phys_page_free(a) ((hasmm() && core.mm->page_free != NULL) ?\
                             core.mm->page_free(a) : 0)
 
-int sys_setup_alloc();
+#define getcpu(a) ((hasarch() && core.arch->cpu[a] != NULL && a < CPU_LIMIT) ?\
+                    core.arch->cpu[a] : NULL)
+#define setcpu(idx,ptr) ((hasarch() && idx < CPU_LIMIT) ?\
+                          core.arch->cpu[idx] = ptr :\
+                          panic("Setting cpu in invalid fashion"))
+
+int sys_setup_alloc(void);
 int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length);
 
 #endif

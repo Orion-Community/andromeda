@@ -31,7 +31,7 @@ scripts/build.jar:
 
 distclean: clean
 	rm -fv scripts/build.jar
-	rm -fv bin/andromeda.iso
+	rm -rfv bin/
 
 test: all
 	scripts/qemu.sh
