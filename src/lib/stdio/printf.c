@@ -79,13 +79,13 @@ char padding;
         /* If num == 0, the result is always the same, so optimize that out */
         if (num == 0)
         {
-                int i = 0;
+                size_t i = 0;
                 for (; i < min_size-1; i++)
                         *(str++) = padding;
                 *(str++) = '0';
                 return min_size;
         }
-        int32_t idx = 0;
+        size_t idx = 0;
         uint32_t unum = (uint32_t)num;
         /* If signedness is allowed, check for signedness */
         if (num < 0 && sign)
@@ -117,7 +117,7 @@ char padding;
          */
         if (idx < min_size)
         {
-                int i = 0;
+                size_t i = 0;
                 for (; i < min_size - idx; i++)
                         *(str++) = padding;
                 ret = min_size;
@@ -127,7 +127,7 @@ char padding;
          * Now take the temp string, reverse it and put it in the output string
          * The reversal to get the correct order again.
          */
-        for (; idx >= 0; idx--)
+        for (; (int)idx >= 0; idx--)
                 *(str++) = tmp_str[sizeof(tmp_str) - idx];
         return ret;
 }
