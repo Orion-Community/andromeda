@@ -95,7 +95,7 @@ ol_ps2_read(ol_ps2_dev_t dev)
 }
 
 static int
-ol_ps2_write(ol_ps2_dev_t dev, uint8_t val, bool ack)
+ol_ps2_write(ol_ps2_dev_t dev, uint8_t val)
 {
   uint32_t i, readback = 0;
   for (i = 0; i < 0x80000; i++)
@@ -157,5 +157,5 @@ ol_ps2_get_keyboard_scancode()
 int
 ol_ps2_config_keyboard(uint8_t confval)
 {
-  return ol_ps2_write(ol_ps2_keyboard, confval, TRUE);
+  return ol_ps2_write(ol_ps2_keyboard, confval);
 }

@@ -23,37 +23,56 @@
 #include <drivers/vga_text.h>
 
 atomic_t vga_text_count;
-static mutex_t vga_text_lock = mutex_unlocked;
 static struct device* vga_dev = NULL;
 
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic push
 static int vga_text_read(struct vfile*  this, char* buf, size_t num)
 {
+        if (this == NULL || buf == NULL || num == 0)
+                return -E_INVALID_ARG;
         warning("vga_text_read not implemented!\n");
         return -E_NOFUNCTION;
 }
 
 static int vga_text_seek(struct vfile*  this, size_t num, seek_t from)
 {
+        if (this == NULL)
+                return -E_INVALID_ARG;
+
+        switch (from)
+        {
+        case SEEK_CUR:
+        case SEEK_END:
+                break;
+        case SEEK_SET:
+                this->cursor = num;
+                break;
+        }
         warning("vga_text_seek not implemented!\n");
         return -E_NOFUNCTION;
 }
 
 static int vga_text_flush(struct vfile* this)
 {
+        if (this == NULL)
+                return -E_INVALID_ARG;
         warning("vga_text_flush not implemented!\n");
         return -E_NOFUNCTION;
 }
 
 static int vga_text_close(struct vfile* this)
 {
+        if (this == NULL)
+                return -E_INVALID_ARG;
         warning("ga_text_close not implemented!\n");
         return -E_NOFUNCTION;
 }
 
 static int vga_text_write(struct vfile* this, char* buf, size_t num)
 {
+        if (this == NULL || buf == NULL || num == 0)
+                return -E_INVALID_ARG;
         warning("vga_text_write not implemented!");
         return -E_NOFUNCTION;
 }
@@ -61,6 +80,8 @@ static int vga_text_write(struct vfile* this, char* buf, size_t num)
 
 static struct vfile* vga_text_open(struct device *this)
 {
+        if (this == NULL)
+                return NULL;
         warning("vga_text_open not implemented!\n");
         return NULL;
 }

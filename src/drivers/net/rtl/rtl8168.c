@@ -24,6 +24,7 @@
 #include <andromeda/system.h>
 #include <fs/vfs.h>
 #include <arch/x86/irq.h>
+#include <arch/x86/idt.h>
 
 /**
  * \file rtl8168.h
@@ -39,9 +40,11 @@ static int reset_rtl_device(struct rtl_cfg *cfg);
 static int rtl_generic_cfg_out(uint16_t port, void* data, uint8_t size);
 static int rtl_generic_cfg_in(uint16_t port, void* store, uint8_t size);
 static int rtl_conf_rx(struct rtl_cfg *cfg);
+int init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg);
 
 static struct rtl_cfg *rtl_devs = NULL;
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void
 rtl8168_irq_handler(unsigned int irq, irq_stack_t stack)
 {
@@ -59,7 +62,9 @@ rtl8168_irq_handler(unsigned int irq, irq_stack_t stack)
         printf("IRQ status: %x\n", irq_state);
 #endif
         if (io->read(io, (void*) buff, sizeof (*buff)) != -E_SUCCESS)
+        {
                 warning("failure to call rtl io reader\n");
+        }
 
         return;
 }
@@ -75,7 +80,10 @@ rtl_setup_irq_handle(irq_handler_t handle, struct netdev *irq_data)
         if (!ret)
                 install_irq_vector(data);
         else
+        {
                 warning("network card handler could not be installed!");
+        }
+        return -E_SUCCESS;
 }
 
 static void
@@ -171,9 +179,11 @@ init_core_driver(pci_dev_t pci, struct rtl_cfg *cfg)
         get_mac(pci, netdev);
         rtl_setup_irq_handle(&rtl8168_irq_handler, netdev);
         register_net_dev(dev, netdev);
+
+        return -E_SUCCESS;
 }
 
-static enum packet_state
+enum packet_state
 rtl_poll_data(struct net_buff *nb)
 {
         struct rtl_cfg *cfg = nb->dev->device_data;
@@ -236,7 +246,7 @@ static void
 add_rtl_device(struct rtl_cfg *cfg)
 {
         struct rtl_cfg *carriage = cfg;
-        for (; carriage->next != NULL, carriage->next = carriage;
+        for (; carriage->next != NULL && carriage->next != carriage;
              carriage = carriage->next)
         {
                 if (carriage->next == NULL)
@@ -308,12 +318,12 @@ get_rtl_dev_list()
         return rtl_devs;
 }
 
-static int
+int
 get_rtl_dev_num()
 {
         int i = 0;
         struct rtl_cfg *carriage;
-        for (carriage = get_rtl_dev_list(); carriage != NULL, carriage != carriage->next;
+        for (carriage = get_rtl_dev_list(); carriage != NULL && carriage != carriage->next;
              carriage = carriage->next)
         {
                 i++;
@@ -331,20 +341,15 @@ get_rtl_dev_num()
  *
  * @param dev Index in the device list.
  */
-static struct rtl_cfg*
+struct rtl_cfg*
 get_rtl_device(int dev)
 {
         struct rtl_cfg *carriage = get_rtl_dev_list();
-        int i = 0;
-        for (; carriage != NULL, carriage != carriage->next; carriage = carriage->next)
+        for (; carriage != NULL && carriage != carriage->next; carriage = carriage->next)
         {
-                if (i == dev)
-                        break;
-                if (carriage->next == NULL)
-                        break;
-                else
-                        continue;
+                break;
         }
+        return carriage;
 }
 
 /**
@@ -455,7 +460,7 @@ void
 init_network()
 {
         struct ol_pci_node *carriage = pcidevs;
-        for (; carriage != NULL, carriage->next != carriage; carriage = carriage->next)
+        for (; carriage != NULL && carriage->next != carriage; carriage = carriage->next)
         {
                 if (carriage->dev->class == NIC && carriage->dev->subclass == NIC_ETHERNET)
                 {

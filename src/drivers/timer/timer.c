@@ -31,6 +31,8 @@ static int dev_timer_init(struct device* dev, struct device* parent);
 static int dev_timer_setup_io(struct device*, vfs_read_hook_t, vfs_write_hook_t);
 static int setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector);
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 IRQ(timer_irq, irq, stack)
 {
         struct irq_data *data = get_irq_data(irq);
@@ -43,6 +45,8 @@ IRQ(timer_irq, irq, stack)
         return;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
 VFIO(timer_write, file, data, size)
 {
         TIMER *timer = (TIMER*)data;
@@ -78,6 +82,7 @@ VFIO(timer_write, file, data, size)
         }
         return E_SUCCESS;
 }
+#pragma GCC diagnostic pop
 
 VFIO(timer_read, file, data, size)
 {
