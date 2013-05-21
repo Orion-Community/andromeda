@@ -81,7 +81,7 @@ void* page_realloc(void* ptr)
 
         mutex_lock(&page_alloc_lock);
 
-        if (pagemap[idx] >= 0 || pagemap[idx] == PAGE_LIST_MARKED)
+        if (pagemap[idx] >= 0 || (unsigned long)(pagemap[idx]) == PAGE_LIST_MARKED)
                 goto err;
 
         pagemap[idx]--;
@@ -110,7 +110,7 @@ addr_t pagemap_find_reference(addr_t p)
         for (; i < PAGE_LIST_SIZE; i++)
         {
                 /* If reference found, return it */
-                if (pagemap[i] == p)
+                if ((addr_t)(pagemap[i]) == p)
                         return i;
         }
         /* Otherwise the input was wrong */
@@ -133,7 +133,7 @@ void* page_claim(void* page)
         if (ref != -E_INVALID_ARG)
                 pagemap[ref] = pagemap[idx];
 
-        if (first_free == idx)
+        if ((addr_t)first_free == idx)
                 first_free = pagemap[idx];
 
         pagemap[idx] = -1;
@@ -159,7 +159,7 @@ int page_mark(void* page)
         mutex_lock(&page_alloc_lock);
 
         /* Do you know any better time to panic than memory corruption? */
-        if (pagemap[p] < 0 && pagemap[p] != PAGE_LIST_MARKED)
+        if (pagemap[p] < 0 && (unsigned long)(pagemap[p]) != PAGE_LIST_MARKED)
         {
                 printf("page ptr: %X\n"
                        "page key: %X\n"
@@ -171,13 +171,13 @@ int page_mark(void* page)
         }
 
         /* If first free equals p, move it up */
-        if (first_free == p)
+        if ((addr_t)first_free == p)
                 first_free = pagemap[first_free];
         /* Else do stuff in the list */
         else
         {
                 addr_t i = pagemap_find_reference(p);
-                if (i != -E_INVALID_ARG)
+                if (i != (addr_t)-E_INVALID_ARG)
                         pagemap[i] = pagemap[p];
         }
 
@@ -207,7 +207,7 @@ int page_unmark(void* page)
         mutex_lock(&page_alloc_lock);
 
         /* Oh noes!!! Wait a sec, there's nothing to be done here! */
-        if (pagemap[p] != PAGE_LIST_MARKED)
+        if ((unsigned long)(pagemap[p]) != PAGE_LIST_MARKED)
                 goto err;
 
         /* Mark the page as usable */

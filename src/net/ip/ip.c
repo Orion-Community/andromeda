@@ -21,14 +21,17 @@
 #include <networking/eth/ipv4.h>
 #include <andromeda/system.h>
 
+static enum ptype netif_rx_ip(struct net_buff *buff);
+
 int
 netif_init_ip()
 {
-  struct protocol *root = get_ptype(get_ptype_tree(), ETHERNET);
-  struct protocol *item = kmalloc(sizeof(*item));
-  item->type = IPv4;
-  item->deliver_packet = &netif_rx_ip;
-  add_ptype(root, item);
+        struct protocol *root = get_ptype(get_ptype_tree(), ETHERNET);
+        struct protocol *item = kmalloc(sizeof(*item));
+        item->type = IPv4;
+        item->deliver_packet = &netif_rx_ip;
+        add_ptype(root, item);
+        return -E_SUCCESS;
 }
 
 static enum ptype

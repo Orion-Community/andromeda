@@ -3,7 +3,7 @@
 "link" : false,
 "archive" : false,
 "archived-file" : "mm.a",
-"source-files" : ["map.c", "memory.c", "test.c"],
+"source-files" : ["memory.c", "test.c"],
 "compiler-flags" : "",
 "linker-flags" : "",
 "archiver-flags" : "",

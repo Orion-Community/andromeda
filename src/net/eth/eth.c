@@ -21,6 +21,9 @@
 #include <networking/net.h>
 #include <andromeda/system.h>
 
+static enum ptype receive_ethernet_frame(struct net_buff *buff);
+static void eth_queue_notifier();
+
 void
 init_eth()
 {
@@ -44,10 +47,13 @@ init_eth()
 static enum ptype
 receive_ethernet_frame(struct net_buff *nb)
 {
+        if (nb == NULL)
+                return P_NOTCOMPATIBLE;
         //nb->type = IPv4;
         return P_QUEUED;
 }
 
+#if 0
 /**
  * This function will check and process and incoming ethernet frame. After determining
  * the encapsulated protocol, it will call the associated protocol handler.
@@ -57,8 +63,12 @@ receive_ethernet_frame(struct net_buff *nb)
 static enum ptype
 process_ethernet_frame(struct net_buff *buff, struct protocol *type)
 {
-  return -E_NOFUNCTION;
+        if (buff == NULL || type == NULL)
+                return -E_INVALID_ARG;
+
+        return -E_NOFUNCTION;
 }
+#endif
 
 static void
 eth_queue_notifier()

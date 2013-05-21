@@ -148,7 +148,7 @@ void memcpyBack(void *dest, void *src, size_t count)
 
 void memcpy(void *dest, void *src, size_t count)
 {
-        if ((int)src+count>(int)dest)
+        if ((addr_t)src+count>(addr_t)dest)
                 memcpyBack(dest,src,count);
 #ifndef X86
         //64 bit int is only faster at 64-bit PC's, 32 bits prefers 2 time 32 int

@@ -209,7 +209,7 @@ register size_t no_elements;
 
         memset(pages, 0, no_pages);
 
-        int i = 0;
+        size_t i = 0;
         int* alloc_space = pages;
 
         for (; i < no_elements; i++)

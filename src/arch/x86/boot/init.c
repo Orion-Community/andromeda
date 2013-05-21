@@ -74,44 +74,14 @@
 
 multiboot_memory_map_t* mmap;
 size_t mmap_size;
+size_t memsize = 0; // Size of memory in KiB
 
 int page_dir_boot [0x400];
 int page_table_boot [0x40000];
 
 int vendor = 0;
 
-void elfJmp(void*);
-void coreAugment(void*);
 void setIDT();
-
-boolean setupCore(module_t mod)
-{
-	// Examine and augment the elf image here, return true if faulty
-	switch (coreCheck((void*) mod.addr))
-	{
-	case 0:
-		break;
-	case -1:
-		printf("Invalid elf image\n");
-		return TRUE;
-	case -2:
-		printf("Entry point too low\n");
-		return TRUE;
-	case -3:
-		printf("Kernel magic invalid\n");
-		return TRUE;
-
-	default:
-		printf("Unknown return value");
-		return TRUE;
-	}
-	coreAugment((void*)mod.addr);
-
-	// Jump into the high memory image
-	elfJmp((void*)mod.addr);
-
-	return FALSE; //Doesn't get reached, ever, if all goes well
-}
 
 // The main function
 int init(unsigned long magic, multiboot_info_t* hdr)

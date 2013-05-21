@@ -27,6 +27,6 @@ struct cpu_time
 };
 
 unsigned long long get_cpu_tick();
-static int __get_cpu_tick_inline();
+//static int __get_cpu_tick_inline();
 
 #endif

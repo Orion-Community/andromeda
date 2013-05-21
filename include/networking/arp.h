@@ -43,8 +43,8 @@ struct arp_table_node
   uint8_t addr[8];
 };
 
-static struct arp *alloc_arp_structure(struct arp *);
-static void free_arp_structure(struct arp *);
+struct arp *alloc_arp_structure(struct arp *);
+void free_arp_structure(struct arp *);
 
 #ifdef __cplusplus
 }

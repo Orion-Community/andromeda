@@ -515,15 +515,15 @@ atanhl(long double x)
 #endif
 
 double
-exp(double n) //An other beatyfull taylor polynominal
+exp(double n) //Another beautiful Taylor polynomial
 {
 	double ret = 1;
 	double x = n;
-	int fac = 1, i = 2;
+	unsigned int fac = 1, i = 2;
 	for (; (fac<0xffffffff) ;i++) // stop if i is insane high
 	{
 		ret += x/i;  // ret += (x^i)/(i!)
-		if ( (x>(0xffffffff/n)) || ( x==(x*n) ) ) // stop if x != relyable anymore
+		if ( (x>(0xffffffff/n)) || ( x==(x*n) ) ) // stop if x != reliable anymore
 			break;
 		fac *= i;  // making it (i+1)!
 	}
@@ -531,11 +531,11 @@ exp(double n) //An other beatyfull taylor polynominal
 }
 
 float
-expf(float n) //An other beatyfull taylor polynominal
+expf(float n) //Another beautiful Taylor polynomiall
 {
 	float ret = 1;
 	float x = n;
-	int fac = 1, i = 2;
+	unsigned int fac = 1, i = 2;
 	for (; (fac<0xffffffff) ;i++) // stop if i is insane high
 	{
 		ret += x/i;  // ret += (x^i)/(i!)
@@ -547,11 +547,11 @@ expf(float n) //An other beatyfull taylor polynominal
 }
 
 long double
-expl(long double n) //An other beatyfull taylor polynominal
+expl(long double n) //Another beautiful Taylor polynomial
 {
 	long double ret = 1;
 	long double x = n;
-	int fac = 1, i = 2;
+	unsigned int fac = 1, i = 2;
 	for (; (fac<0xffffffff) ;i++) // stop if i is insane high
 	{
 		ret += x/i;  // ret += (x^i)/(i!)
@@ -569,7 +569,7 @@ ln(double x)
 		return -1; // e^x will never be less than 0
 	double ret = x,
 	       tmp = -x;
-	int i = 1;
+	unsigned int i = 1;
 	x--; // actualy we calculate ln (1 + x)
 	for (;i<0xffffffff;i++)
 	{
@@ -588,7 +588,7 @@ lnf(float x)
 		return -1; // e^x will never be less than 0
 	float ret = x,
 	       tmp = -x;
-	int i = 1;
+	unsigned int i = 1;
 	x--; // actualy we calculate ln (1 + x)
 	for (;i<0xffffffff;i++)
 	{
@@ -607,7 +607,7 @@ lnl(long double x)
 		return -1; // e^x will never be less than 0
 	long double ret = x,
 	            tmp = -x;
-	int i = 1;
+	unsigned int i = 1;
 	x--; // actualy we calculate ln (1 + x)
 	for (;i<0xffffffff;i++)
 	{
