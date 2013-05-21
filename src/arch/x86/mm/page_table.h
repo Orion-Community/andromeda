@@ -47,10 +47,6 @@ extern struct page_table page_table_boot;
 extern struct page_dir page_dir_boot;
 atomic_t pte_cnt[1024];
 
-int x86_pte_set_range(struct pte_range* range);
-int x86_pte_reset_range(struct pte_range* range);
-int x86_pte_set_page(void* virt, void* phys, int cpl);
-
 #ifdef __cplusplus
 }
 #endif

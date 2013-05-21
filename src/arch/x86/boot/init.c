@@ -56,6 +56,7 @@
 #include <arch/x86/pit.h>
 #include <arch/x86/paging.h>
 #include <arch/x86/system.h>
+#include <arch/x86/pte.h>
 
 #include <interrupts/int.h>
 
@@ -114,14 +115,36 @@ boolean setupCore(module_t mod)
 	return FALSE; //Doesn't get reached, ever, if all goes well
 }
 
+int system_x86_mmu_init(struct sys_cpu* cpu)
+{
+        if (cpu == NULL || !hasmm() || !hasarch() || cpu->mmu != NULL)
+        {
+                panic("Setup conditions for mmu initialisation weren't met");
+        }
+        cpu->mmu = kmalloc(sizeof(*cpu->mmu));
+        if (cpu->mmu == NULL)
+                panic("Out of memory!");
+        memset(cpu->mmu, 0, sizeof(*cpu->mmu));
+        cpu->mmu->get_phys = x86_pte_get_phys;
+        cpu->mmu->reset_page = x86_pte_unset_page;
+        cpu->mmu->set_page = x86_pte_set_page;
+        cpu->mmu->set_range = x86_pte_set_range;
+}
+
 int system_x86_cpu_init(int cpuid)
 {
-        /**
-         * \todo Detect presence of CPU
-         * \todo If CPU present, return CPU
-         */
         if (getcpu(cpuid) != NULL)
                 panic("Something went wrong in CPU initialisation!");
+        /**
+         * \todo  Detetct availability of CPU.
+         */
+        if (cpuid != 0)
+        {
+                /**
+                 * \todo If CPU present, return CPUQ
+                 */
+                return -E_SUCCESS;
+        }
         struct sys_cpu* cpu = kmalloc(sizeof(*cpu));
         if (cpu == NULL)
                 panic("Out of memory!");
@@ -134,7 +157,9 @@ int system_x86_cpu_init(int cpuid)
         cpu->throttle = NULL;
         cpu->resume = NULL;
 
-        return -E_NOFUNCTION;
+
+
+        return -E_SUCCESS;
 }
 
 int system_x86_init()

@@ -33,10 +33,9 @@ struct sys_mmu_range {
 };
 
 struct sys_mmu {
-        int (*set_page)(void* phys, void* virt);
+        int (*set_page)(void* phys, void* virt, int privilege);
         int (*reset_page)(void* virt);
         int (*get_phys)(void* virt);
-        int (*get_virt)(void* phys);
         int (*set_range)(struct sys_mmu_range);
 };
 
@@ -130,7 +129,7 @@ struct system {
 extern struct system core;
 
 #define hasmm() (core.mm != NULL)
-#define hasarch() (core.mm != NULL)
+#define hasarch() (hasmm() && core.arch != NULL)
 
 #define kmalloc(a) ((hasmm() && core.mm->alloc != NULL) ? core.mm->alloc(a, 0)\
                      : NULL)

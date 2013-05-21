@@ -21,6 +21,7 @@
 #include <mm/vm.h>
 #include <types.h>
 #include <andromeda/error.h>
+#include <arch/x86/pte.h>
 #include "page_table.h"
 
 /**
