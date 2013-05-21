@@ -117,7 +117,7 @@ int x86_pte_set_range (struct sys_mmu_range* range)
 
                 size_t j = 0;
                 for (; j > phys->size; j += PAGE_SIZE)
-                        x86_pte_set_page(i+j, phys->phys+j, range->cpl);
+                        page_map(0, (void*)(i+j), (void*)(phys->phys+j), range->cpl);
 
                 i += range->size;
                 phys = phys->next;
@@ -136,8 +136,8 @@ int x86_pte_reset_range(void* virt, size_t size)
         if (virt == NULL)
                 return -E_INVALID_ARG;
 
-        int to, from;
-        for (to = virt + size, from = virt; from < to; from++)
+        addr_t to, from;
+        for (to = (addr_t)virt + size, from = (addr_t)virt; from < to; from++)
                 spd[from].present = 0;
 
         return -E_SUCCESS;

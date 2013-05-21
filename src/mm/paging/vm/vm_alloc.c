@@ -405,7 +405,7 @@ void* vm_map(void* virt, void* phys, struct vm_segment* s)
         {
                 if (page_claim((void*)(p + i)) == NULL)
                         goto gofixit;
-                x86_pte_map(v + i, p + i, 0);
+                page_map(0,(void*)(v + i), (void*)(p + 1), 0);
         }
 
 err:
@@ -416,7 +416,7 @@ err:
 gofixit:
         for (; (int)i >= 0; i-= PAGE_ALLOC_FACTOR)
         {
-                x86_pte_unset_page(v + i);
+                page_unmap(0, (void*)(v + i));
                 page_free((void*)p + i);
         }
         mutex_unlock(&s->lock);
@@ -451,7 +451,7 @@ int vm_unmap(void* virt, struct vm_segment* s)
         size_t i = 0;
         for (;i < r->size; i += PAGE_ALLOC_FACTOR)
         {
-                x86_pte_unset_page(virt + i);
+                page_unmap(0, (void*)(virt + i));
                 page_free(p + i);
         }
 

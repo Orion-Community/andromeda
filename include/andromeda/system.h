@@ -140,7 +140,7 @@ extern struct system core;
 
 #define hasmm() (core.mm != NULL)
 #define hasarch() (hasmm() && core.arch != NULL)
-#define hascpu(a) (getcpu(a) != NULL)
+#define hascpu(a) (hasarch() && a < CPU_LIMIT && core.arch->cpu[a] != NULL)
 
 #define kmalloc(a) ((hasmm() && core.mm->alloc != NULL) ? core.mm->alloc(a, 0)\
                      : NULL)
@@ -166,6 +166,25 @@ extern struct system core;
 
 #define getmmu(a) ((getcpu(a) == NULL) ? getcpu(a)->mmu : NULL)
 
+static inline void
+page_map(int cpu, void* virt, void* phys, int cpl)
+{
+        if (!hascpu(cpu))
+                return;
+        if (core.arch->cpu[cpu]->mmu == NULL)
+                return;
+        core.arch->cpu[cpu]->mmu->set_page(phys, virt, cpl);
+}
+
+static inline void
+page_unmap(int cpu, void* virt)
+{
+        if (!hascpu(cpu))
+                return;
+        if (core.arch->cpu[cpu]->mmu == NULL)
+                return;
+        core.arch->cpu[cpu]->mmu->reset_page(virt);
+}
 
 int sys_setup_alloc(void);
 int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length);
