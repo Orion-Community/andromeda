@@ -121,7 +121,7 @@ static int pipe_read(struct pipe* pipe, char* data, int len)
         if (block == NULL)
                 return -E_NULL_PTR;
 
-        int offset = pipe->reading_idx % pipe->block_size;
+        size_t offset = pipe->reading_idx % pipe->block_size;
         int i = 0;
         for (; i < len; i++, pipe->reading_idx++)
         {
@@ -155,11 +155,11 @@ static int pipe_write(struct pipe* pipe, char* data)
 
         mutex_lock(&pipe->lock);
         int key = pipe->writing_idx / pipe->block_size;
-        int offset = pipe->writing_idx % pipe->block_size;
+        size_t offset = pipe->writing_idx % pipe->block_size;
 
         void* block = pipe_get_block(pipe, key);
 
-        int i = 0;
+        size_t i = 0;
         for (;!(data[i] == '\0' && data[i+1] != '\0'); i++, pipe->writing_idx++)
         {
                 if (offset+i >= pipe->block_size)

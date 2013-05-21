@@ -36,6 +36,7 @@
 #ifndef __PIE__
 #error "The x86 kernel module should be compiled position independently!"
 #endif
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 
 uint64_t pit_timer = 0;
 uint64_t sleepTime = 0;
@@ -246,7 +247,7 @@ alloc_irq()
   return NULL;
 }
 
-static int
+int
 free_irq_entry(struct irq_data* irq)
 {
   void *base = (void*)irq_data;

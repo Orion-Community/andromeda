@@ -140,7 +140,7 @@ retry:
         /* This stuff is all critical ... */
         mutex_lock(&d->lock);
 
-        int ns = s->size + size;
+        addr_t ns = s->size + size;
         addr_t nend = (addr_t)s->virt_base + ns;
 
         int ret = -E_OUTOFBOUNDS;
@@ -203,6 +203,8 @@ err:
 int
 vm_segment_load(struct vm_segment* s, struct mm_page_descriptor* p)
 {
+        if (s == NULL || p == NULL)
+                return -E_INVALID_ARG;
         /**
          * \TODO: If pte_descriptor == loaded, map segment into page directory
          */
@@ -212,6 +214,8 @@ vm_segment_load(struct vm_segment* s, struct mm_page_descriptor* p)
 int
 vm_segment_unload(struct vm_segment* s, struct mm_page_descriptor* p)
 {
+        if (s == NULL || p == NULL)
+                return -E_INVALID_ARG;
         return -E_NOFUNCTION;
 }
 

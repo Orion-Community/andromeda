@@ -52,6 +52,7 @@ installExceptions(ol_idt_t idt)
         ol_idt_install_entry(19, (uint32_t)simd, 0x08, 0x8E, idt);
 }
 
+#if 0
 static void
 installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
 {
@@ -92,6 +93,7 @@ installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
 //      ol_idt_install_entry(0x30, (uint32_t)irq30, 0x08, IDT_PRESENT_BIT |
 //      IDT_INTERRUPT_GATE, idt);
 }
+#endif
 
 void setIDT()
 {
@@ -129,7 +131,7 @@ get_empty_idt_entry_number()
   /*
    * An entry is defined as 'empty' when the 32-bits base and flags are 0.
    */
-  int i = IDT_VECTOR_OFFSET; /* start after exceptions */
+  uint16_t i = IDT_VECTOR_OFFSET; /* start after exceptions */
   for(; i < idt->limit/sizeof(ol_idt_entry_t); i++)
   {
     uint32_t base = idt->baseptr[i].base_low | ((idt->baseptr[i].base_high) >> 16);
@@ -152,6 +154,7 @@ free_idt_entry(uint16_t vector)
 {
   ol_idt_t idt = (ol_idt_t)get_idt();
   memset((void*)&(idt->baseptr[vector]), 0, sizeof(idt->baseptr[vector]));
+  return -E_SUCCESS;
 }
 
 int

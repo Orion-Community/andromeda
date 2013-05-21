@@ -28,6 +28,7 @@
 #endif
 #ifdef X86
 #include <arch/x86/system.h>
+#include <arch/x86/paging.h>
 #endif
 
 struct system core = {NULL, NULL, NULL, NULL, NULL, NULL};

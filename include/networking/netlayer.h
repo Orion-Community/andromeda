@@ -23,8 +23,8 @@
 extern "C" {
 #endif
 
-  void netif_netlayer_init();
-
+void netif_netlayer_init();
+int netif_init_ip();
 
 #ifdef	__cplusplus
 }

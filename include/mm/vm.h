@@ -157,6 +157,7 @@ int vm_init();
 int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
 void* vm_get_phys(void* virt);
 void* x86_pte_get_phys(void* virt);
+int vm_load_task();
 
 #ifdef VM_DBG
 int vm_dump(struct vm_descriptor*);

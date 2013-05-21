@@ -37,7 +37,6 @@ extern "C" {
 #define OL_KBC_DATA_PORT 0x60
 
 void kb_handle(uint8_t c);
-static void toggle_kb_leds(uint8_t);
 
 typedef struct ol_kb_scancode {
 	uint8_t xt;

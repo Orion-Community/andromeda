@@ -52,16 +52,16 @@ int vfs_close (struct vfile* stream)
 
 int vfs_read (struct vfile* stream, char* buf, size_t num)
 {
-        if (stream == NULL || stream->read == NULL)
-                return -E_NULL_PTR;
+        if (stream == NULL || stream->read == NULL || buf == NULL || num == 0)
+                return -E_INVALID_ARG;
 
         return -E_NOFUNCTION;
 }
 
 int vfs_write (struct vfile* stream, char* buf, size_t num)
 {
-        if (stream == NULL || stream->write == NULL)
-                return -E_NULL_PTR;
+        if (stream == NULL || stream->write == NULL || buf == NULL || num == 0)
+                return -E_INVALID_ARG;
 
         return -E_NOFUNCTION;
 }
@@ -70,6 +70,8 @@ int vfs_seek (struct vfile* stream, size_t idx, seek_t from)
 {
         if (stream == NULL || stream->seek == NULL)
                 return -E_NULL_PTR;
+
+        stream->seek(stream, idx, from);
 
         return -E_NOFUNCTION;
 }

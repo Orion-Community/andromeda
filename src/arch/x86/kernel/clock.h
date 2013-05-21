@@ -92,6 +92,7 @@ typedef struct _rtc
  */
 extern struct device *rtc_dev;
 
+#if 0
 /**
  * \fn rtc_create_driver(struct device *dev)
  * \brief Allocate the device driver.
@@ -112,6 +113,7 @@ static int rtc_create_driver(struct device *dev);
  * frequency and enable the IRQ.
  */
 static void program_rtc(struct device *dev);
+#endif
 
 /**
  * \fn get_main_rtc()

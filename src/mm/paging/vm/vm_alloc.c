@@ -400,7 +400,7 @@ void* vm_map(void* virt, void* phys, struct vm_segment* s)
         size_t cnt = r->size;
         addr_t v = (addr_t)virt;
         addr_t p = (addr_t)phys;
-        int i = 0;
+        size_t i = 0;
         for(; i < cnt; i += PAGE_ALLOC_FACTOR)
         {
                 if (page_claim((void*)(p + i)) == NULL)
@@ -414,7 +414,7 @@ err:
         return (r == NULL) ? NULL : r->base;
 
 gofixit:
-        for (; i >= 0; i-= PAGE_ALLOC_FACTOR)
+        for (; (int)i >= 0; i-= PAGE_ALLOC_FACTOR)
         {
                 x86_pte_unset_page(v + i);
                 page_free((void*)p + i);
@@ -448,7 +448,7 @@ int vm_unmap(void* virt, struct vm_segment* s)
         if (p == NULL)
                 goto err;
 
-        int i = 0;
+        size_t i = 0;
         for (;i < r->size; i += PAGE_ALLOC_FACTOR)
         {
                 x86_pte_unset_page(virt + i);

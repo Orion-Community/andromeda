@@ -18,12 +18,13 @@
 
 #include <stdlib.h>
 #include <networking/arp.h>
+#include <andromeda/system.h>
 
 /**
  * Allocate memory in the arp structure for the source & destination hardware
  * address/protocol
  */
-static struct arp *
+struct arp *
 alloc_arp_structure(struct arp *arp)
 {
   if(arp == NULL)
@@ -41,7 +42,7 @@ alloc_arp_structure(struct arp *arp)
  *
  * @arg arp The arp structure which should be free'd
  */
-static void
+void
 free_arp_structure(struct arp *arp)
 {
   if(arp == NULL)

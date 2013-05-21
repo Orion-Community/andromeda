@@ -136,13 +136,13 @@ char HEX[36] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C',
 int atoi(char* str)
 {
 	int i = 0;
-	int idx = 0;
+	unsigned int idx = 0;
 	while (str[i] != '\0' && idx < 0x20000000)
 	// (idx < 0x20000000) = overload prevention
 	{
 		if (str[i] >= 0x30 && str[i] <= 0x39)
 		{
-			if (0xffffffff - (idx * 10) > (str[i] - 0x30))
+			if (0xffffffff - (idx * 10) > (unsigned int)(str[i] - 0x30))
 			//overload prevention
 				idx = idx * 10 + (str[i] - 0x30);
 			else

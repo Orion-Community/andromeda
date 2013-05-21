@@ -185,12 +185,15 @@ int x86_pte_unset_page(void* virt)
         return ret;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void
 x86_pagefault(isrVal_t registers)
 {
         panic("The new pagefaults haven't yet been implemented!");
         return;
 }
+#pragma GCC diagnostic pop
 
 /**
  * @} \file

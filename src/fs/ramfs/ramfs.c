@@ -23,12 +23,6 @@
 #include <andromeda/drivers.h>
 #include <andromeda/system.h>
 
-struct ramfs_block*
-ram_fs_get_block(uint64_t idx)
-{
-        return NULL;
-}
-
 struct vsuper_block*
 ram_fs_init(struct device* drive)
 {
@@ -64,30 +58,52 @@ dev_alloc:
 struct vfile*
 ram_fs_open(struct vsuper_block* this)
 {
+        if (this == NULL)
+                return NULL;
         return NULL;
 }
 
 int
 ram_fs_close(struct vfile* this)
 {
+        if (this == NULL)
+                return -E_INVALID_ARG;
         return -E_NOFUNCTION;
 }
 
 int
 ram_fs_seek(struct vfile* this, size_t idx, seek_t type)
 {
+        if (this == NULL)
+                return -E_INVALID_ARG;
+
+        switch (type)
+        {
+        case SEEK_CUR:
+        case SEEK_END:
+                break;
+        case SEEK_SET:
+                this->cursor = idx;
+                break;
+        default:
+                break;
+        }
         return -E_NOFUNCTION;
 }
 
 int
 ram_fs_read(struct vfile* this, char* buf, size_t num)
 {
+        if (this == NULL || buf == NULL || num == 0)
+                return -E_INVALID_ARG;
         return -E_NOFUNCTION;
 }
 
 int
 ram_fs_write(struct vfile* this, char* buf, size_t num)
 {
+        if (this == NULL || buf == NULL || num == 0)
+                return -E_INVALID_ARG;
         return -E_NOFUNCTION;
 }
 

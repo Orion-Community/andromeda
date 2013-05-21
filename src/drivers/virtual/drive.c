@@ -29,6 +29,7 @@ virt_drive_buffered_open(struct device* this)
         return ((struct buffer*)this->device_data)->duplicate(this->device_data);
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 struct device*
 virt_drive_init(size_t size, void* data, rd_t type)
 {

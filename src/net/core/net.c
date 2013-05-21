@@ -35,13 +35,13 @@
 #include <lib/byteorder.h>
 
 static struct net_queue *net_core_queue;
-static struct net_queue *net_tx_core_queue;
+//static struct net_queue *net_tx_core_queue;
 struct protocol ptype_tree;
 static bool initialized = FALSE;
 
 static size_t net_rx_vfio(struct vfile *file, char *buf, size_t size);
 static size_t net_tx_vfio(struct vfile *file, char *buf, size_t size);
-static struct net_queue* remove_queue_entry(struct net_queue*, struct net_queue*);
+//static struct net_queue* remove_queue_entry(struct net_queue*, struct net_queue*);
 static void init_ptype_tree();
 static int check_net_buff_tstamp(struct net_buff *buff);
 static int vlan_untag(struct net_buff *buff);
@@ -97,6 +97,8 @@ init_netif()
         init_eth();
         netif_netlayer_init();
         initialized = TRUE;
+
+        return -E_SUCCESS;
 }
 
 int
@@ -136,6 +138,7 @@ unregister_net_dev(uint64_t id)
         }
 }
 
+#if 0
 /**
  * \fn net_buff_append_list(head, x)
  * \brief The net_buff item x will be appended to the net_buff head <i>head</i>.
@@ -165,6 +168,7 @@ net_buff_append_list(struct net_buff *head, struct net_buff *x)
                 }
         }
 }
+#endif
 
 struct net_buff *
 alloc_buff_frame(unsigned int frame_len)
@@ -189,7 +193,7 @@ free_net_buff_list(struct net_buff* nb)
         kfree(nb);
 
         if (nxt)
-                free_net_buff_list(nxt);
+                return free_net_buff_list(nxt);
         else
                 return -E_SUCCESS;
 }
@@ -327,8 +331,10 @@ struct net_buff *nb;
                 free_net_buff_list(nb);
                 return retval;
         }
-        if(retval == P_DONE)
+        else
+        {
                 return retval;
+        }
 
 
         /*
@@ -339,7 +345,7 @@ struct net_buff *nb;
         auto enum packet_state
         handle_packet(struct net_buff *buff)
         {
-                protocol_deliver_handler_t handle;
+                protocol_deliver_handler_t handle = NULL;
                 for_each_ll_entry_safe(root, prot, tmp)
                 {
                         if(buff->type == prot->type)
@@ -360,8 +366,10 @@ struct net_buff *nb;
                 else
                         return P_NOTCOMPATIBLE;
         }
+
 }
 
+#if 0
 /**
  * \fn netif_process_queue(head, load)
  * \brief Processes <i>load</i> amount of packets from the queue. The packets
@@ -421,7 +429,9 @@ netif_start_tx(struct net_buff *buff)
                         io->write(io, (void*)buff, sizeof(*buff));
                 }
         }
+        return -E_SUCCESS;
 }
+#endif
 
 /**
  * \fn netif_drop_net_buff
@@ -431,6 +441,8 @@ netif_start_tx(struct net_buff *buff)
 void
 netif_drop_net_buff(struct net_buff *buff)
 {
+        if (buff == NULL)
+                return;
         return;
 }
 
@@ -442,6 +454,8 @@ netif_drop_net_buff(struct net_buff *buff)
 static size_t
 net_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
+        if (file == NULL || buf == NULL || size == 0)
+                return -E_INVALID_ARG;
         struct net_buff *buffer = (struct net_buff*) buf;
         netif_rx_process(buffer);
         debug("Packet arrived in the core driver successfully. Protocol type: %x\n",
@@ -475,6 +489,7 @@ get_net_driver(uint64_t id)
         return device_find_id(dev, id);
 }
 
+#if 0
 /**
  * \fn net_queue_append_list(head, item)
  * \brief This function will append an item to the end of the core driver queue.
@@ -545,13 +560,13 @@ remove_queue_entry(struct net_queue *head, struct net_queue *item)
                 carriage = carriage->next;
         }
         /* error return */
-fail:
         return NULL;
 
         /* success return */
 out:
         return carriage;
 }
+#endif
 
 void
 print_mac(struct netdev *netdev)
@@ -595,6 +610,7 @@ get_ptype(struct protocol *head, enum ptype type)
                 if(carriage->type == type)
                         return carriage;
         }
+        return NULL;
 }
 
 static int

@@ -88,6 +88,8 @@ ol_detach_all_devices();
 int
 ol_ps2_config_keyboard(uint8_t confval);
 
+uint8_t ol_ps2_get_keyboard_scancode();
+
 #ifdef __cplusplus
 }
 #endif
