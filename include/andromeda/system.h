@@ -45,8 +45,8 @@ struct sys_mmu_range {
 struct sys_mmu {
         int (*set_page)(void* phys, void* virt, int privilege);
         int (*reset_page)(void* virt);
-        int (*get_phys)(void* virt);
-        int (*set_range)(struct sys_mmu_range);
+        void* (*get_phys)(void* virt);
+        int (*set_range)(struct sys_mmu_range*);
 };
 
 struct sys_cpu_scheduler {
@@ -188,5 +188,6 @@ page_unmap(int cpu, void* virt)
 
 int sys_setup_alloc(void);
 int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length);
+int sys_setup_arch();
 
 #endif
