@@ -52,6 +52,7 @@ void heap_add_blocks(void* base, uint32_t size);
 #define examineHeap examine_heap
 #define ol_dbg_heap examine_heap
 void examine_heap();
+int slob_sys_register();
 #endif
 
 #if 0

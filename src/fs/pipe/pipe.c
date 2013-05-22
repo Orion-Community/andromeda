@@ -27,7 +27,9 @@
  * @{
  */
 
+#ifdef SLAB
 static struct mm_cache* pipe_cache = NULL;
+#endif
 
 static void* pipe_get_new_block(struct pipe* pipe)
 {
