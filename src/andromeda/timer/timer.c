@@ -53,7 +53,7 @@ void setupTimer(unsigned int freq, void* scheduler, void* hwInit)
 	timer->hwInit(timer->freq);
 }
 
-void setTimerFreq(int frequency)
+void setTimerFreq(unsigned int frequency)
 {
 	if (frequency > _TIME_FREQ_MIN && frequency < _TIME_FREQ_MAX)
 	{
