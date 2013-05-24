@@ -29,7 +29,7 @@ extern "C" {
 #define KEYBUF 0xC00B8000
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
-#define OL_WHITE_TXT 0x7
+#define OL_WHITE_TXT 0x07
 
 struct curPos
 {

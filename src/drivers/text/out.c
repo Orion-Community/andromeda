@@ -25,7 +25,7 @@ int reloc(int loc_x, int loc_y);
 void printDecimalNum(double index, unsigned int base);
 void printNum(int index, unsigned int base, boolean sInt, boolean capital);
 struct curPos cursor;
-const uint8_t col = 0x07;
+const uint8_t col = OL_WHITE_TXT;
 
 void textInit()
 {

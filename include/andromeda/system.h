@@ -187,6 +187,16 @@ page_unmap(int cpu, void* virt)
 }
 
 int sys_setup_alloc(void);
+int sys_setup_devices(void);
+int sys_setup_fs(void);
+int sys_setup_arch(void);
+int sys_setup_modules(void);
+int sys_setup_net(void);
+
+#ifdef X86
 int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length);
+#else
+int sys_setup_paging(void);
+#endif
 
 #endif

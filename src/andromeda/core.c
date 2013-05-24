@@ -114,6 +114,11 @@ void core_loop()
 //         init_netif();
 //         init_network();
 
+        sys_setup_fs();
+        sys_setup_modules();
+        sys_setup_devices();
+        sys_setup_net();
+
 #ifdef DBG
 #ifdef MATH_DBG
         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN" : "A number");

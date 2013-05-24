@@ -58,7 +58,11 @@ int sys_setup_alloc()
         return -E_SUCCESS;
 }
 
+#ifdef X86
 int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length)
+#else
+int sys_setup_paging()
+#endif
 {
         if (!hasmm())
                 panic("Memory allocation not initialised!");
@@ -101,23 +105,27 @@ int sys_setup_devices()
 {
         if (core.devices != NULL)
                 return -E_ALREADY_INITIALISED;
+        printf("Device tree abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
 int sys_setup_modules()
 {
         if (core.kernel_modules != NULL)
                 return -E_ALREADY_INITIALISED;
+        printf("Kernel module abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
 int sys_setup_fs()
 {
         if (core.fs != NULL)
                 return -E_ALREADY_INITIALISED;
+        printf("File system abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
 int sys_setup_net()
 {
         if (core.net != NULL)
                 return -E_ALREADY_INITIALISED;
+        printf("Networking abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
