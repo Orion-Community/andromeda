@@ -95,12 +95,10 @@ int x86_pte_set_segment(struct vm_segment* s)
 
 int x86_pte_unset_segment(struct vm_segment* s)
 {
-        if (s == NULL || s->pages == NULL)
+        if (s == NULL || s->pages == NULL || s->pages == NULL)
                 return -E_NULL_PTR;
 
-        x86_pte_reset_range(s->pages->virt, s->pages->size);
-
-        return -E_SUCCESS;
+        return x86_pte_reset_range(s->pages);
 }
 
 int x86_pte_set_range (struct sys_mmu_range* range)
@@ -110,13 +108,13 @@ int x86_pte_set_range (struct sys_mmu_range* range)
 
         addr_t i = (addr_t)range->virt;
         struct sys_mmu_range_phys* phys = range->phys;
-        while (i < (addr_t)(range->virt + range->size))
+        while (i < (addr_t)(range->virt + range->size*PAGE_SIZE))
         {
                 if (phys == NULL)
                         return -E_NOT_YET_INITIALISED;
 
                 size_t j = 0;
-                for (; j > phys->size; j += PAGE_SIZE)
+                for (; j > phys->size*PAGE_SIZE; j += PAGE_SIZE)
                         page_map(0, (void*)(i+j), (void*)(phys->phys+j), range->cpl);
 
                 i += range->size;
@@ -131,16 +129,38 @@ int x86_pte_set_range (struct sys_mmu_range* range)
  * \param range
  * \return
  */
-int x86_pte_reset_range(void* virt, size_t size)
+int x86_pte_reset_range(struct sys_mmu_range* range)
 {
-        if (virt == NULL)
+        if (range == NULL)
                 return -E_INVALID_ARG;
 
-        addr_t to, from;
-        for (to = (addr_t)virt + size, from = (addr_t)virt; from < to; from++)
+        addr_t from = (addr_t)range->virt;
+        addr_t to = (addr_t)range->virt+range->size;
+        for (; from < to; from++)
                 spd[from].present = 0;
 
         return -E_SUCCESS;
+}
+
+struct sys_mmu_range*
+x86_pte_get_range(void* from, void* to)
+{
+        if ((((addr_t)from | (addr_t)to) & 0x3FF) != 0)
+                return NULL;
+
+        struct sys_mmu_range* range = kmalloc(sizeof(*range));
+        if (range == NULL)
+                return NULL;
+        memset(range, 0, sizeof(*range));
+
+        range->virt = from;
+        range->size = ((addr_t)to - (addr_t)from) >> 10;
+
+        /**
+         * \todo Write code that maps physical pages
+         */
+
+        return range;
 }
 
 /**

@@ -23,8 +23,9 @@
 
 int x86_pte_unset_page(void* virt);
 int x86_pte_set_page(void* virt, void* phys, int cpl);
-int x86_pte_reset_range(void* virt, size_t size);
 int x86_pte_set_range (struct sys_mmu_range* range);
+int x86_pte_reset_range(struct sys_mmu_range* range);
 void* x86_pte_get_phys(void* virt);
+struct sys_mmu_range* x86_pte_get_range(void* from, void* to);
 
 #endif

@@ -35,7 +35,9 @@ struct sys_mmu_range_phys {
 };
 
 struct sys_mmu_range {
+        /* virt is the base address of the range */
         void* virt;
+        /* size length of the range (in number of pages) */
         size_t size;
         int cpl;
         int pid;
@@ -45,8 +47,10 @@ struct sys_mmu_range {
 struct sys_mmu {
         int (*set_page)(void* phys, void* virt, int privilege);
         int (*reset_page)(void* virt);
-        int (*get_phys)(void* virt);
-        int (*set_range)(struct sys_mmu_range);
+        void* (*get_phys)(void* virt);
+        int (*set_range)(struct sys_mmu_range*);
+        int (*reset_range)(struct sys_mmu_range*);
+        struct sys_mmu_range* (*get_range)(void* from, void* to);
 };
 
 struct sys_cpu_scheduler {
@@ -166,24 +170,48 @@ extern struct system core;
 
 #define getmmu(a) ((getcpu(a) == NULL) ? getcpu(a)->mmu : NULL)
 
-static inline void
+static inline void*
+get_phys(int cpu, void* virt)
+{
+        if (!hascpu(cpu) || core.arch->cpu[cpu]->mmu == NULL)
+                return NULL;
+        return core.arch->cpu[cpu]->mmu->get_phys(virt);
+}
+
+static inline int
 page_map(int cpu, void* virt, void* phys, int cpl)
 {
         if (!hascpu(cpu))
-                return;
+                return -E_NULL_PTR;
         if (core.arch->cpu[cpu]->mmu == NULL)
-                return;
-        core.arch->cpu[cpu]->mmu->set_page(phys, virt, cpl);
+                return -E_NULL_PTR;
+        return core.arch->cpu[cpu]->mmu->set_page(phys, virt, cpl);
 }
 
-static inline void
+static inline int
+page_map_range(int cpu, struct sys_mmu_range* range)
+{
+        if (!hascpu(cpu) || range == NULL)
+                return -E_NULL_PTR;
+        return core.arch->cpu[cpu]->mmu->set_range(range);
+}
+
+static inline int
 page_unmap(int cpu, void* virt)
 {
         if (!hascpu(cpu))
-                return;
+                return -E_NULL_PTR;
         if (core.arch->cpu[cpu]->mmu == NULL)
-                return;
-        core.arch->cpu[cpu]->mmu->reset_page(virt);
+                return -E_NULL_PTR;
+        return core.arch->cpu[cpu]->mmu->reset_page(virt);
+}
+
+static inline int
+page_unmap_range(int cpu, struct sys_mmu_range* range)
+{
+        if (!hascpu(cpu) || range == NULL)
+                return -E_NULL_PTR;
+        return core.arch->cpu[cpu]->mmu->reset_range(range);
 }
 
 int sys_setup_alloc(void);

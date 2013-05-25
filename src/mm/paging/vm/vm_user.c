@@ -50,6 +50,13 @@ vm_new(unsigned int pid)
         return p;
 }
 
+static int
+get_cpu()
+{
+        /** \todo Actually detect on which cpu we're running! */
+        return 0;
+}
+
 /**
  * \fn vm_new_segment
  * \brief Add a new segment to a descriptor
@@ -196,27 +203,22 @@ err:
  * \brief Map a physical location into a segment
  * \param s
  * \brief The segment to map into
- * \param p
- * \brief The pages to map
  * \return A standard error code
  */
 int
-vm_segment_load(struct vm_segment* s, struct mm_page_descriptor* p)
+vm_segment_load(struct vm_segment* s)
 {
-        if (s == NULL || p == NULL)
-                return -E_INVALID_ARG;
-        /**
-         * \TODO: If pte_descriptor == loaded, map segment into page directory
-         */
-        return -E_NOFUNCTION;
+        if (s == NULL || s->pages == NULL)
+                return -E_NULL_PTR;
+        return page_map_range(get_cpu(), s->pages);
 }
 
 int
-vm_segment_unload(struct vm_segment* s, struct mm_page_descriptor* p)
+vm_segment_unload(struct vm_segment* s)
 {
-        if (s == NULL || p == NULL)
+        if (s == NULL || s->pages)
                 return -E_INVALID_ARG;
-        return -E_NOFUNCTION;
+        return page_unmap(get_cpu(), s->pages);
 }
 
 /**
@@ -327,7 +329,7 @@ vm_free(struct vm_descriptor* p)
 void*
 vm_get_phys(void* virt)
 {
-        return x86_pte_get_phys(virt);
+        return get_phys(get_cpu(), virt);
 }
 
 /**
