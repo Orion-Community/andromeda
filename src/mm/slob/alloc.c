@@ -220,6 +220,8 @@ alloc(size_t size, uint16_t pageAlligned)
 	return NULL;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 void
 free(void* ptr, size_t size)
 {
@@ -303,6 +305,7 @@ free(void* ptr, size_t size)
 	mutex_unlock(&prot);
 	return; // Return success
 }
+#pragma GCC diagnostic pop
 
 static boolean
 use_memnode_block(volatile memory_node_t* x)

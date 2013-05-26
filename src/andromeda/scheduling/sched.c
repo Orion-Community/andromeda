@@ -53,12 +53,6 @@ int fork()
         return -E_NOFUNCTION;
 }
 
-void sig(int sig)
-{}
-
-void kill(int num)
-{}
-
 int task_init()
 {
         return -E_NOFUNCTION;
