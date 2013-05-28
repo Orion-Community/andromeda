@@ -350,6 +350,25 @@ vm_load_task(int cpu, struct vm_descriptor* task)
         return -E_SUCCESS;
 }
 
+static inline int
+vm_range_cleanup(struct sys_mmu_range* range)
+{
+        if (range == NULL)
+                return -E_NULL_PTR;
+
+        struct sys_mmu_range_phys* runner = range->phys;
+        struct sys_mmu_range_phys* next = range->phys->next;
+        while (runner != NULL)
+        {
+                kfree(runner);
+                runner = next;
+                next = next->next;
+        }
+        kfree(range);
+
+        return -E_SUCCESS;
+}
+
 /**
  * \fn vm_unload_task
  * \brief Disable access to the pages owned by this task
@@ -369,16 +388,20 @@ vm_unload_task(int cpu, struct vm_descriptor* task)
         {
                 void* from = runner->pages->virt;
                 void* to = from + runner->pages->size;
-                kfree (runner->pages);
+                if (vm_range_cleanup(runner->pages) != -E_SUCCESS)
+                        goto error;
                 runner->pages = page_get_range(cpu, from, to);
                 if (runner->pages == NULL)
-                        panic("Could not copy memory context");
+                        goto error;
                 if (page_unmap_range(cpu, runner->pages) != -E_SUCCESS)
-                        panic("Could not disable memory context");
+                        goto error;
                 runner = runner->next;
         }
 
         return -E_SUCCESS;
+error:
+        panic("Something went terribly wrong in unloading the task!");
+        return -E_GENERIC; /* Return statement to keep the compiler happy! */
 }
 
 #ifdef VM_DBG
