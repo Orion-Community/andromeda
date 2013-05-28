@@ -50,13 +50,6 @@ vm_new(unsigned int pid)
         return p;
 }
 
-static int
-get_cpu()
-{
-        /** \todo Actually detect on which cpu we're running! */
-        return 0;
-}
-
 /**
  * \fn vm_new_segment
  * \brief Add a new segment to a descriptor
@@ -206,19 +199,19 @@ err:
  * \return A standard error code
  */
 int
-vm_segment_load(struct vm_segment* s)
+vm_segment_load(int cpu, struct vm_segment* s)
 {
         if (s == NULL || s->pages == NULL)
                 return -E_NULL_PTR;
-        return page_map_range(get_cpu(), s->pages);
+        return page_map_range(cpu, s->pages);
 }
 
 int
-vm_segment_unload(struct vm_segment* s)
+vm_segment_unload(int cpu, struct vm_segment* s)
 {
         if (s == NULL || s->pages)
                 return -E_INVALID_ARG;
-        return page_unmap(get_cpu(), s->pages);
+        return page_unmap_range(cpu, s->pages);
 }
 
 /**
@@ -327,9 +320,9 @@ vm_free(struct vm_descriptor* p)
  * \todo Implement the arch api call to look inside the tables
  */
 void*
-vm_get_phys(void* virt)
+vm_get_phys(int cpu, void* virt)
 {
-        return get_phys(get_cpu(), virt);
+        return get_phys(cpu, virt);
 }
 
 /**
@@ -338,9 +331,23 @@ vm_get_phys(void* virt)
  * \return A standard error code
  */
 int
-vm_load_task()
+vm_load_task(int cpu, struct vm_descriptor* task)
 {
-        return -E_NOFUNCTION;
+        if (cpu >= CPU_LIMIT || task == NULL)
+                return -E_INVALID_ARG;
+
+        if (task->segments == NULL)
+                return -E_NULL_PTR;
+
+        struct vm_segment* runner = task->segments;
+        while (runner != NULL)
+        {
+                page_map_range(cpu, runner->pages);
+
+                runner = runner->next;
+        }
+
+        return -E_SUCCESS;
 }
 
 /**
@@ -349,9 +356,29 @@ vm_load_task()
  * \return
  */
 int
-vm_unload_task()
+vm_unload_task(int cpu, struct vm_descriptor* task)
 {
-        return -E_NOFUNCTION;
+        if (cpu >= CPU_LIMIT || task == NULL)
+                return -E_INVALID_ARG;
+
+        if (task->segments == NULL)
+                return -E_NULL_PTR;
+
+        struct vm_segment* runner = task->segments;
+        while (runner != NULL)
+        {
+                void* from = runner->pages->virt;
+                void* to = from + runner->pages->size;
+                kfree (runner->pages);
+                runner->pages = page_get_range(cpu, from, to);
+                if (runner->pages == NULL)
+                        panic("Could not copy memory context");
+                if (page_unmap_range(cpu, runner->pages) != -E_SUCCESS)
+                        panic("Could not disable memory context");
+                runner = runner->next;
+        }
+
+        return -E_SUCCESS;
 }
 
 #ifdef VM_DBG

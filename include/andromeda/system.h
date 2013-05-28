@@ -214,6 +214,18 @@ page_unmap_range(int cpu, struct sys_mmu_range* range)
         return core.arch->cpu[cpu]->mmu->reset_range(range);
 }
 
+static inline struct sys_mmu_range*
+page_get_range(int cpu, void* from, void* to)
+{
+        if (from == to || to == NULL || cpu > CPU_LIMIT)
+                return NULL;
+
+        if (!hascpu(cpu))
+                return NULL;
+
+        return core.arch->cpu[cpu]->mmu->get_range(from, to);
+}
+
 int sys_setup_alloc(void);
 int sys_setup_devices(void);
 int sys_setup_fs(void);

@@ -28,6 +28,12 @@
  * @{
  */
 
+int get_cpu()
+{
+        /** \todo Detect cpu number, for now simply return 0 */
+        return 0;
+}
+
 /**
  * \fn vm_segment_mark_allocated
  * \param segment
@@ -250,7 +256,7 @@ int vm_segment_free(struct vm_segment* s, void* ptr)
         vm_range_mark_free(s, x);
 
         /* Now get the physical page, if mapped and free that up if possible */
-        void* phys = vm_get_phys(x);
+        void* phys = vm_get_phys(get_cpu(), x);
         if (phys != NULL)
         {
                 page_free(phys);
@@ -444,7 +450,7 @@ int vm_unmap(void* virt, struct vm_segment* s)
         if (r == NULL)
                 goto err;
 
-        void* p = vm_get_phys(virt);
+        void* p = vm_get_phys(get_cpu(), virt);
         if (p == NULL)
                 goto err;
 
