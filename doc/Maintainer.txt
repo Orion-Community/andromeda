@@ -5,7 +5,7 @@ Bart Kuivenhoven	bemkuivenhoven@gmail.com
 mm:
 Bart Kuivenhoven	bemkuivenhoven@gmail.com
 
-andromeda:
+core:
 Bart Kuivenhoven	bemkuivenhoven@gmail.com
 
 fs:
@@ -15,15 +15,20 @@ arch/x86/mm:
 Bart Kuivenhoven	bemkuivenhoven@gmail.com
 
 arch/x86:
-Michel Megens		info@michelmegens.net
+Michel Megens		dev@michelmegens.net
 
 andromeda/sched:
 Michel Megens		dev@michelmegens.net
 
-andromeda/scheduling	dev@michelmegens.net
+andromeda/scheduling:
+Michel Megens		dev@michelmegens.net
+
+drivers:
+Michel Megens		dev@michelmegens.net
 
 math:
 Steven van der Schoot	stevenvdschoot@gmail.com
 
-Makefiles:
-Toon Schoenmakers	nighteyes1993@gmail.com
+build files:
+Bart Kuivenhoven	bemkuivenhoven@gmail.com
+
