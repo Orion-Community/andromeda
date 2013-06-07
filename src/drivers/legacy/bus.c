@@ -74,12 +74,12 @@ drv_legacy_bus_init(struct device* dev, struct device* parent)
 
         memset(dev, 0, sizeof(struct device));
 
-        dev->driver = kmalloc(sizeof(struct driver));
+        dev->driver = kmalloc(sizeof(*(dev->driver)));
 
         if (dev->driver == NULL)
-                panic("Out of memory in intialisiation of legacy bus");
+                panic("Out of memory in initialisation of legacy bus");
 
-        memset(dev->driver, 0, sizeof(struct driver));
+        memset(dev->driver, 0, sizeof(*(dev->driver)));
 
         dev->driver->detect = legacy_bus_detect;
         dev->driver->attach = device_attach;

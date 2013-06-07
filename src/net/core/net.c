@@ -126,7 +126,7 @@ unregister_net_dev(uint64_t id)
                                                                virtual_bus), net_core_dev);
         if (dev == NULL)
                 return -E_NULL_PTR;
-        if (device_detach(dev, device_find_id(dev, id)) == -E_NOTFOUND)
+        if (device_detach(dev, device_find_id(id)) == -E_NOTFOUND)
                 return -E_NOTFOUND;
         else
         {
@@ -473,9 +473,7 @@ net_rx_vfio(struct vfile *file, char *buf, size_t size)
 static size_t
 net_tx_vfio(struct vfile *file, char *buf, size_t size)
 {
-        struct device *core_dev = dev_find_devtype(dev_find_devtype(get_root_device(),
-                                                                    virtual_bus), net_core_dev);
-        struct device *dev_driver = device_find_id(core_dev, ((struct netdev*) buf)->dev_id);
+        struct device *dev_driver = device_find_id(((struct netdev*) buf)->dev_id);
         struct vfile *io = dev_driver->open(dev_driver);
         io->write(file, buf, size);
         return -E_NOFUNCTION;
@@ -484,9 +482,7 @@ net_tx_vfio(struct vfile *file, char *buf, size_t size)
 struct device *
 get_net_driver(uint64_t id)
 {
-        struct device *dev = dev_find_devtype(dev_find_devtype(get_root_device(),
-                                                               virtual_bus), net_core_dev);
-        return device_find_id(dev, id);
+        return device_find_id(id);
 }
 
 #if 0

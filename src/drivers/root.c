@@ -78,13 +78,25 @@ int init_buses(struct device* root)
                 return -E_NOMEM;
         }
 
-        if (drv_virt_bus_init(virtual, root) != -E_SUCCESS)
+        int ret = drv_virt_bus_init(virtual, root);
+        if (ret != -E_SUCCESS)
+        {
+                printf("Returned value from virtual bus: %X\n", -ret);
                 panic("Could not initialise the virtual bus!");
-        if (drv_legacy_bus_init(legacy, root) != -E_SUCCESS)
+        }
+        ret = drv_legacy_bus_init(legacy, root);
+        if (ret != -E_SUCCESS)
+        {
+                printf("Returned value from legacy bus: %X\n", -ret);
                 panic("Could not initialise the legacy bus!");
+        }
 
-        if (vga_text_init(device_find_id(root, lgcy_bus)) != -E_SUCCESS)
+        ret = vga_text_init(device_find_id(lgcy_bus));
+        if (ret != -E_SUCCESS)
+        {
+                printf("Returned value from vga: %X\n", -ret);
                 panic("The text driver can't be initiated!");
+        }
 
         return -E_SUCCESS;
 

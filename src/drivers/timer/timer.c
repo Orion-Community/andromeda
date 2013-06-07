@@ -175,7 +175,7 @@ setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector)
         struct device *root = get_root_device();
         data->base_handle = &do_irq;
         data->handle = &timer_irq;
-        data->irq_data = root->driver->find(root, timer->id);
+        data->irq_data = root->driver->find(timer->id);
 
         if(forse_vec)
         {

@@ -28,8 +28,9 @@ extern "C" {
 
 #define DEVICE_NAME_SIZE 0x100
 
-extern uint64_t virt_bus;
-extern uint64_t lgcy_bus;
+extern unsigned int virt_bus;
+extern unsigned int lgcy_bus;
+extern struct tree_root* dev_tree;
 
 /** \typedef enum device_type_t */
 typedef enum {
@@ -69,7 +70,7 @@ struct driver
          * \brief resume this device and all of its attached children
          */
         struct device* (*detect)(struct device* dev);
-        struct device* (*find)(struct device* dev, uint64_t dev_id);
+        struct device* (*find)(unsigned int dev_id);
         struct device* (*find_type)(struct device* dev, device_type_t type);
         int (*attach)(struct device* dev, struct device* child);
         int (*detach)(struct device* dev, struct device* child);
@@ -109,7 +110,7 @@ struct device
          * \var dev_id
          * \brief The unique device identifier
          */
-        uint64_t dev_id;
+        unsigned int dev_id;
 
         /** \var name */
         char name[DEVICE_NAME_SIZE];
@@ -159,7 +160,7 @@ int device_recurse_resume(struct device* this);
 int device_recurse_suspend(struct device* this);
 int device_attach(struct device* this, struct device* child);
 int device_detach(struct device* this, struct device* child);
-struct device* device_find_id(struct device* this, uint64_t dev_id);
+struct device* device_find_id(unsigned int dev_id);
 int device_id_alloc(struct device* dev);
 int dev_setup_driver(struct device *dev, vfs_read_hook_t, vfs_write_hook_t);
 struct device *dev_find_devtype(struct device *dev, device_type_t type);

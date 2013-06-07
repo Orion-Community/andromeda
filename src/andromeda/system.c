@@ -117,7 +117,7 @@ int sys_setup_modules()
 }
 int sys_setup_fs()
 {
-        if (core.fs != NULL)
+        if (core.vfs != NULL)
                 return -E_ALREADY_INITIALISED;
         printf("File system abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;

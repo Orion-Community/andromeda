@@ -21,16 +21,18 @@
 #include <andromeda/system.h>
 #include <drivers/root.h>
 #include <fs/vfs.h>
+#include <lib/tree.h>
 
 static int drv_setup_io(struct driver *drv, struct vfile *io, vfs_read_hook_t,\
                         vfs_write_hook_t);
 
 struct device dev_root;
-uint64_t dev_id = 0;
+unsigned int dev_id = 0;
 mutex_t dev_id_lock;
 
-uint64_t virt_bus = 0;
-uint64_t lgcy_bus = 0;
+unsigned int virt_bus = 0;
+unsigned int lgcy_bus = 0;
+struct tree_root* dev_tree = NULL;
 
 /** Return the number of detected CPU's */
 int dev_detect_cpus(struct device* root)
@@ -47,6 +49,11 @@ int dev_root_init()
         root->driver = kmalloc(sizeof(struct driver));
         memset(root->driver, 0, sizeof(struct driver));
 
+        dev_tree = tree_new_avl();
+        if (dev_tree == NULL)
+                panic("Out of memory!!!");
+
+        dev_tree->add(root->dev_id, root, dev_tree);
         drv_root_init(root); /** Call to driver, not device!!! */
 
 //         if (dev_detect_cpus(root) <= 0)
@@ -125,52 +132,30 @@ int device_detach(struct device* this, struct device* child)
 }
 
 struct device*
-device_find_id(struct device* this, uint64_t dev_id)
+device_find_id(unsigned int id)
 {
-        if (this == NULL)
+        struct tree* node = (struct tree*)dev_tree->find(id, dev_tree);
+        if (node == NULL)
                 return NULL;
-
-        if (dev_id == this->dev_id)
-                return this;
-
-        struct device* carriage = this->children;
-
-        struct device *dev = NULL;
-        while (carriage != NULL)
-        {
-                if (carriage->driver == NULL)
-                        panic("Driverless attached device!");
-                if (carriage->driver->find == NULL)
-                        panic("No find function in device!");
-
-                dev = carriage->driver->find(carriage, dev_id);
-                if (dev != NULL)
-                        return dev;
-
-                carriage = carriage->next;
-        }
-        return NULL;
+        struct device* dev = node->data;
+        return dev;
 }
 
 int device_id_alloc(struct device* dev)
 {
-        int ret = 0;
-        uint64_t begin = dev_id-1;
+        unsigned int idx = dev_id;
+
         mutex_lock(&dev_id_lock);
-        struct device* iterator = device_find_id(&dev_root, dev_id);
-        while (iterator != NULL)
+        while (device_find_id(idx) != NULL)
         {
-                dev_id++;
-                if (dev_id == begin)
-                        panic("No more room for new devices!");
-                iterator = device_find_id(&dev_root, dev_id);
+                idx++;
         }
-
-        dev->dev_id = dev_id;
-        ret = dev_id;
-
+        dev_tree->add(idx, dev, dev_tree);
+        dev_id = idx+1;
         mutex_unlock(&dev_id_lock);
-        return ret;
+
+        dev->dev_id = idx;
+        return idx;
 }
 
 static int
@@ -246,8 +231,8 @@ void dev_dbg()
         for (; i < 0x10; i++)
         {
                 printf("Device 0x%X at address %X of type %X\n",
-                                               i, device_find_id(&dev_root, i),
-                                              device_find_id(&dev_root, i)->type
+                                               i, device_find_id(i),
+                                              device_find_id(i)->type
                       );
         }
 }
@@ -256,7 +241,6 @@ int
 dev_init()
 {
         debug("Building the device tree\n");
-
         dev_root_init();
 
 #ifdef DEV_DBG

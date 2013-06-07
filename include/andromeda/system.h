@@ -122,7 +122,7 @@ struct sys_net {
         int (*recv)(struct vfile* dev, char* data, int len);
 };
 
-struct sys_fs {
+struct sys_vfs {
         int (*mount)(struct vfile*, char* path);
         int (*umount)(char* path);
         int (*open)(char* path, char* rights);
@@ -136,7 +136,7 @@ struct system {
         struct sys_memory_manager* mm;
         struct sys_device_tree* devices;
         struct sys_module_tree* kernel_modules;
-        struct sys_fs* fs;
+        struct sys_vfs* vfs;
         struct sys_net* net;
 };
 
