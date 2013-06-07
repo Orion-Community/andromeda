@@ -122,8 +122,21 @@ struct sys_net {
         int (*recv)(struct vfile* dev, char* data, int len);
 };
 
+struct sys_fs_dir_entry {
+        char name[256];
+        uint32_t inode;
+};
+
+struct sys_fs {
+        struct vfile* (*open)(int inode);
+        struct sys_fs_dir_entry* (*dir_entry)(uint32_t inode, uint32_t entry, char* data, size_t len);
+        int (*close)(struct vfile*);
+        int (*read)(struct vfile* file, char* data, size_t len);
+        int (*write)(struct vfile* file, char* data, size_t len);
+};
+
 struct sys_vfs {
-        int (*mount)(struct vfile*, char* path);
+        int (*mount)(struct sys_fs*, char* path);
         int (*umount)(char* path);
         int (*open)(char* path, char* rights);
         int (*close)(int file);

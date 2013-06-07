@@ -31,6 +31,7 @@ scripts/build.jar:
 
 distclean: clean
 	rm -fv scripts/build.jar
+	rm -fv .config
 	rm -rfv bin/
 	rm -rfv doc/doxygen
 
