@@ -106,6 +106,11 @@ int x86_pte_set_range (struct sys_mmu_range* range)
         if (range == NULL)
                 return -E_INVALID_ARG;
 
+        if (range->phys == NULL)
+        {
+                panic("Could not load physical pages!");
+        }
+
         addr_t i = (addr_t)range->virt;
         struct sys_mmu_range_phys* phys = range->phys;
         while (i < (addr_t)(range->virt + range->size*PAGE_SIZE))

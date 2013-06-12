@@ -202,7 +202,6 @@ vm_init()
         vm_core.segments = vm_core_segments;
         /* Set the privilege level */
         vm_core.cpl = VM_CPL_CORE;
-        vm_core.name = "Andromeda";
 
         int ret = 0;
 
@@ -253,6 +252,10 @@ vm_init()
         /**
          * \todo Map in the kernel modules loaded in by GRUB.
          */
+
+#ifdef VM_TEST
+        vm_test();
+#endif
 
         return ret;
 }

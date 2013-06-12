@@ -131,7 +131,6 @@ struct vm_descriptor {
         struct vm_segment* segments;
         unsigned int cpl;
         unsigned int pid;
-        char* name;
 
         mutex_t lock;
 };
@@ -162,6 +161,9 @@ int vm_load_task();
 #ifdef VM_DBG
 int vm_dump(struct vm_descriptor*);
 struct vm_segment* vm_find_segment(char*);
+#endif
+#ifdef VM_TEST
+int vm_test();
 #endif
 
 #ifdef __cplusplus

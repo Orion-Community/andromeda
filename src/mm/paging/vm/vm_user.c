@@ -89,6 +89,13 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         s->free->size = s->size;
         s->free->parent = s;
 
+        s->pages = kmalloc(sizeof(*s->pages));
+        if (s->pages == NULL)
+                goto err1;
+        memset(s->pages, 0, sizeof(*s->pages));
+        s->pages->size = s->size;
+        s->pages->virt = s->virt_base;
+
         s->parent = p;
 
         /* Add the segment into the list, but only if all is well */
@@ -104,6 +111,8 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         mutex_unlock(&p->lock);
 
         return s;
+err1:
+        kfree(s->free);
 err:
         kfree(s);
         return NULL;

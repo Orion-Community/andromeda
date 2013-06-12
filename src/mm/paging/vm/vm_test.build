@@ -1,0 +1,9 @@
+{
+"name" : "vm_test",
+"link" : false,
+"archive" : false,
+"source-files" : ["vm_test.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}
