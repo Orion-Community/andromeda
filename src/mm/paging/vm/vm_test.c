@@ -47,13 +47,11 @@ int vm_test()
                 printf("Could not load segment 1!\n");
                 return -E_GENERIC;
         }
-#if 0
         memset(SEG_BASE, 'a', SEG_SIZE);
         char* seg_str = SEG_BASE;
         seg_str[SEG_SIZE-1] = 0;
 
         printf(seg_str);
-#endif
 
         return -E_NOFUNCTION;
 }

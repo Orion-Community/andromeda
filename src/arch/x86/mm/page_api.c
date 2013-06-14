@@ -108,22 +108,33 @@ int x86_pte_set_range (struct sys_mmu_range* range)
 
         if (range->phys == NULL)
         {
-                panic("Could not load physical pages!");
+                printf("Setting unknown pages!\n");
+                /* If physical range is null pointer, allocate a new range*/
+                range->phys = kmalloc(sizeof(*range->phys));
+                if (range->phys == NULL)
+                        panic ("Out of memory!");
+                /* Make the range point to the null page */
+                memset(range->phys, 0, sizeof(*range->phys));
+                /* And set the size */
+                range->phys->size = range->size;
         }
 
         addr_t i = (addr_t)range->virt;
         struct sys_mmu_range_phys* phys = range->phys;
         while (i < (addr_t)(range->virt + range->size*PAGE_SIZE))
         {
-                if (phys == NULL)
-                        return -E_NOT_YET_INITIALISED;
+                /* If physical page pointer equals NULL, skip this range */
+                if (phys->phys == NULL)
+                        goto next;
 
                 size_t j = 0;
                 for (; j > phys->size*PAGE_SIZE; j += PAGE_SIZE)
                         page_map(0, (void*)(i+j), (void*)(phys->phys+j), range->cpl);
 
+next:
                 i += range->size;
-                phys = phys->next;
+                if ((phys = phys->next) == NULL)
+                        panic("Invalid page list");
         }
         return -E_SUCCESS;
 }

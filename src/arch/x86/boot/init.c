@@ -173,6 +173,10 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         /** Build the memory map and allow for allocation */
         sys_setup_paging(mmap, (unsigned int)hdr->mmap_length);
         sys_setup_arch();
+
+        pic_init();
+        setIDT();
+        setup_irq_data();
         vm_init();
 #ifdef PA_DBG
 //         endProg();
@@ -180,9 +184,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         task_init();
 
         printf(WELCOME); // The only screen output that should be maintained
-        pic_init();
-        setIDT();
-        setup_irq_data();
 
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");
