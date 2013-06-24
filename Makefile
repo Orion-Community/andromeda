@@ -11,7 +11,7 @@ CFLAGS:=--cflags "-D VERSION=$(VERSION) $(COMPILER_FLAGS)"
 endif
 MAKE=make
 
-.PHONY: all clean configure distclean test doxygen bin/andromeda.img 
+.PHONY: all clean preconfigure configure distclean test doxygen bin/andromeda.img 
 .PHONY: bin/andromeda.iso test_iso
 	@$(MAKE) -C src/ clean
 
@@ -25,6 +25,9 @@ clean: scripts/build.jar
 
 configure: scripts/build.jar
 	$(BUILD) --configure
+
+preconfigure: scripts/build.jar
+	$(BUILD) --update-depfile
 
 scripts/build.jar:
 	scripts/get_build.sh

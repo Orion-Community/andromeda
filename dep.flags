@@ -1,0 +1,28 @@
+{
+        "cas": {
+                "mandatory": false,
+                "info": "A tiny little easter egg, for Cas van Raan"
+        },
+        "mm": {
+                "mandatory": true,
+                "enum": {
+                        "slab": {
+                                "mandatory": false,
+                                "info": "The quick but wasteful allocator"
+                        },
+                        "slob": {
+                                "mandatory": false,
+                                "info": "The slow, but conservative allocator"
+                        }
+                },
+                "info": "The memory manager group"
+        },
+        "X86": {
+                "mandatory": true,
+                "info": "The architexture to use"
+        },
+        "vm_test": {
+                "mandatory": false,
+                "info": "The virtual memory test suite"
+        }
+}
