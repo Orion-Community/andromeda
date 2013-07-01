@@ -95,9 +95,9 @@ static int x86_pte_set_pt(struct page_table* pt, int idx)
         if (idx >= 1024 || pt == NULL)
                 return -E_INVALID_ARG;
 
-        spd[idx].pageIdx = (int)pt >> 12;
-        spd[idx].present = 1;
-        spd[idx].userMode = 1;
+        vpd[idx].pageIdx = (int)pt >> 12;
+        vpd[idx].present = 1;
+        vpd[idx].userMode = 1;
         return -E_SUCCESS;
 }
 
@@ -113,7 +113,7 @@ static int x86_pte_unset_pt(int idx)
                 return -E_INVALID_ARG;
 
         /* find the entry and mark in not present */
-        spd[idx].present = 0;
+        vpd[idx].present = 0;
         return -E_SUCCESS;
 }
 
@@ -137,12 +137,17 @@ int x86_pte_set_page(void* virt, void* phys, int cpl)
 
         struct page_table* pt;
         mutex_lock(&pte_lock);
-        if ((pt = vpd[pde]) == NULL)
+        if ((pt = vpt[pde]) == NULL)
         {
                 /**
                  * \todo Allocate and install new pagetable here
                  * pt = new pt;
                  */
+#ifdef SLAB
+                mm_cache_alloc(x86_pte_pt_cache, 0);
+#else
+                kmalloc(sizeof(*pt));
+#endif
                 panic("Page table allocaton not yet written");
                 x86_pte_set_pt(pt, pde);
         }
@@ -170,13 +175,14 @@ int x86_pte_unset_page(void* virt)
 
         mutex_lock(&pte_lock);
         struct page_table* pt;
-        if ((pt = vpd[pde]) == NULL)
+        if ((pt = vpt[pde]) == NULL)
         {
                 mutex_unlock(&pte_lock);
                 return -E_SUCCESS;
         }
 
         int ret = x86_pte_unset(&pt[pte]);
+        asm ("invlpg (%0)" :: "r" (virt) : "memory");
         if (x86_cnt_pt_entries(pt) <= 0)
                 x86_pte_unset_pt(pde);
 

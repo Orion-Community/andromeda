@@ -359,6 +359,7 @@ vm_load_task(int cpu, struct vm_descriptor* task)
         return -E_SUCCESS;
 }
 
+#if 0
 static inline int
 vm_range_cleanup(struct sys_mmu_range* range)
 {
@@ -377,7 +378,7 @@ vm_range_cleanup(struct sys_mmu_range* range)
 
         return -E_SUCCESS;
 }
-
+#endif
 /**
  * \fn vm_unload_task
  * \brief Disable access to the pages owned by this task
@@ -395,13 +396,6 @@ vm_unload_task(int cpu, struct vm_descriptor* task)
         struct vm_segment* runner = task->segments;
         while (runner != NULL)
         {
-                void* from = runner->pages->virt;
-                void* to = from + runner->pages->size;
-                if (vm_range_cleanup(runner->pages) != -E_SUCCESS)
-                        goto error;
-                runner->pages = page_get_range(cpu, from, to);
-                if (runner->pages == NULL)
-                        goto error;
                 if (page_unmap_range(cpu, runner->pages) != -E_SUCCESS)
                         goto error;
                 runner = runner->next;

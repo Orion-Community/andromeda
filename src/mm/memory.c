@@ -19,7 +19,6 @@
 
 #include <stdlib.h>
 #include <mm/paging.h>
-#include <mm/map.h>
 #include <mm/heap.h>
 
 #ifndef SLAB

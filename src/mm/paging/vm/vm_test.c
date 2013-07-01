@@ -36,6 +36,7 @@ int vm_test()
         struct vm_segment* seg1 = vm_new_segment(SEG_BASE, SEG_SIZE, vm1);
         struct vm_segment* seg2 = vm_new_segment(SEG_BASE, SEG_SIZE, vm2);
 
+
         if (seg1 == NULL || seg2 == NULL)
         {
                 printf("vm test failed on segment allocation and initialisation!");

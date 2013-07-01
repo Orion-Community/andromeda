@@ -27,6 +27,12 @@
 extern "C" {
 #endif
 
+#ifdef SLAB
+
+#include <mm/cache.h>
+
+extern struct mm_cache* x86_pte_pt_cache;
+#endif
 /**
  * \var pd
  * \brief The physical page directory pointer
@@ -41,11 +47,48 @@ extern "C" {
  * \var pte_cnt
  */
 extern struct page_dir* pd;
-extern struct page_dir *spd;
-extern void* vpd[1024];
+extern struct page_dir *vpd;
+extern void* vpt[0x400];
 extern struct page_table page_table_boot;
 extern struct page_dir page_dir_boot;
-atomic_t pte_cnt[1024];
+atomic_t pte_cnt[0x400];
+
+struct page_dir
+{
+          unsigned int present  : 1; // Must be 1 to be able to access
+          unsigned int rw       : 1; // if 0, can not be written to
+          unsigned int userMode : 1; // If 0, can not be accessed form usermode
+          unsigned int pwt      : 1; // Page level write through, whatever that may be
+          unsigned int pcd      : 1; // Page level cache disable bit
+          unsigned int accessed : 1; // True if accessed
+          unsigned int dirty    : 1; // Ignored when page size = 4 KB (true if written to)
+          unsigned int pageSize : 1; // True for 1 MB, false for accessing pagetable
+          unsigned int global   : 1; // For use in 4 MB pages only
+          unsigned int ignored  : 3; // Ignored
+          unsigned int pageIdx  : 20; // Pointer to either page in 4MB pages or page table in 4 KB pages
+} __attribute__((packed));
+typedef struct page_dir page_dir_t;
+
+struct page_table
+{
+          unsigned int present  : 1; // Must be 1 to be able to access
+          unsigned int rw       : 1; // if 0, can not be written
+          unsigned int userMode : 1; // if 0, can not be accessed from usermode
+          unsigned int pwt      : 1; // Page level write through, whatever that may be
+          unsigned int pcd      : 1; // Page level cache disable bit
+          unsigned int accessed : 1; // True if accessed
+          unsigned int dirty    : 1; // True if written to
+          unsigned int pat      : 1; // Don't know this one, keep it 0 according to intel docs
+          unsigned int global   : 1; // Determines global translation
+          unsigned int ignored  : 3; // Ignored
+          unsigned int pageIdx  : 20; // Pointer to page
+} __attribute__((packed));
+typedef struct page_table page_table_t;
+
+struct x86_pte_meta {
+        struct page_dir pd[1024];
+        void* vpt[1024];
+};
 
 #ifdef __cplusplus
 }

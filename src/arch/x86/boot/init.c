@@ -32,7 +32,6 @@
 #include <unistd.h>
 
 #include <mm/paging.h>
-#include <mm/map.h>
 #include <mm/vm.h>
 #include <mm/memory.h>
 #include <mm/cache.h>
@@ -95,12 +94,12 @@ int system_x86_mmu_init(struct sys_cpu* cpu)
         if (cpu->mmu == NULL)
                 panic("Out of memory!");
         memset(cpu->mmu, 0, sizeof(*cpu->mmu));
+
         cpu->mmu->get_phys = x86_pte_get_phys;
         cpu->mmu->reset_page = x86_pte_unset_page;
         cpu->mmu->set_page = x86_pte_set_page;
-        cpu->mmu->set_range = x86_pte_set_range;
-        cpu->mmu->reset_range = x86_pte_reset_range;
-        cpu->mmu->get_range = x86_pte_get_range;
+        cpu->mmu->set_range = x86_pte_load_range;
+        cpu->mmu->reset_range = x86_pte_unload_range;
 
         return -E_SUCCESS;
 }

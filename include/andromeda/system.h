@@ -28,11 +28,13 @@
 
 #define CPU_LIMIT 0x10
 
+/*
 struct sys_mmu_range_phys {
         void* phys;
         size_t size;
         struct sys_mmu_range_phys* next;
 };
+*/
 
 struct sys_mmu_range {
         /* virt is the base address of the range */
@@ -41,7 +43,8 @@ struct sys_mmu_range {
         size_t size;
         int cpl;
         int pid;
-        struct sys_mmu_range_phys* phys;
+        //struct sys_mmu_range_phys* phys;
+        void* arch_data;
 };
 
 struct sys_mmu {
@@ -50,7 +53,6 @@ struct sys_mmu {
         void* (*get_phys)(void* virt);
         int (*set_range)(struct sys_mmu_range*);
         int (*reset_range)(struct sys_mmu_range*);
-        struct sys_mmu_range* (*get_range)(void* from, void* to);
 };
 
 struct sys_cpu_scheduler {
@@ -212,18 +214,6 @@ page_unmap_range(int cpu, struct sys_mmu_range* range)
         if (!hascpu(cpu) || range == NULL)
                 return -E_NULL_PTR;
         return core.arch->cpu[cpu]->mmu->reset_range(range);
-}
-
-static inline struct sys_mmu_range*
-page_get_range(int cpu, void* from, void* to)
-{
-        if (from == to || to == NULL || cpu > CPU_LIMIT)
-                return NULL;
-
-        if (!hascpu(cpu))
-                return NULL;
-
-        return core.arch->cpu[cpu]->mmu->get_range(from, to);
 }
 
 int sys_setup_alloc(void);

@@ -19,7 +19,6 @@
 #include <stdlib.h>
 
 #include <mm/heap.h>
-#include <mm/map.h>
 #include <networking/rtl8168.h>
 #include <sys/dev/pci.h>
 #include <drivers/pci/msi.h>

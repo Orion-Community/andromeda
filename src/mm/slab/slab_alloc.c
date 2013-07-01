@@ -16,9 +16,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <mm/cache.h>
+#include <mm/vm.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <andromeda/core.h>
+#include <andromeda/system.h>
 
 #ifdef SLAB_DBG
 struct mm_cache* last_cache = NULL;
@@ -165,11 +167,11 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
         mutex_lock(&slab->lock);
 
         /*
-         * If a race conflict has accidentally occured
+         * If a race conflict has accidentally occurred
          * Simply give it another shot!
          *
          * Race conflicts can occur because the call to the mm_slab_alloc
-         * function isn't done in an atomic acton.
+         * function isn't done in an atomic action.
          */
         if (slab->objs_full == slab->objs_total)
         {
@@ -321,22 +323,43 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
                 struct mm_slab* tmp = cache->slabs_empty;
                 if (tmp == NULL)
                 {
-                        mutex_unlock(&cache->lock);
-                        return NULL;
+                        /** \todo Ask for more space! */
+                        int no_pages = calc_no_pages(cache->obj_size,
+                                        SLAB_MIN_OBJS,
+                                        cache->alignment);
+                        int no_objs = calc_max_no_objects(cache->alignment,
+                                        no_pages,
+                                        cache->obj_size);
+
+                        struct mm_slab* slab = kmalloc(sizeof(*slab));
+                        if (slab == NULL)
+                                panic("Out of memory - Chicken/egg problem!");
+
+                        void* pages = vm_get_kernel_heap_pages(no_pages);
+                        if (pages == NULL)
+                                panic("Out of heap space!");
+
+                        slab_setup(slab, cache, pages, no_pages, no_objs);
+                        cache->slabs_partial = slab;
                 }
-                cache->slabs_empty = tmp->next;
-                cache->slabs_partial = tmp;
-                tmp->next = NULL;
+                else
+                {
+                        cache->slabs_empty = tmp->next;
+                        cache->slabs_partial = tmp;
+                        tmp->next = NULL;
+                }
         }
-        /*
-         * Leave the atomic section
-         */
-        mutex_unlock(&cache->lock);
 
         /*
          * Allocate the memory and get the related pointer
          */
         void* ret = mm_slab_alloc(cache->slabs_partial, flags);
+
+        /*
+         * Leave the atomic section
+         */
+        mutex_unlock(&cache->lock);
+
         /*
          * If a constructor exists, run it
          */
@@ -430,11 +453,6 @@ mm_cache_free(struct mm_cache* cache, void* ptr)
          */
         return mm_slab_free(tmp, ptr);
 }
-
-/**
- * \todo Build kmem_alloc
- * \todo Build kmem_free
- */
 
 static struct mm_cache*
 kmem_find_size(struct mm_cache* cache, size_t size)

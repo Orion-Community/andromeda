@@ -42,19 +42,6 @@ extern "C" {
 #define PAGE_ALIGNED(a) ((a % PAGESIZE) == 0)
 #endif
 
-/**
- * \struct VM
- * \brief The virtual memory subsystem
- * \todo Move this structure out into arch/x86
- */
-struct pte {
-        /**
-         * \var page_table
-         * \brief The page table entries
-         */
-        struct page_table entry[PTE_SIZE];
-};
-
 struct vm_descriptor;
 struct vm_segment;
 
@@ -153,7 +140,6 @@ int vm_unmap_heap(void* virt);
 
 /* Specialised functions */
 int vm_init();
-int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
 void* vm_get_phys(int cpu, void* virt);
 void* x86_pte_get_phys(void* virt);
 int vm_load_task();
