@@ -196,7 +196,29 @@ int x86_pte_unset_page(void* virt)
 void
 x86_pagefault(isrVal_t registers)
 {
-        panic("The new pagefaults haven't yet been implemented!");
+        addr_t fault_addr;
+        asm ("mov %%cr2, %%eax\n\t"
+             "mov %%eax, %0\n\t"
+             : "=r" (fault_addr)
+             :
+             : "%eax");
+
+        if (registers.errCode & 4)
+        {
+                /* User space page faults */
+                if (registers.errCode & 2)
+                        vm_user_fault_write(fault_addr,(registers.errCode & 1));
+                else
+                        vm_user_fault_read(fault_addr, (registers.errCode & 1));
+        }
+        else
+        {
+                /* Kernel space page faults */
+                if (registers.errCode & 2)
+                        vm_kernel_fault_write(fault_addr,(registers.errCode&1));
+                else
+                        vm_kernel_fault_read(fault_addr,(registers.errCode&1));
+        }
         return;
 }
 #pragma GCC diagnostic pop

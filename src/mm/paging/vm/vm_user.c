@@ -407,6 +407,34 @@ error:
         return -E_GENERIC; /* Return statement to keep the compiler happy! */
 }
 
+int
+vm_user_fault_write(addr_t fault_addr, int mapped)
+{
+        panic("User space page faults currently remain unhandled");
+        return -E_NOFUNCTION;
+}
+
+int
+vm_kernel_fault_write(addr_t fault_addr, int mapped)
+{
+        panic("Writing page faults currently remain unhandled");
+        return -E_NOFUNCTION;
+}
+
+int
+vm_user_fault_read(addr_t fault_addr, int mapped)
+{
+        panic("User space page faults currently remain unhandled");
+        return -E_NOFUNCTION;
+}
+
+int
+vm_kernel_fault_read(addr_t fault_addr, int mapped)
+{
+        panic("Reading page faults currently remain unhandled");
+        return -E_NOFUNCTION;
+}
+
 #ifdef VM_DBG
 int vm_dump_ranges(struct vm_range_descriptor* r)
 {
