@@ -187,7 +187,7 @@ page_map(int cpu, void* virt, void* phys, int cpl)
                 return -E_NULL_PTR;
         if (core.arch->cpu[cpu]->mmu == NULL)
                 return -E_NULL_PTR;
-        return core.arch->cpu[cpu]->mmu->set_page(phys, virt, cpl);
+        return core.arch->cpu[cpu]->mmu->set_page(virt, phys, cpl);
 }
 
 static inline int

@@ -23,6 +23,10 @@
 #include <arch/x86/pte.h>
 #include "page_table.h"
 
+#ifdef SLOB
+#include <mm/heap.h>
+#endif
+
 /**
  * \AddToGroup paging
  * @{
@@ -139,23 +143,24 @@ int x86_pte_set_page(void* virt, void* phys, int cpl)
         mutex_lock(&pte_lock);
         if ((pt = vpt[pde]) == NULL)
         {
-                /**
-                 * \todo Allocate and install new pagetable here
-                 * pt = new pt;
-                 */
 #ifdef SLAB
-                mm_cache_alloc(x86_pte_pt_cache, 0);
-#else
-                kmalloc(sizeof(*pt));
+                pt = mm_cache_alloc(x86_pte_pt_cache, 0);
+#elif defined SLOB
+                pt = alloc(sizeof(*pt)*1024, TRUE);
 #endif
-                panic("Page table allocaton not yet written");
-                x86_pte_set_pt(pt, pde);
+                if (pt == NULL)
+                        panic("Out of memory! (And unicorns)");
+                memset(pt, 0, sizeof(*pt)*1024);
+                x86_pte_set_pt(get_phys(0,pt), pde);
+                vpt[pde] = pt;
         }
         x86_pte_set(phys, cpl, &pt[pte]);
 
+        asm("invlpg (%0)" : : "r" (virt) : "memory");
+
         mutex_unlock(&pte_lock);
 
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
 }
 
 /**
@@ -191,17 +196,15 @@ int x86_pte_unset_page(void* virt)
         return ret;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
 void
 x86_pagefault(isrVal_t registers)
 {
-        addr_t fault_addr;
+        addr_t fault_addr = 0;
         asm ("mov %%cr2, %%eax\n\t"
              "mov %%eax, %0\n\t"
              : "=r" (fault_addr)
              :
-             : "%eax");
+             : "%eax", "memory");
 
         if (registers.errCode & 4)
         {
@@ -219,9 +222,14 @@ x86_pagefault(isrVal_t registers)
                 else
                         vm_kernel_fault_read(fault_addr,(registers.errCode&1));
         }
-        return;
+        /*
+         * Now there is some sort of bug in the compiling process, which is very
+         * annoying. Remove the asm instruction below and page faults result in
+         * a general protection fault, as the lower part of the fault address is
+         * written into the ds register on iret, somehow.
+         */
+        asm("nop");
 }
-#pragma GCC diagnostic pop
 
 /**
  * @} \file

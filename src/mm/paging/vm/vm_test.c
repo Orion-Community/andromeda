@@ -20,7 +20,7 @@
 #include <mm/vm.h>
 
 #define SEG_BASE (void*)0xB0000000
-#define SEG_SIZE (size_t)0x100000
+#define SEG_SIZE (size_t)0x1000
 
 int vm_test()
 {
@@ -54,5 +54,45 @@ int vm_test()
 
         printf(seg_str);
 
-        return -E_NOFUNCTION;
+        if (vm_segment_unload(0, seg1) != -E_SUCCESS)
+        {
+                printf("Problem unloading segment 1!\n");
+                return -E_GENERIC;
+        }
+
+        printf("unloaded segment 1\n");
+        int i = 0;
+        for (; i < 0x3FFFFFFF; i++)
+                asm("nop");
+
+        if (vm_segment_load(0, seg2) != -E_SUCCESS)
+        {
+                printf("Failure loading segment 2!\n");
+        }
+        memset(SEG_BASE, 'b', SEG_SIZE);
+        seg_str[SEG_SIZE-1] = 0;
+
+        printf(seg_str);
+
+        if (vm_segment_unload(0, seg2) != -E_SUCCESS)
+        {
+                printf("Failure unloading segment 2\n");
+                return -E_GENERIC;
+        }
+
+        printf("unloaded segment 2\n");
+        for (i = 0; i < 0x3FFFFFFF; i++)
+                asm("nop");
+        if (vm_segment_load(0, seg1) != -E_SUCCESS)
+        {
+                printf("Issue reloading segment 1\n");
+                return -E_GENERIC;
+        }
+        printf(seg_str);
+
+        printf("\n");
+        printf("Seg1: %X\nSeg2: %X\n", (int)seg1, (int)seg2);
+        printf("Seg1->range: %X\nSeg2->range: %X\n", (int)(seg1->pages), (int)(seg2->pages));
+        printf("seg1->arch: %X\nSeg2->arch: %X\n", (int)(seg1->pages->arch_data), (int)(seg2->pages->arch_data));
+        return -E_SUCCESS;
 }

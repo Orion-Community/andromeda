@@ -218,7 +218,7 @@ vm_segment_load(int cpu, struct vm_segment* s)
 int
 vm_segment_unload(int cpu, struct vm_segment* s)
 {
-        if (s == NULL || s->pages)
+        if (s == NULL || s->pages == NULL)
                 return -E_INVALID_ARG;
         return page_unmap_range(cpu, s->pages);
 }
@@ -417,8 +417,24 @@ vm_user_fault_write(addr_t fault_addr, int mapped)
 int
 vm_kernel_fault_write(addr_t fault_addr, int mapped)
 {
+        if (mapped)
+        {
+                printf("We don't do mapped pagefaults ... We just don't do them\n");
+                goto problem;
+        }
+
+        void* phys = get_phys(0, (void*)(fault_addr & ~0x3FF));
+        if (phys != NULL)
+                panic("Faulting on existing page ... wtf!");
+
+        phys = page_alloc();
+
+        page_map(0, (void*)(fault_addr & ~0x3FF), phys, 0);
+        return -E_SUCCESS;
+
+problem:
         panic("Writing page faults currently remain unhandled");
-        return -E_NOFUNCTION;
+        return -E_GENERIC;
 }
 
 int
@@ -431,6 +447,15 @@ vm_user_fault_read(addr_t fault_addr, int mapped)
 int
 vm_kernel_fault_read(addr_t fault_addr, int mapped)
 {
+        if (!mapped)
+        {
+                printf("We don't do reading from unmapped regeons ... We just don't\n");
+                goto problem;
+        }
+
+        printf("Faulting on %X\n", fault_addr);
+
+problem:
         panic("Reading page faults currently remain unhandled");
         return -E_NOFUNCTION;
 }

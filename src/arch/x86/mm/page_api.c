@@ -89,7 +89,12 @@ void* x86_pte_get_phys(void* virt)
         int pte = v & 0x3FF;
         int pde = (v >> 10) & 0x3FF;
 
+        if (vpd[pde].present == 0 || vpt[pde] == NULL)
+                return NULL;
         struct page_table* pt = vpt[pde];
+        if (pt[pte].present == 0)
+                return NULL;
+
         addr_t ret = pt[pte].pageIdx;
         ret <<= 12;
 
