@@ -235,9 +235,11 @@ vm_segment_clean(struct vm_segment* s)
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        mutex_lock(&s->next->lock);
+        if (s->next != 0)
+                mutex_lock(&s->next->lock);
         mutex_lock(&s->lock);
-        mutex_lock(&s->prev->lock);
+        if (s->prev != NULL)
+                mutex_lock(&s->prev->lock);
 
         /* Take this segment out of the list */
         if (s->prev != NULL)
@@ -248,8 +250,10 @@ vm_segment_clean(struct vm_segment* s)
         if (s->next != NULL)
                 s->next->prev = s->prev;
 
-        mutex_unlock(&s->next->lock);
-        mutex_unlock(&s->prev->lock);
+        if (s->next != NULL)
+                mutex_unlock(&s->next->lock);
+        if (s->prev != NULL)
+                mutex_unlock(&s->prev->lock);
         /*
          *  We're leaving this segment in a locked state, as it is going to be
          *  thrown away anyway.
@@ -260,8 +264,10 @@ vm_segment_clean(struct vm_segment* s)
         struct vm_range_descriptor* xx = s->free;
         s->free = NULL;
 itterate:
-        for (; xx != NULL; xx = x, x = x->next)
+        while (x != NULL)
         {
+                xx = x;
+                x = x->next;
                 /* If these ranges are allocated physically, free them up */
                 kfree(xx);
         }
@@ -276,7 +282,11 @@ itterate:
 
         /* If we still have physical pages, clean those up */
         if (s->pages != NULL)
+        {
+                /** \todo Free up arch_data */
                 kfree(s->pages);
+                s->pages = NULL;
+        }
 
         /* Remove this segment*/
         kfree(s);
@@ -300,7 +310,7 @@ vm_free(struct vm_descriptor* p)
         struct vm_segment* this = p->segments;
         struct vm_segment* next = this->next;
 
-        for (; this != NULL; this = next, next = next->next)
+        while (this != NULL)
         {
                 if (vm_segment_clean(this) != -E_SUCCESS)
                 {
@@ -309,10 +319,13 @@ vm_free(struct vm_descriptor* p)
                          * For some reason, or another, this task we can't get
                          * rid of.
                          */
-                        p->segments = this;
+                        printf("Generic error!\n");
+                        p->segments = next;
                         return -E_GENERIC;
                 }
-                kfree(this);
+                this = next;
+                if (next != NULL)
+                        next = next->next;
         }
         kfree(p);
         return -E_SUCCESS;

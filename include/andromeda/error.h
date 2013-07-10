@@ -59,6 +59,7 @@ extern "C" {
 #define E_NULL_PTR              0x41
 #define E_ALREADY_INITIALISED   0x42
 #define E_NOT_YET_INITIALISED   0x43
+#define E_ALREADY_FREE          0x44
 
 #define E_TASK_NOSPACE          0x50
 

@@ -20,7 +20,12 @@
 #include <mm/vm.h>
 
 #define SEG_BASE_SIMPLE (void*)0xB0000000
+#define SEG_BASE_ONE SEG_BASE_SIMPLE
+#define SEG_BASE_TWO SEG_BASE_SIMPLE+0x4000
+#define SEG_BASE_THR SEG_BASE_SIMPLE+0x8000
+
 #define SEG_SIZE_SMALL (size_t)0x1000
+#define SEG_SIZE_LARGE (size_t)(1 << 22);
 
 int vm_test_small()
 {
@@ -36,7 +41,6 @@ int vm_test_small()
 
         struct vm_segment* seg1 = vm_new_segment(SEG_BASE_SIMPLE, SEG_SIZE_SMALL, vm1);
         struct vm_segment* seg2 = vm_new_segment(SEG_BASE_SIMPLE, SEG_SIZE_SMALL, vm2);
-
 
         if (seg1 == NULL || seg2 == NULL)
         {
@@ -57,16 +61,12 @@ int vm_test_small()
         seg_str[20] = '\n';
         seg_str[21] = 0;
 
-        printf(seg_str);
-
         if (vm_segment_unload(0, seg1) != -E_SUCCESS)
         {
                 printf("Problem unloading segment 1!\n");
                 ret = -E_GENERIC;
                 goto cleanup;
         }
-
-        printf("unloaded segment 1\n");
 
         if (vm_segment_load(0, seg2) != -E_SUCCESS)
         {
@@ -78,8 +78,6 @@ int vm_test_small()
         seg_str[20] = '\n';
         seg_str[21] = 0;
 
-        printf(seg_str);
-
         if (vm_segment_unload(0, seg2) != -E_SUCCESS)
         {
                 printf("Failure unloading segment 2\n");
@@ -87,15 +85,12 @@ int vm_test_small()
                 goto cleanup;
         }
 
-        printf("unloaded segment 2\n");
         if (vm_segment_load(0, seg1) != -E_SUCCESS)
         {
                 printf("Issue reloading segment 1\n");
                 ret = -E_GENERIC;
                 goto cleanup;
         }
-
-        printf(seg_str);
 
         if (seg_str[0] != 'a')
         {
@@ -105,11 +100,9 @@ int vm_test_small()
                 goto cleanup;
         }
 
-        printf("Seg1: %X\nSeg2: %X\n", (int)seg1, (int)seg2);
-        printf("Seg1->range: %X\nSeg2->range: %X\n", (int)(seg1->pages), (int)(seg2->pages));
-        printf("seg1->arch: %X\nSeg2->arch: %X\n", (int)(seg1->pages->arch_data), (int)(seg2->pages->arch_data));
-
 cleanup:
+        vm_free(vm1);
+        vm_free(vm2);
         return ret;
 }
 

@@ -245,7 +245,7 @@ mm_slab_free(struct mm_slab* slab, void* ptr)
          * Verify that the entry actually is allocated
          */
         if (map[idx] != SLAB_ENTRY_ALLOCATED)
-                return -E_GENERIC;
+                return -E_ALREADY_FREE;
 
 
         /*
@@ -525,20 +525,29 @@ kmem_free(void* ptr, size_t size)
                 panic("Invalid object in kmem_free!");
         struct mm_cache* candidate = kmem_find_size(caches, size);
 
-        if (candidate == NULL)
-                return;
         size = candidate->obj_size;
 
-        if (mm_cache_free(candidate, ptr) == -E_SUCCESS)
-                goto found;
-
-        candidate = kmem_find_next_candidate(caches, size);
         while (1)
         {
                 if (candidate == NULL)
                         return;
-                if (mm_cache_free(candidate, ptr) == -E_SUCCESS)
+                int freed = mm_cache_free(candidate, ptr);
+                switch (freed)
+                {
+                case -E_SUCCESS:
                         goto found;
+                case -E_ALREADY_FREE:
+                        panic("Deallocating previously allocated data structure");
+                        return;
+                case -E_NULL_PTR:
+                        panic("Null pointer alert!");
+                        break; /* Keep the ide happy ... */
+                case -E_INVALID_ARG:
+                        panic("Something somewhere went terribly wrong");
+                        break; /* Keep the ide happy ... */
+                default:
+                        printf("Err code: %X\n", freed);
+                }
                 candidate = kmem_find_next_candidate(candidate, size);
         }
 
