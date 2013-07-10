@@ -407,6 +407,9 @@ error:
         return -E_GENERIC; /* Return statement to keep the compiler happy! */
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
 int
 vm_user_fault_write(addr_t fault_addr, int mapped)
 {
@@ -450,15 +453,14 @@ vm_kernel_fault_read(addr_t fault_addr, int mapped)
         if (!mapped)
         {
                 printf("We don't do reading from unmapped regeons ... We just don't\n");
-                goto problem;
         }
 
         printf("Faulting on %X\n", fault_addr);
 
-problem:
         panic("Reading page faults currently remain unhandled");
         return -E_NOFUNCTION;
 }
+#pragma GCC diagnostic pop
 
 #ifdef VM_DBG
 int vm_dump_ranges(struct vm_range_descriptor* r)
