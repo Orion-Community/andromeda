@@ -18,6 +18,7 @@
 
 #include <andromeda/system.h>
 #include <mm/vm.h>
+#include <andromeda/core.h>
 
 #define SEG_BASE_SIMPLE (void*)0xB0000000
 #define SEG_BASE_ONE SEG_BASE_SIMPLE
@@ -106,10 +107,124 @@ cleanup:
         return ret;
 }
 
+int vm_dump_ranges(struct vm_range_descriptor* r)
+{
+        if (r == NULL)
+                return -E_NULL_PTR;
+
+        printf("this: %X\tnext: %X\tprev: %X\n", r, r->next, r->prev);
+        printf("base: %X\n", r->base);
+        printf("size: %X\n", r->size);
+
+        vm_dump_ranges(r->next);
+        return -E_SUCCESS;
+}
+
+int vm_dump_segments(struct vm_segment* s)
+{
+        if (s == NULL)
+                return -E_NULL_PTR;
+
+        printf("Segment: %s\n", s->name);
+        printf("virt: %X\n", s->virt_base);
+        printf("size: %X\n", s->size);
+
+        printf("\nFree:\n");
+
+        mutex_lock(&s->lock);
+        struct vm_range_descriptor* free = s->free;
+
+        vm_dump_ranges(free);
+        printf("Allocated:\n");
+        mutex_unlock(&s->lock);
+
+        mutex_lock(&s->lock);
+        struct vm_range_descriptor* allocated = s->allocated;
+        vm_dump_ranges(allocated);
+
+        struct vm_segment* sn = s->next;
+        mutex_unlock(&s->lock);
+
+        printf("next segment: %X\n", sn);
+
+        vm_dump_segments(sn);
+        return -E_SUCCESS;
+}
+
+int vm_dump(struct vm_descriptor* v)
+{
+        if (v == NULL)
+                return -E_NULL_PTR;
+
+        printf("cpl: %X\npid: %X\n", v->cpl, v->pid);
+        printf("Segments: \n");
+        mutex_lock(&v->lock);
+        vm_dump_segments(v->segments);
+        mutex_unlock(&v->lock);
+
+        return -E_SUCCESS;
+}
+
+int vm_test_alloc()
+{
+
+        struct vm_segment* heap = vm_find_segment(".heap");
+        if (heap == NULL)
+                return -E_NULL_PTR;
+
+
+        if (heap->free == NULL)
+                return -E_HEAP_GENERIC;
+        size_t free_state = heap->free->size;
+        size_t allocated_state = 0;
+        if (heap->allocated != NULL)
+                allocated_state = heap->allocated->size;
+
+        void* tst = vm_get_kernel_heap_pages(0x1000);
+        void* tst2 = vm_get_kernel_heap_pages(0xb1aa7);
+
+        if (heap->free == NULL)
+                return -E_HEAP_GENERIC;
+
+        size_t predicted = free_state - 0x1000;
+        predicted -= (predicted % 0x4000);
+        predicted -= 0xb1aa7;
+        predicted -= (predicted % 0x4000);
+        if (heap->free->size != predicted)
+        {
+                printf("Something went wrong in allocation!\n");
+                printf("Heap free: %X\n", (int)heap->free->size);
+                printf("Pred free: %X\n", (int)predicted);
+                return -E_HEAP_GENERIC;
+        }
+
+        vm_free_kernel_heap_pages(tst2);
+
+        predicted += 0xb1aa7;
+        predicted += (0x4000 - (predicted % 0x4000));
+
+        if (heap->free->size != predicted)
+        {
+                printf("Something went wrong in allocation!\n");
+                printf("Heap free: %X\n", (int)heap->free->size);
+                printf("Pred free: %X\n", (int)predicted);
+                return -E_HEAP_GENERIC;
+        }
+
+        vm_free_kernel_heap_pages(tst);
+
+        if (heap->free->size != free_state)
+        {
+                printf("End state does not match start state, something is wrong!\n");
+                return -E_HEAP_GENERIC;
+        }
+
+        return -E_SUCCESS;
+}
+
 int vm_test_large()
 {
         int ret = -E_SUCCESS;
-
 
 
         return ret;
@@ -118,6 +233,11 @@ int vm_test_large()
 int vm_test()
 {
         int ret = -E_SUCCESS;
+
+        ret = vm_test_alloc();
+        if (ret != -E_SUCCESS)
+                return ret;
+
         ret = vm_test_small();
         if (ret != -E_SUCCESS)
                 return ret;

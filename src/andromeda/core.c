@@ -138,9 +138,6 @@ void core_loop()
         mm_cache_test();
 #endif
 #endif
-#ifdef VM_DBG
-        vm_test();
-#endif
 #ifdef RR_EXP
         extern void task_testA();
         extern void task_testB();
