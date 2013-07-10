@@ -143,6 +143,10 @@ void* vm_get_phys(int cpu, void* virt);
 void* x86_pte_get_phys(void* virt);
 int vm_load_task();
 
+/* Segment switching functions */
+int vm_segment_load(int cpu, struct vm_segment* s);
+int vm_segment_unload(int cpu, struct vm_segment* s);
+
 /* Page fault functions */
 int vm_user_fault_write(addr_t fault_addr, int mapped);
 int vm_kernel_fault_write(addr_t fault_addr, int mapped);

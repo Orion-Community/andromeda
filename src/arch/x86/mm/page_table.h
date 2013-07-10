@@ -80,7 +80,8 @@ struct page_table
           unsigned int dirty    : 1; // True if written to
           unsigned int pat      : 1; // Don't know this one, keep it 0 according to intel docs
           unsigned int global   : 1; // Determines global translation
-          unsigned int ignored  : 3; // Ignored
+          unsigned int unloaded : 1;
+          unsigned int ignored  : 2; // Ignored
           unsigned int pageIdx  : 20; // Pointer to page
 } __attribute__((packed));
 typedef struct page_table page_table_t;

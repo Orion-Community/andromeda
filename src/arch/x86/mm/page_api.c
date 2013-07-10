@@ -174,8 +174,15 @@ int x86_pte_load_range(struct sys_mmu_range* range)
         /* Page table index limit */
         idx_t last_entry = 0x400;
 
-        if ((from & (four_meg - 1)) != 0)
+        if ((from & (four_meg - 1)) != 0 || (from >> 22) == (to >> 22))
         {
+                /*
+                 * If this range does not extend into another page table
+                 * make sure we don't copy over too many table entries.
+                 */
+                if (cnt == limit)
+                        last_entry = (to & (four_meg - 1) >> 12);
+
                 /*
                  * If the first page table is not used completely, try to map it
                  * into the existing one
@@ -188,6 +195,16 @@ int x86_pte_load_range(struct sys_mmu_range* range)
                          */
                         vpd[idx] = meta->pd[idx];
                         vpt[idx] = meta->vpt[idx];
+                        struct page_table* pt = vpt[idx];
+
+                        for (; i <= limit; i++)
+                        {
+                                if (pt[i].unloaded)
+                                {
+                                        pt[i].unloaded = 0;
+                                        pt[i].present = 1;
+                                }
+                        }
                 }
                 else
                 {
@@ -202,19 +219,18 @@ int x86_pte_load_range(struct sys_mmu_range* range)
                         struct page_table *pt = vpt[idx];
                         struct page_table* mpt = meta->vpt[idx];
 
-                        /*
-                         * If this range does not extend into another page table
-                         * make sure we don't copy over too many table entries.
-                         */
-                        if (cnt == limit)
-                                last_entry = (to & (four_meg - 1) >> 12);
-
                         /* And actually map the entries */
-                        for (; i < last_entry; i++)
+                        for (; i <= last_entry; i++)
                         {
                                 if (pt[i].present)
                                         goto mapped;
+
                                 pt[i] = mpt[i];
+                                if (pt[i].unloaded)
+                                {
+                                        pt[i].present = 1;
+                                        pt[i].unloaded = 0;
+                                }
                         }
 
                         /*
@@ -247,6 +263,8 @@ skip1:
         {
                 if (vpd[idx].present)
                         goto mapped;
+                if (!meta->pd[idx].present)
+                        continue;
 
                 vpd[idx] = meta->pd[idx];
                 vpt[idx] = meta->vpt[idx];
@@ -283,11 +301,16 @@ skip1:
                         struct page_table* pt = vpt[idx];
                         struct page_table* mpt = meta->vpt[idx];
                         /* And do the mapping */
-                        for (; i < last_entry; i++)
+                        for (; i <= last_entry; i++)
                         {
                                 if (pt[i].present)
                                         goto mapped;
                                 pt[i] = mpt[i];
+                                if (pt[i].unloaded)
+                                {
+                                        pt[i].present = 1;
+                                        pt[i].unloaded = 0;
+                                }
                         }
                         /*
                          *  And since we copied everything over, this table has
@@ -336,7 +359,7 @@ int x86_pte_unload_range(struct sys_mmu_range* range)
         addr_t to = (addr_t)range->virt + range->size;
 
         /* Idx = index into page directory */
-        idx_t idx = from >> 22;
+        register idx_t idx = from >> 22;
         /* limit = number of pd entries to copy */
         idx_t limit = (to >> 22) - idx;
         /* cnt = how many pd entries have been copied */
@@ -344,7 +367,7 @@ int x86_pte_unload_range(struct sys_mmu_range* range)
 
         addr_t four_meg = (1 << 22);
         /* i = index into page table */
-        idx_t i = (from & (four_meg - 1)) >> 12;
+        register idx_t i = (from & (four_meg - 1)) >> 12;
         /* last_entry indicates the last pt entry to copy */
         idx_t last_entry = 0x400;
 
@@ -352,7 +375,7 @@ int x86_pte_unload_range(struct sys_mmu_range* range)
          * For anybody wondering why task switches are expensive ...
          * Here is why!
          */
-        if ((from & (four_meg - 1)) != 0)
+        if ((from & (four_meg - 1)) != 0 || (from >> 22) == (to >> 22))
         {
                 /*
                  *  If the first page table is only partly used, make sure the
@@ -371,7 +394,7 @@ int x86_pte_unload_range(struct sys_mmu_range* range)
                  * If this is also the last page table, make sure we don't copy
                  * too many entries.
                  */
-                if (idx == limit)
+                if (cnt == limit)
                         last_entry = (to & (four_meg - 1) >> 12);
 
                 /* Copy over the page directory information */
@@ -380,8 +403,12 @@ int x86_pte_unload_range(struct sys_mmu_range* range)
                 /* Set up loop parameters */
                 struct page_table* pt = vpt[idx];
 
-                for (; i < last_entry; i++)
+                for (; i <= last_entry; i++)
                 {
+                        if (pt[i].present)
+                        {
+                                pt[i].unloaded = 1;
+                        }
                         pt[i].present = 0;
                 }
 
@@ -394,12 +421,12 @@ int x86_pte_unload_range(struct sys_mmu_range* range)
 
                 /* If the page table was empty, besides our work, disable it */
                 idx_t j = 0;
-                for (; j < i; j++)
+                for (; j < 0x400; j++)
                 {
                         if (pt[j].present == 1)
                                 goto skip1;
                 }
-                *(int*)&vpd[idx] = 0;
+                vpd[idx-1].present = 0;
         }
 skip1:
         for (; cnt < limit; cnt++, idx++)
@@ -444,13 +471,15 @@ skip1:
                 last_entry = (to & (four_meg - 1) >> 12);
                 for (; i < last_entry; i++)
                 {
+                        if (pt[i].present)
+                                pt[i].unloaded = 1;
                         pt[i].present = 0;
                 }
                 /*
                  * If this range is otherwise not in use, disable it in the page
                  * directory.
                  */
-                for (i = last_entry; i < 0x400; i++)
+                for (i = last_entry; i <= 0x400; i++)
                 {
                         if (pt[i].present != 0)
                                 goto skip2;

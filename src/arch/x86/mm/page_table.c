@@ -69,6 +69,7 @@ static int x86_pte_set(void* phys, int cpl, struct page_table* pte)
         pte->userMode = (cpl == 0) ? 0 : 1;
         pte->pageIdx = (int)phys >> 12;
         pte->present = 1;
+        pte->rw = 1;
 
         return -E_SUCCESS;
 }
@@ -102,6 +103,7 @@ static int x86_pte_set_pt(struct page_table* pt, int idx)
         vpd[idx].pageIdx = (int)pt >> 12;
         vpd[idx].present = 1;
         vpd[idx].userMode = 1;
+        vpd[idx].rw = 1;
         return -E_SUCCESS;
 }
 
@@ -206,6 +208,7 @@ x86_pagefault(isrVal_t registers)
              :
              : "%eax", "memory");
 
+
         if (registers.errCode & 4)
         {
                 /* User space page faults */
@@ -220,7 +223,16 @@ x86_pagefault(isrVal_t registers)
                 if (registers.errCode & 2)
                         vm_kernel_fault_write(fault_addr,(registers.errCode&1));
                 else
+                {
+                        idx_t pde = fault_addr >> 22;
+                        idx_t pte = (fault_addr & 0x3FF) >> 12;
+
+                        struct page_table* pt = vpt[pde];
+
+                        printf("pde: %X\tidx: %X\n", vpd[pde], pde);
+                        printf("pte: %X\tidx: %X\n", pt[pte], pte);
                         vm_kernel_fault_read(fault_addr,(registers.errCode&1));
+                }
         }
         /*
          * Now there is some sort of bug in the compiling process, which is very
