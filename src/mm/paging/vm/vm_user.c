@@ -28,7 +28,7 @@
  * @{
  */
 
-/**
+/**pd
  * \fn vm_alloc
  * \brief Allocate a new vm descriptor for a specific task
  * \param pid
@@ -446,6 +446,7 @@ vm_kernel_fault_write(addr_t fault_addr, int mapped)
         phys = page_alloc();
 
         page_map(0, (void*)(fault_addr & ~0x3FF), phys, 0);
+
         return -E_SUCCESS;
 
 problem:

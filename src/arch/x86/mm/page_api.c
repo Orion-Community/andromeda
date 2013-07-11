@@ -352,6 +352,7 @@ int x86_pte_unload_range(struct sys_mmu_range* range)
                 if (meta == NULL)
                         panic("Null pointers. Null pointers everywhere!");
                 range->arch_data = meta;
+                memset(meta, 0, sizeof(*meta));
         }
 
         /* Set up loop parameters and stuff */

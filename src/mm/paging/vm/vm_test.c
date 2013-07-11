@@ -26,7 +26,7 @@
 #define SEG_BASE_THR SEG_BASE_SIMPLE+0x8000
 
 #define SEG_SIZE_SMALL (size_t)0x1000
-#define SEG_SIZE_LARGE (size_t)(1 << 22);
+#define SEG_SIZE_LARGE (size_t)(1 << 22)
 
 int vm_test_small()
 {
@@ -97,6 +97,13 @@ int vm_test_small()
         {
                 printf("Issue switching back to segment 1\n");
                 printf("Segment 1 was not correctly protected\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        if (vm_segment_unload(0, seg1) != -E_SUCCESS)
+        {
+                printf("Failure unloading segment 1\n");
                 ret = -E_GENERIC;
                 goto cleanup;
         }
@@ -176,9 +183,6 @@ int vm_test_alloc()
         if (heap->free == NULL)
                 return -E_HEAP_GENERIC;
         size_t free_state = heap->free->size;
-        size_t allocated_state = 0;
-        if (heap->allocated != NULL)
-                allocated_state = heap->allocated->size;
 
         void* tst = vm_get_kernel_heap_pages(0x1000);
         void* tst2 = vm_get_kernel_heap_pages(0xb1aa7);
@@ -226,7 +230,83 @@ int vm_test_large()
 {
         int ret = -E_SUCCESS;
 
+        struct vm_descriptor* vm1 = vm_new(0);
+        struct vm_descriptor* vm2 = vm_new(1);
 
+        if (vm1 == NULL || vm2 == NULL)
+                return -E_NULL_PTR;
+
+        struct vm_segment* seg1 = vm_new_segment(SEG_BASE_SIMPLE, SEG_SIZE_LARGE, vm1);
+        struct vm_segment* seg2 = vm_new_segment(SEG_BASE_SIMPLE, SEG_SIZE_LARGE, vm2);
+
+        if (vm1->segments == NULL || vm2->segments == NULL)
+        {
+                ret = -E_NULL_PTR;
+                goto cleanup;
+        }
+
+        if (vm_segment_load(0, seg1) != -E_SUCCESS)
+        {
+                printf("Loading of big segment 1 failed\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        memset(SEG_BASE_SIMPLE, 'c', SEG_SIZE_LARGE);
+
+        if (vm_segment_unload(0, seg1) != -E_SUCCESS)
+        {
+                printf("Issue in unloading big segment 1\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+        if (vm_segment_load(0, seg2) != -E_SUCCESS)
+        {
+                printf("Problem loading big segment 2\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        memset(SEG_BASE_SIMPLE, 'd', SEG_SIZE_LARGE);
+
+        if (vm_segment_unload(0, seg2) != -E_SUCCESS)
+        {
+                printf("Problem unloading big segment 2\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        if (vm_segment_load(0, seg1) != -E_SUCCESS)
+        {
+                printf("Trouble when loading big segment 1 for the 2nd time\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        char* seg_str = SEG_BASE_SIMPLE;
+        int i = 0;
+        for (; i < SEG_SIZE_LARGE; i+= 0x1000)
+        {
+                if (seg_str[i] != 'c')
+                {
+                        printf("Uh-oh, our big segment got damaged!");
+                        ret = -E_GENERIC;
+                        goto cleanup;
+                }
+        }
+
+        if (vm_segment_unload(0, seg1) != -E_SUCCESS)
+        {
+                printf("Barney rouble when unloading big segment 1 for the 2nd time!\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        vm_segment_unload(0, seg1);
+
+cleanup:
+        vm_free(vm1);
+        vm_free(vm2);
         return ret;
 }
 
