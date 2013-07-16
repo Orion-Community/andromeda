@@ -100,6 +100,7 @@ int system_x86_mmu_init(struct sys_cpu* cpu)
         cpu->mmu->set_page = x86_pte_set_page;
         cpu->mmu->set_range = x86_pte_load_range;
         cpu->mmu->reset_range = x86_pte_unload_range;
+        cpu->mmu->cleanup_range = x86_page_cleanup_range;
 
         return -E_SUCCESS;
 }

@@ -26,5 +26,6 @@ int x86_pte_set_page(void* virt, void* phys, int cpl);
 int x86_pte_unload_range(struct sys_mmu_range* range);
 int x86_pte_load_range(struct sys_mmu_range* range);
 void* x86_pte_get_phys(void* virt);
+int x86_page_cleanup_range(struct sys_mmu_range* range);
 
 #endif

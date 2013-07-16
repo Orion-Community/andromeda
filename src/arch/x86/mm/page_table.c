@@ -199,6 +199,8 @@ int x86_pte_unset_page(void* virt)
         return ret;
 }
 
+int idx = 0;
+
 void
 x86_pagefault(isrVal_t registers)
 {
@@ -208,6 +210,16 @@ x86_pagefault(isrVal_t registers)
              : "=r" (fault_addr)
              :
              : "%eax", "memory");
+
+        /*if (++idx % 0x100 == 0)
+        {
+                addr_t pde = fault_addr >> 22;
+                addr_t pte = (fault_addr >> 12) & 0x3FF;
+                int* pt = vpt[pde];
+                printf("Fault addr: %X\t", (int)fault_addr);
+                printf("pde: %X - %X\t", *(int*)&vpd[pde], (int)pde);
+                printf("pte: %X - %X\n", pt[pte], (int)pte);
+        }*/
 
         if (registers.errCode & 4)
         {

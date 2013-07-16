@@ -53,6 +53,7 @@ struct sys_mmu {
         void* (*get_phys)(void* virt);
         int (*set_range)(struct sys_mmu_range*);
         int (*reset_range)(struct sys_mmu_range*);
+        int (*cleanup_range)(struct sys_mmu_range*);
 };
 
 struct sys_cpu_scheduler {
@@ -214,6 +215,14 @@ page_unmap_range(int cpu, struct sys_mmu_range* range)
         if (!hascpu(cpu) || range == NULL)
                 return -E_NULL_PTR;
         return core.arch->cpu[cpu]->mmu->reset_range(range);
+}
+
+static inline int
+page_range_cleanup(int cpu, struct sys_mmu_range* range)
+{
+        if (!hascpu(cpu) || range == NULL)
+                return -E_NULL_PTR;
+        return core.arch->cpu[cpu]->mmu->cleanup_range(range);
 }
 
 int sys_setup_alloc(void);

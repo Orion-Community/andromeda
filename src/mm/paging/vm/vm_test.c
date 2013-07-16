@@ -260,6 +260,7 @@ int vm_test_large()
                 ret = -E_GENERIC;
                 goto cleanup;
         }
+
         if (vm_segment_load(0, seg2) != -E_SUCCESS)
         {
                 printf("Problem loading big segment 2\n");
@@ -284,7 +285,7 @@ int vm_test_large()
         }
 
         char* seg_str = SEG_BASE_SIMPLE;
-        int i = 0;
+        idx_t i = 0;
         for (; i < SEG_SIZE_LARGE; i+= 0x1000)
         {
                 if (seg_str[i] != 'c')
@@ -310,6 +311,88 @@ cleanup:
         return ret;
 }
 
+int vm_test_awkward()
+{
+        int ret = -E_SUCCESS;
+        struct vm_descriptor* vm1 = vm_new(0);
+        struct vm_descriptor* vm2 = vm_new(1);
+
+        if (vm1 == NULL || vm2 == NULL)
+                return -E_NULL_PTR;
+
+        struct vm_segment* seg1 = vm_new_segment(SEG_BASE_TWO, SEG_SIZE_LARGE, vm1);
+        struct vm_segment* seg2 = vm_new_segment(SEG_BASE_TWO, SEG_SIZE_LARGE, vm2);
+
+        if (seg1 == NULL || seg2 == NULL)
+        {
+                ret = -E_NULL_PTR;
+                goto cleanup;
+        }
+
+        if (vm_segment_load(0, seg1) != -E_SUCCESS)
+        {
+                printf("Awkward error: 1\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        memset(SEG_BASE_TWO, 'e', SEG_SIZE_LARGE);
+
+        if (vm_segment_unload(0, seg1) != -E_SUCCESS)
+        {
+                printf("Awkward error: 2\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        if (vm_segment_load(0, seg2) != -E_SUCCESS)
+        {
+                printf("Awkward error: 3\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+        memset(SEG_BASE_TWO, 'f', SEG_SIZE_LARGE);
+
+        if (vm_segment_unload(0, seg2) != -E_SUCCESS)
+        {
+                printf("Awkward error: 4\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        if (vm_segment_load(0, seg1) != -E_SUCCESS)
+        {
+                printf("Awkward error: 5\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+        char* seg_str = SEG_BASE_TWO;
+        idx_t i = 0;
+        for (; i < SEG_SIZE_LARGE; i+=0x1000)
+        {
+                if (seg_str[i] != 'e')
+                {
+                        printf("Yep awkward alignment switching is broken\n");
+                        ret = -E_GENERIC;
+                        goto cleanup;
+                }
+        }
+
+        if (vm_segment_unload(0, seg1) != -E_SUCCESS)
+        {
+                printf("Awkward error: 6\n");
+                ret = -E_GENERIC;
+                goto cleanup;
+        }
+
+cleanup:
+        vm_free(vm1);
+        vm_free(vm2);
+
+        return ret;
+}
+
 int vm_test()
 {
         int ret = -E_SUCCESS;
@@ -323,6 +406,10 @@ int vm_test()
                 return ret;
 
         ret = vm_test_large();
+        if (ret != -E_SUCCESS)
+                return ret;
+
+        ret = vm_test_awkward();
         if (ret != -E_SUCCESS)
                 return ret;
 

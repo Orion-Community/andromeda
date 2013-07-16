@@ -235,6 +235,7 @@ vm_segment_clean(struct vm_segment* s)
         if (s == NULL)
                 return -E_NULL_PTR;
 
+
         if (s->next != 0)
                 mutex_lock(&s->next->lock);
         mutex_lock(&s->lock);
@@ -283,7 +284,7 @@ itterate:
         /* If we still have physical pages, clean those up */
         if (s->pages != NULL)
         {
-                /** \todo Free up arch_data */
+                page_range_cleanup(0, s->pages);
                 kfree(s->pages);
                 s->pages = NULL;
         }
@@ -444,6 +445,8 @@ vm_kernel_fault_write(addr_t fault_addr, int mapped)
                 panic("Faulting on existing page ... wtf!");
 
         phys = page_alloc();
+        if (phys == NULL)
+                panic("Out of memory!!!");
 
         page_map(0, (void*)(fault_addr & ~0x3FF), phys, 0);
 
