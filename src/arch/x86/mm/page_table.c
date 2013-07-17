@@ -23,6 +23,10 @@
 #include <arch/x86/pte.h>
 #include "page_table.h"
 
+#ifdef SLOB
+#include <mm/heap.h>
+#endif
+
 /**
  * \AddToGroup paging
  * @{
@@ -65,6 +69,7 @@ static int x86_pte_set(void* phys, int cpl, struct page_table* pte)
         pte->userMode = (cpl == 0) ? 0 : 1;
         pte->pageIdx = (int)phys >> 12;
         pte->present = 1;
+        pte->rw = 1;
 
         return -E_SUCCESS;
 }
@@ -95,9 +100,10 @@ static int x86_pte_set_pt(struct page_table* pt, int idx)
         if (idx >= 1024 || pt == NULL)
                 return -E_INVALID_ARG;
 
-        spd[idx].pageIdx = (int)pt >> 12;
-        spd[idx].present = 1;
-        spd[idx].userMode = 1;
+        vpd[idx].pageIdx = (int)pt >> 12;
+        vpd[idx].present = 1;
+        vpd[idx].userMode = 1;
+        vpd[idx].rw = 1;
         return -E_SUCCESS;
 }
 
@@ -113,7 +119,7 @@ static int x86_pte_unset_pt(int idx)
                 return -E_INVALID_ARG;
 
         /* find the entry and mark in not present */
-        spd[idx].present = 0;
+        vpd[idx].present = 0;
         return -E_SUCCESS;
 }
 
@@ -137,20 +143,27 @@ int x86_pte_set_page(void* virt, void* phys, int cpl)
 
         struct page_table* pt;
         mutex_lock(&pte_lock);
-        if ((pt = vpd[pde]) == NULL)
+        pt = vpt[pde];
+        if (pt == NULL || !vpd[pde].present)
         {
-                /**
-                 * \todo Allocate and install new pagetable here
-                 * pt = new pt;
-                 */
-                panic("Page table allocaton not yet written");
-                x86_pte_set_pt(pt, pde);
+#ifdef SLAB
+                pt = mm_cache_alloc(x86_pte_pt_cache, 0);
+#elif defined SLOB
+                pt = alloc(sizeof(*pt)*1024, TRUE);
+#endif
+                if (pt == NULL)
+                        panic("Out of memory! (And unicorns)");
+                memset(pt, 0, sizeof(*pt)*1024);
+                x86_pte_set_pt(get_phys(0,pt), pde);
+                vpt[pde] = pt;
         }
         x86_pte_set(phys, cpl, &pt[pte]);
 
+        asm("invlpg (%0)" : : "r" (virt) : "memory");
+
         mutex_unlock(&pte_lock);
 
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
 }
 
 /**
@@ -170,13 +183,14 @@ int x86_pte_unset_page(void* virt)
 
         mutex_lock(&pte_lock);
         struct page_table* pt;
-        if ((pt = vpd[pde]) == NULL)
+        if ((pt = vpt[pde]) == NULL)
         {
                 mutex_unlock(&pte_lock);
                 return -E_SUCCESS;
         }
 
         int ret = x86_pte_unset(&pt[pte]);
+        asm ("invlpg (%0)" :: "r" (virt) : "memory");
         if (x86_cnt_pt_entries(pt) <= 0)
                 x86_pte_unset_pt(pde);
 
@@ -185,15 +199,52 @@ int x86_pte_unset_page(void* virt)
         return ret;
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
+int idx = 0;
+
 void
 x86_pagefault(isrVal_t registers)
 {
-        panic("The new pagefaults haven't yet been implemented!");
-        return;
+        addr_t fault_addr = 0;
+        asm ("mov %%cr2, %%eax\n\t"
+             "mov %%eax, %0\n\t"
+             : "=r" (fault_addr)
+             :
+             : "%eax", "memory");
+
+        /*if (++idx % 0x100 == 0)
+        {
+                addr_t pde = fault_addr >> 22;
+                addr_t pte = (fault_addr >> 12) & 0x3FF;
+                int* pt = vpt[pde];
+                printf("Fault addr: %X\t", (int)fault_addr);
+                printf("pde: %X - %X\t", *(int*)&vpd[pde], (int)pde);
+                printf("pte: %X - %X\n", pt[pte], (int)pte);
+        }*/
+
+        if (registers.errCode & 4)
+        {
+                /* User space page faults */
+                if (registers.errCode & 2)
+                        vm_user_fault_write(fault_addr,(registers.errCode & 1));
+                else
+                        vm_user_fault_read(fault_addr, (registers.errCode & 1));
+        }
+        else
+        {
+                /* Kernel space page faults */
+                if (registers.errCode & 2)
+                        vm_kernel_fault_write(fault_addr,(registers.errCode&1));
+                else
+                        vm_kernel_fault_read(fault_addr,(registers.errCode&1));
+        }
+        /*
+         * Now there is some sort of bug in the compiling process, which is very
+         * annoying. Remove the asm instruction below and page faults result in
+         * a general protection fault, as the lower part of the fault address is
+         * written into the ds register on iret, somehow.
+         */
+        asm("nop");
 }
-#pragma GCC diagnostic pop
 
 /**
  * @} \file

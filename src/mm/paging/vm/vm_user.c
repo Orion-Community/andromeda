@@ -28,7 +28,7 @@
  * @{
  */
 
-/**
+/**pd
  * \fn vm_alloc
  * \brief Allocate a new vm descriptor for a specific task
  * \param pid
@@ -89,6 +89,13 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         s->free->size = s->size;
         s->free->parent = s;
 
+        s->pages = kmalloc(sizeof(*s->pages));
+        if (s->pages == NULL)
+                goto err1;
+        memset(s->pages, 0, sizeof(*s->pages));
+        s->pages->size = s->size;
+        s->pages->virt = s->virt_base;
+
         s->parent = p;
 
         /* Add the segment into the list, but only if all is well */
@@ -104,6 +111,8 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         mutex_unlock(&p->lock);
 
         return s;
+err1:
+        kfree(s->free);
 err:
         kfree(s);
         return NULL;
@@ -209,7 +218,7 @@ vm_segment_load(int cpu, struct vm_segment* s)
 int
 vm_segment_unload(int cpu, struct vm_segment* s)
 {
-        if (s == NULL || s->pages)
+        if (s == NULL || s->pages == NULL)
                 return -E_INVALID_ARG;
         return page_unmap_range(cpu, s->pages);
 }
@@ -226,9 +235,12 @@ vm_segment_clean(struct vm_segment* s)
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        mutex_lock(&s->next->lock);
+
+        if (s->next != 0)
+                mutex_lock(&s->next->lock);
         mutex_lock(&s->lock);
-        mutex_lock(&s->prev->lock);
+        if (s->prev != NULL)
+                mutex_lock(&s->prev->lock);
 
         /* Take this segment out of the list */
         if (s->prev != NULL)
@@ -239,8 +251,10 @@ vm_segment_clean(struct vm_segment* s)
         if (s->next != NULL)
                 s->next->prev = s->prev;
 
-        mutex_unlock(&s->next->lock);
-        mutex_unlock(&s->prev->lock);
+        if (s->next != NULL)
+                mutex_unlock(&s->next->lock);
+        if (s->prev != NULL)
+                mutex_unlock(&s->prev->lock);
         /*
          *  We're leaving this segment in a locked state, as it is going to be
          *  thrown away anyway.
@@ -251,8 +265,10 @@ vm_segment_clean(struct vm_segment* s)
         struct vm_range_descriptor* xx = s->free;
         s->free = NULL;
 itterate:
-        for (; xx != NULL; xx = x, x = x->next)
+        while (x != NULL)
         {
+                xx = x;
+                x = x->next;
                 /* If these ranges are allocated physically, free them up */
                 kfree(xx);
         }
@@ -267,7 +283,11 @@ itterate:
 
         /* If we still have physical pages, clean those up */
         if (s->pages != NULL)
+        {
+                page_range_cleanup(0, s->pages);
                 kfree(s->pages);
+                s->pages = NULL;
+        }
 
         /* Remove this segment*/
         kfree(s);
@@ -291,7 +311,7 @@ vm_free(struct vm_descriptor* p)
         struct vm_segment* this = p->segments;
         struct vm_segment* next = this->next;
 
-        for (; this != NULL; this = next, next = next->next)
+        while (this != NULL)
         {
                 if (vm_segment_clean(this) != -E_SUCCESS)
                 {
@@ -300,10 +320,13 @@ vm_free(struct vm_descriptor* p)
                          * For some reason, or another, this task we can't get
                          * rid of.
                          */
-                        p->segments = this;
+                        printf("Generic error!\n");
+                        p->segments = next;
                         return -E_GENERIC;
                 }
-                kfree(this);
+                this = next;
+                if (next != NULL)
+                        next = next->next;
         }
         kfree(p);
         return -E_SUCCESS;
@@ -350,6 +373,7 @@ vm_load_task(int cpu, struct vm_descriptor* task)
         return -E_SUCCESS;
 }
 
+#if 0
 static inline int
 vm_range_cleanup(struct sys_mmu_range* range)
 {
@@ -368,7 +392,7 @@ vm_range_cleanup(struct sys_mmu_range* range)
 
         return -E_SUCCESS;
 }
-
+#endif
 /**
  * \fn vm_unload_task
  * \brief Disable access to the pages owned by this task
@@ -386,13 +410,6 @@ vm_unload_task(int cpu, struct vm_descriptor* task)
         struct vm_segment* runner = task->segments;
         while (runner != NULL)
         {
-                void* from = runner->pages->virt;
-                void* to = from + runner->pages->size;
-                if (vm_range_cleanup(runner->pages) != -E_SUCCESS)
-                        goto error;
-                runner->pages = page_get_range(cpu, from, to);
-                if (runner->pages == NULL)
-                        goto error;
                 if (page_unmap_range(cpu, runner->pages) != -E_SUCCESS)
                         goto error;
                 runner = runner->next;
@@ -404,113 +421,64 @@ error:
         return -E_GENERIC; /* Return statement to keep the compiler happy! */
 }
 
-#ifdef VM_DBG
-int vm_dump_ranges(struct vm_range_descriptor* r)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+
+int
+vm_user_fault_write(addr_t fault_addr, int mapped)
 {
-        if (r == NULL)
-                return -E_NULL_PTR;
-
-        printf("this: %X\tnext: %X\tprev: %X\n", r, r->next, r->prev);
-        printf("base: %X\n", r->base);
-        printf("size: %X\n", r->size);
-
-        vm_dump_ranges(r->next);
-        return -E_SUCCESS;
+        panic("User space page faults currently remain unhandled");
+        return -E_NOFUNCTION;
 }
 
-int vm_dump_segments(struct vm_segment* s)
+int
+vm_kernel_fault_write(addr_t fault_addr, int mapped)
 {
-        if (s == NULL)
-                return -E_NULL_PTR;
+        if (mapped)
+        {
+                printf("We don't do mapped pagefaults ... We just don't do them\n");
+                goto problem;
+        }
 
-        printf("Segment: %s\n", s->name);
-        printf("virt: %X\n", s->virt_base);
-        printf("size: %X\n", s->size);
+        void* phys = get_phys(0, (void*)(fault_addr & ~0x3FF));
+        if (phys != NULL)
+                panic("Faulting on existing page ... wtf!");
 
-        printf("\nFree:\n");
-        demand_key();
+        phys = page_alloc();
+        if (phys == NULL)
+                panic("Out of memory!!!");
 
-        mutex_lock(&s->lock);
-        struct vm_range_descriptor* free = s->free;
-
-        vm_dump_ranges(free);
-        printf("Allocated:\n");
-        mutex_unlock(&s->lock);
-
-        demand_key();
-        mutex_lock(&s->lock);
-        struct vm_range_descriptor* allocated = s->allocated;
-        vm_dump_ranges(allocated);
-
-        struct vm_segment* sn = s->next;
-        mutex_unlock(&s->lock);
-
-        printf("next segment: %X\n", sn);
-        demand_key();
-
-        vm_dump_segments(sn);
-        return -E_SUCCESS;
-}
-
-int vm_dump(struct vm_descriptor* v)
-{
-        if (v == NULL)
-                return -E_NULL_PTR;
-
-        if (v->name != NULL)
-                printf("vm_descriptor name: %s\n", v->name);
-        printf("cpl: %X\npid: %X\n", v->cpl, v->pid);
-        printf("Segments: \n");
-        mutex_lock(&v->lock);
-        vm_dump_segments(v->segments);
-        mutex_unlock(&v->lock);
+        page_map(0, (void*)(fault_addr & ~0x3FF), phys, 0);
 
         return -E_SUCCESS;
+
+problem:
+        panic("Writing page faults currently remain unhandled");
+        return -E_GENERIC;
 }
 
-int vm_test()
+int
+vm_user_fault_read(addr_t fault_addr, int mapped)
 {
-        //vm_dump(&vm_core);
-
-        struct vm_segment* heap = vm_find_segment(".heap");
-        printf("Heap segment: %X\n", (int)heap);
-        if (heap == NULL)
-                return -E_NULL_PTR;
-
-        printf("Free ranges:\n");
-        vm_dump_ranges(heap->free);
-        printf("Allocated ranges:\n");
-        vm_dump_ranges(heap->allocated);
-
-        demand_key();
-        void* tst = vm_get_kernel_heap_pages(0x1000);
-        void* tst2 = vm_get_kernel_heap_pages(0xb1aa7);
-
-        printf("\nAfter allocation:\n");
-        printf("Allocated: %X\n", (int)tst);
-        printf("Free ranges: %X\n", heap->free);
-        vm_dump_ranges(heap->free);
-        printf("Allocated ranges: %X\n", heap->allocated);
-        vm_dump_ranges(heap->allocated);
-
-        demand_key();
-        vm_free_kernel_heap_pages(tst2);
-        printf("\nAfter freeing the first:\n");
-        printf("Allocated: %X\n", (int)tst);
-        printf("Free ranges: %X\n", heap->free);
-        vm_dump_ranges(heap->free);
-        printf("Allocated ranges: %X\n", heap->allocated);
-        vm_dump_ranges(heap->allocated);
-
-        demand_key();
-        vm_free_kernel_heap_pages(tst);
-        printf("\nAfter freeing all:\n");
-        printf("Allocated: %X\n", (int)tst);
-        printf("Free ranges:\n");
-        vm_dump_ranges(heap->free);
-        printf("Allocated ranges:\n");
+        panic("User space page faults currently remain unhandled");
+        return -E_NOFUNCTION;
 }
-#endif
+
+int
+vm_kernel_fault_read(addr_t fault_addr, int mapped)
+{
+        if (!mapped)
+        {
+                printf("We don't do reading from unmapped regeons ... We just don't\n");
+        }
+
+        printf("Faulting on %X\n", fault_addr);
+
+        panic("Reading page faults currently remain unhandled");
+        return -E_NOFUNCTION;
+}
+#pragma GCC diagnostic pop
+
 
 /**
  * @}

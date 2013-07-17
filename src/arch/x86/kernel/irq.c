@@ -33,7 +33,7 @@
 
 #include <andromeda/system.h>
 
-#ifndef __PIE__
+#if !defined __PIE__ && !defined __PIC__
 #error "The x86 kernel module should be compiled position independently!"
 #endif
 #pragma GCC diagnostic ignored "-Wunused-parameter"

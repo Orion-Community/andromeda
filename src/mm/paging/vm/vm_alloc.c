@@ -340,7 +340,7 @@ void* vm_segment_alloc(struct vm_segment *s, size_t size)
 
         /*
          * Let's try a best fit allocator here. It might be a little slower,
-         * but memory space efficiency it might actually pay off here.
+         * but memory space efficiency might actually pay off here.
          */
         struct vm_range_descriptor* x = s->free;
         struct vm_range_descriptor* tmp = NULL;

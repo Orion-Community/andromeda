@@ -38,6 +38,7 @@ extern "C" {
 
 #define CACHE_NAME_SIZE 255
 #define SLAB_MAX_OBJS 256
+#define SLAB_MIN_OBJS 16
 #define SLAB_ENTRY_ALLOCATED ((~0)-1)
 #define SLAB_ENTRY_FALSE ((~0))
 
@@ -109,6 +110,9 @@ void* kmem_alloc(size_t, uint16_t);
 void kmem_free(void*, size_t);
 
 int slab_sys_register();
+size_t calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size);
+size_t calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment);
+int slab_setup (struct mm_slab*, struct mm_cache*, void*, size_t, size_t);
 
 #ifdef SLAB_DBG
 int mm_cache_test();

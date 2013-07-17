@@ -2,9 +2,10 @@
 "name" : "vm",
 "link" : false,
 "archive" : false,
-"archived-file" : "vm.a",
 "source-files" : ["vm_alloc.c", "vm_init.c", "vm_user.c"],
 "compiler-flags" : "",
+"dcompiler-flags" : [{"key" : "vm_test", "flags" : "-D VM_TEST -D VM_DBG"}],
 "linker-flags" : "",
-"archiver-flags" : ""
+"archiver-flags" : "",
+"ddepend" : [{"key" : "vm_test", "path" : "vm_test.build"}]
 }

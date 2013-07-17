@@ -86,7 +86,7 @@ int list_rm_element(struct list* l, idx_t idx)
                 return -E_NULL_PTR;
         idx_t i = 0;
         struct list_node* carriage = l->head;
-        struct list_node* last;
+        struct list_node* last = NULL;
 
         mutex_lock(&(l->lock));
 

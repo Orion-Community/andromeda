@@ -32,7 +32,6 @@
 #include <unistd.h>
 
 #include <mm/paging.h>
-#include <mm/map.h>
 #include <mm/vm.h>
 #include <mm/memory.h>
 #include <mm/cache.h>
@@ -95,12 +94,13 @@ int system_x86_mmu_init(struct sys_cpu* cpu)
         if (cpu->mmu == NULL)
                 panic("Out of memory!");
         memset(cpu->mmu, 0, sizeof(*cpu->mmu));
+
         cpu->mmu->get_phys = x86_pte_get_phys;
         cpu->mmu->reset_page = x86_pte_unset_page;
         cpu->mmu->set_page = x86_pte_set_page;
-        cpu->mmu->set_range = x86_pte_set_range;
-        cpu->mmu->reset_range = x86_pte_reset_range;
-        cpu->mmu->get_range = x86_pte_get_range;
+        cpu->mmu->set_range = x86_pte_load_range;
+        cpu->mmu->reset_range = x86_pte_unload_range;
+        cpu->mmu->cleanup_range = x86_page_cleanup_range;
 
         return -E_SUCCESS;
 }
@@ -173,6 +173,10 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         /** Build the memory map and allow for allocation */
         sys_setup_paging(mmap, (unsigned int)hdr->mmap_length);
         sys_setup_arch();
+
+        pic_init();
+        setIDT();
+        setup_irq_data();
         vm_init();
 #ifdef PA_DBG
 //         endProg();
@@ -180,9 +184,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         task_init();
 
         printf(WELCOME); // The only screen output that should be maintained
-        pic_init();
-        setIDT();
-        setup_irq_data();
 
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");

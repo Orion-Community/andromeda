@@ -42,19 +42,6 @@ extern "C" {
 #define PAGE_ALIGNED(a) ((a % PAGESIZE) == 0)
 #endif
 
-/**
- * \struct VM
- * \brief The virtual memory subsystem
- * \todo Move this structure out into arch/x86
- */
-struct pte {
-        /**
-         * \var page_table
-         * \brief The page table entries
-         */
-        struct page_table entry[PTE_SIZE];
-};
-
 struct vm_descriptor;
 struct vm_segment;
 
@@ -131,7 +118,6 @@ struct vm_descriptor {
         struct vm_segment* segments;
         unsigned int cpl;
         unsigned int pid;
-        char* name;
 
         mutex_t lock;
 };
@@ -151,17 +137,28 @@ int vm_free_kernel_heap_pages(void* ptr);
 void* vm_map_heap(void* phys, size_t size);
 int vm_unmap_heap(void* virt);
 
-
 /* Specialised functions */
 int vm_init();
-int vm_segment_map(struct vm_segment* s, struct mm_page_descriptor* p);
 void* vm_get_phys(int cpu, void* virt);
 void* x86_pte_get_phys(void* virt);
 int vm_load_task();
 
+/* Segment switching functions */
+int vm_segment_load(int cpu, struct vm_segment* s);
+int vm_segment_unload(int cpu, struct vm_segment* s);
+
+/* Page fault functions */
+int vm_user_fault_write(addr_t fault_addr, int mapped);
+int vm_kernel_fault_write(addr_t fault_addr, int mapped);
+int vm_user_fault_read(addr_t fault_addr, int mapped);
+int vm_kernel_fault_read(addr_t fault_addr, int mapped);
+
 #ifdef VM_DBG
 int vm_dump(struct vm_descriptor*);
 struct vm_segment* vm_find_segment(char*);
+#endif
+#ifdef VM_TEST
+int vm_test();
 #endif
 
 #ifdef __cplusplus

@@ -35,7 +35,6 @@
  * \warning If changing this number, check that the linker script still is ok.
  */
 #define NO_STD_CACHES 11
-#define SLAB_MIN_OBJS 16
 
 extern int initial_slab_space;
 
