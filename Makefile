@@ -11,7 +11,8 @@ CFLAGS:=--cflags "-D VERSION=$(VERSION) $(COMPILER_FLAGS)"
 endif
 MAKE=make
 
-.PHONY: all clean preconfigure configure distclean test doxygen bin/andromeda.img 
+.PHONY: all clean preconfigure configure distclean test doxygen
+.PHONY: bin/andromeda.img allyes-config allno-config random-config
 .PHONY: bin/andromeda.iso test_iso
 	@$(MAKE) -C src/ clean
 
@@ -25,6 +26,15 @@ clean: scripts/build.jar
 
 configure: scripts/build.jar
 	$(BUILD) --configure
+
+allyes-config: scripts/build.jar
+	$(BUILD) --configure --allyes-config
+
+allno-config: scripts/build.jar
+	$(BUILD) --configure --allno-config
+
+random-config: scripts/build.jar
+	$(BUILD) --configure --random-config
 
 preconfigure: scripts/build.jar
 	$(BUILD) --update-depfile
