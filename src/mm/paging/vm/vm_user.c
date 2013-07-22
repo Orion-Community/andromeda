@@ -64,6 +64,47 @@ vm_segment_mark_unloaded(int cpuid, struct vm_segment* s)
         return -E_SUCCESS;
 }
 
+static inline boolean
+vm_get_loaded(int cpuid, void* addr)
+{
+        addr_t a = (addr_t)addr;
+        a &= ~0x3FF;
+
+        struct tree* tree = vm_loaded[cpuid]->find_close(
+                        (int)addr, vm_loaded[cpuid]);
+
+        struct vm_segment* segment = tree->data;
+        boolean go_back = FALSE;
+        boolean go_fwd = FALSE;
+        while (TRUE)
+        {
+                addr_t seg_base = (addr_t)segment->virt_base;
+                addr_t seg_end = (addr_t)segment->virt_base + segment->size;
+                if (seg_base <= a && a < seg_end)
+                        return TRUE;
+
+                if (seg_base < a)
+                {
+                        go_back = TRUE;
+                        tree = tree->prev;
+                }
+                if (seg_end > a)
+                {
+                        go_fwd = TRUE;
+                        tree = tree->next;
+                }
+
+                if (tree == NULL)
+                        return FALSE;
+
+                if (go_fwd == TRUE && go_back == TRUE)
+                        return FALSE;
+
+                segment = tree->data;
+        }
+        return FALSE;
+}
+
 /**
  * \fn vm_alloc
  * \brief Allocate a new vm descriptor for a specific task
@@ -249,7 +290,7 @@ vm_segment_load(int cpu, struct vm_segment* s)
         if (s == NULL || s->pages == NULL)
                 return -E_NULL_PTR;
 
-        if (vm_loaded[cpu]->find((int)s->virt_base, vm_loaded[cpu]))
+        if (vm_loaded[cpu]->find((int)s->virt_base, vm_loaded[cpu]) == NULL)
         {
                 int ret = page_map_range(cpu, s->pages);
                 if (ret == -E_SUCCESS)
@@ -492,6 +533,14 @@ vm_kernel_fault_write(addr_t fault_addr, int mapped)
                 goto problem;
         }
 
+        /**
+         * \todo Add permission checking
+         */
+        if (vm_get_loaded(0, (void*)fault_addr) == FALSE)
+        {
+                panic("Trying to map an unloaded page!!!!!!");
+        }
+
         void* phys = get_phys(0, (void*)(fault_addr & ~0x3FF));
         if (phys != NULL)
                 panic("Faulting on existing page ... wtf!");
@@ -512,6 +561,10 @@ problem:
 int
 vm_user_fault_read(addr_t fault_addr, int mapped)
 {
+        /**
+         * \todo Add permission checking
+         * \todo Add correct handling
+         */
         panic("User space page faults currently remain unhandled");
         return -E_NOFUNCTION;
 }
@@ -523,6 +576,11 @@ vm_kernel_fault_read(addr_t fault_addr, int mapped)
         {
                 printf("We don't do reading from unmapped regeons ... We just don't\n");
         }
+
+        /**
+         * \todo Add permission checking
+         * \todo Add propper handling
+         */
 
         printf("Faulting on %X\n", fault_addr);
 

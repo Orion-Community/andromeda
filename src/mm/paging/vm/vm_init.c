@@ -268,7 +268,6 @@ vm_init()
         /**
          * \todo Map in the kernel modules loaded in by GRUB.
          */
-
 #ifdef VM_TEST
         vm_test();
 #endif
