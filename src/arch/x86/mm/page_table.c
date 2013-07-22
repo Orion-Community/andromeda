@@ -238,10 +238,13 @@ x86_pagefault(isrVal_t registers)
                         vm_kernel_fault_read(fault_addr,(registers.errCode&1));
         }
         /*
-         * Now there is some sort of bug in the compiling process, which is very
-         * annoying. Remove the asm instruction below and page faults result in
-         * a general protection fault, as the lower part of the fault address is
-         * written into the ds register on iret, somehow.
+         * There is this really weird thing going on here where gcc wants to
+         * edit values that are on the stack as arguments. Not sure if this is
+         * a bug in gcc, or something I missed in the calling conventions.
+         *
+         * Adding anything that isn't a function call seems to fix this issue,
+         * so hereby the shortest thing I could come up with, the trusty old
+         * nop.
          */
         asm("nop");
 }
