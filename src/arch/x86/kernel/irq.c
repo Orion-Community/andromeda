@@ -44,7 +44,7 @@ bool isSleeping = FALSE;
 struct irq_data irq_data[MAX_IRQ_NUM];
 uint32_t irqs[IRQ_BASE];
 
-void cIRQ0(irq_stack_t regs)
+void cIRQ0(irq_stack_t* regs)
 {
   if (isSleeping)
   {
@@ -57,7 +57,7 @@ void cIRQ0(irq_stack_t regs)
   return;
 }
 
-void cIRQ1(irq_stack_t regs)
+void cIRQ1(irq_stack_t* regs)
 {
   uint8_t c = ol_ps2_get_keyboard_scancode();
   kb_handle(c);
@@ -65,43 +65,43 @@ void cIRQ1(irq_stack_t regs)
   return;
 }
 
-void cIRQ2(irq_stack_t regs)
+void cIRQ2(irq_stack_t* regs)
 {
   pic_eoi(2);
   return;
 }
 
-void cIRQ3(irq_stack_t regs)
+void cIRQ3(irq_stack_t* regs)
 {
   pic_eoi(3);
   return;
 }
 
-void cIRQ4(irq_stack_t regs)
+void cIRQ4(irq_stack_t* regs)
 {
   pic_eoi(4);
   return;
 }
 
-void cIRQ5(irq_stack_t regs)
+void cIRQ5(irq_stack_t* regs)
 {
   pic_eoi(5);
   return;
 }
 
-void cIRQ6(irq_stack_t regs)
+void cIRQ6(irq_stack_t* regs)
 {
   pic_eoi(6);
   return;
 }
 
-void cIRQ7(irq_stack_t regs)
+void cIRQ7(irq_stack_t* regs)
 {
   pic_eoi(7);
   return;
 }
 
-void cIRQ8(irq_stack_t regs)
+void cIRQ8(irq_stack_t* regs)
 {
   printf("test\n");
   outb(CMOS_SELECT, CMOS_RTC_IRQ);
@@ -110,45 +110,45 @@ void cIRQ8(irq_stack_t regs)
   return;
 }
 
-void cIRQ9(irq_stack_t regs)
+void cIRQ9(irq_stack_t* regs)
 {
   putc('a');
   pic_eoi(9);
   return;
 }
 
-void cIRQ10(irq_stack_t regs)
+void cIRQ10(irq_stack_t* regs)
 {
   pic_eoi(10);
   return;
 }
 
-void cIRQ11(irq_stack_t regs)
+void cIRQ11(irq_stack_t* regs)
 {
   pic_eoi(11);
   return;
 }
 
-void cIRQ12(irq_stack_t regs)
+void cIRQ12(irq_stack_t* regs)
 {
   pic_eoi(12);
   return;
 }
 
-void cIRQ13(irq_stack_t regs)
+void cIRQ13(irq_stack_t* regs)
 {
   pic_eoi(13);
   return;
 }
 
-void cIRQ14(irq_stack_t regs)
+void cIRQ14(irq_stack_t* regs)
 {
   putc('a');
   pic_eoi(14);
   return;
 }
 
-void cIRQ15(irq_stack_t regs)
+void cIRQ15(irq_stack_t* regs)
 {
   putc('b');
   pic_eoi(15);

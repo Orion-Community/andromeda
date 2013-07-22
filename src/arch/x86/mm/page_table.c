@@ -202,7 +202,7 @@ int x86_pte_unset_page(void* virt)
 int idx = 0;
 
 void
-x86_pagefault(isrVal_t registers)
+x86_pagefault(isrVal_t* registers)
 {
         addr_t fault_addr = 0;
         asm ("mov %%cr2, %%eax\n\t"
@@ -221,32 +221,22 @@ x86_pagefault(isrVal_t registers)
                 printf("pte: %X - %X\n", pt[pte], (int)pte);
         }*/
 
-        if (registers.errCode & 4)
+        if (registers->errCode & 4)
         {
                 /* User space page faults */
-                if (registers.errCode & 2)
-                        vm_user_fault_write(fault_addr,(registers.errCode & 1));
+                if (registers->errCode & 2)
+                        vm_user_fault_write(fault_addr,(registers->errCode & 1));
                 else
-                        vm_user_fault_read(fault_addr, (registers.errCode & 1));
+                        vm_user_fault_read(fault_addr, (registers->errCode & 1));
         }
         else
         {
                 /* Kernel space page faults */
-                if (registers.errCode & 2)
-                        vm_kernel_fault_write(fault_addr,(registers.errCode&1));
+                if (registers->errCode & 2)
+                        vm_kernel_fault_write(fault_addr,(registers->errCode&1));
                 else
-                        vm_kernel_fault_read(fault_addr,(registers.errCode&1));
+                        vm_kernel_fault_read(fault_addr,(registers->errCode&1));
         }
-        /*
-         * There is this really weird thing going on here where gcc wants to
-         * edit values that are on the stack as arguments. Not sure if this is
-         * a bug in gcc, or something I missed in the calling conventions.
-         *
-         * Adding anything that isn't a function call seems to fix this issue,
-         * so hereby the shortest thing I could come up with, the trusty old
-         * nop.
-         */
-        asm("nop");
 }
 
 /**

@@ -289,7 +289,11 @@ irqStub:
 	mov fs, dx
 	mov gs, dx
 
+	push esp
+
 	call eax
+
+	pop esp
 
 	pop edx
 	mov ds, dx
