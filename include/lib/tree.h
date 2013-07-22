@@ -56,6 +56,7 @@ struct tree_root {
 
         struct tree* (*add)(int key, void* data, struct tree_root* root);
         struct tree* (*find)(int key, struct tree_root* root);
+        struct tree* (*find_close)(int key, struct tree_root* root);
         int (*delete)(int key, struct tree_root* root);
         int (*flush)(struct tree_root*, int (dtor)(void*,void*), void*);
 
