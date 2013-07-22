@@ -68,12 +68,14 @@
  */
 struct vm_segment vm_core_segments[STATIC_SEGMENTS];
 struct vm_descriptor vm_core;
+struct tree_root* vm_loaded[CPU_LIMIT];
 
 static int
 vm_map_kernel_code(struct vm_segment* s)
 {
         if (s == NULL)
                 return -E_NULL_PTR;
+
         addr_t code_addr = (addr_t)&higherhalf;
         addr_t code_end = (addr_t)&rodata;
 
@@ -81,6 +83,8 @@ vm_map_kernel_code(struct vm_segment* s)
         s->size = code_end - code_addr;
         s->code = TRUE;
         s->name = ".code";
+
+        vm_segment_mark_loaded_global(s);
 
 #ifdef PA_DBG
         printf( "Mapping kernel code\n\n"
@@ -113,6 +117,7 @@ char* name;
         s->code = FALSE;
         s->name = name;
 
+        vm_segment_mark_loaded_global(s);
 #ifdef PA_DBG
         printf(
                 "name:     %s\n"
@@ -152,6 +157,9 @@ vm_map_kernel_stack(struct vm_segment* s)
 
         s->free = NULL;
         s->allocated = NULL;
+
+        vm_segment_mark_loaded_global(s);
+
         return -E_NOFUNCTION;
 }
 
@@ -186,8 +194,16 @@ vm_init()
         /* Nullify the pte core, so it can be set up */
         memset(&vm_core, 0, sizeof(vm_core));
 
+        idx_t i = 0;
+        for (; i < CPU_LIMIT; i++)
+        {
+                vm_loaded[i] = tree_new_avl();
+                if (vm_loaded[i] == NULL)
+                        panic("Out of memory!");
+        }
+
         /* Initialise all the segments! */
-        int i = 0;
+        i = 0;
         struct vm_segment* s = NULL;
         while (i < STATIC_SEGMENTS)
         {

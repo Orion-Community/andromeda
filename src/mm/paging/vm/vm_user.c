@@ -28,7 +28,43 @@
  * @{
  */
 
-/**pd
+int
+vm_segment_mark_loaded_global(struct vm_segment* s)
+{
+        idx_t i = 0;
+        for (; i < CPU_LIMIT; i ++)
+                vm_segment_mark_loaded(i, s);
+        return -E_SUCCESS;
+}
+
+int
+vm_segment_mark_loaded(int cpuid, struct vm_segment* s)
+{
+        if (vm_loaded[cpuid]->find((int)s->virt_base, vm_loaded[cpuid]) != NULL)
+                return -E_ALREADY_INITIALISED;
+
+        if (vm_loaded[cpuid]->add((int)s->virt_base,s,vm_loaded[cpuid]) == NULL)
+                return -E_GENERIC;
+        return -E_SUCCESS;
+}
+
+int
+vm_segment_mark_unloaded(int cpuid, struct vm_segment* s)
+{
+        if (vm_loaded[cpuid]->find((int)s->virt_base, vm_loaded[cpuid]) == NULL)
+                return -E_NOT_YET_INITIALISED;
+
+        if (vm_loaded[cpuid]->delete(
+                        (int)s->virt_base, vm_loaded[cpuid])
+                        != -E_SUCCESS)
+        {
+                return -E_GENERIC;
+        }
+
+        return -E_SUCCESS;
+}
+
+/**
  * \fn vm_alloc
  * \brief Allocate a new vm descriptor for a specific task
  * \param pid
@@ -212,7 +248,18 @@ vm_segment_load(int cpu, struct vm_segment* s)
 {
         if (s == NULL || s->pages == NULL)
                 return -E_NULL_PTR;
-        return page_map_range(cpu, s->pages);
+
+        if (vm_loaded[cpu]->find((int)s->virt_base, vm_loaded[cpu]))
+        {
+                int ret = page_map_range(cpu, s->pages);
+                if (ret == -E_SUCCESS)
+                        vm_segment_mark_loaded(cpu, s);
+                else
+                        return ret;
+        }
+        else
+                return -E_ALREADY_INITIALISED;
+        return -E_SUCCESS;
 }
 
 int
@@ -220,7 +267,12 @@ vm_segment_unload(int cpu, struct vm_segment* s)
 {
         if (s == NULL || s->pages == NULL)
                 return -E_INVALID_ARG;
-        return page_unmap_range(cpu, s->pages);
+        int ret = page_unmap_range(cpu, s->pages);
+        if (ret == -E_SUCCESS)
+                vm_segment_mark_unloaded(cpu, s);
+        else
+                return -ret;
+        return -E_SUCCESS;
 }
 
 /**
@@ -478,7 +530,6 @@ vm_kernel_fault_read(addr_t fault_addr, int mapped)
         return -E_NOFUNCTION;
 }
 #pragma GCC diagnostic pop
-
 
 /**
  * @}
