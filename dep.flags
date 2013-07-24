@@ -26,7 +26,11 @@
                 "info": "Enable optimalisation for size"
         },
         "vm_test": {
+                "set": {"vm_test_destructive": {
+                        "mandatory": false,
+                        "info": "Make the vm test panic the kernel"
+                }},
                 "mandatory": false,
-                "info": "The virtual memory test suite"
+                "info": "Put the vm system to the test?"
         }
 }
