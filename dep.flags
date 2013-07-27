@@ -1,16 +1,20 @@
 {
         "cas": {
+                "ignore-autoconf": false,
                 "mandatory": false,
                 "info": "A tiny little easter egg, for Cas van Raan"
         },
         "mm": {
+                "ignore-autoconf": false,
                 "mandatory": true,
                 "enum": {
                         "slab": {
+                                "ignore-autoconf": false,
                                 "mandatory": false,
                                 "info": "The quick but wasteful allocator"
                         },
                         "slob": {
+                                "ignore-autoconf": false,
                                 "mandatory": false,
                                 "info": "The slow, but conservative allocator"
                         }
@@ -18,15 +22,19 @@
                 "info": "The memory manager group"
         },
         "X86": {
+                "ignore-autoconf": false,
                 "mandatory": true,
                 "info": "The architexture to use"
         },
         "Osize": {
+                "ignore-autoconf": false,
                 "mandatory": false,
                 "info": "Enable optimalisation for size"
         },
         "vm_test": {
+                "ignore-autoconf": false,
                 "set": {"vm_test_destructive": {
+                        "ignore-autoconf": true,
                         "mandatory": false,
                         "info": "Make the vm test panic the kernel"
                 }},

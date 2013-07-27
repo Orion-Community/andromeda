@@ -149,9 +149,9 @@ extern struct system core;
 #define hasarch() (hasmm() && core.arch != NULL)
 #define hascpu(a) (hasarch() && a < CPU_LIMIT && core.arch->cpu[a] != NULL)
 
-#define kmalloc(a) ((hasmm() && core.mm->alloc != NULL) ? core.mm->alloc(a, 0)\
+#define kmalloc(a) ((hasmm() && core.mm->alloc != NULL && a > 1) ? core.mm->alloc(a, 0)\
                      : NULL)
-#define kfree(a) ((hasmm() && core.mm->free != NULL) ?\
+#define kfree(a) ((core.mm->free != NULL) ?\
                    core.mm->free(a, sizeof(*a)) :\
                    panic("Memory freeing function not correctly initialised!"))
 #define kfree_s(a,b) ((hasmm() && core.mm->free != NULL) ?\
