@@ -3,7 +3,7 @@
 "link" : false,
 "archive" : false,
 "source-files" : ["byteorder.c"],
-"compiler-flags" : "",
+"compiler-flags" : "-Os",
 "linker-flags" : "",
 "archiver-flags" : "",
 "depend" : [{"path" : "asm.build"}, {"path" : "asm/asm.build"}, {"path" : "boot/boot.build"}, {"path" : "kernel/kernel.build"}, {"path" : "mm/mm.build"}]

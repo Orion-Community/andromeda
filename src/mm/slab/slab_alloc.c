@@ -323,13 +323,16 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
                 struct mm_slab* tmp = cache->slabs_empty;
                 if (tmp == NULL)
                 {
-                        /** \todo Ask for more space! */
                         int no_pages = calc_no_pages(cache->obj_size,
                                         SLAB_MIN_OBJS,
                                         cache->alignment);
                         int no_objs = calc_max_no_objects(cache->alignment,
                                         no_pages,
                                         cache->obj_size);
+
+                        /**
+                         * \todo Add option to nick slabs from other caches!
+                         */
 
                         struct mm_slab* slab = kmalloc(sizeof(*slab));
                         if (slab == NULL)
@@ -486,14 +489,20 @@ void*
 kmem_alloc(size_t size, uint16_t flags)
 {
         if (size == 0)
+        {
+                printf("Invalid kmem_alloc request!\n");
                 return NULL;
+        }
         /*
          * Remember to check the flags once implemented
          */
 
         struct mm_cache* candidate = kmem_find_size(caches, size);
         if (candidate == NULL)
+        {
+                printf("Returning NULL from allocation!\n");
                 return NULL;
+        }
 
         void* ret = mm_cache_alloc(candidate, flags);
         if (ret != NULL)
@@ -510,6 +519,7 @@ kmem_alloc(size_t size, uint16_t flags)
                         goto found;
                 candidate = kmem_find_next_candidate(candidate, size);
         }
+        printf("Allocation failed!\n");
         return NULL;
 found:
 #ifdef SLAB_DBG
@@ -521,7 +531,7 @@ found:
 void
 kmem_free(void* ptr, size_t size)
 {
-        if (size == 0 || ptr == NULL)
+        if (size <= 1 || ptr == NULL)
                 panic("Invalid object in kmem_free!");
         struct mm_cache* candidate = kmem_find_size(caches, size);
 
@@ -762,7 +772,7 @@ mm_cache_test()
 
         debug("\nTest successful\n");
 
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
 }
 #endif
 

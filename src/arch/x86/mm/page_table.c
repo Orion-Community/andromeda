@@ -202,7 +202,7 @@ int x86_pte_unset_page(void* virt)
 int idx = 0;
 
 void
-x86_pagefault(isrVal_t registers)
+x86_pagefault(isrVal_t* registers)
 {
         addr_t fault_addr = 0;
         asm ("mov %%cr2, %%eax\n\t"
@@ -221,29 +221,22 @@ x86_pagefault(isrVal_t registers)
                 printf("pte: %X - %X\n", pt[pte], (int)pte);
         }*/
 
-        if (registers.errCode & 4)
+        if (registers->errCode & 4)
         {
                 /* User space page faults */
-                if (registers.errCode & 2)
-                        vm_user_fault_write(fault_addr,(registers.errCode & 1));
+                if (registers->errCode & 2)
+                        vm_user_fault_write(fault_addr,(registers->errCode & 1));
                 else
-                        vm_user_fault_read(fault_addr, (registers.errCode & 1));
+                        vm_user_fault_read(fault_addr, (registers->errCode & 1));
         }
         else
         {
                 /* Kernel space page faults */
-                if (registers.errCode & 2)
-                        vm_kernel_fault_write(fault_addr,(registers.errCode&1));
+                if (registers->errCode & 2)
+                        vm_kernel_fault_write(fault_addr,(registers->errCode&1));
                 else
-                        vm_kernel_fault_read(fault_addr,(registers.errCode&1));
+                        vm_kernel_fault_read(fault_addr,(registers->errCode&1));
         }
-        /*
-         * Now there is some sort of bug in the compiling process, which is very
-         * annoying. Remove the asm instruction below and page faults result in
-         * a general protection fault, as the lower part of the fault address is
-         * written into the ds register on iret, somehow.
-         */
-        asm("nop");
 }
 
 /**

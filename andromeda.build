@@ -7,8 +7,8 @@
 "compiler" : "gcc",
 "linker" : "ld",
 "archiver" : "ar",
-"compiler-flags" : "-c -std=gnu89 -nostdlib -fno-builtin -nostdinc -fno-stack-protector -pipe -Os -Wall -Wextra -Iinclude/",
-"dcompiler-flags" : [{"key" : "X86", "flags" : "-D X86 -D __INTEL -m32 -mtune=native -march=i386"}, {"key" : "slab", "flags" : "-D SLAB"}, {"key" : "slob", "flags" : "-D SLOB"}],
+"compiler-flags" : "-c -std=gnu89 -nostdlib -fno-builtin -nostdinc -fno-stack-protector -pipe -Wall -Wextra -Iinclude/",
+"dcompiler-flags" : [{"key" : "X86", "flags" : "-D X86 -D __INTEL -m32 -mtune=native -march=i386"}, {"key" : "slab", "flags" : "-D SLAB"}, {"key" : "slob", "flags" : "-D SLOB"}, {"key" : "Osize", "flags" : "-Os"}],
 "linker-flags" : "-oformat=elf32-i386 -melf_i386 -Tscripts/x86.ld",
 "archiver-flags" : "rs",
 "depend" : [{"path" : "src/andromeda/andromeda.build"}, {"path" : "src/mm/mm.build"}, {"path" : "src/math/math.build"}, {"path" : "src/net/net.build"}, {"path" : "src/lib/lib.build"}, {"path" : "src/fs/fs.build"}, {"path" : "src/drivers/drivers.build"}, {"path" : "src/arch/arch.build"}]

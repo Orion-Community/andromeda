@@ -393,6 +393,15 @@ cleanup:
         return ret;
 }
 
+#ifdef VM_TEST_DESTRUCTIVE
+int vm_test_error()
+{
+        char* test = SEG_BASE_SIMPLE;
+        memset(test, 'a', SEG_SIZE_SMALL);
+        return -E_GENERIC;
+}
+#endif
+
 int vm_test()
 {
         int ret = -E_SUCCESS;
@@ -412,6 +421,13 @@ int vm_test()
         ret = vm_test_awkward();
         if (ret != -E_SUCCESS)
                 return ret;
+
+#ifdef VM_TEST_DESTRUCTIVE
+        if (vm_test_error())
+        {
+                panic("Test error was not meant to return a value!");
+        }
+#endif
 
         return -E_SUCCESS;
 }

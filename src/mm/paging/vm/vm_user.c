@@ -28,7 +28,84 @@
  * @{
  */
 
-/**pd
+int
+vm_segment_mark_loaded_global(struct vm_segment* s)
+{
+        idx_t i = 0;
+        for (; i < CPU_LIMIT; i ++)
+                vm_segment_mark_loaded(i, s);
+        return -E_SUCCESS;
+}
+
+int
+vm_segment_mark_loaded(int cpuid, struct vm_segment* s)
+{
+        if (vm_loaded[cpuid]->find((int)s->virt_base, vm_loaded[cpuid]) != NULL)
+                return -E_ALREADY_INITIALISED;
+
+        if (vm_loaded[cpuid]->add((int)s->virt_base,s,vm_loaded[cpuid]) == NULL)
+                return -E_GENERIC;
+        return -E_SUCCESS;
+}
+
+int
+vm_segment_mark_unloaded(int cpuid, struct vm_segment* s)
+{
+        if (vm_loaded[cpuid]->find((int)s->virt_base, vm_loaded[cpuid]) == NULL)
+                return -E_NOT_YET_INITIALISED;
+
+        if (vm_loaded[cpuid]->delete(
+                        (int)s->virt_base, vm_loaded[cpuid])
+                        != -E_SUCCESS)
+        {
+                return -E_GENERIC;
+        }
+
+        return -E_SUCCESS;
+}
+
+static inline struct vm_segment*
+vm_get_loaded(int cpuid, void* addr)
+{
+        addr_t a = (addr_t)addr;
+        a &= ~0x3FF;
+
+        struct tree* tree = vm_loaded[cpuid]->find_close(
+                        (int)addr, vm_loaded[cpuid]);
+
+        struct vm_segment* segment = tree->data;
+        boolean go_back = FALSE;
+        boolean go_fwd = FALSE;
+        while (TRUE)
+        {
+                addr_t seg_base = (addr_t)segment->virt_base;
+                addr_t seg_end = (addr_t)segment->virt_base + segment->size;
+                if (seg_base <= a && a < seg_end)
+                        return segment;
+
+                if (seg_base < a)
+                {
+                        go_back = TRUE;
+                        tree = tree->prev;
+                }
+                if (seg_end > a)
+                {
+                        go_fwd = TRUE;
+                        tree = tree->next;
+                }
+
+                if (tree == NULL)
+                        return NULL;
+
+                if (go_fwd == TRUE && go_back == TRUE)
+                        return NULL;
+
+                segment = tree->data;
+        }
+        return NULL;
+}
+
+/**
  * \fn vm_alloc
  * \brief Allocate a new vm descriptor for a specific task
  * \param pid
@@ -212,7 +289,18 @@ vm_segment_load(int cpu, struct vm_segment* s)
 {
         if (s == NULL || s->pages == NULL)
                 return -E_NULL_PTR;
-        return page_map_range(cpu, s->pages);
+
+        if (vm_loaded[cpu]->find((int)s->virt_base, vm_loaded[cpu]) == NULL)
+        {
+                int ret = page_map_range(cpu, s->pages);
+                if (ret == -E_SUCCESS)
+                        vm_segment_mark_loaded(cpu, s);
+                else
+                        return ret;
+        }
+        else
+                return -E_ALREADY_INITIALISED;
+        return -E_SUCCESS;
 }
 
 int
@@ -220,7 +308,12 @@ vm_segment_unload(int cpu, struct vm_segment* s)
 {
         if (s == NULL || s->pages == NULL)
                 return -E_INVALID_ARG;
-        return page_unmap_range(cpu, s->pages);
+        int ret = page_unmap_range(cpu, s->pages);
+        if (ret == -E_SUCCESS)
+                vm_segment_mark_unloaded(cpu, s);
+        else
+                return -ret;
+        return -E_SUCCESS;
 }
 
 /**
@@ -440,6 +533,18 @@ vm_kernel_fault_write(addr_t fault_addr, int mapped)
                 goto problem;
         }
 
+        /**
+         * \todo Add permission checking
+         */
+        struct vm_segment* segment = vm_get_loaded(0, (void*)fault_addr);
+        if (segment == NULL)
+        {
+                panic("Trying to map an unloaded page!!!!!!");
+                /**
+                 * If this was in userspace, segfault!
+                 */
+        }
+
         void* phys = get_phys(0, (void*)(fault_addr & ~0x3FF));
         if (phys != NULL)
                 panic("Faulting on existing page ... wtf!");
@@ -460,6 +565,10 @@ problem:
 int
 vm_user_fault_read(addr_t fault_addr, int mapped)
 {
+        /**
+         * \todo Add permission checking
+         * \todo Add correct handling
+         */
         panic("User space page faults currently remain unhandled");
         return -E_NOFUNCTION;
 }
@@ -469,8 +578,18 @@ vm_kernel_fault_read(addr_t fault_addr, int mapped)
 {
         if (!mapped)
         {
-                printf("We don't do reading from unmapped regeons ... We just don't\n");
+                /**
+                 * \todo Reload pages here when swapping is written
+                 */
+                printf("The kernel wants to read garbage from invalid memory.");
+                printf("Address: %X\n", (int)fault_addr);
+                panic("Readon enough to panic, I'd say!");
         }
+
+        /**
+         * \todo Add permission checking
+         * \todo Add propper handling
+         */
 
         printf("Faulting on %X\n", fault_addr);
 
@@ -478,7 +597,6 @@ vm_kernel_fault_read(addr_t fault_addr, int mapped)
         return -E_NOFUNCTION;
 }
 #pragma GCC diagnostic pop
-
 
 /**
  * @}

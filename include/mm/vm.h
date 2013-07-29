@@ -42,6 +42,8 @@ extern "C" {
 #define PAGE_ALIGNED(a) ((a % PAGESIZE) == 0)
 #endif
 
+extern struct tree_root* vm_loaded[];
+
 struct vm_descriptor;
 struct vm_segment;
 
@@ -146,6 +148,9 @@ int vm_load_task();
 /* Segment switching functions */
 int vm_segment_load(int cpu, struct vm_segment* s);
 int vm_segment_unload(int cpu, struct vm_segment* s);
+int vm_segment_mark_loaded_global(struct vm_segment* s);
+int vm_segment_mark_loaded(int cpuid, struct vm_segment* s);
+
 
 /* Page fault functions */
 int vm_user_fault_write(addr_t fault_addr, int mapped);

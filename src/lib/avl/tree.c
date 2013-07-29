@@ -376,6 +376,25 @@ static struct tree* tree_find_node(int key, struct tree* tree)
                 return tree_find_node(key, tree->right);
 }
 
+static struct tree* tree_find_closest_node(int key, struct tree* tree)
+{
+        if (tree == NULL)
+                return NULL;
+
+        if (tree->key == key)
+                return tree;
+
+        struct tree* ret = NULL;
+        if (key < tree->key)
+                ret = tree_find_closest_node(key, tree->left);
+        else
+                ret = tree_find_node(key, tree->right);
+
+        if (ret == NULL)
+                ret = tree;
+        return ret;
+}
+
 /**
  * \fn tree_delete_node
  * \brief Delete one single node with key: key int the subtree tree
@@ -605,6 +624,18 @@ static struct tree* tree_find(int key, struct tree_root* t)
         return ret;
 }
 
+static struct tree* tree_find_close(int key, struct tree_root* t)
+{
+        if (t == NULL)
+                return NULL;
+
+        mutex_lock(&t->mutex);
+        struct tree* ret = tree_find_closest_node(key, t->tree);
+        mutex_unlock(&t->mutex);
+
+        return ret;
+}
+
 /**
  * \fn tree_delete
  * \brief Delete a node from the tree
@@ -635,6 +666,7 @@ struct tree_root* tree_new_avl()
         /* Set up the function pointers */
         t->add = tree_new_node;
         t->find = tree_find;
+        t->find_close = tree_find_close;
         t->delete = tree_delete;
         t->flush = tree_flush;
 
