@@ -78,6 +78,7 @@ uint64_t atomic_reset(atomic_t *atom);
 int64_t atomic_inc(atomic_t* d);
 int64_t atomic_dec(atomic_t* d);
 int64_t atomic_get(atomic_t* d);
+void atomic_init(atomic_t* d);
 int64_t semaphore_inc(semaphore_t* s);
 int64_t semaphore_dec(semaphore_t* s);
 

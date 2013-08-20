@@ -70,7 +70,6 @@ struct sys_cpu_scheduler {
 struct sys_cpu_pic {
         int (*set_interrupt)(void);
         int (*get_interrupt)(void);
-        int (*disable_interrupt)(void);
         int (*suspend)(void);
         int (*resume)(void);
 };
@@ -84,6 +83,8 @@ struct sys_cpu {
         void (*resume)(void);
         void (*halt)(void);
         void (*throttle)(void);
+        int (*disable_interrupt)(void);
+        int (*enable_interrupt)(void);
 };
 
 struct sys_io_pic {
@@ -185,6 +186,34 @@ extern struct system core;
                           panic("Setting cpu in invalid fashion"))
 
 #define getmmu(a) ((getcpu(a) == NULL) ? getcpu(a)->mmu : NULL)
+
+static inline void cpu_wait_interrupt(int a)
+{
+        struct sys_cpu* cpu = getcpu(a);
+        if (!(hascpu(a) && cpu->halt != NULL))
+                panic("CPU struct not intialised!");
+
+        cpu->halt();
+}
+
+static inline int cpu_disable_interrupts(int a)
+{
+        struct sys_cpu* cpu = getcpu(a);
+        if (!(hascpu(a) && cpu->disable_interrupt != NULL))
+                panic("CPU struct not initialised!");
+
+        return cpu->disable_interrupt();
+}
+
+static inline int cpu_enable_interrupts(int a)
+{
+        struct sys_cpu* cpu = getcpu(a);
+        if (!(hascpu(a) && cpu->enable_interrupt != NULL))
+                panic("CPU struct not initialised!");
+
+        return cpu->enable_interrupt();
+        return 0;
+}
 
 static inline void*
 get_phys(int cpu, void* virt)

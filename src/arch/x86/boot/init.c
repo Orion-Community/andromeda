@@ -131,6 +131,9 @@ int system_x86_cpu_init(int cpuid)
         cpu->throttle = NULL;
         cpu->resume = NULL;
 
+        cpu->disable_interrupt = disableInterrupts;
+        cpu->enable_interrupt = enableInterrupts;
+
         system_x86_mmu_init(cpu);
 
         return -E_SUCCESS;
@@ -198,6 +201,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 panic("OUT OF MEMORY!");
         ol_cpu_init(cpu);
 
+        cpu_enable_interrupts(0);
         ol_ps2_init_keyboard();
         //ol_apic_init(cpu);
         //init_ioapic();

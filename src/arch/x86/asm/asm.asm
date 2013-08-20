@@ -33,18 +33,41 @@
 [EXTERN mutex_lock]
 [EXTERN mutex_unlock]
 
+[GLOBAL disableInterrupts]
+[GLOBAL enableInterrupts]
+
 mutex   dd	0 ;The mutex variable
 pgbit	dd	0 ;Paging is disabled per default
 		  ;Booleans have been typedefed as unsigned char
 
 %include "asm/call.mac"
 
+disableInterrupts:
+	pushfd		; Push flags to stack
+	cli		; Disable interrupts
+	pop eax		; Fetch the flags
+	and eax, 1 << 9 ; Check if interrupts were enabled
+	shr eax, 0
+	jmp .return
+	jz .false
+	mov eax, 1	; If previously enabled, return 1
+	jmp .return
+.false:
+	xor eax, eax	; If not previously enabled, return 0
+.return:
+	ret		; Return
+
+enableInterrupts:
+	sti		; Enable interrupts
+	xor eax, eax 	; Set return value to 0, to signal no error has occured
+	ret		; Return
+
 halt:
-        pushfd
-        sti
-        hlt
-        popfd
-        ret
+        pushfd		; Make sure interrupt flag is saved
+        sti		; Enable interrupts
+        hlt		; Make the cpu wait for interrupts
+        popfd		; Restore interrupt flag to whatever it was before
+        ret		; Return
 
 DetectAPIC:
         enter
