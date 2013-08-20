@@ -1,4 +1,5 @@
 #!/bin/bash
-if [ ! -f scripts/build.jar ]; then
-	wget http://ci.orion-os.eu/job/Build/lastSuccessfulBuild/artifact/target/build.jar -O scripts/build.jar;
+if [ ! -f scripts/build ]; then
+	wget http://ci.orion-os.eu/job/Build-0.2/lastSuccessfulBuild/artifact/build -O scripts/build;
+	chmod +x scripts/build
 fi

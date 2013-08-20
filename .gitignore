@@ -7,6 +7,7 @@ config
 *.*project
 *~
 src/scripts/floppy.img
+scripts/build
 /nbproject/
 *.kate-swp
 *.swp

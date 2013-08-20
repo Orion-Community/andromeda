@@ -2,7 +2,7 @@
 # Root Makefile
 #
 
-BUILD=java -jar scripts/build.jar andromeda.build -t cores
+BUILD=scripts/build andromeda.build -t cores
 VERSION:=\"$(shell git describe --tags)\"
 ifeq ($(COMPILER_FLAGS),)
 CFLAGS:=--cflags "-D VERSION=$(VERSION)"
@@ -18,32 +18,32 @@ MAKE=make
 
 all: bin/andromeda.img
 
-bin/andromeda.img: scripts/build.jar
+bin/andromeda.img: scripts/build
 	$(BUILD) $(CFLAGS) $(FLAGS)
 
-clean: scripts/build.jar
+clean: scripts/build
 	$(BUILD) -c $(FLAGS)
 
-configure: scripts/build.jar
+configure: scripts/build
 	$(BUILD) --configure
 
-allyes-config: scripts/build.jar
+allyes-config: scripts/build
 	$(BUILD) --configure --allyes-config
 
-allno-config: scripts/build.jar
+allno-config: scripts/build
 	$(BUILD) --configure --allno-config
 
-random-config: scripts/build.jar
+random-config: scripts/build
 	$(BUILD) --configure --random-config
 
-preconfigure: scripts/build.jar
+preconfigure: scripts/build
 	$(BUILD) --update-depfile
 
-scripts/build.jar:
+scripts/build:
 	scripts/get_build.sh
 
 distclean: clean
-	rm -fv scripts/build.jar
+	rm -fv scripts/build
 	rm -fv .config
 	rm -rfv bin/
 	rm -rfv doc/doxygen
