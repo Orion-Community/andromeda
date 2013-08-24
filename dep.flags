@@ -21,10 +21,17 @@
                 },
                 "info": "The memory manager group"
         },
-        "X86": {
+        "arch": {
                 "ignore-autoconf": false,
                 "mandatory": true,
-                "info": "The architexture to use"
+                "enum": {
+                        "X86": {
+                                "ignore-autoconf": false,
+                                "mandatory": false,
+                                "info": "The X86 architecture."
+                        }
+                },
+                "info": "Architecture to use.",
         },
         "Osize": {
                 "ignore-autoconf": false,
