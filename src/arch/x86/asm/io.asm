@@ -61,7 +61,9 @@ mutex_lock:
         mov eax, 1
         mov ebx, [ebp+8]
 .spin:
+	mfence
         xchg [ebx], eax
+	mfence
         test eax, eax
         jnz .spin
 
@@ -78,7 +80,9 @@ mutex_test:
 
         mov eax, 1
         mov ebx, [ebp+8]
+	mfence
         xchg [ebx], eax
+	mfence
 
         pop ebx
 
@@ -94,9 +98,11 @@ mutex_unlock:
 
         xor eax, eax
         mov ebx, [ebp+8]
+	mfence
         mov [ebx], eax
 
         pop ebx
         pop eax
 
         return
+
