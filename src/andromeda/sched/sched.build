@@ -1,5 +1,5 @@
 {
-"name" : "sched",
+"name" : "andromeda-sched",
 "link" : false,
 "archive" : false,
 "archived-file" : "sched.a",

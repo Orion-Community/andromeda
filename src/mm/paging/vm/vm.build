@@ -1,5 +1,5 @@
 {
-"name" : "vm",
+"name" : "mm-paging-vm",
 "link" : false,
 "archive" : false,
 "source-files" : ["vm_alloc.c", "vm_init.c", "vm_user.c"],
