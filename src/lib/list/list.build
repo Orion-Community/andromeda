@@ -2,7 +2,7 @@
 "name" : "lib-list",
 "link" : false,
 "archive" : false,
-"source-files" : ["xorlist.c"],
+"source-files" : ["xorlist.c", "linkedlist.c"],
 "compiler-flags" : "",
 "linker-flags" : "",
 "archiver-flags" : ""

@@ -80,11 +80,18 @@ list_add_head(struct list* l, struct list_node* n)
         return -E_SUCCESS;
 }
 
+/**
+ * \fn list_rm_element
+ * \param l
+ * \brief The list to remove from
+ * \param idx
+ * \brief The node index to remove
+ * \return Error code
+ */
 int list_rm_element(struct list* l, idx_t idx)
 {
         if (l == NULL)
                 return -E_NULL_PTR;
-        idx_t i = 0;
         struct list_node* carriage = l->head;
         struct list_node* last = NULL;
 
@@ -102,7 +109,7 @@ int list_rm_element(struct list* l, idx_t idx)
                 return -E_SUCCESS;
         }
 
-        for (; i == idx && carriage != NULL; carriage = carriage->next)
+        for (; 0 != idx && carriage != NULL; carriage = carriage->next, idx--)
         {
                 last = carriage;
         }
