@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * \AddToGroup stdio
+ * \addtogroup stdio
  * @{
  */
 #include <stdio.h>
@@ -476,5 +476,7 @@ int vsprintf(char* str, char* fmt, va_list list)
         return num;
 }
 
-/** @} \file */
+/** @}
+ * \file 
+ */
 

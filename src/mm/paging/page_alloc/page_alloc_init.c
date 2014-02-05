@@ -25,7 +25,7 @@
 #include <mm/paging.h>
 
 /**
- * \AddToGroup Page_alloc
+ * \addtogroup Page_alloc
  * @{
  */
 

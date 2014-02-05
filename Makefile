@@ -16,7 +16,7 @@ MAKE=make
 .PHONY: bin/andromeda.iso test_iso
 	@$(MAKE) -C src/ clean
 
-all: bin/andromeda.img
+all: bin/andromeda.iso bin/doxygen.tar.bz2
 
 bin/andromeda.img: scripts/build
 	$(BUILD) $(CFLAGS) $(FLAGS)
@@ -56,6 +56,9 @@ test_iso: bin/andromeda.iso
 
 doxygen:
 	doxygen scripts/Doxyfile
+
+bin/doxygen.tar.bz2: doxygen
+	tar -jcvf bin/doxygen.tar.bz2 doc/doxygen/*
 
 bin/andromeda.iso: bin/andromeda.img
 	scripts/create_iso.sh

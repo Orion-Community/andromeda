@@ -23,7 +23,7 @@
 #include <andromeda/system.h>
 
 /**
- * \AddToGroup Stream
+ * \addtogroup Stream
  * @{
  */
 
@@ -239,5 +239,6 @@ struct pipe* pipe_new()
 }
 
 /**
- * @} \file
+ * @}
+ * \file
  */

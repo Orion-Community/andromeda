@@ -16,7 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * \AddToGroup xor_linked_list
+ * \addtogroup xor_linked_list
  * @{
  */
 #include <stdlib.h>
@@ -185,4 +185,5 @@ iterate_xor_list(XOR_HEAD *prev, XOR_HEAD *head, xor_list_iterator_t hook)
         return result;
 }
 
-/** @} \file */
+/** @}
+ * \file */

@@ -26,7 +26,7 @@
 #include "page_table.h"
 
 /**
- * \AddToGroup paging
+ * \addtogroup x86_paging
  * @{
  *
  * \todo Write segment setting.
@@ -580,5 +580,6 @@ x86_page_cleanup_range(struct sys_mmu_range* range)
 }
 
 /**
- * @} \file
+ * @}
+ * \file
  */

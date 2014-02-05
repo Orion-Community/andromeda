@@ -33,6 +33,7 @@ extern "C" {
 /**
  * \defgroup paging
  * This module handles paging
+ * \addtogroup paging
  * @{
  */
 

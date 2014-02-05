@@ -24,7 +24,7 @@
 #include <types.h>
 
 /**
- * \AddToGroup VM
+ * \addtogroup VM
  * @{
  */
 
@@ -586,5 +586,6 @@ vm_unmap_heap(void* virt)
 }
 
 /**
- * @} \file
+ * @}
+ * \file
  */

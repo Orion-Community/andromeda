@@ -16,7 +16,7 @@
  */
 
 /**
- * \defgroup paging
+ * \defgroup x86_paging
  * @{
  */
 

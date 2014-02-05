@@ -22,7 +22,7 @@
 #include <mm/page_alloc.h>
 #include <thread.h>
 /**
- * \AddToGroup Page_alloc
+ * \addtogroup Page_alloc
  * @{
  */
 extern int pagemap[];

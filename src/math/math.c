@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
- * \AddToGroup paging
+ * \addtogroup math
  * @{
  */
 
@@ -701,5 +701,6 @@ unsigned int log2ui(unsigned int x)
 }
 
 /**
- * @} \file
+ * @}
+ * \file
  */

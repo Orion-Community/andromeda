@@ -28,7 +28,7 @@
 #endif
 
 /**
- * \AddToGroup paging
+ * \addtogroup x86_paging
  * @{
  */
 
@@ -240,5 +240,6 @@ x86_pagefault(isrVal_t* registers)
 }
 
 /**
- * @} \file
+ * @}
+ * \file
  */

@@ -24,7 +24,7 @@
 #include <types.h>
 
 /**
- * \AddToGroup VM
+ * \addtogroup VM
  * @{
  */
 

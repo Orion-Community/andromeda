@@ -20,6 +20,11 @@
 #include <mm/vm.h>
 #include <andromeda/core.h>
 
+/**
+ * \addtogroup VM
+ * @{
+ */
+
 #define SEG_BASE_SIMPLE (void*)0xB0000000
 #define SEG_BASE_ONE SEG_BASE_SIMPLE
 #define SEG_BASE_TWO SEG_BASE_SIMPLE+0x4000
@@ -431,3 +436,8 @@ int vm_test()
 
         return -E_SUCCESS;
 }
+
+/**
+ * @}
+ * \file
+ */

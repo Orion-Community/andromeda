@@ -6,6 +6,7 @@ config
 *.img
 *.*project
 *~
+bin/
 src/scripts/floppy.img
 scripts/build
 /nbproject/

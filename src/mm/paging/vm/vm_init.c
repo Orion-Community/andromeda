@@ -26,7 +26,7 @@
 #include <defines.h>
 
 /**
- * \AddToGroup VM
+ * \addtogroup VM
  * @{
  */
 
