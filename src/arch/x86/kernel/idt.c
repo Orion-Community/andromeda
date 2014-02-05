@@ -24,11 +24,11 @@
 #include <mm/memory.h>
 
 static void
-ol_idt_install_entry(uint16_t, uint32_t, uint16_t, uint8_t, ol_idt_t);
+ol_idt_install_entry(uint16_t, uint32_t, uint16_t, uint8_t, struct idt*);
 static int get_empty_idt_entry_number();
 
 static void
-installExceptions(ol_idt_t idt)
+installExceptions(struct idt* idt)
 {
         ol_idt_install_entry( 0, (uint32_t)divByZero , 0x08, 0x8E, idt);
         ol_idt_install_entry( 1, (uint32_t)depricated, 0x08, 0x8E, idt);
@@ -54,7 +54,7 @@ installExceptions(ol_idt_t idt)
 
 #if 0
 static void
-installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
+installInterrupts(uint16_t offset1, uint16_t offset2, struct idt* idt)
 {
         ol_idt_install_entry(offset1+0, (uint32_t)irq0, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
@@ -97,8 +97,8 @@ installInterrupts(uint16_t offset1, uint16_t offset2, ol_idt_t idt)
 
 void setIDT()
 {
-  ol_idt_t idt = kmalloc(sizeof(struct idt));
-  idt->limit = sizeof(ol_idt_entry_t) * 256;
+  struct idt* idt = kmalloc(sizeof(struct idt));
+  idt->limit = sizeof(struct idt_entry) * 256;
   idt->baseptr = kmalloc(idt->limit);
   memset(idt->baseptr, 0, idt->limit);
 
@@ -111,7 +111,7 @@ void setIDT()
 
 static void
 ol_idt_install_entry(uint16_t num, uint32_t base,
-        uint16_t sel, uint8_t flags, ol_idt_t idt)
+        uint16_t sel, uint8_t flags, struct idt* idt)
 {
   idt->baseptr[num].base_high = (base >> 16) & 0xffff;
   idt->baseptr[num].base_low = base & 0xffff;
@@ -126,13 +126,13 @@ ol_idt_install_entry(uint16_t num, uint32_t base,
 static int
 get_empty_idt_entry_number()
 {
-  ol_idt_t idt = (ol_idt_t)get_idt();
+  struct idt* idt = (struct idt*)get_idt();
 
   /*
    * An entry is defined as 'empty' when the 32-bits base and flags are 0.
    */
   uint16_t i = IDT_VECTOR_OFFSET; /* start after exceptions */
-  for(; i < idt->limit/sizeof(ol_idt_entry_t); i++)
+  for(; i < idt->limit/sizeof(struct idt_entry); i++)
   {
     uint32_t base = idt->baseptr[i].base_low | ((idt->baseptr[i].base_high) >> 16);
     if(!(idt->baseptr[i].flags) && !base)
@@ -152,7 +152,7 @@ alloc_idt_entry()
 int
 free_idt_entry(uint16_t vector)
 {
-  ol_idt_t idt = (ol_idt_t)get_idt();
+  struct idt* idt = (struct idt*)get_idt();
   memset((void*)&(idt->baseptr[vector]), 0, sizeof(idt->baseptr[vector]));
   return -E_SUCCESS;
 }
@@ -163,7 +163,7 @@ install_irq_vector(struct irq_data *data)
   uint8_t entry = data->irq_config->vector;
   if(0 != entry)
   {
-    ol_idt_t idt = (ol_idt_t)get_idt();
+    struct idt* idt = (struct idt*)get_idt();
 
     ol_idt_install_entry(entry, data->irq_base, 0x8, IDT_PRESENT_BIT | IDT_INTERRUPT_GATE,
                          idt);

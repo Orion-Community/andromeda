@@ -85,6 +85,7 @@ extern void fpu();
 extern void alligned();
 extern void machine();
 extern void simd();
+extern void asm_syscall();
 
 /*
  * Exception implementation headers
@@ -105,6 +106,7 @@ extern void cFpu();
 extern void cAlligned();
 extern void cMachine();
 extern void cSimd();
+extern void cSyscall();
 
 /*
  * Iterrupt implementation functions

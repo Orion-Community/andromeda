@@ -30,7 +30,7 @@ extern "C" {
 #define IDT_INTERRUPT_GATE 0xe
 #define IDT_VECTOR_OFFSET 0x20
 
-struct idtentry
+struct idt_entry
 {
   uint16_t base_low;
   uint16_t sel;
@@ -38,14 +38,12 @@ struct idtentry
   uint8_t flags;
   uint16_t base_high;
 } __attribute__((packed));
-typedef struct idtentry *ol_idt_entry_t;
 
 struct idt
 {
   uint16_t limit;
-  ol_idt_entry_t baseptr;
+  struct idt_entry* baseptr;
 } __attribute__((packed));
-typedef struct idt *ol_idt_t;
 
 /*
 static void
@@ -58,7 +56,7 @@ static int get_empty_idt_entry_number();
 */
 int install_irq_vector(struct irq_data *);
 int alloc_idt_entry();
-extern void installIDT(ol_idt_t);
+extern void installIDT(struct idt*);
 extern addr_t get_idt();
 
 #ifdef __cplusplus

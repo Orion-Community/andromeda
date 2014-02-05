@@ -147,7 +147,7 @@ void cGenProt(isrVal_t* regs)
   printf("CS\tDS\tSS\tESP\n");
   printf("%X\t%X\t%X\t%X\n", getCS(), getDS(), getSS(), getESP());
   checkFrame(regs);
-//   panic("General Protection fault");
+  panic("General Protection fault");
 }
 
 void cFpu(isrVal_t* regs)
@@ -171,3 +171,8 @@ void cSimd(isrVal_t* regs)
   panic("SSE exception");
 }
 
+void cSyscall(isrVal_t* regs)
+{
+        printf("SYSCALL!!!\n");
+        return;
+}

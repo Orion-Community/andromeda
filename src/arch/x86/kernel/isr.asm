@@ -125,6 +125,12 @@ alligned:
 	isrNoError cAlligned
 	jmp isrStub
 
+[GLOBAL asm_syscall]
+[EXTERN cSyscall]
+asm_syscall:
+        isrNoError cSyscall
+        jmp isrStub
+
 [GLOBAL machine]
 [EXTERN cDoubleFault]
 machine:
