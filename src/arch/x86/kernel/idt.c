@@ -21,6 +21,7 @@
 #include <arch/x86/irq.h>
 #include <arch/x86/interrupts.h>
 #include <andromeda/system.h>
+#include <andromeda/syscall.h>
 #include <mm/memory.h>
 
 static void
@@ -50,6 +51,7 @@ installExceptions(struct idt* idt)
         ol_idt_install_entry(17, (uint32_t)alligned, 0x08, 0x8E, idt);
         ol_idt_install_entry(18, (uint32_t)machine, 0x08, 0x8E, idt);
         ol_idt_install_entry(19, (uint32_t)simd, 0x08, 0x8E, idt);
+        ol_idt_install_entry(INT_SYSCALL, (uint32_t)asm_syscall, 0x08, 0x8E, idt);
 }
 
 #if 0

@@ -114,6 +114,8 @@ void core_loop()
 //         init_netif();
 //         init_network();
 
+        sc_init();
+
         sys_setup_fs();
         sys_setup_modules();
         sys_setup_devices();
@@ -156,7 +158,14 @@ void core_loop()
 #endif
 
 //         uint32_t pid = 0;
-        debug("Entering core loop\n");
+
+#ifdef SC_TEST
+        // Let's go about testing the system calls
+        char* str = "Hello world!\n";
+        int i = sc_call(SYS_WRITE, 0, 0, (int)str, strlen(str));
+        printf ("sc: %X\n", -i);
+#endif
+        debug ("Entering core loop\n");
         while (TRUE) // Infinite loop, to make the kernel wait when there is nothing to do
         {
                 switch (rl)

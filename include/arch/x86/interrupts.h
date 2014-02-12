@@ -106,7 +106,7 @@ extern void cFpu();
 extern void cAlligned();
 extern void cMachine();
 extern void cSimd();
-extern void cSyscall();
+extern int cSyscall();
 
 /*
  * Iterrupt implementation functions

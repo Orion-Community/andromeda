@@ -21,6 +21,7 @@
 #include <mm/paging.h>
 #include <andromeda/cpu.h>
 #include <arch/x86/task.h>
+#include <andromeda/syscall.h>
 
 /*
 extern uint32_t pgbit;
@@ -171,8 +172,9 @@ void cSimd(isrVal_t* regs)
   panic("SSE exception");
 }
 
-void cSyscall(isrVal_t* regs)
+int cSyscall(isrVal_t* regs)
 {
-        printf("SYSCALL!!!\n");
-        return;
+        if (sc_list[(uint16_t)regs->eax].syscall != NULL)
+                return sc_list[(uint16_t)regs->eax].syscall(regs->ebx, regs->ecx, regs->edx);
+        return -E_NOT_FOUND;
 }

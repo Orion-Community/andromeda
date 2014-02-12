@@ -125,12 +125,6 @@ alligned:
 	isrNoError cAlligned
 	jmp isrStub
 
-[GLOBAL asm_syscall]
-[EXTERN cSyscall]
-asm_syscall:
-        isrNoError cSyscall
-        jmp isrStub
-
 [GLOBAL machine]
 [EXTERN cDoubleFault]
 machine:
@@ -172,3 +166,47 @@ isrStub:
 	add esp, 8	; pop error num + routine
 	sti
 	iret	; interrupt return
+
+[GLOBAL asm_syscall]
+[EXTERN cSyscall]
+asm_syscall:
+        isrNoError cSyscall
+
+        ; Because this is a system call, we may need to send a return value.
+        ; Therefore the stub cannot be used.
+
+        pushad
+        mov ebp, esp
+        mov eax, [ebp+32]
+
+        mov dx, ds
+        push edx
+        mov dx, 0x10    ; kernel ring
+
+        mov ds, dx
+        mov es, dx
+        mov fs, dx
+        mov gs, dx
+
+        push esp
+
+        call eax
+
+        ; Store the return value in the spot used for the function pointer
+        mov [ebp+32], eax
+
+        pop esp
+
+        pop edx
+        mov ds, dx
+        mov es, dx
+        mov gs, dx
+        mov es, dx
+
+        popad
+
+        ; Get the return value from the function pointer position in the stack
+        mov eax, [esp]
+        add esp, 8      ; pop error num + routine
+        sti
+        iret    ; interrupt return

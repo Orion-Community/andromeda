@@ -16,6 +16,18 @@
 
 %include "asm/call.mac"
 
+[GLOBAL arch_syscall]
+arch_syscall:
+        enter
+        mov eax, [ebp+0x08]
+        mov ebx, [ebp+0x0C]
+        mov ecx, [ebp+0x10]
+        mov edx, [ebp+0x14]
+
+        int 0x80
+
+        return
+
 [GLOBAL readCR0]
 readCR0:
         mov eax, cr0

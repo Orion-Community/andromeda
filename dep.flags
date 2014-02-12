@@ -1,51 +1,53 @@
 {
+        "Osize": {
+                "ignore-autoconf": false,
+                "info": "Enable optimalisation for size",
+                "mandatory": false
+        },
+        "arch": {
+                "enum": {"X86": {
+                        "ignore-autoconf": false,
+                        "info": "The X86 architecture.",
+                        "mandatory": false
+                }},
+                "ignore-autoconf": false,
+                "info": "Architecture to use.",
+                "mandatory": true
+        },
         "cas": {
                 "ignore-autoconf": false,
-                "mandatory": false,
-                "info": "A tiny little easter egg, for Cas van Raan"
+                "info": "A tiny little easter egg, for Cas van Raan",
+                "mandatory": false
         },
         "mm": {
-                "ignore-autoconf": false,
-                "mandatory": true,
                 "enum": {
                         "slab": {
                                 "ignore-autoconf": false,
-                                "mandatory": false,
-                                "info": "The quick but wasteful allocator"
+                                "info": "The quick but wasteful allocator",
+                                "mandatory": false
                         },
                         "slob": {
                                 "ignore-autoconf": false,
-                                "mandatory": false,
-                                "info": "The slow, but conservative allocator"
+                                "info": "The slow, but conservative allocator",
+                                "mandatory": false
                         }
                 },
-                "info": "The memory manager group"
-        },
-        "arch": {
                 "ignore-autoconf": false,
-                "mandatory": true,
-                "enum": {
-                        "X86": {
-                                "ignore-autoconf": false,
-                                "mandatory": false,
-                                "info": "The X86 architecture."
-                        }
-                },
-                "info": "Architecture to use.",
+                "info": "The memory manager group",
+                "mandatory": true
         },
-        "Osize": {
-                "ignore-autoconf": false,
-                "mandatory": false,
-                "info": "Enable optimalisation for size"
+        "syscall-test": {
+                "ignore-autoconf": true,
+                "mandatory": false
         },
         "vm_test": {
-                "ignore-autoconf": false,
+                "ignore-autoconf": true,
+                "info": "Put the vm system to the test?",
+                "mandatory": false,
                 "set": {"vm_test_destructive": {
                         "ignore-autoconf": true,
-                        "mandatory": false,
-                        "info": "Make the vm test panic the kernel"
-                }},
-                "mandatory": false,
-                "info": "Put the vm system to the test?"
+                        "info": "Make the vm test panic the kernel",
+                        "mandatory": false
+                }}
         }
 }

@@ -254,12 +254,15 @@ vm_init()
          */
 
         if (ret != -E_SUCCESS)
+        {
 //                 panic("Memory could not correctly be mapped!");
                 printf("Virtual memory system wasn't initialised correctly!\n");
-#ifdef PA_DBG
-        //endProg();
-#endif
+        }
 
+        /*
+         * Unmap all the memory below the 1GiB mark.
+         * It's no longer useful to us.
+         */
         int idx = 0;
         for (;idx < 0x40000000; idx += PAGESIZE)
         {

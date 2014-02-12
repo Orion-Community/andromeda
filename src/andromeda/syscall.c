@@ -27,28 +27,49 @@
 #define SC_LIST_SIZE 0x100
 
 struct syscall sc_list[SC_LIST_SIZE];
-int initialised = 0;
+int sc_initialised = 0;
+
+int sc_write(int file, int string, int count)
+{
+        char* str = (char*)string;
+        if (file == 0)
+        {
+                int i = 0;
+                for (; i < count; i++)
+                        putc(str[i]);
+        }
+        else
+                printf("Write system call not yet implemented!\n");
+
+        return -E_SUCCESS;
+}
 
 int sc_init()
 {
         memset(&sc_list, 0, SC_LIST_SIZE*sizeof(sc_list[0]));
+
+        sc_initialised = 1;
+        int ret = sc_install(SYS_WRITE, sc_write, 3);
+        if (ret != -E_SUCCESS)
+        {
+                printf("Error: %X\n", -ret);
+                panic("Error initialising systemcalls");
+        }
+
         return 0;
 }
 
 int sc_install (uint16_t idx, sc call, uint8_t cpl)
 {
-        if (initialised == 0)
-        {
+        if (sc_initialised == 0)
                 sc_init();
-                initialised = 1;
-        }
-        if (idx < SC_LIST_SIZE)
+
+        if (idx >= SC_LIST_SIZE)
                 return -E_INVALID_ARG;
         if (call == NULL)
                 return -E_NULL_PTR;
         if (sc_list[idx].syscall != NULL)
                 return -E_ALREADY_INITIALISED;
-
 
         sc_list[idx].syscall = call;
         sc_list[idx].cpl = cpl;
@@ -67,12 +88,13 @@ int sc_uninstall(uint16_t idx)
 
 int sc_call(uint16_t idx, uint8_t cpl, reg reg1, reg reg2, reg reg3)
 {
-        if (idx < SC_LIST_SIZE)
+        if (idx >= SC_LIST_SIZE)
                 return -E_INVALID_ARG;
+
         if (sc_list[idx].syscall == NULL)
                 return -E_NULL_PTR;
         if (sc_list[idx].cpl < cpl)
                 return -E_UNAUTHORISED;
 
-        return sc_list[idx].syscall(reg1, reg2, reg3);
+        return arch_syscall(idx, reg1, reg2, reg3);
 }

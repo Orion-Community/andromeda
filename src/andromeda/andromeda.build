@@ -5,7 +5,7 @@
 "archived-file" : "andromeda.a",
 "source-files" : ["atomic.c", "buffer.c", "core.c", "drivers.c", "panic.c", "syscall.c", "system.c"],
 "compiler-flags" : "",
-"dcompiler-flags" : [{"key" : "cas", "flags" : "-D CAS"}],
+"dcompiler-flags" : [{"key" : "cas", "flags" : "-D CAS"}, {"key" : "syscall-test", "flags" : "-D SC_TEST"}],
 "linker-flags" : "",
 "archiver-flags" : "",
 "depend" : [{"path" : "sched/sched.build"}, {"path" : "scheduling/scheduling.build"}, {"path" : "timer/timer.build"}]

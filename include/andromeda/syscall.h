@@ -25,6 +25,8 @@
 extern "C" {
 #endif
 
+#define INT_SYSCALL     0x80
+
 #define SYS_INVALID     0x00 /** Invalid systemcall */
 
 #define SYS_WRITE       0x01 /** File systemcalls */
@@ -55,11 +57,13 @@ extern "C" {
  * \brief The system call discriptor
  */
 
-typedef int (*sc)(reg arg1, reg arg2, reg arg3);
+typedef int (*sc)(int arg1, int arg2, int arg3);
 struct syscall {
         int cpl;
         sc syscall;
 };
+
+extern struct syscall sc_list[];
 
 int sc_install(uint16_t idx, sc call, uint8_t cpl);
 int sc_uninstall(uint16_t idx);
