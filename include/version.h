@@ -28,10 +28,10 @@ extern "C" {
 #endif
 
 #define NAME "Betelgeuse (Alpha Orionis)"
-#define YEARS "2011 - 2013"
+#define YEARS "2011 2012 2013 2014"
 
 #define WELCOME "Andromeda " VERSION " - " NAME\
-"\nCopyright (C) " YEARS " - Michel Megens, Bart Kuivenhoven, Steven vd Schoot\n"\
+"\nCopyright (C) " YEARS "\n"\
 "This program comes with ABSOLUTELY NO WARRANTY;\n"\
 "This is free software, and you are welcome to redistribute it.\n"\
 "For more info refer to the COPYING file in the source repository or look at\n"\
