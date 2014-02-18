@@ -2,7 +2,7 @@
 "name" : "fs",
 "link" : false,
 "archive" : false,
-"source-files" : ["path.c", "vfs.c"],
+"source-files" : ["path.c", "vfs.c", "file.c"],
 "compiler-flags" : "",
 "linker-flags" : "",
 "archiver-flags" : "",

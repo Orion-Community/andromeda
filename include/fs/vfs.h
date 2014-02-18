@@ -25,6 +25,8 @@
 extern "C" {
 #endif
 
+#define KERN_STDIO 0x0
+
 #define DIR_LIST_SIZE 0xFF
 
 #define VFIO(fn, arg1, arg2, arg3) \

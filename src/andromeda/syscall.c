@@ -49,12 +49,8 @@ int sc_init()
         memset(&sc_list, 0, SC_LIST_SIZE*sizeof(sc_list[0]));
 
         sc_initialised = 1;
-        int ret = sc_install(SYS_WRITE, sc_write, 3);
-        if (ret != -E_SUCCESS)
-        {
-                printf("Error: %X\n", -ret);
-                panic("Error initialising systemcalls");
-        }
+        if (file_sc_init() != -E_SUCCESS)
+                panic("File calls not initialised!");
 
         return 0;
 }
