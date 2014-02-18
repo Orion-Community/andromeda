@@ -43,7 +43,8 @@ vm_segment_mark_loaded(int cpuid, struct vm_segment* s)
         if (vm_loaded[cpuid]->find((int)s->virt_base, vm_loaded[cpuid]) != NULL)
                 return -E_ALREADY_INITIALISED;
 
-        if (vm_loaded[cpuid]->add((int)s->virt_base,s,vm_loaded[cpuid]) == NULL)
+        if (vm_loaded[cpuid]->add((int)s->virt_base,s,vm_loaded[cpuid])
+                        != -E_SUCCESS)
                 return -E_GENERIC;
         return -E_SUCCESS;
 }
@@ -64,6 +65,12 @@ vm_segment_mark_unloaded(int cpuid, struct vm_segment* s)
         return -E_SUCCESS;
 }
 
+/**
+ * \fn vm_get_loaded
+ * \param cpuid
+ * \param addr
+ * \return The segment that currently has this address mapped
+ */
 static inline struct vm_segment*
 vm_get_loaded(int cpuid, void* addr)
 {
@@ -539,6 +546,7 @@ vm_kernel_fault_write(addr_t fault_addr, int mapped)
         struct vm_segment* segment = vm_get_loaded(0, (void*)fault_addr);
         if (segment == NULL)
         {
+                printf("Fault addr: %X\n", (uint32_t)fault_addr);
                 panic("Trying to map an unloaded page!!!!!!");
                 /**
                  * If this was in userspace, segfault!

@@ -134,10 +134,7 @@ int device_detach(struct device* this, struct device* child)
 struct device*
 device_find_id(unsigned int id)
 {
-        struct tree* node = (struct tree*)dev_tree->find(id, dev_tree);
-        if (node == NULL)
-                return NULL;
-        struct device* dev = node->data;
+        struct device* dev = (struct device*)dev_tree->find(id, dev_tree);
         return dev;
 }
 

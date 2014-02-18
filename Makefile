@@ -13,10 +13,12 @@ MAKE=make
 
 .PHONY: all clean preconfigure configure distclean test doxygen
 .PHONY: bin/andromeda.img allyes-config allno-config random-config
-.PHONY: bin/andromeda.iso test_iso
+.PHONY: bin/andromeda.iso test_iso bin
 	@$(MAKE) -C src/ clean
 
 all: bin/doxygen.tar.bz2 bin/andromeda.iso 
+
+bin: bin/andromeda.img
 
 bin/andromeda.img: scripts/build
 	$(BUILD) $(CFLAGS) $(FLAGS)
@@ -48,7 +50,7 @@ distclean: clean
 	rm -rfv bin/
 	rm -rfv doc/doxygen
 
-test: all
+test: bin/andromeda.img
 	scripts/qemu.sh
 
 test_iso: bin/andromeda.iso

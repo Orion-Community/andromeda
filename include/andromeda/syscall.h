@@ -69,6 +69,7 @@ int sc_install(uint16_t idx, sc call, uint8_t cpl);
 int sc_uninstall(uint16_t idx);
 int sc_call(uint16_t idx, uint8_t cpl, reg reg1, reg reg2, reg reg3);
 
+int sc_init();
 int file_sc_init();
 
 #ifdef __cplusplus

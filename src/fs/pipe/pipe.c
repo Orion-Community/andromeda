@@ -96,16 +96,15 @@ static void* pipe_get_block(struct pipe* pipe, int key)
         if (pipe == NULL || pipe->data == NULL || pipe->data->find == NULL)
                 return NULL;
 
-        struct tree* t = pipe->data->find(key, pipe->data);
-        if (t == NULL)
+        void* block = pipe->data->find(key, pipe->data);
+        if (block == NULL)
         {
-                void* block = pipe_get_new_block(pipe);
+                block = pipe_get_new_block(pipe);
                 if (block == NULL)
                         return NULL;
                 pipe->data->add(key, block, pipe->data);
-                return block;
         }
-        return t->data;
+        return block;
 }
 
 /**

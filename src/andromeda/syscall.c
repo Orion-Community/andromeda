@@ -82,6 +82,8 @@ int sc_uninstall(uint16_t idx)
         return -E_SUCCESS;
 }
 
+extern int arch_syscall(int,int,int,int);
+
 int sc_call(uint16_t idx, uint8_t cpl, reg reg1, reg reg2, reg reg3)
 {
         if (idx >= SC_LIST_SIZE)

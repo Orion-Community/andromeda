@@ -27,7 +27,7 @@ static unsigned int fd_cnt = 1;
 
 static unsigned int fd_alloc()
 {
-        while (file_descriptors->find(file_descriptors, fd_cnt) == NULL)
+        while (file_descriptors->find(fd_cnt, file_descriptors) == NULL)
                 fd_cnt ++;
         return fd_cnt;
 }
@@ -35,6 +35,10 @@ static unsigned int fd_alloc()
 static int fopen_sc(int name, int path, int arg3)
 {
         printf("Open syscall!\n");
+
+        unsigned int fd = fd_alloc();
+        struct vfile* file = NULL;
+
         return -E_NOFUNCTION;
 }
 
