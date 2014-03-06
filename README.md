@@ -50,7 +50,12 @@ To compile:
 * g++
 * ld
 * nasm
-* A working linux installation (for compilation without tweaks to the Makefiles)
+* java
+* wget
+* A working network installation
+* A working linux installation
+The code has been compiled once on windows, though no instructions on how to do
+this have been made available.
 
 To test:
 
