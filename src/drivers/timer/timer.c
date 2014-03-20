@@ -162,7 +162,7 @@ vfs_write_hook_t write;
         memset(dev->driver->io, 0, sizeof(*(dev->driver->io)));
         struct vfile *io = dev->driver->io;
 
-        io->type = file;
+        io->type = CHAR_DEV;
         io->read = read;
         io->write = write;
         return -E_SUCCESS;

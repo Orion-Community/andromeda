@@ -167,7 +167,7 @@ vfs_write_hook_t write;
         io->gid = 0;
         io->read = read;
         io->write = write;
-        io->type = file;
+        io->type = CHAR_DEV;
 
         return -E_SUCCESS;
 }

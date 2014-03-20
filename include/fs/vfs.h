@@ -20,14 +20,23 @@
 #define __FS_VFS_H
 
 #include <stdlib.h>
+#include <lib/tree.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#ifdef SLAB
+struct mm_cache* vsuper_cache;
+#endif
+
 #define KERN_STDIO 0x0
 
 #define DIR_LIST_SIZE 0xFF
+
+#define CACHE_BLOCK_PWR 10
+
+#define CACHE_BLOCK_SIZE (1 << CACHE_BLOCK_PWR)
 
 #define VFIO(fn, arg1, arg2, arg3) \
 static size_t fn(struct vfile* arg1, char* arg2, size_t arg3); \
@@ -39,7 +48,7 @@ typedef size_t (*vfs_read_hook_t)(struct vfile*, char*, size_t);
 typedef size_t (*vfs_write_hook_t)(struct vfile*, char*, size_t);
 
 typedef enum { SEEK_SET, SEEK_CUR, SEEK_END } seek_t;
-typedef enum {dir, block_dev, char_dev, file} file_type_t;
+typedef enum {DIR, BLOCK_DEV, CHAR_DEV, FILE} file_type_t;
 
 struct vsuper_block;
 
@@ -61,6 +70,8 @@ struct vfile
 
         file_type_t type;
 
+        mutex_t file_lock;
+
         /**
          * \var dir_ent
          * \brief Parent directory entry
@@ -74,6 +85,7 @@ struct vfile
         struct vsuper_block *super;
         size_t fs_data_size;
         void* fs_data;
+        struct tree_root* cache;
 
         /**
          * \fn close (this)
@@ -82,6 +94,7 @@ struct vfile
          * \fn seek(this, idx, from)
          * \fn flush(this)
          */
+        int (*open)(struct vfile* this, char* path, int strlen);
         int (*close)(struct vfile* this);
         size_t (*read)(struct vfile* this, char* buf, size_t num);
         size_t (*write)(struct vfile* this, char* buf, size_t num);
@@ -111,7 +124,7 @@ struct vdir
 struct vsuper_block
 {
         struct vfile* fs_root;
-        struct device* dev;
+        struct vfile* dev;
 
         size_t file_name_size;
         size_t fs_data_size;
@@ -132,11 +145,13 @@ struct vmount
         struct vmount* next;
 };
 
-struct vfile*   vfs_open(struct vdir_ent* entry);
+int             vfs_open(struct vfile*, char* path, size_t strlen);
 int             vfs_close(struct vfile* stream);
 int             vfs_read(struct vfile* stream, char* buf, size_t num);
 int             vfs_write(struct vfile* stream, char* buf, size_t num);
 int             vfs_seek(struct vfile* stream, size_t idx, seek_t from);
+int             vfs_init();
+struct vfile*   vfs_create();
 
 #ifdef __cplusplus
 }

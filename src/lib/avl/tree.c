@@ -579,15 +579,20 @@ avl_flush_node(struct tree* tree, int (*dtor)(void*, void*), void* dtor_arg)
         if (tree == NULL)
                 return -E_NULL_PTR;
 
-        avl_flush_node(tree->left, dtor, dtor_arg);
-        avl_flush_node(tree->right, dtor, dtor_arg);
+        int ret = -E_SUCCESS;
+
+        if (ret = avl_flush_node(tree->left, dtor, dtor_arg))
+                return ret;
+        if (ret = avl_flush_node(tree->right, dtor, dtor_arg))
+                return ret;
+
 
         if (dtor != NULL)
         {
-                dtor(tree->data, dtor_arg);
+                if (ret = dtor(tree->data, dtor_arg) != -E_SUCCESS)
+                        return ret;
         }
 
-        printf("Flushing %X\n", tree->key);
         memset(tree, 0, sizeof(*tree));
 
         kfree(tree);
@@ -627,6 +632,12 @@ static void* avl_find(int key, struct tree_root* t)
         return (ret == NULL) ? NULL : ret->data;
 }
 
+/**
+ * \fn avl_find_close
+ * \param key
+ * \param t
+ * \return The structure that is closest to the key to be found
+ */
 static struct tree* avl_find_close(int key, struct tree_root* t)
 {
         if (t == NULL)

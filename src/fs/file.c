@@ -27,7 +27,7 @@ static unsigned int fd_cnt = 1;
 
 static unsigned int fd_alloc()
 {
-        while (file_descriptors->find(fd_cnt, file_descriptors) == NULL)
+        while (file_descriptors->find(fd_cnt, file_descriptors) != NULL)
                 fd_cnt ++;
         return fd_cnt;
 }

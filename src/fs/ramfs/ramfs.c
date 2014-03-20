@@ -24,35 +24,25 @@
 #include <andromeda/system.h>
 
 struct vsuper_block*
-ram_fs_init(struct device* drive)
+ram_fs_init(struct vfile* drive)
 {
-        struct vsuper_block* super = kmalloc(sizeof(struct vsuper_block));
+        struct vsuper_block* super = kmalloc(sizeof(*super));
         if (super == NULL)
                 return NULL;
+        memset(super, 0, sizeof(*super));
 
-        memset (super, 0, sizeof(struct vsuper_block));
+#ifdef SLAB
+        super->dev = (drive == NULL) ? mm_cache_alloc(vsuper_cache, 0) : drive;
+#else
+        super->dev = (drive == NULL) ? kmalloc(sizeof(*drive)) : drive;
+#endif
 
-        if (drive == NULL)
+        if (super->dev == NULL)
         {
-                /**
-                * Build the ram file system here
-                */
-                super->dev = kmalloc(sizeof(struct device));
-                if (super->dev == NULL)
-                        goto dev_alloc;
-                memset(super->dev, 0, sizeof(struct device));
+                kfree(super);
+                return NULL;
         }
-        else
-        {
-                goto dev_alloc;
-                // Going to err will do for now ...
-        }
-
         return super;
-
-dev_alloc:
-        kfree(super);
-        return NULL;
 }
 
 struct vfile*
