@@ -26,7 +26,9 @@
 static struct vfile*
 virt_drive_buffered_open(struct device* this)
 {
-        return ((struct buffer*)this->device_data)->duplicate(this->device_data);
+        //return ((struct vfile*)this->device_data)->duplicate(this->device_data);
+        panic("Function not yet implemented!");
+        return NULL;
 }
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"

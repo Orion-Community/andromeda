@@ -9,7 +9,7 @@
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESbuffer_initS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
@@ -24,7 +24,6 @@
 #include <andromeda/drivers.h>
 #include <networking/rtl8168.h>
 #include <networking/net.h>
-#include <andromeda/buffer.h>
 #include <andromeda/system.h>
 #include <mm/cache.h>
 #include <mm/vm.h>
@@ -39,42 +38,6 @@
 #define RL_REBOOT       0x6
 
 void demand_key();
-
-void buf_dbg()
-{
-        struct vfile* f = kmalloc(sizeof(struct vfile));
-        if (f == NULL)
-                panic("No mem in buf_dbg");
-
-        memset(f, 0, sizeof(struct vfile));
-
-        int ret = buffer_init(f, 0x8, 0);
-        if (ret != -E_SUCCESS)
-        {
-                debug("Return value from init: %X\n", ret);
-                panic("Buffer initialisation not successful!");
-        }
-
-        char *blaat = "Schaap\n";
-        char *ret_msg = kmalloc(sizeof("Schaap\n"));
-        memset(ret_msg, 0, sizeof(*blaat));
-
-        f->write(f, blaat, strlen(blaat));
-        f->seek(f, 0, SEEK_SET);
-        f->read(f, ret_msg, strlen(blaat));
-
-        printf("MSG: %s\n", ret_msg);
-
-        memset(ret_msg, 0, sizeof(*blaat));
-        f->seek(f, 0x1000-3, SEEK_SET);
-        f->write(f, blaat, strlen(blaat));
-        f->seek(f, -((int64_t)strlen(blaat)), SEEK_CUR);
-        f->read(f, ret_msg, strlen(blaat));
-
-        printf("MSG: %s\n", ret_msg);
-        f->close(f);
-        kfree(ret_msg);
-}
 
 void shutdown()
 {

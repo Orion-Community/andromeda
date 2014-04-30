@@ -2,7 +2,6 @@
 *.bin
 *.jar
 config
-.config
 *.img
 *.*project
 *~

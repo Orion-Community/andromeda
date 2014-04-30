@@ -23,7 +23,8 @@
 #include <lib/tree.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #ifdef SLAB
@@ -47,15 +48,34 @@ struct vfile;
 typedef size_t (*vfs_read_hook_t)(struct vfile*, char*, size_t);
 typedef size_t (*vfs_write_hook_t)(struct vfile*, char*, size_t);
 
-typedef enum { SEEK_SET, SEEK_CUR, SEEK_END } seek_t;
-typedef enum {DIR, BLOCK_DEV, CHAR_DEV, FILE} file_type_t;
+typedef enum {
+        SEEK_SET, SEEK_CUR, SEEK_END
+} seek_t;
+typedef enum {
+        DIR, BLOCK_DEV, CHAR_DEV, FILE
+} file_type_t;
 
 struct vsuper_block;
 
+#define FS_TYPE_LEN 128
+
+struct fs_data {
+        uint32_t device_id;
+        uint32_t file_id;
+        char fs_type[FS_TYPE_LEN];
+
+        void* fs_data_struct;
+        size_t fs_data_size;
+
+        int (*open)(struct vfile* this, char* path, int strlen);
+        int (*close)(struct vfile* this);
+        int (*read)(struct vfile* this, idx_t block, size_t num);
+        int (*write)(struct vfile* this, idx_t block, size_t num);
+};
+
 /** \struct vfile */
 /** \brief What we're looking at now is the file descriptor */
-struct vfile
-{
+struct vfile {
         /**
          * \var uid
          * \brief user_id
@@ -83,16 +103,23 @@ struct vfile
          */
         struct vdir_ent *dir_ent;
         struct vsuper_block *super;
-        size_t fs_data_size;
-        void* fs_data;
         struct tree_root* cache;
 
         /**
+         * \fn open(this, path, strlen)
+         * \brief Connect file to URI
          * \fn close (this)
+         * \brief Close file, flushes automatically
          * \fn read(this, buf, num)
+         * \brief Read from cache if possible, from source otherwise
          * \fn write(this, buf, num)
+         * \brief Write to cache
          * \fn seek(this, idx, from)
+         * \brief Move cursor in file
          * \fn flush(this)
+         * \brief Write cache to disc
+         * \fn invlCache(this, idx, num)
+         * \brief Invalidate cache from idx to idx+num
          */
         int (*open)(struct vfile* this, char* path, int strlen);
         int (*close)(struct vfile* this);
@@ -100,29 +127,33 @@ struct vfile
         size_t (*write)(struct vfile* this, char* buf, size_t num);
         int (*seek)(struct vfile* this, int64_t idx, seek_t from);
         int (*flush)(struct vfile* this);
+        int (*invlCache)(struct vfile* this, uint64_t idx, size_t num);
+
+        struct fs_data fs_data;
+
+        idx_t dirtyIdx;
+        size_t dirtySize;
+        idx_t *dirtyBlocks;
 };
 
 /** \struct vdir_ent */
 /** \brief Hello directory entry. */
-struct vdir_ent
-{
+struct vdir_ent {
         struct vsuper_block* super;
         struct vfile* data;
         char *name;
 };
 
 /** \struct vdir */
-struct vdir
-{
-        struct vdir_ent*        entries[DIR_LIST_SIZE];
-        struct vdir*            next;
-        struct vsuper_block*    mounted;
+struct vdir {
+        struct vdir_ent* entries[DIR_LIST_SIZE];
+        struct vdir* next;
+        struct vsuper_block* mounted;
 };
 
 /** \struct vsuper_block */
 /** \brief The file system descriptor. */
-struct vsuper_block
-{
+struct vsuper_block {
         struct vfile* fs_root;
         struct vfile* dev;
 
@@ -137,21 +168,15 @@ struct vsuper_block
 
 /** \struct vmount */
 /** \brief Keep track of mounts */
-struct vmount
-{
+struct vmount {
         /** \var mount_point */
         /** \brief To which director entry is this mounted? */
         struct vdir_ent *mount_point;
         struct vmount* next;
 };
 
-int             vfs_open(struct vfile*, char* path, size_t strlen);
-int             vfs_close(struct vfile* stream);
-int             vfs_read(struct vfile* stream, char* buf, size_t num);
-int             vfs_write(struct vfile* stream, char* buf, size_t num);
-int             vfs_seek(struct vfile* stream, size_t idx, seek_t from);
-int             vfs_init();
-struct vfile*   vfs_create();
+int vfs_init();
+struct vfile* vfs_create();
 
 #ifdef __cplusplus
 }

@@ -25,7 +25,7 @@
 
 #include <stdlib.h>
 #include <thread.h>
-#include <andromeda/buffer.h>
+#include <fs/vfs.h>
 #include <io.h>
 
 #ifdef __cplusplus

@@ -581,15 +581,15 @@ avl_flush_node(struct tree* tree, int (*dtor)(void*, void*), void* dtor_arg)
 
         int ret = -E_SUCCESS;
 
-        if (ret = avl_flush_node(tree->left, dtor, dtor_arg))
+        if ((ret = avl_flush_node(tree->left, dtor, dtor_arg)) != -E_SUCCESS)
                 return ret;
-        if (ret = avl_flush_node(tree->right, dtor, dtor_arg))
+        if ((ret = avl_flush_node(tree->right, dtor, dtor_arg)) != -E_SUCCESS)
                 return ret;
 
 
         if (dtor != NULL)
         {
-                if (ret = dtor(tree->data, dtor_arg) != -E_SUCCESS)
+                if ((ret = dtor(tree->data, dtor_arg)) != -E_SUCCESS)
                         return ret;
         }
 
