@@ -32,8 +32,9 @@ struct mm_cache* last_cache = NULL;
  */
 
 extern struct mm_cache* caches;
+extern struct mm_cache mm_slab_cache;
 
-/**
+/**printf
  * \fn mm_slab_move
  * \brief Move the requested entry from list to list.
  * \param from
@@ -41,8 +42,7 @@ extern struct mm_cache* caches;
  * \param entry
  * \return error code
  */
-static int
-mm_slab_move(from, to, entry)
+static int mm_slab_move(from, to, entry)
 slab_state from;
 slab_state to;
 struct mm_slab* entry;
@@ -210,10 +210,10 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
         /*
          * Hand of the pointer to the just allocated memory
          */
-        addr_t tmp = idx*slab->cache->alignment;
-        tmp += (addr_t)slab->obj_ptr;
+        addr_t tmp = idx * slab->cache->alignment;
+        tmp += (addr_t) slab->obj_ptr;
 
-        return (void*)tmp;
+        return (void*) tmp;
 }
 
 /**
@@ -223,8 +223,7 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
  * \param ptr
  * \return Error code
  */
-static int
-mm_slab_free(struct mm_slab* slab, void* ptr)
+static int mm_slab_free(struct mm_slab* slab, void* ptr)
 {
         /*
          * Some standard argument checking
@@ -233,7 +232,7 @@ mm_slab_free(struct mm_slab* slab, void* ptr)
         if (slab == NULL || ptr == NULL)
                 return -E_NULL_PTR;
 
-        addr_t idx = (addr_t)ptr - (addr_t)slab->obj_ptr;
+        addr_t idx = (addr_t) ptr - (addr_t) slab->obj_ptr;
         if (idx % slab->cache->alignment != 0)
                 return -E_INVALID_ARG;
 
@@ -246,7 +245,6 @@ mm_slab_free(struct mm_slab* slab, void* ptr)
          */
         if (map[idx] != SLAB_ENTRY_ALLOCATED)
                 return -E_ALREADY_FREE;
-
 
         /*
          * And now the atomic parts
@@ -310,13 +308,17 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
          * Enter the atomic section
          * Move the slabs around if necessary
          */
-        mutex_lock(&cache->lock);
+        if (flags & CACHE_ALLOC_SKIP_LOCKED) {
+                if (mutex_test(&cache->lock) == mutex_locked)
+                        return NULL;
+        } else {
+                mutex_lock(&cache->lock);
+        }
 
         /*
          * If the slabs_partial list is empty, try to put a value in there
          */
-        if (cache->slabs_partial == NULL)
-        {
+        if (cache->slabs_partial == NULL) {
                 /*
                  * If the cache is really empty, return NULL
                  */
@@ -324,17 +326,16 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
                 if (tmp == NULL)
                 {
                         int no_pages = calc_no_pages(cache->obj_size,
-                                        SLAB_MIN_OBJS,
-                                        cache->alignment);
+                        SLAB_MIN_OBJS, cache->alignment);
                         int no_objs = calc_max_no_objects(cache->alignment,
-                                        no_pages,
-                                        cache->obj_size);
+                                        no_pages, cache->obj_size);
 
                         /**
                          * \todo Add option to nick slabs from other caches!
                          */
 
-                        struct mm_slab* slab = kmalloc(sizeof(*slab));
+                        struct mm_slab* slab = mm_cache_alloc(&mm_slab_cache,
+                                        CACHE_ALLOC_SKIP_LOCKED);
                         if (slab == NULL)
                                 panic("Out of memory - Chicken/egg problem!");
 
@@ -344,9 +345,7 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
 
                         slab_setup(slab, cache, pages, no_pages, no_objs);
                         cache->slabs_partial = slab;
-                }
-                else
-                {
+                } else {
                         cache->slabs_empty = tmp->next;
                         cache->slabs_partial = tmp;
                         tmp->next = NULL;
@@ -413,8 +412,7 @@ mm_cache_search_ptr(struct mm_slab* list, void* ptr)
  * \param ptr
  * \return Error code or success
  */
-int
-mm_cache_free(struct mm_cache* cache, void* ptr)
+int mm_cache_free(struct mm_cache* cache, void* ptr)
 {
         /*
          * Standard argument checking
@@ -429,7 +427,7 @@ mm_cache_free(struct mm_cache* cache, void* ptr)
         mutex_lock(&cache->lock);
 
         struct mm_slab* tmp = mm_cache_search_ptr(cache->slabs_full, ptr);
-        if(tmp == NULL)
+        if (tmp == NULL)
                 tmp = mm_cache_search_ptr(cache->slabs_partial, ptr);
 
         /*
@@ -465,7 +463,7 @@ kmem_find_size(struct mm_cache* cache, size_t size)
          */
         struct mm_cache* stage = NULL;
         size_t stage_s = ~0;
-        for (; cache != NULL; cache = cache->next)
+        for (; cache != NULL ; cache = cache->next)
         {
                 if (cache->obj_size >= size && cache->obj_size < stage_s)
                 {
@@ -479,10 +477,10 @@ kmem_find_size(struct mm_cache* cache, size_t size)
 static struct mm_cache*
 kmem_find_next_candidate(struct mm_cache* cache, size_t size)
 {
-        for(; cache != NULL; cache = cache->next)
+        for (; cache != NULL ; cache = cache->next)
                 if (cache->obj_size == size)
                         return cache;
-        return NULL;
+        return NULL ;
 }
 
 void*
@@ -491,7 +489,7 @@ kmem_alloc(size_t size, uint16_t flags)
         if (size == 0)
         {
                 printf("Invalid kmem_alloc request!\n");
-                return NULL;
+                return NULL ;
         }
         /*
          * Remember to check the flags once implemented
@@ -501,10 +499,10 @@ kmem_alloc(size_t size, uint16_t flags)
         if (candidate == NULL)
         {
                 printf("Returning NULL from allocation!\n");
-                return NULL;
+                return NULL ;
         }
 
-        void* ret = mm_cache_alloc(candidate, flags);
+        void* ret = mm_cache_alloc(candidate, flags | CACHE_ALLOC_SKIP_LOCKED);
         if (ret != NULL)
                 goto found;
 
@@ -513,23 +511,24 @@ kmem_alloc(size_t size, uint16_t flags)
         while (1)
         {
                 if (candidate == NULL)
-                        return NULL;
-                ret = mm_cache_alloc(candidate, flags);
+                        return NULL ;
+                printf("Trying to allocate from: %s\n", candidate->name);
+                ret = mm_cache_alloc(candidate,
+                                flags | CACHE_ALLOC_SKIP_LOCKED);
                 if (ret != NULL)
                         goto found;
                 candidate = kmem_find_next_candidate(candidate, size);
         }
         printf("Allocation failed!\n");
-        return NULL;
-found:
+        return NULL ;
+        found:
 #ifdef SLAB_DBG
         last_cache = candidate;
 #endif
         return ret;
 }
 
-void
-kmem_free(void* ptr, size_t size)
+void kmem_free(void* ptr, size_t size)
 {
         if (size <= 1 || ptr == NULL)
                 panic("Invalid object in kmem_free!");
@@ -547,7 +546,8 @@ kmem_free(void* ptr, size_t size)
                 case -E_SUCCESS:
                         goto found;
                 case -E_ALREADY_FREE:
-                        panic("Deallocating previously allocated data structure");
+                        panic(
+                                        "Deallocating previously allocated data structure");
                         return;
                 case -E_NULL_PTR:
                         panic("Null pointer alert!");
@@ -561,7 +561,7 @@ kmem_free(void* ptr, size_t size)
                 candidate = kmem_find_next_candidate(candidate, size);
         }
 
-found:
+        found:
 #ifdef SLAB_DBG
         last_cache = candidate;
 #endif
@@ -578,7 +578,7 @@ mm_dump_slab(struct mm_slab* slab)
         for (; next >= 0; i++)
         {
                 if (i % 8 == 0)
-                        debug("\n");
+                debug("\n");
                 debug("%X ->\t", array[next]);
                 next = array[next];
         }
@@ -592,18 +592,18 @@ mm_dump_slabs(struct mm_slab* slab)
         for (; slab != NULL; slab = slab->next)
         {
                 debug(
-                        "Dumping slab:     %X\n"
-                        "slab->next:       %X\n"
-                        "slab->first_free: %X\n"
-                        "slab->objs_full:  %X\n"
-                        "slab->objs_total: %X\n"
-                        "slab->slab_size:  %X\n",
-                      (uint32_t)slab,
-                      (uint32_t)slab->next,
-                      slab->first_free,
-                      slab->objs_full,
-                      slab->objs_total,
-                      slab->slab_size
+                                "Dumping slab:     %X\n"
+                                "slab->next:       %X\n"
+                                "slab->first_free: %X\n"
+                                "slab->objs_full:  %X\n"
+                                "slab->objs_total: %X\n"
+                                "slab->slab_size:  %X\n",
+                                (uint32_t)slab,
+                                (uint32_t)slab->next,
+                                slab->first_free,
+                                slab->objs_full,
+                                slab->objs_total,
+                                slab->slab_size
                 );
                 mm_dump_slab(slab);
         }
@@ -613,18 +613,18 @@ void
 mm_dump_cache(struct mm_cache* cache)
 {
         debug(
-                "Dumping:     %X\n"
-                "Cache name:  %s\n"
-                "Obj size:    %i\n"
-                "Empty ptr:   %X\n"
-                "Partial ptr: %X\n"
-                "Full ptr:    %X\n",
-              (uint32_t)cache,
-              cache->name,
-              cache->obj_size,
-              (uint32_t)cache->slabs_empty,
-              (uint32_t)cache->slabs_partial,
-              (uint32_t)cache->slabs_full
+                        "Dumping:     %X\n"
+                        "Cache name:  %s\n"
+                        "Obj size:    %i\n"
+                        "Empty ptr:   %X\n"
+                        "Partial ptr: %X\n"
+                        "Full ptr:    %X\n",
+                        (uint32_t)cache,
+                        cache->name,
+                        cache->obj_size,
+                        (uint32_t)cache->slabs_empty,
+                        (uint32_t)cache->slabs_partial,
+                        (uint32_t)cache->slabs_full
         );
         demand_key();
         mm_dump_slabs(cache->slabs_empty);
@@ -652,7 +652,7 @@ mm_test_bulk(struct mm_cache* tst, int bastard_mode)
         debug("Bulk seems successful\n");
         mm_dump_cache(tst);
         for (i = 0; i < objs_total; i++)
-                debug("%X\t", array[i]);
+        debug("%X\t", array[i]);
         demand_key();
 
         if (bastard_mode != 0)
@@ -661,7 +661,7 @@ mm_test_bulk(struct mm_cache* tst, int bastard_mode)
                 if (bastard != NULL)
                 {
                         debug("Test failed as mm_cache_alloc returned %X\n",
-                                (uint32_t)bastard
+                                        (uint32_t)bastard
                         );
                         mm_dump_cache(tst);
                         return -E_GENERIC;
@@ -687,7 +687,7 @@ int
 mm_cache_test()
 {
         if (caches == NULL)
-                return -E_NOT_YET_INITIALISED;
+        return -E_NOT_YET_INITIALISED;
 
         debug("\n\nTesting slab allocation\n");
 
@@ -719,10 +719,10 @@ mm_cache_test()
         {
                 debug("\n\nGoing for second bulk\n\n");
                 if (mm_test_bulk(tst, 1) != -E_SUCCESS)
-                        return -E_GENERIC;
+                return -E_GENERIC;
         }
         else
-                return -E_GENERIC;
+        return -E_GENERIC;
 
         debug("Testing kmem_alloc\n");
         tmp = kmem_alloc(0x20, 0);
@@ -754,8 +754,8 @@ mm_cache_test()
                 if (bulk[idx] == NULL)
                 {
                         debug(
-                            "Bulk allocating through kmem_alloc failed at: %i\n"
-                            , idx
+                                        "Bulk allocating through kmem_alloc failed at: %i\n"
+                                        , idx
                         );
                         mm_dump_cache(last_cache);
                         return -E_GENERIC;

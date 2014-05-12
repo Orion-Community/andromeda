@@ -589,9 +589,9 @@ vm_kernel_fault_read(addr_t fault_addr, int mapped)
                 /**
                  * \todo Reload pages here when swapping is written
                  */
-                printf("The kernel wants to read garbage from invalid memory.");
+                printf("The kernel wants to read garbage from invalid memory.\n");
                 printf("Address: %X\n", (int)fault_addr);
-                panic("Readon enough to panic, I'd say!");
+                panic("Reason enough to panic, I'd say!");
         }
 
         /**
