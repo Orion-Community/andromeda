@@ -38,10 +38,16 @@
         },
         "syscall-test": {
                 "ignore-autoconf": true,
+                "info": "",
                 "mandatory": false
         },
+        "tree test": {
+                "ignore-autoconf": false,
+                "mandatory": false,
+		"info" : "A quick and basic test for the avl tree"
+        },
         "vm_test": {
-                "ignore-autoconf": true,
+                "ignore-autoconf": false,
                 "info": "Put the vm system to the test?",
                 "mandatory": false,
                 "set": {"vm_test_destructive": {

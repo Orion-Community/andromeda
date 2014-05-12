@@ -193,11 +193,10 @@ vm_init()
 {
         /* Nullify the pte core, so it can be set up */
         memset(&vm_core, 0, sizeof(vm_core));
-
         idx_t i = 0;
         for (; i < CPU_LIMIT; i++)
         {
-                vm_loaded[i] = tree_new_avl();
+                vm_loaded[i] = tree_new_avl_early();
                 if (vm_loaded[i] == NULL)
                         panic("Out of memory!");
         }
