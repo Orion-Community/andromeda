@@ -39,6 +39,8 @@ struct mm_cache* vsuper_cache;
 
 #define CACHE_BLOCK_SIZE (1 << CACHE_BLOCK_PWR)
 
+#define FILE_FLAG_WRITE_THROUGH (1 << 0)
+
 #define VFIO(fn, arg1, arg2, arg3) \
 static size_t fn(struct vfile* arg1, char* arg2, size_t arg3); \
 static size_t fn(struct vfile* arg1, char* arg2, size_t arg3)
@@ -58,6 +60,7 @@ typedef enum {
 struct vsuper_block;
 
 #define FS_TYPE_LEN 128
+#define FS_MAX_DIRTY 0x40
 
 struct fs_data {
         uint32_t device_id;
@@ -89,6 +92,8 @@ struct vfile {
         idx_t cursor;
 
         file_type_t type;
+
+        uint32_t file_flags;
 
         mutex_t file_lock;
 
@@ -131,9 +136,8 @@ struct vfile {
 
         struct fs_data fs_data;
 
-        idx_t dirtyIdx;
-        size_t dirtySize;
-        idx_t *dirtyBlocks;
+        idx_t next_dirty_idx;
+        idx_t dirty[FS_MAX_DIRTY];
 };
 
 /** \struct vdir_ent */

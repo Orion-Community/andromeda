@@ -205,13 +205,26 @@ static int vfs_block_mark_dirty(struct vfile* stream, idx_t block_id)
         if (stream == NULL)
                 return -E_INVALID_ARG;
 
-        if (stream->dirtyBlocks == NULL)
-                return -E_NOT_YET_INITIALISED;
-
-        if (stream->dirtyIdx == stream->dirtySize)
-                panic("It's about time we flush, but not yet implemented!");
-
-        stream->dirtyBlocks[stream->dirtyIdx++] = block_id;
+        if (stream->dirty[stream->next_dirty_idx] == ~0)
+        {
+                if (stream->file_flags & FILE_FLAG_WRITE_THROUGH) {
+                        if (stream->fs_data.write != NULL)
+                                stream->fs_data.write(stream,
+                                                    stream->dirty[block_id], 1);
+                        else
+                                return -E_CORRUPT;
+                } else {
+                        stream->dirty[stream->next_dirty_idx] = block_id;
+                        stream->next_dirty_idx ++;
+                }
+        } else if (stream->fs_data.write != NULL){
+                int i = 0;
+                for (; i < FS_MAX_DIRTY; i++) {
+                        stream->fs_data.write(stream, stream->dirty[i], 1);
+                }
+        } else {
+                return -E_NOMEM;
+        }
 
         return -E_SUCCESS;
 }
