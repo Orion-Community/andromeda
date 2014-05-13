@@ -110,13 +110,21 @@ atomic_get(atomic_t* d)
 }
 
 void
-atomic_init(atomic_t* d)
+atomic_init(atomic_t* d, uint64_t cnt)
 {
         if (d == NULL)
                 return;
         d->cnt = 0;
         d->lock = mutex_unlocked;
         return;
+}
+
+void
+semaphore_init(semaphore_t* s, uint64_t cnt, uint64_t limit)
+{
+        s->cnt = cnt;
+        s->limit = limit;
+        s->lock = mutex_unlocked;
 }
 
 int64_t
