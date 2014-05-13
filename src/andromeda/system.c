@@ -119,6 +119,15 @@ int sys_setup_fs()
 {
         if (core.vfs != NULL)
                 return -E_ALREADY_INITIALISED;
+
+        core.vfs = kmalloc(sizeof(*core.vfs));
+        if (core.vfs == NULL)
+                panic("Unable to allocate the virtual filesystem data");
+
+        memset (core.vfs, 0, sizeof(*core.vfs));
+
+        vfs_init();
+
         printf("File system abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }

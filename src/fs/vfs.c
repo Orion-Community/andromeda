@@ -379,9 +379,9 @@ int vfs_init()
         size_t fsize = sizeof(struct vfile);
         size_t ssize = sizeof(struct vsuper_block);
         size_t csize = CACHE_BLOCK_SIZE;
-        vfile_cache = mm_cache_init("vfile", fsize, 0, NULL, NULL);
-        vsuper_cache = mm_cache_init("vsuper", ssize, 0, NULL, NULL);
-        block_cache = mm_cache_init("vfs_blocks", csize, 0,
+        vfile_cache = mm_cache_init("vfile", fsize, fsize, NULL, NULL);
+        vsuper_cache = mm_cache_init("vsuper", ssize, ssize, NULL, NULL);
+        block_cache = mm_cache_init("vfs_blocks", csize, csize,
                         vfs_cache_block_ctor, vfs_cache_block_dtor);
 #endif
 

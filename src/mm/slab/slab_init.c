@@ -60,6 +60,9 @@ calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
         if (element_size == 0)
                 return 0;
 
+        if (alignment == 0)
+                panic("attempted divide by zero");
+
         /* Get the size of the elements right */
         if (element_size % alignment != 0)
                 element_size += alignment - element_size % alignment;

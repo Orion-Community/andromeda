@@ -22,29 +22,57 @@
 #include <lib/tree.h>
 
 static struct tree_root* file_descriptors = NULL;
+static semaphore_t fd_cnt;
 
-static unsigned int fd_cnt = 1;
-
-static unsigned int fd_alloc()
+static unsigned int fd_alloc(struct vfile* file)
 {
-        while (file_descriptors->find(fd_cnt, file_descriptors) != NULL)
-                fd_cnt ++;
-        return fd_cnt;
+        if (file_descriptors == NULL)
+                return 0;
+
+
+        unsigned int attempt = 0;
+        while (1)
+        {
+                attempt = (unsigned int)semaphore_inc(&fd_cnt);
+                if (file_descriptors->find(attempt, file_descriptors) == NULL)
+                {
+                        file_descriptors->add(attempt, file, file_descriptors);
+                        return attempt;
+                }
+        }
 }
 
-static int fopen_sc(int name, int path, int arg3)
+int fopen_sc(int arg_path, int path_len, int arg3)
 {
         printf("Open syscall!\n");
+        char* path = (char*)arg_path;
 
-        unsigned int fd = fd_alloc();
-        struct vfile* file = NULL;
+        if (path == NULL)
+                return -E_NULL_PTR;
+        if (path_len <= 0)
+                return -E_INVALID_ARG;
 
-        return -E_NOFUNCTION;
+        /**
+         * \todo Add path pointer location check
+         * Is the calling process allowed to even access this memory?
+         * \todo Add invalid character check to file path
+         */
+
+        struct vfile* file = vfs_create();
+        if (file == NULL)
+                return -E_GENERIC;
+
+        unsigned int fd = fd_alloc(file);
+
+        file->open(file, path, path_len);
+
+        return fd;
 }
 
 static int fclose_sc(int fd, int arg2, int arg3)
 {
         printf("Close syscall!\n");
+
         return -E_NOFUNCTION;
 }
 
@@ -79,6 +107,24 @@ int file_sc_init()
 
         /* Make sure the file descriptors can be stored somewhere */
         file_descriptors = tree_new_avl();
+
+        semaphore_init(&fd_cnt, 1, (1 << (sizeof(void*)*8-1)));
+
+        struct vfile* stdin = vfs_create();
+        struct vfile* stdout = vfs_create();
+        struct vfile* stderr = vfs_create();
+        if (stdin == NULL)
+                printf("Error stdin\n");
+        if (stdout == NULL)
+                printf("Error stdout\n");
+        if (stderr == NULL)
+                printf("Error stderr\n");
+        if (stdin == NULL || stdout == NULL || stderr == NULL)
+                panic("Could not initialise stdio");
+
+        file_descriptors->add(0, (void*)stdin, file_descriptors);
+        file_descriptors->add(1, (void*)stdout, file_descriptors);
+        file_descriptors->add(2, (void*)stderr, file_descriptors);
 
         /* Create a file descriptor for kernel stdio */
         /**
