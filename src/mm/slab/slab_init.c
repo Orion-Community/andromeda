@@ -23,7 +23,6 @@
 #include <mm/vm.h>
 #include <andromeda/system.h>
 
-
 /**
  * \AddToGroup slab
  * @{
@@ -37,12 +36,15 @@
 #define NO_STD_CACHES 11
 
 extern int initial_slab_space;
+extern int initial_slab_alloc_space;
 
 struct mm_cache* caches = NULL;
 static struct mm_cache initial_caches[NO_STD_CACHES];
 static struct mm_slab initial_slabs[NO_STD_CACHES];
 static void* init_slab_ptr = NULL;
-static mutex_t init_lock = mutex_unlocked;
+
+struct mm_cache mm_slab_cache;
+static struct mm_slab mm_slab_slab;
 
 /**
  * \fn calc_no_pages
@@ -53,8 +55,7 @@ static mutex_t init_lock = mutex_unlocked;
  * \param alignment
  * \return result of calculation in bytes
  */
-size_t
-calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
+size_t calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
 {
         /* Check the arguments */
         if (element_size == 0)
@@ -88,8 +89,7 @@ calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
  * \param alignment
  * \return The result of the calculation in pages
  */
-size_t
-calc_data_offset(size_t alignment)
+size_t calc_data_offset(size_t alignment)
 {
         size_t offset = SLAB_MAX_OBJS * sizeof(int);
         if (offset % alignment != 0)
@@ -108,8 +108,7 @@ calc_data_offset(size_t alignment)
  * \brief How big are the objects we're going to allocate
  * \return The number of objects usable within the unit of memory
  */
-size_t
-calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size)
+size_t calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size)
 {
         if (obj_size == 0 || obj_space == 0)
                 return 0;
@@ -136,7 +135,7 @@ int test_calc_unit(int size, int alignment, int no_objects)
         int offset = calc_data_offset(alignment);
 
         sprintf(txt, "Pages: %8X\telements: %8X\toffset: %8X\n", pages,
-                                                           no_elements, offset);
+                        no_elements, offset);
         debug(txt);
         return -E_SUCCESS;
 }
@@ -146,28 +145,28 @@ test_calculation_functions()
 {
         int ret = 1;
         if (test_calc_unit(16, 16, 16) != -E_SUCCESS)
-                goto err;
+        goto err;
         ret ++;
         if (test_calc_unit(32, 16, 16) != -E_SUCCESS)
-                goto err;
+        goto err;
         ret++;
         if (test_calc_unit(16, 32, 16) != -E_SUCCESS)
-                goto err;
+        goto err;
         ret ++;
         if (test_calc_unit(0x1000, 0x1000, 16) != -E_SUCCESS)
-                goto err;
+        goto err;
         ret ++;
         if (test_calc_unit(0x400, 0x1000, 16) != -E_SUCCESS)
-                goto err;
+        goto err;
         ret ++;
 
         if (mm_cache_init("Blaat", sizeof(struct mm_cache), 255, NULL, NULL)
-                                                                        == NULL)
-                goto err;
+                        == NULL)
+        goto err;
         ret ++;
 
         return -E_SUCCESS;
-err:
+        err:
         debug("The test failed on item: %X\n", ret);
         return ret;
 }
@@ -188,8 +187,7 @@ err:
  * \brief The number of elements that we've got in our slab
  * \return An error code or success
  */
-int
-slab_setup (slab, cache, pages, no_pages, no_elements)
+int slab_setup(slab, cache, pages, no_pages, no_elements)
 struct mm_slab* slab;
 struct mm_cache* cache;
 void* pages;
@@ -215,23 +213,23 @@ register size_t no_elements;
         int* alloc_space = pages;
 
         for (; i < no_elements; i++)
-                alloc_space[i] = i+1;
+                alloc_space[i] = i + 1;
 
         int j = i;
-        for (;j < SLAB_MAX_OBJS; j++)
+        for (; j < SLAB_MAX_OBJS; j++)
                 alloc_space[j] = SLAB_ENTRY_FALSE;
 
 #ifdef SLAB_DBG
 #ifdef SLAB_SHOW_OBJS
         debug(
-                "%i    : %X\n"
-                "%i + 1: %X\n"
-                "%i - 1: %i\n"
-                "0     : %i\n",
-               i, alloc_space[i],
-               i, alloc_space[i+1],
-               i, alloc_space[i-1],
-               alloc_space[0]
+                        "%i    : %X\n"
+                        "%i + 1: %X\n"
+                        "%i - 1: %i\n"
+                        "0     : %i\n",
+                        i, alloc_space[i],
+                        i, alloc_space[i+1],
+                        i, alloc_space[i-1],
+                        alloc_space[0]
         );
 #endif
 #endif
@@ -239,20 +237,19 @@ register size_t no_elements;
         return -E_SUCCESS;
 }
 
-int
-cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
+int cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
 {
         size_t no_pages = calc_no_pages(cache->obj_size, SLAB_MIN_OBJS,
-                                                              cache->alignment);
+                        cache->alignment);
         size_t no_elements = calc_max_no_objects(cache->alignment, no_pages,
-                                                               cache->obj_size);
+                        cache->obj_size);
         cache->slabs_empty = &initial_slabs[slab_idx];
 
         if (slab_setup(cache->slabs_empty, cache, init_slab_ptr, no_pages,
-                                                     no_elements) != -E_SUCCESS)
+                        no_elements) != -E_SUCCESS)
                 panic("Something somewhere went terribly wrong (SLAB)!");
 
-        init_slab_ptr+= no_pages;
+        init_slab_ptr += no_pages;
         return -E_SUCCESS;
 }
 
@@ -281,16 +278,16 @@ int slab_alloc_init()
                 sprintf(caches[idx].name, "size-%i", alignment);
 
                 if (idx != 0)
-                        caches[idx].prev = &caches[idx-1];
+                        caches[idx].prev = &caches[idx - 1];
                 else
                         caches[idx].prev = NULL;
-                if (idx != NO_STD_CACHES-1)
-                        caches[idx].next = &caches[idx+1];
+                if (idx != NO_STD_CACHES - 1)
+                        caches[idx].next = &caches[idx + 1];
                 else
                         caches[idx].prev = NULL;
 #ifdef SLAB_DBG
                 debug("Object size of cache[%X] = %X\n", idx,
-                                                          caches[idx].obj_size);
+                                caches[idx].obj_size);
 #endif
                 cache_find_slab_space(&caches[idx], idx);
         }
@@ -299,6 +296,27 @@ int slab_alloc_init()
         debug("Address of higherhalf: %X\n", &higherhalf);
 //         for (;;);
 #endif
+
+        /* Now prepare the slab preallocation cache */
+        memset(&mm_slab_cache, 0, sizeof(mm_slab_cache));
+        memset(&mm_slab_slab, 0, sizeof(mm_slab_slab));
+
+        sprintf(mm_slab_cache.name, "slab-cache", 0);
+        mm_slab_cache.obj_size = sizeof(mm_slab_slab);
+        mm_slab_cache.alignment = sizeof(mm_slab_slab);
+
+        mm_slab_cache.prev = &caches[idx];
+        caches[idx].next = &mm_slab_cache;
+
+        mm_slab_cache.slabs_empty = &mm_slab_slab;
+
+        int slab_slab_elements = calc_max_no_objects(sizeof(mm_slab_slab), 0x8000,
+                        sizeof(mm_slab_slab));
+
+        /* BUGGED! */
+        slab_setup(mm_slab_cache.slabs_empty, &mm_slab_cache,
+                        &initial_slab_alloc_space, 0x8000, slab_slab_elements);
+
         return -E_SUCCESS;
 }
 
@@ -328,8 +346,7 @@ static mutex_t cache_lock = mutex_unlocked;
  * \brief A deconstuctor for the objects to be freed
  * \return The new cache
  */
-struct mm_cache*
-mm_cache_init(name, obj_size, alignment, ctor, dtor)
+struct mm_cache* mm_cache_init(name, obj_size, alignment, ctor, dtor)
 char* name;
 size_t obj_size;
 size_t alignment;
@@ -338,13 +355,21 @@ cinit dtor;
 {
         struct mm_cache* cariage = caches;
         if (caches == NULL || name == NULL)
-                return NULL;
+                return NULL ;
         if (obj_size == 0)
-                return NULL;
+                return NULL ;
+        if (alignment < obj_size) {
+                if (alignment == 0) {
+                        alignment = obj_size;
+                } else {
+                        int tmp = alignment - (obj_size % alignment);
+                        alignment = obj_size + tmp;
+                }
+        }
 
         mutex_lock(&cache_lock);
 
-        for (; cariage->next != NULL; cariage = cariage->next);
+        for (; cariage->next != NULL ; cariage = cariage->next);
 
         cariage->next = kmalloc(sizeof(*cariage->next));
         if (cariage->next == NULL)
@@ -362,13 +387,11 @@ cinit dtor;
 
         return cariage;
 
-err_nomem:
-        mutex_unlock(&cache_lock);
-        return NULL;
+        err_nomem: mutex_unlock(&cache_lock);
+        return NULL ;
 }
 
-struct mm_slab*
-mm_slab_init (cache, obj_size, no_objects, alignment)
+struct mm_slab* mm_slab_init(cache, obj_size, no_objects, alignment)
 struct mm_cache* cache;
 size_t obj_size;
 size_t no_objects;
@@ -381,9 +404,9 @@ size_t alignment;
                 goto err;
 
         size_t no_pages = calc_no_pages(cache->obj_size, SLAB_MIN_OBJS,
-                                                              cache->alignment);
+                        cache->alignment);
         size_t no_elements = calc_max_no_objects(cache->alignment, no_pages,
-                                                               cache->obj_size);
+                        cache->obj_size);
         /**
          * \todo Actually allocate a page in mm_slab_init
          */
@@ -391,20 +414,19 @@ size_t alignment;
         if (page == NULL)
                 goto err_alloced;
 
-        if (slab_setup(cache->slabs_empty, cache, page, no_pages, no_elements)
-                                                                  != -E_SUCCESS)
+        if (slab_setup(cache->slabs_empty, cache, page, no_pages,
+                        no_elements) != -E_SUCCESS)
                 goto err_page;
 
         return slab;
-err_page:
+        err_page:
         /**
          * \todo Actually free the page in mm_slab_init
          */
         // Should free pages here!
-err_alloced:
+        err_alloced:
         kfree(slab);
-err:
-        return NULL;
+        err: return NULL ;
 }
 
 /**

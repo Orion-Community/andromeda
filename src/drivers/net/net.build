@@ -6,5 +6,5 @@
 "compiler-flags" : "",
 "linker-flags" : "",
 "archiver-flags" : "",
-"depend" : [{"path" : "rtl/rtl.build"}]
+"depend" : []
 }

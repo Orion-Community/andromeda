@@ -25,6 +25,7 @@
 #include <networking/rtl8168.h>
 #include <networking/net.h>
 #include <andromeda/system.h>
+#include <lib/tree.h>
 #include <mm/cache.h>
 #include <mm/vm.h>
 #include <stdio.h>
@@ -47,6 +48,27 @@ void shutdown()
                 endProg();
         }
 }
+
+#ifdef TREE_TEST
+static void tree_cleanup_test(void* a, void* b)
+{
+        kfree((int*)a);
+        return;
+}
+
+void tree_test()
+{
+        struct tree_root* root = tree_new_avl();
+        int i = 0;
+        for (; i < 10; i++)
+        {
+                void* tst = kmalloc(sizeof(int));
+                root->add(i, tst, root);
+        }
+
+        root->flush(root, tree_cleanup_test, NULL);
+}
+#endif
 
 volatile uint32_t rl = RL_RUN0;
 
@@ -83,6 +105,10 @@ void core_loop()
         sys_setup_net();
 
         sc_init();
+
+#ifdef TREE_TEST
+        tree_test();
+#endif
 #ifdef DBG
 #ifdef MATH_DBG
         printf("atanh(2.5) = %s\n", (isNaN(atanh(2.5)))?"NaN" : "A number");

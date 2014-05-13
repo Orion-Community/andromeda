@@ -32,6 +32,8 @@ extern "C" {
 
 #define AVL_BALANCE(a) (a->ldepth - a->rdepth)
 
+#define TREE_EARLY_ALLOC (1 << 0)
+
 struct tree_root;
 
 struct tree {
@@ -54,6 +56,8 @@ struct tree_root {
         struct tree* tree;
         unsigned int nodes;
 
+        unsigned int flags;
+
         int (*add)(int key, void* data, struct tree_root* root);
         void* (*find)(int key, struct tree_root* root);
         struct tree* (*find_close)(int key, struct tree_root* root);
@@ -64,6 +68,7 @@ struct tree_root {
 };
 
 struct tree_root* tree_new_avl();
+struct tree_root* tree_new_avl_early();
 
 /**
  * @} \file

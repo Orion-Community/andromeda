@@ -232,10 +232,12 @@ x86_pagefault(isrVal_t* registers)
         else
         {
                 /* Kernel space page faults */
-                if (registers->errCode & 2)
+                if (registers->errCode & 2) {
                         vm_kernel_fault_write(fault_addr,(registers->errCode&1));
-                else
+                } else {
+                        printf("Fault instruction address: %X\n", registers->eip);
                         vm_kernel_fault_read(fault_addr,(registers->errCode&1));
+                }
         }
 }
 

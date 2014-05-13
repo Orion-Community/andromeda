@@ -21,6 +21,14 @@
 #include <lib/tree.h>
 #include <andromeda/system.h>
 
+#ifdef SLAB
+#include <mm/cache.h>
+static struct mm_cache* avl_root_cache = NULL;
+static struct mm_cahce* avl_node_cache = NULL;
+
+static mutex_t avl_cache_init_lock = mutex_unlocked;
+#endif
+
 /**
  * \addtogroup tree
  * @{
@@ -547,7 +555,16 @@ success:
 static int avl_new_node(int key, void* data, struct tree_root* root)
 {
         /* Create new tree */
-        struct tree* t = kmalloc(sizeof(*t));
+        struct tree* t;
+#ifdef SLAB
+        if (root->flags & TREE_EARLY_ALLOC)
+                t = kmalloc(sizeof(*t));
+        else
+                t = mm_cache_alloc(avl_node_cache, 0);
+#else
+        t = kmalloc(sizeof(*t));
+#endif
+
         if (t == NULL)
                 return -E_NOMEM;
         memset(t, 0, sizeof(*t));
@@ -563,7 +580,14 @@ static int avl_new_node(int key, void* data, struct tree_root* root)
 
         /* Try to add the node into the tree, or if all else fails, return t */
         if (avl_add(root, t) != -E_SUCCESS) {
+#ifdef SLAB
+               if (root->flags & TREE_EARLY_ALLOC)
+                       kfree(t);
+               else
+                       mm_cache_free(avl_node_cache, t);
+#else
                kfree(t);
+#endif
                return -E_GENERIC;
         }
         return -E_SUCCESS;
@@ -595,7 +619,14 @@ avl_flush_node(struct tree* tree, int (*dtor)(void*, void*), void* dtor_arg)
 
         memset(tree, 0, sizeof(*tree));
 
+#ifdef SLAB
+        if (tree->root->flags & TREE_EARLY_ALLOC)
+                kfree(tree);
+        else
+                mm_cache_free(avl_node_cache, tree);
+#else
         kfree(tree);
+#endif
         return -E_SUCCESS;
 }
 
@@ -613,7 +644,14 @@ int avl_flush(struct tree_root* root, int (dtor)(void*,void*), void* dtor_arg)
         mutex_unlock(&root->mutex);
 
         memset(root, 0, sizeof(*root));
+#ifdef SLAB
+        if (root->flags & TREE_EARLY_ALLOC)
+                kfree(root);
+        else
+                mm_cache_free(avl_root_cache, root);
+#else
         kfree(root);
+#endif
         return -E_SUCCESS;
 }
 
@@ -666,16 +704,9 @@ static int avl_delete(int key, struct tree_root* root)
         return ret;
 }
 
-/**
- * \fn avl_new_avl
- * \brief Set up a new avl tree
- */
-struct tree_root* tree_new_avl()
+static void tree_avl_init(struct tree_root* t)
 {
-        /* Create the new tree */
-        struct tree_root* t = kmalloc(sizeof(*t));
-        if (t != NULL)
-                memset(t, 0, sizeof(*t));
+        memset (t, 0, sizeof(*t));
 
         /* Set up the function pointers */
         t->add = avl_new_node;
@@ -685,8 +716,49 @@ struct tree_root* tree_new_avl()
         t->flush = avl_flush;
 
         t->mutex = mutex_unlocked;
+}
 
-        /* And we're done! */
+/**
+ * \fn avl_new_avl
+ * \brief Set up a new avl tree
+ */
+struct tree_root* tree_new_avl()
+{
+        /* Create the new tree */
+        struct tree_root* t;
+#ifdef SLAB
+        if (avl_root_cache == NULL)
+        {
+        mutex_lock(&avl_cache_init_lock);
+
+                if (avl_root_cache == NULL)
+                        avl_root_cache = mm_cache_init("avl roots", sizeof(*t), 0, NULL, NULL);
+                if (avl_node_cache == NULL)
+                        avl_node_cache = mm_cache_init("avl nodes", sizeof(struct tree), 0, NULL, NULL);
+
+        mutex_unlock(&avl_cache_init_lock);
+        }
+        t = mm_cache_alloc(avl_root_cache, 0);
+#else
+        t = kmalloc(sizeof(*t));
+#endif
+        if (t == NULL)
+                return NULL;
+
+        tree_avl_init(t);
+
+        return t;
+}
+
+struct tree_root* tree_new_avl_early()
+{
+        struct tree_root* t = kmalloc(sizeof(*t));
+        if (t == NULL)
+                return NULL;
+
+        tree_avl_init(t);
+        t->flags |= TREE_EARLY_ALLOC;
+
         return t;
 }
 
