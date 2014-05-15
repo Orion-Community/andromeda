@@ -126,7 +126,6 @@ int x86_pte_unset_segment(struct vm_segment* s)
         return x86_pte_unload_range(s->pages);
 }
 
-/** \todo Write some bloody good comments for this code */
 int x86_pte_load_range(struct sys_mmu_range* range)
 {
         if (range == NULL)

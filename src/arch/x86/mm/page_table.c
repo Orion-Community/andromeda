@@ -157,6 +157,7 @@ int x86_pte_set_page(void* virt, void* phys, int cpl)
                 x86_pte_set_pt(get_phys(0,pt), pde);
                 vpt[pde] = pt;
         }
+
         x86_pte_set(phys, cpl, &pt[pte]);
 
         asm("invlpg (%0)" : : "r" (virt) : "memory");
@@ -211,15 +212,16 @@ x86_pagefault(isrVal_t* registers)
              :
              : "%eax", "memory");
 
-        /*if (++idx % 0x100 == 0)
-        {
-                addr_t pde = fault_addr >> 22;
-                addr_t pte = (fault_addr >> 12) & 0x3FF;
-                int* pt = vpt[pde];
-                printf("Fault addr: %X\t", (int)fault_addr);
-                printf("pde: %X - %X\t", *(int*)&vpd[pde], (int)pde);
-                printf("pte: %X - %X\n", pt[pte], (int)pte);
-        }*/
+        /*
+        addr_t pde = fault_addr >> 22;
+        addr_t pte = (fault_addr >> 12) & 0x3FF;
+        int* pt = vpt[pde];
+        printf("PF #%i\n", ++idx);
+        printf("Fault addr: %X\n", (int)fault_addr);
+        printf("pde: %X - %X - %X\n", *(int*)&vpd[pde], (int)pde, pd);
+        printf("pte: %X - %X - %X\n", pt[pte], (int)pte, x86_pte_get_phys(&pt));
+        printf("Err code: %X\n", registers->errCode);
+        */
 
         if (registers->errCode & 4)
         {
@@ -235,10 +237,10 @@ x86_pagefault(isrVal_t* registers)
                 if (registers->errCode & 2) {
                         vm_kernel_fault_write(fault_addr,(registers->errCode&1));
                 } else {
-                        printf("Fault instruction address: %X\n", registers->eip);
                         vm_kernel_fault_read(fault_addr,(registers->errCode&1));
                 }
         }
+//      printf("End of interrupt: #%i\n", idx--);
 }
 
 /**

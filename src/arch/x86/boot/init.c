@@ -172,7 +172,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
                 panic("Invalid memory map");
 
         mmap = (multiboot_memory_map_t*) hdr->mmap_addr;
-
         /** Build the memory map and allow for allocation */
         sys_setup_paging(mmap, (unsigned int)hdr->mmap_length);
         sys_setup_arch();

@@ -43,6 +43,7 @@ extern "C" {
 #define SLAB_ENTRY_FALSE ((~0))
 
 #define CACHE_ALLOC_SKIP_LOCKED (1 << 0)
+#define CACHE_ALLOC_NO_VM       (1 << 1)
 
 typedef enum {state_empty, state_partial, state_full} slab_state;
 
@@ -67,7 +68,6 @@ struct mm_slab {
         struct mm_cache* cache;
 
         void* obj_ptr;
-        void* page_ptr;
 
         size_t slab_size;
 
@@ -112,9 +112,9 @@ void* kmem_alloc(size_t, uint16_t);
 void kmem_free(void*, size_t);
 
 int slab_sys_register();
-size_t calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size);
+size_t calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size, void*);
 size_t calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment);
-int slab_setup (struct mm_slab*, struct mm_cache*, void*, size_t, size_t);
+int slab_setup (struct mm_slab*, struct mm_cache*, size_t, size_t);
 
 #ifdef SLAB_DBG
 int mm_cache_test();

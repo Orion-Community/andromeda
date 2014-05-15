@@ -36,15 +36,12 @@
 #define NO_STD_CACHES 11
 
 extern int initial_slab_space;
-extern int initial_slab_alloc_space;
 
 struct mm_cache* caches = NULL;
 static struct mm_cache initial_caches[NO_STD_CACHES];
-static struct mm_slab initial_slabs[NO_STD_CACHES];
 static void* init_slab_ptr = NULL;
 
 struct mm_cache mm_slab_cache;
-static struct mm_slab mm_slab_slab;
 
 /**
  * \fn calc_no_pages
@@ -55,7 +52,8 @@ static struct mm_slab mm_slab_slab;
  * \param alignment
  * \return result of calculation in bytes
  */
-size_t calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
+size_t
+calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
 {
         /* Check the arguments */
         if (element_size == 0)
@@ -89,11 +87,12 @@ size_t calc_no_pages(size_t element_size, idx_t no_elements, size_t alignment)
  * \param alignment
  * \return The result of the calculation in pages
  */
-size_t calc_data_offset(size_t alignment)
+size_t calc_data_offset(size_t alignment, void* slab_ptr)
 {
-        size_t offset = SLAB_MAX_OBJS * sizeof(int);
-        if (offset % alignment != 0)
-                offset += alignment - offset % alignment;
+        addr_t slab = (addr_t)slab_ptr;
+        size_t offset = SLAB_MAX_OBJS * sizeof(int) + sizeof(struct mm_slab);
+        if ((slab + offset) % alignment != 0)
+                offset += alignment - (slab + offset) % alignment;
         return offset;
 }
 
@@ -108,7 +107,7 @@ size_t calc_data_offset(size_t alignment)
  * \brief How big are the objects we're going to allocate
  * \return The number of objects usable within the unit of memory
  */
-size_t calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size)
+size_t calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size, void* slab_ptr)
 {
         if (obj_size == 0 || obj_space == 0)
                 return 0;
@@ -120,7 +119,7 @@ size_t calc_max_no_objects(size_t alignment, size_t obj_space, size_t obj_size)
         if (alloc_bytes % alignment != 0)
                 alloc_bytes += alignment - alloc_bytes % alignment;
 
-        obj_space -= alloc_bytes;
+        obj_space -= calc_data_offset(alignment, slab_ptr);
         return obj_space / obj_size;
 }
 
@@ -187,30 +186,29 @@ test_calculation_functions()
  * \brief The number of elements that we've got in our slab
  * \return An error code or success
  */
-int slab_setup(slab, cache, pages, no_pages, no_elements)
+int slab_setup(slab, cache, no_pages, no_elements)
 struct mm_slab* slab;
 struct mm_cache* cache;
-void* pages;
 register size_t no_pages;
 register size_t no_elements;
 {
-        if (slab == NULL || cache == NULL || pages == NULL)
+        if (slab == NULL || cache == NULL)
                 return -E_NULL_PTR;
         if (no_pages == 0 || no_elements == 0)
                 return -E_INVALID_ARG;
-        register size_t data_offset = calc_data_offset(cache->alignment);
+        register size_t data_offset = calc_data_offset(cache->alignment, slab);
 
-        memset(slab, 0, sizeof(*slab));
-        slab->page_ptr = pages;
-        slab->obj_ptr = pages + data_offset;
+        memset(slab, 0, no_pages);
+        slab->obj_ptr = (void*)slab + data_offset;
+        /*if ((size_t)slab->obj_ptr % cache->alignment != 0)
+                slab->obj_ptr += cache->alignment - ((size_t) slab->obj_ptr % cache->alignment);*/
         slab->slab_size = no_pages;
         slab->cache = cache;
         slab->objs_total = no_elements;
 
-        memset(pages, 0, no_pages);
 
         size_t i = 0;
-        int* alloc_space = pages;
+        int* alloc_space = ((void*)slab + sizeof(*slab));
 
         for (; i < no_elements; i++)
                 alloc_space[i] = i + 1;
@@ -242,10 +240,10 @@ int cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
         size_t no_pages = calc_no_pages(cache->obj_size, SLAB_MIN_OBJS,
                         cache->alignment);
         size_t no_elements = calc_max_no_objects(cache->alignment, no_pages,
-                        cache->obj_size);
-        cache->slabs_empty = &initial_slabs[slab_idx];
+                        cache->obj_size, init_slab_ptr);
+        cache->slabs_empty = init_slab_ptr;
 
-        if (slab_setup(cache->slabs_empty, cache, init_slab_ptr, no_pages,
+        if (slab_setup(cache->slabs_empty, cache, no_pages,
                         no_elements) != -E_SUCCESS)
                 panic("Something somewhere went terribly wrong (SLAB)!");
 
@@ -297,26 +295,6 @@ int slab_alloc_init()
 //         for (;;);
 #endif
 
-        /* Now prepare the slab preallocation cache */
-        memset(&mm_slab_cache, 0, sizeof(mm_slab_cache));
-        memset(&mm_slab_slab, 0, sizeof(mm_slab_slab));
-
-        sprintf(mm_slab_cache.name, "slab-cache", 0);
-        mm_slab_cache.obj_size = sizeof(mm_slab_slab);
-        mm_slab_cache.alignment = sizeof(mm_slab_slab);
-
-        mm_slab_cache.prev = &caches[idx];
-        caches[idx].next = &mm_slab_cache;
-
-        mm_slab_cache.slabs_empty = &mm_slab_slab;
-
-        int slab_slab_elements = calc_max_no_objects(sizeof(mm_slab_slab), 0x8000,
-                        sizeof(mm_slab_slab));
-
-        /* BUGGED! */
-        slab_setup(mm_slab_cache.slabs_empty, &mm_slab_cache,
-                        &initial_slab_alloc_space, 0x8000, slab_slab_elements);
-
         return -E_SUCCESS;
 }
 
@@ -353,7 +331,6 @@ size_t alignment;
 cinit ctor;
 cinit dtor;
 {
-        struct mm_cache* cariage = caches;
         if (caches == NULL || name == NULL)
                 return NULL ;
         if (obj_size == 0)
@@ -369,6 +346,7 @@ cinit dtor;
 
         mutex_lock(&cache_lock);
 
+        struct mm_cache* cariage = caches;
         for (; cariage->next != NULL ; cariage = cariage->next);
 
         cariage->next = kmalloc(sizeof(*cariage->next));
@@ -387,46 +365,9 @@ cinit dtor;
 
         return cariage;
 
-        err_nomem: mutex_unlock(&cache_lock);
+err_nomem:
+        mutex_unlock(&cache_lock);
         return NULL ;
-}
-
-struct mm_slab* mm_slab_init(cache, obj_size, no_objects, alignment)
-struct mm_cache* cache;
-size_t obj_size;
-size_t no_objects;
-size_t alignment;
-{
-        if (cache == NULL || obj_size == 0 || no_objects == 0 || alignment == 0)
-                goto err;
-        struct mm_slab* slab = kmalloc(sizeof(*slab));
-        if (slab == NULL)
-                goto err;
-
-        size_t no_pages = calc_no_pages(cache->obj_size, SLAB_MIN_OBJS,
-                        cache->alignment);
-        size_t no_elements = calc_max_no_objects(cache->alignment, no_pages,
-                        cache->obj_size);
-        /**
-         * \todo Actually allocate a page in mm_slab_init
-         */
-        void* page = vm_get_kernel_heap_pages(no_pages);
-        if (page == NULL)
-                goto err_alloced;
-
-        if (slab_setup(cache->slabs_empty, cache, page, no_pages,
-                        no_elements) != -E_SUCCESS)
-                goto err_page;
-
-        return slab;
-        err_page:
-        /**
-         * \todo Actually free the page in mm_slab_init
-         */
-        // Should free pages here!
-        err_alloced:
-        kfree(slab);
-        err: return NULL ;
 }
 
 /**

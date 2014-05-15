@@ -20,8 +20,6 @@ SECTIONS
     . += 0xC0100000;
     initial_slab_space = .;
     . += 0xA8000;
-    initial_slab_alloc_space = .;
-    . += 0x8000;
 
     .higherhalf : AT (ADDR(.higherhalf) - 0xC0000000)
     {

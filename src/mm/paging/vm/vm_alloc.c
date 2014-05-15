@@ -22,6 +22,9 @@
 #include <mm/vm.h>
 #include <mm/page_alloc.h>
 #include <types.h>
+#ifdef SLAB
+#include <mm/cache.h>
+#endif
 
 /**
  * \addtogroup VM
@@ -289,7 +292,11 @@ vm_range_split(struct vm_range_descriptor* src, size_t size)
                 return -E_SUCCESS;
 
         /* Create a new descritor to keep track of the other bit of memory */
+#ifdef SLAB
+        struct vm_range_descriptor* tmp = kmem_alloc(sizeof(*tmp), CACHE_ALLOC_NO_VM);
+#else
         struct vm_range_descriptor* tmp = kmalloc(sizeof(*tmp));
+#endif
         if (tmp == NULL)
                 return -E_NULL_PTR;
 
@@ -360,6 +367,7 @@ void* vm_segment_alloc(struct vm_segment *s, size_t size)
 
         /* If the range needs to be split up, do so here */
         vm_range_split(tmp, size);
+
         /* And mark our range as allocated */
         vm_range_mark_allocated(s, tmp);
 

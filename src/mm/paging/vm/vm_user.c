@@ -554,8 +554,9 @@ vm_kernel_fault_write(addr_t fault_addr, int mapped)
         }
 
         void* phys = get_phys(0, (void*)(fault_addr & ~0x3FF));
-        if (phys != NULL)
+        if (phys != NULL) {
                 panic("Faulting on existing page ... wtf!");
+        }
 
         phys = page_alloc();
         if (phys == NULL)

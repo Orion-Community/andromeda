@@ -34,7 +34,7 @@ struct mm_cache* last_cache = NULL;
 extern struct mm_cache* caches;
 extern struct mm_cache mm_slab_cache;
 
-/**printf
+/**
  * \fn mm_slab_move
  * \brief Move the requested entry from list to list.
  * \param from
@@ -182,7 +182,7 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
         /*
          * Set up the variables
          */
-        int* map = slab->page_ptr;
+        int* map = ((void*)slab + sizeof(*slab));
         int idx = slab->first_free;
         /*
          * Set up the correct first free
@@ -213,6 +213,14 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
         addr_t tmp = idx * slab->cache->alignment;
         tmp += (addr_t) slab->obj_ptr;
 
+        if ((addr_t)slab->obj_ptr % slab->cache->alignment != 0) {
+                printf("Obj ptr alignment is off by: %X\n", (size_t)slab->obj_ptr % slab->cache->alignment);
+        }
+        if (tmp % slab->cache->alignment != 0) {
+                printf("Allocated object off alignment by: %X\n", tmp % slab->cache->alignment);
+                panic("Allignment incorrect!");
+        }
+
         return (void*) tmp;
 }
 
@@ -238,7 +246,7 @@ static int mm_slab_free(struct mm_slab* slab, void* ptr)
 
         idx /= slab->cache->alignment;
 
-        int* map = slab->page_ptr;
+        int* map = ((void*)slab + sizeof(*slab));
 
         /*
          * Verify that the entry actually is allocated
@@ -298,6 +306,7 @@ static int mm_slab_free(struct mm_slab* slab, void* ptr)
 void*
 mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
 {
+        void* ret = NULL;
         /*
          * Some standard argument checking
          */
@@ -325,25 +334,25 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
                 struct mm_slab* tmp = cache->slabs_empty;
                 if (tmp == NULL)
                 {
+                        if (flags & CACHE_ALLOC_NO_VM)
+                                goto err;
+
                         int no_pages = calc_no_pages(cache->obj_size,
-                        SLAB_MIN_OBJS, cache->alignment);
-                        int no_objs = calc_max_no_objects(cache->alignment,
-                                        no_pages, cache->obj_size);
+                                        SLAB_MIN_OBJS, cache->alignment);
 
                         /**
                          * \todo Add option to nick slabs from other caches!
                          */
 
-                        struct mm_slab* slab = mm_cache_alloc(&mm_slab_cache,
-                                        CACHE_ALLOC_SKIP_LOCKED);
+                        struct mm_slab* slab = vm_get_kernel_heap_pages(no_pages);
                         if (slab == NULL)
-                                panic("Out of memory - Chicken/egg problem!");
+                              panic("Out of memory!!!");
 
-                        void* pages = vm_get_kernel_heap_pages(no_pages);
-                        if (pages == NULL)
-                                panic("Out of heap space!");
+                        int no_objs = calc_max_no_objects(cache->alignment,
+                                        no_pages, cache->obj_size, slab);
 
-                        slab_setup(slab, cache, pages, no_pages, no_objs);
+                        slab_setup(slab, cache, no_pages, no_objs);
+
                         cache->slabs_partial = slab;
                 } else {
                         cache->slabs_empty = tmp->next;
@@ -355,8 +364,9 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
         /*
          * Allocate the memory and get the related pointer
          */
-        void* ret = mm_slab_alloc(cache->slabs_partial, flags);
+        ret = mm_slab_alloc(cache->slabs_partial, flags);
 
+err:
         /*
          * Leave the atomic section
          */
@@ -365,8 +375,10 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
         /*
          * If a constructor exists, run it
          */
-        if (cache->ctor != NULL)
+        if (cache->ctor != NULL && ret != NULL)
+        {
                 cache->ctor(ret, cache, flags);
+        }
 
         /*
          * Can we now finally return the pointer?
@@ -394,9 +406,9 @@ mm_cache_search_ptr(struct mm_slab* list, void* ptr)
                 /*
                  * If both conditions are met, return the list pointer
                  */
-                if (!(list->page_ptr < ptr))
+                if (!(list < ptr))
                         continue;
-                if (list->page_ptr + list->slab_size > ptr)
+                if (list + list->slab_size > ptr)
                         return list;
         }
         /*
@@ -477,9 +489,11 @@ kmem_find_size(struct mm_cache* cache, size_t size)
 static struct mm_cache*
 kmem_find_next_candidate(struct mm_cache* cache, size_t size)
 {
-        for (; cache != NULL ; cache = cache->next)
-                if (cache->obj_size == size)
+        for (; cache != NULL ; cache = cache->next) {
+                if (cache->obj_size == size) {
                         return cache;
+                }
+        }
         return NULL ;
 }
 
@@ -488,7 +502,6 @@ kmem_alloc(size_t size, uint16_t flags)
 {
         if (size == 0)
         {
-                printf("Invalid kmem_alloc request!\n");
                 return NULL ;
         }
         /*
@@ -498,7 +511,6 @@ kmem_alloc(size_t size, uint16_t flags)
         struct mm_cache* candidate = kmem_find_size(caches, size);
         if (candidate == NULL)
         {
-                printf("Returning NULL from allocation!\n");
                 return NULL ;
         }
 
@@ -512,14 +524,12 @@ kmem_alloc(size_t size, uint16_t flags)
         {
                 if (candidate == NULL)
                         return NULL ;
-                printf("Trying to allocate from: %s\n", candidate->name);
                 ret = mm_cache_alloc(candidate,
                                 flags | CACHE_ALLOC_SKIP_LOCKED);
                 if (ret != NULL)
                         goto found;
-                candidate = kmem_find_next_candidate(candidate, size);
+                candidate = kmem_find_next_candidate(candidate->next, size);
         }
-        printf("Allocation failed!\n");
         return NULL ;
         found:
 #ifdef SLAB_DBG
