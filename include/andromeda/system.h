@@ -207,12 +207,16 @@ static inline int cpu_disable_interrupts(int a)
 
 static inline int cpu_enable_interrupts(int a)
 {
+        printf("4.1\n");
         struct sys_cpu* cpu = getcpu(a);
+        printf("4.2\n");
         if (!(hascpu(a) && cpu->enable_interrupt != NULL))
                 panic("CPU struct not initialised!");
 
+        printf("4.3\n");
+        printf("CPU struct: %X\n", (int)cpu);
+        printf("CPU enable interrupts: %X\n", (int)cpu->enable_interrupt);
         return cpu->enable_interrupt();
-        return 0;
 }
 
 static inline void*
@@ -273,6 +277,8 @@ int sys_setup_fs(void);
 int sys_setup_arch(void);
 int sys_setup_modules(void);
 int sys_setup_net(void);
+
+void stack_dump(uint32_t* stack_ptr, uint32_t depth);
 
 #ifdef X86
 int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length);

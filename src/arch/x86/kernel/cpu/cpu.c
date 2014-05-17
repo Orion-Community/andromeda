@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <arch/x86/cpu.h>
 #include <andromeda/system.h>
+#include <andromeda/sched.h>
 
 #include <mm/heap.h>
 #include <mm/memory.h>
@@ -206,4 +207,40 @@ __write_msr(uint32_t msr, uint64_t value)
                           "a" (eax),
                           "d" (edx)
                         );
+}
+
+int enableInterrupts()
+{
+        asm ("sti");
+        return 0;
+}
+
+extern void* stack;
+
+void stack_dump(uint32_t* esp, uint32_t len)
+{
+        uint32_t i =  0;
+        uint32_t cnt = 0;
+        uint32_t stack_seg = (uint32_t)&stack;
+        uint32_t stack_end = stack_seg + STD_STACK_SIZE;
+        int sf = 0;
+
+        for (; cnt < len; i++)
+        {
+                if ((uint32_t)&esp[i] <= stack_seg || (uint32_t)&esp[i] > stack_end) {
+                        break;
+                }
+                if (esp[i] < (uint32_t)&rodata && esp[i] >= (uint32_t)&higherhalf && sf == 1) {
+                        printf("\neip  %i: %X", i, esp[i]);
+                        cnt ++;
+                        sf = 0;
+                } else if (esp[i] >= stack_seg && esp[i] <= stack_end){
+//                        printf("esp: %X - ", esp[i]);
+                        sf = 1;
+                } else {
+ /*                       printf("%X: ", (int)&esp[i]);
+                        printf("%X - ", esp[i]); */
+                }
+        }
+        printf("\n");
 }

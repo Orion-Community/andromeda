@@ -18,8 +18,9 @@
 #include <stdlib.h>
 
 // Claim to have panicked, show the message and enter an infinite loop.
-void panicDebug(char * msg, char* file, int line)
+void panicDebug(char* msg, char* file, int line)
 {
+	stack_dump((int)&msg, 8);
 #ifdef CAS
 	// Little easter egg, a request from Cas van Raan
 	printf("Shit's fucked up at line %i in file %s\n%s\nTry again!", line, file, msg);

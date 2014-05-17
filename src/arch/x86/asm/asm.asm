@@ -34,7 +34,7 @@
 [EXTERN mutex_unlock]
 
 [GLOBAL disableInterrupts]
-[GLOBAL enableInterrupts]
+;[GLOBAL enableInterrupts]
 
 mutex   dd	0 ;The mutex variable
 pgbit	dd	0 ;Paging is disabled per default
@@ -57,10 +57,10 @@ disableInterrupts:
 .return:
 	ret		; Return
 
-enableInterrupts:
-	sti		; Enable interrupts
-	xor eax, eax 	; Set return value to 0, to signal no error has occured
-	ret		; Return
+;enableInterrupts:
+;	sti		; Enable interrupts
+;	xor eax, eax 	; Set return value to 0, to signal no error has occured
+;	ret		; Return
 
 halt:
         pushfd		; Make sure interrupt flag is saved
