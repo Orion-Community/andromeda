@@ -24,7 +24,7 @@
 
 //Makes use of the memory bitmap to select the pages that are usable.
 //Since the heap has only limited allocation space, there also needs
-//to be a regeon that's used for memory mapping.
+//to be a region that's used for memory mapping.
 
 // void heapAddBlocks(void* base, int size) // Requests size in bytes
 // {
@@ -90,7 +90,7 @@ heap_inset_block(volatile memory_node_t* heap_l, volatile memory_node_t *block)
 }
 
 /**
- * Heap_add_blocks adds a regeon of address space to the heap
+ * Heap_add_blocks adds a region of address space to the heap
  */
 
 void

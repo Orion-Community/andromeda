@@ -41,7 +41,7 @@ static int vfs_cache_dtor(void* data, void* args)
 #ifdef SLAB
         ret = mm_cache_free(block_cache, data);
 #else
-        ret = kfree(data);
+        kfree(data);
 #endif
         return ret;
 }

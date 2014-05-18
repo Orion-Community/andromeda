@@ -124,7 +124,7 @@ alloc(size_t size, uint16_t pageAlligned)
 			{
 				/**
 				 * If the block isn't used and the block should
-				 * be alligned with the page boundary, the block
+				 * be aligned with the page boundary, the block
 				 * is called.
 				 * The code figures out the required offset for
 				 * the block to be able to hold the desired
@@ -217,6 +217,13 @@ alloc(size_t size, uint16_t pageAlligned)
 		}
 	}
 	mutex_unlock(&prot);
+	void* new_pages = vm_get_kernel_heap_pages(0x100000);
+	if (new_pages == NULL)
+	        return NULL;
+
+	complement_heap(new_pages, 0x100000);
+	return alloc(size, pageAlligned);
+
 	return NULL;
 }
 
