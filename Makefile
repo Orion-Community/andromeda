@@ -51,10 +51,10 @@ distclean: clean
 	rm -rfv doc/doxygen
 
 test: bin/andromeda.img
-	scripts/qemu.sh
+	scripts/qemu.sh $(DEBUG)
 
 test_iso: bin/andromeda.iso
-	scripts/qemu_iso.sh
+	scripts/qemu.sh -cdrom $(DEBUG)
 
 doxygen:
 	doxygen scripts/Doxyfile

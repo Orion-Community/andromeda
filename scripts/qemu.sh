@@ -2,7 +2,23 @@
 export KERN_PATH=bin/andromeda.img
 export MEM_SIZE="64M"
 
-export QEMU_FLAGS="-kernel $KERN_PATH -m $MEM_SIZE -monitor stdio"
+export CORE_DEV="-kernel bin/andromeda.img"
+
+for arg in $@
+do
+	case $arg in
+		-dbg)	
+			export ARG_FLAGS="$ARG_FLAGS -s -S"
+			;;
+		-cdrom)
+			export CORE_DEV="-cdrom bin/andromeda.iso"
+			;;
+	esac
+done
+
+export QEMU_FLAGS="$CORE_DEV -m $MEM_SIZE -monitor stdio $ARG_FLAGS"
+
+echo $QEMU_FLAGS
 
 if ! command -v qemu-kvm; then
 	if ! command -v kvm; then
