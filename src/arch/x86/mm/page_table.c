@@ -237,7 +237,7 @@ x86_pagefault(isrVal_t* registers)
                 if (registers->errCode & 2) {
                         vm_kernel_fault_write(fault_addr,(registers->errCode&1));
                 } else {
-                        vm_kernel_fault_read(fault_addr,(registers->errCode&1));
+                        vm_kernel_fault_read(fault_addr,(registers->errCode&1), registers->eip);
                 }
         }
 //      printf("End of interrupt: #%i\n", idx--);

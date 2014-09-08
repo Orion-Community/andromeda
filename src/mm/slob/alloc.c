@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <thread.h>
 #include <mm/heap.h>
+#include <mm/vm.h>
 
 static boolean
 use_memnode_block(volatile memory_node_t* block);
@@ -74,7 +75,8 @@ examine_heap()
 int
 initHdr(volatile memory_node_t* block, size_t size)
 {
-	if (size <= 0)
+        long test = size - sizeof(*block);
+	if (test <= ALLOC_MIN)
 		return 1;
 	block->size = size;
 	block->previous = NULL;
@@ -110,6 +112,11 @@ nalloc(size_t size)
 void*
 alloc(size_t size, uint16_t pageAlligned)
 {
+        if (size < ALLOC_MIN)
+                size = ALLOC_MIN;
+        /* Ensure that the block size remains 8 byte aligned */
+        if ((size + sizeof(memory_node_t)) % 8 != 0)
+                size += 8 - (size + sizeof(memory_node_t)) % 8;
 	if (size > ALLOC_MAX)
 	{
 		return NULL;

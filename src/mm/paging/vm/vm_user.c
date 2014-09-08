@@ -583,7 +583,7 @@ vm_user_fault_read(addr_t fault_addr, int mapped)
 }
 
 int
-vm_kernel_fault_read(addr_t fault_addr, int mapped)
+vm_kernel_fault_read(addr_t fault_addr, int mapped, addr_t eip)
 {
         if (!mapped)
         {
@@ -591,7 +591,8 @@ vm_kernel_fault_read(addr_t fault_addr, int mapped)
                  * \todo Reload pages here when swapping is written
                  */
                 printf("The kernel wants to read garbage from invalid memory.\n");
-                printf("Address: %X\n", (int)fault_addr);
+                printf("Address:   %X\n", (int)fault_addr);
+                printf("Fault eip: %X\n", (int)eip);
                 panic("Reason enough to panic, I'd say!");
         }
 

@@ -31,15 +31,13 @@ extern "C" {
 
 struct memNode
 {
-  unsigned int size;
+  size_t size;
   boolean used;
   volatile struct memNode* next;
   volatile struct memNode* previous;
   unsigned int hdrMagic;
 };
 typedef struct memNode memory_node_t;
-
-// void heapAddBlocks(void*, int);
 
 #ifdef SLOB
 void* alloc(size_t, uint16_t);
@@ -64,6 +62,7 @@ int slob_sys_register();
 #define THREE_GIB 0xC0000000
 #define HEAPSIZE (0xf*0x100000)-((uint32_t)(&end) - THREE_GIB)
 #define ALLOC_MAX HEAPSIZE
+#define ALLOC_MIN 0x20
 
 #ifdef MMTEST
 void wait();

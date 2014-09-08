@@ -22,9 +22,11 @@
 #include <mm/heap.h>
 
 #ifndef SLAB
-#define BASE_HEAP_SIZE 0x40000
+#define BASE_HEAP_SIZE 0x400000
 
-int heap_base[BASE_HEAP_SIZE]; // Heap base = 4 MiB
+extern int initial_slab_space;
+
+char* heap_base = (char*)&initial_slab_space;
 
 int
 complement_heap(void* base, size_t size)
@@ -36,7 +38,7 @@ complement_heap(void* base, size_t size)
 int
 init_heap()
 {
-        heap_add_blocks(&heap_base, BASE_HEAP_SIZE);
+        heap_add_blocks(heap_base, (size_t)&higherhalf - (size_t)heap_base);
         return -E_SUCCESS;
 }
 #endif

@@ -141,9 +141,11 @@ void cStackFault(isrVal_t* regs)
 void cGenProt(isrVal_t* regs)
 {
   printf("GP\n");
-  printf("\nGeneral Protection Fault\neip\tcs\tds\teflags\tprocesp\tss\n");
-  printf("%X\t%X\t%X\t%X\t%X\t%X\n", regs->eip, regs->cs, regs->ds, regs->eflags,
-                                                        regs->procesp, regs->ss);
+  printf("\nGeneral Protection Fault\neip\t\tcs\tds\teflags\tprocesp\t\tss\n");
+  printf("%X\t%X\t%X\t%X\t%X\t%X\n", regs->eip, regs->cs & 0xFFFF, regs->ds & 0xFFFF, regs->eflags,
+                                                        regs->procesp, regs->ss & 0xFFFF);
+
+  printf("error code: %X\n", regs->errCode);
   printf("\nCurrent:\n");
   printf("CS\tDS\tSS\tESP\n");
   printf("%X\t%X\t%X\t%X\n", getCS(), getDS(), getSS(), getESP());

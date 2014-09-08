@@ -156,7 +156,7 @@ int vm_segment_mark_loaded(int cpuid, struct vm_segment* s);
 int vm_user_fault_write(addr_t fault_addr, int mapped);
 int vm_kernel_fault_write(addr_t fault_addr, int mapped);
 int vm_user_fault_read(addr_t fault_addr, int mapped);
-int vm_kernel_fault_read(addr_t fault_addr, int mapped);
+int vm_kernel_fault_read(addr_t fault_addr, int mapped, addr_t eip);
 
 #ifdef VM_DBG
 int vm_dump(struct vm_descriptor*);
