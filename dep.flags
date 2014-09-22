@@ -1,7 +1,29 @@
 {
-        "Osize": {
+        "Optimize": {
+                "enum": {
+                        "Optimize1": {
+                                "ignore-autoconf": false,
+                                "info": "First level compiler optimization",
+                                "mandatory": false
+                        },
+                        "Optimize2": {
+                                "ignore-autoconf": false,
+                                "info": "Second level compiler optimization",
+                                "mandatory": false
+                        },
+                        "Optimize3": {
+                                "ignore-autoconf": false,
+                                "info": "Third level compiler optimization",
+                                "mandatory": false
+                        },
+                        "OptimizeSize": {
+                                "ignore-autoconf": false,
+                                "info": "Compiler optimization for size",
+                                "mandatory": false
+                        }
+                },
                 "ignore-autoconf": false,
-                "info": "Enable optimalisation for size",
+                "info": "The compiler optimization",
                 "mandatory": false
         },
         "arch": {
@@ -17,6 +39,11 @@
         "cas": {
                 "ignore-autoconf": false,
                 "info": "A tiny little easter egg, for Cas van Raan",
+                "mandatory": false
+        },
+        "gdb": {
+                "ignore-autoconf": false,
+		"info" : "Enable GDB debugging information",
                 "mandatory": false
         },
         "mm": {
@@ -43,8 +70,8 @@
         },
         "tree test": {
                 "ignore-autoconf": false,
-                "mandatory": false,
-		"info" : "A quick and basic test for the avl tree"
+                "info": "A quick and basic test for the avl tree",
+                "mandatory": false
         },
         "vm_test": {
                 "ignore-autoconf": false,

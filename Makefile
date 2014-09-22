@@ -13,7 +13,7 @@ MAKE=make
 
 .PHONY: all clean preconfigure configure distclean test doxygen
 .PHONY: bin/andromeda.img allyes-config allno-config random-config
-.PHONY: bin/andromeda.iso test_iso bin
+.PHONY: bin/andromeda.iso test_iso bin test_gdb test_iso_gdb
 	@$(MAKE) -C src/ clean
 
 all: bin/doxygen.tar.bz2 bin/andromeda.iso 
@@ -53,8 +53,14 @@ distclean: clean
 test: bin/andromeda.img
 	scripts/qemu.sh $(DEBUG)
 
+test_gdb: bin/andromeda.img
+	scripts/qemu.sh -dbg $(DEBUG)
+
 test_iso: bin/andromeda.iso
 	scripts/qemu.sh -cdrom $(DEBUG)
+
+test_iso_gbd: bin/andromeda.iso
+	scripts/qemu.sh -dbg -cdrom $(DEBUG)
 
 doxygen:
 	doxygen scripts/Doxyfile
