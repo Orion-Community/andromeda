@@ -22,7 +22,7 @@
 extern "C" {
 #endif
 
-typedef unsigned char boolean;
+typedef unsigned int boolean;
 #define bool boolean
 #define FALSE 0
 #define TRUE (!FALSE)

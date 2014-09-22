@@ -133,7 +133,7 @@ machine:
 
 [GLOBAL simd]
 [EXTERN cSimd]
-	simd:
+simd:
 	isrNoError cSimd
 
 isrStub:

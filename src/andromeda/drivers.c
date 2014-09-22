@@ -45,9 +45,11 @@ int dev_detect_cpus(struct device* root)
 int dev_root_init()
 {
         struct device* root = &dev_root;
-        memset(root, 0, sizeof(struct device));
-        root->driver = kmalloc(sizeof(struct driver));
-        memset(root->driver, 0, sizeof(struct driver));
+        memset(root, 0, sizeof(*root));
+        root->driver = kmalloc(sizeof(*root->driver));
+        if (root->driver == NULL)
+                panic("Unable to allocate");
+        memset(root->driver, 0, sizeof(*root->driver));
 
         dev_tree = tree_new_avl();
         if (dev_tree == NULL)

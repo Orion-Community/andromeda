@@ -42,7 +42,7 @@ static unsigned int fd_alloc(struct vfile* file)
         }
 }
 
-int fopen_sc(int arg_path, int path_len, int arg3)
+int fopen_sc(int arg_path, int path_len, int arg3 __attribute__((unused)))
 {
         printf("Open syscall!\n");
         char* path = (char*)arg_path;
@@ -69,28 +69,32 @@ int fopen_sc(int arg_path, int path_len, int arg3)
         return fd;
 }
 
-static int fclose_sc(int fd, int arg2, int arg3)
+static int fclose_sc(int fd __attribute__((unused)), int arg2 __attribute__((unused)), int arg3 __attribute__((unused)))
 {
         printf("Close syscall!\n");
+        printf("FCLOSE_SC unimplemented!\n");
 
         return -E_NOFUNCTION;
 }
 
-static int fwrite_sc(int fd, int str, int cnt)
+static int fwrite_sc(int fd __attribute__((unused)), int str __attribute__((unused)), int cnt __attribute__((unused)))
 {
         printf("Write syscall!\n");
+        printf("FWRITE_SC unimplemented!\n");
         return -E_NOFUNCTION;
 }
 
-static int fread_sc(int fd, int str, int cnt)
+static int fread_sc(int fd __attribute__((unused)), int str __attribute__((unused)), int cnt __attribute__((unused)))
 {
         printf("Read syscall!\n");
+        printf("FREAD_SC unimplemented!\n");
         return -E_NOFUNCTION;
 }
 
-static int fseek_sc(int fd, int mode, int cnt)
+static int fseek_sc(int fd __attribute__((unused)), int mode __attribute__((unused)), int cnt __attribute__((unused)))
 {
         printf("Seek syscall!\n");
+        printf("FSEEK unimplemented\n");
         return -E_NOFUNCTION;
 }
 

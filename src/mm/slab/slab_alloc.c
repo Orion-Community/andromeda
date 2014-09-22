@@ -406,9 +406,9 @@ mm_cache_search_ptr(struct mm_slab* list, void* ptr)
                 /*
                  * If both conditions are met, return the list pointer
                  */
-                if (!(list < ptr))
+                if (!((void*)list < ptr))
                         continue;
-                if (list + list->slab_size > ptr)
+                if ((addr_t)list + list->slab_size > (addr_t)ptr)
                         return list;
         }
         /*

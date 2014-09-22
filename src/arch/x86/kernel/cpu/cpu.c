@@ -29,6 +29,8 @@ static ol_gen_registers_t __ol_cpuid(volatile ol_gen_registers_t regs);
 static uint64_t __read_msr(uint32_t msr);
 static void __write_msr(uint32_t msr, uint64_t value);
 
+extern void* stack;
+
 mutex_t cpu_lock = 0;
 volatile ol_cpu_t cpus;
 uint8_t cpu_num = 0;
@@ -132,7 +134,6 @@ ol_cpu_init(ol_cpu_t cpu)
       cpu->vendor = "INTEL";
     else if (regs->ebx == 0x96444D41 || regs->ebx == 0x68747541)
       cpu->vendor = "AMD";
-
     else cpu->vendor = "UNKNOWN";
 
     regs = ol_cpuid(0x80000000); /*check the amount of extended functions*/
@@ -141,8 +142,9 @@ ol_cpu_init(ol_cpu_t cpu)
       regs = ol_cpuid(0x80000008);
       cpu->bus_width = regs->eax & 0xff;
     }
-    else
+    else {
       cpu->bus_width = 36; /*default bus width*/
+    }
 
 #ifdef __CPU_DBG
     printf("CPU bus width: %i\n", cpu->bus_width);
@@ -215,7 +217,6 @@ int enableInterrupts()
         return 0;
 }
 
-extern void* stack;
 
 void stack_dump(uint32_t* esp, uint32_t len)
 {
@@ -225,13 +226,14 @@ void stack_dump(uint32_t* esp, uint32_t len)
         uint32_t stack_end = stack_seg + STD_STACK_SIZE;
         int sf = 0;
 
+        printf("Stack trace: \n");
         for (; cnt < len; i++)
         {
                 if ((uint32_t)&esp[i] <= stack_seg || (uint32_t)&esp[i] > stack_end) {
                         break;
                 }
                 if (esp[i] < (uint32_t)&rodata && esp[i] >= (uint32_t)&higherhalf && sf == 1) {
-                        printf("\neip  %i: %X", i, esp[i]);
+                        printf("ret %i: %X \tesp: %X\n", cnt, esp[i], &esp[i]);
                         cnt ++;
                         sf = 0;
                 } else if (esp[i] >= stack_seg && esp[i] <= stack_end){
@@ -242,5 +244,4 @@ void stack_dump(uint32_t* esp, uint32_t len)
                         printf("%X - ", esp[i]); */
                 }
         }
-        printf("\n");
 }

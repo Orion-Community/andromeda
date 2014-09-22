@@ -50,10 +50,10 @@ void shutdown()
 }
 
 #ifdef TREE_TEST
-static void tree_cleanup_test(void* a, void* b)
+static int tree_cleanup_test(void* a, void* b __attribute__((unused)))
 {
         kfree((int*)a);
-        return;
+        return -E_SUCCESS;
 }
 
 void tree_test()

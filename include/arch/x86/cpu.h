@@ -51,7 +51,7 @@ typedef struct ol_cpu
         char* vendor;
 
         /* CPU device info */
-        uint8_t flags;
+        uint32_t flags;
         uint64_t bus_width;
 
         void (*lock)(mutex_t*);

@@ -126,7 +126,7 @@ struct vfile {
          * \fn invlCache(this, idx, num)
          * \brief Invalidate cache from idx to idx+num
          */
-        int (*open)(struct vfile* this, char* path, int strlen);
+        int (*open)(struct vfile* this, char* path, size_t strlen);
         int (*close)(struct vfile* this);
         size_t (*read)(struct vfile* this, char* buf, size_t num);
         size_t (*write)(struct vfile* this, char* buf, size_t num);

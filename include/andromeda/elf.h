@@ -20,6 +20,7 @@
 #define __KERN_ELF_H
 
 #include <stdlib.h>
+#include <boot/mboot.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -268,12 +269,7 @@ typedef struct
 	} d_un;
 } Elf32_Dyn;
 
-
-boolean checkHdr(Elf32_Ehdr* hdr);
-int elfExec(void* image);
-int coreCheck(void* image);
-
-extern void elfJump(void* addr, void* memoryMap, void* modules);
+int core_symbols_init(struct multiboot_elf_section_header_table* table);
 
 #ifdef __cplusplus
 }

@@ -26,6 +26,13 @@
 #include <boot/mboot.h>
 #endif
 
+#include <mm/memory.h>
+#ifdef SLAB
+#include <mm/cache.h>
+#else
+#include <mm/heap.h>
+#endif
+
 #define CPU_LIMIT 0x10
 
 /*
@@ -207,16 +214,12 @@ static inline int cpu_disable_interrupts(int a)
 
 static inline int cpu_enable_interrupts(int a)
 {
-        printf("4.1\n");
         struct sys_cpu* cpu = getcpu(a);
-        printf("4.2\n");
         if (!(hascpu(a) && cpu->enable_interrupt != NULL))
                 panic("CPU struct not initialised!");
 
-        printf("4.3\n");
-        printf("CPU struct: %X\n", (int)cpu);
-        printf("CPU enable interrupts: %X\n", (int)cpu->enable_interrupt);
-        return cpu->enable_interrupt();
+        int ret = cpu->enable_interrupt();
+        return ret;
 }
 
 static inline void*

@@ -17,13 +17,18 @@
  */
 
 #include <fs/vfs.h>
-
+#include <andromeda/system.h>
 struct vsuper_block*
 proc_fs_init(struct device* drive)
 {
         if (drive == NULL)
                 return NULL;
-        return NULL;
+        struct vsuper_block* block = kmalloc(sizeof(*block));
+        if (block == NULL)
+                return NULL;
+        memset (block, 0, sizeof(*block));
+
+        return block;
 }
 
 struct vfile*
@@ -31,6 +36,12 @@ proc_fs_open(struct vsuper_block* this)
 {
         if (this == NULL)
                 return NULL;
+
+        struct vfile* f = kmalloc(sizeof(*f));
+        if (f == NULL)
+                return NULL;
+        memset(f, 0, sizeof(*f));
+
         return NULL;
 }
 

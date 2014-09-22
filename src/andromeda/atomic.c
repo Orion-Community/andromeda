@@ -114,7 +114,7 @@ atomic_init(atomic_t* d, uint64_t cnt)
 {
         if (d == NULL)
                 return;
-        d->cnt = 0;
+        d->cnt = cnt;
         d->lock = mutex_unlocked;
         return;
 }

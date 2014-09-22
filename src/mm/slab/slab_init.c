@@ -235,7 +235,7 @@ register size_t no_elements;
         return -E_SUCCESS;
 }
 
-int cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
+static int cache_find_slab_space(struct mm_cache* cache)
 {
         size_t no_pages = calc_no_pages(cache->obj_size, SLAB_MIN_OBJS,
                         cache->alignment);
@@ -251,6 +251,8 @@ int cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
         return -E_SUCCESS;
 }
 
+static int slabs_initialised = 0;
+
 /**
  * \fn slab_alloc_init
  * \brief Initialise the first caches, so the first allocations can be made
@@ -258,6 +260,8 @@ int cache_find_slab_space(struct mm_cache* cache, idx_t slab_idx)
  */
 int slab_alloc_init()
 {
+        if (slabs_initialised != 0)
+                panic("SLABS ALREADY INITIALISED!");
 #ifdef SLAB_DBG
         debug("Initial slab ptr: %X\n", &initial_slab_space);
 #endif
@@ -287,13 +291,14 @@ int slab_alloc_init()
                 debug("Object size of cache[%X] = %X\n", idx,
                                 caches[idx].obj_size);
 #endif
-                cache_find_slab_space(&caches[idx], idx);
+                cache_find_slab_space(&caches[idx]);
         }
 #ifdef SLAB_DBG
         debug("Final slab ptr: %X\n", init_slab_ptr);
         debug("Address of higherhalf: %X\n", &higherhalf);
 //         for (;;);
 #endif
+        slabs_initialised = -1;
 
         return -E_SUCCESS;
 }

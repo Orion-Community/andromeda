@@ -24,7 +24,7 @@
 #ifdef SLAB
 #include <mm/cache.h>
 static struct mm_cache* avl_root_cache = NULL;
-static struct mm_cahce* avl_node_cache = NULL;
+static struct mm_cache* avl_node_cache = NULL;
 
 static mutex_t avl_cache_init_lock = mutex_unlocked;
 #endif

@@ -99,16 +99,47 @@ installInterrupts(uint16_t offset1, uint16_t offset2, struct idt* idt)
 
 void setIDT()
 {
-  struct idt* idt = kmalloc(sizeof(struct idt));
+  struct idt* idt = kmalloc(sizeof(*idt));
+  if (idt == NULL)
+          panic("OUT OF MEMORY in idt alloc!");
+  memset(idt, 0, sizeof(*idt));
   idt->limit = sizeof(struct idt_entry) * 256;
   idt->baseptr = kmalloc(idt->limit);
+  if (idt->baseptr == NULL)
+          panic("OUT OF MEMORY allocating descriptor table!");
   memset(idt->baseptr, 0, idt->limit);
 
   installExceptions(idt);
   //installInterrupts(0x20, 0x28, idt);
   installIDT(idt);
 
+
   debug("First empty idt entry: %x\n", get_empty_idt_entry_number());
+}
+
+void
+dump_idt()
+{
+        struct idt* idt = (struct idt*)get_idt();
+        printf("Idt desc addr: %X\n", (int)idt);
+        if (idt == NULL)
+                panic("NULL IDT!");
+        printf("Idt addr: %X\n", (int)idt->baseptr);
+
+        int i = 0;
+        unsigned int j = 0;
+        for (; i < 0xFF; i++)
+        {
+                printf("%i: %X\t", i, idt->baseptr[i].base_high << 16 | idt->baseptr[i].base_low);
+                if (i % 0x10 == 0) {
+                        for (j = 0; j < 0x8FFFFFFF; j++) {
+                                printf("");
+                        }
+                }
+        }
+        for (j = 0; j < 0x8FFFFFFF; j++) {
+                printf("");
+        }
 }
 
 static void

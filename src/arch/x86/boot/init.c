@@ -83,6 +83,7 @@ int page_table_boot [0x40000];
 int vendor = 0;
 
 void setIDT();
+void dump_idt();
 
 int system_x86_mmu_init(struct sys_cpu* cpu)
 {
@@ -180,12 +181,14 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         setIDT();
         setup_irq_data();
         vm_init();
+
+        printf(WELCOME); // The only screen output that should be maintained
 #ifdef PA_DBG
 //         endProg();
 #endif
+        if (hdr->flags & MULTIBOOT_INFO_ELF_SHDR)
+                core_symbols_init(&hdr->u.elf_sec);
         task_init();
-
-        printf(WELCOME); // The only screen output that should be maintained
 
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");

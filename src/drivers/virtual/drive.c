@@ -24,7 +24,7 @@
 #include <stdlib.h>
 
 static struct vfile*
-virt_drive_buffered_open(struct device* this)
+virt_drive_buffered_open(struct device* this __attribute__((unused)))
 {
         //return ((struct vfile*)this->device_data)->duplicate(this->device_data);
         panic("Function not yet implemented!");

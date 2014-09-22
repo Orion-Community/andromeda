@@ -44,6 +44,8 @@ bool isSleeping = FALSE;
 struct irq_data irq_data[MAX_IRQ_NUM];
 uint32_t irqs[IRQ_BASE];
 
+char* asm_panic_msg = "IRQ!";
+
 void cIRQ0(irq_stack_t* regs)
 {
   if (isSleeping)
@@ -228,7 +230,7 @@ setup_irq_cfg(int irq)
   cfg->delivery_mode = 1;
   cfg->vector = alloc_idt_entry();
 
-  return data->irq_config;
+  return cfg;
 }
 
 struct irq_data *
