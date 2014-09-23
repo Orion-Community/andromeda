@@ -13,7 +13,7 @@ MAKE=make
 
 .PHONY: all clean preconfigure configure distclean test doxygen
 .PHONY: bin/andromeda.img allyes-config allno-config random-config
-.PHONY: bin/andromeda.iso test_iso bin test_gdb test_iso_gdb
+.PHONY: bin/andromeda.iso test_iso bin test_gdb test_iso_gdb scripts/build
 	@$(MAKE) -C src/ clean
 
 all: bin/doxygen.tar.bz2 bin/andromeda.iso 
@@ -45,7 +45,7 @@ scripts/build:
 	scripts/get_build.sh
 
 distclean: clean
-	rm -fv scripts/build
+	rm -fv scripts/build*
 	rm -fv .config
 	rm -rfv bin/
 	rm -rfv doc/doxygen
