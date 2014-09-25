@@ -179,7 +179,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         pic_init();
         setIDT();
-        setup_irq_data();
+        //setup_irq_data();
         vm_init();
 
         printf(WELCOME); // The only screen output that should be maintained
@@ -193,7 +193,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");
 
-        ol_pit_init(1024); // program pic to 1024 hertz
+        //ol_pit_init(1024); // program pic to 1024 hertz
 
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, heap);
 
@@ -204,10 +204,11 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         ol_cpu_init(cpu);
 
         cpu_enable_interrupts(0);
+
         ol_ps2_init_keyboard();
         //ol_apic_init(cpu);
         //init_ioapic();
-        ol_pci_init();
+        //ol_pci_init();
         debug("Little endian 0xf in net endian %x\n", htons(0xf));
 #ifdef DBG
 #ifdef __IOAPIC_DBG

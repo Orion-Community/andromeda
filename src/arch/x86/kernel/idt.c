@@ -18,6 +18,7 @@
 
 #include <stdlib.h>
 #include <arch/x86/idt.h>
+#include <arch/x86/pic.h>
 #include <arch/x86/irq.h>
 #include <arch/x86/interrupts.h>
 #include <andromeda/system.h>
@@ -25,96 +26,92 @@
 #include <mm/memory.h>
 
 static void
-ol_idt_install_entry(uint16_t, uint32_t, uint16_t, uint8_t, struct idt*);
-static int get_empty_idt_entry_number();
+x86_idt_install_entry(uint16_t, uint32_t, uint16_t, uint8_t, struct idt*);
 
 static void
 installExceptions(struct idt* idt)
 {
-        ol_idt_install_entry( 0, (uint32_t)divByZero , 0x08, 0x8E, idt);
-        ol_idt_install_entry( 1, (uint32_t)depricated, 0x08, 0x8E, idt);
-        ol_idt_install_entry( 2, (uint32_t)nmi , 0x08, 0x8E, idt);
-        ol_idt_install_entry( 3, (uint32_t)breakp , 0x08, 0x8E, idt);
-        ol_idt_install_entry( 4, (uint32_t)overflow , 0x08, 0x8E, idt);
-        ol_idt_install_entry( 5, (uint32_t)bound , 0x08, 0x8E, idt);
-        ol_idt_install_entry( 6, (uint32_t)invalOp , 0x08, 0x8E, idt);
-        ol_idt_install_entry( 7, (uint32_t)noMath , 0x08, 0x8E, idt);
-        ol_idt_install_entry( 8, (uint32_t)doubleFault , 0x08, 0x8E, idt);
-        ol_idt_install_entry( 9, (uint32_t)depricated , 0x08, 0x8E, idt);
-        ol_idt_install_entry(10, (uint32_t)invalidTSS, 0x08, 0x8E, idt);
-        ol_idt_install_entry(11, (uint32_t)snp, 0x08, 0x8E, idt);
-        ol_idt_install_entry(12, (uint32_t)stackFault, 0x08, 0x8E, idt);
-        ol_idt_install_entry(13, (uint32_t)genProt, 0x08, 0x8E, idt);
-        ol_idt_install_entry(14, (uint32_t)pageFault, 0x08, 0x8E, idt);
-        ol_idt_install_entry(15, (uint32_t)depricated, 0x08, 0x8E, idt);
-        ol_idt_install_entry(16, (uint32_t)fpu, 0x08, 0x8E, idt);
-        ol_idt_install_entry(17, (uint32_t)alligned, 0x08, 0x8E, idt);
-        ol_idt_install_entry(18, (uint32_t)machine, 0x08, 0x8E, idt);
-        ol_idt_install_entry(19, (uint32_t)simd, 0x08, 0x8E, idt);
-        ol_idt_install_entry(INT_SYSCALL, (uint32_t)asm_syscall, 0x08, 0x8E, idt);
+        x86_idt_install_entry( 0, (uint32_t)divByZero , 0x08, 0x8E, idt);
+        x86_idt_install_entry( 1, (uint32_t)depricated, 0x08, 0x8E, idt);
+        x86_idt_install_entry( 2, (uint32_t)nmi , 0x08, 0x8E, idt);
+        x86_idt_install_entry( 3, (uint32_t)breakp , 0x08, 0x8E, idt);
+        x86_idt_install_entry( 4, (uint32_t)overflow , 0x08, 0x8E, idt);
+        x86_idt_install_entry( 5, (uint32_t)bound , 0x08, 0x8E, idt);
+        x86_idt_install_entry( 6, (uint32_t)invalOp , 0x08, 0x8E, idt);
+        x86_idt_install_entry( 7, (uint32_t)noMath , 0x08, 0x8E, idt);
+        x86_idt_install_entry( 8, (uint32_t)doubleFault , 0x08, 0x8E, idt);
+        x86_idt_install_entry( 9, (uint32_t)depricated , 0x08, 0x8E, idt);
+        x86_idt_install_entry(10, (uint32_t)invalidTSS, 0x08, 0x8E, idt);
+        x86_idt_install_entry(11, (uint32_t)snp, 0x08, 0x8E, idt);
+        x86_idt_install_entry(12, (uint32_t)stackFault, 0x08, 0x8E, idt);
+        x86_idt_install_entry(13, (uint32_t)genProt, 0x08, 0x8E, idt);
+        x86_idt_install_entry(14, (uint32_t)pageFault, 0x08, 0x8E, idt);
+        x86_idt_install_entry(15, (uint32_t)depricated, 0x08, 0x8E, idt);
+        x86_idt_install_entry(16, (uint32_t)fpu, 0x08, 0x8E, idt);
+        x86_idt_install_entry(17, (uint32_t)alligned, 0x08, 0x8E, idt);
+        x86_idt_install_entry(18, (uint32_t)machine, 0x08, 0x8E, idt);
+        x86_idt_install_entry(19, (uint32_t)simd, 0x08, 0x8E, idt);
+        x86_idt_install_entry(INT_SYSCALL, (uint32_t)asm_syscall, 0x08, 0x8E, idt);
 }
 
-#if 0
 static void
 installInterrupts(uint16_t offset1, uint16_t offset2, struct idt* idt)
 {
-        ol_idt_install_entry(offset1+0, (uint32_t)irq0, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset1+0, (uint32_t)irq0, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+1, (uint32_t)irq1, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset1+1, (uint32_t)irq1, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+2, (uint32_t)irq2, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset1+2, (uint32_t)irq2, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+3, (uint32_t)irq3, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset1+3, (uint32_t)irq3, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+4, (uint32_t)irq4, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset1+4, (uint32_t)irq4, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+5, (uint32_t)irq5, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset1+5, (uint32_t)irq5, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+6, (uint32_t)irq6, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset1+6, (uint32_t)irq6, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset1+7, (uint32_t)irq7, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset1+7, (uint32_t)irq7, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+0, (uint32_t)irq8, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset2+0, (uint32_t)irq8, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+1, (uint32_t)irq9, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset2+1, (uint32_t)irq9, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+2, (uint32_t)irq10, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset2+2, (uint32_t)irq10, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+3, (uint32_t)irq11, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset2+3, (uint32_t)irq11, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+4, (uint32_t)irq12, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset2+4, (uint32_t)irq12, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+5, (uint32_t)irq13, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset2+5, (uint32_t)irq13, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+6, (uint32_t)irq14, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset2+6, (uint32_t)irq14, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
-        ol_idt_install_entry(offset2+7, (uint32_t)irq15, 0x08, IDT_PRESENT_BIT |
+        x86_idt_install_entry(offset2+7, (uint32_t)irq15, 0x08, IDT_PRESENT_BIT |
         IDT_INTERRUPT_GATE, idt);
 
         // software api interrupts
 //      ol_idt_install_entry(0x30, (uint32_t)irq30, 0x08, IDT_PRESENT_BIT |
 //      IDT_INTERRUPT_GATE, idt);
 }
-#endif
 
 void setIDT()
 {
-  struct idt* idt = kmalloc(sizeof(*idt));
-  if (idt == NULL)
-          panic("OUT OF MEMORY in idt alloc!");
-  memset(idt, 0, sizeof(*idt));
-  idt->limit = sizeof(struct idt_entry) * 256;
-  idt->baseptr = kmalloc(idt->limit);
-  if (idt->baseptr == NULL)
-          panic("OUT OF MEMORY allocating descriptor table!");
-  memset(idt->baseptr, 0, idt->limit);
+        struct idt* idt = kmalloc(sizeof(*idt));
+        if (idt == NULL)
+                panic("OUT OF MEMORY in idt alloc!");
+        memset(idt, 0, sizeof(*idt));
 
-  installExceptions(idt);
-  //installInterrupts(0x20, 0x28, idt);
-  installIDT(idt);
+        idt->limit = sizeof(struct idt_entry) * 256;
 
+        idt->baseptr = kmalloc(idt->limit);
+        if (idt->baseptr == NULL)
+                panic("OUT OF MEMORY allocating descriptor table!");
+        memset(idt->baseptr, 0, idt->limit);
 
-  debug("First empty idt entry: %x\n", get_empty_idt_entry_number());
+        installExceptions(idt);
+        installInterrupts(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE+8, idt);
+        installIDT(idt);
 }
 
 void
@@ -139,75 +136,42 @@ dump_idt()
         }
         for (j = 0; j < 0x8FFFFFFF; j++) {
                 printf("");
+                /*
+                 * Force the system to wait, to allow us to read the messages.
+                 * I know this is a hacky-hacky way, but in this moment in time
+                 * (at the time of writing and in this phase in boot) there is
+                 * no good way of persisting the messages for later reading.
+                 */
         }
 }
 
 static void
-ol_idt_install_entry(uint16_t num, uint32_t base,
+x86_idt_install_entry(uint16_t num, uint32_t base,
         uint16_t sel, uint8_t flags, struct idt* idt)
 {
-  idt->baseptr[num].base_high = (base >> 16) & 0xffff;
-  idt->baseptr[num].base_low = base & 0xffff;
-  idt->baseptr[num].flags = flags;
-  idt->baseptr[num].sel = sel;
-  idt->baseptr[num].zero = 0;
-}
-
-/**
- * Get an empty idt entry.
- */
-static int
-get_empty_idt_entry_number()
-{
-  struct idt* idt = (struct idt*)get_idt();
-
-  /*
-   * An entry is defined as 'empty' when the 32-bits base and flags are 0.
-   */
-  uint16_t i = IDT_VECTOR_OFFSET; /* start after exceptions */
-  for(; i < idt->limit/sizeof(struct idt_entry); i++)
-  {
-    uint32_t base = idt->baseptr[i].base_low | ((idt->baseptr[i].base_high) >> 16);
-    if(!(idt->baseptr[i].flags) && !base)
-    {
-      return i;
-    }
-  }
-  return -1;
-}
-
-int
-alloc_idt_entry()
-{
-  return get_empty_idt_entry_number();
-}
-
-int
-free_idt_entry(uint16_t vector)
-{
-  struct idt* idt = (struct idt*)get_idt();
-  memset((void*)&(idt->baseptr[vector]), 0, sizeof(idt->baseptr[vector]));
-  return -E_SUCCESS;
+        idt->baseptr[num].base_high = (base >> 16) & 0xffff;
+        idt->baseptr[num].base_low = base & 0xffff;
+        idt->baseptr[num].flags = flags;
+        idt->baseptr[num].sel = sel;
+        idt->baseptr[num].zero = 0;
 }
 
 int
 install_irq_vector(struct irq_data *data)
 {
-  uint8_t entry = data->irq_config->vector;
-  if(0 != entry)
-  {
-    struct idt* idt = (struct idt*)get_idt();
+        uint8_t entry = data->irq_config->vector;
+        if(0 != entry) {
+                struct idt* idt = (struct idt*)get_idt();
 
-    ol_idt_install_entry(entry, data->irq_base, 0x8, IDT_PRESENT_BIT | IDT_INTERRUPT_GATE,
-                         idt);
-    installIDT(idt);
+                x86_idt_install_entry(entry, data->irq_base, 0x8, IDT_PRESENT_BIT | IDT_INTERRUPT_GATE, idt);
+                installIDT(idt);
 #ifdef __IRQ_DBG
-    printf("IRQ num: %i | IRQ base: %x | Next available entry: %x | Vector: %x\n",
-           data->irq, data->irq_base, get_empty_idt_entry_number(),
-           entry);
+                printf("IRQ num: %i | IRQ base: %x | Next available entry: %x | Vector: %x\n",
+                   data->irq, data->irq_base, get_empty_idt_entry_number(),
+                   entry);
 #endif
-    return 0;
-  }
-  else
-    return -1;
+                return 0;
+        }
+        else
+                return -1;
 }

@@ -33,6 +33,7 @@ static int setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector);
 
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
+/*
 IRQ(timer_irq, irq, stack)
 {
         struct irq_data *data = get_irq_data(irq);
@@ -44,6 +45,7 @@ IRQ(timer_irq, irq, stack)
 
         return;
 }
+*/
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
@@ -171,6 +173,9 @@ vfs_write_hook_t write;
 static int
 setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector)
 {
+        printf("setup_timer_irq needs reimplementing!\n");
+        return -E_UNFINISHED;
+        /*
         struct irq_data *data = alloc_irq();
         struct device *root = get_root_device();
         data->base_handle = &do_irq;
@@ -188,4 +193,5 @@ setup_timer_irq(TIMER *timer, bool forse_vec, unsigned char vector)
         }
         else
                 return -E_GENERIC;
+        */
 }

@@ -227,37 +227,37 @@ vm_init()
 
         /* Map the relevant pages starting with code*/
         ret |= vm_map_kernel_code(&vm_core_segments[0]);
-	if (ret == -E_SUCCESS)
-		printf("Code!\n");
+	if (ret != -E_SUCCESS)
+		printf("Code mapping failed!\n");
 
         /* Map the stack */
         /** \todo Write special function for mapping the stack */
         ret |= vm_map_kernel_stack(&vm_core_segments[4]);
-	if (ret == -E_SUCCESS)
-		printf("Stack!\n");
+	if (ret != -E_SUCCESS)
+		printf("Stack mapping failed!\n");
 
         /* Map the page tables */
         ret |= vm_map_kernel_data(&vm_core_segments[1],
                         (void*)((int)(&page_dir_boot) + THREE_GIB),
                         &initial_slab_space, ".PD");
-	if (ret == -E_SUCCESS)
-		printf("page dirs!\n");
+	if (ret != -E_SUCCESS)
+		printf("page dir mapping failed!\n");
 
         /* Map the static data */
         ret |= vm_map_kernel_data(&vm_core_segments[2], &rodata,
                         data_end, ".data");
-	if (ret == -E_SUCCESS)
-		printf("static data!\n");
+	if (ret != -E_SUCCESS)
+		printf("static data mapping failed!\n");
 
         /* Map the heap */
         /** \todo Designate an area for the heap */
         ret |= vm_map_kernel_data(&vm_core_segments[3], data_end,
                         data_end + 0x1000000, ".heap");
-	if (ret == -E_SUCCESS)
-		printf("heap data!\n");
+	if (ret != -E_SUCCESS)
+		printf("heap data mapping failed!\n");
         ret |= vm_kernel_add_range(&vm_core_segments[3]);
-	if (ret == -E_SUCCESS)
-		printf("heap data range!\n");
+	if (ret != -E_SUCCESS)
+		printf("heap data range mapping failed!\n");
 
         /*
          * Kernel modules and init file systems will have to be mapped once the
