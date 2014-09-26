@@ -125,6 +125,13 @@ ol_ps2_init_keyboard()
       && (!ol_ps2_init_dev(ol_ps2_controller, OL_PS2_CONTROLLER)))
   {
     ol_ps2_keyboard->sent_command(ol_ps2_controller, OL_PS2_INIT_KB_CMD);
+    /*
+     * Send an end of interrupt signal to the interrupt controller, for one
+     * might be waiting, while not serviced yet. This can happen in the time
+     * span where the user has pressed a key, but the cpu was not yet listening
+     * for interrupts.
+     */
+    pic_eoi(2);
   }
   return 0;
 }

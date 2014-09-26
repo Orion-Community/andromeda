@@ -50,12 +50,39 @@ void shutdown()
 }
 
 #ifdef TREE_TEST
+/**
+ * \fn tree_cleanup_test
+ * \brief Tree object destructor
+ * \param a
+ * \brief Pointer to the object to be removed
+ * \param b
+ * \brief unused
+ *
+ * When the tree has to remove a node, because it is flushed or otherwise
+ * instructed to remove the node, it has the option of either calling the
+ * destructor, if present or leaving the clean-up to be done by other code.
+ *
+ * The option to clean up after your self rather than in the tree can be useful
+ * if the objects are also referenced elsewhere.
+ *
+ * Alternatively, these references can be counted in the object itself and with
+ * that information be assured of a proper clean-up when necessary.
+ */
 static int tree_cleanup_test(void* a, void* b __attribute__((unused)))
 {
         kfree((int*)a);
         return -E_SUCCESS;
 }
 
+/**
+ * \fn tree_test
+ * \brief Test the tree structure in a really basic manner
+ *
+ * This function tries to create a tree, fills it with mock data before trying
+ * to remove it all again.
+ *
+ * This test should be used in tandem with the GDB connection on QEMU.
+ */
 void tree_test()
 {
         struct tree_root* root = tree_new_avl();
