@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2014  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,17 +16,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __DRIVERS_VGA_TEXT_H
-#define __DRIVERS_VGA_TEXT_H
+#include <andromeda/drivers.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef __DRIVER_SERIAL_H
+#define __DRIVER_SERIAL_H
 
-int vga_text_init(struct device* parent);
-
-#ifdef __cplusplus
-}
-#endif
+int drv_serial_init(struct device* parent, uint16_t io_port);
+int drv_serial_kickstart (struct device* parent);
 
 #endif

@@ -6,5 +6,5 @@
 "compiler-flags" : "",
 "linker-flags" : "",
 "archiver-flags" : "",
-"depend" : [{"path" : "disk/disk.build"}, {"path" : "keyboard/keyboard.build"}, {"path" : "legacy/legacy.build"}, {"path" : "net/net.build"}, {"path" : "pci/pci.build"}, {"path" : "text/text.build"}, {"path" : "timer/timer.build"}, {"path" : "virtual/virtual.build"}]
+"depend" : [{"path" : "disk/disk.build"}, {"path" : "keyboard/keyboard.build"}, {"path" : "legacy/legacy.build"}, {"path" : "net/net.build"}, {"path" : "pci/pci.build"}, {"path" : "text/text.build"}, {"path" : "timer/timer.build"}, {"path" : "virtual/virtual.build"}, {"path" : "serial/serial.build"}]
 }

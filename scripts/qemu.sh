@@ -1,22 +1,25 @@
 #!/bin/bash
-export KERN_PATH=bin/andromeda.img
-export MEM_SIZE="64M"
+KERN_PATH=bin/andromeda.img
+MEM_SIZE="64M"
 
-export CORE_DEV="-kernel bin/andromeda.img"
+CORE_DEV="-kernel bin/andromeda.img"
 
 for arg in $@
 do
 	case $arg in
 		-dbg)	
-			export ARG_FLAGS="$ARG_FLAGS -s -S"
+			ARG_FLAGS="$ARG_FLAGS -s -S"
 			;;
 		-cdrom)
-			export CORE_DEV="-cdrom bin/andromeda.iso"
+			CORE_DEV="-cdrom bin/andromeda.iso"
+			;;
+		-serial)
+			ARG_FLAGS="$ARG_FLAGS -serial file:serial_out.txt"
 			;;
 	esac
 done
 
-export QEMU_FLAGS="$CORE_DEV -m $MEM_SIZE -monitor stdio $ARG_FLAGS"
+QEMU_FLAGS="$CORE_DEV -m $MEM_SIZE -monitor stdio $ARG_FLAGS"
 
 echo $QEMU_FLAGS
 

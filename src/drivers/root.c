@@ -24,6 +24,7 @@
 #include <drivers/virt.h>
 #include <drivers/vga_text.h>
 #include <drivers/legacy.h>
+#include <drivers/serial.h>
 
 static int drv_root_suspend(struct device* root)
 {
@@ -72,30 +73,32 @@ int init_buses(struct device* root)
         if (virtual == NULL)
                 return -E_NOMEM;
         struct device* legacy  = kmalloc(sizeof(struct device));
-        if (legacy == NULL)
-        {
+        if (legacy == NULL) {
                 kfree(virtual);
                 return -E_NOMEM;
         }
 
         int ret = drv_virt_bus_init(virtual, root);
-        if (ret != -E_SUCCESS)
-        {
+        if (ret != -E_SUCCESS) {
                 printf("Returned value from virtual bus: %X\n", -ret);
                 panic("Could not initialise the virtual bus!");
         }
         ret = drv_legacy_bus_init(legacy, root);
-        if (ret != -E_SUCCESS)
-        {
+        if (ret != -E_SUCCESS) {
                 printf("Returned value from legacy bus: %X\n", -ret);
                 panic("Could not initialise the legacy bus!");
         }
 
         ret = vga_text_init(device_find_id(lgcy_bus));
-        if (ret != -E_SUCCESS)
-        {
+        if (ret != -E_SUCCESS) {
                 printf("Returned value from vga: %X\n", -ret);
                 panic("The text driver can't be initiated!");
+        }
+
+        ret = drv_serial_kickstart(device_find_id(lgcy_bus));
+        if (ret != -E_SUCCESS) {
+                printf("Returned value from serial init: %X\n", -ret);
+                panic("The serial driver was not properly initialised!");
         }
 
         return -E_SUCCESS;

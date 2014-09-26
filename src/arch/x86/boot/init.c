@@ -56,6 +56,7 @@
 #include <arch/x86/paging.h>
 #include <arch/x86/system.h>
 #include <arch/x86/pte.h>
+#include <arch/x86/bios.h>
 
 #include <interrupts/int.h>
 
@@ -84,6 +85,8 @@ int vendor = 0;
 
 void setIDT();
 void dump_idt();
+
+struct Bios_Data_Area bda;
 
 int system_x86_mmu_init(struct sys_cpu* cpu)
 {
@@ -151,6 +154,10 @@ int system_x86_init()
 int init(unsigned long magic, multiboot_info_t* hdr)
 {
         setGDT();
+
+        memset(&bda, 0, sizeof(bda));
+        memcpy((void*)0x400, &bda, sizeof(bda));
+
         sys_setup_alloc();
 
         textInit();

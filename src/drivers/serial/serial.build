@@ -1,0 +1,9 @@
+{
+"name" : "drivers-serial",
+"link" : false,
+"archive" : false,
+"source-files" : ["serial.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

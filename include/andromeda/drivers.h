@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <fs/vfs.h>
+#include <thread.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,7 +62,7 @@ struct driver
          * \fn detect(dev)
          * \brief return a list of all attached devices
          * \fn attach(dev, child)
-         * \brief attach a device to this de device
+         * \brief attach a device to this device
          * \fn detach(dev, child)
          * \brief detach a device from this device
          * \fn suspend(dev)
