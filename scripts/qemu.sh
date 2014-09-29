@@ -3,24 +3,30 @@ KERN_PATH=bin/andromeda.img
 MEM_SIZE="64M"
 
 CORE_DEV="-kernel bin/andromeda.img"
+SERIAL=0
 
 for arg in $@
 do
 	case $arg in
 		-dbg)	
-			ARG_FLAGS="$ARG_FLAGS -s -S"
+			ARG_FLAGS="$ARG_FLAGS -s -S";
 			;;
 		-cdrom)
-			CORE_DEV="-cdrom bin/andromeda.iso"
+			CORE_DEV="-cdrom bin/andromeda.iso";
 			;;
 		-serial)
-			ARG_FLAGS="$ARG_FLAGS -serial file:serial_out.txt"
+			SERIAL=1;
+			ARG_FLAGS="$ARG_FLAGS -serial stdio";
 			;;
 	esac
 done
 
-QEMU_FLAGS="$CORE_DEV -m $MEM_SIZE -monitor stdio $ARG_FLAGS"
 
+if [ "$SERIAL" -eq "0" ]; then
+	MONITOR="-monitor stdio"
+fi
+
+QEMU_FLAGS="$CORE_DEV -m $MEM_SIZE $MONITOR $ARG_FLAGS"
 echo $QEMU_FLAGS
 
 if ! command -v qemu-kvm; then

@@ -67,36 +67,42 @@ void cIRQ1(irq_stack_t* regs)
 
 void cIRQ2(irq_stack_t* regs)
 {
+        printf("IRQ!");
         pic_eoi(2);
         return;
 }
 
 void cIRQ3(irq_stack_t* regs)
 {
+        printf("IRQ!");
         pic_eoi(3);
         return;
 }
 
 void cIRQ4(irq_stack_t* regs)
 {
+        printf("IRQ!");
         pic_eoi(4);
         return;
 }
 
 void cIRQ5(irq_stack_t* regs)
 {
+        printf("IRQ!");
         pic_eoi(5);
         return;
 }
 
 void cIRQ6(irq_stack_t* regs)
 {
+        printf("IRQ!");
         pic_eoi(6);
         return;
 }
 
 void cIRQ7(irq_stack_t* regs)
 {
+        printf("IRQ!");
         pic_eoi(7);
         return;
 }
@@ -119,24 +125,28 @@ void cIRQ9(irq_stack_t* regs)
 
 void cIRQ10(irq_stack_t* regs)
 {
+        printf("IRQ");
         pic_eoi(10);
         return;
 }
 
 void cIRQ11(irq_stack_t* regs)
 {
+        printf("IRQ");
         pic_eoi(11);
         return;
 }
 
 void cIRQ12(irq_stack_t* regs)
 {
+        printf("IRQ");
         pic_eoi(12);
         return;
 }
 
 void cIRQ13(irq_stack_t* regs)
 {
+        printf("IRQ");
         pic_eoi(13);
         return;
 }

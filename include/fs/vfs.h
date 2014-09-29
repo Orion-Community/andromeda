@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <lib/tree.h>
+#include <thread.h>
 
 #ifdef __cplusplus
 extern "C"

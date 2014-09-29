@@ -23,6 +23,7 @@
 #include <arch/x86/bios.h>
 #endif
 #include <stdio.h>
+#include <fs/vfs.h>
 
 #define SERIAL_PORT_UNINITIALISED       0
 #define SERIAL_PORT_READY               1
@@ -52,10 +53,27 @@
 #define SERIAL_DLAB                     (uint8_t)(1 << 7)
 // </status line>
 
-#define SERIAL_MODEM_DTR                (1 << 0)
-#define SERIAL_MODEM_TSR                (1 << 1)
-#define SERIAL_MODEM_OUT1               (1 << 2)
-#define SERIAL_MODEM_OUT2               (1 << 3)
+#define SERIAL_IRQ_MODEM                0x00
+#define SERIAL_IRQ_NOSRC                0x01
+#define SERIAL_IRQ_TRANS                0x02
+#define SERIAL_IRQ_RX                   0x04
+#define SERIAL_IRQ_STATUS               0x06
+#define SERIAL_IRQ_FIFO                 0x0A
+
+#define SERIAL_FIFO_ENABLE              (1 << 0)
+#define SERIAL_FIFO_CLEAR_RX            (1 << 1)
+#define SERIAL_FIFO_CLEAR_TX            (1 << 2)
+#define SERIAL_FIFO_DMA                 (1 << 3)
+
+#define SERIAL_FIFO_TRIG_1              (0x0 << 6)
+#define SERIAL_FIFO_TRIG_4              (0x1 << 6)
+#define SERIAL_FIFO_TRIG_8              (0x2 << 6)
+#define SERIAL_FIFO_TRIG_14             (0x3 << 6)
+
+#define SERIAL_MODEM_DTR                (1 << 0) // Data terminal Ready
+#define SERIAL_MODEM_RTS                (1 << 1) // Ready to send
+#define SERIAL_MODEM_OUT1               (1 << 2) // Enable or disable port
+#define SERIAL_MODEM_OUT2               (1 << 3) // Interrupt type
 #define SERIAL_MODEM_LOOP               (1 << 4)
 
 #define SERIAL_DATA_REG                 0
@@ -63,8 +81,8 @@
 #define SERIAL_INTERRUPT                1
 #define SERIAL_BOUD_MSB                 1
 
-#define SERIAL_FIFO_REG                 2
 #define SERIAL_IRQ_CONTROL              2
+#define SERIAL_FIFO_REGISTER            2
 
 #define SERIAL_LINE_CONTROL             3
 #define SERIAL_MODEM_CONTROL            4
@@ -79,6 +97,7 @@ struct serial_port_data {
         uint8_t char_len;
         uint8_t stop_char;
         uint8_t parity;
+        struct vfile* dev_file;
 };
 
 static int drv_serial_suspend(struct device* dev __attribute__((unused)))
@@ -91,9 +110,45 @@ static int drv_serial_resume(struct device* dev __attribute__((unused)))
         return -E_UNFINISHED;
 }
 
-static int drv_serial_setup(struct device* dev)
+static int drv_serial_disconnect(struct vfile* dev)
 {
         if (dev == NULL)
+                return -E_NULL_PTR;
+        return -E_UNFINISHED;
+}
+
+static size_t drv_serial_read(struct vfile* dev, char* buf, size_t len)
+{
+        if (dev == NULL || buf == NULL)
+                return 0;
+        if (len == 0)
+                return 0;
+        printf("WARNING: drv_serial_read unimplemented!\n");
+
+        return 0;
+}
+
+static size_t drv_serial_write(struct vfile* dev, char* buf, size_t len)
+{
+        if (dev == NULL || buf == NULL)
+                return 0;
+        if (len == 0)
+                return 0;
+        printf("WARNING: drv_serial_write unimplemented!\n");
+
+        return 0;
+}
+
+static int drv_serial_connect(struct vfile* dev_file,
+                char* path __attribute__((unused)),
+                size_t str_len __attribute__((unused)))
+{
+        if (dev_file == NULL)
+                return -E_NULL_PTR;
+
+        struct device* dev = dev_file->fs_data.fs_data_struct;
+
+        if (dev == NULL || dev_file->fs_data.fs_data_size != sizeof(*dev))
                 return -E_NULL_PTR;
 
         struct serial_port_data* data = dev->device_data;
@@ -122,7 +177,48 @@ static int drv_serial_setup(struct device* dev)
         line_control |= data->stop_char;
         outb(port+SERIAL_LINE_CONTROL, line_control);
 
+        // Enable fifo buffer in the serial controller
+        uint8_t fifo_control = SERIAL_FIFO_ENABLE;
+        // Clear the transmission and receiving buffer
+        fifo_control |= SERIAL_FIFO_CLEAR_RX;
+        fifo_control |= SERIAL_FIFO_CLEAR_TX;
+        // Trigger on 14 bytes available in buffer
+        fifo_control |= SERIAL_FIFO_TRIG_14;
+        outb(port+SERIAL_FIFO_REGISTER, fifo_control);
+
+        uint8_t modem_control = SERIAL_MODEM_DTR;
+        modem_control |= SERIAL_MODEM_RTS;
+        modem_control |= SERIAL_MODEM_OUT1; // According to OSDev this is off
+        modem_control |= SERIAL_MODEM_OUT2;
+        outb(port+SERIAL_MODEM_CONTROL, modem_control);
+
         return -E_SUCCESS;
+}
+
+static struct vfile* drv_serial_open(struct device* dev)
+{
+        if (dev == NULL)
+                return NULL;
+
+        mutex_lock(&dev->lock);
+        struct serial_port_data* details = dev->device_data;
+
+        if (details->dev_file == NULL)
+        {
+                struct vfile* ret = vfs_create();
+
+                ret->type = CHAR_DEV;
+                ret->open = drv_serial_connect;
+                ret->close = drv_serial_disconnect;
+                ret->read = drv_serial_read;
+                ret->write = drv_serial_write;
+
+                details->dev_file = ret;
+        }
+        mutex_unlock(&dev->lock);
+
+        return details->dev_file;
+
 }
 
 int drv_serial_init(struct device* parent, uint16_t io_port)
@@ -155,9 +251,11 @@ int drv_serial_init(struct device* parent, uint16_t io_port)
         serial->driver->resume = drv_serial_resume;
         serial->driver->find = device_find_id;
 
+        serial->open = drv_serial_open;
+
         parent->driver->attach(parent, serial);
 
-        drv_serial_setup(serial);
+        drv_serial_open(serial);
 
         printf("Setting up serial: %X\n", io_port);
         return -E_SUCCESS;
