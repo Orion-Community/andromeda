@@ -170,11 +170,30 @@ extern struct system core;
 #define hasarch() (hasmm() && core.arch != NULL)
 #define hascpu(a) (hasarch() && a < CPU_LIMIT && core.arch->cpu[a] != NULL)
 
+/**
+ * \fn kmalloc
+ * \brief Allocate the specified memory size
+ * \param a
+ */
 #define kmalloc(a) ((hasmm() && core.mm->alloc != NULL && a > 1) ? core.mm->alloc(a, 0)\
                      : NULL)
+/**
+ * \fn kfree
+ * \brief Free the pointer
+ * \warning This might fail on arrays and types that don't contain object size
+ * \param a
+ */
 #define kfree(a) ((core.mm->free != NULL) ?\
                    core.mm->free(a, sizeof(*a)) :\
                    panic("Memory freeing function not correctly initialised!"))
+
+/**
+ * \fn kfree_s
+ * \brief Free the pointer using size information
+ * \warning If no size information is provided, use this function to specify manually
+ * \param a
+ * \param b
+ */
 #define kfree_s(a,b) ((hasmm() && core.mm->free != NULL) ?\
                        core.mm->free(a, b) :\
                     panic("Memory freeing function not correctly initialised!"))
