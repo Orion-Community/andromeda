@@ -2,7 +2,7 @@
 # Root Makefile
 #
 
-BUILD=scripts/build andromeda.build -t cores
+BUILD=scripts/build andromeda.build -t cores $(BUILD_FLAGS)
 VERSION:=\"$(shell git describe --tags)\"
 ifeq ($(COMPILER_FLAGS),)
 CFLAGS:=--cflags "-D VERSION=$(VERSION)"
