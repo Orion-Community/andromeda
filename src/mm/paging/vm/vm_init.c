@@ -220,6 +220,9 @@ vm_init()
 
         int ret = 0;
 
+        /* Set up the range allocator, we'll need this one for the heap */
+        vm_range_alloc_init();
+
         /* For the physical page allocator, let's keep everything aligned */
         addr_t data_end = (addr_t)&end;
         if (data_end % PAGE_ALLOC_FACTOR != 0)
@@ -279,6 +282,7 @@ vm_init()
         {
                 page_unmap(0, (void*)idx);
         }
+
         /**
          * \todo Map in the kernel modules loaded in by GRUB.
          */

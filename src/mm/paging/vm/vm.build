@@ -2,7 +2,7 @@
 "name" : "mm-paging-vm",
 "link" : false,
 "archive" : false,
-"source-files" : ["vm_alloc.c", "vm_init.c", "vm_user.c"],
+"source-files" : ["vm_alloc.c", "vm_init.c", "vm_user.c", "vm_range_alloc.c"],
 "compiler-flags" : "",
 "dcompiler-flags" : [{"key" : "vm_test", "flags" : "-D VM_TEST -D VM_DBG"}],
 "linker-flags" : "",

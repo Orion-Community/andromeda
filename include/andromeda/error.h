@@ -70,7 +70,8 @@ extern "C" {
 #define E_NOT_FOUND             0x64
 
 #define E_LOCKED                0x70
-
+#define E_UNLOCKED              0x71
+#define E_OUT_OF_RESOURCES      0x72
 
 #define E_CLEAN_PARENT          0x200
 

@@ -56,6 +56,18 @@ struct vm_range_descriptor{
         struct vm_range_descriptor* next;
         struct vm_range_descriptor* prev;
         struct vm_segment* parent;
+
+        uint32_t static_alloc;
+};
+
+struct vm_range_buffer {
+        struct vm_range_descriptor* head;
+        struct vm_range_descriptor* tail;
+
+        mutex_t put_lock;
+        mutex_t get_lock;
+
+        semaphore_t length;
 };
 
 /**
@@ -138,6 +150,9 @@ void* vm_get_kernel_heap_pages(size_t size);
 int vm_free_kernel_heap_pages(void* ptr);
 void* vm_map_heap(void* phys, size_t size);
 int vm_unmap_heap(void* virt);
+
+/* Range allocator functions */
+int vm_range_alloc_init();
 
 /* Specialised functions */
 int vm_init();
