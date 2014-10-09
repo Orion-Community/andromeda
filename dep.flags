@@ -36,6 +36,11 @@
                 "info": "Architecture to use.",
                 "mandatory": true
         },
+        "asm": {
+                "ignore-autoconf": true,
+                "info": "This will break the build as all object files will become ascii assembler files",
+                "mandatory": false
+        },
         "cas": {
                 "ignore-autoconf": false,
                 "info": "A tiny little easter egg, for Cas van Raan",
@@ -43,7 +48,7 @@
         },
         "gdb": {
                 "ignore-autoconf": false,
-		"info" : "Enable GDB debugging information",
+                "info": "Enable GDB debugging information",
                 "mandatory": false
         },
         "mm": {

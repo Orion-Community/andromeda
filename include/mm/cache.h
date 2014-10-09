@@ -44,6 +44,7 @@ extern "C" {
 
 #define CACHE_ALLOC_SKIP_LOCKED (1 << 0)
 #define CACHE_ALLOC_NO_VM       (1 << 1)
+#define CACHE_ALLOC_NO_UPDATE   (1 << 2)
 
 typedef enum {state_empty, state_partial, state_full} slab_state;
 

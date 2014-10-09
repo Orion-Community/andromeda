@@ -32,6 +32,7 @@ static struct vm_range_descriptor static_ranges[0x40];
 static uint32_t vm_range_alloc_ready = 0;
 static mutex_t vm_dynamic_initialised = mutex_unlocked;
 static uint32_t vm_dynamic_range_ready = 0;
+int mm_vm_range_buffer_start = 0;
 
 #ifdef SLAB
 static struct mm_cache* vm_range_cache = NULL;
@@ -233,7 +234,7 @@ static int vm_range_update_dynamic()
 
                 /* Allocate the new node */
 #ifdef SLAB
-                desc = mm_cache_alloc(vm_range_cache, 0);
+                desc = mm_cache_alloc(vm_range_cache, CACHE_ALLOC_NO_UPDATE);
 #else
                 desc = kmalloc(sizeof(*desc));
 #endif
@@ -259,12 +260,13 @@ static int vm_range_update_dynamic()
 
 static int vm_range_alloc_dynamic_init()
 {
+        vm_range_alloc_ready = 0;
         /* Because this system is run later in boot, make this check atomic */
         int initialised = mutex_test(&vm_dynamic_initialised);
-        if (initialised == mutex_locked)
+        if (initialised == mutex_locked) {
                 return -E_ALREADY_INITIALISED;
+        }
 
-        memset(&vm_buffer, 0, sizeof(vm_buffer));
         /*
          * Prepare the memory allocator if necessary.
          */
@@ -273,10 +275,16 @@ static int vm_range_alloc_dynamic_init()
                         "vm_range_cache",
                         sizeof(struct vm_range_descriptor),
                         1, NULL, NULL);
-#endif
-        idx_t i = 0;
+        if (vm_range_cache == NULL) {
+                mutex_unlock(&vm_dynamic_initialised);
+                return -E_NOT_YET_INITIALISED;
+        }
 
+#endif
         /* Initialise the buffer structure */
+        memset(&vm_buffer, 0, sizeof(vm_buffer));
+
+        idx_t i = 0;
         /* Prepare the semaphore */
         semaphore_init(&vm_buffer.length, 0, MIN_CACHED_DESCRIPTORS, MAX_CACHED_DESCRIPTORS);
 
@@ -285,7 +293,7 @@ static int vm_range_alloc_dynamic_init()
                 struct vm_range_descriptor* desc;
                 /* Allocate the descriptor */
 #ifdef SLAB
-                desc = mm_cache_alloc(vm_range_cache, 0);
+                desc = mm_cache_alloc(vm_range_cache, CACHE_ALLOC_NO_UPDATE);
 #else
                 desc = kmalloc(sizeof(*desc));
 #endif
@@ -294,27 +302,23 @@ static int vm_range_alloc_dynamic_init()
                  * operation. We might as well panic now.
                  */
                 if (desc == NULL)
-                        panic("Out of memory in setup of vm_descriptors");
+                        break;
 
                 /* Clear the descriptor of all garbage */
                 memset(desc, 0 , sizeof(*desc));
 
                 /* Place the descriptor in the list. */
-                switch (i) {
-                case 0:
+                if (i == 0) {
                         vm_buffer.head = desc;
                         vm_buffer.tail = desc;
-                        break;
-                default:
+                } else {
                         vm_buffer.tail->next = desc;
                         desc->prev = vm_buffer.tail;
                         vm_buffer.tail = desc;
-                        break;
                 }
                 /* Increment the list size by one */
                 semaphore_try_inc(&vm_buffer.length);
         }
-
         /* Mark the dynamic system ready for use */
         vm_dynamic_range_ready = 1;
 
@@ -334,6 +338,9 @@ int vm_range_update()
          * Make sure that the dynamic allocator has been initialised.
          */
         if (vm_dynamic_range_ready == 0) {
+                if (mm_vm_range_buffer_start == 0) {
+                        return -E_SUCCESS;
+                }
                 vm_range_alloc_dynamic_init();
                 /*
                  * If the allocator has just been initialised, all the nodes

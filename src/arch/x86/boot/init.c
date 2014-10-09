@@ -182,6 +182,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         //setup_irq_data();
         vm_init();
 
+        mm_vm_range_buffer_start = 1;
         printf(WELCOME); // The only screen output that should be maintained
 #ifdef PA_DBG
 //         endProg();

@@ -287,6 +287,14 @@ static int mm_slab_free(struct mm_slab* slab, void* ptr)
          * Exit the atomic parts now
          */
         mutex_unlock(&slab->lock);
+        /*
+         * With vm_range_update, we make sure that the range
+         * allocator keeps enough range descriptors in its
+         * buffer to satisfy our needs as an object allocator,
+         * so that when we run out of memory, there are still
+         * some range descriptors left to use.
+         */
+        vm_range_update();
 
         /*
          * Return the success error code
@@ -379,6 +387,16 @@ err:
         {
                 cache->ctor(ret, cache, flags);
         }
+
+        /*
+         * With vm_range_update, we make sure that the range
+         * allocator keeps enough range descriptors in its
+         * buffer to satisfy our needs as an object allocator,
+         * so that when we run out of memory, there are still
+         * some range descriptors left to use.
+         */
+        if (!(flags & CACHE_ALLOC_NO_UPDATE))
+                vm_range_update();
 
         /*
          * Can we now finally return the pointer?

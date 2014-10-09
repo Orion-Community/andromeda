@@ -191,7 +191,7 @@ struct vm_range_descriptor* range;
         else
                 range->parent->allocated = range->next;
 
-        kfree(range);
+        vm_range_free(range);
         return -E_SUCCESS;
 }
 
@@ -292,11 +292,7 @@ vm_range_split(struct vm_range_descriptor* src, size_t size)
                 return -E_SUCCESS;
 
         /* Create a new descritor to keep track of the other bit of memory */
-#ifdef SLAB
-        struct vm_range_descriptor* tmp = kmem_alloc(sizeof(*tmp), CACHE_ALLOC_NO_VM);
-#else
-        struct vm_range_descriptor* tmp = kmalloc(sizeof(*tmp));
-#endif
+        struct vm_range_descriptor* tmp = vm_range_alloc();
         if (tmp == NULL)
                 return -E_NULL_PTR;
 

@@ -17,7 +17,8 @@
 	{"key" : "Optimize3", "flags" : "-O3"},
 	{"key" : "OptimizeSize", "flags" : "-Os"},
 	{"key" : "tree test", "flags" : "-D TREE_TEST"},
-	{"key" : "gdb", "flags" : "-ggdb -g"}
+	{"key" : "gdb", "flags" : "-ggdb -g"},
+	{"key" : "asm", "flags" : "-S" }
 	],
 "linker-flags" : "-oformat=elf32-i386 -melf_i386 -Tscripts/x86.ld",
 "archiver-flags" : "rs",
