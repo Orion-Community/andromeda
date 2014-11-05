@@ -43,9 +43,7 @@ extern struct mm_cache mm_slab_cache;
  * \return error code
  */
 static int mm_slab_move(from, to, entry)
-slab_state from;
-slab_state to;
-struct mm_slab* entry;
+        slab_state from;slab_state to;struct mm_slab* entry;
 {
         /*
          * first some argument checking (as always)
@@ -71,12 +69,10 @@ struct mm_slab* entry;
          * If entry is first in the list, unlock it from the pointer then skip
          * the unlocking from the previous part.
          */
-        switch (from)
-        {
+        switch (from) {
         case state_empty:
                 cariage = cache->slabs_empty;
-                if (cariage == entry)
-                {
+                if (cariage == entry) {
                         cache->slabs_empty = entry->next;
                         entry->next = NULL;
                         goto p1;
@@ -84,8 +80,7 @@ struct mm_slab* entry;
                 break;
         case state_partial:
                 cariage = cache->slabs_partial;
-                if (cariage == entry)
-                {
+                if (cariage == entry) {
                         cache->slabs_partial = entry->next;
                         entry->next = NULL;
                         goto p1;
@@ -93,8 +88,7 @@ struct mm_slab* entry;
                 break;
         case state_full:
                 cariage = cache->slabs_full;
-                if (cariage == entry)
-                {
+                if (cariage == entry) {
                         cache->slabs_full = entry->next;
                         entry->next = NULL;
                         goto p1;
@@ -105,11 +99,10 @@ struct mm_slab* entry;
          * Try to unlock the entry from its previous pointer.
          * Assuming the entry is in the list, if not we're screwed.
          */
-        while (cariage->next != entry && cariage->next != NULL)
+        while (cariage->next != entry && cariage->next != NULL )
                 cariage = cariage->next;
 
-        if (cariage->next == NULL)
-        {
+        if (cariage->next == NULL) {
                 /*
                  * Do the "We're screwed" part
                  */
@@ -120,12 +113,11 @@ struct mm_slab* entry;
         cariage->next = entry->next;
         entry->next = NULL;
 
-p1:
+        p1:
         /*
          * Set the entry to be the first of the requested list
          */
-        switch (to)
-        {
+        switch (to) {
         case state_empty:
                 entry->next = cache->slabs_empty;
                 cache->slabs_empty = entry;
@@ -159,7 +151,7 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
          * Some argument checking
          */
         if (slab == NULL)
-                return NULL;
+                return NULL ;
 
         /*
          * Entering the atomic part
@@ -173,8 +165,7 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
          * Race conflicts can occur because the call to the mm_slab_alloc
          * function isn't done in an atomic action.
          */
-        if (slab->objs_full == slab->objs_total)
-        {
+        if (slab->objs_full == slab->objs_total) {
                 mutex_unlock(&slab->lock);
                 return mm_cache_alloc(slab->cache, flags);
         }
@@ -197,7 +188,7 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
         /*
          * Do some counter maintainence
          */
-        slab->objs_full ++;
+        slab->objs_full++;
         if (slab->objs_full == slab->objs_total)
                 // Move this slab over from slabs_partial to slabs_full
                 mm_slab_move(state_partial, state_full, slab);
@@ -211,17 +202,19 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
          * Hand of the pointer to the just allocated memory
          */
         addr_t tmp = idx * slab->cache->alignment;
-        tmp += (addr_t) slab->obj_ptr;
+        tmp += (addr_t)slab->obj_ptr;
 
         if ((addr_t)slab->obj_ptr % slab->cache->alignment != 0) {
-                printf("Obj ptr alignment is off by: %X\n", (size_t)slab->obj_ptr % slab->cache->alignment);
+                printf("Obj ptr alignment is off by: %X\n",
+                                (size_t)slab->obj_ptr % slab->cache->alignment);
         }
         if (tmp % slab->cache->alignment != 0) {
-                printf("Allocated object off alignment by: %X\n", tmp % slab->cache->alignment);
+                printf("Allocated object off alignment by: %X\n",
+                                tmp % slab->cache->alignment);
                 panic("Allignment incorrect!");
         }
 
-        return (void*) tmp;
+        return (void*)tmp;
 }
 
 /**
@@ -240,7 +233,7 @@ static int mm_slab_free(struct mm_slab* slab, void* ptr)
         if (slab == NULL || ptr == NULL)
                 return -E_NULL_PTR;
 
-        addr_t idx = (addr_t) ptr - (addr_t) slab->obj_ptr;
+        addr_t idx = (addr_t)ptr - (addr_t)slab->obj_ptr;
         if (idx % slab->cache->alignment != 0)
                 return -E_INVALID_ARG;
 
@@ -275,7 +268,7 @@ static int mm_slab_free(struct mm_slab* slab, void* ptr)
         /*
          * Update the allocated object counter
          */
-        slab->objs_full --;
+        slab->objs_full--;
         /*
          * Move the slab if it is empty
          */
@@ -318,16 +311,18 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
         /*
          * Some standard argument checking
          */
-        if (cache == NULL)
-                return NULL;
+        if (cache == NULL) {
+                return NULL ;
+        }
 
         /*
          * Enter the atomic section
          * Move the slabs around if necessary
          */
         if (flags & CACHE_ALLOC_SKIP_LOCKED) {
-                if (mutex_test(&cache->lock) == mutex_locked)
-                        return NULL;
+                if (mutex_test(&cache->lock) == mutex_locked) {
+                        return NULL ;
+                }
         } else {
                 mutex_lock(&cache->lock);
         }
@@ -340,21 +335,21 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
                  * If the cache is really empty, return NULL
                  */
                 struct mm_slab* tmp = cache->slabs_empty;
-                if (tmp == NULL)
-                {
+                if (tmp == NULL) {
                         if (flags & CACHE_ALLOC_NO_VM)
                                 goto err;
 
                         int no_pages = calc_no_pages(cache->obj_size,
-                                        SLAB_MIN_OBJS, cache->alignment);
+                        SLAB_MIN_OBJS, cache->alignment);
 
                         /**
                          * \todo Add option to nick slabs from other caches!
                          */
 
-                        struct mm_slab* slab = vm_get_kernel_heap_pages(no_pages);
+                        struct mm_slab* slab = vm_get_kernel_heap_pages(
+                                        no_pages);
                         if (slab == NULL)
-                              panic("Out of memory!!!");
+                                panic("Out of memory!!!");
 
                         int no_objs = calc_max_no_objects(cache->alignment,
                                         no_pages, cache->obj_size, slab);
@@ -383,8 +378,7 @@ err:
         /*
          * If a constructor exists, run it
          */
-        if (cache->ctor != NULL && ret != NULL)
-        {
+        if (cache->ctor != NULL && ret != NULL) {
                 cache->ctor(ret, cache, flags);
         }
 
@@ -395,9 +389,9 @@ err:
          * so that when we run out of memory, there are still
          * some range descriptors left to use.
          */
-        if (!(flags & CACHE_ALLOC_NO_UPDATE))
+        if (!(flags & CACHE_ALLOC_NO_UPDATE)) {
                 vm_range_update();
-
+        }
         /*
          * Can we now finally return the pointer?
          */
@@ -419,8 +413,7 @@ mm_cache_search_ptr(struct mm_slab* list, void* ptr)
         /*
          * Iterate through the list untill the slab has been found ...
          */
-        for (; list != NULL; list = list->next)
-        {
+        for (; list != NULL ; list = list->next) {
                 /*
                  * If both conditions are met, return the list pointer
                  */
@@ -432,7 +425,7 @@ mm_cache_search_ptr(struct mm_slab* list, void* ptr)
         /*
          * We didn't find anything, so return NULL
          */
-        return NULL;
+        return NULL ;
 }
 
 /**
@@ -493,10 +486,8 @@ kmem_find_size(struct mm_cache* cache, size_t size)
          */
         struct mm_cache* stage = NULL;
         size_t stage_s = ~0;
-        for (; cache != NULL ; cache = cache->next)
-        {
-                if (cache->obj_size >= size && cache->obj_size < stage_s)
-                {
+        for (; cache != NULL ; cache = cache->next) {
+                if (cache->obj_size >= size && cache->obj_size < stage_s) {
                         stage = cache;
                         stage_s = cache->obj_size;
                 }
@@ -518,8 +509,7 @@ kmem_find_next_candidate(struct mm_cache* cache, size_t size)
 void*
 kmem_alloc(size_t size, uint16_t flags)
 {
-        if (size == 0)
-        {
+        if (size == 0) {
                 return NULL ;
         }
         /*
@@ -527,8 +517,7 @@ kmem_alloc(size_t size, uint16_t flags)
          */
 
         struct mm_cache* candidate = kmem_find_size(caches, size);
-        if (candidate == NULL)
-        {
+        if (candidate == NULL) {
                 return NULL ;
         }
 
@@ -538,8 +527,7 @@ kmem_alloc(size_t size, uint16_t flags)
 
         size = candidate->obj_size;
         candidate = kmem_find_next_candidate(caches, size);
-        while (1)
-        {
+        while (1) {
                 if (candidate == NULL)
                         return NULL ;
                 ret = mm_cache_alloc(candidate,
@@ -564,13 +552,11 @@ void kmem_free(void* ptr, size_t size)
 
         size = candidate->obj_size;
 
-        while (1)
-        {
+        while (1) {
                 if (candidate == NULL)
                         return;
                 int freed = mm_cache_free(candidate, ptr);
-                switch (freed)
-                {
+                switch (freed) {
                 case -E_SUCCESS:
                         goto found;
                 case -E_ALREADY_FREE:

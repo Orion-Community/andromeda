@@ -30,12 +30,87 @@
  * \addtogroup VM
  * @{
  */
-
 int get_cpu()
 {
         /** \todo Detect cpu number, for now simply return 0 */
         return 0;
 }
+
+#ifdef VM_RANGE_LOOP_DETECT
+struct db_t {
+        void* ptr;
+        int set;
+        struct db_t* next;
+};
+
+static int detect_loop(struct vm_range_descriptor* head, char* list_name)
+{
+        struct vm_range_descriptor* carriage = head;
+        int error = -E_SUCCESS;
+#ifdef SLAB
+        uint32_t alloc_flags = CACHE_ALLOC_NO_UPDATE | CACHE_ALLOC_NO_VM
+                        | CACHE_ALLOC_SKIP_LOCKED;
+        struct db_t* db = kmem_alloc(sizeof(*db), alloc_flags);
+#else
+        struct db_t* db = kmalloc(sizeof(*db));
+#endif
+        if (db == NULL)
+                return error;
+
+        memset(db, 0, sizeof(*db));
+
+        do {
+                struct db_t* dbc = db;
+                do {
+                        if (dbc->set != 0) {
+                                if (carriage == dbc->ptr) {
+                                        error = -E_CORRUPT;
+                                        printf("list error: %s\n", list_name);
+                                        panic("Loop detected!");
+                                        goto cleanup;
+                                }
+                        } else if (dbc->set == 0 && dbc->next != NULL) {
+                                printf("error in list: %s\n", list_name);
+                                printf("dbc: %X\n", (int)dbc);
+                                dbc = db;
+                                int idx = 0;
+
+                                while (dbc != NULL ) {
+                                        printf("db entry %X: %X\n", idx,
+                                                        (int)dbc);
+                                        printf("db next: %X\n", (int)dbc->next);
+                                        idx++;
+                                        dbc = dbc->next;
+                                }
+
+                                panic("Loop test for vm is corrupt!");
+                        }
+                        dbc = dbc->next;
+                } while (dbc->next != NULL );
+                dbc->ptr = carriage;
+                dbc->set = -1;
+#ifdef SLAB
+                dbc->next = kmem_alloc(sizeof(*dbc), alloc_flags);
+#else
+                dbc->next = kmalloc(sizeof(*dbc));
+#endif
+                if (dbc->next == NULL) {
+                        goto cleanup;
+                }
+                memset(dbc->next, 0, sizeof(*dbc));
+                carriage = carriage->next;
+        } while (carriage != NULL );
+
+        cleanup: while (db != NULL ) {
+                struct db_t* tmp = db;
+                db = db->next;
+
+                memset(tmp, 0, sizeof(*tmp));
+                kfree(tmp);
+        }
+        return error;
+}
+#endif
 
 /**
  * \fn vm_segment_mark_allocated
@@ -43,10 +118,9 @@ int get_cpu()
  * \param range
  * \return A standard error code
  */
-static int
-vm_range_mark_allocated(segment, range)
-struct vm_segment* segment;
-struct vm_range_descriptor* range;
+static int vm_range_mark_allocated(segment, range)
+        struct vm_segment* segment;
+        struct vm_range_descriptor* range;
 {
         if (segment == NULL || range == NULL)
                 return -E_NULL_PTR;
@@ -66,13 +140,16 @@ struct vm_range_descriptor* range;
                 range->next->prev = range;
         segment->allocated = range;
 
+#ifdef VM_RANGE_LOOP_DETECT
+        detect_loop(segment->free, "free");
+        detect_loop(segment->allocated, "allocated");
+#endif
+
         return -E_SUCCESS;
 }
 
-static int
-vm_range_mark_mapped(segment, range)
-struct vm_segment* segment;
-struct vm_range_descriptor* range;
+static int vm_range_mark_mapped(segment, range)
+        struct vm_segment* segment;struct vm_range_descriptor* range;
 {
         if (range == NULL || segment == NULL)
                 return -E_NULL_PTR;
@@ -81,15 +158,13 @@ struct vm_range_descriptor* range;
          * We're assuming that the range is previously allocated. Let's take it
          * out of the list.
          */
-        if (range->prev == NULL)
-        {
+        if (range->prev == NULL) {
                 if (segment->allocated == range)
                         segment->allocated = range->next;
                 else
                         return -E_INVALID_ARG;
-        }
-        else
-                        range->prev->next = range->next;
+        } else
+                range->prev->next = range->next;
 
         if (range->next != NULL)
                 range->next->prev = range->prev;
@@ -101,62 +176,69 @@ struct vm_range_descriptor* range;
                 segment->mapped->prev = range;
         segment->mapped = range;
 
+#ifdef VM_RANGE_LOOP_DETECT
+        detect_loop(segment->allocated, "allocated");
+        detect_loop(segment->mapped, "mapped");
+#endif
+
         /* Done */
         return -E_SUCCESS;
 }
 
-static int
-vm_range_mark_unmapped(segment, range)
-struct vm_segment* segment;
-struct vm_range_descriptor* range;
+static int vm_range_mark_unmapped(segment, range)
+        struct vm_segment* segment;struct vm_range_descriptor* range;
 {
-        if (segment == NULL || range == NULL)
+        if (segment == NULL || range == NULL) {
                 return -E_NULL_PTR;
+        }
 
         /*
          * We're assuming that the range is previously allocated. Let's take it
          * out of the list.
          */
-        if (range->prev == NULL)
-        {
-                if (segment->mapped == range)
+        if (range->prev == NULL) {
+                if (segment->mapped == range) {
                         segment->mapped = range->next;
-                else
+                } else {
                         return -E_INVALID_ARG;
+                }
+        } else {
+                range->prev->next = range->next;
         }
-        else
-                        range->prev->next = range->next;
 
-        if (range->next != NULL)
+        if (range->next != NULL) {
                 range->next->prev = range->prev;
+        }
 
         /* Now stuff the range into the mapped list */
         range->prev = NULL;
         range->next = segment->allocated;
-        if (segment->allocated != NULL)
+        if (segment->allocated != NULL) {
                 segment->allocated->prev = range;
+        }
         segment->allocated = range;
+
+#ifdef VM_RANGE_LOOP_DETECT
+        detect_loop(segment->allocated, "allocated");
+        detect_loop(segment->mapped, "mapped");
+#endif
 
         return -E_NOFUNCTION;
 }
 
-static int
-vm_range_mark_free(segment, range)
-struct vm_segment* segment;
-struct vm_range_descriptor* range;
+static int vm_range_mark_free(segment, range)
+        struct vm_segment* segment;struct vm_range_descriptor* range;
 {
         if (segment == NULL || range == NULL)
                 return -E_NULL_PTR;
 
         /* Dislodge the range and restore the order of the list */
-        if (range->prev == NULL)
-        {
+        if (range->prev == NULL) {
                 if (segment->allocated == range)
                         segment->allocated = range->next;
                 else
                         return -E_INVALID_ARG;
-        }
-        else
+        } else
                 range->prev->next = range->next;
 
         if (range->next != NULL)
@@ -172,60 +254,89 @@ struct vm_range_descriptor* range;
         return -E_SUCCESS;
 }
 
-static inline int
-vm_range_remove_node(range)
-struct vm_range_descriptor* range;
+static inline int vm_range_remove_node(range)
+        struct vm_range_descriptor* range;
 {
-        if (range == NULL)
+        if (range == NULL) {
                 return -E_NULL_PTR;
-
-        if (range->next != NULL)
+        }
+        /*
+        if (range->next != NULL) {
                 range->next->prev = range->prev;
+        }
 
-        if (range->prev != NULL)
+        if (range->prev != NULL) {
                 range->prev->next = range->next;
-
-        else if (range->parent->free == range)
+        } else if (range->parent->free == range) {
                 range->parent->free = range->next;
-
-        else
+        } else if (range->parent->allocated == range) {
                 range->parent->allocated = range->next;
+        } else if (range->parent->mapped == range) {
+                range->parent->mapped = range->next;
+        } else {
+                panic("");
+        } */
+
+        /* Remove the node from the list */
+        if (range->next != NULL) {
+                range->next->prev = range->prev;
+        }
+        if (range->prev != NULL) {
+                range->prev->next = range->next;
+        }
+        /* make sure that our node is not at the start of any list */
+        if (range->parent->free == range) {
+                range->parent->free = range->next;
+        }
+        if (range->parent->allocated == range) {
+                range->parent->allocated = range->next;
+        }
+        if (range->parent->mapped == range) {
+                range->parent->mapped = range->next;
+        }
 
         vm_range_free(range);
         return -E_SUCCESS;
 }
 
-static int
-vm_segment_compress_ranges(segment, range)
-struct vm_segment* segment;
-struct vm_range_descriptor* range;
+static int vm_segment_compress_ranges(segment, range)
+        struct vm_segment* segment;struct vm_range_descriptor* range;
 {
         if (segment == NULL || range == NULL)
                 return -E_NULL_PTR;
+#ifdef VM_RANGE_LOOP_DETECT
+        detect_loop(segment->allocated, "allocated");
+        detect_loop(segment->mapped, "mapped");
+        detect_loop(segment->free, "free");
+#endif
 
         /* Loop through the list to find connecting ranges */
         struct vm_range_descriptor* x = segment->free;
-        while (x != NULL)
-        {
-                if (x->base + x->size == range->base)
-                {
+        struct vm_range_descriptor* next = NULL;
+
+        while (x != NULL) {
+                next = x->next;
+                if (x->base + x->size == range->base) {
                         /* Consume information in the carriage */
                         range->base = x->base;
                         range->size += x->size;
 
                         /* And take the node out of the collection */
                         vm_range_remove_node(x);
-                }
-                else if (range->base + range->size == x->base)
-                {
+                } else if (range->base + range->size == x->base) {
                         /* Consume information in the carriage */
                         range->size += x->size;
 
                         /* And take the node out of the collection */
                         vm_range_remove_node(x);
                 }
-                x = x->next;
+                x = next;
         }
+#ifdef VM_RANGE_LOOP_DETECT
+        detect_loop(segment->allocated, "allocated");
+        detect_loop(segment->mapped, "mapped");
+        detect_loop(segment->free, "free");
+#endif
         return -E_SUCCESS;
 }
 
@@ -238,19 +349,20 @@ struct vm_range_descriptor* range;
  */
 int vm_segment_free(struct vm_segment* s, void* ptr)
 {
-        if (s == NULL || ptr == NULL)
+        if (s == NULL || ptr == NULL) {
                 return -E_NULL_PTR;
+        }
 
         mutex_lock(&s->lock);
 
         /* Find the range associated with this pointer */
         struct vm_range_descriptor* x = s->allocated;
-        while (x != NULL && x->base != ptr)
+        while (x != NULL && x->base != ptr) {
                 x = x->next;
+        }
 
         /* If nothing was found, the argument was wrong */
-        if (x == NULL)
-        {
+        if (x == NULL) {
                 mutex_unlock(&s->lock);
                 return -E_INVALID_ARG;
         }
@@ -260,8 +372,7 @@ int vm_segment_free(struct vm_segment* s, void* ptr)
 
         /* Now get the physical page, if mapped and free that up if possible */
         void* phys = vm_get_phys(get_cpu(), x);
-        if (phys != NULL)
-        {
+        if (phys != NULL) {
                 page_free(phys);
         }
 
@@ -273,7 +384,7 @@ int vm_segment_free(struct vm_segment* s, void* ptr)
         vm_segment_compress_ranges(s, x);
 
         mutex_unlock(&s->lock);
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
 }
 
 /**
@@ -282,8 +393,7 @@ int vm_segment_free(struct vm_segment* s, void* ptr)
  * \param size
  * \return Standard error code
  */
-static int
-vm_range_split(struct vm_range_descriptor* src, size_t size)
+static int vm_range_split(struct vm_range_descriptor* src, size_t size)
 {
         if (src == NULL || size == 0)
                 return -E_NULL_PTR;
@@ -300,8 +410,8 @@ vm_range_split(struct vm_range_descriptor* src, size_t size)
         memset(tmp, 0, sizeof(*tmp));
 
         /* Configure new descriptor */
-        tmp->size = src->size-size;
-        tmp->base = src->base+size;
+        tmp->size = src->size - size;
+        tmp->base = src->base + size;
         tmp->parent = src->parent;
         /* And resize the original descriptor */
         src->size = size;
@@ -326,7 +436,7 @@ vm_range_split(struct vm_range_descriptor* src, size_t size)
 void* vm_segment_alloc(struct vm_segment *s, size_t size)
 {
         if (s == NULL || size == 0 || s->free == NULL)
-                return NULL;
+                return NULL ;
 
         /*
          * If the size is not page allocation aligned, align it by rounding up.
@@ -339,7 +449,10 @@ void* vm_segment_alloc(struct vm_segment *s, size_t size)
                 size += PAGE_ALLOC_FACTOR - size % PAGE_ALLOC_FACTOR;
 
         /* There's a mutex here, don't forget to unlock */
-        mutex_lock(&s->lock);
+        int locked = mutex_test(&s->lock);
+        if (locked == mutex_locked) {
+                return NULL ;
+        }
 
         /*
          * Let's try a best fit allocator here. It might be a little slower,
@@ -348,8 +461,7 @@ void* vm_segment_alloc(struct vm_segment *s, size_t size)
         struct vm_range_descriptor* x = s->free;
         struct vm_range_descriptor* tmp = NULL;
         void* ret = NULL;
-        for (; x != NULL; x = x->next)
-        {
+        for (; x != NULL ; x = x->next) {
                 /*
                  * If x matches the size requirement AND if x is a better fit
                  * than what we found before, mark this as our new best fit.
@@ -372,7 +484,7 @@ void* vm_segment_alloc(struct vm_segment *s, size_t size)
          * a result.
          */
         ret = tmp->base;
-err:    /*
+        err: /*
          * Even if stuff went wrong, we want it to go past here, in order to
          * clean the mutex up, so that the system doesn't hang on future
          * attempts.
@@ -392,12 +504,11 @@ err:    /*
 void* vm_map(void* virt, void* phys, struct vm_segment* s)
 {
         if (virt == NULL || phys == NULL || s == NULL)
-                return NULL;
+                return NULL ;
 
         mutex_lock(&s->lock);
         struct vm_range_descriptor* r = s->allocated;
-        for(; r != NULL; r = r->next)
-        {
+        for (; r != NULL ; r = r->next) {
                 if (r->base == virt)
                         break;
         }
@@ -411,26 +522,24 @@ void* vm_map(void* virt, void* phys, struct vm_segment* s)
         addr_t v = (addr_t)virt;
         addr_t p = (addr_t)phys;
         size_t i = 0;
-        for(; i < cnt; i += PAGE_ALLOC_FACTOR)
+        for (; i < cnt; i += PAGE_ALLOC_FACTOR)
         {
                 if (page_claim((void*)(p + i)) == NULL)
                         goto gofixit;
-                page_map(0,(void*)(v + i), (void*)(p + 1), 0);
+                page_map(0, (void*)(v + i), (void*)(p + 1), 0);
         }
 
-err:
-        mutex_unlock(&s->lock);
+        err: mutex_unlock(&s->lock);
 
-        return (r == NULL) ? NULL : r->base;
+        return (r == NULL ) ? NULL : r->base;
 
-gofixit:
-        for (; (int)i >= 0; i-= PAGE_ALLOC_FACTOR)
+        gofixit: for (; (int)i >= 0; i -= PAGE_ALLOC_FACTOR)
         {
                 page_unmap(0, (void*)(v + i));
                 page_free((void*)p + i);
         }
         mutex_unlock(&s->lock);
-        return NULL;
+        return NULL ;
 }
 
 /**
@@ -446,8 +555,7 @@ int vm_unmap(void* virt, struct vm_segment* s)
 
         mutex_lock(&s->lock);
         struct vm_range_descriptor* r = s->mapped;
-        for (; r != NULL; r = r->next)
-        {
+        for (; r != NULL ; r = r->next) {
                 if (r->base == virt)
                         break;
         }
@@ -459,17 +567,16 @@ int vm_unmap(void* virt, struct vm_segment* s)
                 goto err;
 
         size_t i = 0;
-        for (;i < r->size; i += PAGE_ALLOC_FACTOR)
+        for (; i < r->size; i += PAGE_ALLOC_FACTOR)
         {
                 page_unmap(0, (void*)(virt + i));
                 page_free(p + i);
         }
 
         vm_range_mark_unmapped(s, r);
-err:
-        mutex_unlock(&s->lock);
+        err: mutex_unlock(&s->lock);
 
-        return (r == NULL) ? -E_NULL_PTR : -E_SUCCESS;
+        return (r == NULL ) ? -E_NULL_PTR : -E_SUCCESS;
 }
 
 /**
@@ -485,25 +592,22 @@ struct vm_segment*
 vm_find_segment(char* name)
 {
         if (name == NULL)
-                return NULL;
+                return NULL ;
 
         int len = strlen(name);
         struct vm_segment* i = (&vm_core)->segments;
-        while (i != NULL)
-        {
+        while (i != NULL ) {
                 if (i->name == NULL)
                         goto next;
                 int ilen = strlen(i->name);
-                if (ilen == len)
-                {
+                if (ilen == len) {
                         if (memcmp(i->name, name, len) == 0)
                                 return i;
                 }
 
-next:
-                i = i->next;
+                next: i = i->next;
         }
-        return NULL;
+        return NULL ;
 }
 
 /**
@@ -531,14 +635,14 @@ void*
 vm_get_kernel_heap_pages(size_t size)
 {
         if (size == 0)
-                return NULL;
+                return NULL ;
 
         if (size % PAGE_ALLOC_FACTOR != 0)
                 size += PAGE_ALLOC_FACTOR - size % PAGE_ALLOC_FACTOR;
 
         struct vm_segment* heap = vm_find_segment(".heap");
         if (heap == NULL)
-                return NULL;
+                return NULL ;
 
         return vm_segment_alloc(heap, size);
 }
@@ -553,17 +657,16 @@ void*
 vm_map_heap(void* phys, size_t size)
 {
         if (phys == NULL || size == 0)
-                return NULL;
+                return NULL ;
 
         struct vm_segment* heap = vm_find_segment(".heap");
         if (heap == NULL)
-                return NULL;
+                return NULL ;
 
         void* virt = vm_segment_alloc(heap, size);
-        if (vm_map(virt, phys, heap) != virt)
-        {
+        if (vm_map(virt, phys, heap) != virt) {
                 vm_segment_free(heap, virt);
-                return NULL;
+                return NULL ;
         }
 
         return virt;
@@ -574,8 +677,7 @@ vm_map_heap(void* phys, size_t size)
  * \param virt
  * \return Generic error code
  */
-int
-vm_unmap_heap(void* virt)
+int vm_unmap_heap(void* virt)
 {
         if (virt == NULL)
                 return -E_NULL_PTR;

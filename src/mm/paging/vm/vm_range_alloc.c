@@ -61,6 +61,9 @@ vm_range_alloc_ptr(struct vm_range_buffer* buffer)
          * This lock can block, as it should only happen rarely, and only for
          * range descriptor allocations.
          * The lock shouldn't last long anyway.
+         *
+         * Also, yes, I know that this doesn't scale too well. If you have a fix
+         * please feel free to implement.
          */
         mutex_lock(&buffer->get_lock);
 
@@ -258,6 +261,7 @@ static int vm_range_update_dynamic()
         return -E_SUCCESS;
 }
 
+
 static int vm_range_alloc_dynamic_init()
 {
         vm_range_alloc_ready = 0;
@@ -266,7 +270,6 @@ static int vm_range_alloc_dynamic_init()
         if (initialised == mutex_locked) {
                 return -E_ALREADY_INITIALISED;
         }
-
         /*
          * Prepare the memory allocator if necessary.
          */
