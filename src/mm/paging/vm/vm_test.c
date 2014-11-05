@@ -33,7 +33,60 @@
 #define SEG_SIZE_SMALL (size_t)0x1000
 #define SEG_SIZE_LARGE (size_t)(1 << 22)
 
-int vm_test_small()
+static int range_alloc_test()
+{
+        struct vm_range_descriptor* desc = NULL;
+        struct vm_range_descriptor* head = NULL;
+
+        int i = 0;
+        int error = -E_SUCCESS;
+        for (; i < 0x60; i++) {
+                struct vm_range_descriptor* next = vm_range_alloc();
+                if (next == NULL) {
+                        error = -E_NOMEM;
+                        goto cleanup;
+                }
+                vm_range_update();
+                switch (i) {
+                case 0:
+                        desc = next;
+                        head = next;
+                        next->next = NULL;
+                        next->prev = NULL;
+                        break;
+                default:
+                        head->next = next;
+                        next->prev = head;
+                        next->next = NULL;
+                        head = next;
+                        break;
+                }
+        }
+cleanup:
+        while (desc != NULL) {
+                struct vm_range_descriptor* toFree = head;
+                if (head == desc) {
+                        desc = NULL;
+                        head = NULL;
+                        error |= vm_range_free(toFree);
+                } else {
+                        head = toFree->prev;
+                        head->next = NULL;
+                        error |= vm_range_free(toFree);
+                }
+        }
+
+
+        return error;
+}
+
+static int vm_range_test()
+{
+        return range_alloc_test();
+}
+
+
+static int vm_test_small()
 {
         int ret = -E_SUCCESS;
         struct vm_descriptor* vm1 = vm_new(1);
@@ -119,7 +172,7 @@ cleanup:
         return ret;
 }
 
-int vm_dump_ranges(struct vm_range_descriptor* r)
+static int vm_dump_ranges(struct vm_range_descriptor* r)
 {
         if (r == NULL)
                 return -E_NULL_PTR;
@@ -132,7 +185,7 @@ int vm_dump_ranges(struct vm_range_descriptor* r)
         return -E_SUCCESS;
 }
 
-int vm_dump_segments(struct vm_segment* s)
+static int vm_dump_segments(struct vm_segment* s)
 {
         if (s == NULL)
                 return -E_NULL_PTR;
@@ -177,7 +230,7 @@ int vm_dump(struct vm_descriptor* v)
         return -E_SUCCESS;
 }
 
-int vm_test_alloc()
+static int vm_test_alloc()
 {
 
         struct vm_segment* heap = vm_find_segment(".heap");
@@ -185,16 +238,19 @@ int vm_test_alloc()
                 return -E_NULL_PTR;
 
 
+        printf("vm_test2.1\n");
         if (heap->free == NULL)
                 return -E_HEAP_GENERIC;
         size_t free_state = heap->free->size;
 
+        printf("vm_test2.2\n");
         void* tst = vm_get_kernel_heap_pages(0x1000);
         void* tst2 = vm_get_kernel_heap_pages(0xb1aa7);
 
         if (heap->free == NULL)
                 return -E_HEAP_GENERIC;
 
+        printf("vm_test2.3\n");
         size_t predicted = free_state - 0x1000;
         predicted -= (predicted % 0x4000);
         predicted -= 0xb1aa7;
@@ -207,11 +263,13 @@ int vm_test_alloc()
                 return -E_HEAP_GENERIC;
         }
 
+        printf("vm_test2.4\n");
         vm_free_kernel_heap_pages(tst2);
 
         predicted += 0xb1aa7;
         predicted += (0x4000 - (predicted % 0x4000));
 
+        printf("vm_test2.5\n");
         if (heap->free->size != predicted)
         {
                 printf("Something went wrong in allocation!\n");
@@ -220,18 +278,21 @@ int vm_test_alloc()
                 return -E_HEAP_GENERIC;
         }
 
+        printf("vm_test2.6\n");
         vm_free_kernel_heap_pages(tst);
 
+        printf("vm_test2.7\n");
         if (heap->free->size != free_state)
         {
                 printf("End state does not match start state, something is wrong!\n");
                 return -E_HEAP_GENERIC;
         }
 
+        printf("vm_test2.8\n");
         return -E_SUCCESS;
 }
 
-int vm_test_large()
+static int vm_test_large()
 {
         int ret = -E_SUCCESS;
 
@@ -316,7 +377,7 @@ cleanup:
         return ret;
 }
 
-int vm_test_awkward()
+static int vm_test_awkward()
 {
         int ret = -E_SUCCESS;
         struct vm_descriptor* vm1 = vm_new(0);
@@ -411,23 +472,33 @@ int vm_test()
 {
         int ret = -E_SUCCESS;
 
+        printf("vm_test1\n");
+        ret = vm_range_test();
+        if (ret != -E_SUCCESS)
+                return ret;
+
+        printf("vm_test2\n");
         ret = vm_test_alloc();
         if (ret != -E_SUCCESS)
                 return ret;
 
+        printf("vm_test3\n");
         ret = vm_test_small();
         if (ret != -E_SUCCESS)
                 return ret;
 
+        printf("vm_test4\n");
         ret = vm_test_large();
         if (ret != -E_SUCCESS)
                 return ret;
 
+        printf("vm_test5\n");
         ret = vm_test_awkward();
         if (ret != -E_SUCCESS)
                 return ret;
 
 #ifdef VM_TEST_DESTRUCTIVE
+        printf("vm_test6\n");
         if (vm_test_error())
         {
                 panic("Test error was not meant to return a value!");

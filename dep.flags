@@ -36,6 +36,11 @@
                 "info": "Architecture to use.",
                 "mandatory": true
         },
+        "asm_output (breaks build)": {
+                "ignore-autoconf": true,
+                "info": "This will break the build as all object files will become ascii assembler files",
+                "mandatory": false
+        },
         "cas": {
                 "ignore-autoconf": false,
                 "info": "A tiny little easter egg, for Cas van Raan",
@@ -44,6 +49,11 @@
         "gdb": {
                 "ignore-autoconf": false,
                 "info": "Enable GDB debugging information",
+                "mandatory": false
+        },
+        "keyboard panic": {
+                "ignore-autoconf": true,
+		"info" : "Enable kernel panic on pressing f11",
                 "mandatory": false
         },
         "mm": {
@@ -69,8 +79,13 @@
                 "mandatory": false
         },
         "tree test": {
-                "ignore-autoconf": false,
+                "ignore-autoconf": true,
                 "info": "A quick and basic test for the avl tree",
+                "mandatory": false
+        },
+        "vm_loop_detect": {
+                "ignore-autoconf": true,
+                "info": "",
                 "mandatory": false
         },
         "vm_test": {

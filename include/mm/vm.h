@@ -35,6 +35,9 @@ extern "C" {
 #define VM_CPL_CORE 0
 #define PTE_SIZE 0x400
 #define VM_MEM_SIZE (PTE_SIZE*PAGESIZE)
+#define SEGMENT_NAME_LENGTH 0x20
+
+extern int mm_vm_range_buffer_start;
 
 #ifdef X86
 #define PAGE_ALIGNED(a) ((a & 0xFFF) == 0)
@@ -56,6 +59,18 @@ struct vm_range_descriptor{
         struct vm_range_descriptor* next;
         struct vm_range_descriptor* prev;
         struct vm_segment* parent;
+
+        uint32_t static_alloc;
+};
+
+struct vm_range_buffer {
+        struct vm_range_descriptor* head;
+        struct vm_range_descriptor* tail;
+
+        mutex_t put_lock;
+        mutex_t get_lock;
+
+        semaphore_t length;
 };
 
 /**
@@ -100,7 +115,7 @@ struct vm_segment {
 
         struct sys_mmu_range* pages;
 
-        char* name;
+        char name[SEGMENT_NAME_LENGTH];
 
         mutex_t lock;
 
@@ -138,6 +153,12 @@ void* vm_get_kernel_heap_pages(size_t size);
 int vm_free_kernel_heap_pages(void* ptr);
 void* vm_map_heap(void* phys, size_t size);
 int vm_unmap_heap(void* virt);
+
+/* Range allocator functions */
+int vm_range_alloc_init();
+struct vm_range_descriptor* vm_range_alloc();
+int vm_range_free(struct vm_range_descriptor* descriptor);
+int vm_range_update();
 
 /* Specialised functions */
 int vm_init();

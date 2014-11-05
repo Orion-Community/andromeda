@@ -32,7 +32,7 @@ extern "C" {
 
 #define AVL_BALANCE(a) (a->ldepth - a->rdepth)
 
-#define TREE_EARLY_ALLOC (1 << 0)
+#define TREE_EARLY_ALLOC        (1 << 0)
 
 struct tree_root;
 

@@ -82,7 +82,7 @@ vm_map_kernel_code(struct vm_segment* s)
         s->virt_base = (void*)code_addr;
         s->size = code_end - code_addr;
         s->code = TRUE;
-        s->name = ".code";
+        memcpy(s->name, ".code", sizeof(".code"));
 
         vm_segment_mark_loaded_global(s);
 
@@ -115,7 +115,12 @@ char* name;
         s->virt_base = start;
         s->size = (addr_t)end - (addr_t)start;
         s->code = FALSE;
-        s->name = name;
+
+        size_t name_len = strlen(name);
+        if (name_len >= SEGMENT_NAME_LENGTH)
+                name_len = SEGMENT_NAME_LENGTH-2;
+        memcpy (s->name, name, strlen(name));
+        s->name[SEGMENT_NAME_LENGTH-1] = (char)0;
 
         vm_segment_mark_loaded_global(s);
 #ifdef PA_DBG
@@ -151,7 +156,7 @@ vm_map_kernel_stack(struct vm_segment* s)
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        s->name = ".stack";
+        memcpy(s->name, ".stack", sizeof(".stack"));
         s->virt_base = NULL;
         s->size = 0;
 
@@ -169,7 +174,7 @@ vm_kernel_add_range(struct vm_segment* s)
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        s->free = kmalloc(sizeof(*s));
+        s->free = vm_range_alloc();
         if (s->free == NULL)
                 return -E_NOMEM;
 
@@ -219,6 +224,9 @@ vm_init()
         vm_core.cpl = VM_CPL_CORE;
 
         int ret = 0;
+
+        /* Set up the range allocator, we'll need this one for the heap */
+        vm_range_alloc_init();
 
         /* For the physical page allocator, let's keep everything aligned */
         addr_t data_end = (addr_t)&end;
@@ -279,13 +287,18 @@ vm_init()
         {
                 page_unmap(0, (void*)idx);
         }
+
         /**
          * \todo Map in the kernel modules loaded in by GRUB.
          */
-#ifdef VM_TEST
-        vm_test();
-#endif
 
+        mm_vm_range_buffer_start = 1;
+
+#ifdef VM_TEST
+        if (vm_test() != -E_SUCCESS) {
+                panic("Failure in vm_test code!");
+        }
+#endif
         return ret;
 }
 

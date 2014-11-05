@@ -349,7 +349,9 @@ cinit dtor;
                 }
         }
 
-        mutex_lock(&cache_lock);
+        int locked = mutex_test(&cache_lock);
+        if (locked == mutex_locked)
+                return NULL;
 
         struct mm_cache* cariage = caches;
         for (; cariage->next != NULL ; cariage = cariage->next);

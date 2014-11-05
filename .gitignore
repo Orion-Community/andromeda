@@ -14,6 +14,7 @@ scripts/build*
 *.patch
 doc/doxygen/*
 *.iso
+*.log
 .settings
 .config
 andromeda.project
