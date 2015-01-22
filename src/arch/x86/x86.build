@@ -2,6 +2,7 @@
 "name" : "arch-x86",
 "link" : false,
 "archive" : false,
+"compiler" : "gcc",
 "source-files" : ["byteorder.c"],
 "compiler-flags" : "-Os",
 "linker-flags" : "",

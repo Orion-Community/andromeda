@@ -20,3 +20,4 @@ doc/doxygen/*
 andromeda.project
 andromeda.tags
 andromeda.workspace*
+.attach_pid*

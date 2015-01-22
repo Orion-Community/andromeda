@@ -105,7 +105,7 @@ int register_net_dev(struct device *dev, struct netdev* netdev)
 
         dev->type = net_dev;
         dev->open = &device_open_driver_io;
-        dev->driver->io->fs_data.fs_data_struct = (void*) netdev;
+        dev->driver->io->fs_data.fs_data_struct = (void*)netdev;
         dev->driver->io->fs_data.fs_data_size = sizeof(*netdev);
 
         /*
@@ -209,6 +209,33 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
         return buff->data;
 }
 
+/*
+ * Handles one packet and returns the result of the packet handler. If
+ * a certain packet type is not known within andromeda, the return type
+ * will be enum packet_state.P_NOTCOMPATIBLE.
+ */
+static enum packet_state handle_packet(struct net_buff *buff, struct protocol* prot, struct protocol* tmp, struct protocol* root)
+{
+        protocol_deliver_handler_t handle = NULL;
+        for_each_ll_entry_safe(root, prot, tmp)
+        {
+                if (buff->type == prot->type) {
+                        handle = prot->deliver_packet;
+                        atomic_inc(&buff->users);
+                        if (buff->type == ETHERNET && buff->raw_vlan != 0)
+                                vlan_untag(buff);
+                        if (!buff)
+                                return P_NOTCOMPATIBLE;
+                        break;
+                }
+        }
+
+        if (handle)
+                return handle(buff);
+        else
+                return P_NOTCOMPATIBLE;
+}
+
 /**
  * \fn netif_rx_process(struct net_buff*)
  * \brief Receives, processess and polls for incoming packets.
@@ -226,7 +253,6 @@ static enum packet_state netif_rx_process(nb)
         struct protocol *prot, *tmp, *root = get_ptype_tree();
         struct netdev *dev;
         enum packet_state retval = P_DROPPED;
-        auto enum packet_state handle_packet(struct net_buff*);
 
         if (check_net_buff_tstamp(nb)) {
                 netif_drop_net_buff(nb);
@@ -251,7 +277,7 @@ static enum packet_state netif_rx_process(nb)
         nb->type = dev->frame_type;
 
         next: do {
-                if ((retval = handle_packet(nb)) == P_QUEUED) {
+                if ((retval = handle_packet(nb, prot, tmp, root)) == P_QUEUED) {
                         for_each_ll_entry_safe(root, prot, tmp)
                         {
                                 if (nb->type == prot->type) {
@@ -294,7 +320,7 @@ static enum packet_state netif_rx_process(nb)
 
         if (retval == P_DELIVERED) {
                 do
-                        retval = handle_packet(nb);
+                        retval = handle_packet(nb, prot, tmp, root);
                 while (retval == P_ANOTHER_ROUND);
                 if (retval == P_QUEUED) {
                         for_each_ll_entry_safe(root, prot, tmp)
@@ -314,35 +340,6 @@ static enum packet_state netif_rx_process(nb)
         } else {
                 return retval;
         }
-
-        /*
-         * Handles one packet and returns the result of the packet handler. If
-         * a certain packet type is not known within andromeda, the return type
-         * will be enum packet_state.P_NOTCOMPATIBLE.
-         */
-        auto enum packet_state handle_packet(struct net_buff *buff)
-        {
-                protocol_deliver_handler_t handle = NULL;
-                for_each_ll_entry_safe(root, prot, tmp)
-                {
-                        if (buff->type == prot->type) {
-                                handle = prot->deliver_packet;
-                                atomic_inc(&buff->users);
-                                if (buff->type == ETHERNET
-                                                && buff->raw_vlan != 0)
-                                        vlan_untag(buff);
-                                if (!buff)
-                                        return P_NOTCOMPATIBLE;
-                                break;
-                        }
-                }
-
-                if (handle)
-                        return handle(buff);
-                else
-                        return P_NOTCOMPATIBLE;
-        }
-
 }
 
 #if 0
@@ -430,7 +427,7 @@ static size_t net_rx_vfio(struct vfile *file, char *buf, size_t size)
 {
         if (file == NULL || buf == NULL || size == 0)
                 return -E_INVALID_ARG;
-        struct net_buff *buffer = (struct net_buff*) buf;
+        struct net_buff *buffer = (struct net_buff*)buf;
         netif_rx_process(buffer);
         debug("Packet arrived in the core driver successfully. Protocol type: %x\n",
                         buffer->vlan->protocol_tag
@@ -447,7 +444,7 @@ static size_t net_rx_vfio(struct vfile *file, char *buf, size_t size)
 static size_t net_tx_vfio(struct vfile *file, char *buf, size_t size)
 {
         struct device *dev_driver = device_find_id(
-                        ((struct netdev*) buf)->dev_id);
+                        ((struct netdev*)buf)->dev_id);
         struct vfile *io = dev_driver->open(dev_driver);
         io->write(file, buf, size);
         return -E_NOFUNCTION;

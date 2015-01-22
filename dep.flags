@@ -53,7 +53,7 @@
         },
         "keyboard panic": {
                 "ignore-autoconf": true,
-		"info" : "Enable kernel panic on pressing f11",
+                "info": "Enable kernel panic on pressing f11",
                 "mandatory": false
         },
         "mm": {
