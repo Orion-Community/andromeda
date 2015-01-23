@@ -1,6 +1,8 @@
 /*
     Andromeda
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C)  2011, 2012, 2013, 2014, 2015  Bart Kuivenhoven
+    Copyright (C)  2011  Steven van der Schoot
+    Copyright (C)  2012  Michel Megens
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,7 +40,17 @@
 #define RL_RUN4         0x5
 #define RL_REBOOT       0x6
 
+/**
+ * \var stack
+ * \brief Kernel stack
+ */
+unsigned char stack[STD_STACK_SIZE];
+
+struct task *current_task = NULL;
+
 void demand_key();
+
+//struct task *current_task = NULL;
 
 void shutdown()
 {

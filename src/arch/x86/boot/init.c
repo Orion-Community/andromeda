@@ -188,7 +188,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 #endif
         if (hdr->flags & MULTIBOOT_INFO_ELF_SHDR)
                 core_symbols_init(&hdr->u.elf_sec);
-        task_init();
+        //task_init();
 
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");

@@ -164,7 +164,8 @@ int vm_range_update();
 int vm_init();
 void* vm_get_phys(int cpu, void* virt);
 void* x86_pte_get_phys(void* virt);
-int vm_load_task();
+int vm_load_task(int cpu, struct vm_descriptor* task);
+int vm_unload_task(int cpu, struct vm_descriptor* task);
 
 /* Segment switching functions */
 int vm_segment_load(int cpu, struct vm_segment* s);

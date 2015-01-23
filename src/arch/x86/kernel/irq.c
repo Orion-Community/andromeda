@@ -16,7 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clock.h"
+#include "rtc.h"
 #include <text.h>
 #include <stdlib.h>
 
@@ -51,6 +51,10 @@ void cIRQ0(irq_stack_t* regs)
                         sleepTime--;
         }
         pit_timer += 1;
+#ifdef TIMER_DBG
+        if ((pit_timer & 0xF) == 0)
+                printf("[ DEBUG ] timer tick %i\n", pit_timer);
+#endif
 
         pic_eoi(0);
 

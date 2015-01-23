@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 #include <io.h>
-#include "clock.h"
+#include "rtc.h"
 
 #include <andromeda/clock.h>
 #include <andromeda/drivers.h>
@@ -47,13 +47,8 @@ struct device *rtc_dev;
  * This array (/table) converts a RTC rate to the associated frequention in
  * Hertz.
  */
-static const unsigned short hz_table[] =
-{
-        0,      256,   128,   0x2000, 
-        0x1000, 0x800, 0x400, 0x200, 
-        0x100,  0x80,  0x40,  0x20, 
-        0x10,   8,     4,     2
-};
+static const unsigned short hz_table[] = {0, 256, 128, 0x2000, 0x1000, 0x800,
+                0x400, 0x200, 0x100, 0x80, 0x40, 0x20, 0x10, 8, 4, 2};
 
 /**
  * \fn get_rtc_frq(RTC *clock)
@@ -65,8 +60,7 @@ static const unsigned short hz_table[] =
  * object. If the RTC is not configured correctly or when it is turned of the
  * return value will be 0.
  */
-inline unsigned short 
-get_rtc_frq(RTC *clock)
+inline unsigned short get_rtc_frq(RTC *clock)
 {
         return hz_table[clock->rate];
 }
@@ -78,15 +72,14 @@ get_rtc_frq(RTC *clock)
  * This function initialises the Real Time Clock object. It also registers and
  * initialises an IRQ/ISR to keep the RTC object up to date.
  */
-int
-setup_rtc(void)
+int setup_rtc(void)
 {
         rtc_dev = kmalloc(sizeof(*rtc_dev));
-        if(rtc_dev == NULL)
+        if (rtc_dev == NULL)
                 panic("No memory during RTC init!\n");
         rtc_create_driver(rtc_dev);
         RTC *clock = kmalloc(sizeof(*clock));
-        if(clock == NULL)
+        if (clock == NULL)
                 return -E_NOMEM;
         memset(clock, 0, sizeof(*clock));
         clock->name = "clock0";
@@ -105,8 +98,7 @@ setup_rtc(void)
  * This function will allocate a new device driver and add an communication
  * file to the device. Returns 0 on success error code otherwise.
  */
-static int
-rtc_create_driver(struct device *dev)
+static int rtc_create_driver(struct device *dev)
 {
         dev_setup_driver(dev, NULL, NULL);
         dev->type = rtc;
@@ -123,18 +115,17 @@ rtc_create_driver(struct device *dev)
  * frequency and enable the IRQ. The RTC will be programmed to a periodic
  * clock/interrupt.
  */
-static void
-program_rtc(struct device *dev)
+static void program_rtc(struct device *dev)
 {
         RTC *rtc = (RTC*)dev->device_data;
         disable_irqs();
-        
+
         /* select CMOS register B to set the RTC to a periodic clock. */
         outb(CMOS_SELECT, CMOS_RTC_ALARM);
         unsigned char val = inb(CMOS_DATA);
-        
+
         outb(CMOS_SELECT, CMOS_RTC_ALARM);
-        outb(CMOS_DATA, val |0x40);
+        outb(CMOS_DATA, val | 0x40);
 
         /* set the RTC frequency */
         outb(CMOS_SELECT, CMOS_RTC_TIMER);

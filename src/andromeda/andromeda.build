@@ -10,6 +10,5 @@
 	{"key" : "syscall-test", "flags" : "-D SC_TEST"}
 	],
 "linker-flags" : "",
-"archiver-flags" : "",
-"depend" : [{"path" : "sched/sched.build"}, {"path" : "scheduling/scheduling.build"}, {"path" : "timer/timer.build"}]
+"archiver-flags" : ""
 }

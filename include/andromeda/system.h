@@ -36,12 +36,12 @@
 #define CPU_LIMIT 0x10
 
 /*
-struct sys_mmu_range_phys {
-        void* phys;
-        size_t size;
-        struct sys_mmu_range_phys* next;
-};
-*/
+ struct sys_mmu_range_phys {
+ void* phys;
+ size_t size;
+ struct sys_mmu_range_phys* next;
+ };
+ */
 
 struct sys_mmu_range {
         /* virt is the base address of the range */
@@ -63,6 +63,17 @@ struct sys_mmu {
         int (*cleanup_range)(struct sys_mmu_range*);
 };
 
+struct sys_timer {
+        int (*timer_init)(void);
+        int (*subscribe)(time_t time, uint16_t id, int (*handler)(uint16_t id));
+        int (*set_freq)(time_t freq);
+        int (*handle_tick)(void);
+
+        uint32_t id;
+        time_t freq;
+        struct sys_timer* next;
+};
+
 struct sys_cpu_scheduler {
         int (*sched)(void);
         int (*task_switch)(void);
@@ -75,6 +86,7 @@ struct sys_cpu_scheduler {
 };
 
 struct sys_cpu_pic {
+        struct sys_timer* timers;
         int (*set_interrupt)(void);
         int (*get_interrupt)(void);
         int (*suspend)(void);
@@ -95,6 +107,7 @@ struct sys_cpu {
 };
 
 struct sys_io_pic {
+        struct sys_timer* timers;
         int (*set_interrupt)(void);
         int (*get_interrupt)(void);
         int (*disable_interrupt)(void);
@@ -102,7 +115,7 @@ struct sys_io_pic {
         int (*resume)(void);
 };
 
-struct sys_arch_abstraction{
+struct sys_arch_abstraction {
         struct sys_cpu* cpu[CPU_LIMIT];
         struct sys_io_pic* pic;
 };
@@ -112,7 +125,7 @@ struct sys_memory_manager {
         void* (*page_share)(void*);
         int (*page_free)(void*);
         void* (*alloc)(size_t, uint16_t);
-        void  (*free)(void*, size_t);
+        void (*free)(void*, size_t);
 };
 
 struct sys_device_tree {
@@ -140,7 +153,8 @@ struct sys_fs_dir_entry {
 
 struct sys_fs {
         struct vfile* (*open)(int inode);
-        struct sys_fs_dir_entry* (*dir_entry)(uint32_t inode, uint32_t entry, char* data, size_t len);
+        struct sys_fs_dir_entry* (*dir_entry)(
+                        uint32_t inode, uint32_t entry, char* data, size_t len);
         int (*close)(struct vfile*);
         int (*read)(struct vfile* file, char* data, size_t len);
         int (*write)(struct vfile* file, char* data, size_t len);
@@ -249,8 +263,7 @@ get_phys(int cpu, void* virt)
         return core.arch->cpu[cpu]->mmu->get_phys(virt);
 }
 
-static inline int
-page_map(int cpu, void* virt, void* phys, int cpl)
+static inline int page_map(int cpu, void* virt, void* phys, int cpl)
 {
         if (!hascpu(cpu))
                 return -E_NULL_PTR;
@@ -259,16 +272,14 @@ page_map(int cpu, void* virt, void* phys, int cpl)
         return core.arch->cpu[cpu]->mmu->set_page(virt, phys, cpl);
 }
 
-static inline int
-page_map_range(int cpu, struct sys_mmu_range* range)
+static inline int page_map_range(int cpu, struct sys_mmu_range* range)
 {
         if (!hascpu(cpu) || range == NULL)
                 return -E_NULL_PTR;
         return core.arch->cpu[cpu]->mmu->set_range(range);
 }
 
-static inline int
-page_unmap(int cpu, void* virt)
+static inline int page_unmap(int cpu, void* virt)
 {
         if (!hascpu(cpu))
                 return -E_NULL_PTR;
@@ -277,16 +288,14 @@ page_unmap(int cpu, void* virt)
         return core.arch->cpu[cpu]->mmu->reset_page(virt);
 }
 
-static inline int
-page_unmap_range(int cpu, struct sys_mmu_range* range)
+static inline int page_unmap_range(int cpu, struct sys_mmu_range* range)
 {
         if (!hascpu(cpu) || range == NULL)
                 return -E_NULL_PTR;
         return core.arch->cpu[cpu]->mmu->reset_range(range);
 }
 
-static inline int
-page_range_cleanup(int cpu, struct sys_mmu_range* range)
+static inline int page_range_cleanup(int cpu, struct sys_mmu_range* range)
 {
         if (!hascpu(cpu) || range == NULL)
                 return -E_NULL_PTR;

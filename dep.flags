@@ -41,6 +41,7 @@
                 "info": "This will break the build as all object files will become ascii assembler files",
                 "mandatory": false
         },
+        "build_root": "andromeda.build",
         "cas": {
                 "ignore-autoconf": false,
                 "info": "A tiny little easter egg, for Cas van Raan",
@@ -75,7 +76,12 @@
         },
         "syscall-test": {
                 "ignore-autoconf": true,
-                "info": "",
+                "info": "Enables system call tests",
+                "mandatory": false
+        },
+        "timer_dbg": {
+                "ignore-autoconf": true,
+                "info": "Enable debugging of timer ticks",
                 "mandatory": false
         },
         "tree test": {
@@ -85,7 +91,7 @@
         },
         "vm_loop_detect": {
                 "ignore-autoconf": true,
-                "info": "",
+                "info": "This will scan the virtual memory tables for loops. Warning, this can slow down the system quite severely.",
                 "mandatory": false
         },
         "vm_test": {

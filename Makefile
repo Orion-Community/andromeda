@@ -26,7 +26,7 @@ clean: scripts/build
 	$(BUILD) -c $(FLAGS)
 
 configure: scripts/build
-	$(BUILD) --configure
+	$(BUILD) --configure --colours
 
 allyes-config: scripts/build
 	$(BUILD) --configure --allyes-config

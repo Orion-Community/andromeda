@@ -117,9 +117,6 @@ struct task
         /** Where can we find more code if we swapped some out? */
         char *path_to_bin;
 
-        /** Which physical pages are you using? Probbably going down for rewrite. */
-        uint64_t phys_map_idx;
-
         /** Where are your code and data segments starting? */
         void *code;
         void *data;
@@ -128,8 +125,8 @@ struct task
         addr_t code_size;
         addr_t data_size;
 
-        /** page list */
-        struct mm_page_list *pglist;
+        /** Virtual memory */
+        struct vm_descriptor* virtual_memory;
 };
 
 /** Structure for keeping track of threads in the shape of a tree. */
