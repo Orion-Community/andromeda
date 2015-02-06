@@ -48,7 +48,6 @@ disableInterrupts:
 	pop eax		; Fetch the flags
 	and eax, 1 << 9 ; Check if interrupts were enabled
 	shr eax, 0
-	jmp .return
 	jz .false
 	mov eax, 1	; If previously enabled, return 1
 	jmp .return

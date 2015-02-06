@@ -22,6 +22,7 @@
 #include <andromeda/cpu.h>
 #include <arch/x86/task.h>
 #include <andromeda/syscall.h>
+#include <andromeda/system.h>
 
 /*
 extern uint32_t pgbit;
@@ -39,6 +40,7 @@ void checkFrame(isrVal_t* regs)
 
 void cDivByZero(isrVal_t* regs)
 {
+        do_interrupt(0);
         printf("D0\n");
         checkFrame(regs);
         if (regs->cs != 0x8)
@@ -55,6 +57,7 @@ void cDivByZero(isrVal_t* regs)
 
 void cNmi(isrVal_t* regs)
 {
+        do_interrupt(2);
         printf("NMI\n");
         checkFrame(regs);
         panic("Don't know what a non-maskable interrupt does!!!");
@@ -62,6 +65,7 @@ void cNmi(isrVal_t* regs)
 
 void cBreakp(isrVal_t* regs)
 {
+        do_interrupt(3);
         printf("BP\n");
         checkFrame(regs);
         printf("Debug:\n");
@@ -77,6 +81,7 @@ void cBreakp(isrVal_t* regs)
 
 void cOverflow(isrVal_t* regs)
 {
+        do_interrupt(4);
         printf("OF\n");
         checkFrame(regs);
         panic("Overflow");
@@ -84,6 +89,7 @@ void cOverflow(isrVal_t* regs)
 
 void cBound(isrVal_t* regs)
 {
+        do_interrupt(5);
         printf("BD\n");
         checkFrame(regs);
         panic("Bounds");
@@ -91,6 +97,7 @@ void cBound(isrVal_t* regs)
 
 void cInvalOp(isrVal_t* regs)
 {
+        do_interrupt(6);
         printf("IV\n");
         checkFrame(regs);
         cBreakp(regs);
@@ -99,6 +106,7 @@ void cInvalOp(isrVal_t* regs)
 
 void cNoMath(isrVal_t* regs)
 {
+        do_interrupt(7);
         printf("NM\n");
         checkFrame(regs);
         panic("No math coprocessor");
@@ -106,6 +114,7 @@ void cNoMath(isrVal_t* regs)
 
 void cDoubleFault(isrVal_t* regs)
 {
+        do_interrupt(8);
         printf("DF\n");
         checkFrame(regs);
         panic("Double fault");
@@ -113,11 +122,16 @@ void cDoubleFault(isrVal_t* regs)
 
 void cDepricated(isrVal_t* regs)
 {
+        do_interrupt(1);
+        do_interrupt(9);
+        do_interrupt(15);
+
         checkFrame(regs);
 }
 
 void cInvalidTSS(isrVal_t* regs)
 {
+        do_interrupt(10);
         printf("IT\n");
         checkFrame(regs);
         panic("Invalid TSS");
@@ -125,12 +139,14 @@ void cInvalidTSS(isrVal_t* regs)
 
 void cSnp(isrVal_t* regs)
 {
+        do_interrupt(11);
         printf("FF\n");
         checkFrame(regs);
         panic("Stack not present!");
 }
 void cStackFault(isrVal_t* regs)
 {
+        do_interrupt(12);
         printf("SF\n");
         checkFrame(regs);
         panic("Stack fault!");
@@ -138,6 +154,7 @@ void cStackFault(isrVal_t* regs)
 
 void cGenProt(isrVal_t* regs)
 {
+        do_interrupt(13);
         printf("GP\n");
         printf("\nGeneral Protection Fault\neip\t\tcs\tds\teflags\tprocesp\t\tss\n");
         printf("%X\t%X\t%X\t%X\t%X\t%X\n", regs->eip, regs->cs & 0xFFFF, regs->ds & 0xFFFF, regs->eflags,
@@ -153,6 +170,7 @@ void cGenProt(isrVal_t* regs)
 
 void cFpu(isrVal_t* regs)
 {
+        do_interrupt(16);
         printf("FP\n");
         checkFrame(regs);
         panic("Floating point exception");
@@ -160,13 +178,22 @@ void cFpu(isrVal_t* regs)
 
 void cAlligned(isrVal_t* regs)
 {
+        do_interrupt(17);
         printf("AL\n");
         checkFrame(regs);
         panic("Alligned exception");
 }
 
+void cMachine(isrVal_t* regs) {
+        do_interrupt(18);
+        printf("MACHINE FAULT\n");
+        checkFrame(regs);
+        panic("MACHINE FAULT!");
+}
+
 void cSimd(isrVal_t* regs)
 {
+        do_interrupt(19);
         printf("SIMD\n");
         checkFrame(regs);
         panic("SSE exception");
@@ -174,7 +201,15 @@ void cSimd(isrVal_t* regs)
 
 int cSyscall(isrVal_t* regs)
 {
-        if (sc_list[(uint16_t)regs->eax].syscall != NULL)
+        do_interrupt(80);
+        if (sc_list[(uint16_t)regs->eax].syscall != NULL)  {
+                if (sc_list[(uint16_t)regs->eax].cpl <= -4) {
+                        /**
+                         * \todo Replace -4 by current task privilege check
+                         */
+                        return -E_NORIGHTS;
+                }
                 return sc_list[(uint16_t)regs->eax].syscall(regs->ebx, regs->ecx, regs->edx);
+        }
         return -E_NOT_FOUND;
 }

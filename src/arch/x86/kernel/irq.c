@@ -46,6 +46,7 @@ uint32_t irqs[IRQ_BASE];
 
 void cIRQ0(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE);
         if (isSleeping) {
                 if (!(sleepTime == 0))
                         sleepTime--;
@@ -63,6 +64,7 @@ void cIRQ0(irq_stack_t* regs)
 
 void cIRQ1(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+1);
         uint8_t c = ol_ps2_get_keyboard_scancode();
         kb_handle(c);
         pic_eoi(1);
@@ -71,42 +73,49 @@ void cIRQ1(irq_stack_t* regs)
 
 void cIRQ2(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+2);
         pic_eoi(2);
         return;
 }
 
 void cIRQ3(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+3);
         pic_eoi(3);
         return;
 }
 
 void cIRQ4(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+4);
         pic_eoi(4);
         return;
 }
 
 void cIRQ5(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+5);
         pic_eoi(5);
         return;
 }
 
 void cIRQ6(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+6);
         pic_eoi(6);
         return;
 }
 
 void cIRQ7(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+7);
         pic_eoi(7);
         return;
 }
 
 void cIRQ8(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+8);
         printf("test\n");
         outb(CMOS_SELECT, CMOS_RTC_IRQ);
         inb(CMOS_DATA);
@@ -116,6 +125,7 @@ void cIRQ8(irq_stack_t* regs)
 
 void cIRQ9(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+9);
         putc('a');
         pic_eoi(9);
         return;
@@ -123,30 +133,35 @@ void cIRQ9(irq_stack_t* regs)
 
 void cIRQ10(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+10);
         pic_eoi(10);
         return;
 }
 
 void cIRQ11(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+11);
         pic_eoi(11);
         return;
 }
 
 void cIRQ12(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+12);
         pic_eoi(12);
         return;
 }
 
 void cIRQ13(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+13);
         pic_eoi(13);
         return;
 }
 
 void cIRQ14(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+14);
         putc('a');
         pic_eoi(14);
         return;
@@ -154,11 +169,12 @@ void cIRQ14(irq_stack_t* regs)
 
 void cIRQ15(irq_stack_t* regs)
 {
+        do_interrupt(OL_INTERRUPT_BASE+15);
         putc('b');
         pic_eoi(15);
         return;
 }
-
+/*
 void disable_irqs()
 {
         __asm__ __volatile__("cli\n");
@@ -168,3 +184,4 @@ void enable_irqs()
 {
         __asm__ __volatile__("sti\n");
 }
+*/

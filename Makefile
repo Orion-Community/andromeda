@@ -2,7 +2,11 @@
 # Root Makefile
 #
 
+ifeq ($(shell tput colors), 8)
+BUILD=scripts/build andromeda.build -t cores $(BUILD_FLAGS) --colours
+else
 BUILD=scripts/build andromeda.build -t cores $(BUILD_FLAGS)
+endif
 VERSION:=\"$(shell git describe --tags)\"
 ifeq ($(COMPILER_FLAGS),)
 CFLAGS:=--cflags "-D VERSION=$(VERSION)"

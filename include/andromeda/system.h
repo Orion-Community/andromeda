@@ -24,6 +24,7 @@
 #include <types.h>
 #ifdef X86
 #include <boot/mboot.h>
+#include <arch/x86/cpu.h>
 #endif
 
 #include <mm/memory.h>
@@ -315,6 +316,17 @@ void stack_dump(uint32_t* stack_ptr, uint32_t depth);
 int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length);
 #else
 int sys_setup_paging(void);
+#endif
+
+int interrupt_init();
+int32_t interrupt_register(uint16_t interrupt_no,
+                int (*procedure)(uint16_t interrupt_no, uint16_t interrupt_id));
+int32_t interrupt_deregister(uint16_t interrupt_no, int32_t interrupt_id);
+int do_interrupt(uint16_t interrupt_no);
+
+
+#ifdef INTERRUPT_TEST
+int interrupt_test(int interrupt_no);
 #endif
 
 #endif

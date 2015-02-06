@@ -16,6 +16,10 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \todo Make this code 8259 PIC specific
+ */
+
 #include <stdlib.h>
 #include <arch/x86/idt.h>
 #include <arch/x86/pic.h>

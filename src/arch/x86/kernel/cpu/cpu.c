@@ -96,7 +96,7 @@ ol_get_eflags(void)
                : "%eax" /* eax is clobbered */);
   return ret;
 }
-
+#if 0
 static void
 ol_mutex_lock(mutex_t *lock)
 {
@@ -117,13 +117,16 @@ ol_mutex_release(mutex_t *lock)
                : "r" (lock)
                : "%eax");
 }
+#endif
 
 void
 ol_cpu_init(ol_cpu_t cpu)
 {
   cpu->flags = 0;
-  cpu->lock = &ol_mutex_lock;
-  cpu->unlock = &ol_mutex_release;
+  cpu->lock = mutex_lock;
+  cpu->unlock = mutex_unlock;
+//  cpu->lock = &ol_mutex_lock;
+//  cpu->unlock = &ol_mutex_release;
   cpu->flags |= ol_cpuid_available(cpu) ? 0 : 1;
   cpu->lock(&cpu_lock);
   if (cpu->flags & 0x1)

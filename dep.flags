@@ -52,6 +52,11 @@
                 "info": "Enable GDB debugging information",
                 "mandatory": false
         },
+        "interrupt-test": {
+                "ignore-autoconf": false,
+		"info" : "Test the interrupt callback system",
+                "mandatory": false
+        },
         "keyboard panic": {
                 "ignore-autoconf": true,
                 "info": "Enable kernel panic on pressing f11",

@@ -192,6 +192,9 @@ void core_loop()
         int i = sc_call(SYS_WRITE, 0, 0, (int)str, strlen(str));
         printf ("sc: %X\n", -i);
 #endif
+#ifdef INTERRUPT_TEST
+        interrupt_test(80);
+#endif
         debug ("Entering core loop\n");
         while (TRUE) // Infinite loop, to make the kernel wait when there is nothing to do
         {
@@ -214,6 +217,6 @@ void core_loop()
                 case RL_SHUTDOWN:
                         break;
                 }
-                halt(); // Puts the CPU in idle state untill next interrupt
+                halt(); // Puts the CPU in idle state until next interrupt
         }
 }

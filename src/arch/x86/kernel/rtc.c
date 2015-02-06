@@ -28,6 +28,7 @@
 #include <andromeda/system.h>
 
 #include <drivers/root.h>
+#include <arch/x86/cpu.h>
 
 static int rtc_create_driver(struct device *dev);
 static void program_rtc(struct device *dev);
@@ -47,8 +48,8 @@ struct device *rtc_dev;
  * This array (/table) converts a RTC rate to the associated frequention in
  * Hertz.
  */
-static const unsigned short hz_table[] = {0, 256, 128, 0x2000, 0x1000, 0x800,
-                0x400, 0x200, 0x100, 0x80, 0x40, 0x20, 0x10, 8, 4, 2};
+static const unsigned short hz_table[] = { 0, 256, 128, 0x2000, 0x1000, 0x800,
+                0x400, 0x200, 0x100, 0x80, 0x40, 0x20, 0x10, 8, 4, 2 };
 
 /**
  * \fn get_rtc_frq(RTC *clock)
@@ -117,8 +118,8 @@ static int rtc_create_driver(struct device *dev)
  */
 static void program_rtc(struct device *dev)
 {
-        RTC *rtc = (RTC*)dev->device_data;
-        disable_irqs();
+        RTC *rtc = (RTC*) dev->device_data;
+        int int_state = disableInterrupts();
 
         /* select CMOS register B to set the RTC to a periodic clock. */
         outb(CMOS_SELECT, CMOS_RTC_ALARM);
@@ -134,5 +135,9 @@ static void program_rtc(struct device *dev)
         outb(CMOS_SELECT, CMOS_RTC_TIMER);
         outb(CMOS_DATA, (val & 0xF0) | (rtc->rate & 0xF));
         enable_legacy_irq(RTC_IRQ_LINE);
-        enable_irqs();
+
+        if (int_state == INTERRUPTS_ENABLED) {
+                enableInterrupts();
+        }
+        return;
 }

@@ -21,6 +21,7 @@
 #include <sys/dev/ps2.h>
 #include <sys/io.h>
 #include <andromeda/system.h>
+#include <arch/x86/pic.h>
 
 #include <text.h>
 

@@ -116,6 +116,8 @@ extern volatile ol_cpu_t cpus;
  * \fn disableInterrupts
  * \return 1 if interrupts were enabled, otherwise 0
  */
+#define INTERRUPTS_DISABLED 0
+#define INTERRUPTS_ENABLED  1
 extern int disableInterrupts();
 extern int enableInterrupts();
 
