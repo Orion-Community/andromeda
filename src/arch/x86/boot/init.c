@@ -144,6 +144,18 @@ int system_x86_init()
 {
         /** \todo Write the x86 function pointer library */
         printf("The code to set up x86 function pointers is still to be written\n");
+
+        int is_available = x86_cpuid_available();
+        if (is_available) {
+                struct x86_gen_regs registers;
+                x86_cpuid(1, &registers);
+                if (registers.edx && (1<<9)) {
+                        // Initialise the apic rather than the 8259 PIC
+                }
+        }
+
+        pic_init();
+
         return -E_NOFUNCTION;
 }
 
@@ -177,7 +189,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         sys_setup_paging(mmap, (unsigned int)hdr->mmap_length);
         sys_setup_arch();
 
-        pic_init();
         setIDT();
         //setup_irq_data();
         vm_init();
@@ -201,7 +212,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         ol_cpu_t cpu = kmalloc(sizeof (*cpu));
         if (cpu == NULL)
                 panic("OUT OF MEMORY!");
-        ol_cpu_init(cpu);
+        x86_cpu_init(cpu);
 
         cpu_enable_interrupts(0);
 
