@@ -134,7 +134,7 @@ static void program_rtc(struct device *dev)
 
         outb(CMOS_SELECT, CMOS_RTC_TIMER);
         outb(CMOS_DATA, (val & 0xF0) | (rtc->rate & 0xF));
-        enable_legacy_irq(RTC_IRQ_LINE);
+        pic_8259_clear_irq_mask(RTC_IRQ_LINE);
 
         if (int_state == INTERRUPTS_ENABLED) {
                 enableInterrupts();

@@ -26,7 +26,8 @@ static struct mm_cache* interrupt_cache;
 static int interrupt_initialised = 0;
 
 struct interrupt {
-        int (*procedure)(uint16_t interrupt_no, uint16_t interrupt_id);
+        int (*procedure)(uint16_t interrupt_no, uint16_t interrupt_id,
+                        uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4);
         uint16_t id;
 
         struct interrupt* next;
@@ -66,7 +67,8 @@ int interrupt_init()
 }
 
 int32_t interrupt_register(uint16_t interrupt_no,
-                int (*procedure)(uint16_t interrupt_no, uint16_t interrupt_id))
+                int (*procedure)(uint16_t no, uint16_t id, uint64_t r1,
+                                uint64_t r2, uint64_t r3, uint64_t r4))
 {
         if (interrupt_no >= INTERRUPTS) {
                 return -E_OUTOFBOUNDS;
@@ -162,7 +164,8 @@ int32_t interrupt_deregister(uint16_t interrupt_no, int32_t interrupt_id)
         return ret;
 }
 
-int do_interrupt(uint16_t interrupt_no)
+int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
+                uint64_t r4)
 {
         int ret = -E_SUCCESS;
 
@@ -172,7 +175,9 @@ int do_interrupt(uint16_t interrupt_no)
 
         struct interrupt* i = &interrupts[interrupt_no];
         for (; i != NULL && i->procedure != NULL ; i = i->next) {
-                ret |= i->procedure(interrupt_no, i->id);
+
+                ret |= i->procedure(interrupt_no, i->id, r1, r2, r3, r4);
+
                 if (ret != -E_SUCCESS) {
                         printf("Failure in interrupt %X\n", interrupt_no);
                         printf("Specific procedure at %X\n",
@@ -192,7 +197,8 @@ static uint16_t test_interrupt_no;
 static uint16_t test_interrupt_id;
 static uint16_t test_interrupt_success;
 
-static int interrupt_test_func(uint16_t interrupt_no, uint16_t interrupt_id)
+static int interrupt_test_func(uint16_t interrupt_no, uint16_t interrupt_id,
+                uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4)
 {
         test_interrupt_success = 0;
         if (interrupt_id != test_interrupt_id) {
@@ -200,6 +206,9 @@ static int interrupt_test_func(uint16_t interrupt_no, uint16_t interrupt_id)
         }
         if (interrupt_no != test_interrupt_no) {
                 test_interrupt_success = -1;
+        }
+        if (r1 != 1 || r2 != 2 || r3 != 3 || r4 != 4) {
+                test_interrupt_success = -3;
         }
         return -E_SUCCESS;
 }
@@ -215,7 +224,8 @@ int interrupt_test(int interrupt_no)
         test_interrupt_id = interrupt_register(test_interrupt_no,
                         interrupt_test_func);
 
-        do_interrupt(test_interrupt_no);
+        do_interrupt(test_interrupt_no, (uint64_t) 1, (uint64_t) 2,
+                        (uint64_t) 3, (uint64_t) 4);
 
         if (test_interrupt_success) {
                 printf("Interrupt test failed! %X\n", test_interrupt_success);

@@ -132,7 +132,7 @@ ol_ps2_init_keyboard()
      * span where the user has pressed a key, but the cpu was not yet listening
      * for interrupts.
      */
-    pic_eoi(2);
+    pic_8259_eoi(2);
   }
   return 0;
 }

@@ -60,10 +60,19 @@ ol_cpuid_available(ol_cpu_t);
 
 void x86_cpu_init(ol_cpu_t);
 struct x86_gen_regs* x86_cpuid(uint32_t func, struct x86_gen_regs* regs);
-int x86_cpuid_available();
 uint32_t x86_get_eflags(void);
-void ol_set_eflags(uint32_t);
+void x86_set_eflags(uint32_t);
 
+#define X86_FLAGS_CPUID_TEST_BIT (1<<21)
+
+#define X86_CPUID_VENDOR_UNKNOWN        0
+#define X86_CPUID_VENDOR_INTEL          1
+#define X86_CPUID_VENDOR_AMD            2
+
+extern uint32_t x86_get_vendor();
+extern uint32_t x86_eflags_test(uint32_t);
+
+#define x86_cpuid_available() x86_eflags_test(X86_FLAGS_CPUID_TEST_BIT)
 #if 0
 /* LOCKS */
 static void /* lock spin lock */

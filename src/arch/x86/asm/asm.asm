@@ -1,5 +1,5 @@
 ;   Orion OS, The educational operatingsystem
-;   Copyright (C) 2011  Bart Kuivenhoven
+;   Copyright (C) 2011 - 2015  Bart Kuivenhoven
 
 ;   This program is free software: you can redistribute it and/or modify
 ;   it under the terms of the GNU General Public License as published by
@@ -17,8 +17,8 @@
 ; The assembly headers for the interrupts.
 [GLOBAL halt]
 [GLOBAL endProg]
-[GLOBAL DetectAPIC]
-[GLOBAL getVendor]
+[GLOBAL x86_eflags_test]
+[GLOBAL x86_get_vendor]
 [GLOBAL getCS]
 [GLOBAL getDS]
 [GLOBAL getSS]
@@ -34,7 +34,6 @@
 [EXTERN mutex_unlock]
 
 [GLOBAL disableInterrupts]
-;[GLOBAL enableInterrupts]
 
 mutex   dd	0 ;The mutex variable
 pgbit	dd	0 ;Paging is disabled per default
@@ -56,11 +55,6 @@ disableInterrupts:
 .return:
 	ret		; Return
 
-;enableInterrupts:
-;	sti		; Enable interrupts
-;	xor eax, eax 	; Set return value to 0, to signal no error has occured
-;	ret		; Return
-
 halt:
         pushfd		; Make sure interrupt flag is saved
         sti		; Enable interrupts
@@ -68,44 +62,30 @@ halt:
         popfd		; Restore interrupt flag to whatever it was before
         ret		; Return
 
-DetectAPIC:
-        enter
+; Prototype in include/arch/x86/cpu.h
+x86_eflags_test:
+        enter                   ; set up call frame
 
-        push eax
         push ebx
-        push edx
+        mov ebx, [ebp+8]        ; Get the parameters
 
-        call getVendor
-        cmp eax, 1
-        jnz .testAPIC
-        cmp eax, 2
-        jnz .testAPIC
-        jmp .err
+        pushfd                  ; Store the eflags on stack
+        pushfd                  ; Get them again, but this time to edit
+        xor dword [esp], ebx          ; Set the bit(s) to test
+        popfd                   ; Write flags to register
 
-.testAPIC:
-        mov eax, 1 ; prepare CPUID
-        cpuid ; Issue CPUID
+        pushfd                  ; Read the flags again
+        pop eax                 ; Put the flags into the return register
+        xor eax, [esp]          ; Filter out the changes
 
-        and edx, 1<<9 ; mask the flag out
-        mov eax, edx ; return value to eax
-
-        pop edx
+        popfd                   ; Restore the original flags
         pop ebx
-        pop eax
 
-        return
+        return                  ; Restore the call frame and return
 
-.err: ; invalid CPUID
-        pop edx
-        pop ebx
-        pop eax
 
-        xor eax, eax ; return -1
-        sub eax, 1
-
-        return
-
-getVendor:
+; Prototype in include/arch/x86/cpu.h
+x86_get_vendor:
         enter
         push ebx
         push ecx
@@ -115,26 +95,31 @@ getVendor:
 
         cmp ebx, "Genu"
         jz .intel
-        cmp ebx, 0x68747541
+        cmp ebx, "Auth"
         jz .amdTest
+        cmp ebx, "AMDi"
+        jz .amdTest
+
         xor eax, eax
-        pop edx
-        pop ecx
-        pop ebx
-        return
+        jmp .return;
 
 .intel:
+        cmp ecx, "ntel"
+        jnz .unknown
         mov eax, 1
-        pop edx
-        pop ecx
-        pop ebx
-        return
+        jmp .return
+
+.unknown:
+        xor eax, eax
+        jmp .return
 
 .amdTest:
+        mov eax, 2
+
+.return:
         pop edx
         pop ecx
         pop ebx
-        mov eax, 2
         return
 
 getCS:
@@ -213,7 +198,3 @@ endProg:
         hlt
         jmp endProg
 
-elfJump:
-        mov ebx, [esp+12] ; Give the modules in ebx
-        mov eax, [esp+8] ; Give the memory map in eax
-        jmp [esp+4] ; jump toward the argument, don't care about the stack

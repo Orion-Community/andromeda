@@ -23,10 +23,9 @@
 #include <andromeda/error.h>
 
 #include <arch/x86/pic.h>
-#include <arch/x86/pit.h>
 #include <arch/x86/irq.h>
 
-void pic_remap(uint32_t offset1, uint32_t offset2)
+void pic_8259_remap(uint32_t offset1, uint32_t offset2)
 {
         uint8_t mask1, mask2;
 
@@ -60,7 +59,7 @@ void pic_remap(uint32_t offset1, uint32_t offset2)
         outb(0xa1, 0x3e);
 }
 
-void pic_eoi(uint8_t irq)
+void pic_8259_eoi(uint8_t irq)
 {
         if (irq >= 8)
         {
@@ -69,7 +68,7 @@ void pic_eoi(uint8_t irq)
         outb(OL_PIC1_COMMAND, OL_PIC_EOI);
 }
 
-int pic_clear_irq_mask(uint8_t irq)
+int pic_8259_clear_irq_mask(uint8_t irq)
 {
         uint16_t port = (irq < 8) ? OL_PIC1_DATA : OL_PIC2_DATA;
         uint8_t mask = inb(port) & ~(BIT((irq < 8) ? irq : (irq - 8)));
@@ -79,7 +78,7 @@ int pic_clear_irq_mask(uint8_t irq)
         return -E_NOFUNCTION;
 }
 
-void pic_init()
+void pic_8259_init()
 {
-        pic_remap(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE + 8);
+        pic_8259_remap(OL_INTERRUPT_BASE, OL_INTERRUPT_BASE + 8);
 }

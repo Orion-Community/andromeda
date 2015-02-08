@@ -46,7 +46,9 @@ uint32_t irqs[IRQ_BASE];
 
 void cIRQ0(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE);
+        do_interrupt(OL_INTERRUPT_BASE, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
         if (isSleeping) {
                 if (!(sleepTime == 0))
                         sleepTime--;
@@ -54,134 +56,153 @@ void cIRQ0(irq_stack_t* regs)
         pit_timer += 1;
 #ifdef TIMER_DBG
         if ((pit_timer & 0xF) == 0)
-                printf("[ DEBUG ] timer tick %i\n", pit_timer);
+        printf("[ DEBUG ] timer tick %i\n", pit_timer);
 #endif
 
-        pic_eoi(0);
+        pic_8259_eoi(0);
 
         return;
 }
 
 void cIRQ1(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+1);
+        do_interrupt(OL_INTERRUPT_BASE + 1, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
         uint8_t c = ol_ps2_get_keyboard_scancode();
         kb_handle(c);
-        pic_eoi(1);
+        pic_8259_eoi(1);
         return;
 }
 
 void cIRQ2(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+2);
-        pic_eoi(2);
+        do_interrupt(OL_INTERRUPT_BASE + 2, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(2);
         return;
 }
 
 void cIRQ3(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+3);
-        pic_eoi(3);
+        do_interrupt(OL_INTERRUPT_BASE + 3, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(3);
         return;
 }
 
 void cIRQ4(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+4);
-        pic_eoi(4);
+        do_interrupt(OL_INTERRUPT_BASE + 4, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(4);
         return;
 }
 
 void cIRQ5(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+5);
-        pic_eoi(5);
+        do_interrupt(OL_INTERRUPT_BASE + 5, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(5);
         return;
 }
 
 void cIRQ6(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+6);
-        pic_eoi(6);
+        do_interrupt(OL_INTERRUPT_BASE + 6, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(6);
         return;
 }
 
 void cIRQ7(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+7);
-        pic_eoi(7);
+        do_interrupt(OL_INTERRUPT_BASE + 7, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(7);
         return;
 }
 
 void cIRQ8(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+8);
+        do_interrupt(OL_INTERRUPT_BASE + 8, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
         printf("test\n");
         outb(CMOS_SELECT, CMOS_RTC_IRQ);
         inb(CMOS_DATA);
-        pic_eoi(8);
+        pic_8259_eoi(8);
         return;
 }
 
 void cIRQ9(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+9);
+        do_interrupt(OL_INTERRUPT_BASE + 9, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
         putc('a');
-        pic_eoi(9);
+        pic_8259_eoi(9);
         return;
 }
 
 void cIRQ10(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+10);
-        pic_eoi(10);
+        do_interrupt(OL_INTERRUPT_BASE + 10, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(10);
         return;
 }
 
 void cIRQ11(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+11);
-        pic_eoi(11);
+        do_interrupt(OL_INTERRUPT_BASE + 11, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(11);
         return;
 }
 
 void cIRQ12(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+12);
-        pic_eoi(12);
+        do_interrupt(OL_INTERRUPT_BASE + 12, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(12);
         return;
 }
 
 void cIRQ13(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+13);
-        pic_eoi(13);
+        do_interrupt(OL_INTERRUPT_BASE + 13, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
+        pic_8259_eoi(13);
         return;
 }
 
 void cIRQ14(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+14);
+        do_interrupt(OL_INTERRUPT_BASE + 14, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
         putc('a');
-        pic_eoi(14);
+        pic_8259_eoi(14);
         return;
 }
 
 void cIRQ15(irq_stack_t* regs)
 {
-        do_interrupt(OL_INTERRUPT_BASE+15);
+        do_interrupt(OL_INTERRUPT_BASE + 15, (uint64_t) regs->eax,
+                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
+                        (uint64_t) regs->edx);
         putc('b');
-        pic_eoi(15);
+        pic_8259_eoi(15);
         return;
 }
-/*
-void disable_irqs()
-{
-        __asm__ __volatile__("cli\n");
-}
-
-void enable_irqs()
-{
-        __asm__ __volatile__("sti\n");
-}
-*/

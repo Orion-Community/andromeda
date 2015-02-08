@@ -25,9 +25,9 @@
 extern "C" {
 #endif
 
-void pic_remap(uint32_t set1, uint32_t set2);
-void pic_eoi(uint8_t irq);
-void pic_init();
+void pic_8259_remap(uint32_t set1, uint32_t set2);
+void pic_8259_eoi(uint8_t irq);
+void pic_8259_init();
 extern void initPIT();
 
 #define OL_INTERRUPT_BASE 0x20
@@ -36,29 +36,29 @@ extern void initPIT();
 #define OL_PIC2_COMMAND 0xa0
 
 #define OL_PIC1_DATA 0x21
-#define OL_PIC2_DATA 0xa1
+#define OL_PIC2_DATA 0xA1
 
 // A few pic commands
 
-#define OL_PIC_EOI 0x20	/* end of interrupt */
-#define OL_ICW1_ICW4 0x01		/* ICW4 (not) needed */
-#define OL_ICW1_SINGLE 0x02	/* Single (cascade) mode */
-#define OL_ICW1_INTERVAL4 0x04	/* Call address interval 4 (8) */
-#define OL_ICW1_LEVEL 0x08		/* Level triggered (edge) mode */
-#define OL_ICW1_INIT 0x10		/* Initialization - required! */
+#define OL_PIC_EOI 0x20         /* end of interrupt */
+#define OL_ICW1_ICW4 0x01       /* ICW4 (not) needed */
+#define OL_ICW1_SINGLE 0x02     /* Single (cascade) mode */
+#define OL_ICW1_INTERVAL4 0x04  /* Call address interval 4 (8) */
+#define OL_ICW1_LEVEL 0x08      /* Level triggered (edge) mode */
+#define OL_ICW1_INIT 0x10       /* Initialization - required! */
 
-#define OL_ICW4_8086 0x01		/* 8086/88 (MCS-80/85) mode */
-#define OL_ICW4_AUTO 0x02		/* Auto (normal) EOI */
-#define OL_ICW4_BUF_SLAVE 0x08	/* Buffered mode/slave */
-#define OL_ICW4_BUF_MASTER 0x0C	/* Buffered mode/master */
-#define OL_ICW4_SFNM 0x10		/* Special fully nested (not) */
+#define OL_ICW4_8086 0x01       /* 8086/88 (MCS-80/85) mode */
+#define OL_ICW4_AUTO 0x02       /* Auto (normal) EOI */
+#define OL_ICW4_BUF_SLAVE 0x08  /* Buffered mode/slave */
+#define OL_ICW4_BUF_MASTER 0x0C /* Buffered mode/master */
+#define OL_ICW4_SFNM 0x10       /* Special fully nested (not) */
 #define OL_ICW3_MASTER 0x4
 #define OL_ICW3_SLAVE 0x2
 
 /*
  * This will initiate the pic. Panics on failure.
  */
-void pic_init();
+void pic_8259_init();
 
 /**
  * \fn pic_clear_irq_mask(uint8_t irq)
@@ -67,7 +67,7 @@ void pic_init();
  * 
  * Clears the bit mask in the PIC to enable the irq.
  */
-int pic_clear_irq_mask(uint8_t irq);
+int pic_8259_clear_irq_mask(uint8_t irq);
 
 #ifdef __cplusplus
 }

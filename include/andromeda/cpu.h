@@ -27,9 +27,9 @@ extern "C" {
 
 extern uint8_t cpu_get_num();
 
-extern int getVendor();
 extern void halt();
 extern void endProg();
+
 #ifdef __INTEL
 extern unsigned short 	getCS();
 extern unsigned short 	getDS();
@@ -44,6 +44,8 @@ extern void 		setPGBit();
 #ifdef DBG
 extern void 		intdbg();
 #endif
+
+#define getVendor() x86_get_vendor()
 
 extern boolean pgbit;
 

@@ -1,6 +1,7 @@
 /*
  *   The openLoader project - Intel (/AMD) CPU features.
  *   Copyright (C) 2011  Michel Megens
+ *   Copyright (C) 2014 2015  Bart Kuivenhoven
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@
 #include <mm/memory.h>
 #include <text.h>
 
-static struct x86_gen_regs* __cpuid(volatile struct x86_gen_regs* regs);
+static void __cpuid(volatile struct x86_gen_regs* regs);
 static uint64_t __read_msr(uint32_t msr);
 static void __write_msr(uint32_t msr, uint64_t value);
 
@@ -35,26 +36,11 @@ mutex_t cpu_lock = 0;
 volatile ol_cpu_t cpus;
 uint8_t cpu_num = 0;
 
-int x86_cpuid_available()
-{
-        uint32_t flags;
-        uint32_t flags2;
-
-        flags = x86_get_eflags();
-        ol_set_eflags(flags ^ OL_CPUID_TEST_BIT);
-
-        flags2 = x86_get_eflags();
-        ol_set_eflags(flags); /* restore flags */
-
-        if ((flags2 >> 21) & 1) {
-                return 0;
-        } else {
-                return 1;
-        }
-}
-
 struct x86_gen_regs* x86_cpuid(uint32_t func, struct x86_gen_regs* regs)
 {
+        if (regs == NULL) {
+                return NULL;
+        }
         regs->eax = func;
         regs->ecx = 0;
         regs->edx = 0;
@@ -63,12 +49,12 @@ struct x86_gen_regs* x86_cpuid(uint32_t func, struct x86_gen_regs* regs)
         return regs;
 }
 
-void ol_set_eflags(uint32_t flags)
+void x86_set_eflags(uint32_t flags)
 {
         __asm__ __volatile__("movl %0, %%eax \n\t"
                         "pushl %%eax \n\t"
                         "popfl"
-                        : /* no output */
+                        : /* no input */
                         : "r" (flags)
                         : "%eax");
 }
@@ -84,48 +70,26 @@ uint32_t x86_get_eflags(void)
                         : "%eax" /* eax is clobbered */);
         return ret;
 }
-#if 0
-static void
-ol_mutex_lock(mutex_t *lock)
-{
-        asm volatile("movb $1, %%al \n\t"
-                        "l3: xchgb %%al, (%0) \n\t"
-                        "testb %%al, %%al \n\t"
-                        "jnz l3"
-                        : /* no output */
-                        : "r" (lock)
-                        : "%eax");
-}
-
-static void
-ol_mutex_release(mutex_t *lock)
-{
-        asm volatile("movb $0, (%0)"
-                        : /* no output */
-                        : "r" (lock)
-                        : "%eax");
-}
-#endif
 
 void x86_cpu_init(ol_cpu_t cpu)
 {
         cpu->flags = 0;
         cpu->lock = mutex_lock;
         cpu->unlock = mutex_unlock;
-//  cpu->lock = &ol_mutex_lock;
-//  cpu->unlock = &ol_mutex_release;
-        cpu->flags |= x86_cpuid_available(cpu) ? 0 : 1;
+        cpu->flags |= x86_cpuid_available() ? 0 : 1;
         cpu->lock(&cpu_lock);
         if (cpu->flags & 0x1) {
                 struct x86_gen_regs regs;
                 x86_cpuid(0, &regs);
 
-                if (regs.ebx == 0x756e6547 || regs.ebx == 0x756e6567)
+                uint32_t vendor =  x86_get_vendor();
+                if (vendor == X86_CPUID_VENDOR_INTEL) {
                         cpu->vendor = "INTEL";
-                else if (regs.ebx == 0x96444D41 || regs.ebx == 0x68747541)
+                } else if (vendor == X86_CPUID_VENDOR_AMD) {
                         cpu->vendor = "AMD";
-                else
+                } else {
                         cpu->vendor = "UNKNOWN";
+                }
 
                 x86_cpuid(0x80000000, &regs); /*check the amount of extended functions*/
                 if ((regs.eax & 0xff) >= 0x8) { /*if function 0x8 is supported*/
@@ -145,22 +109,20 @@ void x86_cpu_init(ol_cpu_t cpu)
         return;
 }
 
-static struct x86_gen_regs* __cpuid(volatile struct x86_gen_regs* regs)
+static void __cpuid(volatile struct x86_gen_regs* regs)
 {
-        static struct x86_gen_regs ret;
         __asm__ __volatile__("movl (%4), %%eax \n\t"
                         "movl 4(%4), %%ebx \n\t"
                         "movl 8(%4), %%ecx \n\t"
                         "movl 12(%4), %%edx \n\t"
                         "cpuid"
 
-                        : "=a" (ret.eax), /* output in register */
-                        "=b" (ret.ebx),
-                        "=c" (ret.ecx),
-                        "=d" (ret.edx)
+                        : "=a" (regs->eax), /* output in register */
+                        "=b" (regs->ebx),
+                        "=c" (regs->ecx),
+                        "=d" (regs->edx)
                         : "r" (regs)
         );
-        return &ret;
 }
 
 uint64_t cpu_read_msr(uint32_t msr)

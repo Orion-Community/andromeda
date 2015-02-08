@@ -251,6 +251,9 @@ static inline int cpu_enable_interrupts(int a)
         struct sys_cpu* cpu = getcpu(a);
         if (!(hascpu(a) && cpu->enable_interrupt != NULL))
                 panic("CPU struct not initialised!");
+        if ((addr_t)(cpu->enable_interrupt) <= (addr_t)0xC0000000) {
+                panic("Function not in code segment!");
+        }
 
         int ret = cpu->enable_interrupt();
         return ret;
@@ -320,9 +323,11 @@ int sys_setup_paging(void);
 
 int interrupt_init();
 int32_t interrupt_register(uint16_t interrupt_no,
-                int (*procedure)(uint16_t interrupt_no, uint16_t interrupt_id));
+                int (*procedure)(uint16_t no, uint16_t id, uint64_t r1,
+                                uint64_t r2, uint64_t r3, uint64_t r4));
 int32_t interrupt_deregister(uint16_t interrupt_no, int32_t interrupt_id);
-int do_interrupt(uint16_t interrupt_no);
+int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
+                uint64_t r4);
 
 
 #ifdef INTERRUPT_TEST
