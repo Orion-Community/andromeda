@@ -79,7 +79,6 @@ int page_table_boot[0x40000];
 int vendor = 0;
 
 void setIDT();
-void dump_idt();
 
 int system_x86_mmu_init(struct sys_cpu* cpu)
 {
@@ -134,12 +133,8 @@ int system_x86_cpu_init(int cpuid)
         return -E_SUCCESS;
 }
 
-int system_x86_init()
+static void init_pic()
 {
-        /** \todo Write the x86 function pointer library */
-        printf(
-                        "The code to set up x86 function pointers is still to be written\n");
-
         int is_available = x86_eflags_test(X86_FLAGS_CPUID_TEST_BIT);
         if (is_available) {
                 struct x86_gen_regs registers;
@@ -148,23 +143,37 @@ int system_x86_init()
                         /* An APIC is present */
                         /** \todo Initialise the Local APIC */
                         /** \todo Initialise the IO APIC */
-                        /** \todo Start other CPU cores here */
-                        printf("An APIC system was found!!!\n");
-                        printf("No APIC code available. "
+                        debug("An APIC system was found!!!\n");
+                        warning("No APIC code available. "
                                         "Still to be implemented\n");
-                        printf("Enabling 8259 PIC instead\n");
+
+                        warning("Enabling 8259 PIC instead\n");
                         pic_8259_init();
-                        goto ret;
+                        /** \todo Start other CPU cores here */
+                        return;
+
                 } else {
-                        printf("No APIC was found ... :(\n");
+                        debug("No APIC was found ... :(\n");
+                        debug("Going for the 8259 PIC\n");
                 }
         } else {
-                printf("CPUID not available\n");
+                debug("CPUID not available\n");
+                debug("Guess we'll have to go for the 8259 PIC\n");
         }
 
         pic_8259_init();
 
-        ret: return -E_NOFUNCTION;
+}
+
+int system_x86_init()
+{
+        /** \todo Write the x86 function pointer library */
+        warning("The code to set up x86 function pointers is "
+                        "still to be written\n");
+
+        init_pic();
+
+        return -E_NOFUNCTION;
 }
 
 // The main function

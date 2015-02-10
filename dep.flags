@@ -47,6 +47,11 @@
                 "info": "A tiny little easter egg, for Cas van Raan",
                 "mandatory": false
         },
+        "dbg_statements": {
+                "ignore-autoconf": true,
+                "info": "Turns all the debug calls into visible output",
+                "mandatory": false
+        },
         "gdb": {
                 "ignore-autoconf": false,
                 "info": "Enable GDB debugging information",
@@ -54,7 +59,7 @@
         },
         "interrupt-test": {
                 "ignore-autoconf": false,
-		"info" : "Test the interrupt callback system",
+                "info": "Test the interrupt callback system",
                 "mandatory": false
         },
         "keyboard panic": {
@@ -108,5 +113,10 @@
                         "info": "Make the vm test panic the kernel",
                         "mandatory": false
                 }}
+        },
+        "warn_statements": {
+                "ignore-autoconf": false,
+                "info": "Make all the warning flags visible",
+                "mandatory": false
         }
 }

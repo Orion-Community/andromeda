@@ -49,28 +49,6 @@ struct x86_gen_regs* x86_cpuid(uint32_t func, struct x86_gen_regs* regs)
         return regs;
 }
 
-void x86_set_eflags(uint32_t flags)
-{
-        __asm__ __volatile__("movl %0, %%eax \n\t"
-                        "pushl %%eax \n\t"
-                        "popfl"
-                        : /* no input */
-                        : "r" (flags)
-                        : "%eax");
-}
-
-uint32_t x86_get_eflags(void)
-{
-        uint32_t ret;
-        asm volatile("pushfl \n\t"
-                        "popl %%eax \n\t"
-                        "movl %%eax, %0"
-                        : "=r" (ret)
-                        : /* no input */
-                        : "%eax" /* eax is clobbered */);
-        return ret;
-}
-
 void x86_cpu_init(ol_cpu_t cpu)
 {
         cpu->flags = 0;

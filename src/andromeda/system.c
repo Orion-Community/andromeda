@@ -105,14 +105,14 @@ int sys_setup_devices()
 {
         if (core.devices != NULL)
                 return -E_ALREADY_INITIALISED;
-        printf("Device tree abstraction needs initialisation and code!\n");
+        warning("Device tree abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
 int sys_setup_modules()
 {
         if (core.kernel_modules != NULL)
                 return -E_ALREADY_INITIALISED;
-        printf("Kernel module abstraction needs initialisation and code!\n");
+        warning("Kernel module abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
 int sys_setup_fs()
@@ -128,13 +128,13 @@ int sys_setup_fs()
 
         vfs_init();
 
-        printf("File system abstraction needs initialisation and code!\n");
+        warning("File system abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
 int sys_setup_net()
 {
         if (core.net != NULL)
                 return -E_ALREADY_INITIALISED;
-        printf("Networking abstraction needs initialisation and code!\n");
+        warning("Networking abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
