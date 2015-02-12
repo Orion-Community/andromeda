@@ -73,14 +73,46 @@ void pic_8259_eoi(uint8_t irq)
         outb(X86_8259_PIC1_COMMAND, X86_8259_PIC_EOI);
 }
 
+int pic_8259_set_irq_mask(uint8_t irq)
+{
+        uint16_t port = (irq < 8) ? X86_8259_PIC1_DATA : X86_8259_PIC2_DATA;
+        outb(port, inb(port) | 1 << ((irq < 8) ? irq : (irq -8)));
+        debug("Un-masking irq: %X - new mask: %x\n", irq, inb(port));
+
+        return -E_SUCCESS;
+}
+
 int pic_8259_clear_irq_mask(uint8_t irq)
 {
         uint16_t port = (irq < 8) ? X86_8259_PIC1_DATA : X86_8259_PIC2_DATA;
         uint8_t mask = inb(port) & ~(BIT((irq < 8) ? irq : (irq - 8)));
         outb(port, mask);
-        printf("Masking irq: %x - new mask: %x\n", irq, inb(port));
+        debug("Masking irq: %x - new mask: %x\n", irq, inb(port));
 
-        return -E_NOFUNCTION;
+        return -E_SUCCESS;
+}
+
+static int16_t get_interrupt_register(int8_t pic)
+{
+        if (pic == 0) {
+                outb(X86_8259_PIC1_COMMAND, X86_8259_PIC_READ_ISR);
+                return inb(X86_8259_PIC1_DATA);
+        } else if (pic == 1) {
+                outb(X86_8259_PIC2_COMMAND, X86_8259_PIC_READ_ISR);
+                return inb(X86_8259_PIC2_DATA);
+        } else {
+                return -E_NOTFOUND;
+        }
+}
+
+int pic_8259_detect_spurious(uint8_t irq)
+{
+        register uint16_t reg = get_interrupt_register((irq < 8) ? 0 : 1);
+        if (reg > 0) {
+                return 1;
+        } else {
+                return 0;
+        }
 }
 
 void pic_8259_init()

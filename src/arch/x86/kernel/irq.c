@@ -122,10 +122,13 @@ void cIRQ6(irq_stack_t* regs)
 
 void cIRQ7(irq_stack_t* regs)
 {
+        int spurious = pic_8259_detect_spurious(7);
         do_interrupt(X86_8259_INTERRUPT_BASE + 7, (uint64_t) regs->eax,
                         (uint64_t) regs->ebx, (uint64_t) regs->ecx,
                         (uint64_t) regs->edx);
-        pic_8259_eoi(7);
+        if (!spurious) {
+                pic_8259_eoi(7);
+        }
         return;
 }
 
@@ -199,10 +202,15 @@ void cIRQ14(irq_stack_t* regs)
 
 void cIRQ15(irq_stack_t* regs)
 {
+        int spurious = pic_8259_detect_spurious(15);
         do_interrupt(X86_8259_INTERRUPT_BASE + 15, (uint64_t) regs->eax,
                         (uint64_t) regs->ebx, (uint64_t) regs->ecx,
                         (uint64_t) regs->edx);
         putc('b');
-        pic_8259_eoi(15);
+        if (spurious) {
+                pic_8259_eoi(7);
+        } else {
+                pic_8259_eoi(15);
+        }
         return;
 }

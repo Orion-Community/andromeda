@@ -56,6 +56,7 @@ extern void initPIT();
 #define X86_8259_ICW3_SLAVE 0x2
 
 #define X86_8259_PIC_DISABLE    0xFF
+#define X86_8259_PIC_READ_ISR   0x0B
 
 /*
  * This will initiate the pic. Panics on failure.
@@ -70,12 +71,14 @@ void pic_8259_init();
  * Clears the bit mask in the PIC to enable the irq.
  */
 int pic_8259_clear_irq_mask(uint8_t irq);
+int pic_8259_set_irq_mask(uint8_t irq);
 
 /**
  *  \fn pic_9259_disable
  *  \brief Disables the 8259 PIC, use only when switching to APIC
  */
 void pic_8259_disable();
+int pic_8259_detect_spurious(uint8_t irq);
 
 #ifdef __cplusplus
 }
