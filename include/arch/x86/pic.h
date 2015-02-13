@@ -1,6 +1,7 @@
 /*
  *   PIC header
  *   Copyright (C) 2011  Michel Megens
+ *   Copyright (C) 2015  Bart Kuivenhoven
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -28,7 +29,6 @@ extern "C" {
 void pic_8259_remap(uint32_t set1, uint32_t set2);
 void pic_8259_eoi(uint8_t irq);
 void pic_8259_init();
-extern void initPIT();
 
 #define X86_8259_INTERRUPT_BASE 0x20
 

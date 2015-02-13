@@ -204,25 +204,21 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         sys_setup_arch();
 
         setIDT();
-        //setup_irq_data();
         vm_init();
 
         printf(WELCOME); // The only screen output that should be maintained
 #ifdef PA_DBG
 //         endProg();
 #endif
+
         if (hdr->flags & MULTIBOOT_INFO_ELF_SHDR)
                 core_symbols_init(&hdr->u.elf_sec);
-        //task_init();
 
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");
 
-        //ol_pit_init(1024); // program pic to 1024 hertz
-
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, heap);
 
-        //acpi_init();
         ol_cpu_t cpu = kmalloc(sizeof(*cpu));
         if (cpu == NULL)
                 panic("OUT OF MEMORY!");
@@ -231,9 +227,7 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         cpu_enable_interrupts(0);
 
         ol_ps2_init_keyboard();
-        //ol_apic_init(cpu);
-        //init_ioapic();
-        //ol_pci_init();
+
         debug("Little endian 0xf in net endian %x\n", htons(0xf));
 #ifdef DBG
 #ifdef __IOAPIC_DBG

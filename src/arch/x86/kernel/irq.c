@@ -46,19 +46,7 @@ uint32_t irqs[IRQ_BASE];
 
 void cIRQ0(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
-        if (isSleeping) {
-                if (!(sleepTime == 0))
-                        sleepTime--;
-        }
-        pit_timer += 1;
-#ifdef TIMER_DBG
-        if ((pit_timer & 0xF) == 0)
-        printf("[ DEBUG ] timer tick %i\n", pit_timer);
-#endif
-
+        do_interrupt(X86_8259_INTERRUPT_BASE, 0, 0, 0, 0);
         pic_8259_eoi(0);
 
         return;
@@ -66,9 +54,7 @@ void cIRQ0(irq_stack_t* regs)
 
 void cIRQ1(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 1, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 1, 0, 0, 0, 0);
         uint8_t c = ol_ps2_get_keyboard_scancode();
         kb_handle(c);
         pic_8259_eoi(1);
@@ -77,45 +63,35 @@ void cIRQ1(irq_stack_t* regs)
 
 void cIRQ2(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 2, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 2, 0, 0, 0, 0);
         pic_8259_eoi(2);
         return;
 }
 
 void cIRQ3(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 3, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 3, 0, 0, 0, 0);
         pic_8259_eoi(3);
         return;
 }
 
 void cIRQ4(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 4, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 4, 0, 0, 0, 0);
         pic_8259_eoi(4);
         return;
 }
 
 void cIRQ5(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 5, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 5, 0, 0, 0, 0);
         pic_8259_eoi(5);
         return;
 }
 
 void cIRQ6(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 6, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 6, 0, 0, 0, 0);
         pic_8259_eoi(6);
         return;
 }
@@ -123,9 +99,7 @@ void cIRQ6(irq_stack_t* regs)
 void cIRQ7(irq_stack_t* regs)
 {
         int spurious = pic_8259_detect_spurious(7);
-        do_interrupt(X86_8259_INTERRUPT_BASE + 7, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 7, 0, 0, 0, 0);
         if (!spurious) {
                 pic_8259_eoi(7);
         }
@@ -134,9 +108,7 @@ void cIRQ7(irq_stack_t* regs)
 
 void cIRQ8(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 8, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 8, 0, 0, 0, 0);
         printf("test\n");
         outb(CMOS_SELECT, CMOS_RTC_IRQ);
         inb(CMOS_DATA);
@@ -146,9 +118,7 @@ void cIRQ8(irq_stack_t* regs)
 
 void cIRQ9(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 9, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 9, 0, 0, 0, 0);
         putc('a');
         pic_8259_eoi(9);
         return;
@@ -156,45 +126,35 @@ void cIRQ9(irq_stack_t* regs)
 
 void cIRQ10(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 10, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 10, 0, 0, 0, 0);
         pic_8259_eoi(10);
         return;
 }
 
 void cIRQ11(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 11, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 11, 0, 0, 0, 0);
         pic_8259_eoi(11);
         return;
 }
 
 void cIRQ12(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 12, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 12, 0, 0, 0, 0);
         pic_8259_eoi(12);
         return;
 }
 
 void cIRQ13(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 13, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 13, 0, 0, 0, 0);
         pic_8259_eoi(13);
         return;
 }
 
 void cIRQ14(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE + 14, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 14, 0, 0, 0, 0);
         putc('a');
         pic_8259_eoi(14);
         return;
@@ -203,9 +163,7 @@ void cIRQ14(irq_stack_t* regs)
 void cIRQ15(irq_stack_t* regs)
 {
         int spurious = pic_8259_detect_spurious(15);
-        do_interrupt(X86_8259_INTERRUPT_BASE + 15, (uint64_t) regs->eax,
-                        (uint64_t) regs->ebx, (uint64_t) regs->ecx,
-                        (uint64_t) regs->edx);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 15, 0, 0, 0, 0);
         putc('b');
         if (spurious) {
                 pic_8259_eoi(7);

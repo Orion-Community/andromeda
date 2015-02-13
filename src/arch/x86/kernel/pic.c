@@ -21,6 +21,7 @@
 
 #include <andromeda/panic.h>
 #include <andromeda/error.h>
+#include <andromeda/system.h>
 
 #include <arch/x86/pic.h>
 #include <arch/x86/irq.h>
@@ -118,4 +119,17 @@ int pic_8259_detect_spurious(uint8_t irq)
 void pic_8259_init()
 {
         pic_8259_remap(X86_8259_INTERRUPT_BASE, X86_8259_INTERRUPT_BASE + 8);
+
+
+        struct sys_cpu_pic* pic = kmalloc(sizeof(*pic));
+        if (pic == NULL) {
+                panic("Out of memory!");
+        }
+
+        memset(pic, 0 , sizeof(*pic));
+        struct sys_cpu* cpu = getcpu(0);
+        cpu->pic = pic;
+
+        warning("PIT frequency needs to be found and accurately implemented!\n");
+        cpu_timer_init(0, 1000, X86_8259_INTERRUPT_BASE);
 }

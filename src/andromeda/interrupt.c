@@ -70,6 +70,9 @@ int32_t interrupt_register(uint16_t interrupt_no,
                 int (*procedure)(uint16_t no, uint16_t id, uint64_t r1,
                                 uint64_t r2, uint64_t r3, uint64_t r4))
 {
+        if (interrupt_initialised == 0) {
+                panic("To early with registering interrupts!");
+        }
         if (interrupt_no >= INTERRUPTS) {
                 return -E_OUTOFBOUNDS;
         }
@@ -175,7 +178,6 @@ int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
 
         struct interrupt* i = &interrupts[interrupt_no];
         for (; i != NULL && i->procedure != NULL ; i = i->next) {
-
                 ret |= i->procedure(interrupt_no, i->id, r1, r2, r3, r4);
 
                 if (ret != -E_SUCCESS) {

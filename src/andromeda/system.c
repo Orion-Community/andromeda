@@ -77,6 +77,7 @@ int sys_setup_paging()
 
 int sys_setup_arch()
 {
+        interrupt_init();
         if (hasarch())
                 return -E_ALREADY_INITIALISED;
         if (!hasmm())
@@ -87,10 +88,6 @@ int sys_setup_arch()
                 panic("Out of memory! could not initialise arch!");
         memset(core.arch, 0, sizeof(*core.arch));
 
-#ifdef X86
-        system_x86_init();
-#endif
-
         int i = 0;
         for (; i < CPU_LIMIT; i++)
         {
@@ -98,6 +95,10 @@ int sys_setup_arch()
                 system_x86_cpu_init(i);
 #endif
         }
+
+#ifdef X86
+        system_x86_init();
+#endif
 
         return -E_SUCCESS;
 }

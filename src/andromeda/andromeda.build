@@ -11,13 +11,15 @@
 	"syscall.c",
 	"system.c",
 	"core_symbols.c",
-	"interrupt.c"
+	"interrupt.c",
+	"timer.c"
 	],
 "compiler-flags" : "",
 "dcompiler-flags" : [
 	{"key" : "cas", "flags" : "-D CAS"},
 	{"key" : "syscall-test", "flags" : "-D SC_TEST"},
-	{"key" : "interrupt-test", "flags" : "-D INTERRUPT_TEST"}
+	{"key" : "interrupt-test", "flags" : "-D INTERRUPT_TEST"},
+	{"key" : "timer_dbg", "flags" : "-D TIMER_DBG"}
 	],
 "linker-flags" : "",
 "archiver-flags" : ""

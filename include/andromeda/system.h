@@ -65,14 +65,20 @@ struct sys_mmu {
 };
 
 struct sys_timer {
-        int (*timer_init)(void);
-        int (*subscribe)(time_t time, uint16_t id, int (*handler)(uint16_t id));
-        int (*set_freq)(time_t freq);
-        int (*handle_tick)(void);
+        int (*subscribe)(time_t time, uint16_t id,
+                        int (*handler)(uint16_t id, time_t time),
+                        struct sys_timer* timer);
+        int (*set_freq)(time_t freq, struct sys_timer* timer);
 
-        uint32_t id;
+        struct tree_root* events;
+
         time_t freq;
-        struct sys_timer* next;
+        time_t time;
+        atomic_t tick;
+
+        uint16_t interrupt_id;
+
+        mutex_t timer_lock;
 };
 
 struct sys_cpu_scheduler {
@@ -88,8 +94,6 @@ struct sys_cpu_scheduler {
 
 struct sys_cpu_pic {
         struct sys_timer* timers;
-        int (*set_interrupt)(void);
-        int (*get_interrupt)(void);
         int (*suspend)(void);
         int (*resume)(void);
 };
@@ -108,7 +112,7 @@ struct sys_cpu {
 };
 
 struct sys_io_pic {
-        struct sys_timer* timers;
+        struct tree_root* timers;
         int (*set_interrupt)(void);
         int (*get_interrupt)(void);
         int (*disable_interrupt)(void);
@@ -154,8 +158,8 @@ struct sys_fs_dir_entry {
 
 struct sys_fs {
         struct vfile* (*open)(int inode);
-        struct sys_fs_dir_entry* (*dir_entry)(
-                        uint32_t inode, uint32_t entry, char* data, size_t len);
+        struct sys_fs_dir_entry* (*dir_entry)(uint32_t inode, uint32_t entry,
+                        char* data, size_t len);
         int (*close)(struct vfile*);
         int (*read)(struct vfile* file, char* data, size_t len);
         int (*write)(struct vfile* file, char* data, size_t len);
@@ -231,7 +235,7 @@ extern struct system core;
 static inline void cpu_wait_interrupt(int a)
 {
         struct sys_cpu* cpu = getcpu(a);
-        if (!(hascpu(a) && cpu->halt != NULL))
+        if (!(hascpu(a) && cpu->halt != NULL ))
                 panic("CPU struct not intialised!");
 
         cpu->halt();
@@ -240,7 +244,7 @@ static inline void cpu_wait_interrupt(int a)
 static inline int cpu_disable_interrupts(int a)
 {
         struct sys_cpu* cpu = getcpu(a);
-        if (!(hascpu(a) && cpu->disable_interrupt != NULL))
+        if (!(hascpu(a) && cpu->disable_interrupt != NULL ))
                 panic("CPU struct not initialised!");
 
         return cpu->disable_interrupt();
@@ -249,9 +253,9 @@ static inline int cpu_disable_interrupts(int a)
 static inline int cpu_enable_interrupts(int a)
 {
         struct sys_cpu* cpu = getcpu(a);
-        if (!(hascpu(a) && cpu->enable_interrupt != NULL))
+        if (!(hascpu(a) && cpu->enable_interrupt != NULL ))
                 panic("CPU struct not initialised!");
-        if ((addr_t)(cpu->enable_interrupt) <= (addr_t)0xC0000000) {
+        if ((addr_t) (cpu->enable_interrupt) <= (addr_t) 0xC0000000) {
                 panic("Function not in code segment!");
         }
 
@@ -263,7 +267,7 @@ static inline void*
 get_phys(int cpu, void* virt)
 {
         if (!hascpu(cpu) || core.arch->cpu[cpu]->mmu == NULL)
-                return NULL;
+                return NULL ;
         return core.arch->cpu[cpu]->mmu->get_phys(virt);
 }
 
@@ -329,10 +333,11 @@ int32_t interrupt_deregister(uint16_t interrupt_no, int32_t interrupt_id);
 int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
                 uint64_t r4);
 
-
 #ifdef INTERRUPT_TEST
 int interrupt_test(int interrupt_no);
 #endif
+
+int cpu_timer_init(int cpuid, time_t freq, int irq_no);
 
 #endif
 
