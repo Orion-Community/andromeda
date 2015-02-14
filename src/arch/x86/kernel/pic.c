@@ -77,7 +77,7 @@ void pic_8259_eoi(uint8_t irq)
 int pic_8259_set_irq_mask(uint8_t irq)
 {
         uint16_t port = (irq < 8) ? X86_8259_PIC1_DATA : X86_8259_PIC2_DATA;
-        outb(port, inb(port) | 1 << ((irq < 8) ? irq : (irq -8)));
+        outb(port, inb(port) | 1 << ((irq < 8) ? irq : (irq - 8)));
         debug("Un-masking irq: %X - new mask: %x\n", irq, inb(port));
 
         return -E_SUCCESS;
@@ -120,16 +120,20 @@ void pic_8259_init()
 {
         pic_8259_remap(X86_8259_INTERRUPT_BASE, X86_8259_INTERRUPT_BASE + 8);
 
+        struct sys_io_pic* pic = kmalloc(sizeof(*pic));
 
-        struct sys_cpu_pic* pic = kmalloc(sizeof(*pic));
         if (pic == NULL) {
                 panic("Out of memory!");
         }
 
-        memset(pic, 0 , sizeof(*pic));
-        struct sys_cpu* cpu = getcpu(0);
-        cpu->pic = pic;
+        memset(pic, 0, sizeof(*pic));
+        pic->timers = tree_new_avl();
+        if (core.arch == NULL) {
+                panic("ARCH abstraction failed");
+        }
+        core.arch->pic = pic;
 
-        warning("PIT frequency needs to be found and accurately implemented!\n");
-        cpu_timer_init(0, 1000, X86_8259_INTERRUPT_BASE);
+        warning("PIT frequency needs to be found and accurately "
+                        "implemented!\n");
+        andromeda_timer_init(1000, X86_8259_INTERRUPT_BASE);
 }

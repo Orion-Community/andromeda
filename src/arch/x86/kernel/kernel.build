@@ -4,7 +4,7 @@
 "archive" : false,
 "source-files" : ["rtc.c", "idt.c", "irq.c", "isr.c", "pic.c", "task.c", "tsc.c"],
 "compiler-flags" : "",
-"dcompiler-flags" : [{"key" : "timer_dbg", "flags" : "-D TIMER_DBG"}],
+"dcompiler-flags" : [],
 "mcompiler-flags" : "-fPIE",
 "linker-flags" : "",
 "archiver-flags" : "",

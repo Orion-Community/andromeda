@@ -64,9 +64,10 @@ struct sys_mmu {
         int (*cleanup_range)(struct sys_mmu_range*);
 };
 
+typedef int (*handler)(int16_t timer_id, time_t time, int16_t irq_id);
+
 struct sys_timer {
-        int (*subscribe)(time_t time, uint16_t id,
-                        int (*handler)(uint16_t id, time_t time),
+        int (*subscribe)(time_t time, uint16_t id, handler call_back,
                         struct sys_timer* timer);
         int (*set_freq)(time_t freq, struct sys_timer* timer);
 
@@ -337,7 +338,10 @@ int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
 int interrupt_test(int interrupt_no);
 #endif
 
-int cpu_timer_init(int cpuid, time_t freq, int irq_no);
+int cpu_timer_init(int cpuid, time_t freq, int16_t irq_no);
+int andromeda_timer_init(time_t freq, int16_t irq_no);
+struct sys_timer* get_global_timer(int16_t irq_no);
+struct sys_timer* get_cpu_timer(int16_t cpu);
 
 #endif
 

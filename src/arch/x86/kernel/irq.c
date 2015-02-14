@@ -46,7 +46,7 @@ uint32_t irqs[IRQ_BASE];
 
 void cIRQ0(irq_stack_t* regs)
 {
-        do_interrupt(X86_8259_INTERRUPT_BASE, 0, 0, 0, 0);
+        do_interrupt(X86_8259_INTERRUPT_BASE, 0, 1, 0, 0);
         pic_8259_eoi(0);
 
         return;
