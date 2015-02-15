@@ -133,7 +133,6 @@ void pic_8259_init()
         }
         core.arch->pic = pic;
 
-        warning("PIT frequency needs to be found and accurately "
-                        "implemented!\n");
-        andromeda_timer_init(1000, X86_8259_INTERRUPT_BASE);
+
+        x86_pit_8253_init(X86_8259_INTERRUPT_BASE, 2000);
 }

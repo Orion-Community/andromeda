@@ -21,7 +21,7 @@
 #include <andromeda/system.h>
 #include <lib/tree.h>
 
-#define FREQUENCY_DIVIDER 1000
+#define FREQUENCY_DIVIDER 1000 /* Sets the timer accuracy, requires higher timer speed though */
 
 static int timer_subscribe_event(time_t time, uint16_t id, handler call_back,
                 struct sys_timer* timer);
@@ -87,6 +87,7 @@ static int timer_callback(uint16_t irq_no, uint16_t id, uint64_t r1,
         }
         mutex_unlock(&(timer->timer_lock));
 
+        //printf("tick: %X  \ttimer: %X\n", (int32_t)tick, timer->time);
         /* Now go do something with the available events */
         if (timer->events == NULL) {
                 warning("No events could be found due to NULL pointer\n");
@@ -167,24 +168,28 @@ static int timer_subscribe_event(time_t time, uint16_t id, handler call_back,
 
 #ifdef TIMER_DBG
 
+#define DEBUG_TIMER_INTERVAL 500
+#define DEBUG_TIMER_BASE_TIME 2000
+
 static int timer_dbg(int16_t id, time_t time,
                 int16_t irq_no __attribute__((unused)))
 {
-        printf("[ DEBUG ] Timer time: %X\n", (int32_t) time);
+        printf("[ DEBUG ] Timer time: %i\n", (int32_t) time);
 
         if (id != 0) {
                 panic("Incorrect ID!");
         }
 
         /* Finds the timer connected to CPU 0 and subscribes to it */
-        timer_subscribe_event(time + 10, 0, timer_dbg, get_cpu_timer(0));
+        timer_subscribe_event(time + DEBUG_TIMER_INTERVAL, 0, timer_dbg,
+                        get_cpu_timer(0));
 
         return -E_SUCCESS;
 }
 
 static int timer_dbg_pit(int16_t id, time_t time, int16_t irq_no)
 {
-        printf("[ DEBUG ] Timer time: %X\n", (int32_t) time);
+        printf("[ DEBUG ] Timer time: %i\n", (int32_t) time);
 
         if (id != 0) {
                 panic("Incorrect id");
@@ -195,7 +200,8 @@ static int timer_dbg_pit(int16_t id, time_t time, int16_t irq_no)
         if (timer == NULL) {
                 printf("NULL timer found!\n");
         }
-        timer_subscribe_event(time + 10, 0, timer_dbg_pit, timer);
+        timer_subscribe_event(time + DEBUG_TIMER_INTERVAL, 0, timer_dbg_pit,
+                        timer);
 
         return -E_SUCCESS;
 }
@@ -244,7 +250,7 @@ int andromeda_timer_init(time_t freq, int16_t irq_no)
         pic->timers->add(irq_no, timer, pic->timers);
 
 #ifdef TIMER_DBG
-        timer_subscribe_event(10, 0, timer_dbg_pit, timer);
+        timer_subscribe_event(DEBUG_TIMER_BASE_TIME, 0, timer_dbg_pit, timer);
 #endif
         return -E_SUCCESS;
 }
@@ -264,7 +270,7 @@ int cpu_timer_init(int cpuid, time_t freq, int16_t irq_no)
 
         cpu->pic->timers = timer;
 #ifdef TIMER_DBG
-        timer_subscribe_event(10, 0, timer_dbg, timer);
+        timer_subscribe_event(DEBUG_TIMER_BASE_TIME, 0, timer_dbg, timer);
 #endif
 
         return -E_NOFUNCTION;

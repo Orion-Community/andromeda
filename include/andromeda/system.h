@@ -74,7 +74,7 @@ struct sys_timer {
         struct tree_root* events;
 
         time_t freq;
-        time_t time;
+        volatile time_t time;
         atomic_t tick;
 
         uint16_t interrupt_id;
@@ -342,6 +342,8 @@ int cpu_timer_init(int cpuid, time_t freq, int16_t irq_no);
 int andromeda_timer_init(time_t freq, int16_t irq_no);
 struct sys_timer* get_global_timer(int16_t irq_no);
 struct sys_timer* get_cpu_timer(int16_t cpu);
+
+int x86_pit_8253_init(int irq_no, time_t freq);
 
 #endif
 

@@ -2,7 +2,16 @@
 "name" : "arch-x86-kernel",
 "link" : false,
 "archive" : false,
-"source-files" : ["rtc.c", "idt.c", "irq.c", "isr.c", "pic.c", "task.c", "tsc.c"],
+"source-files" : [
+		"rtc.c", 
+		"idt.c",
+		"irq.c",
+		"isr.c",
+		"8259_pic.c",
+		"8253_pit.c",
+		"task.c",
+		"tsc.c"
+	],
 "compiler-flags" : "",
 "dcompiler-flags" : [],
 "mcompiler-flags" : "-fPIE",
