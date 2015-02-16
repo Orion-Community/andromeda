@@ -40,33 +40,14 @@ static int timer_callback(uint16_t irq_no, uint16_t id, uint64_t r1,
         /* If this interrupt is global, choose one of the global timers */
         if (r2 != 0x00) {
                 /* GLOBAL */
-
-                if (core.arch == NULL) {
-                        panic("No architecture present");
-                }
-                if (core.arch->pic == NULL) {
-                        panic("No interrupt controller found!");
-                }
-                if (core.arch->pic->timers == NULL) {
-                        panic("Timers not initialised");
-                }
-
-                timer = core.arch->pic->timers->find(irq_no,
-                                core.arch->pic->timers);
+                timer = get_global_timer(irq_no);
         } else {
                 /* Local CPU timer */
                 warning("CPUID is static in timer interrupt, "
                                 "change this up please!\n");
 
-                /* Get the appropriate CPU */
-                struct sys_cpu* cpu = getcpu(r1); /* This is to work in the future */
-                cpu = getcpu(0); /* For now, just assume CPU 0 */
-                /* Traverse it's interrupt controller */
-                if (cpu->pic == NULL) {
-                        panic("No PIC data found for CPU");
-                }
-                /* And there we have the timer */
-                timer = cpu->pic->timers;
+                timer = get_cpu_timer((int16_t) r1);
+                timer = get_cpu_timer(0);
         }
         if (timer == NULL) {
                 panic("Invalid timer found!");
@@ -181,8 +162,7 @@ static int timer_dbg(int16_t id, time_t time,
         }
 
         /* Finds the timer connected to CPU 0 and subscribes to it */
-        timer_subscribe_event(time + DEBUG_TIMER_INTERVAL, 0, timer_dbg,
-                        get_cpu_timer(0));
+        subscribe_cpu_timer_offset(0, DEBUG_TIMER_INTERVAL, 0, timer_dbg);
 
         return -E_SUCCESS;
 }
@@ -195,13 +175,8 @@ static int timer_dbg_pit(int16_t id, time_t time, int16_t irq_no)
                 panic("Incorrect id");
         }
 
-        struct sys_timer* timer = get_global_timer(irq_no);
-
-        if (timer == NULL) {
-                printf("NULL timer found!\n");
-        }
-        timer_subscribe_event(time + DEBUG_TIMER_INTERVAL, 0, timer_dbg_pit,
-                        timer);
+        subscribe_global_timer_offset(irq_no, DEBUG_TIMER_INTERVAL, 0,
+                        timer_dbg_pit);
 
         return -E_SUCCESS;
 }
@@ -250,7 +225,7 @@ int andromeda_timer_init(time_t freq, int16_t irq_no)
         pic->timers->add(irq_no, timer, pic->timers);
 
 #ifdef TIMER_DBG
-        timer_subscribe_event(DEBUG_TIMER_BASE_TIME, 0, timer_dbg_pit, timer);
+        subscribe_global_timer(irq_no, DEBUG_TIMER_BASE_TIME, 0, timer_dbg_pit);
 #endif
         return -E_SUCCESS;
 }
@@ -270,7 +245,7 @@ int cpu_timer_init(int cpuid, time_t freq, int16_t irq_no)
 
         cpu->pic->timers = timer;
 #ifdef TIMER_DBG
-        timer_subscribe_event(DEBUG_TIMER_BASE_TIME, 0, timer_dbg, timer);
+        subscribe_cpu_timer(cpuid, DEBUG_TIMER_BASE_TIME, 0, timer_dbg);
 #endif
 
         return -E_NOFUNCTION;

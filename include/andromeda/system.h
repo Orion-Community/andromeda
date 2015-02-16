@@ -186,6 +186,9 @@ struct system {
 
 extern struct system core;
 
+struct sys_timer* get_global_timer(int16_t irq_no);
+struct sys_timer* get_cpu_timer(int16_t cpu);
+
 #define hasmm() (core.mm != NULL)
 #define hasarch() (hasmm() && core.arch != NULL)
 #define hascpu(a) (hasarch() && a < CPU_LIMIT && core.arch->cpu[a] != NULL)
@@ -232,6 +235,62 @@ extern struct system core;
                           panic("Setting cpu in invalid fashion"))
 
 #define getmmu(a) ((getcpu(a) == NULL) ? getcpu(a)->mmu : NULL)
+
+#define getarch() (core.arch)
+#define getIOPIC() (core.arch->pic)
+#define hasIOPIC() (getIOPIC() != NULL)
+
+static inline time_t getTime(struct sys_timer* timer)
+{
+        if (timer == NULL) {
+                return -1;
+        }
+        return timer->time;
+}
+
+static inline int subscribe_global_timer(int16_t irq_no, time_t time,
+                int16_t id, handler call_back)
+{
+        struct sys_timer* timer = get_global_timer(irq_no);
+        if (timer != NULL) {
+                return timer->subscribe(time, id, call_back, timer);
+        }
+        return -E_NOTFOUND;
+}
+
+static inline int subscribe_global_timer_offset(int16_t irq_no, time_t offset,
+                int16_t id, handler call_back)
+{
+        struct sys_timer* timer = get_global_timer(irq_no);
+        if (timer != NULL) {
+                time_t time = getTime(timer);
+                time += offset;
+                return timer->subscribe(time, id, call_back, timer);
+        }
+        return -E_NOTFOUND;
+}
+
+static inline int subscribe_cpu_timer(int16_t cpu_no, time_t time, int16_t id,
+                handler call_back)
+{
+        struct sys_timer* timer = get_cpu_timer(cpu_no);
+        if (timer != NULL) {
+                return timer->subscribe(time, id, call_back, timer);
+        }
+        return -E_NOTFOUND;
+}
+
+static inline int subscribe_cpu_timer_offset(int16_t cpu_id, time_t offset,
+                int16_t id, handler call_back)
+{
+        struct sys_timer* timer = get_cpu_timer(cpu_id);
+        if (timer != NULL) {
+                time_t time = getTime(timer);
+                time += offset;
+                return timer->subscribe(time, id, call_back, timer);
+        }
+        return -E_NOTFOUND;
+}
 
 static inline void cpu_wait_interrupt(int a)
 {
@@ -346,4 +405,3 @@ struct sys_timer* get_cpu_timer(int16_t cpu);
 int x86_pit_8253_init(int irq_no, time_t freq);
 
 #endif
-
