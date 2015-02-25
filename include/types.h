@@ -35,7 +35,7 @@ typedef unsigned long dword;
 typedef unsigned long ulong;
 
 /*
- * Code untill end nicked, is nicked from FreeBSD
+ * Code until end nicked, is nicked from FreeBSD
  */
 
 #ifdef __GNUCLIKE_BUILTIN_VARARGS

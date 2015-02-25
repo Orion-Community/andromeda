@@ -34,36 +34,8 @@ void scroll(unsigned char);
 void textInit();
 int atoi(char* str);
 
-#ifdef MSG_DBG
-static inline void debug (char* fmt, ...) {
-        va_list list;
-        va_start (list, fmt);
-        printf("[ DEBUG ] ");
-        vprintf(fmt, list);
-        va_end(list);
-}
-#else
-static inline void debug(char* fmt __attribute__((unused)), ...)
-{
-}
-#endif
-
-#ifdef WARN
-static inline void warning (char* fmt, ...)
-{
-        va_list list;
-        va_start (list, fmt);
-
-        printf("[ WARNING ] ");
-        vprintf(fmt, list);
-
-        va_end(list);
-}
-#else
-static inline void warning (char* fmt __attribute__((unused)), ...)
-{
-}
-#endif
+void debug(char* fmt, ...);
+void warning (char* fmt, ...);
 
 #ifdef __cplusplus
 }

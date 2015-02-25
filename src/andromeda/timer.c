@@ -156,7 +156,7 @@ static int global_timer_initialised = 0;
 static int timer_dbg(int16_t id, time_t time,
                 int16_t irq_no __attribute__((unused)))
 {
-        printf("[ DEBUG ] Timer time: %i\n", (int32_t) time);
+        debug("Timer time: %i\n", (int32_t) time);
 
         if (id != 0) {
                 panic("Incorrect ID!");
@@ -171,7 +171,7 @@ static int timer_dbg(int16_t id, time_t time,
 static int local_timer_initialised = 0;
 static int timer_dbg_pit(int16_t id, time_t time, int16_t irq_no)
 {
-        printf("[ DEBUG ] Timer time: %i\n", (int32_t) time);
+        debug("Timer time: %i\n", (int32_t)time);
 
         if (id != 0) {
                 panic("Incorrect id");

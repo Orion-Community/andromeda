@@ -95,6 +95,9 @@ void vprintf(char* fmt, va_list list)
                                 printDecimalNum(va_arg(list, double), 10);
                                 break;
                         case 'i':
+                                /*putc('\n'); putc('d'); putc(':'); putc(' '); putc('\t');
+                                printNum((int)list, 16, FALSE, TRUE);
+                                putc('\n'); */
                                 printNum(va_arg(list, unsigned int), 10, TRUE,
                                 FALSE);
                                 break;
@@ -350,3 +353,37 @@ int reloc(int loc_x, int loc_y)
         outb(0x3D5, location);
         return 0;
 }
+
+#ifdef MSG_DBG
+void debug (char* fmt, ...)
+{
+        va_list list;
+        va_start (list, fmt);
+
+        vprintf("[ DEBUG ] ", NULL);
+        vprintf(fmt, list);
+
+        va_end(list);
+}
+#else
+void debug(char* fmt __attribute__((unused)), ...)
+{
+}
+#endif
+
+#ifdef WARN
+void warning (char* fmt, ...)
+{
+        va_list list;
+        va_start (list, fmt);
+
+        vprintf("[ WARNING ] ", NULL);
+        vprintf(fmt, list);
+
+        va_end(list);
+}
+#else
+void warning (char* fmt __attribute__((unused)), ...)
+{
+}
+#endif
