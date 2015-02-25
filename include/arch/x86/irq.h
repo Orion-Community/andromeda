@@ -40,8 +40,7 @@ extern "C" {
 #define TRIGGER_LEVEL_ASSERT 1
 #define TRIGGER_LEVEL_DEASSERT 0
 
-#define enable_legacy_irq(x) pic_clear_irq_mask(x)
-int pic_clear_irq_mask(uint8_t irq);
+int pic_8259_clear_irq_mask(uint8_t irq);
 
   /* dynamic code allocation */
 #define DYNAMIC_IRQ_VALUE get_general_irqstub_size()-8
@@ -168,6 +167,7 @@ extern void irq13();
 extern void irq14();
 extern void irq15();
 
+#if 0
 /**
  * \fn enable_irqs()
  * \brief Enable the IRQs
@@ -183,6 +183,7 @@ void enable_irqs();
  * This function will clear the Interrupt Enable flag in de (E)FLAGS register.
  */
 void disable_irqs();
+#endif
 
 #if 0
 extern void irq16();

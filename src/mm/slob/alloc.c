@@ -156,6 +156,14 @@ alloc(size_t size, uint16_t pageAlligned)
 					// Mark the block as used
 					//return the desired block
 					mutex_unlock(&prot);
+                                        /*
+                                         * With vm_range_update, we make sure that the range
+                                         * allocator keeps enough range descriptors in its
+                                         * buffer to satisfy our needs as an object allocator,
+                                         * so that when we run out of memory, there are still
+                                         * some range descriptors left to use.
+                                         */
+                                        vm_range_update();
 					return (void*) ret + sizeof
 								(memory_node_t);
 				}
@@ -188,6 +196,14 @@ alloc(size_t size, uint16_t pageAlligned)
 				continue;
 			}
 			mutex_unlock(&prot);
+			/*
+			 * With vm_range_update, we make sure that the range
+			 * allocator keeps enough range descriptors in its
+			 * buffer to satisfy our needs as an object allocator,
+			 * so that when we run out of memory, there are still
+			 * some range descriptors left to use.
+			 */
+			vm_range_update();
 			return (void*) carriage + sizeof (memory_node_t);
 		}
 		else if (carriage->size >= size + sizeof (memory_node_t))
@@ -204,14 +220,25 @@ alloc(size_t size, uint16_t pageAlligned)
 
 			use_memnode_block(tmp);
 			mutex_unlock(&prot);
+
+			/*
+			 * With vm_range_update, we make sure that the range
+			 * allocator keeps enough range descriptors in its
+			 * buffer to satisfy our needs as an object allocator,
+			 * so that when we run out of memory, there are still
+			 * some range descriptors left to use.
+			 */
+			vm_range_update();
 			return (void*) tmp + sizeof (memory_node_t);
 		}
 		if (carriage->next == NULL || carriage->next == carriage)
 		{
+		        /*
 			printf("Allocation at end of list!\nblocks: %X\tCarrige"
 							     ": %X\tsize: %X\n",
 						     (int) heap, (int) carriage,
 							  (int) carriage->size);
+							  */
 			if (carriage->next == carriage)
 				printf("Loop in list!\n");
 			break;
@@ -317,6 +344,16 @@ free(void* ptr, size_t size)
 	printf("\n");
 #endif
 	mutex_unlock(&prot);
+
+        /*
+         * With vm_range_update, we make sure that the range
+         * allocator keeps enough range descriptors in its
+         * buffer to satisfy our needs as an object allocator,
+         * so that when we run out of memory, there are still
+         * some range descriptors left to use.
+         */
+        vm_range_update();
+
 	return; // Return success
 }
 #pragma GCC diagnostic pop

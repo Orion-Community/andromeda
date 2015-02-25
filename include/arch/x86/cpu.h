@@ -25,27 +25,20 @@
 #define	CPU_H
 
 #ifdef	__cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 extern mutex_t cpu_lock;
 
-typedef uint8_t ol_lock_t;
-
-struct ol_gen_regs
-{
+struct x86_gen_regs {
         uint32_t eax, ebx, ecx, edx;
-} __attribute__((packed));
-typedef struct ol_gen_regs *ol_gen_registers_t;
+}__attribute__((packed));
 
-typedef struct ol_cpu_model
-{
+typedef struct ol_cpu_model {
         uint32_t vendor_id, family;
         const uint8_t *model_name;
-} *ol_cpu_model_t;
+}*ol_cpu_model_t;
 
-typedef struct ol_cpu
-{
+typedef struct ol_cpu {
         /* model info*/
         ol_cpu_model_t cpu_models[4];
         char* vendor;
@@ -57,23 +50,27 @@ typedef struct ol_cpu
         void (*lock)(mutex_t*);
         void (*unlock)(mutex_t*);
 
-} *ol_cpu_t;
+}*ol_cpu_t;
+
 #if 0
 /* CPU feature functions */
 static int
 ol_cpuid_available(ol_cpu_t);
 #endif
-void
-ol_cpu_init(ol_cpu_t);
 
-ol_gen_registers_t
-ol_cpuid(uint32_t func);
+void x86_cpu_init(ol_cpu_t);
+struct x86_gen_regs* x86_cpuid(uint32_t func, struct x86_gen_regs* regs);
 
-uint32_t
-ol_get_eflags(void);
+#define X86_FLAGS_CPUID_TEST_BIT (1<<21)
 
-void
-ol_set_eflags(uint32_t);
+#define X86_CPUID_VENDOR_UNKNOWN        0
+#define X86_CPUID_VENDOR_INTEL          1
+#define X86_CPUID_VENDOR_AMD            2
+
+extern uint32_t x86_get_vendor();
+extern uint32_t x86_eflags_test(uint32_t);
+
+#define x86_cpuid_available() x86_eflags_test(X86_FLAGS_CPUID_TEST_BIT)
 #if 0
 /* LOCKS */
 static void /* lock spin lock */
@@ -87,28 +84,27 @@ static ol_gen_registers_t
 __ol_cpuid(volatile ol_gen_registers_t);
 
 /*
-* Inside function to write to a Model Specific Register
-*/
+ * Inside function to write to a Model Specific Register
+ */
 static uint64_t
 __read_msr(uint32_t);
 
 /*
-* Inside function to read a Model Specific Register
-*/
+ * Inside function to read a Model Specific Register
+ */
 static void
 __write_msr(uint32_t, uint64_t);
 #endif
-/*
-* Read a model specific register.
-*/
-uint64_t
-cpu_read_msr(uint32_t);
 
 /*
-* Write a value to a model specific register.
-*/
-void
-cpu_write_msr(uint32_t, uint64_t);
+ * Read a model specific register.
+ */
+uint64_t cpu_read_msr(uint32_t);
+
+/*
+ * Write a value to a model specific register.
+ */
+void cpu_write_msr(uint32_t, uint64_t);
 
 extern volatile ol_cpu_t cpus;
 
@@ -116,6 +112,8 @@ extern volatile ol_cpu_t cpus;
  * \fn disableInterrupts
  * \return 1 if interrupts were enabled, otherwise 0
  */
+#define INTERRUPTS_DISABLED 0
+#define INTERRUPTS_ENABLED  1
 extern int disableInterrupts();
 extern int enableInterrupts();
 

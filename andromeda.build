@@ -17,9 +17,21 @@
 	{"key" : "Optimize3", "flags" : "-O3"},
 	{"key" : "OptimizeSize", "flags" : "-Os"},
 	{"key" : "tree test", "flags" : "-D TREE_TEST"},
-	{"key" : "gdb", "flags" : "-ggdb -g"}
+	{"key" : "gdb", "flags" : "-ggdb -g"},
+	{"key" : "asm_output (breaks build)", "flags" : "-S" },
+	{"key" : "dbg_statements", "flags" : "-D MSG_DBG"},
+	{"key" : "warn_statements" , "flags" : "-D WARN"}
 	],
 "linker-flags" : "-oformat=elf32-i386 -melf_i386 -Tscripts/x86.ld",
 "archiver-flags" : "rs",
-"depend" : [{"path" : "src/andromeda/andromeda.build"}, {"path" : "src/mm/mm.build"}, {"path" : "src/math/math.build"}, {"path" : "src/net/net.build"}, {"path" : "src/lib/lib.build"}, {"path" : "src/fs/fs.build"}, {"path" : "src/drivers/drivers.build"}, {"path" : "src/arch/arch.build"}]
+"depend" : [
+	{"path" : "src/andromeda/andromeda.build"},
+	{"path" : "src/mm/mm.build"},
+	{"path" : "src/math/math.build"}, 
+	{"path" : "src/net/net.build"}, 
+	{"path" : "src/lib/lib.build"}, 
+	{"path" : "src/fs/fs.build"}, 
+	{"path" : "src/drivers/drivers.build"}, 
+	{"path" : "src/arch/arch.build"}
+	]
 }

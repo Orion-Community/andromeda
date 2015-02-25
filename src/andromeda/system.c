@@ -77,6 +77,7 @@ int sys_setup_paging()
 
 int sys_setup_arch()
 {
+        interrupt_init();
         if (hasarch())
                 return -E_ALREADY_INITIALISED;
         if (!hasmm())
@@ -87,10 +88,6 @@ int sys_setup_arch()
                 panic("Out of memory! could not initialise arch!");
         memset(core.arch, 0, sizeof(*core.arch));
 
-#ifdef X86
-        system_x86_init();
-#endif
-
         int i = 0;
         for (; i < CPU_LIMIT; i++)
         {
@@ -99,20 +96,24 @@ int sys_setup_arch()
 #endif
         }
 
+#ifdef X86
+        system_x86_init();
+#endif
+
         return -E_SUCCESS;
 }
 int sys_setup_devices()
 {
         if (core.devices != NULL)
                 return -E_ALREADY_INITIALISED;
-        printf("Device tree abstraction needs initialisation and code!\n");
+        warning("Device tree abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
 int sys_setup_modules()
 {
         if (core.kernel_modules != NULL)
                 return -E_ALREADY_INITIALISED;
-        printf("Kernel module abstraction needs initialisation and code!\n");
+        warning("Kernel module abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
 int sys_setup_fs()
@@ -128,13 +129,13 @@ int sys_setup_fs()
 
         vfs_init();
 
-        printf("File system abstraction needs initialisation and code!\n");
+        warning("File system abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }
 int sys_setup_net()
 {
         if (core.net != NULL)
                 return -E_ALREADY_INITIALISED;
-        printf("Networking abstraction needs initialisation and code!\n");
+        warning("Networking abstraction needs initialisation and code!\n");
         return -E_NOFUNCTION;
 }

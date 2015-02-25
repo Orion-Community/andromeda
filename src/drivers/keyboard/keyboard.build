@@ -5,5 +5,6 @@
 "source-files" : ["kbd.c", "ps2.c"],
 "compiler-flags" : "",
 "linker-flags" : "",
-"archiver-flags" : ""
+"archiver-flags" : "",
+"dcompiler-flags" : [{"key" : "keyboard panic", "flags" : "-D KBD_PANIC"}]
 }

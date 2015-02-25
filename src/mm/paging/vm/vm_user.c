@@ -28,37 +28,32 @@
  * @{
  */
 
-int
-vm_segment_mark_loaded_global(struct vm_segment* s)
+int vm_segment_mark_loaded_global(struct vm_segment* s)
 {
         idx_t i = 0;
-        for (; i < CPU_LIMIT; i ++)
+        for (; i < CPU_LIMIT; i++)
                 vm_segment_mark_loaded(i, s);
         return -E_SUCCESS;
 }
 
-int
-vm_segment_mark_loaded(int cpuid, struct vm_segment* s)
+int vm_segment_mark_loaded(int cpuid, struct vm_segment* s)
 {
         if (vm_loaded[cpuid]->find((int)s->virt_base, vm_loaded[cpuid]) != NULL)
                 return -E_ALREADY_INITIALISED;
 
-        if (vm_loaded[cpuid]->add((int)s->virt_base,s,vm_loaded[cpuid])
-                        != -E_SUCCESS)
+        if (vm_loaded[cpuid]->add((int)s->virt_base, s,
+                        vm_loaded[cpuid]) != -E_SUCCESS)
                 return -E_GENERIC;
         return -E_SUCCESS;
 }
 
-int
-vm_segment_mark_unloaded(int cpuid, struct vm_segment* s)
+int vm_segment_mark_unloaded(int cpuid, struct vm_segment* s)
 {
         if (vm_loaded[cpuid]->find((int)s->virt_base, vm_loaded[cpuid]) == NULL)
                 return -E_NOT_YET_INITIALISED;
 
-        if (vm_loaded[cpuid]->delete(
-                        (int)s->virt_base, vm_loaded[cpuid])
-                        != -E_SUCCESS)
-        {
+        if (vm_loaded[cpuid]->delete((int)s->virt_base,
+                        vm_loaded[cpuid]) != -E_SUCCESS) {
                 return -E_GENERIC;
         }
 
@@ -77,39 +72,36 @@ vm_get_loaded(int cpuid, void* addr)
         addr_t a = (addr_t)addr;
         a &= ~0x3FF;
 
-        struct tree* tree = vm_loaded[cpuid]->find_close(
-                        (int)addr, vm_loaded[cpuid]);
+        struct tree* tree = vm_loaded[cpuid]->find_close((int)addr,
+                        vm_loaded[cpuid]);
 
         struct vm_segment* segment = tree->data;
         boolean go_back = FALSE;
         boolean go_fwd = FALSE;
-        while (TRUE)
-        {
+        while (TRUE) {
                 addr_t seg_base = (addr_t)segment->virt_base;
                 addr_t seg_end = (addr_t)segment->virt_base + segment->size;
                 if (seg_base <= a && a < seg_end)
                         return segment;
 
-                if (seg_base < a)
-                {
+                if (seg_base < a) {
                         go_back = TRUE;
                         tree = tree->prev;
                 }
-                if (seg_end > a)
-                {
+                if (seg_end > a) {
                         go_fwd = TRUE;
                         tree = tree->next;
                 }
 
                 if (tree == NULL)
-                        return NULL;
+                        return NULL ;
 
                 if (go_fwd == TRUE && go_back == TRUE)
-                        return NULL;
+                        return NULL ;
 
                 segment = tree->data;
         }
-        return NULL;
+        return NULL ;
 }
 
 /**
@@ -126,7 +118,7 @@ vm_new(unsigned int pid)
 {
         struct vm_descriptor* p = kmalloc(sizeof(*p));
         if (p == NULL)
-                return NULL;
+                return NULL ;
 
         memset(p, 0, sizeof(*p));
         p->pid = pid;
@@ -150,7 +142,7 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
 {
         struct vm_segment* s = kmalloc(sizeof(*s));
         if (s == NULL)
-                return NULL;
+                return NULL ;
 
         /*
          * Segment size can only be PAGE_ALLOC_FACTOR aligned. If it isn't it
@@ -184,8 +176,7 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
 
         /* Add the segment into the list, but only if all is well */
         mutex_lock(&p->lock);
-        if (p->segments != NULL)
-        {
+        if (p->segments != NULL) {
                 mutex_lock(&p->segments->lock);
                 s->next = p->segments;
                 p->segments->prev = s;
@@ -195,14 +186,12 @@ vm_new_segment(void* virt, size_t size, struct vm_descriptor* p)
         mutex_unlock(&p->lock);
 
         return s;
-err1:
+        err1:
         kfree(s->free);
-err:
+        err:
         kfree(s);
-        return NULL;
+        return NULL ;
 }
-
-
 
 /**
  * \fn vm_segment_grow
@@ -229,7 +218,7 @@ int vm_segment_grow(struct vm_segment* s, size_t size)
 
         struct vm_descriptor* d = s->parent;
 
-retry:
+        retry:
         /* This stuff is all critical ... */
         mutex_lock(&d->lock);
 
@@ -240,21 +229,17 @@ retry:
         struct vm_segment* i;
 
         /* Basically what we don't want is for our segments to overlap */
-        for (i = d->segments; i != NULL; i = i->next)
-        {
+        for (i = d->segments; i != NULL ; i = i->next) {
                 /* If we're verifying with our selves we are doing it wrong */
                 if (i == s)
                         continue;
 
                 addr_t start;
                 addr_t end;
-                if (mutex_test(&i->lock) == 0)
-                {
+                if (mutex_test(&i->lock) == 0) {
                         start = (addr_t)i->virt_base;
                         end = (addr_t)(i->virt_base + i->size);
-                }
-                else
-                {
+                } else {
                         mutex_unlock(&d->lock);
                         /** \todo Find a way to yield CPU time here */
                         goto retry;
@@ -278,8 +263,7 @@ retry:
         s->size += size;
         mutex_unlock(&s->lock);
         ret = -E_SUCCESS;
-err:
-        mutex_unlock(&d->lock);
+        err: mutex_unlock(&d->lock);
 
         return ret;
 }
@@ -291,36 +275,38 @@ err:
  * \brief The segment to map into
  * \return A standard error code
  */
-int
-vm_segment_load(int cpu, struct vm_segment* s)
+int vm_segment_load(int cpu, struct vm_segment* s)
 {
-        if (s == NULL || s->pages == NULL)
+        if (s == NULL || s->pages == NULL) {
                 return -E_NULL_PTR;
-
-        if (vm_loaded[cpu]->find((int)s->virt_base, vm_loaded[cpu]) == NULL)
-        {
-                int ret = page_map_range(cpu, s->pages);
-                if (ret == -E_SUCCESS)
-                        vm_segment_mark_loaded(cpu, s);
-                else
-                        return ret;
         }
-        else
+
+        int ret = -E_SUCCESS;
+        if (vm_loaded[cpu]->find((int)s->virt_base, vm_loaded[cpu]) == NULL) {
+                ret = page_map_range(cpu, s->pages);
+                if (ret == -E_SUCCESS) {
+                        ret = vm_segment_mark_loaded(cpu, s);
+                } else {
+                        return ret;
+                }
+        } else {
                 return -E_ALREADY_INITIALISED;
-        return -E_SUCCESS;
+        }
+        return ret;
 }
 
-int
-vm_segment_unload(int cpu, struct vm_segment* s)
+int vm_segment_unload(int cpu, struct vm_segment* s)
 {
-        if (s == NULL || s->pages == NULL)
+        if (s == NULL || s->pages == NULL) {
                 return -E_INVALID_ARG;
+        }
         int ret = page_unmap_range(cpu, s->pages);
-        if (ret == -E_SUCCESS)
-                vm_segment_mark_unloaded(cpu, s);
-        else
+        if (ret == -E_SUCCESS) {
+                ret = vm_segment_mark_unloaded(cpu, s);
+        } else {
                 return -ret;
-        return -E_SUCCESS;
+        }
+        return ret;
 }
 
 /**
@@ -329,12 +315,10 @@ vm_segment_unload(int cpu, struct vm_segment* s)
  * \param s
  * \return
  */
-int
-vm_segment_clean(struct vm_segment* s)
+int vm_segment_clean(struct vm_segment* s)
 {
         if (s == NULL)
                 return -E_NULL_PTR;
-
 
         if (s->next != 0)
                 mutex_lock(&s->next->lock);
@@ -364,17 +348,14 @@ vm_segment_clean(struct vm_segment* s)
         struct vm_range_descriptor* x = s->free->next;
         struct vm_range_descriptor* xx = s->free;
         s->free = NULL;
-itterate:
-        while (x != NULL)
-        {
+        itterate: while (x != NULL ) {
                 xx = x;
                 x = x->next;
                 /* If these ranges are allocated physically, free them up */
                 kfree(xx);
         }
         /* Now do the same for allocated memory descriptors */
-        if (s->allocated != NULL)
-        {
+        if (s->allocated != NULL) {
                 x = s->allocated->next;
                 xx = s->allocated;
                 s->allocated = NULL;
@@ -382,8 +363,7 @@ itterate:
         }
 
         /* If we still have physical pages, clean those up */
-        if (s->pages != NULL)
-        {
+        if (s->pages != NULL) {
                 page_range_cleanup(0, s->pages);
                 kfree(s->pages);
                 s->pages = NULL;
@@ -403,18 +383,15 @@ itterate:
  * \return A standard error code
  * \warning If the error code isn't -E_SUCCESS, the task still exists
  */
-int
-vm_free(struct vm_descriptor* p)
+int vm_free(struct vm_descriptor* p)
 {
         /* Lock it, even though it won't get unlocked */
         mutex_lock(&p->lock);
         struct vm_segment* this = p->segments;
         struct vm_segment* next = this->next;
 
-        while (this != NULL)
-        {
-                if (vm_segment_clean(this) != -E_SUCCESS)
-                {
+        while (this != NULL ) {
+                if (vm_segment_clean(this) != -E_SUCCESS) {
                         /*
                          * We have just created a ghost task.
                          * For some reason, or another, this task we can't get
@@ -453,8 +430,7 @@ vm_get_phys(int cpu, void* virt)
  * \brief Load in the virtual memory context of the given task
  * \return A standard error code
  */
-int
-vm_load_task(int cpu, struct vm_descriptor* task)
+int vm_load_task(int cpu, struct vm_descriptor* task)
 {
         if (cpu >= CPU_LIMIT || task == NULL)
                 return -E_INVALID_ARG;
@@ -463,9 +439,8 @@ vm_load_task(int cpu, struct vm_descriptor* task)
                 return -E_NULL_PTR;
 
         struct vm_segment* runner = task->segments;
-        while (runner != NULL)
-        {
-                page_map_range(cpu, runner->pages);
+        while (runner != NULL ) {
+                vm_segment_load(cpu, runner);
 
                 runner = runner->next;
         }
@@ -478,7 +453,7 @@ static inline int
 vm_range_cleanup(struct sys_mmu_range* range)
 {
         if (range == NULL)
-                return -E_NULL_PTR;
+        return -E_NULL_PTR;
 
         struct sys_mmu_range_phys* runner = range->phys;
         struct sys_mmu_range_phys* next = range->phys->next;
@@ -498,8 +473,7 @@ vm_range_cleanup(struct sys_mmu_range* range)
  * \brief Disable access to the pages owned by this task
  * \return
  */
-int
-vm_unload_task(int cpu, struct vm_descriptor* task)
+int vm_unload_task(int cpu, struct vm_descriptor* task)
 {
         if (cpu >= CPU_LIMIT || task == NULL)
                 return -E_INVALID_ARG;
@@ -508,9 +482,8 @@ vm_unload_task(int cpu, struct vm_descriptor* task)
                 return -E_NULL_PTR;
 
         struct vm_segment* runner = task->segments;
-        while (runner != NULL)
-        {
-                if (page_unmap_range(cpu, runner->pages) != -E_SUCCESS)
+        while (runner != NULL ) {
+                if (vm_segment_unload(cpu, runner) != -E_SUCCESS)
                         goto error;
                 runner = runner->next;
         }
@@ -524,19 +497,17 @@ error:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
-int
-vm_user_fault_write(addr_t fault_addr, int mapped)
+int vm_user_fault_write(addr_t fault_addr, int mapped)
 {
         panic("User space page faults currently remain unhandled");
         return -E_NOFUNCTION;
 }
 
-int
-vm_kernel_fault_write(addr_t fault_addr, int mapped)
+int vm_kernel_fault_write(addr_t fault_addr, int mapped)
 {
-        if (mapped)
-        {
-                printf("We don't do mapped pagefaults ... We just don't do them\n");
+        if (mapped) {
+                printf(
+                                "We don't do mapped pagefaults ... We just don't do them\n");
                 goto problem;
         }
 
@@ -544,8 +515,7 @@ vm_kernel_fault_write(addr_t fault_addr, int mapped)
          * \todo Add permission checking
          */
         struct vm_segment* segment = vm_get_loaded(0, (void*)fault_addr);
-        if (segment == NULL)
-        {
+        if (segment == NULL) {
                 printf("Fault addr: %X\n", (uint32_t)fault_addr);
                 panic("Trying to map an unloaded page!!!!!!");
                 /**
@@ -566,13 +536,12 @@ vm_kernel_fault_write(addr_t fault_addr, int mapped)
 
         return -E_SUCCESS;
 
-problem:
+        problem:
         panic("Writing page faults currently remain unhandled");
         return -E_GENERIC;
 }
 
-int
-vm_user_fault_read(addr_t fault_addr, int mapped)
+int vm_user_fault_read(addr_t fault_addr, int mapped)
 {
         /**
          * \todo Add permission checking
@@ -582,15 +551,14 @@ vm_user_fault_read(addr_t fault_addr, int mapped)
         return -E_NOFUNCTION;
 }
 
-int
-vm_kernel_fault_read(addr_t fault_addr, int mapped, addr_t eip)
+int vm_kernel_fault_read(addr_t fault_addr, int mapped, addr_t eip)
 {
-        if (!mapped)
-        {
+        if (!mapped) {
                 /**
                  * \todo Reload pages here when swapping is written
                  */
-                printf("The kernel wants to read garbage from invalid memory.\n");
+                printf(
+                                "The kernel wants to read garbage from invalid memory.\n");
                 printf("Address:   %X\n", (int)fault_addr);
                 printf("Fault eip: %X\n", (int)eip);
                 panic("Reason enough to panic, I'd say!");

@@ -16,7 +16,7 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "clock.h"
+#include "rtc.h"
 #include <text.h>
 #include <stdlib.h>
 
@@ -46,131 +46,129 @@ uint32_t irqs[IRQ_BASE];
 
 void cIRQ0(irq_stack_t* regs)
 {
-        if (isSleeping) {
-                if (!(sleepTime == 0))
-                        sleepTime--;
-        }
-        pit_timer += 1;
-
-        pic_eoi(0);
+        do_interrupt(X86_8259_INTERRUPT_BASE, 0, 1, 0, 0);
+        pic_8259_eoi(0);
 
         return;
 }
 
 void cIRQ1(irq_stack_t* regs)
 {
+        do_interrupt(X86_8259_INTERRUPT_BASE + 1, 0, 0, 0, 0);
         uint8_t c = ol_ps2_get_keyboard_scancode();
         kb_handle(c);
-        pic_eoi(1);
+        pic_8259_eoi(1);
         return;
 }
 
 void cIRQ2(irq_stack_t* regs)
 {
-        printf("IRQ!");
-        pic_eoi(2);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 2, 0, 0, 0, 0);
+        pic_8259_eoi(2);
         return;
 }
 
 void cIRQ3(irq_stack_t* regs)
 {
-        printf("IRQ!");
-        pic_eoi(3);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 3, 0, 0, 0, 0);
+        pic_8259_eoi(3);
         return;
 }
 
 void cIRQ4(irq_stack_t* regs)
 {
-        printf("IRQ!");
-        pic_eoi(4);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 4, 0, 0, 0, 0);
+        pic_8259_eoi(4);
         return;
 }
 
 void cIRQ5(irq_stack_t* regs)
 {
-        printf("IRQ!");
-        pic_eoi(5);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 5, 0, 0, 0, 0);
+        pic_8259_eoi(5);
         return;
 }
 
 void cIRQ6(irq_stack_t* regs)
 {
-        printf("IRQ!");
-        pic_eoi(6);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 6, 0, 0, 0, 0);
+        pic_8259_eoi(6);
         return;
 }
 
 void cIRQ7(irq_stack_t* regs)
 {
-        printf("IRQ!");
-        pic_eoi(7);
+        int spurious = pic_8259_detect_spurious(7);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 7, 0, 0, 0, 0);
+        if (!spurious) {
+                pic_8259_eoi(7);
+        }
         return;
 }
 
 void cIRQ8(irq_stack_t* regs)
 {
+        do_interrupt(X86_8259_INTERRUPT_BASE + 8, 0, 0, 0, 0);
         printf("test\n");
         outb(CMOS_SELECT, CMOS_RTC_IRQ);
         inb(CMOS_DATA);
-        pic_eoi(8);
+        pic_8259_eoi(8);
         return;
 }
 
 void cIRQ9(irq_stack_t* regs)
 {
+        do_interrupt(X86_8259_INTERRUPT_BASE + 9, 0, 0, 0, 0);
         putc('a');
-        pic_eoi(9);
+        pic_8259_eoi(9);
         return;
 }
 
 void cIRQ10(irq_stack_t* regs)
 {
-        printf("IRQ");
-        pic_eoi(10);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 10, 0, 0, 0, 0);
+        pic_8259_eoi(10);
         return;
 }
 
 void cIRQ11(irq_stack_t* regs)
 {
-        printf("IRQ");
-        pic_eoi(11);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 11, 0, 0, 0, 0);
+        pic_8259_eoi(11);
         return;
 }
 
 void cIRQ12(irq_stack_t* regs)
 {
-        printf("IRQ");
-        pic_eoi(12);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 12, 0, 0, 0, 0);
+        pic_8259_eoi(12);
         return;
 }
 
 void cIRQ13(irq_stack_t* regs)
 {
-        printf("IRQ");
-        pic_eoi(13);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 13, 0, 0, 0, 0);
+        pic_8259_eoi(13);
         return;
 }
 
 void cIRQ14(irq_stack_t* regs)
 {
+        do_interrupt(X86_8259_INTERRUPT_BASE + 14, 0, 0, 0, 0);
         putc('a');
-        pic_eoi(14);
+        pic_8259_eoi(14);
         return;
 }
 
 void cIRQ15(irq_stack_t* regs)
 {
+        int spurious = pic_8259_detect_spurious(15);
+        do_interrupt(X86_8259_INTERRUPT_BASE + 15, 0, 0, 0, 0);
         putc('b');
-        pic_eoi(15);
+        if (spurious) {
+                pic_8259_eoi(7);
+        } else {
+                pic_8259_eoi(15);
+        }
         return;
-}
-
-void disable_irqs()
-{
-        __asm__ __volatile__("cli\n");
-}
-
-void enable_irqs()
-{
-        __asm__ __volatile__("sti\n");
 }

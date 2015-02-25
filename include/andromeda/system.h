@@ -24,6 +24,7 @@
 #include <types.h>
 #ifdef X86
 #include <boot/mboot.h>
+#include <arch/x86/cpu.h>
 #endif
 
 #include <mm/memory.h>
@@ -36,12 +37,12 @@
 #define CPU_LIMIT 0x10
 
 /*
-struct sys_mmu_range_phys {
-        void* phys;
-        size_t size;
-        struct sys_mmu_range_phys* next;
-};
-*/
+ struct sys_mmu_range_phys {
+ void* phys;
+ size_t size;
+ struct sys_mmu_range_phys* next;
+ };
+ */
 
 struct sys_mmu_range {
         /* virt is the base address of the range */
@@ -63,6 +64,24 @@ struct sys_mmu {
         int (*cleanup_range)(struct sys_mmu_range*);
 };
 
+typedef int (*handler)(int16_t timer_id, time_t time, int16_t irq_id);
+
+struct sys_timer {
+        int (*subscribe)(time_t time, uint16_t id, handler call_back,
+                        struct sys_timer* timer);
+        int (*set_freq)(time_t freq, struct sys_timer* timer);
+
+        struct tree_root* events;
+
+        time_t freq;
+        volatile time_t time;
+        atomic_t tick;
+
+        uint16_t interrupt_id;
+
+        mutex_t timer_lock;
+};
+
 struct sys_cpu_scheduler {
         int (*sched)(void);
         int (*task_switch)(void);
@@ -75,8 +94,7 @@ struct sys_cpu_scheduler {
 };
 
 struct sys_cpu_pic {
-        int (*set_interrupt)(void);
-        int (*get_interrupt)(void);
+        struct sys_timer* timers;
         int (*suspend)(void);
         int (*resume)(void);
 };
@@ -95,6 +113,7 @@ struct sys_cpu {
 };
 
 struct sys_io_pic {
+        struct tree_root* timers;
         int (*set_interrupt)(void);
         int (*get_interrupt)(void);
         int (*disable_interrupt)(void);
@@ -102,7 +121,7 @@ struct sys_io_pic {
         int (*resume)(void);
 };
 
-struct sys_arch_abstraction{
+struct sys_arch_abstraction {
         struct sys_cpu* cpu[CPU_LIMIT];
         struct sys_io_pic* pic;
 };
@@ -112,7 +131,7 @@ struct sys_memory_manager {
         void* (*page_share)(void*);
         int (*page_free)(void*);
         void* (*alloc)(size_t, uint16_t);
-        void  (*free)(void*, size_t);
+        void (*free)(void*, size_t);
 };
 
 struct sys_device_tree {
@@ -140,7 +159,8 @@ struct sys_fs_dir_entry {
 
 struct sys_fs {
         struct vfile* (*open)(int inode);
-        struct sys_fs_dir_entry* (*dir_entry)(uint32_t inode, uint32_t entry, char* data, size_t len);
+        struct sys_fs_dir_entry* (*dir_entry)(uint32_t inode, uint32_t entry,
+                        char* data, size_t len);
         int (*close)(struct vfile*);
         int (*read)(struct vfile* file, char* data, size_t len);
         int (*write)(struct vfile* file, char* data, size_t len);
@@ -166,15 +186,37 @@ struct system {
 
 extern struct system core;
 
+struct sys_timer* get_global_timer(int16_t irq_no);
+struct sys_timer* get_cpu_timer(int16_t cpu);
+
 #define hasmm() (core.mm != NULL)
 #define hasarch() (hasmm() && core.arch != NULL)
 #define hascpu(a) (hasarch() && a < CPU_LIMIT && core.arch->cpu[a] != NULL)
 
+/**
+ * \fn kmalloc
+ * \brief Allocate the specified memory size
+ * \param a
+ */
 #define kmalloc(a) ((hasmm() && core.mm->alloc != NULL && a > 1) ? core.mm->alloc(a, 0)\
                      : NULL)
+/**
+ * \fn kfree
+ * \brief Free the pointer
+ * \warning This might fail on arrays and types that don't contain object size
+ * \param a
+ */
 #define kfree(a) ((core.mm->free != NULL) ?\
                    core.mm->free(a, sizeof(*a)) :\
                    panic("Memory freeing function not correctly initialised!"))
+
+/**
+ * \fn kfree_s
+ * \brief Free the pointer using size information
+ * \warning If no size information is provided, use this function to specify manually
+ * \param a
+ * \param b
+ */
 #define kfree_s(a,b) ((hasmm() && core.mm->free != NULL) ?\
                        core.mm->free(a, b) :\
                     panic("Memory freeing function not correctly initialised!"))
@@ -194,10 +236,66 @@ extern struct system core;
 
 #define getmmu(a) ((getcpu(a) == NULL) ? getcpu(a)->mmu : NULL)
 
+#define getarch() (core.arch)
+#define getIOPIC() (core.arch->pic)
+#define hasIOPIC() (getIOPIC() != NULL)
+
+static inline time_t getTime(struct sys_timer* timer)
+{
+        if (timer == NULL) {
+                return -1;
+        }
+        return timer->time;
+}
+
+static inline int subscribe_global_timer(int16_t irq_no, time_t time,
+                int16_t id, handler call_back)
+{
+        struct sys_timer* timer = get_global_timer(irq_no);
+        if (timer != NULL) {
+                return timer->subscribe(time, id, call_back, timer);
+        }
+        return -E_NOTFOUND;
+}
+
+static inline int subscribe_global_timer_offset(int16_t irq_no, time_t offset,
+                int16_t id, handler call_back)
+{
+        struct sys_timer* timer = get_global_timer(irq_no);
+        if (timer != NULL) {
+                time_t time = getTime(timer);
+                time += offset;
+                return timer->subscribe(time, id, call_back, timer);
+        }
+        return -E_NOTFOUND;
+}
+
+static inline int subscribe_cpu_timer(int16_t cpu_no, time_t time, int16_t id,
+                handler call_back)
+{
+        struct sys_timer* timer = get_cpu_timer(cpu_no);
+        if (timer != NULL) {
+                return timer->subscribe(time, id, call_back, timer);
+        }
+        return -E_NOTFOUND;
+}
+
+static inline int subscribe_cpu_timer_offset(int16_t cpu_id, time_t offset,
+                int16_t id, handler call_back)
+{
+        struct sys_timer* timer = get_cpu_timer(cpu_id);
+        if (timer != NULL) {
+                time_t time = getTime(timer);
+                time += offset;
+                return timer->subscribe(time, id, call_back, timer);
+        }
+        return -E_NOTFOUND;
+}
+
 static inline void cpu_wait_interrupt(int a)
 {
         struct sys_cpu* cpu = getcpu(a);
-        if (!(hascpu(a) && cpu->halt != NULL))
+        if (!(hascpu(a) && cpu->halt != NULL ))
                 panic("CPU struct not intialised!");
 
         cpu->halt();
@@ -206,7 +304,7 @@ static inline void cpu_wait_interrupt(int a)
 static inline int cpu_disable_interrupts(int a)
 {
         struct sys_cpu* cpu = getcpu(a);
-        if (!(hascpu(a) && cpu->disable_interrupt != NULL))
+        if (!(hascpu(a) && cpu->disable_interrupt != NULL ))
                 panic("CPU struct not initialised!");
 
         return cpu->disable_interrupt();
@@ -215,8 +313,11 @@ static inline int cpu_disable_interrupts(int a)
 static inline int cpu_enable_interrupts(int a)
 {
         struct sys_cpu* cpu = getcpu(a);
-        if (!(hascpu(a) && cpu->enable_interrupt != NULL))
+        if (!(hascpu(a) && cpu->enable_interrupt != NULL ))
                 panic("CPU struct not initialised!");
+        if ((addr_t) (cpu->enable_interrupt) <= (addr_t) 0xC0000000) {
+                panic("Function not in code segment!");
+        }
 
         int ret = cpu->enable_interrupt();
         return ret;
@@ -226,12 +327,11 @@ static inline void*
 get_phys(int cpu, void* virt)
 {
         if (!hascpu(cpu) || core.arch->cpu[cpu]->mmu == NULL)
-                return NULL;
+                return NULL ;
         return core.arch->cpu[cpu]->mmu->get_phys(virt);
 }
 
-static inline int
-page_map(int cpu, void* virt, void* phys, int cpl)
+static inline int page_map(int cpu, void* virt, void* phys, int cpl)
 {
         if (!hascpu(cpu))
                 return -E_NULL_PTR;
@@ -240,16 +340,14 @@ page_map(int cpu, void* virt, void* phys, int cpl)
         return core.arch->cpu[cpu]->mmu->set_page(virt, phys, cpl);
 }
 
-static inline int
-page_map_range(int cpu, struct sys_mmu_range* range)
+static inline int page_map_range(int cpu, struct sys_mmu_range* range)
 {
         if (!hascpu(cpu) || range == NULL)
                 return -E_NULL_PTR;
         return core.arch->cpu[cpu]->mmu->set_range(range);
 }
 
-static inline int
-page_unmap(int cpu, void* virt)
+static inline int page_unmap(int cpu, void* virt)
 {
         if (!hascpu(cpu))
                 return -E_NULL_PTR;
@@ -258,16 +356,14 @@ page_unmap(int cpu, void* virt)
         return core.arch->cpu[cpu]->mmu->reset_page(virt);
 }
 
-static inline int
-page_unmap_range(int cpu, struct sys_mmu_range* range)
+static inline int page_unmap_range(int cpu, struct sys_mmu_range* range)
 {
         if (!hascpu(cpu) || range == NULL)
                 return -E_NULL_PTR;
         return core.arch->cpu[cpu]->mmu->reset_range(range);
 }
 
-static inline int
-page_range_cleanup(int cpu, struct sys_mmu_range* range)
+static inline int page_range_cleanup(int cpu, struct sys_mmu_range* range)
 {
         if (!hascpu(cpu) || range == NULL)
                 return -E_NULL_PTR;
@@ -289,5 +385,26 @@ int sys_setup_paging(multiboot_memory_map_t* map, unsigned int length);
 int sys_setup_paging(void);
 #endif
 
+int interrupt_init();
+int32_t interrupt_register(uint16_t interrupt_no,
+                int (*procedure)(uint16_t no, uint16_t id, uint64_t r1,
+                                uint64_t r2, uint64_t r3, uint64_t r4));
+int32_t interrupt_deregister(uint16_t interrupt_no, int32_t interrupt_id);
+int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
+                uint64_t r4);
+
+#ifdef INTERRUPT_TEST
+int interrupt_test(int interrupt_no);
 #endif
 
+int cpu_timer_init(int cpuid, time_t freq, int16_t irq_no);
+int andromeda_timer_init(time_t freq, int16_t irq_no);
+struct sys_timer* get_global_timer(int16_t irq_no);
+struct sys_timer* get_cpu_timer(int16_t cpu);
+#ifdef TIMER_DBG
+int timer_setup_test(int16_t cpuid, int16_t irq_no);
+#endif
+
+int x86_pit_8253_init(int irq_no, time_t freq);
+
+#endif

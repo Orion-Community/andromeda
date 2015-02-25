@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2011 - 2014  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -70,7 +70,8 @@ extern "C" {
 #define E_NOT_FOUND             0x64
 
 #define E_LOCKED                0x70
-
+#define E_UNLOCKED              0x71
+#define E_OUT_OF_RESOURCES      0x72
 
 #define E_CLEAN_PARENT          0x200
 

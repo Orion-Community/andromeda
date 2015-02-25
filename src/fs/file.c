@@ -112,7 +112,7 @@ int file_sc_init()
         /* Make sure the file descriptors can be stored somewhere */
         file_descriptors = tree_new_avl();
 
-        semaphore_init(&fd_cnt, 1, (1 << (sizeof(void*)*8-1)));
+        semaphore_init(&fd_cnt, 1, 0, (1 << (sizeof(void*)*8-1)));
 
         struct vfile* stdin = vfs_create();
         struct vfile* stdout = vfs_create();

@@ -1,6 +1,8 @@
 /*
     Andromeda
-    Copyright (C) 2011 - 2012 - 2013 -2014  Bart Kuivenhoven
+    Copyright (C)  2011, 2012, 2013, 2014, 2015  Bart Kuivenhoven
+    Copyright (C)  2011  Steven van der Schoot
+    Copyright (C)  2012  Michel Megens
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,7 +40,17 @@
 #define RL_RUN4         0x5
 #define RL_REBOOT       0x6
 
+/**
+ * \var stack
+ * \brief Kernel stack
+ */
+unsigned char stack[STD_STACK_SIZE];
+
+struct task *current_task = NULL;
+
 void demand_key();
+
+//struct task *current_task = NULL;
 
 void shutdown()
 {
@@ -180,6 +192,9 @@ void core_loop()
         int i = sc_call(SYS_WRITE, 0, 0, (int)str, strlen(str));
         printf ("sc: %X\n", -i);
 #endif
+#ifdef INTERRUPT_TEST
+        interrupt_test(80);
+#endif
         debug ("Entering core loop\n");
         while (TRUE) // Infinite loop, to make the kernel wait when there is nothing to do
         {
@@ -202,6 +217,6 @@ void core_loop()
                 case RL_SHUTDOWN:
                         break;
                 }
-                halt(); // Puts the CPU in idle state untill next interrupt
+                halt(); // Puts the CPU in idle state until next interrupt
         }
 }

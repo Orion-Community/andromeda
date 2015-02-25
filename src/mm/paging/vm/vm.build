@@ -2,9 +2,12 @@
 "name" : "mm-paging-vm",
 "link" : false,
 "archive" : false,
-"source-files" : ["vm_alloc.c", "vm_init.c", "vm_user.c"],
+"source-files" : ["vm_alloc.c", "vm_init.c", "vm_user.c", "vm_range_alloc.c"],
 "compiler-flags" : "",
-"dcompiler-flags" : [{"key" : "vm_test", "flags" : "-D VM_TEST -D VM_DBG"}],
+"dcompiler-flags" : [
+	{"key" : "vm_test", "flags" : "-D VM_TEST -D VM_DBG"},
+	{"key" : "vm_loop_detect", "flags" : "-D VM_RANGE_LOOP_DETECT"}
+	],
 "linker-flags" : "",
 "archiver-flags" : "",
 "ddepend" : [{"key" : "vm_test", "path" : "vm_test.build"}]

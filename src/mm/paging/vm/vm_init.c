@@ -70,28 +70,27 @@ struct vm_segment vm_core_segments[STATIC_SEGMENTS];
 struct vm_descriptor vm_core;
 struct tree_root* vm_loaded[CPU_LIMIT];
 
-static int
-vm_map_kernel_code(struct vm_segment* s)
+static int vm_map_kernel_code(struct vm_segment* s)
 {
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        addr_t code_addr = (addr_t)&higherhalf;
-        addr_t code_end = (addr_t)&rodata;
+        addr_t code_addr = (addr_t) &higherhalf;
+        addr_t code_end = (addr_t) &rodata;
 
-        s->virt_base = (void*)code_addr;
+        s->virt_base = (void*) code_addr;
         s->size = code_end - code_addr;
         s->code = TRUE;
-        s->name = ".code";
+        memcpy(s->name, ".code", sizeof(".code"));
 
         vm_segment_mark_loaded_global(s);
 
 #ifdef PA_DBG
-        printf( "Mapping kernel code\n\n"
-                "BOOT:\t%X\nRODATA:\t%X\nsize\t%X\n",
-                (int)code_addr,
-                (int)code_end,
-                s->size
+        debug( "Mapping kernel code\n\n"
+                        "BOOT:\t%X\nRODATA:\t%X\nsize\t%X\n",
+                        (int)code_addr,
+                        (int)code_end,
+                        s->size
         );
 #endif
 
@@ -99,37 +98,39 @@ vm_map_kernel_code(struct vm_segment* s)
 }
 
 static int vm_map_kernel_data(s, start, end, name)
-struct vm_segment *s;
-void* start;
-void* end;
-char* name;
+        struct vm_segment *s;void* start;void* end;char* name;
 {
         if (s == NULL || start == NULL || end == NULL)
                 return -E_NULL_PTR;
-        if (!PAGE_ALIGNED((addr_t)start) || !PAGE_ALIGNED((addr_t)end))
+        if (!PAGE_ALIGNED((addr_t )start) || !PAGE_ALIGNED((addr_t )end))
                 return -E_INVALID_ARG;
 
-        if ((addr_t)end < (addr_t)start)
+        if ((addr_t) end < (addr_t) start)
                 return -E_INVALID_ARG;
 
         s->virt_base = start;
-        s->size = (addr_t)end - (addr_t)start;
+        s->size = (addr_t) end - (addr_t) start;
         s->code = FALSE;
-        s->name = name;
+
+        size_t name_len = strlen(name);
+        if (name_len >= SEGMENT_NAME_LENGTH)
+                name_len = SEGMENT_NAME_LENGTH - 2;
+        memcpy(s->name, name, strlen(name));
+        s->name[SEGMENT_NAME_LENGTH - 1] = (char) 0;
 
         vm_segment_mark_loaded_global(s);
 #ifdef PA_DBG
-        printf(
-                "name:     %s\n"
-                "segment:  %X\n"
-                "start:    %X\n"
-                "end:      %X\n"
-                "size:     %X\n",
-               s->name,
-               (int)s,
-               (int)start,
-               (int)end,
-               s->size
+        debug(
+                        "name:     %s\n"
+                        "segment:  %X\n"
+                        "start:    %X\n"
+                        "end:      %X\n"
+                        "size:     %X\n",
+                        s->name,
+                        (int)s,
+                        (int)start,
+                        (int)end,
+                        s->size
         );
 #endif
 
@@ -145,13 +146,12 @@ char* name;
  * \param s
  * \return A standard error code
  */
-static int
-vm_map_kernel_stack(struct vm_segment* s)
+static int vm_map_kernel_stack(struct vm_segment* s)
 {
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        s->name = ".stack";
+        memcpy(s->name, ".stack", sizeof(".stack"));
         s->virt_base = NULL;
         s->size = 0;
 
@@ -163,13 +163,12 @@ vm_map_kernel_stack(struct vm_segment* s)
         return -E_NOFUNCTION;
 }
 
-static int
-vm_kernel_add_range(struct vm_segment* s)
+static int vm_kernel_add_range(struct vm_segment* s)
 {
         if (s == NULL)
                 return -E_NULL_PTR;
 
-        s->free = kmalloc(sizeof(*s));
+        s->free = vm_range_alloc();
         if (s->free == NULL)
                 return -E_NOMEM;
 
@@ -188,14 +187,12 @@ extern int initial_slab_space;
  * \fn vm_init
  * \brief The function that initialises the pte core and segments
  */
-int
-vm_init()
+int vm_init()
 {
         /* Nullify the pte core, so it can be set up */
         memset(&vm_core, 0, sizeof(vm_core));
         idx_t i = 0;
-        for (; i < CPU_LIMIT; i++)
-        {
+        for (; i < CPU_LIMIT; i++) {
                 vm_loaded[i] = tree_new_avl_early();
                 if (vm_loaded[i] == NULL)
                         panic("Out of memory!");
@@ -204,8 +201,7 @@ vm_init()
         /* Initialise all the segments! */
         i = 0;
         struct vm_segment* s = NULL;
-        while (i < STATIC_SEGMENTS)
-        {
+        while (i < STATIC_SEGMENTS) {
                 /* nullify the segment and point to next element */
                 s = &vm_core_segments[i];
                 memset(s, 0, sizeof(*s));
@@ -220,54 +216,63 @@ vm_init()
 
         int ret = 0;
 
+        /* Set up the range allocator, we'll need this one for the heap */
+        vm_range_alloc_init();
+
         /* For the physical page allocator, let's keep everything aligned */
-        addr_t data_end = (addr_t)&end;
-        if (data_end % PAGE_ALLOC_FACTOR != 0)
+        addr_t data_end = (addr_t) &end;
+        if (data_end % PAGE_ALLOC_FACTOR != 0) {
                 data_end += PAGE_ALLOC_FACTOR - data_end % PAGE_ALLOC_FACTOR;
+        }
 
         /* Map the relevant pages starting with code*/
         ret |= vm_map_kernel_code(&vm_core_segments[0]);
-	if (ret != -E_SUCCESS)
-		printf("Code mapping failed!\n");
+        if (ret != -E_SUCCESS) {
+                warning("Code mapping failed!\n");
+        }
 
         /* Map the stack */
         /** \todo Write special function for mapping the stack */
         ret |= vm_map_kernel_stack(&vm_core_segments[4]);
-	if (ret != -E_SUCCESS)
-		printf("Stack mapping failed!\n");
+        if (ret != -E_SUCCESS) {
+                warning("Stack mapping failed!\n");
+        }
 
         /* Map the page tables */
         ret |= vm_map_kernel_data(&vm_core_segments[1],
-                        (void*)((int)(&page_dir_boot) + THREE_GIB),
+                        (void*) ((int) (&page_dir_boot) + THREE_GIB),
                         &initial_slab_space, ".PD");
-	if (ret != -E_SUCCESS)
-		printf("page dir mapping failed!\n");
+        if (ret != -E_SUCCESS) {
+                warning("page dir mapping failed!\n");
+        }
 
         /* Map the static data */
-        ret |= vm_map_kernel_data(&vm_core_segments[2], &rodata,
-                        data_end, ".data");
-	if (ret != -E_SUCCESS)
-		printf("static data mapping failed!\n");
+        ret |= vm_map_kernel_data(&vm_core_segments[2], &rodata, data_end,
+                        ".data");
+        if (ret != -E_SUCCESS) {
+                warning("static data mapping failed!\n");
+        }
 
         /* Map the heap */
         /** \todo Designate an area for the heap */
         ret |= vm_map_kernel_data(&vm_core_segments[3], data_end,
                         data_end + 0x1000000, ".heap");
-	if (ret != -E_SUCCESS)
-		printf("heap data mapping failed!\n");
+        if (ret != -E_SUCCESS) {
+                warning("heap data mapping failed!\n");
+        }
         ret |= vm_kernel_add_range(&vm_core_segments[3]);
-	if (ret != -E_SUCCESS)
-		printf("heap data range mapping failed!\n");
+        if (ret != -E_SUCCESS) {
+                warning("heap data range mapping failed!\n");
+        }
 
         /*
          * Kernel modules and init file systems will have to be mapped once the
          * other allocators have been initialised.
          */
 
-        if (ret != -E_SUCCESS)
-        {
+        if (ret != -E_SUCCESS) {
 //                 panic("Memory could not correctly be mapped!");
-                printf("Virtual memory system wasn't initialised correctly!\n");
+                warning("Virtual memory system not initialised correctly!\n");
         }
 
         /*
@@ -275,17 +280,22 @@ vm_init()
          * It's no longer useful to us.
          */
         int idx = 0;
-        for (;idx < 0x40000000; idx += PAGESIZE)
+        for (; idx < 0x40000000; idx += PAGESIZE)
         {
-                page_unmap(0, (void*)idx);
+                page_unmap(0, (void*) idx);
         }
+
         /**
          * \todo Map in the kernel modules loaded in by GRUB.
          */
-#ifdef VM_TEST
-        vm_test();
-#endif
 
+        mm_vm_range_buffer_start = 1;
+
+#ifdef VM_TEST
+        if (vm_test() != -E_SUCCESS) {
+                panic("Failure in vm_test code!");
+        }
+#endif
         return ret;
 }
 

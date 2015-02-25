@@ -1,6 +1,7 @@
 /*
  *  Andromeda, The educational operatingsystem
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2011, 2012, 2013, 2014, 2015  Bart Kuivenhoven
+ *  Copyright (C) 2012  Michel Megens
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by

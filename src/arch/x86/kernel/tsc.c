@@ -1,6 +1,7 @@
 /*
  *  Andromeda - CPU Timer system
  *  Copyright (C) 2012  Michel Megens
+ *  Copyright (c) 2014  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +18,7 @@
  */
 
 #include <stdlib.h>
+#include <types.h>
 #include <arch/x86/timer.h>
 #include <andromeda/system.h>
 
@@ -32,13 +34,17 @@ __get_cpu_tick_inline(struct cpu_time *time)
         return -E_SUCCESS;
 }
 
-unsigned long long
+uint64_t
 get_cpu_tick()
 {
-        struct cpu_time *time = kmalloc(sizeof(*time));
-        unsigned long long ret = time->low;
-        ret |= ((unsigned long long)(time->high)) << 32;
-        kfree(time);
+        struct cpu_time time;
+        __get_cpu_tick_inline(&time);
+
+        /* struct cpu_time *time = kmalloc(sizeof(*time)); */
+
+        uint64_t ret = time.low;
+        ret |= ((uint64_t)(time.high)) << 32;
         return ret;
 }
+
 

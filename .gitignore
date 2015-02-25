@@ -14,8 +14,10 @@ scripts/build*
 *.patch
 doc/doxygen/*
 *.iso
+*.log
 .settings
 .config
 andromeda.project
 andromeda.tags
 andromeda.workspace*
+.attach_pid*
