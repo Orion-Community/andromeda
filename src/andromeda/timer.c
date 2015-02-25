@@ -152,6 +152,7 @@ static int timer_subscribe_event(time_t time, uint16_t id, handler call_back,
 #define DEBUG_TIMER_INTERVAL 500
 #define DEBUG_TIMER_BASE_TIME 2000
 
+static int global_timer_initialised = 0;
 static int timer_dbg(int16_t id, time_t time,
                 int16_t irq_no __attribute__((unused)))
 {
@@ -167,6 +168,7 @@ static int timer_dbg(int16_t id, time_t time,
         return -E_SUCCESS;
 }
 
+static int local_timer_initialised = 0;
 static int timer_dbg_pit(int16_t id, time_t time, int16_t irq_no)
 {
         printf("[ DEBUG ] Timer time: %i\n", (int32_t) time);
@@ -225,7 +227,7 @@ int andromeda_timer_init(time_t freq, int16_t irq_no)
         pic->timers->add(irq_no, timer, pic->timers);
 
 #ifdef TIMER_DBG
-        subscribe_global_timer(irq_no, DEBUG_TIMER_BASE_TIME, 0, timer_dbg_pit);
+        global_timer_initialised = 1;
 #endif
         return -E_SUCCESS;
 }
@@ -244,8 +246,9 @@ int cpu_timer_init(int cpuid, time_t freq, int16_t irq_no)
         struct sys_timer* timer = init_timer(freq, id);
 
         cpu->pic->timers = timer;
+
 #ifdef TIMER_DBG
-        subscribe_cpu_timer(cpuid, DEBUG_TIMER_BASE_TIME, 0, timer_dbg);
+        local_timer_initialised = 1;
 #endif
 
         return -E_NOFUNCTION;
@@ -280,3 +283,21 @@ struct sys_timer* get_cpu_timer(int16_t cpu)
 
         return c->pic->timers;
 }
+
+#ifdef TIMER_DBG
+int timer_setup_test(int16_t cpuid, int16_t irq_no)
+{
+        int ret = -E_SUCCESS;
+
+        if (local_timer_initialised) {
+                ret |= subscribe_cpu_timer(cpuid, DEBUG_TIMER_BASE_TIME, 0,
+                                timer_dbg);
+        }
+        if (global_timer_initialised) {
+                ret |= subscribe_global_timer(irq_no, DEBUG_TIMER_BASE_TIME, 0,
+                                timer_dbg_pit);
+        }
+
+        return ret;
+}
+#endif

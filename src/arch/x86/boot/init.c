@@ -258,6 +258,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         page_dump();
 #endif
 
+#ifdef TIMER_DBG
+        timer_setup_test(0, X86_8259_INTERRUPT_BASE);
+#endif
         core_loop();
         return 0; // To keep the compiler happy.
 }
