@@ -388,7 +388,8 @@ int sys_setup_paging(void);
 int interrupt_init();
 int32_t interrupt_register(uint16_t interrupt_no,
                 int (*procedure)(uint16_t no, uint16_t id, uint64_t r1,
-                                uint64_t r2, uint64_t r3, uint64_t r4));
+                                uint64_t r2, uint64_t r3, uint64_t r4,
+                                void* args), void* args);
 int32_t interrupt_deregister(uint16_t interrupt_no, int32_t interrupt_id);
 int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
                 uint64_t r4);
@@ -406,5 +407,7 @@ int timer_setup_test(int16_t cpuid, int16_t irq_no);
 #endif
 
 int x86_pit_8253_init(int irq_no, time_t freq);
+
+int hw_interrupt_end(uint16_t irq_no);
 
 #endif

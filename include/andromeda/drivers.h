@@ -35,29 +35,28 @@ extern struct tree_root* dev_tree;
 
 /** \typedef enum device_type_t */
 typedef enum {
-        root_bus,       /** \enum root_bus */
-        virtual_bus,    /** \enum virtual_bus */
-        legacy_bus,     /** \enum legacy_bus */
-        net_core_dev,   /** \enum net_core_dev */
-        net_dev,        /** \enum net_dev */
-        disk,           /** \enum disk */
-        partition,      /** \enum partition */
-        tty,            /** \enum tty */
-        cpu,            /** \enum cpu */
-        apic_dev,       /** \enum apic */
-        timer_dev,      /** \enum timer */
-        rtc,            /** \enum rtc */
-        pci,            /** \enum pci */
-        usb,            /** \enum usb */
-        ata,            /** \enum ata aka ide */
-        graphics        /** \enum graphics */
+        root_bus, /** \enum root_bus */
+        virtual_bus, /** \enum virtual_bus */
+        legacy_bus, /** \enum legacy_bus */
+        net_core_dev, /** \enum net_core_dev */
+        net_dev, /** \enum net_dev */
+        disk, /** \enum disk */
+        partition, /** \enum partition */
+        tty, /** \enum tty */
+        cpu, /** \enum cpu */
+        apic_dev, /** \enum apic */
+        timer_dev, /** \enum timer */
+        rtc, /** \enum rtc */
+        pci, /** \enum pci */
+        usb, /** \enum usb */
+        ata, /** \enum ata aka ide */
+        graphics /** \enum graphics */
 } device_type_t;
 
 struct device;
 
 /** \struct driver */
-struct driver
-{
+struct driver {
         /**
          * \fn detect(dev)
          * \brief return a list of all attached devices
@@ -81,7 +80,8 @@ struct driver
          * \var io
          *  \brief ptr to the file descriptor associated with the device.
          */
-        struct vfile *io;
+        struct vfile* io;
+        struct vfile* ctl;
 
         mutex_t driver_lock; /** \var lock */
         /**
@@ -92,8 +92,7 @@ struct driver
 };
 
 /** \struct device */
-struct device
-{
+struct device {
         /** \fn open(this) */
         struct vfile* (*open)(struct device* this);
 
@@ -111,7 +110,7 @@ struct device
          * \var dev_id
          * \brief The unique device identifier
          */
-        unsigned int dev_id;
+        int32_t dev_id;
 
         /** \var name */
         char name[DEVICE_NAME_SIZE];
@@ -125,7 +124,7 @@ struct device
         /** \var device_data_size */
         /** \var device_data */
         size_t device_data_size;
-        void*  device_data;
+        void* device_data;
 
         /** \var lock */
         mutex_t lock;
@@ -143,13 +142,13 @@ extern struct device dev_root;
 static inline struct device*
 get_root_device()
 {
-  return &dev_root;
+        return &dev_root;
 }
 
 static inline struct vfile*
 device_open_driver_io(struct device *dev)
 {
-  return dev->driver->io;
+        return dev->driver->io;
 }
 
 /**
@@ -163,12 +162,13 @@ int device_attach(struct device* this, struct device* child);
 int device_detach(struct device* this, struct device* child);
 struct device* device_find_id(unsigned int dev_id);
 int device_id_alloc(struct device* dev);
-int dev_setup_driver(struct device *dev, vfs_read_hook_t, vfs_write_hook_t);
+int dev_setup_driver(struct device *dev, vfs_read_hook_t io_read,
+                vfs_write_hook_t io_write, vfs_read_hook_t ctl_read,
+                vfs_write_hook_t ctl_write);
 struct device *dev_find_devtype(struct device *dev, device_type_t type);
 
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif

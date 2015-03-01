@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2011 - 2105  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -64,8 +64,8 @@ struct vsuper_block;
 #define FS_MAX_DIRTY 0x40
 
 struct fs_data {
-        uint32_t device_id;
-        uint32_t file_id;
+        int32_t device_id;
+        int32_t file_id;
         char fs_type[FS_TYPE_LEN];
 
         void* fs_data_struct;

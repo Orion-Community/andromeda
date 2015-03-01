@@ -24,11 +24,11 @@
 #include <fs/vfs.h>
 #include <lib/tree.h>
 
-static int drv_setup_io(struct driver *drv, struct vfile *io, vfs_read_hook_t,\
-                        vfs_write_hook_t);
+static int drv_setup_vfile(struct vfile* file, vfs_read_hook_t read,
+                vfs_write_hook_t write, int32_t dev_id);
 
 struct device dev_root;
-unsigned int dev_id = 0;
+int32_t dev_id = 0;
 mutex_t dev_id_lock;
 
 unsigned int virt_bus = 0;
@@ -71,8 +71,7 @@ int device_recurse_suspend(struct device* this)
 {
         struct device* carriage = this->children;
 
-        while(carriage != NULL)
-        {
+        while (carriage != NULL ) {
                 carriage->driver->suspend(carriage);
                 carriage = carriage->next;
         }
@@ -83,8 +82,7 @@ int device_recurse_resume(struct device* this)
 {
         struct device* carriage = this->children;
 
-        while(carriage != NULL)
-        {
+        while (carriage != NULL ) {
                 carriage->driver->resume(carriage);
                 carriage = carriage->next;
         }
@@ -93,15 +91,13 @@ int device_recurse_resume(struct device* this)
 
 int device_attach(struct device* this, struct device* child)
 {
-        if (this->children == NULL)
-        {
+        if (this->children == NULL) {
                 this->children = child;
                 return -E_SUCCESS;
         }
         struct device* carriage = this->children;
         struct device* last = carriage;
-        while (carriage != NULL)
-        {
+        while (carriage != NULL ) {
                 last = carriage;
                 carriage = carriage->next;
         }
@@ -114,17 +110,12 @@ int device_detach(struct device* this, struct device* child)
 {
         struct device* carriage = this->children;
         struct device* last = carriage;
-        while (carriage != NULL)
-        {
-                if (carriage == child)
-                {
-                        if (carriage == last)
-                        {
+        while (carriage != NULL ) {
+                if (carriage == child) {
+                        if (carriage == last) {
                                 this->children = carriage->next;
                                 return -E_SUCCESS;
-                        }
-                        else
-                        {
+                        } else {
                                 last->next = carriage->next;
                                 carriage->next = NULL;
                                 return -E_SUCCESS;
@@ -137,52 +128,115 @@ int device_detach(struct device* this, struct device* child)
 struct device*
 device_find_id(unsigned int id)
 {
-        struct device* dev = (struct device*)dev_tree->find(id, dev_tree);
+        struct device* dev = (struct device*) dev_tree->find(id, dev_tree);
         return dev;
 }
 
 int device_id_alloc(struct device* dev)
 {
-        unsigned int idx = dev_id;
+        if (dev == NULL) {
+                return -E_NULL_PTR;
+        }
+        if (dev->dev_id != 0) {
+                return -E_ALREADY_INITIALISED;
+        }
+
+        int32_t idx = dev_id;
 
         mutex_lock(&dev_id_lock);
-        while (device_find_id(idx) != NULL)
-        {
+        int overflow = FALSE;
+        while (device_find_id(idx) != NULL ) {
                 idx++;
+                if (idx < 0 && !overflow) {
+                        overflow = TRUE;
+                        idx = 1;
+                }
+                if (idx < 0 && overflow) {
+                        mutex_unlock(&dev_id_lock);
+                        return -E_OUT_OF_RESOURCES;
+                }
         }
         dev_tree->add(idx, dev, dev_tree);
-        dev_id = idx+1;
+        dev_id = idx + 1;
+        if (dev_id < 0)
+                dev_id = 1;
         mutex_unlock(&dev_id_lock);
 
         dev->dev_id = idx;
         return idx;
 }
 
-static int
-drv_setup_io(drv, io, read, write)
-struct driver *drv;
-struct vfile *io;
-vfs_read_hook_t read;
-vfs_write_hook_t write;
+static size_t drv_vfile_dummy_read(struct vfile* file __attribute__((unused)),
+                char* buffer __attribute__((unused)),
+                size_t len __attribute((unused)))
 {
-        drv->io = io;
-        io->uid = 0;
-        io->gid = 0;
-        io->read = read;
-        io->write = write;
-        io->type = CHAR_DEV;
+        warning ("Data was to be read through missing driver file\n");
+        return 0;
+}
+
+static size_t drv_vfile_dummy_write(struct vfile* file __attribute__((unused)),
+                char* buffer __attribute__((unused)),
+                size_t len __attribute__((unused)))
+{
+        warning ("Data was to be written through missing driver file\n");
+        return 0;
+}
+
+static int drv_setup_vfile(struct vfile* file, vfs_read_hook_t read,
+                vfs_write_hook_t write, int32_t dev_id)
+{
+        if (read == NULL) {
+                read = drv_vfile_dummy_read;
+        }
+        if (write == NULL) {
+                write = drv_vfile_dummy_write;
+        }
+        file->uid = 0;
+        file->gid = 0;
+        file->read = read;
+        file->write = write;
+        file->type = CHAR_DEV;
+        file->fs_data.device_id = dev_id;
 
         return -E_SUCCESS;
 }
 
-int
-dev_setup_driver(struct device *dev, vfs_read_hook_t read, vfs_write_hook_t write)
+int dev_setup_driver(struct device *dev, vfs_read_hook_t io_read,
+                vfs_write_hook_t io_write, vfs_read_hook_t ctl_read,
+                vfs_write_hook_t ctl_write)
 {
         struct driver *drv = kmalloc(sizeof(*drv));
-        struct vfile *file = kmalloc(sizeof(*file));
+        if (drv == NULL) {
+                return -E_NOMEM;
+        }
+        struct vfile *io_file = kmalloc(sizeof(*io_file));
+        if (io_file == NULL) {
+                kfree(drv);
+                return -E_NOMEM;
+        }
+        struct vfile* ctl_file = kmalloc(sizeof(*ctl_file));
+        if (ctl_file == NULL) {
+                kfree(drv);
+                kfree(io_file);
+                return -E_NOMEM;
+        }
+
+        memset(drv, 0, sizeof(*drv));
+        memset(io_file, 0, sizeof(*io_file));
+
+        if (device_id_alloc(dev) == -E_OUT_OF_RESOURCES) {
+                kfree(drv);
+                kfree(io_file);
+                kfree(ctl_file);
+                return -E_OUT_OF_RESOURCES;
+        }
+
         dev->children = NULL;
         dev->parent = NULL;
-        drv_setup_io(drv,file,read,write);
+        drv->io = io_file;
+        drv->ctl = ctl_file;
+        drv_setup_vfile(io_file, io_read, io_write, dev->dev_id);
+        drv_setup_vfile(ctl_file, ctl_read, ctl_write, dev->dev_id);
         dev->driver = drv;
 
         drv->driver_lock = 0;
@@ -204,41 +258,35 @@ dev_setup_driver(struct device *dev, vfs_read_hook_t read, vfs_write_hook_t writ
 struct device *
 dev_find_devtype(struct device *dev, device_type_t type)
 {
-        if(dev != NULL)
-        {
-                if(dev->type == type)
+        if (dev != NULL) {
+                if (dev->type == type)
                         return dev;
-                else
-                {
+                else {
                         struct device *carriage;
                         for_each_ll_entry(dev->children, carriage)
                         {
-                                if(carriage->type == type)
+                                if (carriage->type == type)
                                         return carriage;
-                                if(carriage->next == NULL)
-                                        return NULL;
+                                if (carriage->next == NULL)
+                                        return NULL ;
                                 else
                                         continue;
                         }
                 }
         }
-        return NULL;
+        return NULL ;
 }
 
 void dev_dbg()
 {
         int i = 0;
-        for (; i < 0x10; i++)
-        {
-                printf("Device 0x%X at address %X of type %X\n",
-                                               i, device_find_id(i),
-                                              device_find_id(i)->type
-                      );
+        for (; i < 0x10; i++) {
+                printf("Device 0x%X at address %X of type %X\n", i,
+                                device_find_id(i), device_find_id(i)->type);
         }
 }
 
-int
-dev_init()
+int dev_init()
 {
         debug("Building the device tree\n");
         dev_root_init();

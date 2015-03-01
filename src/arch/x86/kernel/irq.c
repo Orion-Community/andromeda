@@ -172,3 +172,12 @@ void cIRQ15(irq_stack_t* regs)
         }
         return;
 }
+
+int hw_interrupt_end(uint16_t irq_no) {
+        irq_no -= X86_8259_INTERRUPT_BASE;
+        if (irq_no > 0xF) {
+                return -E_SUCCESS;
+        }
+        pic_8259_eoi(irq_no);
+        return -E_SUCCESS;
+}

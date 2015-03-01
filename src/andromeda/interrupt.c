@@ -27,8 +27,10 @@ static int interrupt_initialised = 0;
 
 struct interrupt {
         int (*procedure)(uint16_t interrupt_no, uint16_t interrupt_id,
-                        uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4);
+                        uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4,
+                        void* args);
         uint16_t id;
+        void* args;
 
         struct interrupt* next;
 };
@@ -68,7 +70,8 @@ int interrupt_init()
 
 int32_t interrupt_register(uint16_t interrupt_no,
                 int (*procedure)(uint16_t no, uint16_t id, uint64_t r1,
-                                uint64_t r2, uint64_t r3, uint64_t r4))
+                                uint64_t r2, uint64_t r3, uint64_t r4,
+                                void* args), void* args)
 {
         if (interrupt_initialised == 0) {
                 panic("To early with registering interrupts!");
@@ -84,17 +87,22 @@ int32_t interrupt_register(uint16_t interrupt_no,
         int32_t id = 0;
         volatile int int_state = cpu_disable_interrupts(0);
         mutex_lock(&interrupt_lock);
+        /* If the root node is empty, use that */
         if (interrupts[interrupt_no].procedure == NULL) {
                 interrupts[interrupt_no].procedure = procedure;
+                interrupts[interrupt_no].args = args;
                 id = interrupts[interrupt_no].id;
                 goto unlock;
         }
 
+        /* Root node wasn't empty, let's add a new one at the end of the list */
         struct interrupt* i = &interrupts[interrupt_no];
+        struct interrupt* prev = i;
         while (i != NULL && i->procedure != NULL ) {
                 if (id < i->id) {
                         id = i->id;
                 }
+                prev = i;
                 i = i->next;
         }
 
@@ -104,19 +112,22 @@ int32_t interrupt_register(uint16_t interrupt_no,
         }
 
 #ifdef SLAB
-        i->next = mm_cache_alloc(interrupt_cache, 0);
+        prev->next = mm_cache_alloc(interrupt_cache, 0);
 #else
-        i->next = kmalloc(sizeof(*i));
+        prev->next = kmalloc(sizeof(*i));
 #endif
-        i = i->next;
+        i = prev->next;
         memset(i, 0, sizeof(*i));
         i->id = ++id;
         i->procedure = procedure;
+        i->args = args;
 
         unlock: mutex_unlock(&interrupt_lock);
         if (int_state == INTERRUPTS_ENABLED) {
                 cpu_enable_interrupts(0);
+                //hw_interrupt_end(interrupt_no);
         }
+
         return (int32_t) id;
 }
 
@@ -178,14 +189,15 @@ int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
 
         struct interrupt* i = &interrupts[interrupt_no];
         for (; i != NULL && i->procedure != NULL ; i = i->next) {
-                ret |= i->procedure(interrupt_no, i->id, r1, r2, r3, r4);
+                ret |= i->procedure(interrupt_no, i->id, r1, r2, r3, r4,
+                                i->args);
 
                 if (ret != -E_SUCCESS) {
                         printf("Failure in interrupt %X\n", interrupt_no);
                         printf("Specific procedure at %X\n",
                                         (int) (i->procedure));
 
-                        panic("Go kick the interrupt author,"
+                        panic("Go kick the interrupt author, "
                                         "this shouldn't happen!");
                 }
         }
@@ -200,7 +212,7 @@ static uint16_t test_interrupt_id;
 static uint16_t test_interrupt_success;
 
 static int interrupt_test_func(uint16_t interrupt_no, uint16_t interrupt_id,
-                uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4)
+                uint64_t r1, uint64_t r2, uint64_t r3, uint64_t r4, void* args)
 {
         test_interrupt_success = 0;
         if (interrupt_id != test_interrupt_id) {
@@ -211,6 +223,10 @@ static int interrupt_test_func(uint16_t interrupt_no, uint16_t interrupt_id,
         }
         if (r1 != 1 || r2 != 2 || r3 != 3 || r4 != 4) {
                 test_interrupt_success = -3;
+        }
+
+        if (args != NULL) {
+                test_interrupt_success = -4;
         }
         return -E_SUCCESS;
 }
@@ -224,7 +240,7 @@ int interrupt_test(int interrupt_no)
 
         test_interrupt_no = (uint16_t) interrupt_no;
         test_interrupt_id = interrupt_register(test_interrupt_no,
-                        interrupt_test_func);
+                        interrupt_test_func, NULL);
 
         do_interrupt(test_interrupt_no, (uint64_t) 1, (uint64_t) 2,
                         (uint64_t) 3, (uint64_t) 4);

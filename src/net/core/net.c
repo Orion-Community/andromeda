@@ -76,7 +76,7 @@ int init_netif()
 {
         struct device *dev = kmalloc(sizeof(*dev));
         device_id_alloc(dev);
-        dev_setup_driver(dev, net_rx_vfio, net_tx_vfio);
+        dev_setup_driver(dev, net_rx_vfio, net_tx_vfio, NULL, NULL);
         dev->type = net_core_dev;
         dev->open = &device_open_driver_io;
 

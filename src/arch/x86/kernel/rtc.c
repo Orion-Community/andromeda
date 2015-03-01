@@ -101,7 +101,7 @@ int setup_rtc(void)
  */
 static int rtc_create_driver(struct device *dev)
 {
-        dev_setup_driver(dev, NULL, NULL);
+        dev_setup_driver(dev, NULL, NULL, NULL, NULL);
         dev->type = rtc;
         device_id_alloc(dev);
         return -E_SUCCESS;

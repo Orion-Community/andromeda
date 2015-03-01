@@ -58,6 +58,10 @@ void pic_8259_remap(uint32_t offset1, uint32_t offset2)
 
         outb(0x21, 0x3c);
         outb(0xa1, 0x3e);
+
+        /* Enable uart IRQ's */
+        pic_8259_clear_irq_mask(3);
+        pic_8259_clear_irq_mask(4);
 }
 
 void pic_8259_disable()
@@ -77,8 +81,10 @@ void pic_8259_eoi(uint8_t irq)
 int pic_8259_set_irq_mask(uint8_t irq)
 {
         uint16_t port = (irq < 8) ? X86_8259_PIC1_DATA : X86_8259_PIC2_DATA;
-        outb(port, inb(port) | 1 << ((irq < 8) ? irq : (irq - 8)));
-        debug("Un-masking irq: %X - new mask: %x\n", irq, inb(port));
+        uint16_t mask = inb(port);
+        iowait();
+        outb(port, mask | 1 << ((irq < 8) ? irq : (irq - 8)));
+        debug("Un-masking irq: %X - new mask: %x\n", irq, mask);
 
         return -E_SUCCESS;
 }
@@ -87,8 +93,9 @@ int pic_8259_clear_irq_mask(uint8_t irq)
 {
         uint16_t port = (irq < 8) ? X86_8259_PIC1_DATA : X86_8259_PIC2_DATA;
         uint8_t mask = inb(port) & ~(BIT((irq < 8) ? irq : (irq - 8)));
+        iowait();
         outb(port, mask);
-        debug("Masking irq: %x - new mask: %x\n", irq, inb(port));
+        debug("Masking irq: %x - new mask: %x\n", irq, mask);
 
         return -E_SUCCESS;
 }

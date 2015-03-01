@@ -21,7 +21,6 @@
 #ifndef __DRIVER_SERIAL_H
 #define __DRIVER_SERIAL_H
 
-int drv_serial_init(struct device* parent, uint16_t io_port);
 int drv_serial_kickstart (struct device* parent);
 
 #endif

@@ -1,6 +1,6 @@
 /*
     Orion OS, The educational operatingsystem
-    Copyright (C) 2011  Bart Kuivenhoven
+    Copyright (C) 2011 - 2015 Bart Kuivenhoven
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 #define NAME "Betelgeuse (Alpha Orionis)"
-#define YEARS "2011 2012 2013 2014"
+#define YEARS "2011 2012 2013 2014 2015"
 
 #define WELCOME "Andromeda " VERSION " - " NAME\
 "\nCopyright (C) " YEARS "\n"\

@@ -221,10 +221,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         if (hdr->flags & MULTIBOOT_INFO_ELF_SHDR)
                 core_symbols_init(&hdr->u.elf_sec);
 
-        if (dev_init() != -E_SUCCESS)
-                panic("Couldn't initialise /dev");
-
+#ifdef SLOB
         debug("Size of the heap: 0x%x\tStarting at: %x\n", HEAPSIZE, heap);
+#endif
 
         ol_cpu_t cpu = kmalloc(sizeof(*cpu));
         if (cpu == NULL)
@@ -232,6 +231,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         x86_cpu_init(cpu);
 
         cpu_enable_interrupts(0);
+
+        if (dev_init() != -E_SUCCESS)
+                panic("Couldn't initialise /dev");
 
         ol_ps2_init_keyboard();
 

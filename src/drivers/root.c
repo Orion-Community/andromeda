@@ -107,7 +107,7 @@ int init_buses(struct device* root)
 
 int drv_root_init(struct device* dev)
 {
-        if (dev == NULL)
+        if (dev == NULL || dev->driver == NULL)
                 return -E_NULL_PTR;
         dev->type = virtual_bus;
         dev->parent = dev;
@@ -127,6 +127,7 @@ int drv_root_init(struct device* dev)
         dev->driver->io = kmalloc(sizeof(struct vfile));
         if (dev->driver->io == NULL)
                 panic("");
+        memset(dev->driver->io, 0, sizeof(*dev->driver->io));
 
         if (init_buses(dev) != -E_SUCCESS)
                 panic("Could not initialise device drivers!");

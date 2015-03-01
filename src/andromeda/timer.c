@@ -34,7 +34,8 @@ struct event {
 
 static int timer_callback(uint16_t irq_no, uint16_t id, uint64_t r1,
                 uint64_t r2, uint64_t r3 __attribute__((unused)),
-                uint64_t r4 __attribute__((unused)))
+                uint64_t r4 __attribute__((unused)),
+                void* args __attribute__((unused)))
 {
         struct sys_timer* timer = NULL;
         /* If this interrupt is global, choose one of the global timers */
@@ -171,7 +172,7 @@ static int timer_dbg(int16_t id, time_t time,
 static int local_timer_initialised = 0;
 static int timer_dbg_pit(int16_t id, time_t time, int16_t irq_no)
 {
-        debug("Timer time: %i\n", (int32_t)time);
+        debug("Timer time: %i\n", (int32_t) time);
 
         if (id != 0) {
                 panic("Incorrect id");
@@ -206,7 +207,7 @@ static struct sys_timer* init_timer(time_t freq, int32_t interrupt_id)
 
 int andromeda_timer_init(time_t freq, int16_t irq_no)
 {
-        int32_t id = interrupt_register(irq_no, timer_callback);
+        int32_t id = interrupt_register(irq_no, timer_callback, NULL);
         if (core.arch == NULL) {
                 panic("Architecture abstraction not yet complete!");
         }
@@ -234,7 +235,7 @@ int andromeda_timer_init(time_t freq, int16_t irq_no)
 
 int cpu_timer_init(int cpuid, time_t freq, int16_t irq_no)
 {
-        int32_t id = interrupt_register(irq_no, timer_callback);
+        int32_t id = interrupt_register(irq_no, timer_callback, NULL);
         struct sys_cpu* cpu = getcpu(cpuid);
         if (cpu == NULL) {
                 panic("CPU structure not found!");
