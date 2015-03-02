@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <lib/tree.h>
+#include <fs/pipe.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -89,7 +90,6 @@ struct vfile {
         uint32_t uid;
         uint32_t gid;
         uint16_t rights;
-        idx_t cursor;
 
         file_type_t type;
 
@@ -108,7 +108,10 @@ struct vfile {
          */
         struct vdir_ent *dir_ent;
         struct vsuper_block *super;
-        struct tree_root* cache;
+//        struct tree_root* cache;
+
+        struct pipe* in_stream;
+        struct pipe* out_stream;
 
         /**
          * \fn open(this, path, strlen)
@@ -130,14 +133,10 @@ struct vfile {
         int (*close)(struct vfile* this);
         size_t (*read)(struct vfile* this, char* buf, size_t num);
         size_t (*write)(struct vfile* this, char* buf, size_t num);
-        int (*seek)(struct vfile* this, int64_t idx, seek_t from);
         int (*flush)(struct vfile* this);
         int (*invlCache)(struct vfile* this, uint64_t idx, size_t num);
 
         struct fs_data fs_data;
-
-        idx_t next_dirty_idx;
-        idx_t dirty[FS_MAX_DIRTY];
 };
 
 /** \struct vdir_ent */

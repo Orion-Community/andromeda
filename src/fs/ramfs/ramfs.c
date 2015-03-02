@@ -23,6 +23,8 @@
 #include <andromeda/drivers.h>
 #include <andromeda/system.h>
 
+#warning RAMFS needs implementing
+
 struct vsuper_block*
 ram_fs_init(struct vfile* drive)
 {
@@ -58,26 +60,6 @@ ram_fs_close(struct vfile* this)
 {
         if (this == NULL)
                 return -E_INVALID_ARG;
-        return -E_NOFUNCTION;
-}
-
-int
-ram_fs_seek(struct vfile* this, size_t idx, seek_t type)
-{
-        if (this == NULL)
-                return -E_INVALID_ARG;
-
-        switch (type)
-        {
-        case SEEK_CUR:
-        case SEEK_END:
-                break;
-        case SEEK_SET:
-                this->cursor = idx;
-                break;
-        default:
-                break;
-        }
         return -E_NOFUNCTION;
 }
 

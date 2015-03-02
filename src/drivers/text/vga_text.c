@@ -25,6 +25,8 @@
 atomic_t vga_text_count;
 static struct device* vga_dev = NULL;
 
+#warning Implement this to work with VGA text output
+
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic push
 static int vga_text_read(struct vfile*  this, char* buf, size_t num)
@@ -32,24 +34,6 @@ static int vga_text_read(struct vfile*  this, char* buf, size_t num)
         if (this == NULL || buf == NULL || num == 0)
                 return -E_INVALID_ARG;
         warning("vga_text_read not implemented!\n");
-        return -E_NOFUNCTION;
-}
-
-static int vga_text_seek(struct vfile*  this, size_t num, seek_t from)
-{
-        if (this == NULL)
-                return -E_INVALID_ARG;
-
-        switch (from)
-        {
-        case SEEK_CUR:
-        case SEEK_END:
-                break;
-        case SEEK_SET:
-                this->cursor = num;
-                break;
-        }
-        warning("vga_text_seek not implemented!\n");
         return -E_NOFUNCTION;
 }
 

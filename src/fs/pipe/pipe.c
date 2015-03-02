@@ -34,20 +34,25 @@ static struct mm_cache* pipe_cache = NULL;
 static void* pipe_get_new_block(struct pipe* pipe)
 {
 #ifdef SLAB
-        if (pipe_cache == NULL)
-                pipe_cache = mm_cache_init("pipe blocks", BLOCK_SIZE, BLOCK_SIZE,NULL, NULL);
-        if (pipe_cache == NULL)
-                return NULL;
+        if (pipe_cache == NULL) {
+                pipe_cache = mm_cache_init("pipe blocks", BLOCK_SIZE,
+                BLOCK_SIZE, NULL, NULL);
+        }
+        if (pipe_cache == NULL) {
+                return NULL ;
+        }
 #endif
 
-        if (pipe == NULL)
-                return NULL;
+        if (pipe == NULL) {
+                return NULL ;
+        }
 
 #ifdef SLAB
-        if (pipe->block_size == BLOCK_SIZE)
+        if (pipe->block_size == BLOCK_SIZE) {
                 return mm_cache_alloc(pipe_cache, 0);
-        else
+        } else {
                 return kmalloc(pipe->block_size);
+        }
 #else
         return kmalloc(pipe->block_size);
 #endif
@@ -55,7 +60,7 @@ static void* pipe_get_new_block(struct pipe* pipe)
 
 static int pipe_cleanup_block(void *data, void* block)
 {
-        struct pipe *pipe = (struct pipe*)data;
+        struct pipe *pipe = (struct pipe*) data;
         if (pipe == NULL || block == NULL)
                 return -E_NULL_PTR;
 
@@ -94,14 +99,13 @@ static int pipe_flush(struct pipe* pipe)
 static void* pipe_get_block(struct pipe* pipe, int key)
 {
         if (pipe == NULL || pipe->data == NULL || pipe->data->find == NULL)
-                return NULL;
+                return NULL ;
 
         void* block = pipe->data->find(key, pipe->data);
-        if (block == NULL)
-        {
+        if (block == NULL) {
                 block = pipe_get_new_block(pipe);
                 if (block == NULL)
-                        return NULL;
+                        return NULL ;
                 pipe->data->add(key, block, pipe->data);
         }
         return block;
@@ -111,37 +115,46 @@ static void* pipe_get_block(struct pipe* pipe, int key)
  * \fn pipe_read
  * \brief Read from pipe
  */
-static int pipe_read(struct pipe* pipe, char* data, int len)
+static int pipe_read(struct pipe* pipe, char* data, size_t len)
 {
-        if (pipe == NULL || data == NULL || len == 0)
+        if (pipe == NULL || data == NULL || len == 0) {
                 return -E_INVALID_ARG;
-
-        mutex_lock(&pipe->lock);
-        int key = pipe->reading_idx/pipe->block_size;
-        void* block = pipe_get_block(pipe, key);
-        if (block == NULL)
-                return -E_NULL_PTR;
-
-        size_t offset = pipe->reading_idx % pipe->block_size;
-        int i = 0;
-        for (; i < len; i++, pipe->reading_idx++)
-        {
-                if (++offset >= pipe->block_size)
-                {
-                        block = pipe_get_block(pipe, ++key);
-                        if (block == NULL)
-                                goto err;
-                        offset = 0;
-                }
-                data[i] = ((char*)block)[offset];
         }
 
-        /* Maybe do some reading bits here? */
+        /* Prevent race conflicts */
+        mutex_lock(&pipe->lock);
 
+        /* Set up the counters */
+        int key = pipe->reading_idx / pipe->block_size;
+        void* block = pipe_get_block(pipe, key);
+
+        /* Make sure we're not working with garbage */
+        if (block == NULL) {
+                goto err;
+        }
+
+        /* Get the right offset */
+        size_t offset = pipe->reading_idx % pipe->block_size;
+        size_t i = 0;
+
+        /* Do the copying bit */
+        /** \todo Implement using memcpy, can be much simpler and faster */
+        for (; i < len; i++, pipe->reading_idx++) {
+                data[i] = ((char*) block)[offset];
+
+                if (++offset >= pipe->block_size) {
+                        block = pipe_get_block(pipe, ++key);
+                        if (block == NULL)
+                                goto err_read;
+                        offset = 0;
+                }
+        }
+
+        err_read:
         mutex_unlock(&pipe->lock);
-        return -E_NOFUNCTION;
-err:
-        mutex_unlock(&pipe->lock);
+        return i;
+
+        err: mutex_unlock(&pipe->lock);
         return -E_NULL_PTR;
 }
 
@@ -149,38 +162,54 @@ err:
  * \fn pipe_write
  * \brief Write to pipe
  */
-static int pipe_write(struct pipe* pipe, char* data)
+static int pipe_write(struct pipe* pipe, char* data, size_t len)
 {
         if (pipe == NULL || data == NULL)
                 return -E_NULL_PTR;
 
+        if (pipe->block_size == 0) {
+                panic("Divide by zero");
+        }
+
+        /**
+         * \todo Implement using memcpy, can be much faster and simpler
+         */
+
+        /* Prevent some race conflicts */
         mutex_lock(&pipe->lock);
+
+        /* Prepare the counters */
         int key = pipe->writing_idx / pipe->block_size;
         size_t offset = pipe->writing_idx % pipe->block_size;
 
+        /* Get the first block to write to */
         void* block = pipe_get_block(pipe, key);
+        if (block == NULL) {
+                goto err;
+        }
 
         size_t i = 0;
-        for (;!(data[i] == '\0' && data[i+1] != '\0'); i++, pipe->writing_idx++)
-        {
-                if (offset+i >= pipe->block_size)
-                {
+        for (; i <= len; i++, pipe->writing_idx++) {
+                /* If we violated the block size */
+                if (offset + i >= pipe->block_size) {
+                        /* get the next block */
                         key++;
                         offset = 0;
                         block = pipe_get_block(pipe, key);
                         if (block == NULL)
-                                goto err;
+                                goto err_written;
                 }
-                ((char*)block)[offset+i] = ((char*)data)[i];
+                /* Write the next character */
+                ((char*) block)[offset + i] = ((char*) data)[i];
         }
 
-        mutex_unlock(&pipe->lock);
-        /* Now do some writing bits ... */
+        err_written: mutex_unlock(&pipe->lock);
+        return i;
 
-        return -E_SUCCESS;
-err:
-        mutex_unlock(&pipe->lock);
-        return -E_NULL_PTR;
+        err: mutex_unlock(&pipe->lock);
+
+        return 0;
+
 }
 
 /**
@@ -192,8 +221,7 @@ static int pipe_close(struct pipe* pipe)
         if (pipe == NULL)
                 return -E_NULL_PTR;
 
-        if (atomic_dec(&pipe->ref_cnt) == 0)
-        {
+        if (atomic_dec(&pipe->ref_cnt) == 0) {
                 pipe_flush(pipe);
                 kfree(pipe);
         }
@@ -222,7 +250,7 @@ struct pipe* pipe_new()
 {
         struct pipe* p = kmalloc(sizeof(*p));
         if (p == NULL)
-                return NULL;
+                return NULL ;
 
         memset(p, 0, sizeof(*p));
 
@@ -234,7 +262,7 @@ struct pipe* pipe_new()
 
         p->data = tree_new_avl();
 
-        return NULL;
+        return NULL ;
 }
 
 /**

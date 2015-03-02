@@ -42,11 +42,9 @@ extern "C" {
  */
 
 struct pipe_data_block {
-        unsigned int offset;
+        size_t offset;
 
-        struct pipe_data_block* next;
-        struct pipe_data_block* prev;
-        char data[1000];
+        char data[BLOCK_SIZE];
 };
 
 /**
@@ -66,10 +64,12 @@ struct pipe {
         int (*close)(struct pipe*);
         int (*open)(struct pipe*);
 
-        int (*write)(struct pipe*, char*);
-        int (*read)(struct pipe*, char*, int);
+        int (*write)(struct pipe*, char*, size_t);
+        int (*read)(struct pipe*, char*, size_t);
         int (*flush)(struct pipe*);
 };
+
+struct pipe* pipe_new();
 
 #ifdef __cplusplus
 }
