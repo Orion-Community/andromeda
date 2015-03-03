@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C) 2014 - 2015 Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,13 +29,10 @@ static unsigned int fd_alloc(struct vfile* file)
         if (file_descriptors == NULL)
                 return 0;
 
-
         unsigned int attempt = 0;
-        while (1)
-        {
-                attempt = (unsigned int)semaphore_inc(&fd_cnt);
-                if (file_descriptors->find(attempt, file_descriptors) == NULL)
-                {
+        while (1) {
+                attempt = (unsigned int) semaphore_inc(&fd_cnt);
+                if (file_descriptors->find(attempt, file_descriptors) == NULL) {
                         file_descriptors->add(attempt, file, file_descriptors);
                         return attempt;
                 }
@@ -45,7 +42,7 @@ static unsigned int fd_alloc(struct vfile* file)
 int fopen_sc(int arg_path, int path_len, int arg3 __attribute__((unused)))
 {
         printf("Open syscall!\n");
-        char* path = (char*)arg_path;
+        char* path = (char*) arg_path;
 
         if (path == NULL)
                 return -E_NULL_PTR;
@@ -69,7 +66,9 @@ int fopen_sc(int arg_path, int path_len, int arg3 __attribute__((unused)))
         return fd;
 }
 
-static int fclose_sc(int fd __attribute__((unused)), int arg2 __attribute__((unused)), int arg3 __attribute__((unused)))
+static int fclose_sc(int fd __attribute__((unused)),
+                int arg2 __attribute__((unused)),
+                int arg3 __attribute__((unused)))
 {
         printf("Close syscall!\n");
         printf("FCLOSE_SC unimplemented!\n");
@@ -77,21 +76,27 @@ static int fclose_sc(int fd __attribute__((unused)), int arg2 __attribute__((unu
         return -E_NOFUNCTION;
 }
 
-static int fwrite_sc(int fd __attribute__((unused)), int str __attribute__((unused)), int cnt __attribute__((unused)))
+static int fwrite_sc(int fd __attribute__((unused)),
+                int str __attribute__((unused)),
+                int cnt __attribute__((unused)))
 {
         printf("Write syscall!\n");
         printf("FWRITE_SC unimplemented!\n");
         return -E_NOFUNCTION;
 }
 
-static int fread_sc(int fd __attribute__((unused)), int str __attribute__((unused)), int cnt __attribute__((unused)))
+static int fread_sc(int fd __attribute__((unused)),
+                int str __attribute__((unused)),
+                int cnt __attribute__((unused)))
 {
         printf("Read syscall!\n");
         printf("FREAD_SC unimplemented!\n");
         return -E_NOFUNCTION;
 }
 
-static int fseek_sc(int fd __attribute__((unused)), int mode __attribute__((unused)), int cnt __attribute__((unused)))
+static int fseek_sc(int fd __attribute__((unused)),
+                int mode __attribute__((unused)),
+                int cnt __attribute__((unused)))
 {
         printf("Seek syscall!\n");
         printf("FSEEK unimplemented\n");
@@ -104,15 +109,15 @@ int file_sc_init()
 
         /* Set up the file IO system calls */
         ret |= sc_install(SYS_WRITE, fwrite_sc, 3);
-        ret |= sc_install(SYS_READ,  fread_sc,  3);
-        ret |= sc_install(SYS_OPEN,  fopen_sc,  3);
+        ret |= sc_install(SYS_READ, fread_sc, 3);
+        ret |= sc_install(SYS_OPEN, fopen_sc, 3);
         ret |= sc_install(SYS_CLOSE, fclose_sc, 3);
-        ret |= sc_install(SYS_SEEK,  fseek_sc,  3);
+        ret |= sc_install(SYS_SEEK, fseek_sc, 3);
 
         /* Make sure the file descriptors can be stored somewhere */
         file_descriptors = tree_new_avl();
 
-        semaphore_init(&fd_cnt, 1, 0, (1 << (sizeof(void*)*8-1)));
+        semaphore_init(&fd_cnt, 1, 0, (1 << (sizeof(void*) * 8 - 1)));
 
         struct vfile* stdin = vfs_create();
         struct vfile* stdout = vfs_create();
@@ -126,9 +131,9 @@ int file_sc_init()
         if (stdin == NULL || stdout == NULL || stderr == NULL)
                 panic("Could not initialise stdio");
 
-        file_descriptors->add(0, (void*)stdin, file_descriptors);
-        file_descriptors->add(1, (void*)stdout, file_descriptors);
-        file_descriptors->add(2, (void*)stderr, file_descriptors);
+        file_descriptors->add(0, (void*) stdin, file_descriptors);
+        file_descriptors->add(1, (void*) stdout, file_descriptors);
+        file_descriptors->add(2, (void*) stderr, file_descriptors);
 
         /* Create a file descriptor for kernel stdio */
         /**

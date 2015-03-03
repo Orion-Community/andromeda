@@ -61,8 +61,10 @@ struct tree_root {
         int (*add)(int key, void* data, struct tree_root* root);
         void* (*find)(int key, struct tree_root* root);
         struct tree* (*find_close)(int key, struct tree_root* root);
+        void* (*find_smaller)(int key, struct tree_root* root);
+        void* (*find_larger)(int key, struct tree_root* root);
         int (*delete)(int key, struct tree_root* root);
-        int (*flush)(struct tree_root*, int (dtor)(void*,void*), void*);
+        int (*purge)(struct tree_root*, int (dtor)(void*,void*), void*);
 
         mutex_t mutex;
 };

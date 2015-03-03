@@ -16,6 +16,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#warning PROCFS still requires an implementation
+
 #include <fs/vfs.h>
 #include <andromeda/system.h>
 struct vsuper_block*
@@ -50,28 +52,6 @@ proc_fs_close(struct vfile* this)
 {
         if (this == NULL)
                 return -E_INVALID_ARG;
-        return -E_NOFUNCTION;
-}
-
-int
-proc_fs_seek(struct vfile* this, size_t idx, seek_t type)
-{
-        if (this == NULL)
-                return -E_INVALID_ARG;
-
-        panic("Using an incomplete function!");
-        switch(type)
-        {
-        case SEEK_CUR:
-        case SEEK_END:
-                break;
-        case SEEK_SET:
-                this->cursor = idx;
-                break;
-        default:
-                break;
-        }
-
         return -E_NOFUNCTION;
 }
 

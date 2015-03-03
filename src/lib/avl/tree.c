@@ -689,14 +689,48 @@ int avl_flush(struct tree_root* root, int (dtor)(void*, void*), void* dtor_arg)
         return -E_SUCCESS;
 }
 
+static void* avl_find_smaller(int key, struct tree_root* t)
+{
+        if (t == NULL) {
+                return NULL;
+        }
+
+        mutex_lock(&t->mutex);
+        struct tree* ret = avl_find_closest_node(key, t->tree);
+        if (ret != NULL && ret->key < key) {
+                ret = ret->prev;
+        }
+        mutex_unlock(&t->mutex);
+
+        return (ret == NULL) ? NULL : ret->data;
+}
+
+static void* avl_find_larger(int key, struct tree_root* t)
+{
+        if (t == NULL) {
+                return NULL;
+        }
+
+        mutex_lock(&t->mutex);
+        struct tree* ret = avl_find_closest_node(key, t->tree);
+
+        if (ret != NULL && ret->key > key) {
+                ret = ret->next;
+        }
+        mutex_unlock(&t->mutex);
+
+        return (ret == NULL) ? NULL : ret->data;
+}
+
 /**
  * \fn avl_find
  * \brief Find a node in the tree
  */
 static void* avl_find(int key, struct tree_root* t)
 {
-        if (t == NULL)
-                return NULL ;
+        if (t == NULL) {
+                return NULL;
+        }
 
         mutex_lock(&t->mutex);
         struct tree* ret = avl_find_node(key, t->tree);
@@ -746,8 +780,10 @@ static void tree_avl_init(struct tree_root* t)
         t->add = avl_new_node;
         t->find = avl_find;
         t->find_close = avl_find_close;
+        t->find_smaller = avl_find_smaller;
+        t->find_larger = avl_find_larger;
         t->delete = avl_delete;
-        t->flush = avl_flush;
+        t->purge = avl_flush;
 
         t->mutex = mutex_unlocked;
 }

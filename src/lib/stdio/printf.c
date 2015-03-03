@@ -306,6 +306,7 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
                         (unsigned long) fmt
                                         - (unsigned long) lastWritePosition);
 
+        stream->sync(stream);
         return num;
 }
 
