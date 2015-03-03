@@ -211,16 +211,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         //ol_pci_init();
         debug("Little endian 0xf in net endian %x\n", htons(0xf));
 #ifdef DBG
-#ifdef __IOAPIC_DBG
-        ioapic_debug();
-#endif
-#ifdef __MEMTEST
-        ol_detach_all_devices(); /* free's al the pci devices */
-#endif
-#ifdef __DBG_HEAP
-        printf("Heap list:\n");
-        ol_dbg_heap();
-#endif
         printf("\nSome (temp) debug info:\n");
         printf("CPU vendor: %s\n", cpus->vendor);
 

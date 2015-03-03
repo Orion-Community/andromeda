@@ -52,6 +52,22 @@ static void vfs_cache_block_ctor(void* data,
 }
 #endif
 
+static int vfs_sync(struct vfile* this)
+{
+        if (this == NULL) {
+                return -E_NULL_PTR;
+        }
+
+        if (this->out_stream != NULL) {
+                this->out_stream->sync_write(this->out_stream);
+        }
+        if (this->in_stream != NULL) {
+                this->in_stream->sync_read(this->in_stream);
+        }
+
+        return -E_SUCCESS;
+}
+
 /**
  * \fn vfs_open_dir
  * \brief Connect the file descriptor to a directory file
@@ -83,6 +99,34 @@ static int vfs_open(struct vfile* file, char* path, size_t strln)
         return -E_NOFUNCTION;
 }
 
+static size_t fs_write_dummy(struct vfile* file __attribute__((unused)),
+                char* buf __attribute__((unused)),
+                size_t offset __attribute__((unused)),
+                size_t len __attribute__((unused)))
+{
+        return 0;
+}
+
+static size_t fs_read_dummy(struct vfile* file __attribute__((unused)),
+                char* buf __attribute__((unused)),
+                size_t offset __attribute__((unused)),
+                size_t len __attribute__((unused)))
+{
+        return 0;
+}
+
+static int fs_close_dummy(struct vfile* file __attribute__((unused)))
+{
+        return 0;
+}
+
+static int fs_open_dummy(struct vfile* file __attribute__((unused)),
+                char* path __attribute__((unused)),
+                size_t len __attribute__((unused)))
+{
+        return 0;
+}
+
 /**
  * \fn vfs_create
  * \brief Create a new file, this has not been coupled to a file on the fs
@@ -102,9 +146,9 @@ vfs_create()
 
         memset(file, 0, sizeof(*file));
 
-        file->in_stream = pipe_new();
+        file->in_stream = pipe_new(file, file);
         if (file->in_stream == NULL) {
-                goto in_err;
+                goto err;
         }
         file->out_stream = file->in_stream;
 
@@ -113,12 +157,17 @@ vfs_create()
         file->write = vfs_write;
         file->close = vfs_close;
         file->flush = vfs_flush;
+        file->sync = vfs_sync;
+        file->fs_data.read = fs_read_dummy;
+        file->fs_data.write = fs_write_dummy;
+        file->fs_data.open = fs_open_dummy;
+        file->fs_data.close = fs_close_dummy;
 
         file->type = FILE;
 
         return file;
 
-        in_err:
+        err:
 #ifdef SLAB
         mm_cache_free(vfile_cache, file);
 #else
@@ -184,7 +233,7 @@ static size_t vfs_write(struct vfile* stream, char* buf, size_t num)
                 return 0;
         }
 
-         size_t ret = stream->out_stream->write(stream->out_stream, buf, num);
+        size_t ret = stream->out_stream->write(stream->out_stream, buf, num);
 
         /* Return the number of bytes written */
         return ret;
@@ -197,10 +246,10 @@ static int vfs_flush(struct vfile* stream)
 
         int ret = -E_SUCCESS;
         if (stream->in_stream != NULL) {
-                ret |= stream->in_stream->flush(stream->in_stream);
+                ret |= stream->in_stream->purge(stream->in_stream);
         }
         if (stream->out_stream != NULL) {
-                ret |= stream->out_stream->flush(stream->out_stream);
+                ret |= stream->out_stream->purge(stream->out_stream);
         }
 
         return ret;
@@ -211,7 +260,7 @@ int vfs_mount(struct vfile* stream, struct vdir_ent* entry)
         if (stream == NULL || entry == NULL)
                 return -E_NULL_PTR;
 
-        warning ("Mounting filesystems not yet supported!\n");
+        warning("Mounting filesystems not yet supported!\n");
 
         return -E_NOFUNCTION;
 }

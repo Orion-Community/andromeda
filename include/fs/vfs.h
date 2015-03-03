@@ -48,8 +48,8 @@ static size_t fn(struct vfile* arg1, char* arg2, size_t arg3)
 
 struct vfile;
 
-typedef size_t (*vfs_read_hook_t)(struct vfile*, char*, size_t);
-typedef size_t (*vfs_write_hook_t)(struct vfile*, char*, size_t);
+typedef size_t (*vfs_read_hook_t)(struct vfile* file, char* buf, size_t len);
+typedef size_t (*vfs_write_hook_t)(struct vfile* file, char* buf, size_t len);
 
 typedef enum {
         SEEK_SET, SEEK_CUR, SEEK_END
@@ -61,7 +61,6 @@ typedef enum {
 struct vsuper_block;
 
 #define FS_TYPE_LEN 128
-#define FS_MAX_DIRTY 0x40
 
 struct fs_data {
         uint32_t device_id;
@@ -71,10 +70,10 @@ struct fs_data {
         void* fs_data_struct;
         size_t fs_data_size;
 
-        int (*open)(struct vfile* this, char* path, int strlen);
+        int (*open)(struct vfile* this, char* path, size_t strlen);
         int (*close)(struct vfile* this);
-        int (*read)(struct vfile* this, idx_t block, size_t num);
-        int (*write)(struct vfile* this, idx_t block, size_t num);
+        fs_read_hook_t read;
+        fs_write_hook_t write;
 };
 
 /** \struct vfile */
@@ -108,7 +107,6 @@ struct vfile {
          */
         struct vdir_ent *dir_ent;
         struct vsuper_block *super;
-//        struct tree_root* cache;
 
         struct pipe* in_stream;
         struct pipe* out_stream;
@@ -122,12 +120,12 @@ struct vfile {
          * \brief Read from cache if possible, from source otherwise
          * \fn write(this, buf, num)
          * \brief Write to cache
-         * \fn seek(this, idx, from)
-         * \brief Move cursor in file
          * \fn flush(this)
          * \brief Write cache to disc
          * \fn invlCache(this, idx, num)
          * \brief Invalidate cache from idx to idx+num
+         * \fn sync(this)
+         * \brief Synchronize the streams to whatever location, if possible
          */
         int (*open)(struct vfile* this, char* path, size_t strlen);
         int (*close)(struct vfile* this);
@@ -135,6 +133,7 @@ struct vfile {
         size_t (*write)(struct vfile* this, char* buf, size_t num);
         int (*flush)(struct vfile* this);
         int (*invlCache)(struct vfile* this, uint64_t idx, size_t num);
+        int (*sync)(struct vfile* this);
 
         struct fs_data fs_data;
 };

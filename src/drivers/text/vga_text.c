@@ -27,84 +27,44 @@ static struct device* vga_dev = NULL;
 
 #warning Implement this to work with VGA text output
 
-#pragma GCC diagnostic ignored "-Wunused-function"
-#pragma GCC diagnostic push
-static int vga_text_read(struct vfile*  this, char* buf, size_t num)
+static size_t vga_text_read(struct vfile* this __attribute__((unused)),
+                char* buf __attribute__((unused)),
+                size_t num __attribute__((unused)))
 {
-        if (this == NULL || buf == NULL || num == 0)
-                return -E_INVALID_ARG;
-        warning("vga_text_read not implemented!\n");
-        return -E_NOFUNCTION;
+        /* What exactly do you intend to read from VGA? */
+        return 0;
 }
 
-static int vga_text_flush(struct vfile* this)
+static size_t vga_text_write(struct vfile* this, char* buf, size_t num)
 {
-        if (this == NULL)
-                return -E_INVALID_ARG;
-        warning("vga_text_flush not implemented!\n");
-        return -E_NOFUNCTION;
-}
+        if (this == NULL || buf == NULL || num == 0 || this->out_stream == NULL) {
+                return 0;
+        }
 
-static int vga_text_close(struct vfile* this)
-{
-        if (this == NULL)
-                return -E_INVALID_ARG;
-        warning("ga_text_close not implemented!\n");
-        return -E_NOFUNCTION;
-}
+        size_t ret = this->out_stream->write(this->out_stream, buf, num);
 
-static int vga_text_write(struct vfile* this, char* buf, size_t num)
-{
-        if (this == NULL || buf == NULL || num == 0)
-                return -E_INVALID_ARG;
-        warning("vga_text_write not implemented!");
-        return -E_NOFUNCTION;
+        /* Do VGA writy things here */
+
+        return ret;
 }
-#pragma GCC diagnostic pop
 
 static struct vfile* vga_text_open(struct device *this)
 {
-        if (this == NULL)
-                return NULL;
+        if (this == NULL || this->driver == NULL) {
+                return NULL ;
+        }
+
         warning("vga_text_open not implemented!\n");
-        return NULL;
-}
 
-static int vga_text_resume(struct device* this)
-{
-        mutex_lock(&this->lock);
-        if (this->suspended != FALSE)
-        {
-                mutex_unlock(&this->lock);
-                return -E_SUCCESS;
+        this->driver->io = vfs_create();
+        if (this->driver->io == NULL) {
+                return NULL ;
         }
+        this->driver->io->in_stream = NULL;
 
-        this->suspended = FALSE;
-
-        device_recurse_resume(this);
-
-        mutex_unlock(&this->lock);
-        return -E_SUCCESS;
+        return NULL ;
 }
-
-static int vga_text_suspend(struct device* this)
-{
-        mutex_lock(&this->lock);
-        if (this->suspended == TRUE)
-        {
-                mutex_unlock(&this->lock);
-                return -E_SUCCESS;
-        }
-
-        device_recurse_suspend(this);
-
-        this->suspended = TRUE;
-
-        mutex_unlock(&this->lock);
-        return -E_SUCCESS;
-}
-
-struct device* vga_text_detect(struct device* this)
+static struct device* vga_text_detect(struct device* this)
 {
         return this->children;
 }
@@ -119,31 +79,26 @@ int vga_text_init(struct device* parent)
                 return -E_NOMEM;
 
         this->driver = kmalloc(sizeof(struct driver));
-        if (this->driver == NULL)
-        {
+        if (this->driver == NULL) {
                 kfree(this);
                 return -E_NOMEM;
         }
-        memset (this->driver, 0, sizeof(struct driver));
+        memset(this->driver, 0, sizeof(struct driver));
 
         atomic_inc(&vga_text_count);
         vga_dev = this;
-        this->device_data = (void*)0xB8000;
+
+        dev_setup_driver(this, vga_text_read, vga_text_write);
+
+        this->device_data = (void*) 0xB8000;
         this->device_data_size = 0x1000;
-
-        this->open = vga_text_open;
-        this->driver->attach = device_attach;
-        this->driver->detach = device_detach;
-        this->driver->detect = vga_text_detect;
-        this->driver->suspend = vga_text_suspend;
-        this->driver->resume = vga_text_resume;
-
-        this->driver->find = device_find_id;
 
         this->type = graphics;
 
-        parent->driver->attach(parent, this);
+        this->open = vga_text_open;
+        this->driver->detect = vga_text_detect;
 
+        parent->driver->attach(parent, this);
         device_id_alloc(this);
 
         this->open = vga_text_open;

@@ -27,19 +27,18 @@ extern char hex[];
 
 int fputc(struct vfile* stream, int chr)
 {
-	return stream->write(stream, (char*)&chr, 1);
+        return stream->write(stream, (char*) &chr, 1);
 }
 
 int fputs(struct vfile* stream, char* src)
 {
-	return stream->write(stream, src, strlen(src));
+        return stream->write(stream, src, strlen(src));
 }
 
 int sputs(char* dest, char* src)
 {
         int i = 0;
-        while(*src != '\0')
-        {
+        while (*src != '\0') {
                 *dest++ = *src++;
                 i++;
         }
@@ -64,29 +63,23 @@ int sputs(char* dest, char* src)
  * \brief Is the integer signed or not?
  * \return The number of chars printed.
  */
-int
-sprintnum(str, min_size, num, base, capital, sign, padding)
-char* str;
-size_t min_size;
-int num;
-int base;
-bool capital;
-bool sign;
-char padding;
+int sprintnum(str, min_size, num, base, capital, sign, padding)
+        char* str;size_t min_size;int num;int base;
+        bool capital;
+        bool sign;char padding;
 {
         if (base > 36 || base < 2)
                 return -E_INVALID_ARG;
         /* If num == 0, the result is always the same, so optimize that out */
-        if (num == 0)
-        {
+        if (num == 0) {
                 size_t i = 0;
-                for (; i < min_size-1; i++)
+                for (; i < min_size - 1; i++)
                         *(str++) = padding;
                 *(str++) = '0';
                 return min_size;
         }
         size_t idx = 0;
-        uint32_t unum = (uint32_t)num;
+        uint32_t unum = (uint32_t) num;
         /* If signedness is allowed, check for signedness */
         if (num < 0 && sign)
                 unum = -num;
@@ -98,15 +91,13 @@ char padding;
          * Convert the integer into an ascii representation
          * This unfortunately reverses the string order
          */
-        for (;unum != 0; idx++)
-        {
-                tmp_str[sizeof(tmp_str) - idx] = (capital) ? HEX[unum % base] :
-                                                               hex[unum % base];
+        for (; unum != 0; idx++) {
+                tmp_str[sizeof(tmp_str) - idx] =
+                                (capital) ? HEX[unum % base] : hex[unum % base];
                 unum /= base;
         }
         /* If signed and negative, append the - sign */
-        if (num < 0 && sign)
-        {
+        if (num < 0 && sign) {
                 tmp_str[sizeof(tmp_str) - idx] = '-';
                 idx++;
         }
@@ -115,19 +106,18 @@ char padding;
          * If the string doesn't cut the minimal length requirements, make it a
          * little longer by appending a couple of characters
          */
-        if (idx < min_size)
-        {
+        if (idx < min_size) {
                 size_t i = 0;
                 for (; i < min_size - idx; i++)
                         *(str++) = padding;
                 ret = min_size;
         }
-        idx --;
+        idx--;
         /*
          * Now take the temp string, reverse it and put it in the output string
          * The reversal to get the correct order again.
          */
-        for (; (int)idx >= 0; idx--)
+        for (; (int) idx >= 0; idx--)
                 *(str++) = tmp_str[sizeof(tmp_str) - idx];
         return ret;
 }
@@ -148,29 +138,23 @@ char padding;
  * \brief Is the integer signed or not?
  * \return The number of chars printed.
  */
-int
-fprintnum(stream, min_size, num, base, capital, sign, padding)
-struct vfile* stream;
-size_t min_size;
-int num;
-int base;
-bool capital;
-bool sign;
-char padding;
+int fprintnum(stream, min_size, num, base, capital, sign, padding)
+        struct vfile* stream;size_t min_size;int num;int base;
+        bool capital;
+        bool sign;char padding;
 {
         int ret;
         int maxlen = 2;
 
         unsigned long long tmp = base;
-        while( tmp < 4294967295UL )
-        {
+        while (tmp < 4294967295UL) {
                 tmp *= base;
                 maxlen++;
         }
 
         char str[maxlen];
         ret = sprintnum(str, min_size, num, base, capital, sign, padding);
-        fputs(stream,str);
+        fputs(stream, str);
         return ret;
 }
 
@@ -219,39 +203,31 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
         char* lastWritePosition = fmt;
 
         /* Itterate through the string to put every character in place. */
-        for (; *fmt != '\0'; fmt++, num++)
-        {
+        for (; *fmt != '\0'; fmt++, num++) {
                 /* If formatted? */
-                if (*fmt == '%')
-                {
+                if (*fmt == '%') {
                         /* Interpret the format numbering. */
-                        int pre  = 0;
+                        int pre = 0;
                         int post = 0;
                         bool dotted = false;
-                        for (; (*(fmt + 1) >= '0' &&
-                                *(fmt + 1) <= '9') ||
-                                *(fmt + 1) == '.';
-                                fmt++)
-                        {
-                                if (*(fmt + 1) == '.')
-                                {
+                        for (;
+                                        (*(fmt + 1) >= '0' && *(fmt + 1) <= '9')
+                                                        || *(fmt + 1) == '.';
+                                        fmt++) {
+                                if (*(fmt + 1) == '.') {
                                         dotted = true;
                                         continue;
                                 }
-                                if (dotted)
-                                {
+                                if (dotted) {
                                         post *= 10;
-                                        post += (*(fmt+1) - '0');
-                                }
-                                else
-                                {
-                                        if (pre == 0 && *(fmt+1) == '0')
-                                        {
+                                        post += (*(fmt + 1) - '0');
+                                } else {
+                                        if (pre == 0 && *(fmt + 1) == '0') {
                                                 padding = '0';
                                                 continue;
                                         }
                                         pre *= 10;
-                                        pre += (*(fmt+1) - '0');
+                                        pre += (*(fmt + 1) - '0');
                                 }
                         }
                         if (pre == 0)
@@ -260,27 +236,26 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
                                 post = 1;
                         int inc = 0;
                         /* Print the part of the format in between the last % and this one. */
-                        num += stream->write(stream, lastWritePosition, (unsigned long)fmt - (unsigned long)lastWritePosition - 1);
+                        num +=
+                                        stream->write(stream, lastWritePosition,
+                                                        (unsigned long) fmt
+                                                                        - (unsigned long) lastWritePosition
+                                                                        - 1);
                         /* Now finally choose the type of format. */
-                        switch(*(++fmt))
-                        {
+                        switch (*(++fmt)) {
                         case 'x': /* Print lower case hex numbers */
                                 lastWritePosition = fmt + 1;
                                 inc = fprintnum(stream, pre,
-                                                         (int)va_arg(list, int),
-                                                                             16,
-                                                                          false,
-                                                                          false,
-                                                                       padding);
+                                                (int) va_arg(list, int), 16,
+                                                false,
+                                                false, padding);
                                 break;
                         case 'X': /* Print upper case hex numbers */
                                 lastWritePosition = fmt + 1;
                                 inc = fprintnum(stream, pre,
-                                                         (int)va_arg(list, int),
-                                                                             16,
-                                                                           true,
-                                                                          false,
-                                                                       padding);
+                                                (int) va_arg(list, int), 16,
+                                                true,
+                                                false, padding);
                                 break;
                         case 'f': /* Print floats (not yet supported) */
                                 lastWritePosition = fmt + 1;
@@ -288,20 +263,16 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
                         case 'i': /* Print unsigned decimals */
                                 lastWritePosition = fmt + 1;
                                 inc = fprintnum(stream, pre,
-                                                         (int)va_arg(list, int),
-                                                                             10,
-                                                                          false,
-                                                                          false,
-                                                                       padding);
+                                                (int) va_arg(list, int), 10,
+                                                false,
+                                                false, padding);
                                 break;
                         case 'd': /* Print signed decimals */
                                 lastWritePosition = fmt + 1;
                                 inc = fprintnum(stream, pre,
-                                                         (int)va_arg(list, int),
-                                                                             10,
-                                                                          false,
-                                                                           true,
-                                                                       padding);
+                                                (int) va_arg(list, int), 10,
+                                                false,
+                                                true, padding);
                                 break;
                         case 'c': /* Print character */
                                 lastWritePosition = fmt + 1;
@@ -325,8 +296,11 @@ int vfprintf(struct vfile* stream, char* fmt, va_list list)
                 }
         }
 
-        num += stream->write(stream, lastWritePosition, (unsigned long)fmt - (unsigned long)lastWritePosition );
+        num += stream->write(stream, lastWritePosition,
+                        (unsigned long) fmt
+                                        - (unsigned long) lastWritePosition);
 
+        stream->sync(stream);
         return num;
 }
 
@@ -371,39 +345,31 @@ int vsprintf(char* str, char* fmt, va_list list)
         char padding = PRINTNUM_PADDING;
 
         /* Itterate through the string to put every character in place. */
-        for (; *fmt != '\0'; fmt++, str++, num++)
-        {
+        for (; *fmt != '\0'; fmt++, str++, num++) {
                 /* If formatted? */
-                if (*fmt == '%')
-                {
+                if (*fmt == '%') {
                         /* Interpret the format numbering. */
-                        int pre  = 0;
+                        int pre = 0;
                         int post = 0;
                         bool dotted = false;
-                        for (; (*(fmt + 1) >= '0' &&
-                                *(fmt + 1) <= '9') ||
-                                *(fmt + 1) == '.';
-                                fmt++)
-                        {
-                                if (*(fmt + 1) == '.')
-                                {
+                        for (;
+                                        (*(fmt + 1) >= '0' && *(fmt + 1) <= '9')
+                                                        || *(fmt + 1) == '.';
+                                        fmt++) {
+                                if (*(fmt + 1) == '.') {
                                         dotted = true;
                                         continue;
                                 }
-                                if (dotted)
-                                {
+                                if (dotted) {
                                         post *= 10;
-                                        post += (*(fmt+1) - '0');
-                                }
-                                else
-                                {
-                                        if (pre == 0 && *(fmt+1) == '0')
-                                        {
+                                        post += (*(fmt + 1) - '0');
+                                } else {
+                                        if (pre == 0 && *(fmt + 1) == '0') {
                                                 padding = '0';
                                                 continue;
                                         }
                                         pre *= 10;
-                                        pre += (*(fmt+1) - '0');
+                                        pre += (*(fmt + 1) - '0');
                                 }
                         }
                         if (pre == 0)
@@ -412,45 +378,36 @@ int vsprintf(char* str, char* fmt, va_list list)
                                 post = 1;
                         int inc = 0;
                         /* Now finally choose the type of format. */
-                        switch(*(++fmt))
-                        {
+                        switch (*(++fmt)) {
                         case 'x': /* Print lower case hex numbers */
                                 inc = sprintnum(str, pre,
-                                                         (int)va_arg(list, int),
-                                                                             16,
-                                                                          false,
-                                                                          false,
-                                                                       padding);
+                                                (int) va_arg(list, int), 16,
+                                                false,
+                                                false, padding);
                                 break;
                         case 'X': /* Print upper case hex numbers */
                                 inc = sprintnum(str, pre,
-                                                         (int)va_arg(list, int),
-                                                                             16,
-                                                                           true,
-                                                                          false,
-                                                                       padding);
+                                                (int) va_arg(list, int), 16,
+                                                true,
+                                                false, padding);
                                 break;
                         case 'f': /* Print floats (not yet supported) */
                                 break;
                         case 'i': /* Print unsigned decimals */
                                 inc = sprintnum(str, pre,
-                                                         (int)va_arg(list, int),
-                                                                             10,
-                                                                          false,
-                                                                          false,
-                                                                       padding);
+                                                (int) va_arg(list, int), 10,
+                                                false,
+                                                false, padding);
                                 break;
                         case 'd': /* Print signed decimals */
                                 inc = sprintnum(str, pre,
-                                                         (int)va_arg(list, int),
-                                                                             10,
-                                                                          false,
-                                                                           true,
-                                                                       padding);
+                                                (int) va_arg(list, int), 10,
+                                                false,
+                                                true, padding);
                                 break;
                         case 'c': /* Print character */
                                 inc = 1;
-                                *str = (char)va_arg(list, int);
+                                *str = (char) va_arg(list, int);
                                 break;
                         case 's': /* Print string of characters */
                                 inc = sputs(str, va_arg(list, char*));

@@ -27,11 +27,20 @@
 #ifndef __FS_STREAM_H
 #define __FS_STREAM_H
 
+#include <fs/vfs.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define BLOCK_SIZE 0x1000
+struct vfile;
+
+typedef size_t (*fs_read_hook_t)(struct vfile* file, char* buf, size_t start, size_t len);
+typedef size_t (*fs_write_hook_t)(struct vfile* file, char* buf, size_t start, size_t len);
+
+#define MAX_PIPE_LEN 0x400000 /* Allow a maximum of 4MB */
+
+#define BLOCK_SIZE 0x1000 /* Blocks are 4 KB in size */
 
 /**
  * \struct pipe_data_block
@@ -43,6 +52,7 @@ extern "C" {
 
 struct pipe_data_block {
         size_t offset;
+        int dirty;
 
         char data[BLOCK_SIZE];
 };
@@ -52,8 +62,8 @@ struct pipe_data_block {
  * \brief The pipe descriptor
  */
 struct pipe {
-        int reading_idx;
-        int writing_idx;
+        uint32_t reading_idx;
+        uint32_t writing_idx;
         size_t block_size;
 
         atomic_t ref_cnt;
@@ -64,12 +74,19 @@ struct pipe {
         int (*close)(struct pipe*);
         int (*open)(struct pipe*);
 
+        int (*sync_write)(struct pipe*);
+        int (*sync_read)(struct pipe*);
+        struct vfile* output_file;
+        struct vfile* input_file;
+
         int (*write)(struct pipe*, char*, size_t);
         int (*read)(struct pipe*, char*, size_t);
-        int (*flush)(struct pipe*);
+        int (*seek_write)(struct pipe*, int);
+        int (*seek_read)(struct pipe*, int);
+        int (*purge)(struct pipe*);
 };
 
-struct pipe* pipe_new();
+struct pipe* pipe_new(struct vfile* out_file, struct vfile* in_file);
 
 #ifdef __cplusplus
 }
