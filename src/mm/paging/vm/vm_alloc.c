@@ -49,13 +49,13 @@ static int detect_loop(struct vm_range_descriptor* head, char* list_name)
         int error = -E_SUCCESS;
 #ifdef SLAB
         uint32_t alloc_flags = CACHE_ALLOC_NO_UPDATE | CACHE_ALLOC_NO_VM
-                        | CACHE_ALLOC_SKIP_LOCKED;
+        | CACHE_ALLOC_SKIP_LOCKED;
         struct db_t* db = kmem_alloc(sizeof(*db), alloc_flags);
 #else
         struct db_t* db = kmalloc(sizeof(*db));
 #endif
         if (db == NULL)
-                return error;
+        return error;
 
         memset(db, 0, sizeof(*db));
 
@@ -86,7 +86,7 @@ static int detect_loop(struct vm_range_descriptor* head, char* list_name)
                                 panic("Loop test for vm is corrupt!");
                         }
                         dbc = dbc->next;
-                } while (dbc->next != NULL );
+                }while (dbc->next != NULL );
                 dbc->ptr = carriage;
                 dbc->set = -1;
 #ifdef SLAB
@@ -99,7 +99,7 @@ static int detect_loop(struct vm_range_descriptor* head, char* list_name)
                 }
                 memset(dbc->next, 0, sizeof(*dbc));
                 carriage = carriage->next;
-        } while (carriage != NULL );
+        }while (carriage != NULL );
 
         cleanup: while (db != NULL ) {
                 struct db_t* tmp = db;
@@ -119,8 +119,7 @@ static int detect_loop(struct vm_range_descriptor* head, char* list_name)
  * \return A standard error code
  */
 static int vm_range_mark_allocated(segment, range)
-        struct vm_segment* segment;
-        struct vm_range_descriptor* range;
+        struct vm_segment* segment;struct vm_range_descriptor* range;
 {
         if (segment == NULL || range == NULL)
                 return -E_NULL_PTR;
@@ -261,21 +260,21 @@ static inline int vm_range_remove_node(range)
                 return -E_NULL_PTR;
         }
         /*
-        if (range->next != NULL) {
-                range->next->prev = range->prev;
-        }
+         if (range->next != NULL) {
+         range->next->prev = range->prev;
+         }
 
-        if (range->prev != NULL) {
-                range->prev->next = range->next;
-        } else if (range->parent->free == range) {
-                range->parent->free = range->next;
-        } else if (range->parent->allocated == range) {
-                range->parent->allocated = range->next;
-        } else if (range->parent->mapped == range) {
-                range->parent->mapped = range->next;
-        } else {
-                panic("");
-        } */
+         if (range->prev != NULL) {
+         range->prev->next = range->next;
+         } else if (range->parent->free == range) {
+         range->parent->free = range->next;
+         } else if (range->parent->allocated == range) {
+         range->parent->allocated = range->next;
+         } else if (range->parent->mapped == range) {
+         range->parent->mapped = range->next;
+         } else {
+         panic("");
+         } */
 
         /* Remove the node from the list */
         if (range->next != NULL) {
@@ -314,7 +313,7 @@ static int vm_segment_compress_ranges(segment, range)
         struct vm_range_descriptor* x = segment->free;
         struct vm_range_descriptor* next = NULL;
 
-        while (x != NULL) {
+        while (x != NULL ) {
                 next = x->next;
                 if (x->base + x->size == range->base) {
                         /* Consume information in the carriage */
@@ -519,24 +518,24 @@ void* vm_map(void* virt, void* phys, struct vm_segment* s)
         vm_range_mark_mapped(s, r);
 
         size_t cnt = r->size;
-        addr_t v = (addr_t)virt;
-        addr_t p = (addr_t)phys;
+        addr_t v = (addr_t) virt;
+        addr_t p = (addr_t) phys;
         size_t i = 0;
         for (; i < cnt; i += PAGE_ALLOC_FACTOR)
         {
-                if (page_claim((void*)(p + i)) == NULL)
+                if (page_claim((void*) (p + i)) == NULL)
                         goto gofixit;
-                page_map(0, (void*)(v + i), (void*)(p + 1), 0);
+                page_map(0, (void*) (v + i), (void*) (p + 1), 0);
         }
 
         err: mutex_unlock(&s->lock);
 
         return (r == NULL ) ? NULL : r->base;
 
-        gofixit: for (; (int)i >= 0; i -= PAGE_ALLOC_FACTOR)
+        gofixit: for (; (int) i >= 0; i -= PAGE_ALLOC_FACTOR)
         {
-                page_unmap(0, (void*)(v + i));
-                page_free((void*)p + i);
+                page_unmap(0, (void*) (v + i));
+                page_free((void*) p + i);
         }
         mutex_unlock(&s->lock);
         return NULL ;
@@ -569,7 +568,7 @@ int vm_unmap(void* virt, struct vm_segment* s)
         size_t i = 0;
         for (; i < r->size; i += PAGE_ALLOC_FACTOR)
         {
-                page_unmap(0, (void*)(virt + i));
+                page_unmap(0, (void*) (virt + i));
                 page_free(p + i);
         }
 
@@ -591,22 +590,26 @@ struct vm_segment*
 #endif
 vm_find_segment(char* name)
 {
-        if (name == NULL)
+        if (name == NULL) {
                 return NULL ;
+        }
 
-        int len = strlen(name);
-        struct vm_segment* i = (&vm_core)->segments;
+        size_t len = strlen(name);
+        struct vm_segment* i = vm_core.segments;
         while (i != NULL ) {
-                if (i->name == NULL)
+                if (i->name == NULL) {
                         goto next;
-                int ilen = strlen(i->name);
+                }
+                size_t ilen = strlen(i->name);
                 if (ilen == len) {
-                        if (memcmp(i->name, name, len) == 0)
+                        if (memcmp(&i->name, name, len) == 0) {
                                 return i;
+                        }
                 }
 
                 next: i = i->next;
         }
+        printf("Not found!\n");
         return NULL ;
 }
 
@@ -641,8 +644,10 @@ vm_get_kernel_heap_pages(size_t size)
                 size += PAGE_ALLOC_FACTOR - size % PAGE_ALLOC_FACTOR;
 
         struct vm_segment* heap = vm_find_segment(".heap");
-        if (heap == NULL)
+        if (heap == NULL) {
+                warning("Heap not found!\n");
                 return NULL ;
+        }
 
         return vm_segment_alloc(heap, size);
 }

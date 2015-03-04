@@ -21,12 +21,12 @@
 #include <stdlib.h>
 #include <andromeda/core.h>
 #include <andromeda/sched.h>
+#include <andromeda/system.h>
 #include <fs/path.h>
 #include <andromeda/syscall.h>
 #include <andromeda/drivers.h>
 #include <networking/rtl8168.h>
 #include <networking/net.h>
-#include <andromeda/system.h>
 #include <lib/tree.h>
 #include <mm/cache.h>
 #include <mm/vm.h>
@@ -105,7 +105,7 @@ void tree_test()
                 root->add(i, tst, root);
         }
 
-        root->flush(root, tree_cleanup_test, NULL);
+        root->purge(root, tree_cleanup_test, NULL);
 }
 #endif
 
@@ -137,13 +137,6 @@ void core_loop()
 {
 //         init_netif();
 //         init_network();
-
-        sys_setup_fs();
-        sys_setup_modules();
-        sys_setup_devices();
-        sys_setup_net();
-
-        sc_init();
 
 #ifdef TREE_TEST
         tree_test();

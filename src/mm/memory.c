@@ -236,7 +236,7 @@ int memcmp(void *ptr1, void* ptr2, size_t count)
 
 size_t strlen(char* string)
 {
-        int i = 0;
+        volatile int i = 0;
         for (; *(string + i) != '\0'; i++);
         return i;
 }

@@ -64,6 +64,7 @@
 #include <andromeda/drivers.h>
 #include <andromeda/error.h>
 #include <andromeda/system.h>
+#include <andromeda/syscall.h>
 #include <mm/page_alloc.h>
 
 #include <lib/byteorder.h>
@@ -174,6 +175,9 @@ int system_x86_init()
         warning("The code to set up x86 function pointers is "
                         "still to be written\n");
 
+        setIDT();
+        vm_init();
+
         init_pic();
 
         return -E_NOFUNCTION;
@@ -210,9 +214,6 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         sys_setup_paging(mmap, (unsigned int) hdr->mmap_length);
         sys_setup_arch();
 
-        setIDT();
-        vm_init();
-
         printf(WELCOME); // The only screen output that should be maintained
 #ifdef PA_DBG
 //         endProg();
@@ -231,6 +232,13 @@ int init(unsigned long magic, multiboot_info_t* hdr)
         x86_cpu_init(cpu);
 
         cpu_enable_interrupts(0);
+
+        sys_setup_fs();
+        sys_setup_modules();
+        sys_setup_devices();
+        sys_setup_net();
+
+        sc_init();
 
         if (dev_init() != -E_SUCCESS)
                 panic("Couldn't initialise /dev");

@@ -141,13 +141,16 @@ vfs_create()
 #else
         file = mm_cache_alloc(vfile_cache, 0);
 #endif
-        if (file == NULL)
+        if (file == NULL) {
+                warning("File allocation failed!\n");
                 return NULL ;
+        }
 
         memset(file, 0, sizeof(*file));
 
         file->in_stream = pipe_new(file, file);
         if (file->in_stream == NULL) {
+                warning("Pipe failed!\n");
                 goto err;
         }
         file->out_stream = file->in_stream;

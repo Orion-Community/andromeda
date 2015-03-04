@@ -1,6 +1,6 @@
 /*
  *  Andromeda
- *  Copyright (C) 2011  Bart Kuivenhoven
+ *  Copyright (C)  Bart Kuivenhoven
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,30 +22,30 @@
 #include <andromeda/system.h>
 #include <drivers/vga_text.h>
 
-atomic_t vga_text_count;
+static atomic_t vga_text_count;
 static struct device* vga_dev = NULL;
 
 #warning Implement this to work with VGA text output
 
 static size_t vga_text_read(struct vfile* this __attribute__((unused)),
                 char* buf __attribute__((unused)),
-                size_t num __attribute__((unused)))
+                size_t start __attribute__((unused)),
+                size_t idx __attribute__((unused)))
 {
         /* What exactly do you intend to read from VGA? */
         return 0;
 }
 
-static size_t vga_text_write(struct vfile* this, char* buf, size_t num)
+static size_t vga_text_write(struct vfile* this, char* buf,
+                size_t idx __attribute__((unused)), size_t num)
 {
         if (this == NULL || buf == NULL || num == 0 || this->out_stream == NULL) {
                 return 0;
         }
 
-        size_t ret = this->out_stream->write(this->out_stream, buf, num);
-
         /* Do VGA writy things here */
 
-        return ret;
+        return 0;
 }
 
 static struct vfile* vga_text_open(struct device *this)

@@ -97,8 +97,8 @@ static int vm_map_kernel_code(struct vm_segment* s)
         return -E_SUCCESS;
 }
 
-static int vm_map_kernel_data(s, start, end, name)
-        struct vm_segment *s;void* start;void* end;char* name;
+static int vm_map_kernel_data(struct vm_segment* s, void* start, void* end,
+                char* name)
 {
         if (s == NULL || start == NULL || end == NULL)
                 return -E_NULL_PTR;
@@ -115,7 +115,7 @@ static int vm_map_kernel_data(s, start, end, name)
         size_t name_len = strlen(name);
         if (name_len >= SEGMENT_NAME_LENGTH)
                 name_len = SEGMENT_NAME_LENGTH - 2;
-        memcpy(s->name, name, strlen(name));
+        memcpy(s->name, name, strlen(name) + 1);
         s->name[SEGMENT_NAME_LENGTH - 1] = (char) 0;
 
         vm_segment_mark_loaded_global(s);
@@ -194,8 +194,9 @@ int vm_init()
         idx_t i = 0;
         for (; i < CPU_LIMIT; i++) {
                 vm_loaded[i] = tree_new_avl_early();
-                if (vm_loaded[i] == NULL)
+                if (vm_loaded[i] == NULL) {
                         panic("Out of memory!");
+                }
         }
 
         /* Initialise all the segments! */
@@ -226,44 +227,47 @@ int vm_init()
         }
 
         /* Map the relevant pages starting with code*/
-        ret |= vm_map_kernel_code(&vm_core_segments[0]);
-        if (ret != -E_SUCCESS) {
+        int code = vm_map_kernel_code(&vm_core_segments[0]);
+        if (code != -E_SUCCESS) {
                 warning("Code mapping failed!\n");
         }
 
         /* Map the stack */
         /** \todo Write special function for mapping the stack */
-        ret |= vm_map_kernel_stack(&vm_core_segments[4]);
-        if (ret != -E_SUCCESS) {
+        int stack = vm_map_kernel_stack(&vm_core_segments[4]);
+        if (stack != -E_SUCCESS) {
                 warning("Stack mapping failed!\n");
         }
 
         /* Map the page tables */
-        ret |= vm_map_kernel_data(&vm_core_segments[1],
+        int pd = vm_map_kernel_data(&vm_core_segments[1],
                         (void*) ((int) (&page_dir_boot) + THREE_GIB),
                         &initial_slab_space, ".PD");
-        if (ret != -E_SUCCESS) {
+        if (pd != -E_SUCCESS) {
                 warning("page dir mapping failed!\n");
         }
 
         /* Map the static data */
-        ret |= vm_map_kernel_data(&vm_core_segments[2], &rodata, data_end,
-                        ".data");
-        if (ret != -E_SUCCESS) {
+        int data = vm_map_kernel_data(&vm_core_segments[2], &rodata,
+                        (void*) data_end, ".data");
+        if (data != -E_SUCCESS) {
                 warning("static data mapping failed!\n");
         }
 
         /* Map the heap */
         /** \todo Designate an area for the heap */
-        ret |= vm_map_kernel_data(&vm_core_segments[3], data_end,
-                        data_end + 0x1000000, ".heap");
-        if (ret != -E_SUCCESS) {
+        int heap = vm_map_kernel_data(&vm_core_segments[3], (void*) data_end,
+                        (void*) (data_end + 0x1000000), ".heap");
+        if (heap != -E_SUCCESS) {
                 warning("heap data mapping failed!\n");
         }
-        ret |= vm_kernel_add_range(&vm_core_segments[3]);
-        if (ret != -E_SUCCESS) {
+
+        heap |= vm_kernel_add_range(&vm_core_segments[3]);
+        if (heap != -E_SUCCESS) {
                 warning("heap data range mapping failed!\n");
         }
+
+        ret = code | stack | pd | data | heap;
 
         /*
          * Kernel modules and init file systems will have to be mapped once the

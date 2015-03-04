@@ -39,8 +39,10 @@ static struct net_queue *net_core_queue;
 struct protocol ptype_tree;
 static bool initialized = FALSE;
 
-static size_t net_rx_vfio(struct vfile *file, char *buf, size_t size);
-static size_t net_tx_vfio(struct vfile *file, char *buf, size_t size);
+static size_t net_rx_vfio(struct vfile *file, char *buf, size_t idx,
+                size_t size);
+static size_t net_tx_vfio(struct vfile *file, char *buf, size_t idx,
+                size_t size);
 //static struct net_queue* remove_queue_entry(struct net_queue*, struct net_queue*);
 static void init_ptype_tree();
 static int check_net_buff_tstamp(struct net_buff *buff);
@@ -105,7 +107,7 @@ int register_net_dev(struct device *dev, struct netdev* netdev)
 
         dev->type = net_dev;
         dev->open = &device_open_driver_io;
-        dev->driver->io->fs_data.fs_data_struct = (void*)netdev;
+        dev->driver->io->fs_data.fs_data_struct = (void*) netdev;
         dev->driver->io->fs_data.fs_data_size = sizeof(*netdev);
 
         /*
@@ -214,7 +216,9 @@ net_buff_inc_header(struct net_buff *buff, unsigned int len)
  * a certain packet type is not known within andromeda, the return type
  * will be enum packet_state.P_NOTCOMPATIBLE.
  */
-static enum packet_state handle_packet(struct net_buff *buff, struct protocol* prot, struct protocol* tmp, struct protocol* root)
+static enum packet_state handle_packet(struct net_buff *buff,
+                struct protocol* prot, struct protocol* tmp,
+                struct protocol* root)
 {
         protocol_deliver_handler_t handle = NULL;
         for_each_ll_entry_safe(root, prot, tmp)
@@ -423,15 +427,16 @@ void netif_drop_net_buff(struct net_buff *buff)
  *
  * Receive a buffer from the device driver.
  */
-static size_t net_rx_vfio(struct vfile *file, char *buf, size_t size)
+static size_t net_rx_vfio(struct vfile *file, char *buf,
+                size_t idx __attribute__((unused)), size_t size)
 {
         if (file == NULL || buf == NULL || size == 0)
                 return -E_INVALID_ARG;
-        struct net_buff *buffer = (struct net_buff*)buf;
+        struct net_buff *buffer = (struct net_buff*) buf;
         netif_rx_process(buffer);
-        debug("Packet arrived in the core driver successfully. Protocol type: %x\n",
-                        buffer->vlan->protocol_tag
-        );
+        debug(
+                        "Packet arrived in the core driver successfully. Protocol type: %x\n",
+                        buffer->vlan->protocol_tag);
         //print_mac(buffer->dev);
         return -E_SUCCESS;
 }
@@ -441,10 +446,11 @@ static size_t net_rx_vfio(struct vfile *file, char *buf, size_t size)
  *
  * Transmit a buffer using virtual files.
  */
-static size_t net_tx_vfio(struct vfile *file, char *buf, size_t size)
+static size_t net_tx_vfio(struct vfile *file, char *buf,
+                size_t idx __attribute__((unused)), size_t size)
 {
         struct device *dev_driver = device_find_id(
-                        ((struct netdev*)buf)->dev_id);
+                        ((struct netdev*) buf)->dev_id);
         struct vfile *io = dev_driver->open(dev_driver);
         io->write(file, buf, size);
         return -E_NOFUNCTION;

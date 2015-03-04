@@ -173,7 +173,7 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
         /*
          * Set up the variables
          */
-        int* map = ((void*)slab + sizeof(*slab));
+        int* map = ((void*) slab + sizeof(*slab));
         int idx = slab->first_free;
         /*
          * Set up the correct first free
@@ -202,11 +202,11 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
          * Hand of the pointer to the just allocated memory
          */
         addr_t tmp = idx * slab->cache->alignment;
-        tmp += (addr_t)slab->obj_ptr;
+        tmp += (addr_t) slab->obj_ptr;
 
-        if ((addr_t)slab->obj_ptr % slab->cache->alignment != 0) {
+        if ((addr_t) slab->obj_ptr % slab->cache->alignment != 0) {
                 printf("Obj ptr alignment is off by: %X\n",
-                                (size_t)slab->obj_ptr % slab->cache->alignment);
+                                (size_t) slab->obj_ptr % slab->cache->alignment);
         }
         if (tmp % slab->cache->alignment != 0) {
                 printf("Allocated object off alignment by: %X\n",
@@ -214,7 +214,7 @@ mm_slab_alloc(struct mm_slab* slab, int flags)
                 panic("Allignment incorrect!");
         }
 
-        return (void*)tmp;
+        return (void*) tmp;
 }
 
 /**
@@ -233,13 +233,13 @@ static int mm_slab_free(struct mm_slab* slab, void* ptr)
         if (slab == NULL || ptr == NULL)
                 return -E_NULL_PTR;
 
-        addr_t idx = (addr_t)ptr - (addr_t)slab->obj_ptr;
+        addr_t idx = (addr_t) ptr - (addr_t) slab->obj_ptr;
         if (idx % slab->cache->alignment != 0)
                 return -E_INVALID_ARG;
 
         idx /= slab->cache->alignment;
 
-        int* map = ((void*)slab + sizeof(*slab));
+        int* map = ((void*) slab + sizeof(*slab));
 
         /*
          * Verify that the entry actually is allocated
@@ -348,8 +348,11 @@ mm_cache_alloc(struct mm_cache* cache, uint16_t flags)
 
                         struct mm_slab* slab = vm_get_kernel_heap_pages(
                                         no_pages);
-                        if (slab == NULL)
-                                panic("Out of memory!!!");
+                        if (slab == NULL) {
+                                warning("Unable to do memory allocation at "
+                                                "this time!\n");
+                                goto err;
+                        }
 
                         int no_objs = calc_max_no_objects(cache->alignment,
                                         no_pages, cache->obj_size, slab);
@@ -417,9 +420,9 @@ mm_cache_search_ptr(struct mm_slab* list, void* ptr)
                 /*
                  * If both conditions are met, return the list pointer
                  */
-                if (!((void*)list < ptr))
+                if (!((void*) list < ptr))
                         continue;
-                if ((addr_t)list + list->slab_size > (addr_t)ptr)
+                if ((addr_t) list + list->slab_size > (addr_t) ptr)
                         return list;
         }
         /*
@@ -565,7 +568,7 @@ void kmem_free(void* ptr, size_t size)
                         goto found;
                 case -E_ALREADY_FREE:
                         panic(
-                            "Deallocating previously allocated data structure");
+                                        "Deallocating previously allocated data structure");
                         return;
                 case -E_NULL_PTR:
                         panic("Null pointer alert!");

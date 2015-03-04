@@ -29,8 +29,7 @@
 static int drv_root_suspend(struct device* root)
 {
         struct device* carriage = root->children;
-        while (carriage != NULL)
-        {
+        while (carriage != NULL ) {
                 if (carriage->driver == NULL)
                         continue;
                 if (carriage->driver->suspend != NULL)
@@ -44,8 +43,7 @@ static int drv_root_suspend(struct device* root)
 static int drv_root_resume(struct device* root)
 {
         struct device* carriage = root->children;
-        while (carriage != NULL)
-        {
+        while (carriage != NULL ) {
                 if (carriage->driver == NULL)
                         continue;
                 if (carriage->driver->resume != NULL)
@@ -60,7 +58,7 @@ static struct device*
 drv_root_detect(struct device* this)
 {
         if (this == NULL)
-                return NULL;
+                return NULL ;
         return this->children;
 }
 
@@ -72,7 +70,7 @@ int init_buses(struct device* root)
         struct device* virtual = kmalloc(sizeof(struct device));
         if (virtual == NULL)
                 return -E_NOMEM;
-        struct device* legacy  = kmalloc(sizeof(struct device));
+        struct device* legacy = kmalloc(sizeof(struct device));
         if (legacy == NULL) {
                 kfree(virtual);
                 return -E_NOMEM;
@@ -124,9 +122,14 @@ int drv_root_init(struct device* dev)
 
         dev->type = root_bus;
 
-        dev->driver->io = kmalloc(sizeof(struct vfile));
-        if (dev->driver->io == NULL)
-                panic("");
+        dev->driver->io = vfs_create();
+        if (dev->driver->io == NULL) {
+                panic("IO file went wrong!");
+        }
+        dev->driver->ctl = vfs_create();
+        if (dev->driver->ctl == NULL) {
+                panic("CTL file went wrong!");
+        }
         memset(dev->driver->io, 0, sizeof(*dev->driver->io));
 
         if (init_buses(dev) != -E_SUCCESS)

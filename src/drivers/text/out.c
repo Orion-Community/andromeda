@@ -357,10 +357,9 @@ int reloc(int loc_x, int loc_y)
 #ifdef MSG_DBG
 void debug (char* fmt, ...)
 {
+        printf("[ DEBUG ] ");
         va_list list;
         va_start (list, fmt);
-
-        vprintf("[ DEBUG ] ", NULL);
         vprintf(fmt, list);
 
         va_end(list);
@@ -374,10 +373,10 @@ void debug(char* fmt __attribute__((unused)), ...)
 #ifdef WARN
 void warning (char* fmt, ...)
 {
+        printf("[ WARNING ] ");
         va_list list;
         va_start (list, fmt);
 
-        vprintf("[ WARNING ] ", NULL);
         vprintf(fmt, list);
 
         va_end(list);

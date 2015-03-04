@@ -162,9 +162,9 @@ int device_attach(struct device* this, struct device* child);
 int device_detach(struct device* this, struct device* child);
 struct device* device_find_id(unsigned int dev_id);
 int device_id_alloc(struct device* dev);
-int dev_setup_driver(struct device *dev, vfs_read_hook_t io_read,
-                vfs_write_hook_t io_write, vfs_read_hook_t ctl_read,
-                vfs_write_hook_t ctl_write);
+int dev_setup_driver(struct device *dev, fs_read_hook_t io_read,
+                fs_write_hook_t io_write, fs_read_hook_t ctl_read,
+                fs_write_hook_t ctl_write);
 struct device *dev_find_devtype(struct device *dev, device_type_t type);
 
 #ifdef __cplusplus

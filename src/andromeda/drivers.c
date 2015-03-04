@@ -24,8 +24,8 @@
 #include <fs/vfs.h>
 #include <lib/tree.h>
 
-static int drv_setup_vfile(struct vfile* file, vfs_read_hook_t read,
-                vfs_write_hook_t write, int32_t dev_id);
+static int drv_setup_vfile(struct vfile* file, fs_read_hook_t read,
+                fs_write_hook_t write, int32_t dev_id);
 
 struct device dev_root;
 int32_t dev_id = 0;
@@ -168,22 +168,24 @@ int device_id_alloc(struct device* dev)
 
 static size_t drv_vfile_dummy_read(struct vfile* file __attribute__((unused)),
                 char* buffer __attribute__((unused)),
+                size_t idx __attribute__((unused)),
                 size_t len __attribute((unused)))
 {
-        warning ("Data was to be read through missing driver file\n");
+        warning("Data was to be read through missing driver file\n");
         return 0;
 }
 
 static size_t drv_vfile_dummy_write(struct vfile* file __attribute__((unused)),
                 char* buffer __attribute__((unused)),
+                size_t idx __attribute__((unused)),
                 size_t len __attribute__((unused)))
 {
-        warning ("Data was to be written through missing driver file\n");
+        warning("Data was to be written through missing driver file\n");
         return 0;
 }
 
-static int drv_setup_vfile(struct vfile* file, vfs_read_hook_t read,
-                vfs_write_hook_t write, int32_t dev_id)
+static int drv_setup_vfile(struct vfile* file, fs_read_hook_t read,
+                fs_write_hook_t write, int32_t dev_id)
 {
         if (read == NULL) {
                 read = drv_vfile_dummy_read;
@@ -193,31 +195,31 @@ static int drv_setup_vfile(struct vfile* file, vfs_read_hook_t read,
         }
         file->uid = 0;
         file->gid = 0;
-        file->read = read;
-        file->write = write;
         file->type = CHAR_DEV;
+        file->fs_data.read = read;
+        file->fs_data.write = write;
         file->fs_data.device_id = dev_id;
 
         return -E_SUCCESS;
 }
 
-int dev_setup_driver(struct device *dev, vfs_read_hook_t io_read,
-                vfs_write_hook_t io_write, vfs_read_hook_t ctl_read,
-                vfs_write_hook_t ctl_write)
+int dev_setup_driver(struct device *dev, fs_read_hook_t io_read,
+                fs_write_hook_t io_write, fs_read_hook_t ctl_read,
+                fs_write_hook_t ctl_write)
 {
         struct driver *drv = kmalloc(sizeof(*drv));
         if (drv == NULL) {
                 return -E_NOMEM;
         }
-        struct vfile *io_file = kmalloc(sizeof(*io_file));
+        struct vfile *io_file = vfs_create();
         if (io_file == NULL) {
                 kfree(drv);
                 return -E_NOMEM;
         }
         struct vfile* ctl_file = kmalloc(sizeof(*ctl_file));
         if (ctl_file == NULL) {
+                io_file->close(io_file);
                 kfree(drv);
-                kfree(io_file);
                 return -E_NOMEM;
         }
 
@@ -226,8 +228,8 @@ int dev_setup_driver(struct device *dev, vfs_read_hook_t io_read,
 
         if (device_id_alloc(dev) == -E_OUT_OF_RESOURCES) {
                 kfree(drv);
-                kfree(io_file);
-                kfree(ctl_file);
+                io_file->close(io_file);
+                ctl_file->close(ctl_file);
                 return -E_OUT_OF_RESOURCES;
         }
 

@@ -187,6 +187,8 @@ int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
                 return -E_OUTOFBOUNDS;
         }
 
+        int interrupt_state = cpu_disable_interrupts(0);
+
         struct interrupt* i = &interrupts[interrupt_no];
         for (; i != NULL && i->procedure != NULL ; i = i->next) {
                 ret |= i->procedure(interrupt_no, i->id, r1, r2, r3, r4,
@@ -200,6 +202,9 @@ int do_interrupt(uint16_t interrupt_no, uint64_t r1, uint64_t r2, uint64_t r3,
                         panic("Go kick the interrupt author, "
                                         "this shouldn't happen!");
                 }
+        }
+        if (interrupt_state != 0) {
+                cpu_enable_interrupts(0);
         }
 
         return -E_SUCCESS;

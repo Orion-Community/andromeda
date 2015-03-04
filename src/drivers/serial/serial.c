@@ -265,7 +265,7 @@ static void drv_serial_connect(struct serial_port_data* port)
          * Trigger interrupt on 8 bytes
          */
         uint8_t fifo = SERIAL_FIFO_ENABLE | SERIAL_FIFO_CLEAR_RX
-                        | SERIAL_FIFO_CLEAR_TX | SERIAL_FIFO_TRIG_8;
+                       | SERIAL_FIFO_CLEAR_TX | SERIAL_FIFO_TRIG_8;
         outb(port->io_port + SERIAL_FIFO_REGISTER, fifo);
 
         /* Configure the modem */
@@ -283,7 +283,8 @@ static void drv_serial_connect(struct serial_port_data* port)
         return;
 }
 
-static size_t drv_serial_io_write(struct vfile* this, char* buffer, size_t len)
+static size_t drv_serial_io_write(struct vfile* this, char* buffer,
+                size_t idx __attribute__((unused)), size_t len)
 {
         if (this == NULL || buffer == NULL || len == 0) {
                 return 0;
@@ -304,6 +305,7 @@ static size_t drv_serial_io_write(struct vfile* this, char* buffer, size_t len)
 
 static size_t drv_serial_io_read(struct vfile* this __attribute__((unused)),
                 char* buffer __attribute__((unused)),
+                size_t idx __attribute__((unused)),
                 size_t len __attribute__((unused)))
 {
         return 0;
@@ -311,6 +313,7 @@ static size_t drv_serial_io_read(struct vfile* this __attribute__((unused)),
 
 static size_t drv_serial_ctl_write(struct vfile* this __attribute__((unused)),
                 char* buffer __attribute__((unused)),
+                size_t idx __attribute__((unused)),
                 size_t len __attribute__((unused)))
 {
         return 0;
@@ -318,6 +321,7 @@ static size_t drv_serial_ctl_write(struct vfile* this __attribute__((unused)),
 
 static size_t drv_serial_ctl_read(struct vfile* this __attribute__((unused)),
                 char* buffer __attribute__((unused)),
+                size_t idx __attribute__((unused)),
                 size_t len __attribute__((unused)))
 {
         return 0;

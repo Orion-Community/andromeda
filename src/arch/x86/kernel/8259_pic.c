@@ -135,6 +135,9 @@ void pic_8259_init()
 
         memset(pic, 0, sizeof(*pic));
         pic->timers = tree_new_avl();
+        if (pic->timers == NULL) {
+                panic("Unable to initialise the timers structure!");
+        }
         if (core.arch == NULL) {
                 panic("ARCH abstraction failed");
         }

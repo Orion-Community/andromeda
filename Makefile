@@ -56,6 +56,9 @@ distclean: clean
 test: bin/andromeda.img
 	scripts/qemu.sh $(DEBUG)
 
+test_serial: bin/andromeda.img
+	scripts/qemu.sh -serial $(DEBUG)
+
 test_gdb: bin/andromeda.img
 	scripts/qemu.sh -dbg $(DEBUG)
 
