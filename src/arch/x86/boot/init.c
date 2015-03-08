@@ -240,8 +240,9 @@ int init(unsigned long magic, multiboot_info_t* hdr)
 
         sc_init();
 
-        if (dev_init() != -E_SUCCESS)
+        if (dev_init() != -E_SUCCESS) {
                 panic("Couldn't initialise /dev");
+        }
 
         ol_ps2_init_keyboard();
 

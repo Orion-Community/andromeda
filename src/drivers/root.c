@@ -68,8 +68,9 @@ int init_buses(struct device* root)
                 return -E_NULL_PTR;
 
         struct device* virtual = kmalloc(sizeof(struct device));
-        if (virtual == NULL)
+        if (virtual == NULL){
                 return -E_NOMEM;
+        }
         struct device* legacy = kmalloc(sizeof(struct device));
         if (legacy == NULL) {
                 kfree(virtual);
@@ -126,14 +127,10 @@ int drv_root_init(struct device* dev)
         if (dev->driver->io == NULL) {
                 panic("IO file went wrong!");
         }
-        dev->driver->ctl = vfs_create();
-        if (dev->driver->ctl == NULL) {
-                panic("CTL file went wrong!");
-        }
-        memset(dev->driver->io, 0, sizeof(*dev->driver->io));
 
-        if (init_buses(dev) != -E_SUCCESS)
+        if (init_buses(dev) != -E_SUCCESS) {
                 panic("Could not initialise device drivers!");
+        }
 
         return -E_SUCCESS;
 }

@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <fs/vfs.h>
 #include <thread.h>
+#include <ioctl.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,7 +82,6 @@ struct driver {
          *  \brief ptr to the file descriptor associated with the device.
          */
         struct vfile* io;
-        struct vfile* ctl;
 
         mutex_t driver_lock; /** \var lock */
         /**
@@ -163,8 +163,8 @@ int device_detach(struct device* this, struct device* child);
 struct device* device_find_id(unsigned int dev_id);
 int device_id_alloc(struct device* dev);
 int dev_setup_driver(struct device *dev, fs_read_hook_t io_read,
-                fs_write_hook_t io_write, fs_read_hook_t ctl_read,
-                fs_write_hook_t ctl_write);
+                fs_write_hook_t io_write,
+                int (*ioctl)(struct vfile* file, ioctl_t request, void* data));
 struct device *dev_find_devtype(struct device *dev, device_type_t type);
 
 #ifdef __cplusplus

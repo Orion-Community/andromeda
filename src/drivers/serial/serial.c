@@ -23,6 +23,7 @@
 #include <arch/x86/bios.h>
 #include <arch/x86/pic.h>
 #endif
+#include <ioctl.h>
 #include <stdio.h>
 #include <fs/vfs.h>
 
@@ -120,6 +121,8 @@ struct serial_port_data {
         uint32_t baud;
         uint16_t irq1_id;
         uint16_t irq2_id;
+        uint32_t opened;
+        mutex_t port_lock;
         struct vfile* dev_file;
 };
 
@@ -174,6 +177,9 @@ static int serial_interrupt(uint16_t int_no __attribute__((unused)),
                 uint64_t r3 __attribute__((unused)),
                 uint64_t r4 __attribute__((unused)), void* args)
 {
+        /**
+         * \todo Change this to send a timer callback, for atomic processing
+         */
         if (args == NULL) {
                 warning("1 Something conflicts with the serial interrupt!\n");
                 return -E_SUCCESS;
@@ -226,6 +232,24 @@ static int serial_interrupt(uint16_t int_no __attribute__((unused)),
         return -E_SUCCESS;
 }
 
+static void drv_serial_disconnect(struct serial_port_data* port)
+{
+        if (port == NULL) {
+                return;
+        }
+
+        mutex_lock(&port->port_lock);
+        outb(port->io_port + SERIAL_IRQ_CONTROL, SERIAL_INTERRUPT_OFF);
+
+        interrupt_deregister(X86_8259_INTERRUPT_BASE + 3, port->irq1_id);
+        interrupt_deregister(X86_8259_INTERRUPT_BASE + 4, port->irq2_id);
+
+        port->opened = 0;
+
+        mutex_unlock(&port->port_lock);
+
+        return;
+}
 static void drv_serial_connect(struct serial_port_data* port)
 {
         /* Set up interrupt handlers */
@@ -234,6 +258,7 @@ static void drv_serial_connect(struct serial_port_data* port)
         port->irq2_id = interrupt_register(X86_8259_INTERRUPT_BASE + 4,
                         serial_interrupt, port);
 
+        mutex_lock(&port->port_lock);
         /* Disable interrupts */
         outb(port->io_port + SERIAL_IRQ_CONTROL, SERIAL_INTERRUPT_OFF);
 
@@ -278,6 +303,9 @@ static void drv_serial_connect(struct serial_port_data* port)
                         | SERIAL_INTERRUPT_MODEM_STATE;
         outb(port->io_port + SERIAL_INTERRUPT, irq_config);
 
+        port->opened = 1;
+
+        mutex_unlock(&port->port_lock);
         debug("Just set up port: %X\n", port->io_port);
 
         return;
@@ -300,6 +328,12 @@ static size_t drv_serial_io_write(struct vfile* this, char* buffer,
                 return 0;
         }
 
+        mutex_lock(&data->port_lock);
+
+        /* Do the sending bits here */
+
+        mutex_unlock(&data->port_lock);
+
         return 0;
 }
 
@@ -311,20 +345,69 @@ static size_t drv_serial_io_read(struct vfile* this __attribute__((unused)),
         return 0;
 }
 
-static size_t drv_serial_ctl_write(struct vfile* this __attribute__((unused)),
-                char* buffer __attribute__((unused)),
-                size_t idx __attribute__((unused)),
-                size_t len __attribute__((unused)))
+static int drv_serial_ioctl(struct vfile* this, ioctl_t request, void* data)
 {
-        return 0;
-}
+        if (this == NULL || data == NULL) {
+                return -E_NULL_PTR;
+        }
 
-static size_t drv_serial_ctl_read(struct vfile* this __attribute__((unused)),
-                char* buffer __attribute__((unused)),
-                size_t idx __attribute__((unused)),
-                size_t len __attribute__((unused)))
-{
-        return 0;
+        struct device* dev = this->fs_data.fs_data_struct;
+        if (this->fs_data.fs_data_size != sizeof(*dev)) {
+                return -E_CORRUPT;
+        }
+        struct serial_port_data* port = dev->device_data;
+        if (dev->device_data_size != sizeof(*port)) {
+                return -E_CORRUPT;
+        }
+
+        struct ioctl_serial_data* request_data = data;
+
+        if (request >= IOCTL_UART_GET_BAUD) {
+                /* Getting data, so no need to reinitialise */
+                switch (request) {
+                case IOCTL_UART_GET_BAUD:
+                        request_data->baud = port->baud;
+                        break;
+                case IOCTL_UART_GET_CHARLEN:
+                        request_data->charlen = port->char_len;
+                        break;
+                case IOCTL_UART_GET_PARITY:
+                        request_data->parity = port->parity;
+                        break;
+                case IOCTL_UART_GET_STOPBIT:
+                        request_data->stopchar = port->stop_char;
+                        break;
+                default:
+                        return -E_INVALID_ARG;
+                        break;
+                }
+        } else {
+                /* Setting stuff, so reinitialise (if need be) */
+                int status = port->port_status;
+                if (status) {
+                        drv_serial_disconnect(port);
+                }
+                switch (request) {
+                case IOCTL_UART_SET_BAUD:
+                        port->baud = request_data->baud;
+                        break;
+                case IOCTL_UART_SET_CHARLEN:
+                        port->char_len = request_data->charlen;
+                        break;
+                case IOCTL_UART_SET_PARITY:
+                        port->parity = request_data->parity;
+                        break;
+                case IOCTL_UART_SET_STOPBIT:
+                        port->stop_char = request_data->stopchar;
+                        break;
+                default:
+                        return -E_INVALID_ARG;
+                }
+                if (status) {
+                        drv_serial_connect(port);
+                }
+        }
+        return -E_SUCCESS;
 }
 
 static int drv_serial_init(struct device* this)
@@ -343,7 +426,51 @@ static int drv_serial_init(struct device* this)
         }
         memset(this->driver, 0, sizeof(*this->driver));
         dev_setup_driver(this, drv_serial_io_read, drv_serial_io_write,
-                        drv_serial_ctl_read, drv_serial_ctl_write);
+                        drv_serial_ioctl);
+
+        return -E_SUCCESS;
+}
+
+static int drv_serial_open(struct vfile* this,
+                char* path __attribute__((unused)),
+                unsigned long len __attribute__((unused)))
+{
+        if (this == NULL) {
+                return -E_NULL_PTR;
+        }
+
+        struct device* device = this->fs_data.fs_data_struct;
+        if (this->fs_data.fs_data_size != sizeof(*device)) {
+                return -E_CORRUPT;
+        }
+
+        struct serial_port_data* data = device->device_data;
+        if (device->device_data_size != sizeof(*data)) {
+                return -E_CORRUPT;
+        }
+
+        drv_serial_connect(data);
+
+        return -E_SUCCESS;
+}
+
+static int drv_serial_close(struct vfile* this)
+{
+        if (this == NULL) {
+                return -E_NULL_PTR;
+        }
+
+        struct device* device = this->fs_data.fs_data_struct;
+        if (this->fs_data.fs_data_size != sizeof(*device)) {
+                return -E_CORRUPT;
+        }
+
+        struct serial_port_data* data = device->device_data;
+        if (device->device_data_size != sizeof(*data)) {
+                return -E_CORRUPT;
+        }
+
+        drv_serial_disconnect(data);
 
         return -E_SUCCESS;
 }
@@ -391,6 +518,8 @@ static int dev_serial_init(struct device* parent, uint16_t com_port, char* name)
         port->char_len = SERIAL_CHAR_LEN_8;
         port->stop_char = SERIAL_STOP_SHORT;
         port->parity = SERIAL_PARITY_NONE;
+        port->port_lock = mutex_unlocked;
+        port->port_status = 0;
 
         /* Configured, now attach to the device structure */
         serial_device->device_data = port;
@@ -404,6 +533,8 @@ static int dev_serial_init(struct device* parent, uint16_t com_port, char* name)
 
         /* Link up the appropriate device file to the internal uart data */
         port->dev_file = serial_device->driver->io;
+        port->dev_file->open = drv_serial_open;
+        port->dev_file->close = drv_serial_close;
 
         /* Hook up the device to its parent */
         device_attach(parent, serial_device);

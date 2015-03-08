@@ -18,6 +18,7 @@
  */
 
 #include <stdlib.h>
+#include <ioctl.h>
 #include <andromeda/drivers.h>
 #include <andromeda/system.h>
 #include <drivers/root.h>
@@ -25,7 +26,8 @@
 #include <lib/tree.h>
 
 static int drv_setup_vfile(struct vfile* file, fs_read_hook_t read,
-                fs_write_hook_t write, int32_t dev_id);
+                fs_write_hook_t write,
+                int (*ioctl)(struct vfile*, ioctl_t, void*), int32_t dev_id);
 
 struct device dev_root;
 int32_t dev_id = 0;
@@ -53,8 +55,9 @@ int dev_root_init()
         memset(root->driver, 0, sizeof(*root->driver));
 
         dev_tree = tree_new_avl();
-        if (dev_tree == NULL)
+        if (dev_tree == NULL) {
                 panic("Out of memory!!!");
+        }
 
         dev_tree->add(root->dev_id, root, dev_tree);
         drv_root_init(root); /** Call to driver, not device!!! */
@@ -184,8 +187,17 @@ static size_t drv_vfile_dummy_write(struct vfile* file __attribute__((unused)),
         return 0;
 }
 
+static int drv_vfile_dummy_ioctl(struct vfile* file __attribute__((unused)),
+                ioctl_t request __attribute__((unused)),
+                void* data __attribute__((unused)))
+{
+        warning("Ioctl was attempted though a missing driver pointer\n");
+        return 0;
+}
+
 static int drv_setup_vfile(struct vfile* file, fs_read_hook_t read,
-                fs_write_hook_t write, int32_t dev_id)
+                fs_write_hook_t write,
+                int (*ioctl)(struct vfile*, ioctl_t, void*), int32_t dev_id)
 {
         if (read == NULL) {
                 read = drv_vfile_dummy_read;
@@ -193,19 +205,24 @@ static int drv_setup_vfile(struct vfile* file, fs_read_hook_t read,
         if (write == NULL) {
                 write = drv_vfile_dummy_write;
         }
+        if (ioctl == NULL) {
+                ioctl = drv_vfile_dummy_ioctl;
+        }
+
         file->uid = 0;
         file->gid = 0;
         file->type = CHAR_DEV;
         file->fs_data.read = read;
         file->fs_data.write = write;
         file->fs_data.device_id = dev_id;
+        file->ioctl = ioctl;
 
         return -E_SUCCESS;
 }
 
 int dev_setup_driver(struct device *dev, fs_read_hook_t io_read,
-                fs_write_hook_t io_write, fs_read_hook_t ctl_read,
-                fs_write_hook_t ctl_write)
+                fs_write_hook_t io_write,
+                int (*ioctl)(struct vfile* file, ioctl_t request, void* data))
 {
         struct driver *drv = kmalloc(sizeof(*drv));
         if (drv == NULL) {
@@ -216,29 +233,19 @@ int dev_setup_driver(struct device *dev, fs_read_hook_t io_read,
                 kfree(drv);
                 return -E_NOMEM;
         }
-        struct vfile* ctl_file = kmalloc(sizeof(*ctl_file));
-        if (ctl_file == NULL) {
-                io_file->close(io_file);
-                kfree(drv);
-                return -E_NOMEM;
-        }
-
         memset(drv, 0, sizeof(*drv));
         memset(io_file, 0, sizeof(*io_file));
 
         if (device_id_alloc(dev) == -E_OUT_OF_RESOURCES) {
                 kfree(drv);
                 io_file->close(io_file);
-                ctl_file->close(ctl_file);
                 return -E_OUT_OF_RESOURCES;
         }
 
         dev->children = NULL;
         dev->parent = NULL;
         drv->io = io_file;
-        drv->ctl = ctl_file;
-        drv_setup_vfile(io_file, io_read, io_write, dev->dev_id);
-        drv_setup_vfile(ctl_file, ctl_read, ctl_write, dev->dev_id);
+        drv_setup_vfile(io_file, io_read, io_write, ioctl, dev->dev_id);
         dev->driver = drv;
 
         drv->driver_lock = 0;
@@ -253,6 +260,9 @@ int dev_setup_driver(struct device *dev, fs_read_hook_t io_read,
         drv->suspend = &device_recurse_suspend;
         drv->find_type = &dev_find_devtype;
         drv->find = &device_find_id;
+
+        io_file->fs_data.fs_data_struct = dev;
+        io_file->fs_data.fs_data_size = sizeof(*dev);
 
         return -E_SUCCESS;
 }

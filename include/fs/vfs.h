@@ -135,6 +135,7 @@ struct vfile {
         int (*flush)(struct vfile* this);
         int (*invlCache)(struct vfile* this, uint64_t idx, size_t num);
         int (*sync)(struct vfile* this);
+        int (*ioctl)(struct vfile* this, uint32_t request, void* data);
 
         struct fs_data fs_data;
 };
