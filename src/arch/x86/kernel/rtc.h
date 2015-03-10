@@ -64,8 +64,7 @@
  * within the arch/ sub-system. Other sub-systems which need time can use the
  * <i>_tm</i> structure.
  */
-typedef struct _rtc
-{
+typedef struct _rtc {
         /**
          * \var name
          * \brief Specific, unique name for a RTC.
@@ -80,8 +79,8 @@ typedef struct _rtc
         time_t timestamp;
         uint8_t rate;
         uint16_t frequency;
-        
-} RTC;
+
+} rtc_t;
 
 /**
  * \var rtc
@@ -123,10 +122,10 @@ static void program_rtc(struct device *dev);
  * a good practice of using this function instead of addressing the object
  * directly.
  */
-static inline RTC*
+static inline rtc_t*
 get_main_rtc()
 {
-        return (RTC*)(rtc_dev->device_data);
+        return (rtc_t*) (rtc_dev->device_data);
 }
 
 /**
@@ -138,8 +137,7 @@ get_main_rtc()
  * This function returns the current time stamp of the real time clock. This count
  * are the seconds since 1970.
  */
-static inline unsigned long long
-read_rtc_value(RTC *clock)
+static inline unsigned long long read_rtc_value(rtc_t *clock)
 {
         return clock->timestamp;
 }
@@ -153,8 +151,7 @@ read_rtc_value(RTC *clock)
  * 
  * With this function you can set an offset for the real time clock.
  */
-static inline void
-set_rtc_value(RTC *clock, unsigned long long timestamp)
+static inline void set_rtc_value(rtc_t *clock, unsigned long long timestamp)
 {
         clock->timestamp = timestamp;
 }
@@ -169,6 +166,6 @@ set_rtc_value(RTC *clock, unsigned long long timestamp)
  * object. If the RTC is not configured correctly or when it is turned of the
  * return value will be 0.
  */
-inline unsigned short get_rtc_frq(RTC *rtc);
+inline unsigned short get_rtc_frq(rtc_t *rtc);
 
 #endif

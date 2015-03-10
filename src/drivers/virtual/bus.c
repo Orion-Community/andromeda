@@ -92,7 +92,7 @@ drv_virt_bus_init(struct device* dev, struct device* parent)
 
         virt_bus = dev->dev_id;
 
-        dev->type = virtual_bus;
+        dev->type = VIRTUAL_BUS;
 
         parent->driver->attach(parent, dev);
 

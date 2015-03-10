@@ -1,0 +1,9 @@
+{
+"name" : "tty",
+"link" : false,
+"archive" : false,
+"source-files" : ["tty.c"],
+"compiler-flags" : "",
+"linker-flags" : "",
+"archiver-flags" : ""
+}

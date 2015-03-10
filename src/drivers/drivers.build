@@ -14,6 +14,7 @@
 	{"path" : "pci/pci.build"},
 	{"path" : "text/text.build"},
 	{"path" : "virtual/virtual.build"},
-	{"path" : "serial/serial.build"}
+	{"path" : "serial/serial.build"},
+	{"path" : "tty/tty.build"}
 	]
 }

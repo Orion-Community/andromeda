@@ -399,7 +399,7 @@ static inline struct device *
 get_net_core_driver()
 {
         return dev_find_devtype(dev_find_devtype(
-                                get_root_device(), virtual_bus), net_core_dev);
+                                get_root_device(), VIRTUAL_BUS), NET_CORE_DEV);
 }
 
 void debug_packet_type_tree();

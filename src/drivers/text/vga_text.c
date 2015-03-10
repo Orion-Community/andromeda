@@ -170,7 +170,7 @@ int vga_text_init(struct device* parent)
         this->device_data = kmalloc(sizeof(struct vga_ctl_data));
         this->device_data_size = sizeof(struct vga_ctl_data);
 
-        this->type = graphics;
+        this->type = GRAPHICS;
 
         this->open = vga_text_open;
         this->driver->detect = vga_text_detect;

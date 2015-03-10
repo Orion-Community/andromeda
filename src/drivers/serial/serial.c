@@ -1,6 +1,6 @@
 /*
  Andromeda
- Copyright (C) 2014  Bart Kuivenhoven
+ Copyright (C) 2014 - 2015  Bart Kuivenhoven
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -502,7 +502,7 @@ static int dev_serial_init(struct device* parent, uint16_t com_port, char* name)
         memcpy(serial_device->name, name, strlen(name) + 1);
 
         serial_device->lock = mutex_unlocked;
-        serial_device->type = tty;
+        serial_device->type = TTY;
 
         /* Let's do some device specific data */
         struct serial_port_data* port = kmalloc(sizeof(*port));

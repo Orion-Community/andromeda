@@ -108,7 +108,7 @@ int drv_root_init(struct device* dev)
 {
         if (dev == NULL || dev->driver == NULL)
                 return -E_NULL_PTR;
-        dev->type = virtual_bus;
+        dev->type = VIRTUAL_BUS;
         dev->parent = dev;
 
         dev->driver->detect = drv_root_detect;
@@ -121,7 +121,7 @@ int drv_root_init(struct device* dev)
         dev->driver->find = device_find_id;
         dev->dev_id = 0;
 
-        dev->type = root_bus;
+        dev->type = VIRTUAL_BUS;
 
         dev->driver->io = vfs_create();
         if (dev->driver->io == NULL) {

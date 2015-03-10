@@ -93,7 +93,7 @@ drv_legacy_bus_init(struct device* dev, struct device* parent)
         lgcy_bus = dev->dev_id;
         debug("Legacy bus is : %X\n", lgcy_bus);
 
-        dev->type = legacy_bus;
+        dev->type = VIRTUAL_BUS;
 
         parent->driver->attach(parent, dev);
 

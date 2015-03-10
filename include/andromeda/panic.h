@@ -23,7 +23,9 @@
 extern "C" {
 #endif
 
+__attribute__((noreturn))
 void panicDebug(char *, char*, int);
+__attribute__((noreturn))
 #define panic(str) panicDebug(str,__FILE__, __LINE__)
 
 extern void sti();

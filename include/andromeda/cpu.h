@@ -28,6 +28,7 @@ extern "C" {
 extern uint8_t cpu_get_num();
 
 extern void halt();
+__attribute__((noreturn))
 extern void endProg();
 
 #ifdef __INTEL

@@ -151,7 +151,7 @@ static void init_pic()
                         warning("No APIC code available. "
                                         "Still to be implemented\n");
 
-                        warning("Enabling 8259 PIC instead\n");
+                        warning("Enabling 8259 PIC instead :(\n");
                         pic_8259_init();
                         /** \todo Start other CPU cores here */
                         return;

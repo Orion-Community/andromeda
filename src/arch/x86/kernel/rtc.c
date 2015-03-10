@@ -61,7 +61,7 @@ static const unsigned short hz_table[] = { 0, 256, 128, 0x2000, 0x1000, 0x800,
  * object. If the RTC is not configured correctly or when it is turned of the
  * return value will be 0.
  */
-inline unsigned short get_rtc_frq(RTC *clock)
+inline unsigned short get_rtc_frq(rtc_t *clock)
 {
         return hz_table[clock->rate];
 }
@@ -79,7 +79,7 @@ int setup_rtc(void)
         if (rtc_dev == NULL)
                 panic("No memory during RTC init!\n");
         rtc_create_driver(rtc_dev);
-        RTC *clock = kmalloc(sizeof(*clock));
+        rtc_t *clock = kmalloc(sizeof(*clock));
         if (clock == NULL)
                 return -E_NOMEM;
         memset(clock, 0, sizeof(*clock));
@@ -102,7 +102,7 @@ int setup_rtc(void)
 static int rtc_create_driver(struct device *dev)
 {
         dev_setup_driver(dev, NULL, NULL, NULL);
-        dev->type = rtc;
+        dev->type = TIMER_DEV;
         device_id_alloc(dev);
         return -E_SUCCESS;
 }
@@ -118,7 +118,7 @@ static int rtc_create_driver(struct device *dev)
  */
 static void program_rtc(struct device *dev)
 {
-        RTC *rtc = (RTC*) dev->device_data;
+        rtc_t *rtc = (rtc_t*) dev->device_data;
         int int_state = disableInterrupts();
 
         /* select CMOS register B to set the RTC to a periodic clock. */

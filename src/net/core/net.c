@@ -79,14 +79,14 @@ int init_netif()
         struct device *dev = kmalloc(sizeof(*dev));
         device_id_alloc(dev);
         dev_setup_driver(dev, net_rx_vfio, net_tx_vfio, NULL);
-        dev->type = net_core_dev;
+        dev->type = NET_CORE_DEV;
         dev->open = &device_open_driver_io;
 
         /*
          * attach the device driver to the the virtual bus.
          */
         struct device *virtual = dev_find_devtype(get_root_device(),
-                        virtual_bus);
+                        VIRTUAL_BUS);
         device_attach(virtual, dev);
         /*
          * initialize the queue
@@ -105,7 +105,7 @@ int init_netif()
 int register_net_dev(struct device *dev, struct netdev* netdev)
 {
 
-        dev->type = net_dev;
+        dev->type = NET_DEV;
         dev->open = &device_open_driver_io;
         dev->driver->io->fs_data.fs_data_struct = (void*) netdev;
         dev->driver->io->fs_data.fs_data_size = sizeof(*netdev);
@@ -114,8 +114,8 @@ int register_net_dev(struct device *dev, struct netdev* netdev)
          * attach the device driver to the core driver.
          */
         struct device *core_dev = dev_find_devtype(
-                        dev_find_devtype(get_root_device(), virtual_bus),
-                        net_core_dev);
+                        dev_find_devtype(get_root_device(), VIRTUAL_BUS),
+                        NET_CORE_DEV);
         device_attach(core_dev, dev);
         return -E_SUCCESS;
 }
@@ -123,8 +123,8 @@ int register_net_dev(struct device *dev, struct netdev* netdev)
 int unregister_net_dev(uint64_t id)
 {
         struct device *dev = dev_find_devtype(
-                        dev_find_devtype(get_root_device(), virtual_bus),
-                        net_core_dev);
+                        dev_find_devtype(get_root_device(), VIRTUAL_BUS),
+                        NET_CORE_DEV);
         if (dev == NULL)
                 return -E_NULL_PTR;
         if (device_detach(dev, device_find_id(id)) == -E_NOTFOUND)

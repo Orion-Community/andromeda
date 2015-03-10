@@ -36,22 +36,19 @@ extern struct tree_root* dev_tree;
 
 /** \typedef enum device_type_t */
 typedef enum {
-        root_bus, /** \enum root_bus */
-        virtual_bus, /** \enum virtual_bus */
-        legacy_bus, /** \enum legacy_bus */
-        net_core_dev, /** \enum net_core_dev */
-        net_dev, /** \enum net_dev */
-        disk, /** \enum disk */
-        partition, /** \enum partition */
-        tty, /** \enum tty */
-        cpu, /** \enum cpu */
-        apic_dev, /** \enum apic */
-        timer_dev, /** \enum timer */
-        rtc, /** \enum rtc */
-        pci, /** \enum pci */
-        usb, /** \enum usb */
-        ata, /** \enum ata aka ide */
-        graphics /** \enum graphics */
+        VIRTUAL_BUS, /** \enum virtual_bus */
+        NET_CORE_DEV, /** \enum net_core_dev */
+        NET_DEV, /** \enum net_dev */
+        DISK, /** \enum disk */
+        PARTITION, /** \enum partition */
+        TTY, /** \enum tty */
+        CPU, /** \enum cpu */
+        APIC_DEV, /** \enum apic */
+        TIMER_DEV, /** \enum timer */
+        PCI, /** \enum pci */
+        USB, /** \enum usb */
+        ATA, /** \enum ata aka ide */
+        GRAPHICS /** \enum graphics */
 } device_type_t;
 
 struct device;
